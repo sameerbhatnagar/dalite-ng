@@ -5,7 +5,7 @@ from django import forms
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
-from .models import StudentGroup, Assignment, BlinkAssignmentQuestion, BlinkQuestion, Question
+from .models import StudentGroup, Assignment, BlinkAssignmentQuestion, BlinkQuestion, Question, Teacher
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from django.forms import ModelForm
@@ -167,3 +167,27 @@ class SignUpForm(UserCreationForm):
 
 class AddRemoveQuestionForm(forms.Form):
     q = forms.ModelChoiceField(queryset=Question.objects.all())
+
+
+
+class StudentGroupReportSelectForm(forms.Form):
+
+    student_groups = forms.ModelMultipleChoiceField(label=_('Choose which groups you would like your report to include:'),\
+        widget = forms.CheckboxSelectMultiple,
+        queryset = StudentGroup.objects.none())
+
+    def __init__(self, teacher_username, *args, **kwargs):
+        self.base_fields['student_groups'].queryset = Teacher.objects.get(user__username=teacher_username).groups.all()
+        forms.Form.__init__(self, *args, **kwargs)
+
+
+
+class AssignmentReportSelectForm(forms.Form):
+
+    assignments = forms.ModelMultipleChoiceField(label=_('Choose which assignments you would like your report to include:'),\
+        widget = forms.CheckboxSelectMultiple,
+        queryset = Assignment.objects.none())
+
+    def __init__(self, teacher_username, *args, **kwargs):
+        self.base_fields['assignments'].queryset = Teacher.objects.get(user__username=teacher_username).assignments.all()
+        forms.Form.__init__(self, *args, **kwargs)

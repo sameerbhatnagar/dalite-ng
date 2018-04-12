@@ -15,4 +15,4 @@ class NewVisitorTest(LiveServerTestCase):
     def test_custom_settings_static_files(self):
         self.browser.get(self.live_server_url)
         self.assertIn('myDALITE',self.browser.title)
-        self.fail('finish the test')
+        # self.fail('finish the test')

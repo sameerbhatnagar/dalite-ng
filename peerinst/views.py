@@ -894,6 +894,10 @@ class TeacherDetailView(TeacherBase,DetailView):
 
     model = Teacher
 
+    # def get_context_data(self, **kwargs):
+    #     context = super(TeacherDetailView, self).get_context_data(**kwargs)
+    #     context['teacher'] = self.request.user
+    #     context['group_select_form'] = forms.StudentGroupReportSelectForm(teacher_username=self.request.user.username)
 
 class TeacherUpdate(TeacherBase,UpdateView):
 
@@ -1500,3 +1504,8 @@ def network_data(request,assignment_id):
             links_array.append(d)
 
     return JsonResponse(links_array,safe=False)
+
+def report_selector(request):
+    return TemplateResponse(request,'peerinst/report_selector.html',\
+        {'group_select_form':forms.StudentGroupReportSelectForm(teacher_username=request.user),\
+        'assignment_select_form':forms.AssignmentReportSelectForm(teacher_username=request.user)})
