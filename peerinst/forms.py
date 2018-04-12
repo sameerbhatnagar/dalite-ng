@@ -170,19 +170,12 @@ class AddRemoveQuestionForm(forms.Form):
 
 
 
-class StudentGroupReportSelectForm(forms.Form):
+
+class ReportSelectForm(forms.Form):
 
     student_groups = forms.ModelMultipleChoiceField(label=_('Choose which groups you would like your report to include:'),\
         widget = forms.CheckboxSelectMultiple,
         queryset = StudentGroup.objects.none())
-
-    def __init__(self, teacher_username, *args, **kwargs):
-        self.base_fields['student_groups'].queryset = Teacher.objects.get(user__username=teacher_username).groups.all()
-        forms.Form.__init__(self, *args, **kwargs)
-
-
-
-class AssignmentReportSelectForm(forms.Form):
 
     assignments = forms.ModelMultipleChoiceField(label=_('Choose which assignments you would like your report to include:'),\
         widget = forms.CheckboxSelectMultiple,
@@ -190,4 +183,5 @@ class AssignmentReportSelectForm(forms.Form):
 
     def __init__(self, teacher_username, *args, **kwargs):
         self.base_fields['assignments'].queryset = Teacher.objects.get(user__username=teacher_username).assignments.all()
+        self.base_fields['student_groups'].queryset = Teacher.objects.get(user__username=teacher_username).groups.all()
         forms.Form.__init__(self, *args, **kwargs)
