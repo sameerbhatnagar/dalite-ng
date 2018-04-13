@@ -37,7 +37,7 @@ from . import rationale_choice
 from .util import SessionStageData, get_object_or_none, int_or_none, roundrobin
 from .admin_views import get_question_rationale_aggregates
 
-from .models import Student, StudentGroup, Teacher, Assignment, BlinkQuestion, BlinkAnswer, BlinkRound, BlinkAssignment, BlinkAssignmentQuestion, Question, VerifiedDomain
+from .models import Student, StudentGroup, Teacher, Assignment, BlinkQuestion, BlinkAnswer, BlinkRound, BlinkAssignment, BlinkAssignmentQuestion, Question, VerifiedDomain, Answer
 from django.contrib.auth.models import User
 
 #blink
@@ -1511,6 +1511,26 @@ def report_selector(request):
 
 def report(request):
     if request.GET:
-        print(request.GET.get('assignments'))
-        print(request.GET.get('student_groups'))
-    return HttpResponse('testing')
+        group_list=request.GET.getlist('student_groups')
+
+        student_ids=[]
+        for group in StudentGroup.objects.filter(pk__in=group_list):
+            student_ids.extend([s.student.username for s in group.student_set.all() if s.student.username not in ['student']])
+
+        assignment_list=request.GET.getlist('assignments')
+        answer_qs = Answer.objects.filter(assignment_id__in=assignment_list).filter(user_token__in=student_ids)
+
+        answer_array =[]
+        for a in answer_qs:
+            d={}
+            d['student']=a.user_token
+            d['first_answer_choice'] = a.first_answer_choice
+            d['rationale']=a.rationale
+            d['second_answer_choice'] = a.second_answer_choice
+            if a.chosen_rationale_id:
+                d['chosen_rationale'] = Answer.objects.get(pk=a.chosen_rationale_id).rationale
+            else:
+                d['chosen_rationale'] = "Stick to my own rationale"
+            answer_array.append(d)
+
+    return JsonResponse(answer_array,safe=False)
