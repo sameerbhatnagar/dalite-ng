@@ -1508,3 +1508,9 @@ def network_data(request,assignment_id):
 def report_selector(request):
     return TemplateResponse(request,'peerinst/report_selector.html',\
         {'report_select_form':forms.ReportSelectForm(teacher_username=request.user)})
+
+def report(request):
+    if request.GET:
+        print(request.GET.get('assignments'))
+        print(request.GET.get('student_groups'))
+    return HttpResponse('testing')

@@ -50,6 +50,8 @@ urlpatterns = [
     url(r'^teacher/(?P<pk>[0-9]+)/blinks/$', views.TeacherBlinks.as_view(), name='teacher-blinks'),
     url(r'^teacher/(?P<pk>[0-9]+)/groups/$', views.TeacherGroups.as_view(), name='teacher-groups'),
     url(r'^report_selector$',views.report_selector,name='report_selector'),
+    url(r'^report$',views.report,name='report'),
+
     # Auth
     url(r'^$', views.landing_page, name='landing_page'),
     url(r'^logout/$', views.logout_view, name='logout'),

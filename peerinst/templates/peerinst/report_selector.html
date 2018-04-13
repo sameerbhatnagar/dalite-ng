@@ -4,9 +4,9 @@
 {% block body %}
 
 
-<form method='get'>
+<form action="{% url 'report' %}" method='get'>
     {{ report_select_form.as_p }}
-    <input type='submit' value='How to bring this to teacher-detail view??'>
+    <input type='submit' value='Generate Report'>
 </form>
 
 {% endblock %}
