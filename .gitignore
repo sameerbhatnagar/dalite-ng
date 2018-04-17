@@ -10,3 +10,5 @@ src
 locust*
 /sent_emails
 *.log
+/node_modules
+package*.json
