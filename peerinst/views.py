@@ -339,7 +339,13 @@ class QuestionFormView(QuestionMixin, FormView):
         # Automatically keep track of student, student groups and their relationships based on lti data
         user = User.objects.get(username=self.user_token)
         student, created_student = Student.objects.get_or_create(student=user)
-        group, created_group = StudentGroup.objects.get_or_create(name=course_id)
+        
+        course_title = self.lti_data.edx_lti_parameters.get('context_title')
+        if not course_title:
+            group, created_group = StudentGroup.objects.get_or_create(name=course_id+':'+course_title)
+        else:
+            group, created_group = StudentGroup.objects.get_or_create(name=course_id)
+
         if created_group:
             group.save()
         student.groups.add(group)
