@@ -1517,7 +1517,7 @@ def report_selector(request):
 
 def report(request):
     if request.GET:
-        group_list=request.GET.getlist('student_groups')
+        student_groups=request.GET.getlist('student_groups')
 
         student_id_list = student_list_from_student_groups(student_groups)
 
