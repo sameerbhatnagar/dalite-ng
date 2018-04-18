@@ -92,7 +92,7 @@ def get_assignment_aggregates(assignment,student_groups=None):
     return sums, question_data
 
 
-def get_question_rationale_aggregates(assignment, question, perpage, choice_id=None, include_own_rationales=False):
+def get_question_rationale_aggregates(assignment, question, perpage, choice_id=None, include_own_rationales=False, student_groups=None):
     """Get the top `perpage` rationales for answers to the given assignment and question.
 
     This function returns a pair (sums, rationales), with entries for these groups of rationales:
@@ -126,8 +126,13 @@ def get_question_rationale_aggregates(assignment, question, perpage, choice_id=N
         }
 
     """
-    # Select answers entered by students, not example answers
-    answers = question.answer_set.filter(assignment=assignment).exclude(user_token='')
+    if not student_groups:
+        # Select answers entered by students, not example answers
+        answers = question.answer_set.filter(assignment=assignment).exclude(user_token='')
+    else:
+        student_ids = student_list_from_student_groups(student_groups)
+        answers = question.answer_set.filter(assignment=assignment).exclude(user_token='').filter(user_token__in=student_ids)
+
 
     if choice_id is not None:
         # Filter the answers we look at to just those who eventually chose
