@@ -17,7 +17,7 @@ from django.views.generic.edit import FormView
 from .forms import FirstAnswerForm
 from . import models
 from .admin import AnswerAdmin
-from .util import make_percent_function
+from .util import make_percent_function, student_list_from_student_groups
 
 
 class StaffMemberRequiredMixin(object):
@@ -36,7 +36,7 @@ class AdminIndexView(StaffMemberRequiredMixin, TemplateView):
         return context
 
 
-def get_question_aggregates(assignment, question):
+def get_question_aggregates(assignment, question,student_groups=None):
     """Get aggregate statistics for the given assignment and question.
 
     This function returns a pair (sums, students), where 'sums' is a collections.Counter object
@@ -46,8 +46,13 @@ def get_question_aggregates(assignment, question):
     # Get indices of the correct answer choices (usually only one)
     answerchoice_correct = question.answerchoice_set.values_list('correct', flat=True)
     correct_choices = list(itertools.compress(itertools.count(1), answerchoice_correct))
-    # Select answers entered by students, not example answers
-    answers = question.answer_set.filter(assignment=assignment).exclude(user_token='')
+    if not student_groups:
+        # Select answers entered by students, not example answers
+        answers = question.answer_set.filter(assignment=assignment).exclude(user_token='')
+    else:
+        student_ids = student_list_from_student_groups(student_groups)
+        answers = question.answer_set.filter(assignment=assignment).exclude(user_token='').filter(user_token__in=student_ids)
+
     switched_answers = answers.exclude(second_answer_choice=F('first_answer_choice'))
     sums = collections.Counter(
         total_answers=answers.count(),
@@ -67,7 +72,7 @@ def get_question_aggregates(assignment, question):
     return sums, students
 
 
-def get_assignment_aggregates(assignment):
+def get_assignment_aggregates(assignment,student_groups=None):
     """Get aggregate statistics for the given assignment.
 
     This function returns a pair (sums, question_data), where sums is a collections.Counter object
@@ -78,7 +83,7 @@ def get_assignment_aggregates(assignment):
     students = set()
     question_data = []
     for question in assignment.questions.all():
-        q_sums, q_students = get_question_aggregates(assignment, question)
+        q_sums, q_students = get_question_aggregates(assignment, question,student_groups)
         sums += q_sums
         students |= q_students
         q_sums.update(total_students=len(q_students))

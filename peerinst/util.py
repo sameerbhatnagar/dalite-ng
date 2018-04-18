@@ -262,3 +262,10 @@ def rename_groups():
 
 
     return
+
+def student_list_from_student_groups(group_list):
+    from peerinst.models import StudentGroup
+    student_ids=[]
+    for group in StudentGroup.objects.filter(pk__in=group_list):
+        student_ids.extend([s.student.username for s in group.student_set.all() if s.student.username not in ['student']])
+    return student_ids

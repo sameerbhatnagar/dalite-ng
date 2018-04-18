@@ -34,7 +34,7 @@ from . import heartbeat_checks
 from . import forms
 from . import models
 from . import rationale_choice
-from .util import SessionStageData, get_object_or_none, int_or_none, roundrobin
+from .util import SessionStageData, get_object_or_none, int_or_none, roundrobin, student_list_from_student_groups
 from .admin_views import get_question_rationale_aggregates
 
 from .models import Student, StudentGroup, Teacher, Assignment, BlinkQuestion, BlinkAnswer, BlinkRound, BlinkAssignment, BlinkAssignmentQuestion, Question, VerifiedDomain, Answer
@@ -1519,12 +1519,11 @@ def report(request):
     if request.GET:
         group_list=request.GET.getlist('student_groups')
 
-        student_ids=[]
-        for group in StudentGroup.objects.filter(pk__in=group_list):
-            student_ids.extend([s.student.username for s in group.student_set.all() if s.student.username not in ['student']])
+        student_id_list = student_list_from_student_groups(student_groups)
 
-        assignment_list=request.GET.getlist('assignments')
-        answer_qs = Answer.objects.filter(assignment_id__in=assignment_list).filter(user_token__in=student_ids)
+        assignment_list = request.GET.getlist('assignments')
+
+        answer_qs = Answer.objects.filter(assignment_id__in=assignment_list).filter(user_token__in=student_id_list)
 
         answer_array =[]
         for a in answer_qs:
