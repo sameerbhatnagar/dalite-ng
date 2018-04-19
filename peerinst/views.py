@@ -35,7 +35,7 @@ from . import forms
 from . import models
 from . import rationale_choice
 from .util import SessionStageData, get_object_or_none, int_or_none, roundrobin, student_list_from_student_groups
-from .admin_views import get_question_rationale_aggregates
+from .admin_views import get_question_rationale_aggregates, get_assignment_aggregates, AssignmentResultsView
 
 from .models import Student, StudentGroup, Teacher, Assignment, BlinkQuestion, BlinkAnswer, BlinkRound, BlinkAssignment, BlinkAssignmentQuestion, Question, VerifiedDomain, Answer
 from django.contrib.auth.models import User
@@ -1515,7 +1515,7 @@ def report_selector(request):
     return TemplateResponse(request,'peerinst/report_selector.html',\
         {'report_select_form':forms.ReportSelectForm(teacher_username=request.user)})
 
-def report(request):
+def report_rationales(request):
     if request.GET:
         student_groups=request.GET.getlist('student_groups')
 
@@ -1539,3 +1539,29 @@ def report(request):
             answer_array.append(d)
 
     return JsonResponse(answer_array,safe=False)
+
+class AssignmentByGroupResultsView(AssignmentResultsView):
+    template_name = "peerinst/assignment_results_by_group.html"
+
+    def get_context_data(self, **kwargs):
+    context = TemplateView.get_context_data(self, **kwargs)
+    self.assignment_id = self.kwargs['assignment_id']
+    self.student_group_id = self.kwargs['student_group_id']
+    assignment = get_object_or_404(models.Assignment, identifier=self.assignment_id)
+    student_group = get_object_or_404(models.StudentGroup,name=self.student_group_id)
+    sums, question_data = get_assignment_aggregates(assignment,student_group)
+    switch_columns = sorted(k[1] for k in sums if isinstance(k, tuple) and k[0] == 'switches')
+    context.update(
+        assignment=assignment,
+        assignment_data=self.prepare_assignment_data(sums, switch_columns),
+        question_data=self.prepare_question_data(question_data, switch_columns),
+    )
+    return context
+# def report(request):
+#     if request.GET:
+#         student_groups=request.GET.getlist('student_groups')
+#         assignment_list = request.GET.getlist('assignments')
+
+#     assignment_aggregates = get_assignment_aggregates(assignment=Assignment.objects.get(identifier=assignment_list[0])\
+#         ,student_groups=student_groups)
+#     return HttpResponse(assignment_aggregates)
