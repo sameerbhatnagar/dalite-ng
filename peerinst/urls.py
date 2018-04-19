@@ -27,6 +27,7 @@ urlpatterns = [
     ])),
     url(r'^heartbeat/$', views.HeartBeatUrl.as_view(), name='heartbeat'),
 
+
     # Admin
     url(r'^dashboard/$', views.dashboard, name='dashboard'),
     url(r'^admin/$', admin_views.AdminIndexView.as_view(), name='admin-index'),
@@ -50,7 +51,8 @@ urlpatterns = [
     url(r'^teacher/(?P<pk>[0-9]+)/blinks/$', views.TeacherBlinks.as_view(), name='teacher-blinks'),
     url(r'^teacher/(?P<pk>[0-9]+)/groups/$', views.TeacherGroups.as_view(), name='teacher-groups'),
     url(r'^report_selector$',views.report_selector,name='report_selector'),
-    url(r'^report$',views.report,name='report'),
+    url(r'^report$',views.AssignmentByGroupResultsView.as_view(),name='report'),
+    # url(r'^assignment_results/(?P<assignment_id>[^/]+)/(?P<student_group_id>[^/]+)/', views.AssignmentByGroupResultsView.as_view(), name='assignment-group-results'),
 
     # Auth
     url(r'^$', views.landing_page, name='landing_page'),

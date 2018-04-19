@@ -285,8 +285,7 @@ class QuestionRationaleView(StaffMemberRequiredMixin, TemplateView):
         return context
 
 
-class AssignmentResultsView(StaffMemberRequiredMixin, TemplateView):
-    template_name = "admin/peerinst/assignment_results.html"
+class AssignmentResultsViewBase(TemplateView):
 
     def prepare_stats(self, sums, switch_columns):
         total_answers = sums['total_answers']
@@ -358,6 +357,10 @@ class AssignmentResultsView(StaffMemberRequiredMixin, TemplateView):
             question_data=self.prepare_question_data(question_data, switch_columns),
         )
         return context
+
+
+class AssignmentResultsView(StaffMemberRequiredMixin, AssignmentResultsViewBase):
+    template_name = "admin/peerinst/assignment_results.html"
 
 
 class QuestionPreviewForm(FirstAnswerForm):
