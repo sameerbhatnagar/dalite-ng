@@ -252,11 +252,11 @@ def rename_groups():
     for g in StudentGroup.objects.all():
         try:
             if id_title_dict[g.name]:
-                print('** changing name **')
+                print('** adding title **')
                 print(g.name)
-                g.name = g.name+':'+id_title_dict[g.name]
+                g.title = id_title_dict[g.name]
                 g.save()
-                print('to '+ g.name)
+                print(g.title)
         except KeyError as e:
             pass
 

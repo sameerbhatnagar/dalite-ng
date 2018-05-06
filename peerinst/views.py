@@ -446,7 +446,7 @@ class QuestionFormView(QuestionMixin, FormView):
         
         course_title = self.lti_data.edx_lti_parameters.get('context_title')
         if not course_title:
-            group, created_group = StudentGroup.objects.get_or_create(name=course_id+':'+course_title)
+            group, created_group = StudentGroup.objects.get_or_create(name=course_id,title=course_title)
         else:
             group, created_group = StudentGroup.objects.get_or_create(name=course_id)
 

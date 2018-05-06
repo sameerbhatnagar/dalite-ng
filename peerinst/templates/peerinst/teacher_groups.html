@@ -23,7 +23,7 @@
       <form method="post">
         {% csrf_token %}
         <input type="hidden" id="id_group" name="group" value="{{g.pk}}"></input>
-        {{g}} <input class="material-icons small-button mdc-button mdc-button--raised" type="submit" value="clear" />
+        {% if not g.title %} {{ g.name }} {% else %} {{ g.title }} {% endif %} <input class="material-icons small-button mdc-button mdc-button--raised" type="submit" value="clear" />
       </form>
     </li>
     {% endfor %}
@@ -40,7 +40,7 @@
       <form action="" method="post">
           {% csrf_token %}
           <input type="hidden" id="id_group" name="group" value="{{g.pk}}"></input>
-          {{g}} <input class="material-icons small-button mdc-button mdc-button--raised" type="submit" value="add" />
+          {% if not g.title %} {{ g.name }} {% else %} {{ g.title }} {% endif %} <input class="material-icons small-button mdc-button mdc-button--raised" type="submit" value="add" />
       </form>
     </li>
     {% endif %}

@@ -384,6 +384,7 @@ class AnswerVote(models.Model):
 
 class StudentGroup(models.Model):
     name = models.CharField(max_length=100, unique=True)
+    title = models.CharField(max_length=100, default=None)
     creation_date = models.DateField(
         blank=True,
         null=True,
