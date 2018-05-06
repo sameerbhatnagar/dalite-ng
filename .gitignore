@@ -12,3 +12,4 @@ locust*
 *.log
 /node_modules
 package*.json
+/CACHE

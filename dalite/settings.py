@@ -19,7 +19,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1']
 
 # Application definition
 
@@ -33,7 +33,8 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django_lti_tool_provider'
+    'django_lti_tool_provider',
+    'compressor',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -44,6 +45,9 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    # Minify html
+    'htmlmin.middleware.HtmlMinifyMiddleware',
+    'htmlmin.middleware.MarkRequestMiddleware',
 )
 
 ROOT_URLCONF = 'dalite.urls'
@@ -134,6 +138,16 @@ STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'custom-settings/'+CUSTOM_SETTINGS+'/static'),
 )
 
+STATICFILES_FINDERS = (
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    'compressor.finders.CompressorFinder',
+)
+
+COMPRESS_ENABLED = True
+KEEP_COMMENTS_ON_MINIFYING = True
+HTML_MINIFY = True
+
 # LOGIN_URL = 'login'
 LOGIN_URL = 'login'
 
@@ -191,13 +205,6 @@ PASSWORD_GENERATOR_NONCE = os.environ.get('PASSWORD_GENERATOR_NONCE', None)
 # Configureation file for the heartbeat view, should contain json file. See this url for file contents.
 HEARTBEAT_REQUIRED_FREE_SPACE_PERCENTAGE = 20
 
-EMAIL_SUBJECT_PREFIX = 'SALTISE/S4 @ Dawson College: '
-DEFAULT_FROM_EMAIL = 'no-reply-SALTISES4@dawsoncollege.qc.ca'
-HOST = 'localhost'
-PORT = 25
-EMAIL_USE_TLS = False
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-EMAIL_FILE_PATH = os.path.join(BASE_DIR,'sent_emails')
 
 try:
     from .local_settings import *

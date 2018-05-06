@@ -149,20 +149,28 @@ class SignUpForm(UserCreationForm):
 
     url = forms.URLField(
         label=_('Website'),
+        initial='http://',
         max_length=200,
         help_text=_('Please provide an institutional url listing yourself as a faculty member and showing your e-mail address.')
     )
 
     def clean(self):
         cleaned_data = super(SignUpForm, self).clean()
-        pwd = cleaned_data['password1']
-        password_validation.validate_password(pwd)
+        pwd = cleaned_data.get('password1')
+        if pwd:
+            password_validation.validate_password(pwd)
 
         return cleaned_data
 
     class Meta:
         model = User
         fields = ['email','username']
+
+
+class ActivateForm(forms.Form):
+    """Form to activate a User and initialize as Teacher, if indicated."""
+    is_teacher = forms.BooleanField(required=False)
+    user = forms.ModelChoiceField(queryset=User.objects.filter(is_active=False))
 
 
 class AddRemoveQuestionForm(forms.Form):

@@ -11,8 +11,9 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.views import redirect_to_login
-from django.core.mail import mail_admins
+from django.core.mail import mail_admins, send_mail
 from django.shortcuts import get_object_or_404, render, render_to_response, redirect
+from django.template import loader
 from django.template.response import TemplateResponse
 from django.utils.decorators import method_decorator
 from django.utils.html import escape, format_html
@@ -37,7 +38,8 @@ from . import rationale_choice
 from .util import SessionStageData, get_object_or_none, int_or_none, roundrobin, student_list_from_student_groups
 from .admin_views import get_question_rationale_aggregates, get_assignment_aggregates, AssignmentResultsViewBase
 
-from .models import Student, StudentGroup, Teacher, Assignment, BlinkQuestion, BlinkAnswer, BlinkRound, BlinkAssignment, BlinkAssignmentQuestion, Question, VerifiedDomain, Answer
+
+from .models import Student, StudentGroup, Teacher, Assignment, BlinkQuestion, BlinkAnswer, BlinkRound, BlinkAssignment, BlinkAssignmentQuestion, Question, Answer, Discipline, VerifiedDomain
 from django.contrib.auth.models import User
 
 #blink
@@ -56,22 +58,130 @@ LOGGER = logging.getLogger(__name__)
 
 # Views related to Auth
 
+
+
+def landing_page(request):
+    disciplines = {}
+
+    disciplines[str('All')] = {}
+    disciplines[str('All')][str('questions')] = Question.objects.count()
+    disciplines[str('All')][str('rationales')] = Answer.objects.count()
+    disciplines[str('All')][str('students')] = Student.objects.count()
+    disciplines[str('All')][str('teachers')] = Teacher.objects.count()
+
+    for d in Discipline.objects.annotate(num_q=Count('question')).order_by('-num_q')[:5]:
+        disciplines[str(d.title)] = {}
+        disciplines[str(d.title)][str('questions')] = Question.objects.filter(discipline=d).count()
+        disciplines[str(d.title)][str('rationales')] = Answer.objects.filter(question__discipline=d).count()
+
+        question_list=d.question_set.values_list('id',flat=True)
+        disciplines[str(d.title)][str('students')] = \
+        len(\
+            set(\
+                Answer.objects.filter(question_id__in=question_list)\
+                .exclude(user_token='')\
+                .values_list('user_token',flat=True)))
+
+        disciplines[str(d.title)]['teachers'] = d.teacher_set.count()
+
+    disciplines_json = json.dumps(disciplines)
+
+    print(disciplines)
+    print(json.dumps(disciplines,indent=4, separators=(',', ': ')))
+
+
+    ### try again, with re-ordering
+    disciplines_array = []
+
+    d2 = {}
+    d2[str('name')] = str('All')
+    d2[str('questions')] = Question.objects.count()
+    d2[str('rationales')] = Answer.objects.count()
+    d2[str('students')] = Student.objects.count()
+    d2[str('teachers')] = Teacher.objects.count()
+
+    disciplines_array.append(d2)
+
+    for d in Discipline.objects.annotate(num_q=Count('question')).order_by('-num_q')[:5]:
+        d2 = {}
+        d2[str('name')] = str(d.title)
+        d2[str('questions')] = Question.objects.filter(discipline=d).count()
+        d2[str('rationales')] = Answer.objects.filter(question__discipline=d).count()
+
+        question_list=d.question_set.values_list('id',flat=True)
+        disciplines[str(d.title)][str('students')] = \
+        len(\
+            set(\
+                Answer.objects.filter(question_id__in=question_list)\
+                .exclude(user_token='')\
+                .values_list('user_token',flat=True)))
+
+        d2[str('teachers')] = d.teacher_set.count()
+
+        disciplines_array.append(d2)
+
+    print(disciplines_array)
+
+    return TemplateResponse(
+        request,
+        'registration/landing_page.html',
+        context={
+            'disciplines': disciplines_array,
+            'json': disciplines_json,
+        })
+
+
 def admin_check(user):
     return user.is_superuser
+
 
 @login_required
 @user_passes_test(admin_check,login_url='/welcome/',redirect_field_name=None)
 def dashboard(request):
 
-    return HttpResponse('dashboard')
+    html_email_template_name = 'registration/account_activated_html.html'
+
+    if request.method=='POST':
+        form = forms.ActivateForm(request.POST)
+        if form.is_valid():
+            user = form.cleaned_data['user']
+            try:
+                user.is_active = True
+                user.save()
+
+                if form.cleaned_data['is_teacher']:
+                    teacher = Teacher(user=user)
+                    teacher.save()
+            except:
+                pass
+
+            # Notify user
+            email_context = dict(
+                username=user.username,
+                site_name='myDALITE',
+            )
+            send_mail(
+                _('Your myDALITE account has been activated'),
+                'Dear {},\n\nYour account has been recently activated. \n\nYou can login at:\n\n{}\n\nCheers,\nThe myDalite Team'.format(user.username,'https://'+request.get_host(),),
+                'noreply@myDALITE.org',
+                [user.email],
+                fail_silently=True,
+                html_message=loader.render_to_string(html_email_template_name, context=email_context, request=request),
+            )
 
 
-def landing_page(request):
-    return TemplateResponse(request, 'registration/landing_page.html')
+    return TemplateResponse(
+        request,
+        'peerinst/dashboard.html',
+        context={
+            'new_users': User.objects.filter(is_active=False).order_by('-date_joined'),
+        })
 
 
 def sign_up(request):
+
     template = "registration/sign_up.html"
+    html_email_template_name = "registration/sign_up_admin_email_html.html"
     context = {}
 
     if request.method == "POST":
@@ -83,10 +193,18 @@ def sign_up(request):
                 form.save()
                 # Notify administrators
                 try:
+                    email_context = dict(
+                        user=form.cleaned_data['username'],
+                        date=timezone.now(),
+                        email=form.cleaned_data['email'],
+                        url=form.cleaned_data['url'],
+                        site_name='myDALITE',
+                    )
                     mail_admins(
-                        'New user request on dalite-ng',
-                        'A new user {} was created on {}. \n\nEmail: {}  \nVerification url: {} \n\nAccess your administrator account to activate this new user.\n\n{}\n\nCheers,\nThe myDalite Team'.format(form.cleaned_data['username'],timezone.now(),form.cleaned_data['email'],form.cleaned_data['url'],'https://'+request.get_host()+reverse('dashboard')),
-                        fail_silently=False,
+                        'New user request',
+                        'Dear administrator,\n\nA new user {} was created on {}. \n\nEmail: {}  \nVerification url: {} \n\nAccess your administrator account to activate this new user.\n\n{}\n\nCheers,\nThe myDalite Team'.format(form.cleaned_data['username'],timezone.now(),form.cleaned_data['email'],form.cleaned_data['url'],'https://'+request.get_host()+reverse('dashboard')),
+                        fail_silently=True,
+                        html_message=loader.render_to_string(html_email_template_name, context=email_context, request=request),
                     )
                 except:
                     pass
@@ -94,20 +212,6 @@ def sign_up(request):
                 return TemplateResponse(request,'registration/sign_up_done.html')
             except:
                 pass
-
-            # domain = new_user.email.split("@")[1]
-            # print(domain)
-            # if VerifiedDomain.objects.filter(domain=domain).exists():
-            #     print("verified domain")
-            #     try:
-            #         new_teacher = Teacher(
-            #             user = new_user,
-            #         )
-            #         new_teacher.save()
-            #         print("new teacher created")
-            #         return HttpResponseRedirect(reverse('teacher', kwargs={ 'pk' : new_teacher.pk } ))
-            #     except:
-            #         pass
         else:
             context['form'] = form
     else:
@@ -128,7 +232,7 @@ def logout_view(request):
 
 def welcome(request):
     try:
-        teacher = Teacher.objects.get(user__username=request.user.username)
+        teacher = Teacher.objects.get(user=request.user)
         return HttpResponseRedirect(reverse('teacher', kwargs={ 'pk' : teacher.pk }))
     except ObjectDoesNotExist:
         return HttpResponseRedirect(reverse('assignment-list'))
@@ -1414,6 +1518,9 @@ class BlinkAssignmentUpdate(LoginRequiredMixin,DetailView):
         if request.user.is_authenticated():
             form = forms.RankBlinkForm(request.POST)
             if form.is_valid():
+
+                # Questions can appear in multiple assignments, but only once in each.
+                # Get Q for _this_ assignment.
                 relationship = form.cleaned_data['q'].get(blinkassignment=self.object)
                 operation = form.cleaned_data['rank']
                 if operation == "down":
