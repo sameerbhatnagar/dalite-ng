@@ -55,7 +55,7 @@ urlpatterns = [
     url(r'^teacher/(?P<pk>[0-9]+)/blinks/$', views.TeacherBlinks.as_view(), name='teacher-blinks'),
     url(r'^teacher/(?P<pk>[0-9]+)/groups/$', views.TeacherGroups.as_view(), name='teacher-groups'),
     url(r'^report_selector$',views.report_selector,name='report_selector'),
-    url(r'^report$',views.report_assignment_aggregates,name='report'),
+    url(r'^report_rationales_chosen$',views.report_assignment_aggregates,name='report'),
     # url(r'^assignment_results/(?P<assignment_id>[^/]+)/(?P<student_group_id>[^/]+)/', views.AssignmentByGroupResultsView.as_view(), name='assignment-group-results'),
 
     # Auth

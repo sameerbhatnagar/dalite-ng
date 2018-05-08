@@ -1666,6 +1666,10 @@ def report_assignment_aggregates(request):
         for q in a.questions.all():
             d_q={}
             d_q['question'] = q.text
+            try:
+                d_q['question_image_url'] = q.image.url
+            except ValueError as e:
+                pass
             d_q['influential_rationales'] = []
             sums, output = get_question_rationale_aggregates(assignment=a,question=q,perpage=50,student_groups=student_groups)
             for trx,rationale_list in output.items():
