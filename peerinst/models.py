@@ -391,7 +391,10 @@ class StudentGroup(models.Model):
     )
 
     def __unicode__(self):
-        return self.name
+        if not self.title:
+            return self.name
+        else:
+            return self.title
 
     class Meta:
         ordering = ['-creation_date']

@@ -1647,33 +1647,42 @@ def report_rationales(request):
 
     return JsonResponse(answer_array,safe=False)
 
-class AssignmentByGroupResultsView(AssignmentResultsViewBase):
-    template_name = "peerinst/assignment_results_by_group.html"
+def report_assignment_aggregates(request):
+    """
+    - wrapper for admin_views.get_question_rationale_aggregates
+    - use student_groups and assignment_list passed through request.GET, and return JsonReponse as data for report
+    """
 
-    def get(self,request,*args,**kwargs):
-        student_groups=request.GET.getlist('student_groups')
-        assignment_list = request.GET.getlist('assignments')
-        return render(request, self.template_name, {})
 
-    def get_context_data(self, **kwargs):
-        context = TemplateView.get_context_data(self, **kwargs)
-        # self.assignment_id = self.kwargs['assignment_id']
-        # self.student_group_id = self.kwargs['student_group_id']
-        assignments = models.Assignment.objects.filter(identifier=self.assignments)[0]
-        student_groups = models.StudentGroup.filter(name=self.student_groups)
-        sums, question_data = get_assignment_aggregates(assignment,student_group)
-        switch_columns = sorted(k[1] for k in sums if isinstance(k, tuple) and k[0] == 'switches')
-        context.update(
-            assignment=assignment,
-            assignment_data=self.prepare_assignment_data(sums, switch_columns),
-            question_data=self.prepare_question_data(question_data, switch_columns),
-        )
-        return context
-# def report(request):
-#     if request.GET:
-#         student_groups=request.GET.getlist('student_groups')
-#         assignment_list = request.GET.getlist('assignments')
+    student_groups=request.GET.getlist('student_groups')
+    assignment_list = request.GET.getlist('assignments')    
 
-#     assignment_aggregates = get_assignment_aggregates(assignment=Assignment.objects.get(identifier=assignment_list[0])\
-#         ,student_groups=student_groups)
-#     return HttpResponse(assignment_aggregates)
+    j=[]
+    for a_str in assignment_list:
+        a = Assignment.objects.get(identifier=a_str)
+        d_a={}
+        d_a['assignment'] = a.identifier
+        d_a['questions'] = []
+        for q in a.questions.all():
+            d_q={}
+            d_q['question'] = q.text
+            d_q['influential_rationales'] = []
+            sums, output = get_question_rationale_aggregates(assignment=a,question=q,perpage=50,student_groups=student_groups)
+            for trx,rationale_list in output.items():
+                d_q_i = {}
+                d_q_i['transition_type']=trx
+                d_q_i['rationales'] = []
+                # d_q_i['total_count'] = sums[trx]
+                for r in rationale_list:
+                    d_q_i_r={}
+                    d_q_i_r['count'] = r['count']
+                    if r['rationale']:
+                        d_q_i_r['rationale'] = r['rationale'].rationale
+                    else:
+                        d_q_i_r['rationale'] = 'Chose own rationale'
+                    d_q_i['rationales'].append(d_q_i_r)
+                d_q['influential_rationales'].append(d_q_i)
+            d_a['questions'].append(d_q)
+        j.append(d_a)
+
+    return JsonResponse(j,safe=False)   
