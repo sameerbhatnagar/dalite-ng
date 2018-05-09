@@ -1626,9 +1626,7 @@ def report_all_rationales(request):
     
     template_name = 'peerinst/report_all_rationales.html'
     student_groups=request.GET.getlist('student_groups')
-
     student_id_list = student_list_from_student_groups(student_groups)
-
     assignment_list = request.GET.getlist('assignments')
 
     if len(student_groups)>0:
@@ -1636,11 +1634,12 @@ def report_all_rationales(request):
     else:
         answer_qs = Answer.objects.filter(assignment_id__in=assignment_list)
 
+    # all data
     assignment_data=[]
     for a_str in assignment_list:
         a = Assignment.objects.get(identifier=a_str)
         d_a={}
-        d_a['assignment'] = a.identifier
+        d_a['assignment'] = a.title
         d_a['questions'] = []
         for q in a.questions.all():
             d_q={}
@@ -1651,6 +1650,25 @@ def report_all_rationales(request):
                 pass
 
             answer_qs_question = answer_qs.filter(question_id=q.id)
+            # aggregates
+            field_names = ['first_answer_choice','second_answer_choice']
+            field_labels = ['First Answer Choice', 'Second Answer Choice']
+            d_q['answer_distributions'] = []
+            for field_name,field_label in zip(field_names,field_labels):
+                counts = answer_qs_question.values_list(field_name)\
+                .order_by(field_name)\
+                .annotate(Count(field_name))
+
+                d_q_a_d = {}
+                d_q_a_d['label'] = field_label
+                d_q_a_d['data'] = []
+                for c in counts:
+                    d_q_a_c = {}
+                    d_q_a_c['answer_choice'] = c[0]
+                    d_q_a_c['count'] = c[1]
+                    d_q_a_d['data'].append(d_q_a_c)
+                d_q['answer_distributions'].append(d_q_a_d)   
+
             d_q['student_responses'] = []
             for student_response in answer_qs_question:
                 d_q_a = {}
@@ -1666,7 +1684,6 @@ def report_all_rationales(request):
 
             d_a['questions'].append(d_q)
         assignment_data.append(d_a)
-
 
         context = {}
         context['data'] = assignment_data

@@ -5,8 +5,10 @@
 {% block body %}
 
 <main>
-    <h1>All Rationales</h1>
+
     <section>
+    <h1>All Rationales</h1>
+    
         
         <ul>
             {% for assignment in data %}
@@ -27,7 +29,22 @@
                                     </div>
                                 {% endif %}
                             </span>
+
                             <span>
+                            <h3>Summary</h3>
+                                {% for distribution in question.answer_distributions %}
+                                <h4>{{ distribution.label }}</h4>
+                                <h5>Answer:Count</h5>
+                                    <ul>
+                                    {% for answer_choice in distribution.data %}
+                                        <li>{{ answer_choice.answer_choice }} : {{ answer_choice.count }}</li>
+                                    {% endfor %}
+                                    </ul>
+                                {% endfor %}
+                            </span>
+
+                            <span>
+                            <h3>Student Responses</h3>
                                 <ul>
                                 {% for student_response in question.student_responses %}
                                     
