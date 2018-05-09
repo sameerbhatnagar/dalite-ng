@@ -3,8 +3,15 @@
 {% load i18n %}
 {% block body %}
 
+<h1>Chosen Rationale Aggregates</h1>
+<form action="{% url 'report_rationales_chosen' %}" method='get'>
+    {{ report_select_form.as_p }}
+    <input type='submit' value='Generate Report'>
+</form>
 
-<form action="{% url 'report' %}" method='get'>
+
+<h1>All Rationales</h1>
+<form action="{% url 'report_all_rationales' %}" method='get'>
     {{ report_select_form.as_p }}
     <input type='submit' value='Generate Report'>
 </form>

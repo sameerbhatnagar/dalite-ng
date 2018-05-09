@@ -1622,7 +1622,9 @@ def report_selector(request):
     return TemplateResponse(request,'peerinst/report_selector.html',\
         {'report_select_form':forms.ReportSelectForm(teacher_username=request.user)})
 
-def report_rationales(request):
+def report_all_rationales(request):
+    
+    template_name = 'peerinst/report_all_rationales.html'
     if request.GET:
         student_groups=request.GET.getlist('student_groups')
 
@@ -1630,7 +1632,10 @@ def report_rationales(request):
 
         assignment_list = request.GET.getlist('assignments')
 
-        answer_qs = Answer.objects.filter(assignment_id__in=assignment_list).filter(user_token__in=student_id_list)
+        if len(student_groups)>0:
+            answer_qs = Answer.objects.filter(assignment_id__in=assignment_list).filter(user_token__in=student_id_list)
+        else:
+            answer_qs = Answer.objects.filter(assignment_id__in=assignment_list)
 
         answer_array =[]
         for a in answer_qs:
@@ -1645,7 +1650,11 @@ def report_rationales(request):
                 d['chosen_rationale'] = "Stick to my own rationale"
             answer_array.append(d)
 
-    return JsonResponse(answer_array,safe=False)
+        context = {}
+        context['data']=answer_array
+
+    return render(request,template_name,context)
+
 
 def report_assignment_aggregates(request):
     """

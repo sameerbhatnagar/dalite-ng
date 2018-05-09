@@ -1,0 +1,32 @@
+{% extends 'peerinst/base.html' %}
+
+{% load i18n %}
+
+{% block body %}
+
+<main>
+    <h1>All Rationales</h1>
+    <section>
+        
+            
+            
+        <ul class="mdc-list mdc-list--two-line">
+            {% for answer in data %}
+            <li class="mdc-list-item mdc-elevation--z1">
+                <span class="mdc-list-item__text">
+                First Answer:  {{ answer.first_answer_choice  }}; Second Answer: {{ answer.second_answer_choice  }}
+                <span class="mdc-list-item__secondary-text">
+                    Rationale:  {{ answer.rationale }}
+                    Chosen Rationale:  {{ answer.chosen_rationale  }}
+                </span>
+                </span>
+            </li>
+
+            {% endfor %}
+        
+        </ul>
+
+    </section>
+
+</main>
+{% endblock %}
