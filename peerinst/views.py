@@ -1650,8 +1650,30 @@ def report_all_rationales(request):
                 d['chosen_rationale'] = "Stick to my own rationale"
             answer_array.append(d)
 
+
+    j=[]
+    for a_str in assignment_list:
+        a = Assignment.objects.get(identifier=a_str)
+        d_a={}
+        d_a['assignment'] = a.identifier
+        d_a['questions'] = []
+        for q in a.questions.all():
+            d_q={}
+            d_q['question'] = q.text
+            try:
+                d_q['question_image_url'] = q.image
+            except ValueError as e:
+                pass
+            d_a['questions'].append(d_q)
+        j.append(d_a)
+
+
         context = {}
-        context['data']=answer_array
+        context['data'] = answer_array
+        context['data2'] = j
+
+        import pprint
+        pprint.pprint(j)
 
     return render(request,template_name,context)
 

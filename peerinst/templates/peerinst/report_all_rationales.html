@@ -8,7 +8,23 @@
     <h1>All Rationales</h1>
     <section>
         
-            
+        <ul class="mdc-list mdc-list--two-line">
+            {% for assignment in data2 %}
+            <li class="mdc-list-item mdc-elevation--z1">
+                <span class="mdc-list-item__text">
+                {{ assignment.assignment }}
+                {% for question in assignment.questions %}                 
+                    <span class="mdc-list-item__secondary-text">
+                        {{ question.question }}
+                        <!-- Chosen Rationale:  {{ answer.chosen_rationale  }} -->
+                    </span>
+                {% endfor %}
+                </span>
+            </li>
+
+            {% endfor %}
+        
+        </ul>            
             
         <ul class="mdc-list mdc-list--two-line">
             {% for answer in data %}
