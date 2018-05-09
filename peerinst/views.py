@@ -1625,33 +1625,18 @@ def report_selector(request):
 def report_all_rationales(request):
     
     template_name = 'peerinst/report_all_rationales.html'
-    if request.GET:
-        student_groups=request.GET.getlist('student_groups')
+    student_groups=request.GET.getlist('student_groups')
 
-        student_id_list = student_list_from_student_groups(student_groups)
+    student_id_list = student_list_from_student_groups(student_groups)
 
-        assignment_list = request.GET.getlist('assignments')
+    assignment_list = request.GET.getlist('assignments')
 
-        if len(student_groups)>0:
-            answer_qs = Answer.objects.filter(assignment_id__in=assignment_list).filter(user_token__in=student_id_list)
-        else:
-            answer_qs = Answer.objects.filter(assignment_id__in=assignment_list)
+    if len(student_groups)>0:
+        answer_qs = Answer.objects.filter(assignment_id__in=assignment_list).filter(user_token__in=student_id_list)
+    else:
+        answer_qs = Answer.objects.filter(assignment_id__in=assignment_list)
 
-        answer_array =[]
-        for a in answer_qs:
-            d={}
-            d['student']=a.user_token
-            d['first_answer_choice'] = a.first_answer_choice
-            d['rationale']=a.rationale
-            d['second_answer_choice'] = a.second_answer_choice
-            if a.chosen_rationale_id:
-                d['chosen_rationale'] = Answer.objects.get(pk=a.chosen_rationale_id).rationale
-            else:
-                d['chosen_rationale'] = "Stick to my own rationale"
-            answer_array.append(d)
-
-
-    j=[]
+    assignment_data=[]
     for a_str in assignment_list:
         a = Assignment.objects.get(identifier=a_str)
         d_a={}
@@ -1661,19 +1646,33 @@ def report_all_rationales(request):
             d_q={}
             d_q['question'] = q.text
             try:
-                d_q['question_image_url'] = q.image
+                d_q['question_image'] = q.image
             except ValueError as e:
                 pass
+
+            answer_qs_question = answer_qs.filter(question_id=q.id)
+            d_q['student_responses'] = []
+            for student_response in answer_qs_question:
+                d_q_a = {}
+                d_q_a['student'] = student_response.user_token
+                d_q_a['first_answer_choice'] = student_response.first_answer_choice
+                d_q_a['rationale']=student_response.rationale
+                d_q_a['second_answer_choice'] = student_response.second_answer_choice
+                if student_response.chosen_rationale_id:
+                    d_q_a['chosen_rationale'] = Answer.objects.get(pk=student_response.chosen_rationale_id).rationale
+                else:
+                    d_q_a['chosen_rationale'] = "Stick to my own rationale"
+                d_q['student_responses'].append(d_q_a)
+
             d_a['questions'].append(d_q)
-        j.append(d_a)
+        assignment_data.append(d_a)
 
 
         context = {}
-        context['data'] = answer_array
-        context['data2'] = j
+        context['data'] = assignment_data
 
-        import pprint
-        pprint.pprint(j)
+        # import pprint
+        # pprint.pprint(assignment_data)
 
     return render(request,template_name,context)
 
