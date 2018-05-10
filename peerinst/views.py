@@ -5,6 +5,7 @@ import datetime
 import json
 import logging
 import random
+import string
 
 import re
 from django.conf import settings
@@ -1650,6 +1651,9 @@ def report_all_rationales(request):
                 pass
 
             answer_qs_question = answer_qs.filter(question_id=q.id)
+            answer_choices_texts = q.answerchoice_set.values_list('text',flat=True)
+            answer_choices_correct = q.answerchoice_set.values_list('correct',flat=True)
+            answer_style = q.answer_style
             # aggregates
             field_names = ['first_answer_choice','second_answer_choice']
             field_labels = ['First Answer Choice', 'Second Answer Choice']
@@ -1664,7 +1668,13 @@ def report_all_rationales(request):
                 d_q_a_d['data'] = []
                 for c in counts:
                     d_q_a_c = {}
-                    d_q_a_c['answer_choice'] = c[0]
+                    if len(answer_choices_texts[c[0]-1])>1:
+                        d_q_a_c['answer_choice'] = list(string.ascii_uppercase)[c[0]-1]+')'+answer_choices_texts[c[0]-1]
+                    elif answer_style==0:
+                        d_q_a_c['answer_choice'] = list(string.ascii_uppercase)[c[0]-1]
+                    else:
+                        d_q_a_c['answer_choice'] = c[0]
+                    d_q_a_c['answer_choice_correct'] = answer_choices_correct[c[0]-1]
                     d_q_a_c['count'] = c[1]
                     d_q_a_d['data'].append(d_q_a_c)
                 d_q['answer_distributions'].append(d_q_a_d)   
@@ -1673,9 +1683,9 @@ def report_all_rationales(request):
             for student_response in answer_qs_question:
                 d_q_a = {}
                 d_q_a['student'] = student_response.user_token
-                d_q_a['first_answer_choice'] = student_response.first_answer_choice
+                d_q_a['first_answer_choice'] = list(string.ascii_uppercase)[student_response.first_answer_choice-1]
                 d_q_a['rationale']=student_response.rationale
-                d_q_a['second_answer_choice'] = student_response.second_answer_choice
+                d_q_a['second_answer_choice'] = list(string.ascii_uppercase)[student_response.second_answer_choice-1]
                 if student_response.chosen_rationale_id:
                     d_q_a['chosen_rationale'] = Answer.objects.get(pk=student_response.chosen_rationale_id).rationale
                 else:

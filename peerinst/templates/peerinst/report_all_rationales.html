@@ -34,10 +34,14 @@
                             <h3>Summary</h3>
                                 {% for distribution in question.answer_distributions %}
                                 <h4>{{ distribution.label }}</h4>
-                                <h5>Answer:Count</h5>
+                                <h5>Count:Answer Choice</h5>
                                     <ul>
                                     {% for answer_choice in distribution.data %}
-                                        <li>{{ answer_choice.answer_choice }} : {{ answer_choice.count }}</li>
+                                        <li> {{ answer_choice.count }} : {{ answer_choice.answer_choice }}
+                                            {% if answer_choice.answer_choice_correct %}
+                                            <em>(Correct)</em>
+                                            {% endif %}
+                                        </li>
                                     {% endfor %}
                                     </ul>
                                 {% endfor %}
