@@ -6,6 +6,7 @@ import json
 import logging
 import random
 import string
+import itertools
 
 import re
 from django.conf import settings
@@ -52,7 +53,7 @@ from django.contrib.sessions.models import Session
 
 #reports
 from django.db.models.expressions import Func
-from django.db.models import Count
+from django.db.models import Count, Value, Case, Q, When, CharField
 
 
 LOGGER = logging.getLogger(__name__)
@@ -1635,6 +1636,8 @@ def report_all_rationales(request):
     else:
         answer_qs = Answer.objects.filter(assignment_id__in=assignment_list).exclude(user_token='')
 
+
+
     # all data
     assignment_data=[]
     for a_str in assignment_list:
@@ -1642,6 +1645,7 @@ def report_all_rationales(request):
         d_a={}
         d_a['assignment'] = a.title
         d_a['questions'] = []
+
         for q in a.questions.all():
             d_q={}
             d_q['text'] = q.text
@@ -1656,12 +1660,28 @@ def report_all_rationales(request):
 
             answer_qs_question = answer_qs.filter(question_id=q.id)
             answer_choices_texts = q.answerchoice_set.values_list('text',flat=True)
-            answer_choices_correct = q.answerchoice_set.values_list('correct',flat=True)
+            answer_choices_correct = q.answerchoice_set.values_list('correct',flat=True) #e.g. [False, False, True, True]
             answer_style = q.answer_style
+
+            correct_answer_choices = list(itertools.compress(itertools.count(1),answer_choices_correct)) # e.g. [3,4]
+            # print(correct_answer_choices)
+            answer_qs_question = answer_qs_question.annotate(transition=\
+                Case(\
+                    When(Q(first_answer_choice__in=correct_answer_choices) & Q(second_answer_choice__in=correct_answer_choices),\
+                        then=Value('rr')),\
+                    When(Q(first_answer_choice__in=correct_answer_choices) & ~Q(second_answer_choice__in=correct_answer_choices),\
+                        then=Value('rw')),
+                    When(~Q(first_answer_choice__in=correct_answer_choices) & Q(second_answer_choice__in=correct_answer_choices),\
+                        then=Value('wr')),
+                    When(~Q(first_answer_choice__in=correct_answer_choices) & ~Q(second_answer_choice__in=correct_answer_choices),\
+                        then=Value('ww')),\
+                    default_value=Value('none'),\
+                    output_field=CharField()))
+
             
             # aggregates
-            field_names = ['first_answer_choice','second_answer_choice']
-            field_labels = ['First Answer Choice', 'Second Answer Choice']
+            field_names = ['first_answer_choice','second_answer_choice','transition']
+            field_labels = ['First Answer Choice', 'Second Answer Choice','Transition']
             d_q['answer_distributions'] = []
             for field_name,field_label in zip(field_names,field_labels):
                 counts = answer_qs_question.values_list(field_name)\
@@ -1673,17 +1693,24 @@ def report_all_rationales(request):
                 d_q_a_d['data'] = []
                 for c in counts:
                     d_q_a_c = {}
-                    if len(answer_choices_texts[c[0]-1])>1:
-                        d_q_a_c['answer_choice'] = list(string.ascii_uppercase)[c[0]-1]+')'+answer_choices_texts[c[0]-1]
-                    elif answer_style==0:
+                    # if len(answer_choices_texts[c[0]-1])>1:
+                    #     d_q_a_c['answer_choice'] = list(string.ascii_uppercase)[c[0]-1]+')'+answer_choices_texts[c[0]-1]
+                    # elif answer_style==0:
+                    if field_name != 'transition':
                         d_q_a_c['answer_choice'] = list(string.ascii_uppercase)[c[0]-1]
+                    # else:
+                    #     d_q_a_c['answer_choice'] = c[0]
+                        d_q_a_c['answer_choice_correct'] = answer_choices_correct[c[0]-1]
                     else:
                         d_q_a_c['answer_choice'] = c[0]
-                    d_q_a_c['answer_choice_correct'] = answer_choices_correct[c[0]-1]
                     d_q_a_c['count'] = c[1]
                     d_q_a_d['data'].append(d_q_a_c)
                 d_q['answer_distributions'].append(d_q_a_d)
 
+            # import pprint
+            # pprint.pprint(d_q['answer_distributions'])
+
+            
             #confusion matrix
             d_q['confusion_matrix']=[]
             for first_choice_index in range(1,q.answerchoice_set.count() +1):
