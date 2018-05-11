@@ -15,11 +15,13 @@
             <li>
                 <span>
                 <h2>{{ assignment.assignment }}</h2>
-                {% for question in assignment.questions %}                 
+                {% for question in assignment.questions %} 
+                    {% if question.show %}               
                     <ul>
                         <li>
                             <span>
-                                {{ question.question|striptags }}
+                                <h3>{{ question.title }}</h3>
+                                {{ question.text|striptags }}
                                 {% if question.question_image %}
                                     <div>
                                       <img style="display:block;margin:auto;
@@ -32,6 +34,7 @@
 
                             <span>
                             <h3>Summary</h3>
+                                Total Number Responses: {{ question.num_responses}} 
                                 {% for distribution in question.answer_distributions %}
                                 <h4>{{ distribution.label }}</h4>
                                 <h5>Count:Answer Choice</h5>
@@ -45,6 +48,19 @@
                                     {% endfor %}
                                     </ul>
                                 {% endfor %}
+                            </span>
+
+                            <span>
+                            <h4>Confusion Matrix</h4>
+                            <table>
+                                {% for first_ans in question.confusion_matrix %}
+                                <tr>
+                                    {% for second_ans in first_ans.second_answer_choice %}
+                                    <td>{{second_ans.N}}</td>
+                                    {% endfor %}
+                                </tr>
+                                {% endfor %}                                
+                            </table>
                             </span>
 
                             <span>
@@ -65,7 +81,7 @@
                             </span>
                         </li>
                     </ul>
-
+                    {% endif %}
                 {% endfor %}
                 </span>
             </li>

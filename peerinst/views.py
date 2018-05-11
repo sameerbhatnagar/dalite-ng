@@ -1633,7 +1633,7 @@ def report_all_rationales(request):
     if len(student_groups)>0:
         answer_qs = Answer.objects.filter(assignment_id__in=assignment_list).filter(user_token__in=student_id_list)
     else:
-        answer_qs = Answer.objects.filter(assignment_id__in=assignment_list)
+        answer_qs = Answer.objects.filter(assignment_id__in=assignment_list).exclude(user_token='')
 
     # all data
     assignment_data=[]
@@ -1644,16 +1644,21 @@ def report_all_rationales(request):
         d_a['questions'] = []
         for q in a.questions.all():
             d_q={}
-            d_q['question'] = q.text
+            d_q['text'] = q.text
+            d_q['title'] = q.title
             try:
                 d_q['question_image'] = q.image
             except ValueError as e:
                 pass
+            d_q['num_responses'] = answer_qs.filter(question_id=q.id).count()
+            if d_q['num_responses']>0:
+                d_q['show'] = True
 
             answer_qs_question = answer_qs.filter(question_id=q.id)
             answer_choices_texts = q.answerchoice_set.values_list('text',flat=True)
             answer_choices_correct = q.answerchoice_set.values_list('correct',flat=True)
             answer_style = q.answer_style
+            
             # aggregates
             field_names = ['first_answer_choice','second_answer_choice']
             field_labels = ['First Answer Choice', 'Second Answer Choice']
@@ -1677,7 +1682,29 @@ def report_all_rationales(request):
                     d_q_a_c['answer_choice_correct'] = answer_choices_correct[c[0]-1]
                     d_q_a_c['count'] = c[1]
                     d_q_a_d['data'].append(d_q_a_c)
-                d_q['answer_distributions'].append(d_q_a_d)   
+                d_q['answer_distributions'].append(d_q_a_d)
+
+            #confusion matrix
+            d_q['confusion_matrix']=[]
+            for first_choice_index in range(1,q.answerchoice_set.count() +1):
+                d_q_cf = {}
+                first_answer_qs = q.answer_set.filter(first_answer_choice=first_choice_index)
+                d_q_cf['first_answer_choice']=first_choice_index
+                d_q_cf['second_answer_choice']=[]                
+                for second_choice_index in range(1,q.answerchoice_set.count()+1):
+                    d_q_cf_a2 ={}
+                    d_q_cf_a2['value']=second_choice_index
+                    count = first_answer_qs.filter(second_answer_choice=second_choice_index).count()
+                    if count:
+                        d_q_cf_a2['N']=count
+                    else:
+                        d_q_cf_a2['N']=0
+                    d_q_cf['second_answer_choice'].append(d_q_cf_a2)
+                d_q['confusion_matrix'].append(d_q_cf)
+
+            # import pprint
+            # pprint.pprint(d_q['confusion_matrix'])            
+
 
             d_q['student_responses'] = []
             for student_response in answer_qs_question:
@@ -1698,8 +1725,6 @@ def report_all_rationales(request):
         context = {}
         context['data'] = assignment_data
 
-        # import pprint
-        # pprint.pprint(assignment_data)
 
     return render(request,template_name,context)
 
