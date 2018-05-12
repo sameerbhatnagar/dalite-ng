@@ -1665,7 +1665,7 @@ def report_all_rationales(request):
 
             correct_answer_choices = list(itertools.compress(itertools.count(1),answer_choices_correct)) # e.g. [3,4]
             # print(correct_answer_choices)
-            answer_qs_question = answer_qs_question.annotate(transition=\
+            transitions = answer_qs_question.annotate(transition=\
                 Case(\
                     When(Q(first_answer_choice__in=correct_answer_choices) & Q(second_answer_choice__in=correct_answer_choices),\
                         then=Value('rr')),\
@@ -1675,47 +1675,57 @@ def report_all_rationales(request):
                         then=Value('wr')),
                     When(~Q(first_answer_choice__in=correct_answer_choices) & ~Q(second_answer_choice__in=correct_answer_choices),\
                         then=Value('ww')),\
-                    default_value=Value('none'),\
-                    output_field=CharField()))
+                    output_field=CharField()))#efault_value=Value('none'),\
+
 
             
             # aggregates
-            field_names = ['first_answer_choice','second_answer_choice','transition']
-            field_labels = ['First Answer Choice', 'Second Answer Choice','Transition']
+            field_names = ['first_answer_choice','second_answer_choice']#,'transition']
+            field_labels = ['First Answer Choice', 'Second Answer Choice']#,'Transition']
             d_q['answer_distributions'] = []
             for field_name,field_label in zip(field_names,field_labels):
                 counts = answer_qs_question.values_list(field_name)\
                 .order_by(field_name)\
-                .annotate(Count(field_name))
+                .annotate(count=Count(field_name))
+
 
                 d_q_a_d = {}
                 d_q_a_d['label'] = field_label
                 d_q_a_d['data'] = []
                 for c in counts:
                     d_q_a_c = {}
-                    # if len(answer_choices_texts[c[0]-1])>1:
-                    #     d_q_a_c['answer_choice'] = list(string.ascii_uppercase)[c[0]-1]+')'+answer_choices_texts[c[0]-1]
-                    # elif answer_style==0:
-                    if field_name != 'transition':
-                        d_q_a_c['answer_choice'] = list(string.ascii_uppercase)[c[0]-1]
-                    # else:
-                    #     d_q_a_c['answer_choice'] = c[0]
-                        d_q_a_c['answer_choice_correct'] = answer_choices_correct[c[0]-1]
-                    else:
-                        d_q_a_c['answer_choice'] = c[0]
+                    d_q_a_c['answer_choice'] = list(string.ascii_uppercase)[c[0]-1]
+                    d_q_a_c['answer_choice_correct'] = answer_choices_correct[c[0]-1]
                     d_q_a_c['count'] = c[1]
                     d_q_a_d['data'].append(d_q_a_c)
                 d_q['answer_distributions'].append(d_q_a_d)
 
-            # import pprint
-            # pprint.pprint(d_q['answer_distributions'])
+            field_names = ['transition']
+            field_labels = ['Transition']
+            d_q['transitions'] = []
+            for field_name,field_label in zip(field_names,field_labels):
+                counts = transitions.values_list(field_name)\
+                .order_by(field_name)\
+                .annotate(count=Count(field_name))
 
-            
+                d_q_a_d = {}
+                d_q_a_d['label'] = field_label
+                d_q_a_d['data'] = []
+                for c in counts:
+                    d_q_a_c = {}
+                    d_q_a_c['transition_type']=c[0]
+                    d_q_a_c['count'] = c[1]
+                    d_q_a_d['data'].append(d_q_a_c)
+                d_q['transitions'].append(d_q_a_d)
+
+
             #confusion matrix
             d_q['confusion_matrix']=[]
             for first_choice_index in range(1,q.answerchoice_set.count() +1):
                 d_q_cf = {}
-                first_answer_qs = q.answer_set.filter(first_answer_choice=first_choice_index)
+                first_answer_qs = q.answer_set.filter(first_answer_choice=first_choice_index)\
+                .exclude(user_token='')\
+                .filter(assignment_id=a.identifier)
                 d_q_cf['first_answer_choice']=first_choice_index
                 d_q_cf['second_answer_choice']=[]                
                 for second_choice_index in range(1,q.answerchoice_set.count()+1):
@@ -1748,6 +1758,12 @@ def report_all_rationales(request):
 
             d_a['questions'].append(d_q)
         assignment_data.append(d_a)
+
+        # ## student gradebook
+        # transitions = {}
+        # for q in assignment_data[0]:
+        #     transitions[q['title']] = q['answer_distributions']
+              
 
         context = {}
         context['data'] = assignment_data

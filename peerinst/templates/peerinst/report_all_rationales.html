@@ -48,6 +48,20 @@
                                     {% endfor %}
                                     </ul>
                                 {% endfor %}
+
+                                 
+                                {% for transition in question.transitions %}
+                                <!-- <h4>{{ distribution.label }}</h4> -->
+                                <h5>Count: Transition Type</h5>
+                                    <ul>
+                                    {% for answer_choice in transition.data %}
+                                        <li> {{ answer_choice.count }} : {{ answer_choice.transition_type }}</li>
+                                    {% endfor %}
+                                    </ul>
+                                {% endfor %}
+
+
+
                             </span>
 
                             <span>
