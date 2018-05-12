@@ -1646,6 +1646,21 @@ def report_all_rationales(request):
         d_a['assignment'] = a.title
         d_a['questions'] = []
 
+        num_responses=Answer.objects.filter(question_id__in=[q.id for q in a.questions.all()])\
+        .exclude(user_token='')\
+        .values_list('user_token')\
+        .order_by('user_token')\
+        .annotate(num_responses=Count('user_token'))
+
+        d_a['gradebook']=[]
+        for student in num_responses:
+            d_g = {}
+            d_g['student']=student[0]
+            d_g['num_responses']=student[1]
+            d_a['gradebook'].append(d_g)
+
+
+        student_gradebook_transitions = {}
         for q in a.questions.all():
             d_q={}
             d_q['text'] = q.text
@@ -1716,8 +1731,14 @@ def report_all_rationales(request):
                     d_q_a_c['transition_type']=c[0]
                     d_q_a_c['count'] = c[1]
                     d_q_a_d['data'].append(d_q_a_c)
-                d_q['transitions'].append(d_q_a_d)
 
+                    # counter for assignment level aggregate
+                    if c[0] in student_gradebook_transitions:
+                        student_gradebook_transitions[c[0]] += c[1]
+                    else:
+                        student_gradebook_transitions[c[0]] = c[1]
+                
+                d_q['transitions'].append(d_q_a_d)
 
             #confusion matrix
             d_q['confusion_matrix']=[]
@@ -1757,12 +1778,14 @@ def report_all_rationales(request):
                 d_q['student_responses'].append(d_q_a)
 
             d_a['questions'].append(d_q)
+            d_a['transitions'] = []
+            for name,count in student_gradebook_transitions.items():
+                d_t = {}
+                d_t['transition_type']=name
+                d_t['count']=count
+                d_a['transitions'].append(d_t)
+                
         assignment_data.append(d_a)
-
-        # ## student gradebook
-        # transitions = {}
-        # for q in assignment_data[0]:
-        #     transitions[q['title']] = q['answer_distributions']
               
 
         context = {}

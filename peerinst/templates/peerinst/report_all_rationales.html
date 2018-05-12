@@ -15,12 +15,22 @@
             <li>
                 <span>
                 <h2>{{ assignment.assignment }}</h2>
+
+                <span>
+                    <h3>Overall Student Transitions</h3>
+                    <ul>
+                    {% for transition in assignment.transitions %}
+                        <li>{{ transition.transition_type }} : {{ transition.count }}</li>
+                    {% endfor %}
+                    </ul>
+                </span>
+
                 {% for question in assignment.questions %} 
                     {% if question.show %}               
                     <ul>
                         <li>
                             <span>
-                                <h3>{{ question.title }}</h3>
+                                <h3>Question : {{ question.title }}</h3>
                                 {{ question.text|striptags }}
                                 {% if question.question_image %}
                                     <div>
