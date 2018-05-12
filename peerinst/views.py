@@ -1637,7 +1637,6 @@ def report_all_rationales(request):
         answer_qs = Answer.objects.filter(assignment_id__in=assignment_list).exclude(user_token='')
 
 
-
     # all data
     assignment_data=[]
     for a_str in assignment_list:
@@ -1646,20 +1645,8 @@ def report_all_rationales(request):
         d_a['assignment'] = a.title
         d_a['questions'] = []
 
-        num_responses=Answer.objects.filter(question_id__in=[q.id for q in a.questions.all()])\
-        .exclude(user_token='')\
-        .values_list('user_token')\
-        .order_by('user_token')\
-        .annotate(num_responses=Count('user_token'))
 
-        d_a['gradebook']=[]
-        for student in num_responses:
-            d_g = {}
-            d_g['student']=student[0]
-            d_g['num_responses']=student[1]
-            d_a['gradebook'].append(d_g)
-
-
+        student_transitions_by_q = {}
         student_gradebook_transitions = {}
         for q in a.questions.all():
             d_q={}
@@ -1692,8 +1679,8 @@ def report_all_rationales(request):
                         then=Value('ww')),\
                     output_field=CharField()))#efault_value=Value('none'),\
 
+            student_transitions_by_q[q.title] = transitions.values('user_token','transition')
 
-            
             # aggregates
             field_names = ['first_answer_choice','second_answer_choice']#,'transition']
             field_labels = ['First Answer Choice', 'Second Answer Choice']#,'Transition']
@@ -1784,12 +1771,57 @@ def report_all_rationales(request):
                 d_t['transition_type']=name
                 d_t['count']=count
                 d_a['transitions'].append(d_t)
-                
+
         assignment_data.append(d_a)
               
 
         context = {}
         context['data'] = assignment_data
+
+        ## student level gradebook
+        num_responses_by_student=answer_qs\
+        .values('user_token')\
+        .order_by('user_token')\
+        .annotate(num_responses=Count('user_token'))
+
+        
+        student_gradebook_dict={}
+        for student_entry in num_responses_by_student:
+            if student_entry['user_token'] in student_gradebook_dict:
+                student_gradebook_dict[student_entry['user_token']]['num_responses'] += student_entry['num_responses']
+            else:
+                student_gradebook_dict[student_entry['user_token']]={}
+                student_gradebook_dict[student_entry['user_token']]['num_responses'] = student_entry['num_responses']
+
+        # code can be made cleaner using Python's collections.DefaultDict
+        for question,student_entries in student_transitions_by_q.items():
+            for student_entry in student_entries:
+                if student_entry['user_token'] in student_gradebook_dict:
+                    if student_entry['transition'] in student_gradebook_dict[student_entry['user_token']]:
+                        student_gradebook_dict[student_entry['user_token']][student_entry['transition']] += 1
+                    else:
+                        student_gradebook_dict[student_entry['user_token']][student_entry['transition']] = 1
+                else:
+                    student_gradebook_dict[student_entry['user_token']]={}
+                    student_gradebook_dict[student_entry['user_token']][student_entry['transition']] = 1
+
+
+        gradebook_student=[]
+        metric_list = ['num_responses','rr','rw','wr','ww']
+        metric_labels = ['N', 'RR', 'RW', 'WR', 'WW']
+        for student,grades_dict in student_gradebook_dict.items():
+            d_g = {}
+            d_g['student'] = student
+            for metric,metric_label in zip(metric_list,metric_labels):
+                if metric in grades_dict:
+                    d_g[metric_label] = grades_dict[metric]
+                else:
+                    d_g[metric_label] = 0
+            gradebook_student.append(d_g)
+
+
+        context['gradebook_student'] = gradebook_student
+        context['gradebook_student_keys'] = metric_labels
 
 
     return render(request,template_name,context)

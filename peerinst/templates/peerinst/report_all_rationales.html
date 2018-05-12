@@ -9,6 +9,25 @@
     <section>
     <h1>All Rationales</h1>
     
+
+        <span>
+            <h2>Student Gradebook</h2>
+            <table>
+                <tr>
+                    <td>Student</td>
+                    {% for label in gradebook_student_keys %}
+                    <td>{{ label }}</td>
+                    {% endfor %}
+                </tr>
+            {% for student in gradebook_student %}
+                <tr>
+                    <td>{{student.student}}</td><td>{{student.N}}</td><td>{{student.RR}}</td><td>{{student.RW}}</td><td>{{student.WR}}</td><td>{{student.WW}}</td>
+                </tr>
+            {% endfor %}               
+            </table>
+
+            
+        </span>
         
         <ul>
             {% for assignment in data %}
