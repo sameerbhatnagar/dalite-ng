@@ -1778,13 +1778,14 @@ def report_all_rationales(request):
         context = {}
         context['data'] = assignment_data
 
+        ######
         ## student level gradebook
         num_responses_by_student=answer_qs\
         .values('user_token')\
         .order_by('user_token')\
         .annotate(num_responses=Count('user_token'))
 
-        
+        # serialize num_responses_by_student
         student_gradebook_dict={}
         for student_entry in num_responses_by_student:
             if student_entry['user_token'] in student_gradebook_dict:
@@ -1793,6 +1794,7 @@ def report_all_rationales(request):
                 student_gradebook_dict[student_entry['user_token']]={}
                 student_gradebook_dict[student_entry['user_token']]['num_responses'] = student_entry['num_responses']
 
+        # aggregate results for each student
         # code can be made cleaner using Python's collections.DefaultDict
         for question,student_entries in student_transitions_by_q.items():
             for student_entry in student_entries:
@@ -1805,7 +1807,7 @@ def report_all_rationales(request):
                     student_gradebook_dict[student_entry['user_token']]={}
                     student_gradebook_dict[student_entry['user_token']][student_entry['transition']] = 1
 
-
+        # array for template
         gradebook_student=[]
         metric_list = ['num_responses','rr','rw','wr','ww']
         metric_labels = ['N', 'RR', 'RW', 'WR', 'WW']
@@ -1819,9 +1821,56 @@ def report_all_rationales(request):
                     d_g[metric_label] = 0
             gradebook_student.append(d_g)
 
+        ######
+        ## question level gradebook
+        num_responses_by_question=answer_qs\
+        .values('question_id')\
+        .order_by('question_id')\
+        .annotate(num_responses=Count('user_token'))
+
+
+        # serialize num_responses_by_question
+        question_gradebook_dict={}
+        for question_entry in num_responses_by_question:
+            question = Question.objects.get(id=question_entry['question_id'])
+            if question in question_gradebook_dict:
+                question_gradebook_dict[question]['num_responses'] += question_entry['num_responses']
+            else:
+                question_gradebook_dict[question]={}
+                question_gradebook_dict[question]['num_responses'] = question_entry['num_responses']
+
+
+        # aggregate results for each question
+        # code can be made cleaner using Python's collections.DefaultDict
+        for q,student_entries in student_transitions_by_q.items():
+            question = Question.objects.get(title=q)
+            for student_entry in student_entries:
+                if question in question_gradebook_dict:
+                    if student_entry['transition'] in question_gradebook_dict[question]:
+                        question_gradebook_dict[question][student_entry['transition']] += 1
+                    else:
+                        question_gradebook_dict[question][student_entry['transition']] = 1
+                else:
+                    question_gradebook_dict[question]={}
+                    question_gradebook_dict[question][student_entry['transition']] = 1
+       
+
+        # array for template
+        gradebook_question = []
+        for question,grades_dict in question_gradebook_dict.items():
+            d_g = {}
+            d_g['question'] = question
+            for metric,metric_label in zip(metric_list,metric_labels):
+                if metric in grades_dict:
+                    d_g[metric_label] = grades_dict[metric]
+                else:
+                    d_g[metric_label] = 0
+            gradebook_question.append(d_g)
+
 
         context['gradebook_student'] = gradebook_student
-        context['gradebook_student_keys'] = metric_labels
+        context['gradebook_question'] = gradebook_question
+        context['gradebook_keys'] = metric_labels
 
 
     return render(request,template_name,context)

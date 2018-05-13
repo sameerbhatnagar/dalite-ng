@@ -7,15 +7,32 @@
 <main>
 
     <section>
-    <h1>All Rationales</h1>
+    <h1>Report</h1>
     
 
         <span>
-            <h2>Student Gradebook</h2>
+            <h2>Question-level Gradebook</h2>
+            <table>
+                <tr>
+                    <td>Question</td>
+                    {% for label in gradebook_keys %}
+                    <td>{{ label }}</td>
+                    {% endfor %}
+                </tr>
+            {% for question in gradebook_question %}
+                <tr>
+                    <td>{{question.question.title}}</td><td>{{question.N}}</td><td>{{question.RR}}</td><td>{{question.RW}}</td><td>{{question.WR}}</td><td>{{question.WW}}</td>
+                </tr>
+            {% endfor %}               
+            </table>
+        </span>
+
+        <span>
+            <h2>Student-level gradebook</h2>
             <table>
                 <tr>
                     <td>Student</td>
-                    {% for label in gradebook_student_keys %}
+                    {% for label in gradebook_keys %}
                     <td>{{ label }}</td>
                     {% endfor %}
                 </tr>
@@ -25,8 +42,6 @@
                 </tr>
             {% endfor %}               
             </table>
-
-            
         </span>
         
         <ul>
