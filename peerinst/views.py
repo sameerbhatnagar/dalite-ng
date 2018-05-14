@@ -7,8 +7,9 @@ import logging
 import random
 import string
 import itertools
-
 import re
+from collections import defaultdict,Counter
+
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -1786,26 +1787,16 @@ def report_all_rationales(request):
         .annotate(num_responses=Count('user_token'))
 
         # serialize num_responses_by_student
-        student_gradebook_dict={}
-        for student_entry in num_responses_by_student:
-            if student_entry['user_token'] in student_gradebook_dict:
-                student_gradebook_dict[student_entry['user_token']]['num_responses'] += student_entry['num_responses']
-            else:
-                student_gradebook_dict[student_entry['user_token']]={}
-                student_gradebook_dict[student_entry['user_token']]['num_responses'] = student_entry['num_responses']
+        student_gradebook_dict = defaultdict(Counter)
+        for student_entry in num_responses_by_student:    
+            student_gradebook_dict[student_entry['user_token']]['num_responses'] += student_entry['num_responses']
+
 
         # aggregate results for each student
-        # code can be made cleaner using Python's collections.DefaultDict
         for question,student_entries in student_transitions_by_q.items():
             for student_entry in student_entries:
-                if student_entry['user_token'] in student_gradebook_dict:
-                    if student_entry['transition'] in student_gradebook_dict[student_entry['user_token']]:
-                        student_gradebook_dict[student_entry['user_token']][student_entry['transition']] += 1
-                    else:
-                        student_gradebook_dict[student_entry['user_token']][student_entry['transition']] = 1
-                else:
-                    student_gradebook_dict[student_entry['user_token']]={}
-                    student_gradebook_dict[student_entry['user_token']][student_entry['transition']] = 1
+                student_gradebook_dict[student_entry['user_token']][student_entry['transition']] += 1
+
 
         # array for template
         gradebook_student=[]
@@ -1830,31 +1821,19 @@ def report_all_rationales(request):
 
 
         # serialize num_responses_by_question
-        question_gradebook_dict={}
+        question_gradebook_dict=defaultdict(Counter)
         for question_entry in num_responses_by_question:
             question = Question.objects.get(id=question_entry['question_id'])
-            if question in question_gradebook_dict:
-                question_gradebook_dict[question]['num_responses'] += question_entry['num_responses']
-            else:
-                question_gradebook_dict[question]={}
-                question_gradebook_dict[question]['num_responses'] = question_entry['num_responses']
+            question_gradebook_dict[question]['num_responses'] += question_entry['num_responses']
 
 
         # aggregate results for each question
-        # code can be made cleaner using Python's collections.DefaultDict
         for q,student_entries in student_transitions_by_q.items():
             question = Question.objects.get(title=q)
             for student_entry in student_entries:
-                if question in question_gradebook_dict:
-                    if student_entry['transition'] in question_gradebook_dict[question]:
-                        question_gradebook_dict[question][student_entry['transition']] += 1
-                    else:
-                        question_gradebook_dict[question][student_entry['transition']] = 1
-                else:
-                    question_gradebook_dict[question]={}
-                    question_gradebook_dict[question][student_entry['transition']] = 1
-       
+                question_gradebook_dict[question][student_entry['transition']] += 1
 
+       
         # array for template
         gradebook_question = []
         for question,grades_dict in question_gradebook_dict.items():
