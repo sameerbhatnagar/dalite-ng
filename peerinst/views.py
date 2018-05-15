@@ -1646,13 +1646,17 @@ def report_all_rationales(request):
         d_a['assignment'] = a.title
         d_a['questions'] = []
 
+        metric_list = ['num_responses','rr','rw','wr','ww']
+        metric_labels = ['N', 'RR', 'RW', 'WR', 'WW']
 
         student_transitions_by_q = {}
         student_gradebook_transitions = {}
+        question_list = []
         for q in a.questions.all():
             d_q={}
             d_q['text'] = q.text
             d_q['title'] = q.title
+            question_list.append(q)
             try:
                 d_q['question_image'] = q.image
             except ValueError as e:
@@ -1800,8 +1804,6 @@ def report_all_rationales(request):
 
         # array for template
         gradebook_student=[]
-        metric_list = ['num_responses','rr','rw','wr','ww']
-        metric_labels = ['N', 'RR', 'RW', 'WR', 'WW']
         for student,grades_dict in student_gradebook_dict.items():
             d_g = {}
             d_g['student'] = student
@@ -1810,6 +1812,13 @@ def report_all_rationales(request):
                     d_g[metric_label] = grades_dict[metric]
                 else:
                     d_g[metric_label] = 0
+            for question in question_list:
+                try:
+                    d_g[question] = transitions.filter(user_token=student)\
+                    .get(question_id=question.id).transition
+                except ObjectDoesNotExist:
+                    d_g[question] = None
+
             gradebook_student.append(d_g)
 
         ######
@@ -1850,6 +1859,7 @@ def report_all_rationales(request):
         context['gradebook_student'] = gradebook_student
         context['gradebook_question'] = gradebook_question
         context['gradebook_keys'] = metric_labels
+        context['question_list'] = question_list
 
 
     return render(request,template_name,context)

@@ -1,7 +1,7 @@
 {% extends 'peerinst/base.html' %}
 
 {% load i18n %}
-
+{% load get_value %}
 {% block body %}
 
 <main>
@@ -19,11 +19,15 @@
                     <td>{{ label }}</td>
                     {% endfor %}
                 </tr>
-            {% for question in gradebook_question %}
+                {% for question in gradebook_question %}
                 <tr>
-                    <td>{{question.question.title}}</td><td>{{question.N}}</td><td>{{question.RR}}</td><td>{{question.RW}}</td><td>{{question.WR}}</td><td>{{question.WW}}</td>
+                    <td>{{question.question.title}}</td>
+
+                        {% for label in gradebook_keys %}
+                            <td>{{ question|get_value:label }}</td>
+                        {% endfor %}
                 </tr>
-            {% endfor %}               
+                {% endfor %}               
             </table>
         </span>
 
@@ -32,13 +36,21 @@
             <table>
                 <tr>
                     <td>Student</td>
-                    {% for label in gradebook_keys %}
-                    <td>{{ label }}</td>
-                    {% endfor %}
+                        {% for label in gradebook_keys %}
+                            <td>{{ label }}</td>
+                        {% endfor %}
+                        {% for question in question_list %}
+                            <td> {{ question.title }} </td>                        
+                        {% endfor %}
                 </tr>
             {% for student in gradebook_student %}
                 <tr>
                     <td>{{student.student}}</td><td>{{student.N}}</td><td>{{student.RR}}</td><td>{{student.RW}}</td><td>{{student.WR}}</td><td>{{student.WW}}</td>
+
+                    {% for question in question_list %}
+                        <td> {{ student|get_value:question }}</td>
+                    {% endfor %}
+
                 </tr>
             {% endfor %}               
             </table>
