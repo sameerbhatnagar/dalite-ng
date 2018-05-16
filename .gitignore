@@ -11,5 +11,5 @@ locust*
 /sent_emails
 *.log
 /node_modules
-package*.json
 /CACHE
+partner*.png

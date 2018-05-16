@@ -1007,10 +1007,14 @@ class TeacherDetailView(TeacherBase,DetailView):
 
     model = Teacher
 
-    # def get_context_data(self, **kwargs):
-    #     context = super(TeacherDetailView, self).get_context_data(**kwargs)
-    #     context['teacher'] = self.request.user
-    #     context['group_select_form'] = forms.StudentGroupReportSelectForm(teacher_username=self.request.user.username)
+    def get_context_data(self, **kwargs):
+        context = super(TeacherDetailView,self).get_context_data(**kwargs)
+        context['LTI_key'] = str(settings.LTI_CLIENT_KEY)
+        context['LTI_secret'] = str(settings.LTI_CLIENT_SECRET)
+        context['LTI_launch_url'] = str('https://'+self.request.get_host()+'/lti/')
+
+        return context
+
 
 class TeacherUpdate(TeacherBase,UpdateView):
 
@@ -1321,6 +1325,41 @@ def blink_assignment_start(request,pk):
                 })
 
 
+@login_required
+def blink_assignment_delete(request,pk):
+    """View to delete a blink script"""
+
+    # Check this user is a Teacher and owns this assignment
+    try:
+        teacher = Teacher.objects.get(user__username=request.user)
+        blinkassignment = BlinkAssignment.objects.get(key=pk)
+
+        if blinkassignment.teacher == teacher:
+
+            # Delete
+            blinkassignment.delete()
+
+            return HttpResponseRedirect(reverse('teacher', kwargs={'pk':teacher.pk}))
+
+        else:
+            return TemplateResponse(
+                request,
+                'peerinst/blink_error.html',
+                context={
+                    'message':"Assignment does not belong to this teacher",
+                    'url':reverse('teacher', kwargs={'pk':teacher.pk})
+                    })
+
+    except:
+        return TemplateResponse(
+            request,
+            'peerinst/blink_error.html',
+            context={
+                'message':"Error",
+                'url':reverse('logout')
+                })
+
+
 def blink_get_next(request,pk):
     """View to process next question in a series of blink questions based on state."""
 
@@ -1495,7 +1534,7 @@ class BlinkAssignmentCreate(LoginRequiredMixin,CreateView):
     def get_success_url(self):
         try:
             teacher = Teacher.objects.get(user=self.request.user)
-            return reverse('teacher', kwargs={'pk': teacher.id})
+            return reverse('blinkAssignment-update', kwargs={'pk': self.object.id})
         except:
             return reverse('welcome')
 
