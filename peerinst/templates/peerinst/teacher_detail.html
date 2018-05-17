@@ -119,7 +119,7 @@
       </span>
     </span>
     <span class="mdc-list-item__meta">
-      <a href="">
+      <a href="{% url 'report-all-groups' teacher_id=teacher.id assignment_id=a.identifier %}">
         <i class="material-icons md-24 mdc-ripple-surface icon-list">bar_chart</i>
       </a>
       <i id="activate-dialog-{{a.pk|slugify}}" class="material-icons md-24 mdc-ripple-surface icon-list">info</i>
