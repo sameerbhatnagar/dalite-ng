@@ -57,7 +57,7 @@ urlpatterns = [
     url(r'^teacher/(?P<teacher_id>[0-9]+)/report/(?P<assignment_id>[^/]+)/all_groups/$', views.report, name='report-all-groups'),
     url(r'^teacher/(?P<teacher_id>[0-9]+)/report/(?P<group_id>[^/]+)/all_assignments/$', views.report, name='report-all-assignments'),
 
-    url(r'^report_selector$',views.report_selector,name='report_selector'),
+    url(r'^teacher/(?P<teacher_id>[0-9]+)/report_selector$',views.report_selector,name='report_selector'),
     url(r'^report_rationales_chosen$',views.report_assignment_aggregates,name='report_rationales_chosen'),
     url(r'^report_all_rationales$',views.report,name='report_all_rationales'),
     # url(r'^assignment_results/(?P<assignment_id>[^/]+)/(?P<student_group_id>[^/]+)/', views.AssignmentByGroupResultsView.as_view(), name='assignment-group-results'),

@@ -99,6 +99,9 @@
 <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Assignments' %}</h2>
 <div class="admin-link">
   <a href="{% url 'teacher-assignments' teacher.id %}">{% trans 'Manage assignments' %}</a>
+<span class="admin-link" style="padding-left:0.3em;padding-right:0.5em;">
+  <a href="{% url 'report_selector' teacher_id=teacher.id%}">{% trans '| Click HERE for CUSTOM REPORT FORM' %}</a>
+</span>
 </div>
 {% if not object.assignments.all %}
 <p>{% blocktrans %}You do not have any assignments.{% endblocktrans %}</p>
@@ -168,10 +171,6 @@
   {% endfor %}
   <li role="separator" class="mdc-list-divider"></li>
 </ul>
-
-
-<div class="admin-link" style="margin-bottom:0pt;"><a href="{% url 'report_selector' %}">Click HERE for REPORT_MAKER</a></div>
-
 
 
 <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Groups' %}</h2>

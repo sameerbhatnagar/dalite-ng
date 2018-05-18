@@ -1661,27 +1661,25 @@ def network_data(request,assignment_id):
 
     return JsonResponse(links_array,safe=False)
 
-def report_selector(request):
+def report_selector(request,teacher_id):
     return TemplateResponse(request,'peerinst/report_selector.html',\
         {'report_select_form':forms.ReportSelectForm(teacher_username=request.user)})
 
 def report(request,teacher_id='',assignment_id='',group_id=''):
     
     template_name = 'peerinst/report_all_rationales.html'
-    # student_groups=request.GET.getlist('student_groups')
-    # student_id_list = student_list_from_student_groups(student_groups)
-    # assignment_list = request.GET.getlist('assignments')
+    
+    if request.GET:
+        student_groups=request.GET.getlist('student_groups')
+        student_id_list = student_list_from_student_groups(student_groups)
+        assignment_list = request.GET.getlist('assignments')
 
-    # if len(student_groups)>0:
-    #     answer_qs = Answer.objects.filter(assignment_id__in=assignment_list).filter(user_token__in=student_id_list)
-    # else:
-    #     answer_qs = Answer.objects.filter(assignment_id__in=assignment_list).exclude(user_token='')
 
-    if len(group_id)==0:
+    elif len(group_id)==0:
         assignment_list = [urllib.unquote(assignment_id)]
         student_groups = Teacher.objects.get(pk=teacher_id).groups.all().values_list('pk')
 
-    if len(assignment_id)==0:
+    elif len(assignment_id)==0:
         student_groups = [StudentGroup.objects.get(name=urllib.unquote(group_id)).pk]
         assignment_list = Teacher.objects.get(pk=teacher_id).assignments.all().values_list('identifier',flat=True)
     
