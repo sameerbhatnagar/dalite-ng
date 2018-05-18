@@ -119,7 +119,7 @@
       </span>
     </span>
     <span class="mdc-list-item__meta">
-      <a href="{% url 'report-all-groups' teacher_id=teacher.id assignment_id=a.identifier %}">
+      <a href="{% url 'report-all-groups' teacher_id=teacher.id assignment_id=a.identifier|urlencode:"" %}">
         <i class="material-icons md-24 mdc-ripple-surface icon-list">bar_chart</i>
       </a>
       <i id="activate-dialog-{{a.pk|slugify}}" class="material-icons md-24 mdc-ripple-surface icon-list">info</i>
@@ -199,7 +199,7 @@
       </span>
     </span>
     <span class="mdc-list-item__meta">
-      <a href="">
+      <a href="{% url 'report-all-assignments' teacher_id=teacher.id group_id=g.name|urlencode:"" %}">
         <i class="material-icons md-24 mdc-ripple-surface icon-list">bar_chart</i>
       </a>
       <a href="{% url 'teacher-groups' teacher.id %}">

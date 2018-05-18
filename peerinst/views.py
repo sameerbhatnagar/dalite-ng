@@ -9,6 +9,7 @@ import string
 import itertools
 import re
 from collections import defaultdict,Counter
+import urllib
 
 from django.conf import settings
 from django.contrib import messages
@@ -1676,11 +1677,17 @@ def report(request,teacher_id='',assignment_id='',group_id=''):
     # else:
     #     answer_qs = Answer.objects.filter(assignment_id__in=assignment_list).exclude(user_token='')
 
-    assignment_list = [assignment_id]
-    student_groups = Teacher.objects.get(pk=teacher_id).groups.all().values_list('pk')
+    if len(group_id)==0:
+        assignment_list = [urllib.unquote(assignment_id)]
+        student_groups = Teacher.objects.get(pk=teacher_id).groups.all().values_list('pk')
+
+    if len(assignment_id)==0:
+        student_groups = [StudentGroup.objects.get(name=urllib.unquote(group_id)).pk]
+        assignment_list = Teacher.objects.get(pk=teacher_id).assignments.all().values_list('identifier',flat=True)
+    
     student_id_list = student_list_from_student_groups(student_groups)
     answer_qs = Answer.objects.filter(assignment_id__in=assignment_list).filter(user_token__in=student_id_list)
-    
+
     # all data
     assignment_data=[]
     for a_str in assignment_list:
