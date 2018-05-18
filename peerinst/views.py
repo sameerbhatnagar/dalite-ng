@@ -10,6 +10,7 @@ import itertools
 import re
 from collections import defaultdict,Counter
 import urllib
+import pprint
 
 from django.conf import settings
 from django.contrib import messages
@@ -1734,6 +1735,7 @@ def report(request,teacher_id='',assignment_id='',group_id=''):
 
             student_transitions_by_q[q.title] = transitions.values('user_token','transition')
 
+
             # aggregates
             field_names = ['first_answer_choice','second_answer_choice']#,'transition']
             field_labels = ['First Answer Choice', 'Second Answer Choice']#,'Transition']
@@ -1800,10 +1802,7 @@ def report(request,teacher_id='',assignment_id='',group_id=''):
                     d_q_cf['second_answer_choice'].append(d_q_cf_a2)
                 d_q['confusion_matrix'].append(d_q_cf)
 
-            # import pprint
-            # pprint.pprint(d_q['confusion_matrix'])            
-
-
+           
             d_q['student_responses'] = []
             for student_response in answer_qs_question:
                 d_q_a = {}
@@ -1840,6 +1839,7 @@ def report(request,teacher_id='',assignment_id='',group_id=''):
 
         # serialize num_responses_by_student
         student_gradebook_dict = defaultdict(Counter)
+        student_gradebook_dict_by_q = defaultdict(defaultdict)
         for student_entry in num_responses_by_student:    
             student_gradebook_dict[student_entry['user_token']]['num_responses'] += student_entry['num_responses']
 
@@ -1848,23 +1848,25 @@ def report(request,teacher_id='',assignment_id='',group_id=''):
         for question,student_entries in student_transitions_by_q.items():
             for student_entry in student_entries:
                 student_gradebook_dict[student_entry['user_token']][student_entry['transition']] += 1
-
+                student_gradebook_dict_by_q[student_entry['user_token']][question] = student_entry['transition']
 
         # array for template
         gradebook_student=[]
         for student,grades_dict in student_gradebook_dict.items():
             d_g = {}
             d_g['student'] = student
+
             for metric,metric_label in zip(metric_list,metric_labels):
                 if metric in grades_dict:
                     d_g[metric_label] = grades_dict[metric]
                 else:
                     d_g[metric_label] = 0
             for question in question_list:
+
                 try:
-                    d_g[question] = transitions.filter(user_token=student)\
-                    .get(question_id=question.id).transition
-                except ObjectDoesNotExist:
+                    d_g[question] = student_gradebook_dict_by_q[student][question.title]
+                    
+                except KeyError as e:
                     d_g[question] = None
 
             gradebook_student.append(d_g)
