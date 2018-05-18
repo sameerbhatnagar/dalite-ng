@@ -1669,7 +1669,8 @@ def report_selector(request,teacher_id):
 def report(request,teacher_id='',assignment_id='',group_id=''):
     
     template_name = 'peerinst/report_all_rationales.html'
-    
+    teacher = Teacher.objects.get(pk=teacher_id)
+
     if request.GET:
         student_groups=request.GET.getlist('student_groups')
         student_id_list = student_list_from_student_groups(student_groups)
@@ -1678,11 +1679,11 @@ def report(request,teacher_id='',assignment_id='',group_id=''):
 
     elif len(group_id)==0:
         assignment_list = [urllib.unquote(assignment_id)]
-        student_groups = Teacher.objects.get(pk=teacher_id).groups.all().values_list('pk')
+        student_groups = teacher.groups.all().values_list('pk')
 
     elif len(assignment_id)==0:
         student_groups = [StudentGroup.objects.get(name=urllib.unquote(group_id)).pk]
-        assignment_list = Teacher.objects.get(pk=teacher_id).assignments.all().values_list('identifier',flat=True)
+        assignment_list = teacher.assignments.all().values_list('identifier',flat=True)
     
     student_id_list = student_list_from_student_groups(student_groups)
     answer_qs = Answer.objects.filter(assignment_id__in=assignment_list).filter(user_token__in=student_id_list)
@@ -1720,7 +1721,7 @@ def report(request,teacher_id='',assignment_id='',group_id=''):
             answer_style = q.answer_style
 
             correct_answer_choices = list(itertools.compress(itertools.count(1),answer_choices_correct)) # e.g. [3,4]
-            # print(correct_answer_choices)
+
             transitions = answer_qs_question.annotate(transition=\
                 Case(\
                     When(Q(first_answer_choice__in=correct_answer_choices) & Q(second_answer_choice__in=correct_answer_choices),\
@@ -1733,8 +1734,11 @@ def report(request,teacher_id='',assignment_id='',group_id=''):
                         then=Value('ww')),\
                     output_field=CharField()))#efault_value=Value('none'),\
 
-            student_transitions_by_q[q.title] = transitions.values('user_token','transition')
-
+            # for aggregate gradebook over all assignments
+            ##############
+            student_transitions_by_q[q.title] = transitions.values('user_token','transition',\
+                'rationale','first_answer_choice','second_answer_choice')
+            ###############
 
             # aggregates
             field_names = ['first_answer_choice','second_answer_choice']#,'transition']
@@ -1867,7 +1871,7 @@ def report(request,teacher_id='',assignment_id='',group_id=''):
                     d_g[question] = student_gradebook_dict_by_q[student][question.title]
                     
                 except KeyError as e:
-                    d_g[question] = None
+                    d_g[question] = '-'
 
             gradebook_student.append(d_g)
 
@@ -1910,6 +1914,7 @@ def report(request,teacher_id='',assignment_id='',group_id=''):
         context['gradebook_question'] = gradebook_question
         context['gradebook_keys'] = metric_labels
         context['question_list'] = question_list
+        context['teacher'] = teacher
 
 
     return render(request,template_name,context)
