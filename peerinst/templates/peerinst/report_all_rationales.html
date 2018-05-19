@@ -18,10 +18,11 @@
             <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Question-level Gradebook' %}</h2>
 
             <table>
+                <thead>
                 <tr>
-                    <td>Question</td>
+                    <th>Question</th>
                     {% for label in gradebook_keys %}
-                    <td>{{ label }}</td>
+                    <th>{{ label }}</th>
                     {% endfor %}
                 </tr>
                 {% for question in gradebook_question %}
@@ -32,6 +33,7 @@
                             <td>{{ question|get_value:label }}</td>
                         {% endfor %}
                 </tr>
+                </thead>
                 {% endfor %}               
             </table>
         </span>
@@ -39,15 +41,17 @@
         <span>
             <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Student-level gradebook' %}</h2>
             <table>
+                <thead>
                 <tr>
-                    <td>Student</td>
+                    <th>Student</th>
                         {% for label in gradebook_keys %}
-                            <td>{{ label }}</td>
+                            <th>{{ label }}</th>
                         {% endfor %}
                         {% for question in question_list %}
-                            <td> {{ question.title }} </td>                        
+                            <th> {{ question.title }} </th>
                         {% endfor %}
                 </tr>
+                </thead>
             {% for student in gradebook_student %}
                 <tr>
                     <td>{{student.student}}</td><td>{{student.N}}</td><td>{{student.RR}}</td><td>{{student.RW}}</td><td>{{student.WR}}</td><td>{{student.WW}}</td>
@@ -144,15 +148,15 @@
                             <span>
                             <h4>Student Responses</h4>
                                 <table>
-                                    <th>
+                                    <thead>
                                     <tr>
-                                        <td>Student</td>
-                                        <td>First Answer</td>
-                                        <td>Rationale</td>
-                                        <td>Second Answer</td>
-                                        <td>Chosen Rationale</td>
+                                        <th>Student</th>
+                                        <th>First Answer</th>
+                                        <th>Rationale</th>
+                                        <th>Second Answer</th>
+                                        <th>Chosen Rationale</th>
                                     </tr>
-                                    </th>
+                                    </thead>
                                 {% for student_response in question.student_responses %}
                                     
                                     <tr>
