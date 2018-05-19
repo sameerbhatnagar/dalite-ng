@@ -15,7 +15,8 @@
     </div>
 
         <span>
-            <h2>Question-level Gradebook</h2>
+            <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Question-level Gradebook' %}</h2>
+
             <table>
                 <tr>
                     <td>Question</td>
@@ -36,7 +37,7 @@
         </span>
 
         <span>
-            <h2>Student-level gradebook</h2>
+            <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Student-level gradebook' %}</h2>
             <table>
                 <tr>
                     <td>Student</td>
@@ -60,14 +61,15 @@
             </table>
         </span>
         
+        <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Details by Assignment' %}</h2>
         <ul>
             {% for assignment in data %}
             <li>
                 <span>
-                <h2>{{ assignment.assignment }}</h2>
+                <h3>{{ assignment.assignment }}</h3>
 
                 <span>
-                    <h3>Overall Student Transitions</h3>
+                    <h4>Overall Student Transitions</h4>
                     <ul>
                     {% for transition in assignment.transitions %}
                         <li>{{ transition.transition_type }} : {{ transition.count }}</li>
@@ -80,7 +82,7 @@
                     <ul>
                         <li>
                             <span>
-                                <h3>Question : {{ question.title }}</h3>
+                                <h4>Question : {{ question.title }}</h4>
                                 {{ question.text|striptags }}
                                 {% if question.question_image %}
                                     <div>
@@ -93,11 +95,12 @@
                             </span>
 
                             <span>
-                            <h3>Summary</h3>
+                            <h4>Summary</h4>
                                 Total Number Responses: {{ question.num_responses}} 
                                 {% for distribution in question.answer_distributions %}
-                                <h4>{{ distribution.label }}</h4>
-                                <h5>Count:Answer Choice</h5>
+                                <div>
+                                <h5>{{ distribution.label }}</h5>
+                                <h6>Count:Answer Choice</h6>
                                     <ul>
                                     {% for answer_choice in distribution.data %}
                                         <li> {{ answer_choice.count }} : {{ answer_choice.answer_choice }}
@@ -107,19 +110,20 @@
                                         </li>
                                     {% endfor %}
                                     </ul>
+                                </div>
                                 {% endfor %}
 
-                                 
+                                 <div>
                                 {% for transition in question.transitions %}
                                 <!-- <h4>{{ distribution.label }}</h4> -->
-                                <h5>Count: Transition Type</h5>
+                                <h6>Count: Transition Type</h6>
                                     <ul>
                                     {% for answer_choice in transition.data %}
                                         <li> {{ answer_choice.count }} : {{ answer_choice.transition_type }}</li>
                                     {% endfor %}
                                     </ul>
                                 {% endfor %}
-
+                                </div>
 
 
                             </span>
@@ -138,21 +142,31 @@
                             </span>
 
                             <span>
-                            <h3>Student Responses</h3>
-                                <ul>
+                            <h4>Student Responses</h4>
+                                <table>
+                                    <th>
+                                    <tr>
+                                        <td>Student</td>
+                                        <td>First Answer</td>
+                                        <td>Rationale</td>
+                                        <td>Second Answer</td>
+                                        <td>Chosen Rationale</td>
+                                    </tr>
+                                    </th>
                                 {% for student_response in question.student_responses %}
                                     
-                                    <ul>
-                                        <em><li>Student: {{ student_response.student }}</li></em>
-                                        <li>First Answer: {{ student_response.first_answer_choice }}</li>
-                                        <li>Rationale: {{ student_response.rationale }}</li>
-                                        <li>Second Answer: {{ student_response.second_answer_choice }}</li>
-                                        <li>Chosen Rationale: {{ student_response.chosen_rationale }}</li>
-                                    </ul>
+                                    <tr>
+                                        <td>{{ student_response.student }}</td>
+                                        <td>{{ student_response.first_answer_choice }}</td>
+                                        <td>{{ student_response.rationale }}</td>
+                                        <td>{{ student_response.second_answer_choice }}</td>
+                                        <td>{{ student_response.chosen_rationale }}</td>
+                                    </tr>
                                     
                                 {% endfor %}
-                                </ul>
+                                </table>
                             </span>
+
                         </li>
                     </ul>
                     {% endif %}

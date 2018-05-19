@@ -1740,7 +1740,7 @@ def report(request,teacher_id='',assignment_id='',group_id=''):
                 'rationale','first_answer_choice','second_answer_choice')
             ###############
 
-            # aggregates
+            # aggregates for this question in this assignment
             field_names = ['first_answer_choice','second_answer_choice']#,'transition']
             field_labels = ['First Answer Choice', 'Second Answer Choice']#,'Transition']
             d_q['answer_distributions'] = []
@@ -1835,6 +1835,7 @@ def report(request,teacher_id='',assignment_id='',group_id=''):
         context['data'] = assignment_data
 
         ######
+        # for aggregate gradebook over all assignments
         ## student level gradebook
         num_responses_by_student=answer_qs\
         .values('user_token')\
@@ -1876,6 +1877,7 @@ def report(request,teacher_id='',assignment_id='',group_id=''):
             gradebook_student.append(d_g)
 
         ######
+        # for aggregate gradebook over all assignments
         ## question level gradebook
         num_responses_by_question=answer_qs\
         .values('question_id')\
