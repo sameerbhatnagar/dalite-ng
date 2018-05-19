@@ -15,7 +15,7 @@
     </div>
 
         <span>
-            <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Question-level Gradebook' %}</h2>
+            <h2 id='question_gradebook' class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Question-level Gradebook' %}</h2>
 
             <table>
                 <thead>
@@ -27,7 +27,7 @@
                 </tr>
                 {% for question in gradebook_question %}
                 <tr>
-                    <td>{{question.question.title}}</td>
+                    <td class="mdc-ripple-surface"><a href="#{{question.question.title}}">{{question.question.title}}</a></td>
 
                         {% for label in gradebook_keys %}
                             <td>{{ question|get_value:label }}</td>
@@ -39,7 +39,7 @@
         </span>
 
         <span>
-            <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Student-level gradebook' %}</h2>
+            <h2 id='student_gradebook' class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Student-level gradebook' %}</h2>
             <table>
                 <thead>
                 <tr>
@@ -54,10 +54,21 @@
                 </thead>
             {% for student in gradebook_student %}
                 <tr>
-                    <td>{{student.student}}</td><td>{{student.N}}</td><td>{{student.RR}}</td><td>{{student.RW}}</td><td>{{student.WR}}</td><td>{{student.WW}}</td>
+                    <td id="{{ student.student }}">{{student.student}}</td>
+                    <td>{{student.N}}</td>
+                    <td>{{student.RR}}</td>
+                    <td>{{student.RW}}</td>
+                    <td>{{student.WR}}</td>
+                    <td>{{student.WW}}</td>
 
                     {% for question in question_list %}
-                        <td> {{ student|get_value:question }}</td>
+                    
+                        {% if student|get_value:question != '-' %}    
+                        <td class="mdc-ripple-surface">  <a href="#{{ student.student }}{{ question.title }}">{{ student|get_value:question }}</a></td>
+                        {% else %}
+                            <td>{{ student|get_value:question }}</td>
+                        {% endif %}
+                    
                     {% endfor %}
 
                 </tr>
@@ -86,7 +97,10 @@
                     <ul>
                         <li>
                             <span>
-                                <h4>Question : {{ question.title }}</h4>
+                                <h4 id="{{ question.title }}">Question : {{ question.title }}</h4>
+                                <div class="admin-link">
+                                    <a href="#question_gradebook">Back to top</a>
+                                </div>
                                 {{ question.text|striptags }}
                                 {% if question.question_image %}
                                     <div>
@@ -147,6 +161,9 @@
 
                             <span>
                             <h4>Student Responses</h4>
+                              <div class="admin-link">
+                                <a href="#student_gradebook">Back to top</a></div>
+
                                 <table>
                                     <thead>
                                     <tr>
@@ -160,7 +177,8 @@
                                 {% for student_response in question.student_responses %}
                                     
                                     <tr>
-                                        <td>{{ student_response.student }}</td>
+                                        <td id="{{student_response.student}}{{ question.title }}" class="mdc-ripple-surface">
+                                            <a href="#{{ student_response.student }}">{{ student_response.student }}</a></td>
                                         <td>{{ student_response.first_answer_choice }}</td>
                                         <td>{{ student_response.rationale }}</td>
                                         <td>{{ student_response.second_answer_choice }}</td>
