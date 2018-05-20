@@ -1,222 +1,212 @@
 {% extends 'peerinst/base.html' %}
 
-  
-{% load i18n %}
-{% load get_value %}
+{% load i18n get_value %}
+
+{% block stylesheets %}
+<link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css">
+{% endblock %}
+
 {% block body %}
-
 <main>
-
-    <section>
+  <section>
     <h1 class="mdc-typography--display3" style="position:sticky;">{% trans 'Report' %}
-        <svg class="underline" width=150 height=4></svg>
+      <svg class="underline" width=150 height=4></svg>
     </h1>
+
     <div class="admin-link">
-        <a href="{% url 'teacher' pk=teacher.pk %}">{% trans 'Back to My Account' %}</a>
+      <a href="{% url 'teacher' pk=teacher.pk %}">{% trans 'Back to My Account' %}</a>
     </div>
 
+    <h2 id='question_gradebook' class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Question-level gradebook' %}</h2>
+
+    <table>
+      <thead>
+      <tr>
+        <th>Question</th>
+        {% for label in gradebook_keys %}
+        <th>{{ label }}</th>
+        {% endfor %}
+      </tr>
+      {% for question in gradebook_question %}
+      <tr>
+        <td class="mdc-ripple-surface"><a href="#{{question.question.title}}">{{question.question.title}}</a></td>
+        {% for label in gradebook_keys %}
+        <td>{{ question|get_value:label }}</td>
+        {% endfor %}
+      </tr>
+      {% endfor %}
+      </thead>
+    </table>
+
+    <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Student-level gradebook' %}</h2>
+
+    <table id='student_gradebook' class='display'>
+      <thead>
+        <tr>
+          <th>Student</th>
+          {% for label in gradebook_keys %}
+          <th>{{ label }}</th>
+          {% endfor %}
+          {% for question in question_list %}
+          <th> {{ question.title }} </th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for student in gradebook_student %}
+        <tr>
+          <td id="{{ student.student }}">{{student.student}}</td>
+          <td>{{student.N}}</td>
+          <td>{{student.RR}}</td>
+          <td>{{student.RW}}</td>
+          <td>{{student.WR}}</td>
+          <td>{{student.WW}}</td>
+          {% for question in question_list %}
+          {% if student|get_value:question != '-' %}
+          <td class="mdc-ripple-surface">  <a href="#{{ student.student }}{{ question.title }}">{{ student|get_value:question }}</a></td>
+          {% else %}
+          <td>{{ student|get_value:question }}</td>
+          {% endif %}
+          {% endfor %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Details by Assignment' %}</h2>
+
+    <ul>
+    {% for assignment in data %}
+      <li>
         <span>
-            <h2 id='question_gradebook' class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Question-level Gradebook' %}</h2>
+        <h3>{{ assignment.assignment }}</h3>
 
-            <table>
-                <thead>
-                <tr>
-                    <th>Question</th>
-                    {% for label in gradebook_keys %}
-                    <th>{{ label }}</th>
-                    {% endfor %}
-                </tr>
-                {% for question in gradebook_question %}
-                <tr>
-                    <td class="mdc-ripple-surface"><a href="#{{question.question.title}}">{{question.question.title}}</a></td>
-
-                        {% for label in gradebook_keys %}
-                            <td>{{ question|get_value:label }}</td>
-                        {% endfor %}
-                </tr>
-                </thead>
-                {% endfor %}               
-            </table>
+        <span>
+            <h4>Overall Student Transitions</h4>
+            <ul>
+            {% for transition in assignment.transitions %}
+                <li>{{ transition.transition_type }} : {{ transition.count }}</li>
+            {% endfor %}
+            </ul>
         </span>
 
-        <span>
-            <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Student-level gradebook' %}</h2>
-            <table id='student_gradebook' class='display'>
-                <thead>
-                <tr>
-                    <th>Student</th>
-                        {% for label in gradebook_keys %}
-                            <th>{{ label }}</th>
-                        {% endfor %}
-                        {% for question in question_list %}
-                            <th> {{ question.title }} </th>
-                        {% endfor %}
-                </tr>
-                </thead>
-            <tbody>
-            {% for student in gradebook_student %}
-            
-                <tr>
-                    <td id="{{ student.student }}">{{student.student}}</td>
-                    <td>{{student.N}}</td>
-                    <td>{{student.RR}}</td>
-                    <td>{{student.RW}}</td>
-                    <td>{{student.WR}}</td>
-                    <td>{{student.WW}}</td>
-
-                    {% for question in question_list %}
-                    
-                        {% if student|get_value:question != '-' %}    
-                        <td class="mdc-ripple-surface">  <a href="#{{ student.student }}{{ question.title }}">{{ student|get_value:question }}</a></td>
-                        {% else %}
-                            <td>{{ student|get_value:question }}</td>
+        {% for question in assignment.questions %}
+            {% if question.show %}
+            <ul>
+                <li>
+                    <span>
+                        <h4 id="{{ question.title }}">Question : {{ question.title }}</h4>
+                        <div class="admin-link">
+                            <a href="#question_gradebook">Back to top</a>
+                        </div>
+                        {{ question.text|striptags }}
+                        {% if question.question_image %}
+                            <div>
+                              <img style="display:block;margin:auto;padding-top:10pt;padding-bottom:10pt;"  src="{{ question.question_image.url }}" alt="g.question.image_alt_text">
+                            </div>
                         {% endif %}
-                    
-                    {% endfor %}
+                    </span>
 
-                </tr>
-            {% endfor %}
-            </tbody>               
-            </table>
+                    <span>
+                    <h4>Summary</h4>
+                        Total Number Responses: {{ question.num_responses}}
+                        {% for distribution in question.answer_distributions %}
+                        <div>
+                        <h5>{{ distribution.label }}</h5>
+                        <h6>Count:Answer Choice</h6>
+                            <ul>
+                            {% for answer_choice in distribution.data %}
+                                <li> {{ answer_choice.count }} : {{ answer_choice.answer_choice }}
+                                    {% if answer_choice.answer_choice_correct %}
+                                    <em>(Correct)</em>
+                                    {% endif %}
+                                </li>
+                            {% endfor %}
+                            </ul>
+                        </div>
+                        {% endfor %}
+
+                         <div>
+                        {% for transition in question.transitions %}
+                        <!-- <h4>{{ distribution.label }}</h4> -->
+                        <h6>Count: Transition Type</h6>
+                            <ul>
+                            {% for answer_choice in transition.data %}
+                                <li> {{ answer_choice.count }} : {{ answer_choice.transition_type }}</li>
+                            {% endfor %}
+                            </ul>
+                        {% endfor %}
+                        </div>
+
+
+                    </span>
+
+                    <span>
+                    <h4>Confusion Matrix</h4>
+                    <table>
+                        {% for first_ans in question.confusion_matrix %}
+                        <tr>
+                            {% for second_ans in first_ans.second_answer_choice %}
+                            <td>{{second_ans.N}}</td>
+                            {% endfor %}
+                        </tr>
+                        {% endfor %}
+                    </table>
+                    </span>
+
+                    <span>
+                    <h4>Student Responses</h4>
+                      <div class="admin-link">
+                        <a href="#student_gradebook">Back to top</a></div>
+
+                        <table>
+                            <thead>
+                            <tr>
+                                <th>Student</th>
+                                <th>First Answer</th>
+                                <th>Rationale</th>
+                                <th>Second Answer</th>
+                                <th>Chosen Rationale</th>
+                            </tr>
+                            </thead>
+                        {% for student_response in question.student_responses %}
+
+                            <tr>
+                                <td id="{{student_response.student}}{{ question.title }}" class="mdc-ripple-surface">
+                                    <a href="#{{ student_response.student }}">{{ student_response.student }}</a></td>
+                                <td>{{ student_response.first_answer_choice }}</td>
+                                <td>{{ student_response.rationale }}</td>
+                                <td>{{ student_response.second_answer_choice }}</td>
+                                <td>{{ student_response.chosen_rationale }}</td>
+                            </tr>
+
+                        {% endfor %}
+                        </table>
+                    </span>
+
+                </li>
+            </ul>
+            {% endif %}
+        {% endfor %}
         </span>
-        
-        <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Details by Assignment' %}</h2>
-        <ul>
-            {% for assignment in data %}
-            <li>
-                <span>
-                <h3>{{ assignment.assignment }}</h3>
+          </li>
 
-                <span>
-                    <h4>Overall Student Transitions</h4>
-                    <ul>
-                    {% for transition in assignment.transitions %}
-                        <li>{{ transition.transition_type }} : {{ transition.count }}</li>
-                    {% endfor %}
-                    </ul>
-                </span>
+          {% endfor %}
 
-                {% for question in assignment.questions %} 
-                    {% if question.show %}               
-                    <ul>
-                        <li>
-                            <span>
-                                <h4 id="{{ question.title }}">Question : {{ question.title }}</h4>
-                                <div class="admin-link">
-                                    <a href="#question_gradebook">Back to top</a>
-                                </div>
-                                {{ question.text|striptags }}
-                                {% if question.question_image %}
-                                    <div>
-                                      <img style="display:block;margin:auto;
-                                      padding-top:10pt;
-                                      padding-bottom:10pt;"  src="{{ question.question_image.url }}"
-                                           alt="g.question.image_alt_text">
-                                    </div>
-                                {% endif %}
-                            </span>
+      </ul>
 
-                            <span>
-                            <h4>Summary</h4>
-                                Total Number Responses: {{ question.num_responses}} 
-                                {% for distribution in question.answer_distributions %}
-                                <div>
-                                <h5>{{ distribution.label }}</h5>
-                                <h6>Count:Answer Choice</h6>
-                                    <ul>
-                                    {% for answer_choice in distribution.data %}
-                                        <li> {{ answer_choice.count }} : {{ answer_choice.answer_choice }}
-                                            {% if answer_choice.answer_choice_correct %}
-                                            <em>(Correct)</em>
-                                            {% endif %}
-                                        </li>
-                                    {% endfor %}
-                                    </ul>
-                                </div>
-                                {% endfor %}
-
-                                 <div>
-                                {% for transition in question.transitions %}
-                                <!-- <h4>{{ distribution.label }}</h4> -->
-                                <h6>Count: Transition Type</h6>
-                                    <ul>
-                                    {% for answer_choice in transition.data %}
-                                        <li> {{ answer_choice.count }} : {{ answer_choice.transition_type }}</li>
-                                    {% endfor %}
-                                    </ul>
-                                {% endfor %}
-                                </div>
-
-
-                            </span>
-
-                            <span>
-                            <h4>Confusion Matrix</h4>
-                            <table>
-                                {% for first_ans in question.confusion_matrix %}
-                                <tr>
-                                    {% for second_ans in first_ans.second_answer_choice %}
-                                    <td>{{second_ans.N}}</td>
-                                    {% endfor %}
-                                </tr>
-                                {% endfor %}                                
-                            </table>
-                            </span>
-
-                            <span>
-                            <h4>Student Responses</h4>
-                              <div class="admin-link">
-                                <a href="#student_gradebook">Back to top</a></div>
-
-                                <table>
-                                    <thead>
-                                    <tr>
-                                        <th>Student</th>
-                                        <th>First Answer</th>
-                                        <th>Rationale</th>
-                                        <th>Second Answer</th>
-                                        <th>Chosen Rationale</th>
-                                    </tr>
-                                    </thead>
-                                {% for student_response in question.student_responses %}
-                                    
-                                    <tr>
-                                        <td id="{{student_response.student}}{{ question.title }}" class="mdc-ripple-surface">
-                                            <a href="#{{ student_response.student }}">{{ student_response.student }}</a></td>
-                                        <td>{{ student_response.first_answer_choice }}</td>
-                                        <td>{{ student_response.rationale }}</td>
-                                        <td>{{ student_response.second_answer_choice }}</td>
-                                        <td>{{ student_response.chosen_rationale }}</td>
-                                    </tr>
-                                    
-                                {% endfor %}
-                                </table>
-                            </span>
-
-                        </li>
-                    </ul>
-                    {% endif %}
-                {% endfor %}
-                </span>
-            </li>
-
-            {% endfor %}
-        
-        </ul>                        
-
-    </section>
-<link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css">
-<script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.js"
-              integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60="
-              crossorigin="anonymous"></script>
-
-
-  
-<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.js"></script>
-<script type="text/javascript">
-$(document).ready( function () {
-    $('#student_gradebook').DataTable();
-} );
-</script>
+  </section>
 </main>
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.js" integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60=" crossorigin="anonymous"></script>
+
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.js"></script>
+
+<script>
+$(document).ready( function () {
+  $('#student_gradebook').DataTable();
+});
+</script>
 {% endblock %}
