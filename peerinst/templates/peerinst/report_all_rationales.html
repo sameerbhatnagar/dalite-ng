@@ -15,11 +15,13 @@
 
     <div class="admin-link">
       <a href="{% url 'teacher' pk=teacher.pk %}">{% trans 'Back to My Account' %}</a>
+      <span class="admin-link" style="padding-left:0.3em;padding-right:0.5em;">
+        <a href="{% url 'report_selector' teacher_id=teacher.id%}">{% trans '| Custom Report' %}</a></span>
     </div>
 
     <h2 id='question_gradebook' class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Question-level gradebook' %}</h2>
 
-    <table id='question_gradebook_table' class='display'>
+    <table id='question_gradebook_table' class="display">
         <thead>
           <tr>
             <th>Question</th>
@@ -28,10 +30,10 @@
             {% endfor %}
           </tr>
         </thead>
+        <tbody>
       {% for question in gradebook_question %}
-      <tbody>
       <tr>
-        <td class="mdc-ripple-surface"><a href="#{{question.question.title}}">{{question.question.title}}</a></td>
+        <th class="mdc-ripple-surface"><a href="#{{question.question.title}}">{{question.question.title}}</a></th>
         {% for label in gradebook_keys %}
         <td>{{ question|get_value:label }}</td>
         {% endfor %}
@@ -57,7 +59,7 @@
       <tbody>
         {% for student in gradebook_student %}
         <tr>
-          <td id="{{ student.student }}">{{student.student}}</td>
+          <th id="{{ student.student }}">{{student.student}}</th>
           <td>{{student.N}}</td>
           <td>{{student.RR}}</td>
           <td>{{student.RW}}</td>
@@ -161,7 +163,7 @@
                       <div class="admin-link">
                         <a href="#student_gradebook">Back to top</a></div>
 
-                        <table>
+                        <table id="student_responses_table" class="display">
                             <thead>
                             <tr>
                                 <th>Student</th>
@@ -171,18 +173,20 @@
                                 <th>Chosen Rationale</th>
                             </tr>
                             </thead>
-                        {% for student_response in question.student_responses %}
+                            <tbody>
+                            {% for student_response in question.student_responses %}
 
                             <tr>
-                                <td id="{{student_response.student}}{{ question.title }}" class="mdc-ripple-surface">
-                                    <a href="#{{ student_response.student }}">{{ student_response.student }}</a></td>
+                                <th id="{{student_response.student}}{{ question.title }}" class="mdc-ripple-surface">
+                                    <a href="#{{ student_response.student }}">{{ student_response.student }}</a></th>
                                 <td>{{ student_response.first_answer_choice }}</td>
                                 <td>{{ student_response.rationale }}</td>
                                 <td>{{ student_response.second_answer_choice }}</td>
                                 <td>{{ student_response.chosen_rationale }}</td>
                             </tr>
 
-                        {% endfor %}
+                            {% endfor %}
+                            </tbody>
                         </table>
                     </span>
 
@@ -206,10 +210,25 @@
 
 <script>
 $(document).ready( function () {
-  $('#student_gradebook_table').DataTable();
+  $('table.display').DataTable(
+    );
 });
-$(document).ready( function () {
-  $('#question_gradebook_table').DataTable();
-});
+
+
+// $(document).ready( function () {
+//   $('#question_gradebook_table').DataTable();
+// });
+
+// $(document).ready( function () {
+//   $('#student_gradebook_table').DataTable({
+//         "scrollX": true
+//     }
+//     );
+// });
+
+// $(document).ready( function () {
+//   $('#student_responses_table').DataTable();
+// });
+
 </script>
 {% endblock %}

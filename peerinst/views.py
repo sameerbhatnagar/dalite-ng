@@ -1664,7 +1664,8 @@ def network_data(request,assignment_id):
 
 def report_selector(request,teacher_id):
     return TemplateResponse(request,'peerinst/report_selector.html',\
-        {'report_select_form':forms.ReportSelectForm(teacher_username=request.user)})
+        {'report_select_form':forms.ReportSelectForm(teacher_username=request.user),\
+        'teacher_id':teacher_id})
 
 def report(request,teacher_id='',assignment_id='',group_id=''):
     
