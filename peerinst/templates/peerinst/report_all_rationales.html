@@ -19,15 +19,17 @@
 
     <h2 id='question_gradebook' class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Question-level gradebook' %}</h2>
 
-    <table>
-      <thead>
-      <tr>
-        <th>Question</th>
-        {% for label in gradebook_keys %}
-        <th>{{ label }}</th>
-        {% endfor %}
-      </tr>
+    <table id='question_gradebook_table' class='display'>
+        <thead>
+          <tr>
+            <th>Question</th>
+            {% for label in gradebook_keys %}
+            <th>{{ label }}</th>
+            {% endfor %}
+          </tr>
+        </thead>
       {% for question in gradebook_question %}
+      <tbody>
       <tr>
         <td class="mdc-ripple-surface"><a href="#{{question.question.title}}">{{question.question.title}}</a></td>
         {% for label in gradebook_keys %}
@@ -35,12 +37,12 @@
         {% endfor %}
       </tr>
       {% endfor %}
-      </thead>
+      </tbody>
     </table>
 
     <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Student-level gradebook' %}</h2>
 
-    <table id='student_gradebook' class='display'>
+    <table id='student_gradebook_table' class='display'>
       <thead>
         <tr>
           <th>Student</th>
@@ -204,7 +206,10 @@
 
 <script>
 $(document).ready( function () {
-  $('#student_gradebook').DataTable();
+  $('#student_gradebook_table').DataTable();
+});
+$(document).ready( function () {
+  $('#question_gradebook_table').DataTable();
 });
 </script>
 {% endblock %}
