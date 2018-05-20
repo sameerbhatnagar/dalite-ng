@@ -1,5 +1,6 @@
 {% extends 'peerinst/base.html' %}
-
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.css">
+  
 {% load i18n %}
 {% load get_value %}
 {% block body %}
@@ -39,8 +40,8 @@
         </span>
 
         <span>
-            <h2 id='student_gradebook' class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Student-level gradebook' %}</h2>
-            <table>
+            <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Student-level gradebook' %}</h2>
+            <table id='student_gradebook' class='display'>
                 <thead>
                 <tr>
                     <th>Student</th>
@@ -52,7 +53,9 @@
                         {% endfor %}
                 </tr>
                 </thead>
+            <tbody>
             {% for student in gradebook_student %}
+            
                 <tr>
                     <td id="{{ student.student }}">{{student.student}}</td>
                     <td>{{student.N}}</td>
@@ -72,7 +75,8 @@
                     {% endfor %}
 
                 </tr>
-            {% endfor %}               
+            {% endfor %}
+            </tbody>               
             </table>
         </span>
         
@@ -201,6 +205,21 @@
         </ul>                        
 
     </section>
+<script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.js"
+              integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60="
+              crossorigin="anonymous"></script>
+  
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.js"></script>
+<script type="text/javascript">
 
+    $(document).ready( function () {
+    $('#student_gradebook').dataTable();
+} );
+    $(document).ready(function() {
+    $('#student_gradebook').DataTable( {
+        "order": [[ 3, "desc" ]]
+    } );
+} );
+</script>
 </main>
 {% endblock %}
