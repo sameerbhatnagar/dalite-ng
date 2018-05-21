@@ -1819,6 +1819,7 @@ def report(request,teacher_id='',assignment_id='',group_id=''):
                     d_q_a['chosen_rationale'] = Answer.objects.get(pk=student_response.chosen_rationale_id).rationale
                 else:
                     d_q_a['chosen_rationale'] = "Stick to my own rationale"
+                d_q_a['submitted'] = student_response.time
                 d_q['student_responses'].append(d_q_a)
 
             d_a['questions'].append(d_q)

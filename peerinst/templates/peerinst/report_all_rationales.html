@@ -42,7 +42,7 @@
       </tbody>
     </table>
 
-    <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Student-level gradebook' %}</h2>
+    <h2 id="student_gradebook" class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Student-level gradebook' %}</h2>
 
     <table id='student_gradebook_table' class='display'>
       <thead>
@@ -83,7 +83,7 @@
     {% for assignment in data %}
       <li>
         <span>
-        <h3>{{ assignment.assignment }}</h3>
+        <h3 class="mdc-typography--display1 mdc-theme--secondary">{{ assignment.assignment }}</h3>
 
         <span>
             <h4>Overall Student Transitions</h4>
@@ -171,6 +171,7 @@
                                 <th>Rationale</th>
                                 <th>Second Answer</th>
                                 <th>Chosen Rationale</th>
+                                <th>Submitted</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -183,6 +184,7 @@
                                 <td>{{ student_response.rationale }}</td>
                                 <td>{{ student_response.second_answer_choice }}</td>
                                 <td>{{ student_response.chosen_rationale }}</td>
+                                <td>{{ student_response.submitted }}</td>
                             </tr>
 
                             {% endfor %}
