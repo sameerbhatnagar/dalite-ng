@@ -17,6 +17,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.views import redirect_to_login
 from django.core.mail import mail_admins, send_mail
+from django.db.models import Q
 from django.shortcuts import get_object_or_404, render, render_to_response, redirect
 from django.template import loader
 from django.template.response import TemplateResponse
@@ -289,11 +290,6 @@ class AssignmentUpdateView(NoStudentsMixin,LoginRequiredMixin,DetailView):
     def get_context_data(self, **kwargs):
         context = super(AssignmentUpdateView, self).get_context_data(**kwargs)
         context['teacher'] = Teacher.objects.get(user=self.request.user)
-
-        teacher_discipline_questions=Question.objects.filter(discipline__in=context['teacher'].disciplines.all())
-
-        # Send as context questions not already in this assignment
-        context['suggested_questions']=[q for q in teacher_discipline_questions if q not in self.get_object().questions.all()]
 
         return context
 
@@ -1423,6 +1419,52 @@ def blink_get_current(request,username):
 
 
 # AJAX functions
+@login_required
+def question_search(request):
+
+    if request.method == "GET" and request.user.teacher:
+        type = request.GET.get('type',default=None)
+        id = request.GET.get('id',default=None)
+        search_string = request.GET.get('search_string',default="")
+        limit_search = request.GET.get('limit_search',default="false")
+
+        # Exclusions based on type of search
+        q_qs = []
+        if type == 'blink':
+            bq_qs = request.user.teacher.blinkquestion_set.all()
+            q_qs = [bq.question.id for bq in bq_qs]
+            form_field_name = 'new_blink'
+
+        if type == 'assignment':
+            a_qs = Assignment.objects.get(identifier=id).questions.all()
+            q_qs = [q.id for q in a_qs]
+            form_field_name = 'q'
+
+        # All matching questions
+        # TODO: add search on categories
+        if limit_search == "true":
+            query = Question.objects.filter(Q(text__icontains=search_string) | Q(title__icontains=search_string)).filter(discipline__in=request.user.teacher.disciplines.all()).exclude(id__in=q_qs)
+        else:
+            query = Question.objects.filter(Q(text__icontains=search_string) | Q(title__icontains=search_string)).exclude(id__in=q_qs)
+
+        if query.count() > 50:
+            return TemplateResponse(
+                request,
+                'peerinst/question_search_error.html',
+                context={'count':query.count(),}
+                )
+        else:
+            return TemplateResponse(
+                request,
+                'peerinst/question_search_results.html',
+                context={
+                    'search_results':query,
+                    'form_field_name':form_field_name,
+                    }
+                )
+    else:
+        return HttpResponseRedirect(reverse('access_denied'))
+
 
 def blink_get_current_url(request,username):
     """View to check current question url for teacher."""
@@ -1548,12 +1590,6 @@ class BlinkAssignmentUpdate(LoginRequiredMixin,DetailView):
     def get_context_data(self, **kwargs):
         context = super(BlinkAssignmentUpdate, self).get_context_data(**kwargs)
         context['teacher'] = Teacher.objects.get(user=self.request.user)
-
-        teacher_discipline_questions=Question.objects.filter(discipline__in=context['teacher'].disciplines.all())
-
-        teacher_blink_questions = [bk.question for bk in context['teacher'].blinkquestion_set.all()]
-        # Send as context questions not already part of teacher's blinks
-        context['suggested_questions']=[q for q in teacher_discipline_questions if q not in teacher_blink_questions]
 
         return context
 

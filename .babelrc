@@ -1,13 +1,17 @@
 {
   "presets": [
     [
-      "es2015",
-      {
-        "modules": false
+      "env", {
+      "targets": {
+        "browsers": ["last 4 versions"]
+      },
+      "debug": true,
+      "modules": false
       }
+
     ]
   ],
   "plugins": [
     "external-helpers"
-  ],
+  ]
 }

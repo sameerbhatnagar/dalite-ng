@@ -2,6 +2,7 @@
 import autoInit from '@material/auto-init/index';
 import * as chips from '@material/chips/index';
 import * as dialog from '@material/dialog/index';
+import * as iconToggle from '@material/icon-toggle/index';
 import * as radio from '@material/radio/index';
 import * as ripple from '@material/ripple/index';
 import * as textField from '@material/textfield/index';
@@ -10,6 +11,7 @@ import * as toolbar from '@material/toolbar/index';
 autoInit.register('MDCChip', chips.MDCChip);
 autoInit.register('MDCChipSet', chips.MDCChipSet);
 autoInit.register('MDCDialog', dialog.MDCDialog);
+autoInit.register('MDCIconToggle', iconToggle.MDCIconToggle);
 autoInit.register('MDCRadio', radio.MDCRadio);
 autoInit.register('MDCRipple', ripple.MDCRipple);
 autoInit.register('MDCTextField', textField.MDCTextField);
@@ -19,6 +21,7 @@ export {
   autoInit,
   chips,
   dialog,
+  iconToggle,
   radio,
   ripple,
   textField,
@@ -357,6 +360,110 @@ return d.key;
   return;
 }
 
+
+/** Search function
+*  @param {String} className
+*  @param {Object} searchBar
+*  @function
+*/
+export function search(className, searchBar) {
+  let items = document.querySelectorAll(className);
+  for (let i=0; i<items.length; i++) {
+    if (items[i].innerText.toLowerCase().indexOf(searchBar.value.toLowerCase())
+      < 0) {
+      items[i].style.display = 'none';
+    } else {
+      items[i].style.display = 'block';
+    }
+  }
+  return;
+}
+
+
+/** Add dialog box to ids containing string dialog using #activate-id
+*  @function
+*/
+export function addDialog() {
+  [].forEach.call(document.querySelectorAll('[id^=dialog]'),
+    (el) => {
+      const dialog = bundle.dialog.MDCDialog.attachTo(el);
+      document.querySelector('#activate-'+el.id).onclick = () => {
+        dialog.show();
+      };
+    }
+  );
+}
+
+
+/** Toggle image visibility
+*  @function
+*/
+export function toggleImages() {
+  [].forEach.call(document.querySelectorAll('.toggle-images'),
+    (el) => {
+      const toggle = bundle.iconToggle.MDCIconToggle.attachTo(el);
+      if (sessionStorage.images) {
+        if (sessionStorage.images == 'block') {
+          toggle.on = true;
+        } else {
+          toggle.on = false;
+        }
+        [].forEach.call(document.querySelectorAll('.question-image'),
+          (el) => {
+            el.style.display = sessionStorage.images;
+          }
+        );
+      }
+      el.addEventListener('MDCIconToggle:change', ({detail}) => {
+        [].forEach.call(document.querySelectorAll('.question-image'),
+          (el) => {
+            if (detail.isOn) {
+              el.style.display = 'block';
+            } else {
+              el.style.display = 'none';
+            }
+            sessionStorage.images = el.style.display;
+          }
+        );
+      });
+    }
+  );
+}
+
+/** Toggle answer visibility
+*  @function
+*/
+export function toggleAnswers() {
+  [].forEach.call(document.querySelectorAll('.toggle-answers'),
+    (el) => {
+      const toggle = bundle.iconToggle.MDCIconToggle.attachTo(el);
+      if (sessionStorage.answers) {
+        if (sessionStorage.answers == 'block') {
+          toggle.on = true;
+        } else {
+          toggle.on = false;
+        }
+        [].forEach.call(document.querySelectorAll('.question-answers'),
+          (el) => {
+            el.style.display = sessionStorage.answers;
+          }
+        );
+      }
+      el.addEventListener('MDCIconToggle:change', ({detail}) => {
+        [].forEach.call(document.querySelectorAll('.question-answers'),
+          (el) => {
+            if (detail.isOn) {
+              el.style.display = 'block';
+            } else {
+              el.style.display = 'none';
+            }
+            sessionStorage.answers = el.style.display;
+          }
+        );
+      });
+    }
+  );
+}
 // Commands
 underlines();
 
