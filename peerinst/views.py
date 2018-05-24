@@ -75,7 +75,7 @@ def landing_page(request):
     disciplines[str('All')][str('students')] = Student.objects.count()
     disciplines[str('All')][str('teachers')] = Teacher.objects.count()
 
-    for d in Discipline.objects.annotate(num_q=Count('question')).order_by('-num_q')[:5]:
+    for d in Discipline.objects.annotate(num_q=Count('question')).order_by('-num_q')[:3]:
         disciplines[str(d.title)] = {}
         disciplines[str(d.title)][str('questions')] = Question.objects.filter(discipline=d).count()
         disciplines[str(d.title)][str('rationales')] = Answer.objects.filter(question__discipline=d).count()
@@ -92,9 +92,6 @@ def landing_page(request):
 
     disciplines_json = json.dumps(disciplines)
 
-    print(disciplines)
-    print(json.dumps(disciplines,indent=4, separators=(',', ': ')))
-
 
     ### try again, with re-ordering
     disciplines_array = []
@@ -108,7 +105,7 @@ def landing_page(request):
 
     disciplines_array.append(d2)
 
-    for d in Discipline.objects.annotate(num_q=Count('question')).order_by('-num_q')[:5]:
+    for d in Discipline.objects.annotate(num_q=Count('question')).order_by('-num_q')[:3]:
         d2 = {}
         d2[str('name')] = str(d.title)
         d2[str('questions')] = Question.objects.filter(discipline=d).count()
@@ -125,8 +122,6 @@ def landing_page(request):
         d2[str('teachers')] = d.teacher_set.count()
 
         disciplines_array.append(d2)
-
-    print(disciplines_array)
 
     return TemplateResponse(
         request,
@@ -1011,6 +1006,23 @@ class TeacherDetailView(TeacherBase,DetailView):
         context['LTI_secret'] = str(settings.LTI_CLIENT_SECRET)
         context['LTI_launch_url'] = str('https://'+self.request.get_host()+'/lti/')
 
+        # Set all blink assignments, questions, and rounds for this teacher to inactive
+        for a in self.get_object().blinkassignment_set.all():
+            if a.active:
+                a.active = False
+                a.save()
+
+        for b in self.get_object().blinkquestion_set.all():
+            if b.active:
+                b.active = False
+                b.save()
+
+                open_rounds = BlinkRound.objects.filter(question=b).filter(deactivate_time__isnull=True)
+
+                for open_round in open_rounds:
+                    open_round.deactivate_time = timezone.now()
+                    open_round.save()
+
         return context
 
 
@@ -1414,8 +1426,29 @@ def blink_get_current(request,username):
             return HttpResponseRedirect(reverse('blink-question', kwargs={'pk' : blinkquestion.pk}))
     except:
         # Else, redirect to summary for last active question
-        latest_round = BlinkRound.objects.filter(question__in=teacher.blinkquestion_set.all()).latest('activate_time')
-        return HttpResponseRedirect(reverse('blink-summary', kwargs={'pk' : latest_round.question.pk}))
+        #latest_round = BlinkRound.objects.filter(question__in=teacher.blinkquestion_set.all()).latest('activate_time')
+        #return HttpResponseRedirect(reverse('blink-summary', kwargs={'pk' : latest_round.question.pk}))
+
+        # Else, redirect to waiting room
+        return HttpResponseRedirect(reverse('blink-waiting', kwargs={'username' : teacher.user.username }))
+
+
+def blink_waiting(request,username,assignment=''):
+
+    try:
+        teacher = Teacher.objects.get(user__username=username)
+    except:
+        return HttpResponse('Error')
+
+    return TemplateResponse(
+        request,
+        'peerinst/blink_waiting.html',
+        context=
+            {
+                'assignment' : assignment,
+                'teacher' : teacher,
+            },
+        )
 
 
 # AJAX functions
