@@ -126,9 +126,12 @@
         <i class="material-icons md-24 mdc-ripple-surface icon-list">bar_chart</i>
       </a>
       <i id="activate-dialog-{{a.pk|slugify}}" class="material-icons md-24 mdc-ripple-surface icon-list">info</i>
-      <a href="{% url 'assignment-update' a.pk %}">
-        <i class="material-icons md-24 mdc-ripple-surface icon-list">mode_edit</i>
-      </a>
+      {% if a.owner == object.user or object.user.is_staff %}  
+        <a href="{% url 'assignment-update' a.pk %}">
+          <i class="material-icons md-24 mdc-ripple-surface icon-list">mode_edit</i>
+        </a>
+      {% endif %}
+    
     </span>
   </li>
 

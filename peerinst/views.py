@@ -1046,6 +1046,7 @@ class TeacherAssignments(TeacherBase,ListView):
         context = super(TeacherAssignments, self).get_context_data(**kwargs)
         context['teacher'] = self.teacher
         context['form'] = forms.AssignmentCreateForm()
+        context['assignments_owned'] = Assignment.objects.filter(owner=self.teacher.user)
 
         return context
 
