@@ -282,6 +282,15 @@ class AssignmentUpdateView(NoStudentsMixin,LoginRequiredMixin,DetailView):
 
     model = Assignment
 
+    def dispatch(self, *args, **kwargs):
+        
+        if self.request.user.is_authenticated() and not (\
+            self.request.user in self.get_object().owner.all() or self.request.user.is_staff\
+            ):
+            return HttpResponse("You do not have editing rights on this assignment")
+        
+        return super(AssignmentUpdateView, self).dispatch(*args, **kwargs)
+
     def get_context_data(self, **kwargs):
         context = super(AssignmentUpdateView, self).get_context_data(**kwargs)
         context['teacher'] = Teacher.objects.get(user=self.request.user)
