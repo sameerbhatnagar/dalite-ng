@@ -1055,7 +1055,7 @@ class TeacherAssignments(TeacherBase,ListView):
         context = super(TeacherAssignments, self).get_context_data(**kwargs)
         context['teacher'] = self.teacher
         context['form'] = forms.AssignmentCreateForm()
-        context['assignments_owned'] = Assignment.objects.filter(owner=self.teacher.user)
+        context['owned_assignments'] = Assignment.objects.filter(owner=self.teacher.user)
 
         return context
 
@@ -1076,6 +1076,8 @@ class TeacherAssignments(TeacherBase,ListView):
                     identifier=form .cleaned_data['identifier'],
                     title=form .cleaned_data['title'],
                 )
+                assignment.save()
+                assignment.owner.add(self.teacher.user)
                 assignment.save()
                 self.teacher.assignments.add(assignment)
                 self.teacher.save()

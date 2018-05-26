@@ -50,7 +50,7 @@
     <li role="separator" class="mdc-list-divider"></li>
     <li class="mdc-list-item">
       <span class="mdc-list-item__graphic mdc-theme--primary">
-          <a href="" style="transform:translateY(4pt);">
+          <a href="{% url 'question-list' a.pk %}" style="transform:translateY(4pt);">
             <i class="mdc-theme--primary material-icons md-48">assignment</i>
           </a>
       </span>
@@ -68,7 +68,7 @@
               <input class="material-icons md-24 mdc-button small-button" style="padding:0pt;margin:0pt;" type="submit" value="remove_circle"/>
             </div>
         </form> -->
-        <a href="{% url 'assignment-update' g.pk %}" class="md-24">
+        <a href="{% url 'assignment-update' a.pk %}" class="md-24">
           <i class="material-icons md-24 mdc-ripple-surface icon-list">mode_edit</i>
         </a>
 
@@ -81,7 +81,7 @@
 
 
 
-  <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Current' %}</h2>
+  <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Following' %}</h2>
 
   <p>{% blocktrans %} These are the assignments you are following, and for which reports will be available (based on your selected groups).{% endblocktrans %}</p>
 
@@ -94,7 +94,7 @@
     <li role="separator" class="mdc-list-divider"></li>
     <li class="mdc-list-item">
       <span class="mdc-list-item__graphic mdc-theme--primary">
-          <a href="" style="transform:translateY(4pt);">
+          <a href="{% url 'question-list' g.pk %}" style="transform:translateY(4pt);">
             <i class="mdc-theme--primary material-icons md-48">assignment</i>
           </a>
       </span>
