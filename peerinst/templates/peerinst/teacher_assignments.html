@@ -41,7 +41,7 @@
 
   <p>{% trans 'These are the assignments for which you are an author, and have editing rights.' %}</p>
 
-  {% if not assignments_owned %}
+  {% if not owned_assignments %}
     <p>{% blocktrans %} You currently do not have editing rights on any assignments. Make a new assignment of your own with the form above to be able to modify it.{% endblocktrans %}</p>
   {% endif %}
 
