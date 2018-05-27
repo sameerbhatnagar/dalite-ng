@@ -216,3 +216,56 @@ def load_timestamps_from_logs(log_filename_list):
     print('{} total answer table records in db updated with time field from logs'.format(records_updated))
     print('{} total answer table records in db not found in logs; likely seed rationales from teacher backend'.format(records_updated))
     return
+
+def rename_groups():
+    """
+    go through LtiUserData table and build translation dict between context_id and context_title;
+    go through StudentGroup table, and rename with context_title (if not none)
+
+    Usage from shell:
+    [1]: from peerinst.util import rename_groups
+    [2]: rename_groups()
+
+    NOTE: on production server, this should be *immediately* followed by update of views.py code, 
+    in QuestionFormView, at end of emit_event method, so that ongoing groups are not seen as new
+        
+        CURRENT:
+            group, created_group = StudentGroup.objects.get_or_create(name=course_id)
+
+        CHANGE TO:
+            course_title = self.lti_data.edx_lti_parameters.get('context_title')
+            if not course_title:
+                group, created_group = StudentGroup.objects.get_or_create(name=course_id+':'+course_title)
+            else:
+                group, created_group = StudentGroup.objects.get_or_create(name=course_id)
+
+    """
+    from django_lti_tool_provider.models import LtiUserData
+    from peerinst.models import StudentGroup
+
+    id_title_dict = {}
+
+    for r in LtiUserData.objects.all():
+        if r.edx_lti_parameters['context_id'] not in id_title_dict:
+            id_title_dict[r.edx_lti_parameters['context_id']]=r.edx_lti_parameters['context_title']
+
+    for g in StudentGroup.objects.all():
+        try:
+            if id_title_dict[g.name]:
+                print('** adding title **')
+                print(g.name)
+                g.title = id_title_dict[g.name]
+                g.save()
+                print(g.title)
+        except KeyError as e:
+            pass
+
+
+    return
+
+def student_list_from_student_groups(group_list):
+    from peerinst.models import StudentGroup
+    student_ids=[]
+    for group in StudentGroup.objects.filter(pk__in=group_list):
+        student_ids.extend([s.student.username for s in group.student_set.all() if s.student.username not in ['student']])
+    return student_ids

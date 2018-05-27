@@ -278,8 +278,8 @@ class Assignment(models.Model):
     )
     title = models.CharField(_('Title'), max_length=200)
     questions = models.ManyToManyField(Question, verbose_name=_('Questions'))
-    ### for when we tie assignments to teachers
-    # teacher = models.ManyToManyField(Teacher,null=True)
+    
+    owner = models.ManyToManyField(User,blank=True)
 
     def __unicode__(self):
         return self.identifier
@@ -384,13 +384,17 @@ class AnswerVote(models.Model):
 
 class StudentGroup(models.Model):
     name = models.CharField(max_length=100, unique=True)
+    title = models.CharField(max_length=100, default=None)
     creation_date = models.DateField(
         blank=True,
         null=True,
     )
 
     def __unicode__(self):
-        return self.name
+        if not self.title:
+            return self.name
+        else:
+            return self.title
 
     class Meta:
         ordering = ['-creation_date']

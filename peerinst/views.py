@@ -5,8 +5,13 @@ import datetime
 import json
 import logging
 import random
-
+import string
+import itertools
 import re
+from collections import defaultdict,Counter
+import urllib
+import pprint
+
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -36,8 +41,9 @@ from . import heartbeat_checks
 from . import forms
 from . import models
 from . import rationale_choice
-from .util import SessionStageData, get_object_or_none, int_or_none, roundrobin
-from .admin_views import get_question_rationale_aggregates
+from .util import SessionStageData, get_object_or_none, int_or_none, roundrobin, student_list_from_student_groups
+from .admin_views import get_question_rationale_aggregates, get_assignment_aggregates, AssignmentResultsViewBase
+
 
 from .models import Student, StudentGroup, Teacher, Assignment, BlinkQuestion, BlinkAnswer, BlinkRound, BlinkAssignment, BlinkAssignmentQuestion, Question, Answer, Discipline, VerifiedDomain
 from django.contrib.auth.models import User
@@ -51,7 +57,7 @@ from django.contrib.sessions.models import Session
 
 #reports
 from django.db.models.expressions import Func
-from django.db.models import Count
+from django.db.models import Count, Value, Case, Q, When, CharField
 
 
 LOGGER = logging.getLogger(__name__)
@@ -276,6 +282,15 @@ class AssignmentUpdateView(NoStudentsMixin,LoginRequiredMixin,DetailView):
 
     model = Assignment
 
+    def dispatch(self, *args, **kwargs):
+        
+        if self.request.user.is_authenticated() and not (\
+            self.request.user in self.get_object().owner.all() or self.request.user.is_staff\
+            ):
+            return HttpResponse("You do not have editing rights on this assignment")
+        
+        return super(AssignmentUpdateView, self).dispatch(*args, **kwargs)
+
     def get_context_data(self, **kwargs):
         context = super(AssignmentUpdateView, self).get_context_data(**kwargs)
         context['teacher'] = Teacher.objects.get(user=self.request.user)
@@ -433,7 +448,13 @@ class QuestionFormView(QuestionMixin, FormView):
         # Automatically keep track of student, student groups and their relationships based on lti data
         user = User.objects.get(username=self.user_token)
         student, created_student = Student.objects.get_or_create(student=user)
-        group, created_group = StudentGroup.objects.get_or_create(name=course_id)
+        
+        course_title = self.lti_data.edx_lti_parameters.get('context_title')
+        if not course_title:
+            group, created_group = StudentGroup.objects.get_or_create(name=course_id,title=course_title)
+        else:
+            group, created_group = StudentGroup.objects.get_or_create(name=course_id)
+
         if created_group:
             group.save()
         student.groups.add(group)
@@ -1034,6 +1055,7 @@ class TeacherAssignments(TeacherBase,ListView):
         context = super(TeacherAssignments, self).get_context_data(**kwargs)
         context['teacher'] = self.teacher
         context['form'] = forms.AssignmentCreateForm()
+        context['owned_assignments'] = Assignment.objects.filter(owner=self.teacher.user)
 
         return context
 
@@ -1054,6 +1076,8 @@ class TeacherAssignments(TeacherBase,ListView):
                     identifier=form .cleaned_data['identifier'],
                     title=form .cleaned_data['title'],
                 )
+                assignment.save()
+                assignment.owner.add(self.teacher.user)
                 assignment.save()
                 self.teacher.assignments.add(assignment)
                 self.teacher.save()
@@ -1718,3 +1742,309 @@ def network_data(request,assignment_id):
             links_array.append(d)
 
     return JsonResponse(links_array,safe=False)
+
+def report_selector(request,teacher_id):
+    return TemplateResponse(request,'peerinst/report_selector.html',\
+        {'report_select_form':forms.ReportSelectForm(teacher_username=request.user),\
+        'teacher_id':teacher_id})
+
+def report(request,teacher_id='',assignment_id='',group_id=''):
+    
+    template_name = 'peerinst/report_all_rationales.html'
+    teacher = Teacher.objects.get(pk=teacher_id)
+
+    if request.GET:
+        student_groups=request.GET.getlist('student_groups')
+        student_id_list = student_list_from_student_groups(student_groups)
+        assignment_list = request.GET.getlist('assignments')
+
+
+    elif len(group_id)==0:
+        assignment_list = [urllib.unquote(assignment_id)]
+        student_groups = teacher.groups.all().values_list('pk')
+
+    elif len(assignment_id)==0:
+        student_groups = [StudentGroup.objects.get(name=urllib.unquote(group_id)).pk]
+        assignment_list = teacher.assignments.all().values_list('identifier',flat=True)
+    
+    student_id_list = student_list_from_student_groups(student_groups)
+    answer_qs = Answer.objects.filter(assignment_id__in=assignment_list).filter(user_token__in=student_id_list)
+
+    # all data
+    assignment_data=[]
+    for a_str in assignment_list:
+        a = Assignment.objects.get(identifier=a_str)
+        d_a={}
+        d_a['assignment'] = a.title
+        d_a['questions'] = []
+
+        metric_list = ['num_responses','rr','rw','wr','ww']
+        metric_labels = ['N', 'RR', 'RW', 'WR', 'WW']
+
+        student_transitions_by_q = {}
+        student_gradebook_transitions = {}
+        question_list = []
+        for q in a.questions.all():
+            d_q={}
+            d_q['text'] = q.text
+            d_q['title'] = q.title
+            question_list.append(q)
+            try:
+                d_q['question_image'] = q.image
+            except ValueError as e:
+                pass
+            d_q['num_responses'] = answer_qs.filter(question_id=q.id).count()
+            if d_q['num_responses']>0:
+                d_q['show'] = True
+
+            answer_qs_question = answer_qs.filter(question_id=q.id)
+            answer_choices_texts = q.answerchoice_set.values_list('text',flat=True)
+            answer_choices_correct = q.answerchoice_set.values_list('correct',flat=True) #e.g. [False, False, True, True]
+            answer_style = q.answer_style
+
+            correct_answer_choices = list(itertools.compress(itertools.count(1),answer_choices_correct)) # e.g. [3,4]
+
+            transitions = answer_qs_question.annotate(transition=\
+                Case(\
+                    When(Q(first_answer_choice__in=correct_answer_choices) & Q(second_answer_choice__in=correct_answer_choices),\
+                        then=Value('rr')),\
+                    When(Q(first_answer_choice__in=correct_answer_choices) & ~Q(second_answer_choice__in=correct_answer_choices),\
+                        then=Value('rw')),
+                    When(~Q(first_answer_choice__in=correct_answer_choices) & Q(second_answer_choice__in=correct_answer_choices),\
+                        then=Value('wr')),
+                    When(~Q(first_answer_choice__in=correct_answer_choices) & ~Q(second_answer_choice__in=correct_answer_choices),\
+                        then=Value('ww')),\
+                    output_field=CharField()))#efault_value=Value('none'),\
+
+            # for aggregate gradebook over all assignments
+            ##############
+            student_transitions_by_q[q.title] = transitions.values('user_token','transition',\
+                'rationale','first_answer_choice','second_answer_choice')
+            ###############
+
+            # aggregates for this question in this assignment
+            field_names = ['first_answer_choice','second_answer_choice']#,'transition']
+            field_labels = ['First Answer Choice', 'Second Answer Choice']#,'Transition']
+            d_q['answer_distributions'] = []
+            for field_name,field_label in zip(field_names,field_labels):
+                counts = answer_qs_question.values_list(field_name)\
+                .order_by(field_name)\
+                .annotate(count=Count(field_name))
+
+
+                d_q_a_d = {}
+                d_q_a_d['label'] = field_label
+                d_q_a_d['data'] = []
+                for c in counts:
+                    d_q_a_c = {}
+                    d_q_a_c['answer_choice'] = list(string.ascii_uppercase)[c[0]-1]
+                    d_q_a_c['answer_choice_correct'] = answer_choices_correct[c[0]-1]
+                    d_q_a_c['count'] = c[1]
+                    d_q_a_d['data'].append(d_q_a_c)
+                d_q['answer_distributions'].append(d_q_a_d)
+
+            field_names = ['transition']
+            field_labels = ['Transition']
+            d_q['transitions'] = []
+            for field_name,field_label in zip(field_names,field_labels):
+                counts = transitions.values_list(field_name)\
+                .order_by(field_name)\
+                .annotate(count=Count(field_name))
+
+                d_q_a_d = {}
+                d_q_a_d['label'] = field_label
+                d_q_a_d['data'] = []
+                for c in counts:
+                    d_q_a_c = {}
+                    d_q_a_c['transition_type']=c[0]
+                    d_q_a_c['count'] = c[1]
+                    d_q_a_d['data'].append(d_q_a_c)
+
+                    # counter for assignment level aggregate
+                    if c[0] in student_gradebook_transitions:
+                        student_gradebook_transitions[c[0]] += c[1]
+                    else:
+                        student_gradebook_transitions[c[0]] = c[1]
+                
+                d_q['transitions'].append(d_q_a_d)
+
+            #confusion matrix
+            d_q['confusion_matrix']=[]
+            for first_choice_index in range(1,q.answerchoice_set.count() +1):
+                d_q_cf = {}
+                first_answer_qs = q.answer_set.filter(first_answer_choice=first_choice_index)\
+                .exclude(user_token='')\
+                .filter(assignment_id=a.identifier)
+                d_q_cf['first_answer_choice']=first_choice_index
+                d_q_cf['second_answer_choice']=[]                
+                for second_choice_index in range(1,q.answerchoice_set.count()+1):
+                    d_q_cf_a2 ={}
+                    d_q_cf_a2['value']=second_choice_index
+                    count = first_answer_qs.filter(second_answer_choice=second_choice_index).count()
+                    if count:
+                        d_q_cf_a2['N']=count
+                    else:
+                        d_q_cf_a2['N']=0
+                    d_q_cf['second_answer_choice'].append(d_q_cf_a2)
+                d_q['confusion_matrix'].append(d_q_cf)
+
+           
+            d_q['student_responses'] = []
+            for student_response in answer_qs_question:
+                d_q_a = {}
+                d_q_a['student'] = student_response.user_token
+                d_q_a['first_answer_choice'] = list(string.ascii_uppercase)[student_response.first_answer_choice-1]
+                d_q_a['rationale']=student_response.rationale
+                d_q_a['second_answer_choice'] = list(string.ascii_uppercase)[student_response.second_answer_choice-1]
+                if student_response.chosen_rationale_id:
+                    d_q_a['chosen_rationale'] = Answer.objects.get(pk=student_response.chosen_rationale_id).rationale
+                else:
+                    d_q_a['chosen_rationale'] = "Stick to my own rationale"
+                d_q_a['submitted'] = student_response.time
+                d_q['student_responses'].append(d_q_a)
+
+            d_a['questions'].append(d_q)
+            d_a['transitions'] = []
+            for name,count in student_gradebook_transitions.items():
+                d_t = {}
+                d_t['transition_type']=name
+                d_t['count']=count
+                d_a['transitions'].append(d_t)
+
+        assignment_data.append(d_a)
+              
+
+        context = {}
+        context['data'] = assignment_data
+
+        ######
+        # for aggregate gradebook over all assignments
+        ## student level gradebook
+        num_responses_by_student=answer_qs\
+        .values('user_token')\
+        .order_by('user_token')\
+        .annotate(num_responses=Count('user_token'))
+
+        # serialize num_responses_by_student
+        student_gradebook_dict = defaultdict(Counter)
+        student_gradebook_dict_by_q = defaultdict(defaultdict)
+        for student_entry in num_responses_by_student:    
+            student_gradebook_dict[student_entry['user_token']]['num_responses'] += student_entry['num_responses']
+
+
+        # aggregate results for each student
+        for question,student_entries in student_transitions_by_q.items():
+            for student_entry in student_entries:
+                student_gradebook_dict[student_entry['user_token']][student_entry['transition']] += 1
+                student_gradebook_dict_by_q[student_entry['user_token']][question] = student_entry['transition']
+
+        # array for template
+        gradebook_student=[]
+        for student,grades_dict in student_gradebook_dict.items():
+            d_g = {}
+            d_g['student'] = student
+
+            for metric,metric_label in zip(metric_list,metric_labels):
+                if metric in grades_dict:
+                    d_g[metric_label] = grades_dict[metric]
+                else:
+                    d_g[metric_label] = 0
+            for question in question_list:
+
+                try:
+                    d_g[question] = student_gradebook_dict_by_q[student][question.title]
+                    
+                except KeyError as e:
+                    d_g[question] = '-'
+
+            gradebook_student.append(d_g)
+
+        ######
+        # for aggregate gradebook over all assignments
+        ## question level gradebook
+        num_responses_by_question=answer_qs\
+        .values('question_id')\
+        .order_by('question_id')\
+        .annotate(num_responses=Count('user_token'))
+
+
+        # serialize num_responses_by_question
+        question_gradebook_dict=defaultdict(Counter)
+        for question_entry in num_responses_by_question:
+            question = Question.objects.get(id=question_entry['question_id'])
+            question_gradebook_dict[question]['num_responses'] += question_entry['num_responses']
+
+
+        # aggregate results for each question
+        for q,student_entries in student_transitions_by_q.items():
+            question = Question.objects.get(title=q)
+            for student_entry in student_entries:
+                question_gradebook_dict[question][student_entry['transition']] += 1
+
+       
+        # array for template
+        gradebook_question = []
+        for question,grades_dict in question_gradebook_dict.items():
+            d_g = {}
+            d_g['question'] = question
+            for metric,metric_label in zip(metric_list,metric_labels):
+                if metric in grades_dict:
+                    d_g[metric_label] = grades_dict[metric]
+                else:
+                    d_g[metric_label] = 0
+            gradebook_question.append(d_g)
+
+
+        context['gradebook_student'] = gradebook_student
+        context['gradebook_question'] = gradebook_question
+        context['gradebook_keys'] = metric_labels
+        context['question_list'] = question_list
+        context['teacher'] = teacher
+
+
+    return render(request,template_name,context)
+
+
+def report_assignment_aggregates(request):
+    """
+    - wrapper for admin_views.get_question_rationale_aggregates
+    - use student_groups and assignment_list passed through request.GET, and return JsonReponse as data for report
+    """
+
+
+    student_groups=request.GET.getlist('student_groups')
+    assignment_list = request.GET.getlist('assignments')    
+
+    j=[]
+    for a_str in assignment_list:
+        a = Assignment.objects.get(identifier=a_str)
+        d_a={}
+        d_a['assignment'] = a.identifier
+        d_a['questions'] = []
+        for q in a.questions.all():
+            d_q={}
+            d_q['question'] = q.text
+            try:
+                d_q['question_image_url'] = q.image.url
+            except ValueError as e:
+                pass
+            d_q['influential_rationales'] = []
+            sums, output = get_question_rationale_aggregates(assignment=a,question=q,perpage=50,student_groups=student_groups)
+            for trx,rationale_list in output.items():
+                d_q_i = {}
+                d_q_i['transition_type']=trx
+                d_q_i['rationales'] = []
+                # d_q_i['total_count'] = sums[trx]
+                for r in rationale_list:
+                    d_q_i_r={}
+                    d_q_i_r['count'] = r['count']
+                    if r['rationale']:
+                        d_q_i_r['rationale'] = r['rationale'].rationale
+                    else:
+                        d_q_i_r['rationale'] = 'Chose own rationale'
+                    d_q_i['rationales'].append(d_q_i_r)
+                d_q['influential_rationales'].append(d_q_i)
+            d_a['questions'].append(d_q)
+        j.append(d_a)
+
+    return JsonResponse(j,safe=False)   

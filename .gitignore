@@ -8,6 +8,7 @@
 src
 locust*
 /sent_emails
+*.log
 /node_modules
 /CACHE
 partner*.png

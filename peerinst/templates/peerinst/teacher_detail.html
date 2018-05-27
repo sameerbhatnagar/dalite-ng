@@ -99,6 +99,9 @@
 <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Assignments' %}</h2>
 <div class="admin-link">
   <a href="{% url 'teacher-assignments' teacher.id %}">{% trans 'Manage assignments' %}</a>
+<span class="admin-link" style="padding-left:0.3em;padding-right:0.5em;">
+  <a href="{% url 'report_selector' teacher_id=teacher.id%}">{% trans '| Custom Report' %}</a>
+</span>
 </div>
 {% if not object.assignments.all %}
 <p>{% blocktrans %}You do not have any assignments.{% endblocktrans %}</p>
@@ -119,13 +122,16 @@
       </span>
     </span>
     <span class="mdc-list-item__meta">
-      <a href="">
+      <a href="{% url 'report-all-groups' teacher_id=teacher.id assignment_id=a.identifier|urlencode:"" %}">
         <i class="material-icons md-24 mdc-ripple-surface icon-list">bar_chart</i>
       </a>
       <i id="activate-dialog-{{a.pk|slugify}}" class="material-icons md-24 mdc-ripple-surface icon-list">info</i>
-      <a href="{% url 'assignment-update' a.pk %}">
-        <i class="material-icons md-24 mdc-ripple-surface icon-list">mode_edit</i>
-      </a>
+      {% if object.user in a.owner.all or object.user.is_staff %}  
+        <a href="{% url 'assignment-update' a.pk %}">
+          <i class="material-icons md-24 mdc-ripple-surface icon-list">mode_edit</i>
+        </a>
+      {% endif %}
+    
     </span>
   </li>
 
@@ -171,6 +177,7 @@
 
 
 <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Groups' %}</h2>
+
 <div class="admin-link">
   <a href="{% url 'teacher-groups' teacher.id %}">{% trans 'Manage groups' %}</a>
 </div>
@@ -185,7 +192,7 @@
       <i class="mdc-theme--primary material-icons md-48">group</i>
     </span>
     <span class="mdc-list-item__text mdc-theme--secondary bold">
-      {{ g.name }}
+      {% if not g.title %} {{ g.name }} {% else %} {{ g.title }} {% endif %}
       <span class="mdc-list-item__secondary-text">
         {% trans "Created: " %}{{ g.creation_date }}
       </span>
@@ -194,7 +201,7 @@
       </span>
     </span>
     <span class="mdc-list-item__meta">
-      <a href="">
+      <a href="{% url 'report-all-assignments' teacher_id=teacher.id group_id=g.name|urlencode:"" %}">
         <i class="material-icons md-24 mdc-ripple-surface icon-list">bar_chart</i>
       </a>
       <a href="{% url 'teacher-groups' teacher.id %}">
