@@ -168,6 +168,9 @@ blockquote {
   background-color: blue;
 }
 @media (max-width:450px) {
+  .blurb {
+    margin-bottom:20pt;
+  }
   .mdc-typography--body1 {
     font-size: 0.8rem;
     line-height: 1.1rem;
@@ -316,6 +319,9 @@ styleSheet.insertRule(".mdc-toolbar--flexible {--mdc-toolbar-ratio-to-extend-fle
     </h1>
 
     <div class="blurb">
+      <div class="balloon">
+          <svg class="saltise" width=80 height=80></svg>
+      </div>
       <p class="mdc-typography--headline" style="text-align:justify;">
         {% blocktrans %}
         <a class="text-link" href="http://www.saltise.ca">SALTISE</a> is a learning community that fosters the research and development of tools and resources for <strong>pedagogical innovation</strong>.  It brings together educators (researchers and practitioners) and professional development personnel across the province of Quebec, and welcomes national and international partnerships.
@@ -967,6 +973,47 @@ g.append('text')
     .attr('text-anchor', 'middle')
     .attr('fill', 'white')
     .text('trending_up');
+
+    var saltise = bundle.select('.saltise');
+
+    var g = saltise.append("g")
+    .attr("transform","translate(" + saltise.attr('width')/2 + "," + saltise.attr('height')/2 + ")");
+
+    var x = bundle.scaleLinear().domain([0,2*Math.PI]).range([-25,25]);
+    var y = bundle.scaleLinear().domain([-1,1]).range([-25,25]);
+
+    var xPoints = bundle.range(0,2*Math.PI+0.01,(2*Math.PI/10));
+
+    g.append('circle')
+      .attr('cx', 0)
+      .attr('cy', 0)
+      .attr('r', 40)
+      .style('opacity', 0.8)
+      .attr('fill', 'var(--mdc-theme-primary)');
+
+    var sine = bundle.line()
+    .x(function(d) { return x(d); })
+    .y(function(d) { return y(Math.sin(d)); })
+    .curve(bundle.curveNatural);
+
+    g.append('path')
+    .datum(xPoints)
+    .attr('stroke', 'white')
+    .attr('stroke-width', '2px')
+    .attr('fill', 'none')
+    .attr('d', sine);
+
+    g.append('path')
+    .attr('stroke', 'white')
+    .attr('fill', 'none')
+    .attr('stroke-width', '1.5px')
+    .attr('d', function(d) {
+      var path = bundle.path();
+      path.moveTo(-26, 0);
+      path.lineTo(26, 0);
+      return path;
+    });
+
 </script>
 
 <script>
@@ -987,7 +1034,6 @@ g.append('text')
 // History
 function timeline() {
   'use strict';
-
 
   var timelineData = {
     "events" : [
@@ -1092,7 +1138,7 @@ function timeline() {
 
   svg.selectAll("g").remove();
 
-  var g = svg.append("g").attr("transform","translate("+(margin.left+0.15*innerWidth)+","+(margin.top+innerHeight/2)+")");
+  var g = svg.append("g").attr("transform","translate("+(margin.left+0.175*innerWidth)+","+(margin.top+innerHeight/2)+")");
 
   var y = bundle.scaleLinear().domain([2008,2019]).range([-innerHeight/2,innerHeight/2]);
 
@@ -1103,8 +1149,6 @@ function timeline() {
     .call(
       bundle.axisLeft(y).tickSize(15).tickFormat(bundle.format('.0f'))
       );
-
-
 
 g.append('text')
   .attr('x', 0)
