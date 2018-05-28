@@ -1276,8 +1276,22 @@ function pillars() {
   .attr('cy', 0)
   .attr('r', r)
   .attr('stroke', 'var(--mdc-theme-primary)')
-  .attr('stroke-width', '1px')
-  .attr('fill', 'none');
+  .attr('stroke-width', '2px')
+  .attr('fill', 'var(--mdc-theme-primary)');
+
+  var triangle = g.append('path')
+  .attr('class', 'pillar')
+  .attr('stroke', 'white')
+  .attr('stroke-width', '3px')
+  .attr('fill', 'none')
+  .attr('d', function(d) {
+    var path = bundle.path();
+      path.moveTo(0,-r);
+      path.lineTo(Math.cos(13/6*Math.PI)*r, Math.sin(13/6*Math.PI)*r);
+      path.lineTo(-Math.cos(13/6*Math.PI)*r, Math.sin(13/6*Math.PI)*r);
+      path.closePath();
+    return path;
+  });
 
   var students = g.append('circle')
   .attr('class', 'pillar')
@@ -1285,6 +1299,7 @@ function pillars() {
   .attr('cy', Math.sin(13/6*Math.PI)*r)
   .attr('r', 20)
   .attr('stroke', 'var(--mdc-theme-primary)')
+  .attr('stroke-width', '2px')
   .attr('fill', 'white');
 
   g.append('text')
@@ -1303,7 +1318,7 @@ function pillars() {
   .attr('y', Math.sin(13/6*Math.PI)*r)
   .attr('fill', 'var(--mdc-theme-primary)')
   .attr('text-anchor', 'start')
-  .style('font-size', '15px')
+  .style('font-size', '12pt')
   .text("{% trans 'Students' %}");
 
   g.append('text')
@@ -1325,6 +1340,7 @@ function pillars() {
   .attr('r', 20)
   .attr('dy', 5)
   .attr('stroke', 'var(--mdc-theme-primary)')
+  .attr('stroke-width', '2px')
   .attr('fill', 'white');
 
   g.append('text')
@@ -1343,7 +1359,7 @@ function pillars() {
   .attr('y', Math.sin(13/6*Math.PI)*r-50)
   .attr('fill', 'var(--mdc-theme-primary)')
   .attr('text-anchor', 'end')
-  .style('font-size', '15px')
+  .style('font-size', '12pt')
   .text("{% trans 'Researchers' %}");
 
   g.append('text')
@@ -1365,6 +1381,7 @@ function pillars() {
   .attr('dy', 5)
   .attr('theta', 0)
   .attr('stroke', 'var(--mdc-theme-primary)')
+  .attr('stroke-width', '2px')
   .attr('fill', 'white');
 
   g.append('text')
@@ -1383,7 +1400,7 @@ function pillars() {
   .attr('y', -r-58)
   .attr('fill', 'var(--mdc-theme-primary)')
   .attr('text-anchor', 'start')
-  .style('font-size', '15px')
+  .style('font-size', '12pt')
   .text('Teachers');
 
   g.append('text')
