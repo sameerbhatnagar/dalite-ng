@@ -335,7 +335,7 @@ styleSheet.insertRule(".mdc-toolbar--flexible {--mdc-toolbar-ratio-to-extend-fle
         {% blocktrans %} The SALTISE/S4 project is a major five-year multi-institution infrastructure grant hosted at Dawson College. The mandate is to develop a <strong>data-driven platform</strong> founded on three pillars: {% endblocktrans %}
       </p>
 
-      <svg id="pillars" width=300 height=300 style="display:block;margin:auto;"></svg>
+      <svg id="pillars" width=300 height=340 style="overflow:visible;display:block;margin:auto;"></svg>
     </div>
   </section>
 
@@ -1261,20 +1261,24 @@ window.addEventListener('resize', timeline);
 <script>
 function pillars() {
   var pillars = bundle.select("#pillars");
-  pillars.attr("width",document.querySelector("section").offsetWidth);
+  pillars.attr("width",document.querySelector(".blurb").offsetWidth);
 
   bundle.selectAll('.pillar').remove();
 
   var g = pillars.append("g")
-  .attr("transform","translate(" + pillars.attr('width')/2 + "," + pillars.attr('height')/2 + ")");
+  .attr("transform","translate(" + pillars.attr('width')/2 + "," + 0.45*pillars.attr('height') + ")");
 
-  var r = Math.min(0.15*pillars.attr('width'),80);
+  var r = Math.min(0.3*pillars.attr('width'),90);
+
+  var titleX = -0.4*pillars.attr('width')
+  var titleY = 0.4*pillars.attr('height')
 
   var circle = g.append('circle')
   .attr('class', 'pillar')
   .attr('cx', 0)
   .attr('cy', 0)
   .attr('r', r)
+  .style('opacity', 0.4)
   .attr('stroke', 'var(--mdc-theme-primary)')
   .attr('stroke-width', '2px')
   .attr('fill', 'var(--mdc-theme-primary)');
@@ -1282,7 +1286,7 @@ function pillars() {
   var triangle = g.append('path')
   .attr('class', 'pillar')
   .attr('stroke', 'white')
-  .attr('stroke-width', '3px')
+  .attr('stroke-width', '4px')
   .attr('fill', 'none')
   .attr('d', function(d) {
     var path = bundle.path();
@@ -1293,29 +1297,79 @@ function pillars() {
     return path;
   });
 
+  function blendIn(className) {
+    bundle.select('#'+className+'-title')
+      .transition()
+      .duration(500)
+      .attr('x', titleX)
+      .attr('y', titleY);
+    bundle.select('#'+className+'-content')
+      .transition()
+      .duration(500)
+      .delay(200)
+      .style('opacity', 1);
+    bundle.select('#'+className+'-text')
+      .attr('fill', 'white');
+    bundle.select('#'+className+'-circle')
+      .attr('fill', 'var(--mdc-theme-primary)')
+      .attr('stroke', 'white')
+      .transition()
+      .duration(500)
+      .attr('r', 25);
+  }
+
+  function blendOut(className) {
+    bundle.select('#'+className+'-title')
+      .transition()
+      .duration(500)
+      .attr('x', function(d) { return +bundle.select(this).attr('x0'); })
+      .attr('y', function(d) { return +bundle.select(this).attr('y0'); });
+    bundle.select('#'+className+'-content')
+      .transition()
+      .duration(200)
+      .style('opacity', 0);
+    bundle.select('#'+className+'-text')
+      .attr('fill', 'var(--mdc-theme-primary)');
+    bundle.select('#'+className+'-circle')
+      .attr('fill', 'white')
+      .attr('stroke', 'var(--mdc-theme-primary)')
+      .transition()
+      .duration(200)
+      .attr('r', 20);
+  }
+
   var students = g.append('circle')
   .attr('class', 'pillar')
+  .attr('id', 'student-circle')
   .attr('cx', Math.cos(13/6*Math.PI)*r)
   .attr('cy', Math.sin(13/6*Math.PI)*r)
   .attr('r', 20)
   .attr('stroke', 'var(--mdc-theme-primary)')
   .attr('stroke-width', '2px')
-  .attr('fill', 'white');
+  .attr('fill', 'white')
+  .on('mouseover', function(d) {blendIn('student');})
+  .on('mouseout', function(d) {blendOut('student');});
 
   g.append('text')
   .attr('class', 'pillar')
+  .attr('id', 'student-text')
   .attr('x', Math.cos(13/6*Math.PI)*r)
   .attr('y', Math.sin(13/6*Math.PI)*r)
   .attr('dy', 8)
   .attr('fill', 'var(--mdc-theme-primary)')
   .attr('text-anchor', 'middle')
   .style('font-size', '20px')
-  .text(3);
+  .text(3)
+  .on('mouseover', function(d) {blendIn('student');})
+  .on('mouseout', function(d) {blendOut('student');});
 
   g.append('text')
   .attr('class', 'pillar')
-  .attr('x', Math.cos(13/6*Math.PI)*r+30)
-  .attr('y', Math.sin(13/6*Math.PI)*r)
+  .attr('id', 'student-title')
+  .attr('x', Math.cos(13/6*Math.PI)*r)
+  .attr('y', Math.sin(13/6*Math.PI)*r+45)
+  .attr('x0', Math.cos(13/6*Math.PI)*r)
+  .attr('y0', Math.sin(13/6*Math.PI)*r+45)
   .attr('fill', 'var(--mdc-theme-primary)')
   .attr('text-anchor', 'start')
   .style('font-size', '12pt')
@@ -1323,58 +1377,71 @@ function pillars() {
 
   g.append('text')
   .attr('class', 'pillar')
-  .attr('x', Math.cos(13/6*Math.PI)*r+30)
-  .attr('y', Math.sin(13/6*Math.PI)*r+20)
-  .attr('dy', 0)
+  .attr('id', 'student-content')
+  .attr('x', titleX)
+  .attr('y', titleY)
+  .attr('dy', 20)
   .attr('fill', 'gray')
   .attr('text-anchor', 'left')
-  .style('font-size', '10px')
-  .style('opacity', 1)
+  .style('font-size', '12px')
+  .style('opacity', 0)
   .text("{% trans 'A cloud-based service that puts students at the heart of the research-design loop and monitors knowledge construction over years, not a semester.' %}")
-  .call(bundle.wrap, +pillars.attr("width")/3);
+  .call(bundle.wrap, +pillars.attr("width")*0.7);
 
   var researchers = g.append('circle')
   .attr('class', 'pillar')
+  .attr('id', 'researcher-circle')
   .attr('cx', -Math.cos(13/6*Math.PI)*r)
   .attr('cy', Math.sin(13/6*Math.PI)*r)
   .attr('r', 20)
   .attr('dy', 5)
   .attr('stroke', 'var(--mdc-theme-primary)')
   .attr('stroke-width', '2px')
-  .attr('fill', 'white');
+  .attr('fill', 'white')
+  .on('mouseover', function(d) {blendIn('researcher');})
+  .on('mouseout', function(d) {blendOut('researcher');});
 
   g.append('text')
   .attr('class', 'pillar')
+  .attr('id', 'researcher-text')
   .attr('x', -Math.cos(13/6*Math.PI)*r)
   .attr('y', Math.sin(13/6*Math.PI)*r)
   .attr('dy', 8)
   .attr('fill', 'var(--mdc-theme-primary)')
   .attr('text-anchor', 'middle')
   .style('font-size', '20px')
-  .text(2);
+  .text(2)
+  .on('mouseover', function(d) {blendIn('researcher');})
+  .on('mouseout', function(d) {blendOut('researcher');});
 
   g.append('text')
   .attr('class', 'pillar')
-  .attr('x', -Math.cos(13/6*Math.PI)*r-30)
-  .attr('y', Math.sin(13/6*Math.PI)*r-50)
+  .attr('id', 'researcher-title')
+  .attr('x', -Math.cos(13/6*Math.PI)*r-90)
+  .attr('y', Math.sin(13/6*Math.PI)*r+45)
+  .attr('x0', -Math.cos(13/6*Math.PI)*r-90)
+  .attr('y0', Math.sin(13/6*Math.PI)*r+45)
   .attr('fill', 'var(--mdc-theme-primary)')
-  .attr('text-anchor', 'end')
+  .attr('text-anchor', 'start')
   .style('font-size', '12pt')
   .text("{% trans 'Researchers' %}");
 
   g.append('text')
   .attr('class', 'pillar')
-  .attr('x', -Math.cos(13/6*Math.PI)*r-30)
-  .attr('y', Math.sin(13/6*Math.PI)*r-30)
-  .attr('dy', 0)
+  .attr('id', 'researcher-content')
+  .attr('x', titleX)
+  .attr('y', titleY)
+  .attr('dy', 20)
   .attr('fill', 'gray')
-  .attr('text-anchor', 'end')
-  .style('font-size', '10px')
-  .text("{% trans 'A platform to enable learning science researchers to engage directly and seamlessly with practitioners and, ultimately, bring learning science to the classroom faster.' %}")
-  .call(bundle.wrap, +pillars.attr("width")/3);
+  .attr('text-anchor', 'start')
+  .style('font-size', '12px')
+  .style('opacity', 0)
+  .text("{% trans 'A platform to enable learning science researchers to engage directly with practitioners and bring learning science to the classroom faster.' %}")
+  .call(bundle.wrap, +pillars.attr("width")*0.7);
 
   var teachers = g.append('circle')
   .attr('class', 'pillar')
+  .attr('id', 'teacher-circle')
   .attr('cx', 0)
   .attr('cy', -r)
   .attr('r', 20)
@@ -1382,22 +1449,30 @@ function pillars() {
   .attr('theta', 0)
   .attr('stroke', 'var(--mdc-theme-primary)')
   .attr('stroke-width', '2px')
-  .attr('fill', 'white');
+  .attr('fill', 'white')
+  .on('mouseover', function(d) {blendIn('teacher');})
+  .on('mouseout', function(d) {blendOut('teacher');});
 
   g.append('text')
   .attr('class', 'pillar')
+  .attr('id', 'teacher-text')
   .attr('x', 0)
   .attr('y', -r)
   .attr('dy', 8)
   .attr('fill', 'var(--mdc-theme-primary)')
   .attr('text-anchor', 'middle')
   .style('font-size', '20px')
-  .text(1);
+  .text(1)
+  .on('mouseover', function(d) {blendIn('teacher');})
+  .on('mouseout', function(d) {blendOut('teacher');});
 
   g.append('text')
   .attr('class', 'pillar')
-  .attr('x', 40)
-  .attr('y', -r-58)
+  .attr('id', 'teacher-title')
+  .attr('x', -35)
+  .attr('y', -r-35)
+  .attr('x0', -35)
+  .attr('y0', -r-35)
   .attr('fill', 'var(--mdc-theme-primary)')
   .attr('text-anchor', 'start')
   .style('font-size', '12pt')
@@ -1405,14 +1480,16 @@ function pillars() {
 
   g.append('text')
   .attr('class', 'pillar')
-  .attr('x', 40)
-  .attr('y', -r-38)
-  .attr('dy', 0)
+  .attr('id', 'teacher-content')
+  .attr('x', titleX)
+  .attr('y', titleY)
+  .attr('dy', 20)
   .attr('fill', 'gray')
   .attr('text-anchor', 'start')
-  .style('font-size', '10px')
-  .text("{% trans 'A place where the pedagogical strategies and artefacts teachers produce can be hosted, showcased, and iteratively improved based on collaboration and data.' %}")
-  .call(bundle.wrap, +pillars.attr("width")*0.4);
+  .style('font-size', '12px')
+  .style('opacity', 0)
+  .text("{% trans 'A place where the strategies and artefacts teachers produce can be hosted, showcased, and improved based on collaboration and data.' %}")
+  .call(bundle.wrap, +pillars.attr("width")*0.7);
 }
 
 pillars();
@@ -1428,7 +1505,7 @@ tag.src = "https://www.youtube.com/iframe_api";
 var firstScriptTag = document.getElementsByTagName('script')[0];
 firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 var player;
-var w = Math.min(700,document.querySelector("section").offsetWidth-25);
+var w = Math.min(700,document.querySelector("section").offsetWidth-30);
 var h = 315/560*w;
 function onYouTubeIframeAPIReady() {
   player = new YT.Player('player', {
@@ -1439,7 +1516,7 @@ function onYouTubeIframeAPIReady() {
 }
 window.addEventListener("resize", function() {
   var yt = document.querySelector('#player');
-  var w = Math.min(700,document.querySelector("section").offsetWidth-25);
+  var w = Math.min(700,document.querySelector("section").offsetWidth-30);
   yt.setAttribute("width",w);
   yt.setAttribute("height",315/560*w);
 })
