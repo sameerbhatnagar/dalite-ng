@@ -122,6 +122,7 @@ header {
 .mdc-typography--headline {
   font-size: 1.3rem;
   line-height: 2rem;
+  letter-spacing: -0.02em;
 }
 .text-link {
   text-decoration: underline;
@@ -334,23 +335,7 @@ styleSheet.insertRule(".mdc-toolbar--flexible {--mdc-toolbar-ratio-to-extend-fle
         {% blocktrans %} The SALTISE/S4 project is a major five-year multi-institution infrastructure grant hosted at Dawson College. The mandate is to develop a <strong>data-driven platform</strong> founded on three pillars: {% endblocktrans %}
       </p>
 
-      <ul class="mdc-typography--headline">
-        <li style="margin-bottom:10pt;"><i class="material-icons md-36 mdc-theme--primary" style="transform: translateY(7pt);">looks_one</i> <span id="teachers" class="text-link fake-link pillars">Teachers</span>
-        <div id="for-teachers" class="mdc-typography--body1 pillar-text">
-          {% trans 'A place where the pedagogical strategies and artefacts teachers produce can be hosted and showcased to a network of colleagues, and can be iteratively improved based on the data associated with the different contexts in which they are used.' %}
-        </div>
-        </li>
-        <li style="margin-bottom:10pt;"><i class="material-icons md-36 mdc-theme--primary" style="transform: translateY(7pt);">looks_two</i> <span id="researchers" class="text-link fake-link pillars">Researchers</span>
-          <div id="for-researchers" class="mdc-typography--body1 pillar-text">
-            {% trans 'The platform will enable learning science researchers to engage directly and seamlessly with practitioners to support the development of effective pedagogical practices and learning processes, and ultimately bring learning science to the classroom faster.' %}
-          </div>
-        </li>
-        <li style="margin-bottom:10pt;"><i class="material-icons md-36 mdc-theme--primary" style="transform: translateY(7pt);">looks_3</i> <span id="students" class="text-link fake-link pillars">Students</span>
-          <div id="for-students" class="mdc-typography--body1 pillar-text">
-            {% trans 'This cloud-hosted service will put students at the heart of the research-design loop.  As we build novel learning resources, we provide a persistent home where it is possible to monitor how student knowldge evolves across years, instead of one semester.' %}
-          </div>
-        </li>
-      </ul>
+      <svg id="pillars" width=300 height=300 style="display:block;margin:auto;"></svg>
     </div>
   </section>
 
@@ -1017,20 +1002,6 @@ g.append('text')
 </script>
 
 <script>
-// Hide/show pillar text
-[].forEach.call(document.querySelectorAll(".pillars"),
-  function(el) {
-    var d = document.querySelector("#for-"+el.id)
-    el.onmouseover = function() {
-      d.style.display = 'block';
-    }
-    el.onmouseout = function() {
-      d.style.display = 'none';
-    }
-})
-</script>
-
-<script>
 // History
 function timeline() {
   'use strict';
@@ -1285,6 +1256,151 @@ timeline();
 
 window.addEventListener('resize', timeline);
 
+</script>
+
+<script>
+function pillars() {
+  var pillars = bundle.select("#pillars");
+  pillars.attr("width",document.querySelector("section").offsetWidth);
+
+  bundle.selectAll('.pillar').remove();
+
+  var g = pillars.append("g")
+  .attr("transform","translate(" + pillars.attr('width')/2 + "," + pillars.attr('height')/2 + ")");
+
+  var r = Math.min(0.15*pillars.attr('width'),80);
+
+  var circle = g.append('circle')
+  .attr('class', 'pillar')
+  .attr('cx', 0)
+  .attr('cy', 0)
+  .attr('r', r)
+  .attr('stroke', 'var(--mdc-theme-primary)')
+  .attr('stroke-width', '1px')
+  .attr('fill', 'none');
+
+  var students = g.append('circle')
+  .attr('class', 'pillar')
+  .attr('cx', Math.cos(13/6*Math.PI)*r)
+  .attr('cy', Math.sin(13/6*Math.PI)*r)
+  .attr('r', 20)
+  .attr('stroke', 'var(--mdc-theme-primary)')
+  .attr('fill', 'white');
+
+  g.append('text')
+  .attr('class', 'pillar')
+  .attr('x', Math.cos(13/6*Math.PI)*r)
+  .attr('y', Math.sin(13/6*Math.PI)*r)
+  .attr('dy', 8)
+  .attr('fill', 'var(--mdc-theme-primary)')
+  .attr('text-anchor', 'middle')
+  .style('font-size', '20px')
+  .text(3);
+
+  g.append('text')
+  .attr('class', 'pillar')
+  .attr('x', Math.cos(13/6*Math.PI)*r+30)
+  .attr('y', Math.sin(13/6*Math.PI)*r)
+  .attr('fill', 'var(--mdc-theme-primary)')
+  .attr('text-anchor', 'start')
+  .style('font-size', '15px')
+  .text("{% trans 'Students' %}");
+
+  g.append('text')
+  .attr('class', 'pillar')
+  .attr('x', Math.cos(13/6*Math.PI)*r+30)
+  .attr('y', Math.sin(13/6*Math.PI)*r+20)
+  .attr('dy', 0)
+  .attr('fill', 'gray')
+  .attr('text-anchor', 'left')
+  .style('font-size', '10px')
+  .style('opacity', 1)
+  .text("{% trans 'A cloud-based service that puts students at the heart of the research-design loop and monitors knowledge construction over years, not a semester.' %}")
+  .call(bundle.wrap, +pillars.attr("width")/3);
+
+  var researchers = g.append('circle')
+  .attr('class', 'pillar')
+  .attr('cx', -Math.cos(13/6*Math.PI)*r)
+  .attr('cy', Math.sin(13/6*Math.PI)*r)
+  .attr('r', 20)
+  .attr('dy', 5)
+  .attr('stroke', 'var(--mdc-theme-primary)')
+  .attr('fill', 'white');
+
+  g.append('text')
+  .attr('class', 'pillar')
+  .attr('x', -Math.cos(13/6*Math.PI)*r)
+  .attr('y', Math.sin(13/6*Math.PI)*r)
+  .attr('dy', 8)
+  .attr('fill', 'var(--mdc-theme-primary)')
+  .attr('text-anchor', 'middle')
+  .style('font-size', '20px')
+  .text(2);
+
+  g.append('text')
+  .attr('class', 'pillar')
+  .attr('x', -Math.cos(13/6*Math.PI)*r-30)
+  .attr('y', Math.sin(13/6*Math.PI)*r-50)
+  .attr('fill', 'var(--mdc-theme-primary)')
+  .attr('text-anchor', 'end')
+  .style('font-size', '15px')
+  .text("{% trans 'Researchers' %}");
+
+  g.append('text')
+  .attr('class', 'pillar')
+  .attr('x', -Math.cos(13/6*Math.PI)*r-30)
+  .attr('y', Math.sin(13/6*Math.PI)*r-30)
+  .attr('dy', 0)
+  .attr('fill', 'gray')
+  .attr('text-anchor', 'end')
+  .style('font-size', '10px')
+  .text("{% trans 'A platform to enable learning science researchers to engage directly and seamlessly with practitioners and, ultimately, bring learning science to the classroom faster.' %}")
+  .call(bundle.wrap, +pillars.attr("width")/3);
+
+  var teachers = g.append('circle')
+  .attr('class', 'pillar')
+  .attr('cx', 0)
+  .attr('cy', -r)
+  .attr('r', 20)
+  .attr('dy', 5)
+  .attr('theta', 0)
+  .attr('stroke', 'var(--mdc-theme-primary)')
+  .attr('fill', 'white');
+
+  g.append('text')
+  .attr('class', 'pillar')
+  .attr('x', 0)
+  .attr('y', -r)
+  .attr('dy', 8)
+  .attr('fill', 'var(--mdc-theme-primary)')
+  .attr('text-anchor', 'middle')
+  .style('font-size', '20px')
+  .text(1);
+
+  g.append('text')
+  .attr('class', 'pillar')
+  .attr('x', 40)
+  .attr('y', -r-58)
+  .attr('fill', 'var(--mdc-theme-primary)')
+  .attr('text-anchor', 'start')
+  .style('font-size', '15px')
+  .text('Teachers');
+
+  g.append('text')
+  .attr('class', 'pillar')
+  .attr('x', 40)
+  .attr('y', -r-38)
+  .attr('dy', 0)
+  .attr('fill', 'gray')
+  .attr('text-anchor', 'start')
+  .style('font-size', '10px')
+  .text("{% trans 'A place where the pedagogical strategies and artefacts teachers produce can be hosted, showcased, and iteratively improved based on collaboration and data.' %}")
+  .call(bundle.wrap, +pillars.attr("width")*0.4);
+}
+
+pillars();
+
+window.addEventListener('resize', pillars);
 </script>
 
 <script>
