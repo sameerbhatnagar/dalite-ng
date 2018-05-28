@@ -1799,6 +1799,7 @@ def report(request,teacher_id='',assignment_id='',group_id=''):
         student_transitions_by_q = {}
         student_gradebook_transitions = {}
         question_list = []
+        d3_data = []
         for q in a.questions.all():
             d_q={}
             d_q['text'] = q.text
@@ -1882,6 +1883,11 @@ def report(request,teacher_id='',assignment_id='',group_id=''):
                         student_gradebook_transitions[c[0]] = c[1]
                 
                 d_q['transitions'].append(d_q_a_d)
+
+                d3_data_dict={}
+                d3_data_dict['question'] = q.title
+                d3_data_dict['distribution'] = d_q_a_d
+                d3_data.append(d3_data_dict)                
 
             #confusion matrix
             d_q['confusion_matrix']=[]
@@ -2015,6 +2021,7 @@ def report(request,teacher_id='',assignment_id='',group_id=''):
         context['gradebook_keys'] = metric_labels
         context['question_list'] = question_list
         context['teacher'] = teacher
+        context['json'] = json.dumps(d3_data)        
 
 
     return render(request,template_name,context)
