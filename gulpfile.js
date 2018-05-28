@@ -3,6 +3,7 @@ const rename = require('gulp-rename');
 const sass = require('gulp-sass');
 const sourcemaps = require('gulp-sourcemaps');
 const postcss = require('gulp-postcss');
+const cssnano = require('cssnano');
 const autoprefixer = require('autoprefixer');
 const runSequence = require('run-sequence');
 // const rollup = require('rollup-stream');
@@ -20,8 +21,18 @@ gulp.task('sass', function() {
     .pipe(gulp.dest('./peerinst/static/peerinst/css/'));
 });
 
+gulp.task('css', function() {
+    return gulp.src(['./peerinst/static/peerinst/css/*.css',
+                     '!./peerinst/static/peerinst/css/*.min.css'])
+      .pipe(rename(function(path) {
+        path.extname = '.min.css';
+        }))
+      .pipe(postcss([cssnano()]))
+      .pipe(gulp.dest('./peerinst/static/peerinst/css/'));
+});
+
 gulp.task('autoprefixer', function() {
-    return gulp.src('./peerinst/static/peerinst/css/main.css')
+    return gulp.src('./peerinst/static/peerinst/css/*.min.css')
         .pipe(sourcemaps.init())
         .pipe(postcss([autoprefixer({browsers: ['last 4 versions']})]))
         .pipe(sourcemaps.write('.'))
@@ -47,5 +58,5 @@ gulp.task('rollup', function() {
 });
 
 gulp.task('build', function(callback) {
-     runSequence('sass', 'autoprefixer', 'rollup', callback);
+     runSequence('sass', 'css', 'autoprefixer', 'rollup', callback);
 });

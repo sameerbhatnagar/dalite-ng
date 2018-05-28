@@ -15,8 +15,7 @@
 
     <div class="admin-link">
       <a href="{% url 'teacher' pk=teacher.pk %}">{% trans 'Back to My Account' %}</a>
-      <span class="admin-link" style="padding-left:0.3em;padding-right:0.5em;">
-        <a href="{% url 'report_selector' teacher_id=teacher.id%}">{% trans '| Custom Report' %}</a></span>
+      <span style="padding-left:0.3em;padding-right:0.5em;">|</span><a href="{% url 'report_selector' teacher_id=teacher.id%}">{% trans 'Custom Report' %}</a>
     </div>
 
     <h2 id='question_gradebook' class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Question-level gradebook' %}</h2>

@@ -3,200 +3,7 @@
 {% load staticfiles compress i18n %}
 
 {% block stylesheets %}
-{% compress css inline %}
-<style>
-header {
-  padding-right: 0px;
-}
-.site-content {
-  margin-bottom: 80pt;
-}
-.icon {
-  font-size:24pt;
-}
-.stats {
-  display:block;
-  margin:auto;
-}
-.mdc-chip-set {
-  width: fit-content;
-  width: -moz-fit-content;
-  width: -webkit-fit-content;
-  margin-right:0pt;
-  margin-left: auto;
-}
-.mdc-toolbar {
-  padding:0pt;
-}
-.mdc-toolbar__row {
-  min-height: 100px;
-  background-image:radial-gradient(500px 500px,rgba(255,255,255,0.4),var(--mdc-theme-primary));
-}
-.mdc-typography--caption {
-  text-align:center;
-  margin-top:16px;
-  font-size: 12pt;
-  font-weight: 700;
-}
-.mdc-typography--display3 {
-  padding-top:50px;
-  padding-bottom:10px;
-  top:70px;
-  z-index: 2;
-}
-.embedded-video {
-  display:block;
-  margin:auto;
-}
-.white {
-  background-color: white;
-}
-.footer_content {
-  font-size:11pt;
-  margin-top:10px;
-  margin-left:20px;
-  margin-right:20px;
-}
-.navtopright {
-  position:absolute;
-  font-size:11pt;
-  top:4px;
-  right:5px;
-  text-align: right;
-  color: white;
-}
-.navtopright a {
-  padding-right:10px;
-}
-.navright {
-  position:absolute;
-  font-size:11pt;
-  bottom:4px;
-  right:20px;
-  text-align: right;
-}
-.navright a {
-  padding-left:20px;
-  color: white;
-}
-.count {
-  font-size: 32pt;
-}
-.school-logo {
-  width:100%;
-  filter: grayscale(1);
-  max-width:200px;
-  display: block;
-  margin: auto;
-  padding: 20px;
-  cursor: pointer;
-}
-.school-logo:hover {
-  filter: grayscale(0);
-  transition: filter 500ms;
-}
-#scrollprompt {
-  color: white;
-  position:absolute;
-  cursor: pointer;
-  bottom:0px;
-  left:50%;
-}
-#animation {
-  display:block;
-  margin:auto;
-  overflow:visible;
-}
-.blurb {
-  margin-bottom:40pt;
-  text-align:justify;
-}
-.balloon {
-  float:left;
-  padding-top:10px;
-  margin-right:12px;
-}
-.mdc-typography--body1 {
-  font-size: 0.875rem;
-}
-.mdc-typography--headline {
-  font-size: 1.3rem;
-  line-height: 2rem;
-  letter-spacing: -0.02em;
-}
-.text-link {
-  text-decoration: underline;
-  text-decoration-color: var(--mdc-theme-primary);
-}
-.text-link:hover {
-  color: var(--mdc-theme-primary);
-  transition: color 500ms;
-}
-.fake-link {
-  color: gray;
-  cursor: default;
-}
-.pillar-text {
-  margin-left:50px;
-  margin-right:20px;
-  margin-top:10px;
-  display:none;
-  font-style: italic;
-  text-align:left;
-}
-blockquote {
-  font-family: 'Cardo', serif;
-  font-size:20pt;
-  font-style:italic;
-}
-.timeline-axis line{
-  stroke: gray;
-  stroke-width: 1.5px;
-}
-.timeline-axis text {
-  font-family: 'Montserrat', sans-serif;
-  font-size: 11pt;
-  fill: gray;
-}
-.timeline-axis path {
-  stroke: gray;
-  stroke-width: 1.5px;
-}
-.tooltip {
-  position:absolute;
-  width:100px;
-  height:100px;
-  background-color: blue;
-}
-@media (max-width:450px) {
-  .blurb {
-    margin-bottom:20pt;
-  }
-  .mdc-typography--body1 {
-    font-size: 0.8rem;
-    line-height: 1.1rem;
-  }
-  .mdc-typography--headline {
-    font-size: 1rem;
-    line-height: 1.4rem;
-  }
-  .mdc-typography--display3 {
-    padding-top:40px;
-  }
-  .mdc-typography--caption {
-    margin-top: 10px;
-    font-size:14px;
-  }
-  .navtopright {
-    font-size:10pt;
-    right:0px;
-  }
-  .count {
-    font-size: 20pt;
-  }
-}
-</style>
-{% endcompress %}
+<link href="{% static 'peerinst/css/landing_page.min.css' %}" rel="stylesheet">
 {% endblock %}
 
 {% block body %}
@@ -209,7 +16,7 @@ styleSheet.insertRule(".mdc-toolbar--flexible {--mdc-toolbar-ratio-to-extend-fle
 </script>
 
 <header class="mdc-toolbar mdc-toolbar--fixed mdc-toolbar--flexible mdc-toolbar--waterfall">
-  <div class="mdc-toolbar__row" style="padding-top:30px;">
+  <div class="mdc-toolbar__row">
     <svg id="animation" width=800 height=80></svg>
     <i id="scrollprompt" class="icon ion-arrow-down-b"></i>
     <span class="navtopright">
@@ -226,7 +33,7 @@ styleSheet.insertRule(".mdc-toolbar--flexible {--mdc-toolbar-ratio-to-extend-fle
 
 <main class="mdc-toolbar-fixed-adjust">
   <section>
-    <h1 id="Features" class="mdc-typography--display3 mdc-theme--background">{% trans "Features" %}
+    <h1 id="Features" class="mdc-typography--display3 mdc-theme--background">{% trans 'Features' %}
       <svg class="underline" width=150 height=4></svg>
     </h1>
 
@@ -235,7 +42,9 @@ styleSheet.insertRule(".mdc-toolbar--flexible {--mdc-toolbar-ratio-to-extend-fle
           <svg class="lightbulb" width=80 height=80></svg>
       </div>
       <p class="mdc-typography--headline">
-        {% blocktrans %} <span style="font-family: 'Cardo', serif;font-style:italic;">my</span>DALITE is a free open-source web-based platform that promotes <strong>deep learning</strong>. Its pedagogical foundations are guided by social learning and based on learning principles and practical know-how. It engages students in cognitive tasks that include written self-explanation, comparison and evaluation of explanations produced by peers, and reflection. {% endblocktrans %}
+        {% blocktrans %}
+        <span style="font-family: 'Cardo', serif;font-style:italic;">my</span>DALITE is a free open-source web-based platform that promotes <strong>deep learning</strong>. Its pedagogical foundations are guided by social learning and based on learning principles and practical know-how. It engages students in cognitive tasks that include written self-explanation, comparison and evaluation of explanations produced by peers, and reflection.
+        {% endblocktrans %}
       </p>
     </div>
 
@@ -244,7 +53,9 @@ styleSheet.insertRule(".mdc-toolbar--flexible {--mdc-toolbar-ratio-to-extend-fle
           <svg class="peerinst" width=80 height=80></svg>
       </div>
       <p class="mdc-typography--headline">
-        {% blocktrans %} <strong>Peer instruction</strong> is an active learning strategy popularized by Eric Mazur from Harvard University. It involves a sequence of steps that promotes critical thinking and discussion through the use of multiple choice conceptual questions.  It encourages students to first reflect on a conceptually challenging idea, vote, <strong>discuss with peers</strong>, and revote. {% endblocktrans %}
+        {% blocktrans %}
+        <strong>Peer instruction</strong> is an active learning strategy popularized by Eric Mazur from Harvard University. It involves a sequence of steps that promotes critical thinking and discussion through the use of multiple choice conceptual questions.  It encourages students to first reflect on a conceptually challenging idea, vote, <strong>discuss with peers</strong>, and revote.
+        {% endblocktrans %}
       </p>
     </div>
 
@@ -253,47 +64,51 @@ styleSheet.insertRule(".mdc-toolbar--flexible {--mdc-toolbar-ratio-to-extend-fle
           <svg class="school" width=80 height=80></svg>
       </div>
       <p class="mdc-typography--headline">
-        {% blocktrans %} With <span style="font-family: 'Cardo', serif;font-style:italic;">my</span>DALITE, teachers can use the same questions <strong>in class</strong> in polling mode, or assign questions as <strong>out-of-class</strong> homework through any learning management system.  Teachers can peruse content based on analytics and get reports for how their students are doing over time. {% endblocktrans %}
+        {% blocktrans %}
+        With <span style="font-family: 'Cardo', serif;font-style:italic;">my</span>DALITE, teachers can use the same questions <strong>in class</strong> in polling mode, or assign questions as <strong>out-of-class</strong> homework through any learning management system.  Teachers can peruse content based on analytics and get reports for how their students are doing over time.
+        {% endblocktrans %}
       </p>
     </div>
 
-    <div class="blurb" style="margin-bottom:0px;">
+    <div class="blurb">
       <div class="balloon">
           <svg class="activity" width=80 height=80></svg>
       </div>
       <p class="mdc-typography--headline">
-        {% blocktrans %} <span style="font-family: 'Cardo', serif;font-style:italic;">my</span>DALITE has a <strong>growing database</strong> of questions in subjects ranging from chemistry to the humanities. It is funded by the SALTISE/S4 grant and aims to be the home of an open-source community offering high-impact high-quality learning resources <strong>built for teachers by teachers</strong>. If you don't find the type of content you are looking for, you can author new question items and contribute to the ever-growing community!  The current top disciplines are:{% endblocktrans %}
+        {% blocktrans %}
+        <span style="font-family: 'Cardo', serif;font-style:italic;">my</span>DALITE has a <strong>growing database</strong> of questions in subjects ranging from chemistry to the humanities. It is funded by the SALTISE/S4 grant and aims to be the home of an open-source community offering high-impact high-quality learning resources <strong>built for teachers by teachers</strong>. If you don't find the type of content you are looking for, you can author new question items and contribute to the ever-growing community!  The current top disciplines are:
+        {% endblocktrans %}
       </p>
-    </div>
-    <div class="mdc-layout-grid">
-      <div class="mdc-layout-grid__inner">
-        {% for l in disciplines|first %}
-        {% if l != "name" %}
-        <div class="mdc-layout-grid__cell--span-2-phone mdc-layout-grid__cell--span-4-tablet mdc-layout-grid__cell--span-3-desktop">
-          <svg class="stats" id="{{ l }}" width=150 height=150 style="overflow:visible;"></svg>
-          <div class="mdc-typography--caption mdc-theme--primary">{{ l|capfirst }}</div>
+      <div class="mdc-layout-grid">
+        <div class="mdc-layout-grid__inner">
+          {% for l in disciplines|first %}
+          {% if l != "name" %}
+          <div class="mdc-layout-grid__cell--span-2-phone mdc-layout-grid__cell--span-4-tablet mdc-layout-grid__cell--span-3-desktop">
+            <svg class="stats" id="{{ l }}" width=150 height=150></svg>
+            <div class="mdc-typography--caption mdc-theme--primary">{{ l|capfirst }}</div>
+          </div>
+          {% endif %}
+          {% endfor %}
         </div>
-        {% endif %}
+      </div>
+      <div class="mdc-chip-set mdc-chip-set--choice" data-mdc-auto-init="MDCChipSet">
+        {% for d in disciplines %}
+        <div id="{{ d.name }}" class="mdc-chip" onclick="update(this,event)" tabindex="0" data-mdc-auto-init="MDCChip">
+          <div class="mdc-chip__checkmark">
+            <svg class="mdc-chip__checkmark-svg" viewBox="-2 -3 30 30">
+              <path class="mdc-chip__checkmark-path" fill="none" stroke="black"
+              d="M1.73,12.91 8.1,19.28 22.79,4.59"/>
+            </svg>
+          </div>
+          <div class="mdc-chip__text">{{ d.name }}</div>
+        </div>
         {% endfor %}
       </div>
-    </div>
-    <div class="mdc-chip-set mdc-chip-set--choice" data-mdc-auto-init="MDCChipSet">
-      {% for d in disciplines %}
-      <div id="{{ d.name }}" class="mdc-chip" onclick="update(this,event)" tabindex="0" data-mdc-auto-init="MDCChip">
-        <div class="mdc-chip__checkmark">
-          <svg class="mdc-chip__checkmark-svg" viewBox="-2 -3 30 30">
-            <path class="mdc-chip__checkmark-path" fill="none" stroke="black"
-            d="M1.73,12.91 8.1,19.28 22.79,4.59"/>
-          </svg>
-        </div>
-        <div class="mdc-chip__text">{{ d.name }}</div>
-      </div>
-      {% endfor %}
     </div>
   </section>
 
   <section>
-    <h1 class="mdc-typography--display3 mdc-theme--background">{{ 'A guided tour'|title }}
+    <h1 class="mdc-typography--display3 mdc-theme--background">{% trans 'A Guided Tour' %}
       <svg class="underline" width=150 height=4></svg>
     </h1>
     <div id="player" class="embedded-video"></div>
@@ -305,13 +120,12 @@ styleSheet.insertRule(".mdc-toolbar--flexible {--mdc-toolbar-ratio-to-extend-fle
     </h1>
 
     <div class="blurb">
-      <svg id="history" width=350 height=450 style="overflow:visible;margin-bottom:10px;"></svg>
+      <svg id="history" width=350 height=450></svg>
     </div>
 
     <!--
     <blockquote class="mdc-theme--primary">{% blocktrans %}This research has shown my<span style="font-family: 'Montserrat', sans-serif;font-style:normal;">DALITE</span> to be an effective tool for supporting deep learning.{% endblocktrans %}</blockquote>
     -->
-
   </section>
 
   <section>
@@ -323,7 +137,7 @@ styleSheet.insertRule(".mdc-toolbar--flexible {--mdc-toolbar-ratio-to-extend-fle
       <div class="balloon">
           <svg class="saltise" width=80 height=80></svg>
       </div>
-      <p class="mdc-typography--headline" style="text-align:justify;">
+      <p class="mdc-typography--headline">
         {% blocktrans %}
         <a class="text-link" href="http://www.saltise.ca">SALTISE</a> is a learning community that fosters the research and development of tools and resources for <strong>pedagogical innovation</strong>.  It brings together educators (researchers and practitioners) and professional development personnel across the province of Quebec, and welcomes national and international partnerships.
         {% endblocktrans %}
@@ -332,10 +146,11 @@ styleSheet.insertRule(".mdc-toolbar--flexible {--mdc-toolbar-ratio-to-extend-fle
 
     <div class="blurb">
       <p class="mdc-typography--headline">
-        {% blocktrans %} The SALTISE/S4 project is a major five-year multi-institution infrastructure grant hosted at Dawson College. The mandate is to develop a <strong>data-driven platform</strong> founded on three pillars: {% endblocktrans %}
+        {% blocktrans %}
+        The SALTISE/S4 project is a major five-year multi-institution infrastructure grant hosted at Dawson College. The mandate is to develop a <strong>data-driven platform</strong> founded on three pillars:
+        {% endblocktrans %}
       </p>
-
-      <svg id="pillars" width=300 height=340 style="overflow:visible;display:block;margin:auto;"></svg>
+      <svg id="pillars" width=300 height=340></svg>
     </div>
   </section>
 
