@@ -1302,7 +1302,8 @@ function pillars() {
       .transition()
       .duration(500)
       .attr('x', titleX)
-      .attr('y', titleY);
+      .attr('y', titleY)
+      .style('font-size', '14pt');
     bundle.select('#'+className+'-content')
       .transition()
       .duration(500)
@@ -1323,7 +1324,8 @@ function pillars() {
       .transition()
       .duration(500)
       .attr('x', function(d) { return +bundle.select(this).attr('x0'); })
-      .attr('y', function(d) { return +bundle.select(this).attr('y0'); });
+      .attr('y', function(d) { return +bundle.select(this).attr('y0'); })
+      .style('font-size', '12pt');
     bundle.select('#'+className+'-content')
       .transition()
       .duration(200)
@@ -1337,6 +1339,28 @@ function pillars() {
       .duration(200)
       .attr('r', 20);
   }
+
+  g.append('text')
+    .attr('class', 'pillar')
+    .attr('x', Math.cos(13/6*Math.PI)*r)
+    .attr('dx', 30)
+    .attr('y', Math.sin(13/6*Math.PI)*r)
+    .attr('dy', -42)
+    .attr('font-size', '7pt')
+    .attr('fill', 'gray')
+    .text("{% trans 'Click' %}");
+
+  g.append('path')
+    .attr('class', 'pillar')
+    .attr('stroke', 'gray')
+    .attr('fill', 'none')
+    .attr('stroke-width', '0.5px')
+    .attr('d', function(d) {
+      var path = bundle.path();
+      path.moveTo(Math.cos(13/6*Math.PI)*r, Math.sin(13/6*Math.PI)*r);
+      path.quadraticCurveTo(Math.cos(13/6*Math.PI)*r+30, Math.sin(13/6*Math.PI)*r-10, Math.cos(13/6*Math.PI)*r+40, Math.sin(13/6*Math.PI)*r-40);
+      return path;
+    });
 
   var students = g.append('circle')
   .attr('class', 'pillar')
