@@ -158,6 +158,13 @@ GRAPPELLI_ADMIN_TITLE = 'Dalite NG administration'
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
+    'formatters': {
+        'simple': {
+            'format': '%(levelname)s | %(asctime)s | %(message)s'
+        },
+    },
+    'version': 1,
+    'disable_existing_loggers': False,
     'handlers': {
         'file_debug_log': {
             'level': 'DEBUG',
@@ -169,6 +176,11 @@ LOGGING = {
             'class': 'logging.FileHandler',
             'filename': os.path.join(BASE_DIR, 'log/student.log'),
         },
+        'file_teacher_log': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'log/teacher_activity.log'),
+        },        
     },
     'loggers': {
         'django.request': {
@@ -186,6 +198,11 @@ LOGGING = {
             'level': 'DEBUG',
             'propagate': True,
         },
+        'teacher_activity': {
+            'handlers': ['file_teacher_log'],
+            'level': 'INFO',
+            'propagate': True,
+        },        
     },
 }
 
