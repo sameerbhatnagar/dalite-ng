@@ -4,6 +4,36 @@
 
 {% block stylesheets %}
 <link href="{% static 'peerinst/css/landing_page.min.css' %}" rel="stylesheet">
+
+<style>
+@media (max-width:450px) {
+  .blurb {
+    margin-bottom:20pt;
+  }
+  .mdc-typography--body1 {
+    font-size: 0.8rem;
+    line-height: 1.1rem;
+  }
+  .mdc-typography--headline {
+    font-size: 0.9rem;
+    line-height: 1.4rem;
+  }
+  .mdc-typography--display3 {
+    padding-top:40px;
+  }
+  .mdc-typography--caption {
+    margin-top: 10px;
+    font-size:14px;
+  }
+  .navtopright {
+    font-size:10pt;
+    right:0px;
+  }
+  .count {
+    font-size: 20pt;
+  }
+}
+</style>
 {% endblock %}
 
 {% block body %}
@@ -39,7 +69,7 @@ styleSheet.insertRule(".mdc-toolbar--flexible {--mdc-toolbar-ratio-to-extend-fle
 
     <div class="blurb">
       <div class="balloon">
-          <svg class="lightbulb" width=80 height=80></svg>
+          <svg class="lightbulb icon-resize" width=80 height=80></svg>
       </div>
       <p class="mdc-typography--headline">
         {% blocktrans %}
@@ -50,7 +80,7 @@ styleSheet.insertRule(".mdc-toolbar--flexible {--mdc-toolbar-ratio-to-extend-fle
 
     <div class="blurb">
       <div class="balloon">
-          <svg class="peerinst" width=80 height=80></svg>
+          <svg class="peerinst icon-resize" width=80 height=80></svg>
       </div>
       <p class="mdc-typography--headline">
         {% blocktrans %}
@@ -61,7 +91,7 @@ styleSheet.insertRule(".mdc-toolbar--flexible {--mdc-toolbar-ratio-to-extend-fle
 
     <div class="blurb">
       <div class="balloon">
-          <svg class="school" width=80 height=80></svg>
+          <svg class="school icon-resize" width=80 height=80></svg>
       </div>
       <p class="mdc-typography--headline">
         {% blocktrans %}
@@ -72,7 +102,7 @@ styleSheet.insertRule(".mdc-toolbar--flexible {--mdc-toolbar-ratio-to-extend-fle
 
     <div class="blurb">
       <div class="balloon">
-          <svg class="activity" width=80 height=80></svg>
+          <svg class="activity icon-resize" width=80 height=80></svg>
       </div>
       <p class="mdc-typography--headline">
         {% blocktrans %}
@@ -135,7 +165,7 @@ styleSheet.insertRule(".mdc-toolbar--flexible {--mdc-toolbar-ratio-to-extend-fle
 
     <div class="blurb">
       <div class="balloon">
-          <svg class="saltise" width=80 height=80></svg>
+          <svg class="saltise icon-resize" width=80 height=80></svg>
       </div>
       <p class="mdc-typography--headline">
         {% blocktrans %}
@@ -244,7 +274,6 @@ function logo(){
   var xPoints = bundle.range(0,2*Math.PI+0.01,(2*Math.PI/5));
 
   var desktop = window.matchMedia("(min-width:450px)").matches;
-  console.info(desktop);
 
   function f(v,x,t,a) {
     var factor;
@@ -633,84 +662,30 @@ function update(t,e) {
 </script>
 
 <script>
-// Draw icons for Features section
-var peerinst = bundle.select('.peerinst');
+function icons() {
+  // Draw icons
+  bundle.selectAll('.custom-icon').remove();
 
-var g = peerinst.append("g")
-.attr("transform","translate(" + peerinst.attr('width')/2 + "," + peerinst.attr('height')/2 + ")");
+  var iconRadius;
+  var scaleFactor = 1;
+  if (window.matchMedia("(max-width:450px)").matches) {
+    iconRadius = 25;
+    scaleFactor = 25/40;
+    bundle.selectAll(".icon-resize").attr('width',50);
+    bundle.selectAll(".icon-resize").attr('height',50);
+  } else {
+    iconRadius = 40;
+    bundle.selectAll(".icon-resize").attr('width',80);
+    bundle.selectAll(".icon-resize").attr('height',80);
+  }
 
-var iconRadius = 40;
+  var peerinst = bundle.select('.peerinst');
 
-g.append('circle')
-  .attr('cx', 0)
-  .attr('cy', 0)
-  .attr('r', iconRadius)
-  .style('opacity', 0.8)
-  .attr('fill', 'var(--mdc-theme-primary)');
-
-g.append('text')
-  .attr('class', 'material-icons md-36')
-  .attr('id', 'chat_right')
-  .attr('x', 0)
-  .attr('dx', -10)
-  .attr('y', 0)
-  .attr('dy', 15)
-  .attr('text-anchor', 'middle')
-  .attr('fill', 'white')
-  .style('opacity', 0)
-  .text('chat_bubble_outline')
-  .transition()
-  .duration(1000)
-  .delay(Math.random()*500+500)
-  .on('start', function repeat() {
-    bundle.active(this)
-    .style('opacity', function() {
-      if (this.style.opacity > 0) {
-        return 0;
-      } else {
-        return 1;
-      }
-    })
-    .transition()
-    .delay(Math.random()*500+500)
-    .on("start", repeat);
-  });
-
-g.append('text')
-  .attr('class', 'material-icons md-36')
-  .attr('id', 'chat_left')
-  .attr('x', 0)
-  .attr('dx', -10)
-  .attr('y', 0)
-  .attr('dy', 21)
-  .attr('transform', 'scale(-1,1)')
-  .attr('text-anchor', 'middle')
-  .attr('fill', 'white')
-  .style('opacity', 0)
-  .text('chat_bubble_outline')
-  .transition()
-  .duration(1000)
-  .delay(Math.random()*500+200)
-  .on('start', function repeat() {
-    bundle.active(this)
-    .style('opacity', function() {
-      if (this.style.opacity > 0) {
-        return 0;
-      } else {
-        return 1;
-      }
-    })
-    .transition()
-    .delay(Math.random()*500+200)
-    .on("start", repeat);
-  });
-
-  var school = bundle.select('.school');
-
-  var g = school.append("g")
-  .attr("transform","translate(" + school.attr('width')/2 + "," + school.attr('height')/2 + ")");
+  var g = peerinst.append("g")
+  .attr("transform","translate(" + peerinst.attr('width')/2 + "," + peerinst.attr('height')/2 + ")");
 
   g.append('circle')
+    .attr('class', 'custom-icon')
     .attr('cx', 0)
     .attr('cy', 0)
     .attr('r', iconRadius)
@@ -718,53 +693,107 @@ g.append('text')
     .attr('fill', 'var(--mdc-theme-primary)');
 
   g.append('text')
-    .attr('class', 'material-icons md-36')
+    .attr('class', 'material-icons custom-icon')
+    .attr('id', 'chat_right')
     .attr('x', 0)
-    .attr('dx', -15)
+    .attr('dx', -10*scaleFactor)
     .attr('y', 0)
-    .attr('dy', 11)
+    .attr('dy', 15*scaleFactor)
     .attr('text-anchor', 'middle')
     .attr('fill', 'white')
-    .text('school');
+    .style('opacity', 0)
+    .style('font-size', 36*scaleFactor)
+    .text('chat_bubble_outline')
+    .transition()
+    .duration(1000)
+    .delay(Math.random()*500+500)
+    .on('start', function repeat() {
+      bundle.active(this)
+      .style('opacity', function() {
+        if (this.style.opacity > 0) {
+          return 0;
+        } else {
+          return 1;
+        }
+      })
+      .transition()
+      .delay(Math.random()*500+500)
+      .on("start", repeat);
+    });
 
   g.append('text')
-    .attr('class', 'material-icons md-36')
+    .attr('class', 'material-icons custom-icon')
+    .attr('id', 'chat_left')
     .attr('x', 0)
-    .attr('dx', -15)
+    .attr('dx', -10*scaleFactor)
     .attr('y', 0)
-    .attr('dy', 25)
+    .attr('dy', 21*scaleFactor)
     .attr('transform', 'scale(-1,1)')
     .attr('text-anchor', 'middle')
     .attr('fill', 'white')
-    .text('home');
+    .style('opacity', 0)
+    .style('font-size', 36*scaleFactor)
+    .text('chat_bubble_outline')
+    .transition()
+    .duration(1000)
+    .delay(Math.random()*500+200)
+    .on('start', function repeat() {
+      bundle.active(this)
+      .style('opacity', function() {
+        if (this.style.opacity > 0) {
+          return 0;
+        } else {
+          return 1;
+        }
+      })
+      .transition()
+      .delay(Math.random()*500+200)
+      .on("start", repeat);
+    });
 
-var lightbulb = bundle.select('.lightbulb');
+    var school = bundle.select('.school');
 
-var g = lightbulb.append("g")
-.attr("transform","translate(" + lightbulb.attr('width')/2 + "," + lightbulb.attr('height')/2 + ")");
+    var g = school.append("g")
+    .attr("transform","translate(" + school.attr('width')/2 + "," + school.attr('height')/2 + ")");
 
-g.append('circle')
-  .attr('cx', 0)
-  .attr('cy', 0)
-  .attr('r', iconRadius)
-  .style('opacity', 0.8)
-  .attr('fill', 'var(--mdc-theme-primary)');
+    g.append('circle')
+      .attr('class', 'custom-icon')
+      .attr('cx', 0)
+      .attr('cy', 0)
+      .attr('r', iconRadius)
+      .style('opacity', 0.8)
+      .attr('fill', 'var(--mdc-theme-primary)');
 
-g.append('text')
-  .attr('class', 'material-icons md-48')
-  .attr('x', 0)
-  .attr('y', 0)
-  .attr('dy', 24)
-  .attr('text-anchor', 'middle')
-  .attr('fill', 'white')
-  .text('lightbulb_outline');
+    g.append('text')
+      .attr('class', 'material-icons custom-icon')
+      .attr('x', 0)
+      .attr('dx', -15*scaleFactor)
+      .attr('y', 0)
+      .attr('dy', 11*scaleFactor)
+      .attr('text-anchor', 'middle')
+      .attr('fill', 'white')
+      .style('font-size', 36*scaleFactor)
+      .text('school');
 
-  var activity = bundle.select('.activity');
+    g.append('text')
+      .attr('class', 'material-icons custom-icon')
+      .attr('x', 0)
+      .attr('dx', -15*scaleFactor)
+      .attr('y', 0)
+      .attr('dy', 25*scaleFactor)
+      .attr('transform', 'scale(-1,1)')
+      .attr('text-anchor', 'middle')
+      .attr('fill', 'white')
+      .style('font-size', 36*scaleFactor)
+      .text('home');
 
-  var g = activity.append("g")
-  .attr("transform","translate(" + activity.attr('width')/2 + "," + activity.attr('height')/2 + ")");
+  var lightbulb = bundle.select('.lightbulb');
+
+  var g = lightbulb.append("g")
+  .attr("transform","translate(" + lightbulb.attr('width')/2 + "," + lightbulb.attr('height')/2 + ")");
 
   g.append('circle')
+    .attr('class', 'custom-icon')
     .attr('cx', 0)
     .attr('cy', 0)
     .attr('r', iconRadius)
@@ -772,25 +801,50 @@ g.append('text')
     .attr('fill', 'var(--mdc-theme-primary)');
 
   g.append('text')
-    .attr('class', 'material-icons md-60')
+    .attr('class', 'material-icons custom-icon')
     .attr('x', 0)
     .attr('y', 0)
-    .attr('dy', 30)
+    .attr('dy', 24*scaleFactor)
     .attr('text-anchor', 'middle')
     .attr('fill', 'white')
-    .text('trending_up');
+    .style('font-size', 48*scaleFactor)
+    .text('lightbulb_outline');
+
+    var activity = bundle.select('.activity');
+
+    var g = activity.append("g")
+    .attr("transform","translate(" + activity.attr('width')/2 + "," + activity.attr('height')/2 + ")");
+
+    g.append('circle')
+      .attr('class', 'custom-icon')
+      .attr('cx', 0)
+      .attr('cy', 0)
+      .attr('r', iconRadius)
+      .style('opacity', 0.8)
+      .attr('fill', 'var(--mdc-theme-primary)');
+
+    g.append('text')
+      .attr('class', 'material-icons custom-icon')
+      .attr('x', 0)
+      .attr('y', 0)
+      .attr('dy', 30*scaleFactor)
+      .attr('text-anchor', 'middle')
+      .attr('fill', 'white')
+      .style('font-size', 60*scaleFactor)
+      .text('trending_up');
 
     var saltise = bundle.select('.saltise');
 
     var g = saltise.append("g")
     .attr("transform","translate(" + saltise.attr('width')/2 + "," + saltise.attr('height')/2 + ")");
 
-    var x = bundle.scaleLinear().domain([0,2*Math.PI]).range([-25,25]);
-    var y = bundle.scaleLinear().domain([-1,1]).range([-25,25]);
+    var x = bundle.scaleLinear().domain([0,2*Math.PI]).range([-25*scaleFactor,25*scaleFactor]);
+    var y = bundle.scaleLinear().domain([-1,1]).range([-25*scaleFactor,25*scaleFactor]);
 
     var xPoints = bundle.range(0,2*Math.PI+0.01,(2*Math.PI/10));
 
     g.append('circle')
+      .attr('class', 'custom-icon')
       .attr('cx', 0)
       .attr('cy', 0)
       .attr('r', iconRadius)
@@ -804,22 +858,27 @@ g.append('text')
 
     g.append('path')
     .datum(xPoints)
+    .attr('class', 'custom-icon')
     .attr('stroke', 'white')
     .attr('stroke-width', '2px')
     .attr('fill', 'none')
     .attr('d', sine);
 
     g.append('path')
+    .attr('class', 'custom-icon')
     .attr('stroke', 'white')
     .attr('fill', 'none')
     .attr('stroke-width', '1.5px')
     .attr('d', function(d) {
       var path = bundle.path();
-      path.moveTo(-26, 0);
-      path.lineTo(26, 0);
+      path.moveTo(-26*scaleFactor, 0);
+      path.lineTo(26*scaleFactor, 0);
       return path;
     });
+}
+icons();
 
+window.addEventListener('resize', icons);
 </script>
 
 <script>
@@ -1099,7 +1158,7 @@ function pillars() {
   .attr('cx', 0)
   .attr('cy', 0)
   .attr('r', r)
-  .style('opacity', 0.4)
+  .style('opacity', 0.6)
   .attr('stroke', 'var(--mdc-theme-primary)')
   .attr('stroke-width', '2px')
   .attr('fill', 'var(--mdc-theme-primary)');

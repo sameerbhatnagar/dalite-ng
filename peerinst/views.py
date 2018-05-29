@@ -37,6 +37,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from opaque_keys import InvalidKeyError
 from opaque_keys.edx.keys import CourseKey
 
+
 from . import heartbeat_checks
 from . import forms
 from . import models
@@ -73,10 +74,9 @@ def log(request):
         LOGGER_teacher_activity.info(user+" | "+ timestamp_request +" | "+message+" | "+browser+" | "+remote)
 
     return
+
+
 # Views related to Auth
-
-
-
 def landing_page(request):
     log(request)
     disciplines = {}
@@ -298,12 +298,12 @@ class AssignmentUpdateView(NoStudentsMixin,LoginRequiredMixin,DetailView):
     model = Assignment
 
     def dispatch(self, *args, **kwargs):
-        
+
         if self.request.user.is_authenticated() and not (\
             self.request.user in self.get_object().owner.all() or self.request.user.is_staff\
             ):
             return HttpResponse("You do not have editing rights on this assignment")
-        
+
         return super(AssignmentUpdateView, self).dispatch(*args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -463,7 +463,7 @@ class QuestionFormView(QuestionMixin, FormView):
         # Automatically keep track of student, student groups and their relationships based on lti data
         user = User.objects.get(username=self.user_token)
         student, created_student = Student.objects.get_or_create(student=user)
-        
+
         course_title = self.lti_data.edx_lti_parameters.get('context_title')
         if not course_title:
             group, created_group = StudentGroup.objects.get_or_create(name=course_id,title=course_title)
@@ -1781,7 +1781,7 @@ def report(request,teacher_id='',assignment_id='',group_id=''):
     elif len(assignment_id)==0:
         student_groups = [StudentGroup.objects.get(name=urllib.unquote(group_id)).pk]
         assignment_list = teacher.assignments.all().values_list('identifier',flat=True)
-    
+
     student_id_list = student_list_from_student_groups(student_groups)
     answer_qs = Answer.objects.filter(assignment_id__in=assignment_list).filter(user_token__in=student_id_list)
 
@@ -1881,13 +1881,13 @@ def report(request,teacher_id='',assignment_id='',group_id=''):
                         student_gradebook_transitions[c[0]] += c[1]
                     else:
                         student_gradebook_transitions[c[0]] = c[1]
-                
+
                 d_q['transitions'].append(d_q_a_d)
 
                 d3_data_dict={}
                 d3_data_dict['question'] = q.title
                 d3_data_dict['distribution'] = d_q_a_d
-                d3_data.append(d3_data_dict)                
+                d3_data.append(d3_data_dict)
 
             #confusion matrix
             d_q['confusion_matrix']=[]
@@ -1897,7 +1897,7 @@ def report(request,teacher_id='',assignment_id='',group_id=''):
                 .exclude(user_token='')\
                 .filter(assignment_id=a.identifier)
                 d_q_cf['first_answer_choice']=first_choice_index
-                d_q_cf['second_answer_choice']=[]                
+                d_q_cf['second_answer_choice']=[]
                 for second_choice_index in range(1,q.answerchoice_set.count()+1):
                     d_q_cf_a2 ={}
                     d_q_cf_a2['value']=second_choice_index
@@ -1909,7 +1909,7 @@ def report(request,teacher_id='',assignment_id='',group_id=''):
                     d_q_cf['second_answer_choice'].append(d_q_cf_a2)
                 d_q['confusion_matrix'].append(d_q_cf)
 
-           
+
             d_q['student_responses'] = []
             for student_response in answer_qs_question:
                 d_q_a = {}
@@ -1933,7 +1933,7 @@ def report(request,teacher_id='',assignment_id='',group_id=''):
                 d_a['transitions'].append(d_t)
 
         assignment_data.append(d_a)
-              
+
 
         context = {}
         context['data'] = assignment_data
@@ -1949,7 +1949,7 @@ def report(request,teacher_id='',assignment_id='',group_id=''):
         # serialize num_responses_by_student
         student_gradebook_dict = defaultdict(Counter)
         student_gradebook_dict_by_q = defaultdict(defaultdict)
-        for student_entry in num_responses_by_student:    
+        for student_entry in num_responses_by_student:
             student_gradebook_dict[student_entry['user_token']]['num_responses'] += student_entry['num_responses']
 
 
@@ -1974,7 +1974,7 @@ def report(request,teacher_id='',assignment_id='',group_id=''):
 
                 try:
                     d_g[question] = student_gradebook_dict_by_q[student][question.title]
-                    
+
                 except KeyError as e:
                     d_g[question] = '-'
 
@@ -2002,7 +2002,7 @@ def report(request,teacher_id='',assignment_id='',group_id=''):
             for student_entry in student_entries:
                 question_gradebook_dict[question][student_entry['transition']] += 1
 
-       
+
         # array for template
         gradebook_question = []
         for question,grades_dict in question_gradebook_dict.items():
@@ -2021,7 +2021,7 @@ def report(request,teacher_id='',assignment_id='',group_id=''):
         context['gradebook_keys'] = metric_labels
         context['question_list'] = question_list
         context['teacher'] = teacher
-        context['json'] = json.dumps(d3_data)        
+        context['json'] = json.dumps(d3_data)
 
 
     return render(request,template_name,context)
@@ -2035,7 +2035,7 @@ def report_assignment_aggregates(request):
 
 
     student_groups=request.GET.getlist('student_groups')
-    assignment_list = request.GET.getlist('assignments')    
+    assignment_list = request.GET.getlist('assignments')
 
     j=[]
     for a_str in assignment_list:
@@ -2069,4 +2069,4 @@ def report_assignment_aggregates(request):
             d_a['questions'].append(d_q)
         j.append(d_a)
 
-    return JsonResponse(j,safe=False)   
+    return JsonResponse(j,safe=False)

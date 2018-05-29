@@ -180,7 +180,7 @@ LOGGING = {
             'level': 'INFO',
             'class': 'logging.FileHandler',
             'filename': os.path.join(BASE_DIR, 'log/teacher_activity.log'),
-        },        
+        },
     },
     'loggers': {
         'django.request': {
@@ -202,7 +202,7 @@ LOGGING = {
             'handlers': ['file_teacher_log'],
             'level': 'INFO',
             'propagate': True,
-        },        
+        },
     },
 }
 
