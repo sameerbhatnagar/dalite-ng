@@ -171,6 +171,7 @@ blockquote {
     padding-top:30px;
     padding-bottom:0px;
     font-size: 2rem;
+    line-height: 3rem;
   }
   .mdc-typography--caption {
     margin-top: 10px;
