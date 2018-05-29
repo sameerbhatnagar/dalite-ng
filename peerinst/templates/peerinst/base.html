@@ -13,7 +13,9 @@
 
   <!-- Local resources -->
   <link href="{% static 'peerinst/img/logo.png' %}" rel="icon">
+  {% compress css %}
   <link href="{% static 'peerinst/css/main.min.css' %}" rel="stylesheet">
+  {% endcompress %}
 
   <!-- External resources -->
   <link href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css" rel="stylesheet">
