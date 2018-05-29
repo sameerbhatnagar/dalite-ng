@@ -41,11 +41,16 @@
 
 {% block body %}
 <script>
+var desktop = window.matchMedia("(min-width:450px)").matches;
 // Override default size of header to fill page based on window size
 var styles = document.createElement('style');
 document.head.appendChild(styles);
 var styleSheet = styles.sheet;
-styleSheet.insertRule(".mdc-toolbar--flexible {--mdc-toolbar-ratio-to-extend-flexible:"+window.innerHeight/64+" !important;}");
+if (desktop) {
+  styleSheet.insertRule(".mdc-toolbar--flexible {--mdc-toolbar-ratio-to-extend-flexible:"+window.innerHeight/64+" !important;}");
+} else {
+  styleSheet.insertRule(".mdc-toolbar--flexible {--mdc-toolbar-ratio-to-extend-flexible:"+1+" !important;}");
+}
 </script>
 
 <header class="mdc-toolbar mdc-toolbar--fixed mdc-toolbar--flexible mdc-toolbar--waterfall">
@@ -109,7 +114,7 @@ styleSheet.insertRule(".mdc-toolbar--flexible {--mdc-toolbar-ratio-to-extend-fle
       </div>
       <p class="mdc-typography--headline">
         {% blocktrans %}
-        <span style="font-family: 'Cardo', serif;font-style:italic;">my</span>DALITE has a <strong>growing database</strong> of questions in subjects ranging from chemistry to the humanities. It is funded by the SALTISE/S4 grant and aims to be the home of an open-source community offering high-impact high-quality learning resources <strong>built for teachers by teachers</strong>. If you don't find the type of content you are looking for, you can author new question items and contribute to the ever-growing community!  The current top disciplines are:
+        <span style="font-family: 'Cardo', serif;font-style:italic;">my</span>DALITE has a <strong>growing database</strong> of questions in subjects ranging from chemistry to the humanities. It is funded by the SALTISE/S4 grant and aims to be the home of an open-source community offering high-impact high-quality learning resources <strong>built for teachers by teachers</strong>. If you don't find the type of content you are looking for, you can author new question items and contribute to the ever-growing community!   The current top disciplines are:
         {% endblocktrans %}
       </p>
       <div class="mdc-layout-grid">
@@ -233,17 +238,21 @@ styleSheet.insertRule(".mdc-toolbar--flexible {--mdc-toolbar-ratio-to-extend-fle
 {% compress js inline %}
 <script>
 // MDC binds
-var toolbar = bundle.toolbar.MDCToolbar.attachTo(document.querySelector('.mdc-toolbar'));
-toolbar.fixedAdjustElement = document.querySelector('.mdc-toolbar-fixed-adjust');
-
 var arrow = document.getElementById('scrollprompt');
-var flexibleExpansionRatio = 1.0;
-toolbar.listen('MDCToolbar:change', function(evt) {
-  flexibleExpansionRatio = evt.detail.flexibleExpansionRatio;
-  arrow.style.opacity = flexibleExpansionRatio;
-});
-arrow.onclick = function() {
-  document.querySelector("#Features").scrollIntoView({block: "center", inline: "center", behavior: "smooth"});
+if (desktop) {
+  var toolbar = bundle.toolbar.MDCToolbar.attachTo(document.querySelector('.mdc-toolbar'));
+  toolbar.fixedAdjustElement = document.querySelector('.mdc-toolbar-fixed-adjust');
+
+  var flexibleExpansionRatio = 1.0;
+  toolbar.listen('MDCToolbar:change', function(evt) {
+    flexibleExpansionRatio = evt.detail.flexibleExpansionRatio;
+    arrow.style.opacity = flexibleExpansionRatio;
+  });
+  arrow.onclick = function() {
+    document.querySelector("#Features").scrollIntoView({block: "center", inline: "center", behavior: "smooth"});
+  }
+} else {
+  arrow.style.opacity = 0;
 }
 </script>
 
@@ -275,8 +284,6 @@ function logo(){
   var yAxis = g.append("g").style("opacity",0).call(bundle.axisLeft(y));
 
   var xPoints = bundle.range(0,2*Math.PI+0.01,(2*Math.PI/5));
-
-  var desktop = window.matchMedia("(min-width:450px)").matches;
 
   function f(v,x,t,a) {
     var factor;
@@ -666,6 +673,8 @@ function update(t,e) {
 
 <script>
 function icons() {
+  'use strict';
+
   // Draw icons
   bundle.selectAll('.custom-icon').remove();
 
