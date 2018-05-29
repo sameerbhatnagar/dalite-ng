@@ -8,7 +8,8 @@
 
 {% block body %}
 <script>
-var desktop = window.matchMedia("(min-width:450px)").matches;
+var desktop = window.matchMedia("(min-width:450px)").matches&&window.matchMedia("(min-height:450px)").matches;
+console.info(desktop);
 // Override default size of header to fill page based on window size
 var styles = document.createElement('style');
 document.head.appendChild(styles);

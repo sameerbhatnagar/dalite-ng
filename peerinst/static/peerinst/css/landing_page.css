@@ -168,7 +168,9 @@ blockquote {
     line-height: 1.3rem;
   }
   .mdc-typography--display3 {
-    padding-top:40px;
+    padding-top:30px;
+    padding-bottom:0px;
+    font-size: 2rem;
   }
   .mdc-typography--caption {
     margin-top: 10px;
