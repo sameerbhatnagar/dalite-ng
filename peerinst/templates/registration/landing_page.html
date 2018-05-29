@@ -16,7 +16,7 @@
   }
   .mdc-typography--headline {
     font-size: 0.9rem;
-    line-height: 1.4rem;
+    line-height: 1.3rem;
   }
   .mdc-typography--display3 {
     padding-top:40px;
@@ -24,6 +24,9 @@
   .mdc-typography--caption {
     margin-top: 10px;
     font-size:14px;
+  }
+  .mdc-chip__text {
+    font-size: 10pt;
   }
   .navtopright {
     font-size:10pt;
@@ -667,17 +670,17 @@ function icons() {
   bundle.selectAll('.custom-icon').remove();
 
   var iconRadius;
-  var scaleFactor = 1;
+  var scaleFactor;
   if (window.matchMedia("(max-width:450px)").matches) {
-    iconRadius = 25;
-    scaleFactor = 25/40;
-    bundle.selectAll(".icon-resize").attr('width',50);
-    bundle.selectAll(".icon-resize").attr('height',50);
+    iconRadius = 30;
+    scaleFactor = iconRadius/40;
   } else {
     iconRadius = 40;
-    bundle.selectAll(".icon-resize").attr('width',80);
-    bundle.selectAll(".icon-resize").attr('height',80);
+    scaleFactor = 1;
   }
+
+  bundle.selectAll(".icon-resize").attr('width',2*iconRadius);
+  bundle.selectAll(".icon-resize").attr('height',2*iconRadius);
 
   var peerinst = bundle.select('.peerinst');
 
