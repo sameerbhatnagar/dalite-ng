@@ -4,39 +4,6 @@
 
 {% block stylesheets %}
 <link href="{% static 'peerinst/css/landing_page.min.css' %}" rel="stylesheet">
-
-<style>
-@media (max-width:450px) {
-  .blurb {
-    margin-bottom:20pt;
-  }
-  .mdc-typography--body1 {
-    font-size: 0.8rem;
-    line-height: 1.1rem;
-  }
-  .mdc-typography--headline {
-    font-size: 0.9rem;
-    line-height: 1.3rem;
-  }
-  .mdc-typography--display3 {
-    padding-top:40px;
-  }
-  .mdc-typography--caption {
-    margin-top: 10px;
-    font-size:14px;
-  }
-  .mdc-chip__text {
-    font-size: 10pt;
-  }
-  .navtopright {
-    font-size:10pt;
-    right:0px;
-  }
-  .count {
-    font-size: 20pt;
-  }
-}
-</style>
 {% endblock %}
 
 {% block body %}
@@ -261,9 +228,17 @@ if (desktop) {
 function logo(){
   'use strict';
 
+  var scale;
+  if (desktop) {
+    scale = 1;
+  } else {
+    scale = 0.8;
+  }
+
   // Waves
   var svg = bundle.select("#animation");
   svg.attr("width",document.body.offsetWidth);
+  svg.attr("height",scale*80);
 
   var width = +svg.attr("width");
   var height = +svg.attr("height");
@@ -455,8 +430,18 @@ function logo(){
     'use strict';
 
     bundle.selectAll(".title").remove();
+    bundle.selectAll(".scaled-frame").remove();
 
-    g.append("text")
+    var gg;
+    if (desktop) {
+      gg = g.append('g').attr('class', 'scaled-frame');
+    } else {
+      gg = g.append('g')
+        .attr("transform", "scale("+scale+") translate(40,0)")
+        .attr('class', 'scaled-frame');
+    }
+
+    gg.append("text")
     .attr("class","title")
     .attr("x",margin.left+innerWidth/2)
     .attr("dx","25pt")
@@ -470,7 +455,7 @@ function logo(){
       window.location="{% url 'login' %}"
     });
 
-    g.append("text")
+    gg.append("text")
     .attr("class","title")
     .attr("x",margin.left+innerWidth/2)
     .attr("dx","-70pt")
@@ -491,7 +476,7 @@ function logo(){
       dx = -20;
     }
 
-    g.append("text")
+    gg.append("text")
     .attr("class","title")
     .attr("x",margin.left+innerWidth/2+175)
     .attr("y",y(0))
@@ -504,7 +489,7 @@ function logo(){
     .style("font-size","14pt")
     .text("by")
 
-    g.append("text")
+    gg.append("text")
     .attr("class","title")
     .attr("x",margin.left+innerWidth/2+145+dx)
     .attr("y",y(0))
@@ -714,7 +699,7 @@ function icons() {
     .attr('text-anchor', 'middle')
     .attr('fill', 'white')
     .style('opacity', 0)
-    .style('font-size', 36*scaleFactor)
+    .style('font-size', 36*scaleFactor+'px')
     .text('chat_bubble_outline')
     .transition()
     .duration(1000)
@@ -744,7 +729,7 @@ function icons() {
     .attr('text-anchor', 'middle')
     .attr('fill', 'white')
     .style('opacity', 0)
-    .style('font-size', 36*scaleFactor)
+    .style('font-size', 36*scaleFactor+'px')
     .text('chat_bubble_outline')
     .transition()
     .duration(1000)
@@ -784,7 +769,7 @@ function icons() {
       .attr('dy', 11*scaleFactor)
       .attr('text-anchor', 'middle')
       .attr('fill', 'white')
-      .style('font-size', 36*scaleFactor)
+      .style('font-size', 36*scaleFactor+'px')
       .text('school');
 
     g.append('text')
@@ -796,7 +781,7 @@ function icons() {
       .attr('transform', 'scale(-1,1)')
       .attr('text-anchor', 'middle')
       .attr('fill', 'white')
-      .style('font-size', 36*scaleFactor)
+      .style('font-size', 36*scaleFactor+'px')
       .text('home');
 
   var lightbulb = bundle.select('.lightbulb');
@@ -819,7 +804,7 @@ function icons() {
     .attr('dy', 24*scaleFactor)
     .attr('text-anchor', 'middle')
     .attr('fill', 'white')
-    .style('font-size', 48*scaleFactor)
+    .style('font-size', 48*scaleFactor+'px')
     .text('lightbulb_outline');
 
     var activity = bundle.select('.activity');
@@ -842,7 +827,7 @@ function icons() {
       .attr('dy', 30*scaleFactor)
       .attr('text-anchor', 'middle')
       .attr('fill', 'white')
-      .style('font-size', 60*scaleFactor)
+      .style('font-size', 60*scaleFactor+'px')
       .text('trending_up');
 
     var saltise = bundle.select('.saltise');

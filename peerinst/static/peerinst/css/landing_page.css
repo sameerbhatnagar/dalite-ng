@@ -164,8 +164,8 @@ blockquote {
     line-height: 1.1rem;
   }
   .mdc-typography--headline {
-    font-size: 1rem;
-    line-height: 1.4rem;
+    font-size: 0.9rem;
+    line-height: 1.3rem;
   }
   .mdc-typography--display3 {
     padding-top:40px;
@@ -174,11 +174,25 @@ blockquote {
     margin-top: 10px;
     font-size:14px;
   }
+  .mdc-chip__text {
+    font-size: 10pt;
+  }
   .navtopright {
     font-size:10pt;
     right:0px;
   }
   .count {
     font-size: 20pt;
+  }
+  footer .icon {
+    font-size: 24px;
+  }
+  .footer_content {
+    font-size: 10pt;
+  }
+  .mdc-toolbar__row {
+    min-height: 100px;
+    padding-top:30px;
+    background-image:radial-gradient(150px 150px,rgba(255,255,255,0.6),var(--mdc-theme-primary));
   }
 }
