@@ -800,6 +800,15 @@ function icons() {
     .style('opacity', 0.8)
     .attr('fill', 'var(--mdc-theme-primary)');
 
+  /*g.append('image')
+    .attr('class', 'custom-icon')
+    .attr('x', -24*scaleFactor)
+    .attr('y', -24*scaleFactor)
+    .attr('width', 48*scaleFactor+'px')
+    .attr('height', 48*scaleFactor+'px')
+    .style('opacity', 1)
+    .attr('href', "{% static 'peerinst/img/light-bulb-2-128.png' %}");*/
+
   g.append('text')
     .attr('class', 'material-icons custom-icon')
     .attr('x', 0)
@@ -975,7 +984,6 @@ function timeline() {
   ]
 };
 
-
   var svg = bundle.select("#history");
 
   svg.attr("width",document.querySelector("section").offsetWidth);
@@ -1145,10 +1153,11 @@ function pillars() {
 
   bundle.selectAll('.pillar').remove();
 
-  var g = pillars.append("g")
-  .attr("transform","translate(" + pillars.attr('width')/2 + "," + 0.45*pillars.attr('height') + ")");
+  var r = Math.min(0.2*pillars.attr('width'),90);
+  var s = r/90;
 
-  var r = Math.min(0.3*pillars.attr('width'),90);
+  var g = pillars.append("g")
+  .attr("transform","translate(" + pillars.attr('width')/2 + "," + s*0.5*pillars.attr('height') + ")");
 
   var titleX = -0.4*pillars.attr('width')
   var titleY = 0.4*pillars.attr('height')
@@ -1196,7 +1205,7 @@ function pillars() {
       .attr('stroke', 'white')
       .transition()
       .duration(500)
-      .attr('r', 25);
+      .attr('r', 25*s);
   }
 
   function blendOut(className) {
@@ -1217,7 +1226,7 @@ function pillars() {
       .attr('stroke', 'var(--mdc-theme-primary)')
       .transition()
       .duration(200)
-      .attr('r', 20);
+      .attr('r', 20*s);
   }
 
   g.append('text')
@@ -1247,9 +1256,9 @@ function pillars() {
   .attr('id', 'student-circle')
   .attr('cx', Math.cos(13/6*Math.PI)*r)
   .attr('cy', Math.sin(13/6*Math.PI)*r)
-  .attr('r', 20)
+  .attr('r', 20*s)
   .attr('stroke', 'var(--mdc-theme-primary)')
-  .attr('stroke-width', '2px')
+  .attr('stroke-width', 2*s+'px')
   .attr('fill', 'white')
   .on('mouseover', function(d) {blendIn('student');})
   .on('mouseout', function(d) {blendOut('student');});
@@ -1259,10 +1268,10 @@ function pillars() {
   .attr('id', 'student-text')
   .attr('x', Math.cos(13/6*Math.PI)*r)
   .attr('y', Math.sin(13/6*Math.PI)*r)
-  .attr('dy', 8)
+  .attr('dy', 8*s)
   .attr('fill', 'var(--mdc-theme-primary)')
   .attr('text-anchor', 'middle')
-  .style('font-size', '20px')
+  .style('font-size', 20*s+'px')
   .text(3)
   .on('mouseover', function(d) {blendIn('student');})
   .on('mouseout', function(d) {blendOut('student');});
@@ -1271,9 +1280,9 @@ function pillars() {
   .attr('class', 'pillar')
   .attr('id', 'student-title')
   .attr('x', Math.cos(13/6*Math.PI)*r)
-  .attr('y', Math.sin(13/6*Math.PI)*r+45)
+  .attr('y', Math.sin(13/6*Math.PI)*r+50*s)
   .attr('x0', Math.cos(13/6*Math.PI)*r)
-  .attr('y0', Math.sin(13/6*Math.PI)*r+45)
+  .attr('y0', Math.sin(13/6*Math.PI)*r+50*s)
   .attr('fill', 'var(--mdc-theme-primary)')
   .attr('text-anchor', 'start')
   .style('font-size', '12pt')
@@ -1297,10 +1306,9 @@ function pillars() {
   .attr('id', 'researcher-circle')
   .attr('cx', -Math.cos(13/6*Math.PI)*r)
   .attr('cy', Math.sin(13/6*Math.PI)*r)
-  .attr('r', 20)
-  .attr('dy', 5)
+  .attr('r', 20*s)
   .attr('stroke', 'var(--mdc-theme-primary)')
-  .attr('stroke-width', '2px')
+  .attr('stroke-width', 2*s+'px')
   .attr('fill', 'white')
   .on('mouseover', function(d) {blendIn('researcher');})
   .on('mouseout', function(d) {blendOut('researcher');});
@@ -1310,10 +1318,10 @@ function pillars() {
   .attr('id', 'researcher-text')
   .attr('x', -Math.cos(13/6*Math.PI)*r)
   .attr('y', Math.sin(13/6*Math.PI)*r)
-  .attr('dy', 8)
+  .attr('dy', 8*s)
   .attr('fill', 'var(--mdc-theme-primary)')
   .attr('text-anchor', 'middle')
-  .style('font-size', '20px')
+  .style('font-size', 20*s+'px')
   .text(2)
   .on('mouseover', function(d) {blendIn('researcher');})
   .on('mouseout', function(d) {blendOut('researcher');});
@@ -1322,9 +1330,9 @@ function pillars() {
   .attr('class', 'pillar')
   .attr('id', 'researcher-title')
   .attr('x', -Math.cos(13/6*Math.PI)*r-90)
-  .attr('y', Math.sin(13/6*Math.PI)*r+45)
+  .attr('y', Math.sin(13/6*Math.PI)*r+50*s)
   .attr('x0', -Math.cos(13/6*Math.PI)*r-90)
-  .attr('y0', Math.sin(13/6*Math.PI)*r+45)
+  .attr('y0', Math.sin(13/6*Math.PI)*r+50*s)
   .attr('fill', 'var(--mdc-theme-primary)')
   .attr('text-anchor', 'start')
   .style('font-size', '12pt')
@@ -1348,11 +1356,9 @@ function pillars() {
   .attr('id', 'teacher-circle')
   .attr('cx', 0)
   .attr('cy', -r)
-  .attr('r', 20)
-  .attr('dy', 5)
-  .attr('theta', 0)
+  .attr('r', 20*s)
   .attr('stroke', 'var(--mdc-theme-primary)')
-  .attr('stroke-width', '2px')
+  .attr('stroke-width', 2*s+'px')
   .attr('fill', 'white')
   .on('mouseover', function(d) {blendIn('teacher');})
   .on('mouseout', function(d) {blendOut('teacher');});
@@ -1362,10 +1368,10 @@ function pillars() {
   .attr('id', 'teacher-text')
   .attr('x', 0)
   .attr('y', -r)
-  .attr('dy', 8)
+  .attr('dy', 8*s)
   .attr('fill', 'var(--mdc-theme-primary)')
   .attr('text-anchor', 'middle')
-  .style('font-size', '20px')
+  .style('font-size', 20*s+'px')
   .text(1)
   .on('mouseover', function(d) {blendIn('teacher');})
   .on('mouseout', function(d) {blendOut('teacher');});
@@ -1374,9 +1380,9 @@ function pillars() {
   .attr('class', 'pillar')
   .attr('id', 'teacher-title')
   .attr('x', -35)
-  .attr('y', -r-35)
+  .attr('y', -r-35*s)
   .attr('x0', -35)
-  .attr('y0', -r-35)
+  .attr('y0', -r-35*s)
   .attr('fill', 'var(--mdc-theme-primary)')
   .attr('text-anchor', 'start')
   .style('font-size', '12pt')
