@@ -51,7 +51,7 @@ if (desktop) {
       </div>
       <p class="mdc-typography--headline">
         {% blocktrans %}
-        <span style="font-family: 'Cardo', serif;font-style:italic;">my</span>DALITE is a free open-source web-based platform that promotes <strong>deep learning</strong>. Its pedagogical foundations are guided by social learning and based on learning principles and practical know-how. It engages students in cognitive tasks that include written self-explanation, comparison and evaluation of explanations produced by peers, and reflection.
+        <span style="font-family: 'Cardo', serif;font-style:italic;">my</span>DALITE is a free open-source web-based platform that promotes <strong>conceptual learning</strong>. Its pedagogical foundations are guided by social learning and based on learning principles and practical know-how. It engages students in cognitive tasks that include written self-explanation, comparison and evaluation of explanations produced by peers, and reflection.
         {% endblocktrans %}
       </p>
     </div>
@@ -1351,6 +1351,18 @@ function pillars() {
   .text("{% trans 'A platform to enable learning science researchers to engage directly with practitioners and bring learning science to the classroom faster.' %}")
   .call(bundle.wrap, +pillars.attr("width")*0.7);
 
+  g.append('text')
+  .attr('class', 'pillar')
+  .attr('id', 'teacher-title')
+  .attr('x', -35)
+  .attr('y', -r-35*s)
+  .attr('x0', -35)
+  .attr('y0', -r-35*s)
+  .attr('fill', 'var(--mdc-theme-primary)')
+  .attr('text-anchor', 'start')
+  .style('font-size', '12pt')
+  .text('Teachers');
+
   var teachers = g.append('circle')
   .attr('class', 'pillar')
   .attr('id', 'teacher-circle')
@@ -1375,18 +1387,6 @@ function pillars() {
   .text(1)
   .on('mouseover', function(d) {blendIn('teacher');})
   .on('mouseout', function(d) {blendOut('teacher');});
-
-  g.append('text')
-  .attr('class', 'pillar')
-  .attr('id', 'teacher-title')
-  .attr('x', -35)
-  .attr('y', -r-35*s)
-  .attr('x0', -35)
-  .attr('y0', -r-35*s)
-  .attr('fill', 'var(--mdc-theme-primary)')
-  .attr('text-anchor', 'start')
-  .style('font-size', '12pt')
-  .text('Teachers');
 
   g.append('text')
   .attr('class', 'pillar')
