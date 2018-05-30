@@ -847,7 +847,15 @@ function icons() {
     var g = saltise.append("g")
     .attr("transform","translate(" + saltise.attr('width')/2 + "," + saltise.attr('height')/2 + ")");
 
-    var x = bundle.scaleLinear().domain([0,2*Math.PI]).range([-25*scaleFactor,25*scaleFactor]);
+    g.append("image")
+    .attr('class', 'custom-icon')
+    .attr('x', -iconRadius)
+    .attr('y', -iconRadius)
+    .attr('width', 2*iconRadius)
+    .attr('height', 2*iconRadius)
+    .attr('href', "{% static 'peerinst/img/SALTISE-logo-icon.gif' %}" );
+
+    /*var x = bundle.scaleLinear().domain([0,2*Math.PI]).range([-25*scaleFactor,25*scaleFactor]);
     var y = bundle.scaleLinear().domain([-1,1]).range([-25*scaleFactor,25*scaleFactor]);
 
     var xPoints = bundle.range(0,2*Math.PI+0.01,(2*Math.PI/10));
@@ -883,7 +891,7 @@ function icons() {
       path.moveTo(-26*scaleFactor, 0);
       path.lineTo(26*scaleFactor, 0);
       return path;
-    });
+    });*/
 }
 icons();
 
