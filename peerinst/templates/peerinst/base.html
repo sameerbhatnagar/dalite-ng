@@ -12,7 +12,7 @@
   <meta name="description" content="myDALITE">
 
   <!-- Local resources -->
-  <link href="{% static 'peerinst/img/logo.png' %}" rel="icon">
+  <link href="{% static 'peerinst/img/SALTISE-logo-icon.gif' %}" rel="icon">
   {% compress css %}
   <link href="{% static 'peerinst/css/main.min.css' %}" rel="stylesheet">
   {% endcompress %}
@@ -32,7 +32,7 @@
   <header>
     <div class="wrapper">
       <div>
-        <a href="{% include 'peerinst/custom-instance-link.html' %}"><img src="{% static 'peerinst/img/logo.png' %}" alt="site-logo" id="logo"></a>
+        <a href="{% include 'peerinst/custom-instance-link.html' %}"><img src="{% static 'peerinst/img/SALTISE-favicon.gif' %}" alt="site-logo" id="logo"></a>
         {% if not user.student %}
         <a href="{% url 'assignment-list' %}">{% include 'peerinst/custom-instance-header.html' %}</a>
         {% else %}
