@@ -65,16 +65,20 @@ $radius: 10px;
    font-feature-settings: 'liga';
 }
 
+.fill-primary {
+  fill: $mdc-theme-primary;
+}
+
 body {
-  background-color: var(--mdc-theme-background);
-  color: var(--mdc-theme-secondary);
+  background-color: $mdc-theme-background;
+  color: $mdc-theme-secondary;
   font-family: 'Montserrat', sans-serif;
   font-weight: 400;
   font-size: 12pt;
   margin: 0pt;
 }
 header {
-  background-image: linear-gradient(90deg,var(--mdc-theme-primary) 0%, var(--mdc-theme-secondary) 100%);
+  background-image: linear-gradient(90deg, $mdc-theme-primary 0%, $mdc-theme-secondary 100%);
   color: white;
   padding:4pt;
   font-size: 18pt;
@@ -83,7 +87,7 @@ header a {
   color: white;
 }
 footer {
-  background-image: linear-gradient(0deg,var(--mdc-theme-secondary) 0%, var(--mdc-theme-secondary) 90%, var(--mdc-theme-primary) 90%);
+  background-image: linear-gradient(0deg, $mdc-theme-secondary 0%, $mdc-theme-secondary 90%, $mdc-theme-primary 90%);
   color: white;
   padding-top: 5px;
   padding-bottom:5px;
@@ -101,7 +105,7 @@ section {
   padding-right: 20px;
 }
 h1 {
-  color: var(--mdc-theme-primary);
+  color: $mdc-theme-primary;
 }
 p {
   margin: 0.25em 0;
@@ -329,8 +333,8 @@ input[type="submit"].thumbs-down {
    cursor: pointer;
 }
 .mdc-typography--display3 {
+  position:relative;
   position:sticky;
-  position:-webkit-sticky;
 }
 .mdc-list-item__meta i{
   vertical-align: middle;
@@ -375,13 +379,13 @@ input[type="submit"].thumbs-down {
   max-width: 300px;
 }
 #check {
-  color:  var(--mdc-theme-primary);
+  color:  $mdc-theme-primary;
 }
 .blink_rect {
-  fill: var(--mdc-theme-primary);
+  fill: $mdc-theme-primary;
 }
 #timer-bg {
-  fill:  var(--mdc-theme-primary);
+  fill:  $mdc-theme-primary;
 }
 .mdc-button {
   color: white !important;

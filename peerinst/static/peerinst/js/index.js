@@ -125,11 +125,11 @@ function underlines() {
 
   gradientX.append('stop')
   .attr('offset', '0%')
-  .attr('stop-color', 'var(--mdc-theme-primary)');
+  .attr('stop-color', '#54c0db');
 
   gradientX.append('stop')
   .attr('offset', '100%')
-  .attr('stop-color', 'var(--mdc-theme-secondary)');
+  .attr('stop-color', '#004266');
 
   let gradientY = lines.append('linearGradient')
   .attr('id', 'underlineGradientY')
@@ -140,11 +140,11 @@ function underlines() {
 
   gradientY.append('stop')
   .attr('offset', '0%')
-  .attr('stop-color', 'var(--mdc-theme-secondary)');
+  .attr('stop-color', '#004266');
 
   gradientY.append('stop')
   .attr('offset', '100%')
-  .attr('stop-color', 'var(--mdc-theme-primary)');
+  .attr('stop-color', '#54c0db');
 
   let g = lines.append('g');
   g.append('rect')

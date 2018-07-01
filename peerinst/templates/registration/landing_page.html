@@ -17,9 +17,10 @@ var styles = document.createElement('style');
 document.head.appendChild(styles);
 var styleSheet = styles.sheet;
 if (desktop) {
-  styleSheet.insertRule(".mdc-toolbar--flexible {--mdc-toolbar-ratio-to-extend-flexible:"+window.innerHeight/64+" !important;}");
+  styleSheet.insertRule(".mdc-toolbar--flexible {--mdc-toolbar-ratio-to-extend-flexible:"+window.innerHeight/64+" !important;}", 0);
+  console.info(styleSheet);
 } else {
-  styleSheet.insertRule(".mdc-toolbar--flexible {--mdc-toolbar-ratio-to-extend-flexible:"+1+" !important;}");
+  styleSheet.insertRule(".mdc-toolbar--flexible {--mdc-toolbar-ratio-to-extend-flexible:"+1+" !important;}", 0);
 }
 </script>
 
@@ -163,6 +164,27 @@ if (desktop) {
   </section>
 
   <section>
+    <h1 class="mdc-typography--display3 mdc-theme--background">{% trans 'Technical requirements' %}
+      <svg class="underline" width=150 height=4></svg>
+    </h1>
+
+    <div class="blurb">
+      <p class="mdc-typography--headline">
+        {% blocktrans %}
+        myDALITE supports the following browsers:
+        Google Chrome 65+
+        Mozilla Firefox 58+
+        Safari 9.1+
+        Microsoft Edge 15+
+        Microsoft Internet Explorer 11
+        Opera 51+
+        {% endblocktrans %}
+      </p>
+    </div>
+
+  </section>
+
+  <section>
     <h1 class="mdc-typography--display3 mdc-theme--background">{% trans "Partners" %}
       <svg class="underline" width=150 height=4></svg>
     </h1>
@@ -207,6 +229,19 @@ if (desktop) {
 {% block scripts %}
 {% compress js inline %}
 <script>
+// IE11 sticky patch
+// Assumes style reverts to position:relative if sticky is unsupported
+var h = document.querySelector('h1');
+var hStyles = window.getComputedStyle(h, null);
+if (hStyles['position'] == 'relative') {
+  [].forEach.call(document.querySelectorAll('h1'), function(el) {
+    el.style.top = 'auto';
+    return;
+  });
+  h = document.querySelector('#Features');
+  h.style.marginTop = '200px';
+}
+
 // MDC binds
 var arrow = document.getElementById('scrollprompt');
 if (desktop) {
@@ -575,19 +610,18 @@ function drawCounts() {
     .attr("fill","white");
 
     g[i].append("circle")
-    .attr("class","count-background")
+    .attr("class","count-background fill-primary")
     .attr("cx",0)
     .attr("cy",0)
     .attr("r",width[i]/2)
-    .attr("opacity",0.2)
-    .attr("fill","var(--mdc-theme-primary)");
+    .attr("opacity",0.2);
 
     g[i].append("circle")
     .attr("class","count-background")
     .attr("cx",0)
     .attr("cy",0)
     .attr("r",width[i]/2)
-    .attr("stroke","var(--mdc-theme-primary)")
+    .attr("stroke","#54c0db")
     .attr("stroke-width",1.5)
     .attr("fill",'none');
 
@@ -599,13 +633,12 @@ function drawCounts() {
     .attr("fill","url(#radialGradient)");*/
 
     text[i] = g[i].append("text")
-    .attr("class","count")
+    .attr("class","count fill-primary")
     .attr("c",data['All'][labels[i]])
     .attr("x",0)
     .attr("y",0)
     .attr("dy",dy)
     .attr("text-anchor","middle")
-    .attr("fill","var(--mdc-theme-primary)")
     .text(data['All'][labels[i]]);
   }
 }
@@ -685,12 +718,11 @@ function icons() {
   .attr("transform","translate(" + peerinst.attr('width')/2 + "," + peerinst.attr('height')/2 + ")");
 
   g.append('circle')
-    .attr('class', 'custom-icon')
+    .attr('class', 'custom-icon fill-primary')
     .attr('cx', 0)
     .attr('cy', 0)
     .attr('r', iconRadius)
-    .style('opacity', 0.8)
-    .attr('fill', 'var(--mdc-theme-primary)');
+    .style('opacity', 0.8);
 
   g.append('text')
     .attr('class', 'material-icons custom-icon')
@@ -757,12 +789,11 @@ function icons() {
     .attr("transform","translate(" + school.attr('width')/2 + "," + school.attr('height')/2 + ")");
 
     g.append('circle')
-      .attr('class', 'custom-icon')
+      .attr('class', 'custom-icon fill-primary')
       .attr('cx', 0)
       .attr('cy', 0)
       .attr('r', iconRadius)
-      .style('opacity', 0.8)
-      .attr('fill', 'var(--mdc-theme-primary)');
+      .style('opacity', 0.8);
 
     g.append('text')
       .attr('class', 'material-icons custom-icon')
@@ -793,12 +824,11 @@ function icons() {
   .attr("transform","translate(" + lightbulb.attr('width')/2 + "," + lightbulb.attr('height')/2 + ")");
 
   g.append('circle')
-    .attr('class', 'custom-icon')
+    .attr('class', 'custom-icon fill-primary')
     .attr('cx', 0)
     .attr('cy', 0)
     .attr('r', iconRadius)
-    .style('opacity', 0.8)
-    .attr('fill', 'var(--mdc-theme-primary)');
+    .style('opacity', 0.8);
 
   /*g.append('image')
     .attr('class', 'custom-icon')
@@ -825,12 +855,11 @@ function icons() {
     .attr("transform","translate(" + activity.attr('width')/2 + "," + activity.attr('height')/2 + ")");
 
     g.append('circle')
-      .attr('class', 'custom-icon')
+      .attr('class', 'custom-icon fill-primary')
       .attr('cx', 0)
       .attr('cy', 0)
       .attr('r', iconRadius)
-      .style('opacity', 0.8)
-      .attr('fill', 'var(--mdc-theme-primary)');
+      .style('opacity', 0.8);
 
     g.append('text')
       .attr('class', 'material-icons custom-icon')
@@ -1009,7 +1038,7 @@ function timeline() {
 
   var y = bundle.scaleLinear().domain([2008,2019]).range([-innerHeight/2,innerHeight/2]);
 
-  var c = bundle.scaleOrdinal().domain(['milestone', 'software', 'use', 'publication']).range(['green','red','var(--mdc-theme-primary)','var(--mdc-theme-secondary)']);
+  var c = bundle.scaleOrdinal().domain(['milestone', 'software', 'use', 'publication']).range(['green','red','#54c0db','#004266']);
 
   var yAxis = g.append("g")
     .attr('class', 'timeline-axis')
@@ -1171,14 +1200,13 @@ function pillars() {
   var titleY = 0.4*pillars.attr('height')
 
   var circle = g.append('circle')
-  .attr('class', 'pillar')
+  .attr('class', 'pillar fill-primary')
   .attr('cx', 0)
   .attr('cy', 0)
   .attr('r', r)
   .style('opacity', 0.6)
-  .attr('stroke', 'var(--mdc-theme-primary)')
-  .attr('stroke-width', '2px')
-  .attr('fill', 'var(--mdc-theme-primary)');
+  .attr('stroke', '#54c0db')
+  .attr('stroke-width', '2px');
 
   var triangle = g.append('path')
   .attr('class', 'pillar')
@@ -1209,7 +1237,7 @@ function pillars() {
     bundle.select('#'+className+'-text')
       .attr('fill', 'white');
     bundle.select('#'+className+'-circle')
-      .attr('fill', 'var(--mdc-theme-primary)')
+      .attr('fill', '#54c0db')
       .attr('stroke', 'white')
       .transition()
       .duration(500)
@@ -1228,10 +1256,10 @@ function pillars() {
       .duration(200)
       .style('opacity', 0);
     bundle.select('#'+className+'-text')
-      .attr('fill', 'var(--mdc-theme-primary)');
+      .attr('fill', '#54c0db');
     bundle.select('#'+className+'-circle')
       .attr('fill', 'white')
-      .attr('stroke', 'var(--mdc-theme-primary)')
+      .attr('stroke', '#54c0db')
       .transition()
       .duration(200)
       .attr('r', 20*s);
@@ -1265,19 +1293,18 @@ function pillars() {
   .attr('cx', Math.cos(13/6*Math.PI)*r)
   .attr('cy', Math.sin(13/6*Math.PI)*r)
   .attr('r', 20*s)
-  .attr('stroke', 'var(--mdc-theme-primary)')
+  .attr('stroke', '#54c0db')
   .attr('stroke-width', 2*s+'px')
   .attr('fill', 'white')
   .on('mouseover', function(d) {blendIn('student');})
   .on('mouseout', function(d) {blendOut('student');});
 
   g.append('text')
-  .attr('class', 'pillar')
+  .attr('class', 'pillar fill-primary')
   .attr('id', 'student-text')
   .attr('x', Math.cos(13/6*Math.PI)*r)
   .attr('y', Math.sin(13/6*Math.PI)*r)
   .attr('dy', 8*s)
-  .attr('fill', 'var(--mdc-theme-primary)')
   .attr('text-anchor', 'middle')
   .style('font-size', 20*s+'px')
   .text(3)
@@ -1285,13 +1312,12 @@ function pillars() {
   .on('mouseout', function(d) {blendOut('student');});
 
   g.append('text')
-  .attr('class', 'pillar')
+  .attr('class', 'pillar fill-primary')
   .attr('id', 'student-title')
   .attr('x', Math.cos(13/6*Math.PI)*r)
   .attr('y', Math.sin(13/6*Math.PI)*r+50*s)
   .attr('x0', Math.cos(13/6*Math.PI)*r)
   .attr('y0', Math.sin(13/6*Math.PI)*r+50*s)
-  .attr('fill', 'var(--mdc-theme-primary)')
   .attr('text-anchor', 'start')
   .style('font-size', '12pt')
   .text("{% trans 'Students' %}");
@@ -1315,19 +1341,18 @@ function pillars() {
   .attr('cx', -Math.cos(13/6*Math.PI)*r)
   .attr('cy', Math.sin(13/6*Math.PI)*r)
   .attr('r', 20*s)
-  .attr('stroke', 'var(--mdc-theme-primary)')
+  .attr('stroke', '#54c0db')
   .attr('stroke-width', 2*s+'px')
   .attr('fill', 'white')
   .on('mouseover', function(d) {blendIn('researcher');})
   .on('mouseout', function(d) {blendOut('researcher');});
 
   g.append('text')
-  .attr('class', 'pillar')
+  .attr('class', 'pillar fill-primary')
   .attr('id', 'researcher-text')
   .attr('x', -Math.cos(13/6*Math.PI)*r)
   .attr('y', Math.sin(13/6*Math.PI)*r)
   .attr('dy', 8*s)
-  .attr('fill', 'var(--mdc-theme-primary)')
   .attr('text-anchor', 'middle')
   .style('font-size', 20*s+'px')
   .text(2)
@@ -1335,13 +1360,12 @@ function pillars() {
   .on('mouseout', function(d) {blendOut('researcher');});
 
   g.append('text')
-  .attr('class', 'pillar')
+  .attr('class', 'pillar fill-primary')
   .attr('id', 'researcher-title')
   .attr('x', -Math.cos(13/6*Math.PI)*r-90)
   .attr('y', Math.sin(13/6*Math.PI)*r+50*s)
   .attr('x0', -Math.cos(13/6*Math.PI)*r-90)
   .attr('y0', Math.sin(13/6*Math.PI)*r+50*s)
-  .attr('fill', 'var(--mdc-theme-primary)')
   .attr('text-anchor', 'start')
   .style('font-size', '12pt')
   .text("{% trans 'Researchers' %}");
@@ -1360,13 +1384,12 @@ function pillars() {
   .call(bundle.wrap, +pillars.attr("width")*0.7);
 
   g.append('text')
-  .attr('class', 'pillar')
+  .attr('class', 'pillar fill-primary')
   .attr('id', 'teacher-title')
   .attr('x', -35)
   .attr('y', -r-35*s)
   .attr('x0', -35)
   .attr('y0', -r-35*s)
-  .attr('fill', 'var(--mdc-theme-primary)')
   .attr('text-anchor', 'start')
   .style('font-size', '12pt')
   .text('Teachers');
@@ -1377,19 +1400,18 @@ function pillars() {
   .attr('cx', 0)
   .attr('cy', -r)
   .attr('r', 20*s)
-  .attr('stroke', 'var(--mdc-theme-primary)')
+  .attr('stroke', '#54c0db')
   .attr('stroke-width', 2*s+'px')
   .attr('fill', 'white')
   .on('mouseover', function(d) {blendIn('teacher');})
   .on('mouseout', function(d) {blendOut('teacher');});
 
   g.append('text')
-  .attr('class', 'pillar')
+  .attr('class', 'pillar fill-primary')
   .attr('id', 'teacher-text')
   .attr('x', 0)
   .attr('y', -r)
   .attr('dy', 8*s)
-  .attr('fill', 'var(--mdc-theme-primary)')
   .attr('text-anchor', 'middle')
   .style('font-size', 20*s+'px')
   .text(1)

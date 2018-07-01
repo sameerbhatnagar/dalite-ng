@@ -55,7 +55,7 @@ header {
 .mdc-toolbar__row {
   min-height: 100px;
   padding-top:30px;
-  background-image:radial-gradient(500px 500px,rgba(255,255,255,0.4),var(--mdc-theme-primary));
+  background-image:radial-gradient(500px 500px,rgba(255,255,255,0.4),#54c0db);
 }
 .mdc-typography--caption {
   text-align:center;
@@ -110,10 +110,10 @@ header {
 }
 .text-link {
   text-decoration: underline;
-  text-decoration-color: var(--mdc-theme-primary);
+  text-decoration-color: #54c0db;
 }
 .text-link:hover {
-  color: var(--mdc-theme-primary);
+  color: #54c0db;
   transition: color 500ms;
 }
 .fake-link {
