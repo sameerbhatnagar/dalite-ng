@@ -1,12 +1,7 @@
-$mdc-typography-font-family: 'Montserrat';
-$mdc-theme-primary: #54c0db;
-$mdc-theme-secondary: #004266;
-$mdc-theme-background: #f4f4f4;
-$radius: 10px;
+/* Load common sass variables */
+@import 'variables';
 
-/* Preset for mobile */
-$mdc-toolbar-ratio-to-extend-flexible: 1;
-
+/* Load packages */
 @import '@material/button/mdc-button';
 @import '@material/card/mdc-card';
 @import '@material/checkbox/mdc-checkbox';
@@ -27,7 +22,7 @@ $mdc-toolbar-ratio-to-extend-flexible: 1;
 @import '@material/toolbar/mdc-toolbar';
 @import '@material/typography/mdc-typography';
 
-
+/* Stylesheet */
 .mdc-card {
   @include mdc-card-corner-radius($radius);
 }

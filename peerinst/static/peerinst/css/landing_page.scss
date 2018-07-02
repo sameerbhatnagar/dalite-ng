@@ -1,3 +1,7 @@
+/* Load common sass variables */
+@import 'variables';
+
+/* Stylesheet */
 header {
   padding-right: 0px;
 }
@@ -11,18 +15,6 @@ header {
 }
 .navtopright a {
   padding-right:10px;
-}
-#scrollprompt {
-  color: white;
-  position:absolute;
-  cursor: pointer;
-  bottom:0px;
-  left:50%;
-}
-#animation {
-  display:block;
-  margin:auto;
-  overflow:visible;
 }
 .footer_content {
   font-size:11pt;
@@ -55,7 +47,7 @@ header {
 .mdc-toolbar__row {
   min-height: 100px;
   padding-top:30px;
-  background-image:radial-gradient(500px 500px,rgba(255,255,255,0.4),#54c0db);
+  background-image:radial-gradient(500px 500px,rgba(255,255,255,0.4),$mdc-theme-primary);
 }
 .mdc-typography--caption {
   text-align:center;
@@ -110,10 +102,10 @@ header {
 }
 .text-link {
   text-decoration: underline;
-  text-decoration-color: #54c0db;
+  text-decoration-color: $mdc-theme-primary;
 }
 .text-link:hover {
-  color: #54c0db;
+  color: $mdc-theme-primary;
   transition: color 500ms;
 }
 .fake-link {
@@ -154,6 +146,18 @@ blockquote {
    overflow:visible;
    display:block;
    margin:auto;
+}
+#scrollprompt {
+  color: white;
+  position:absolute;
+  cursor: pointer;
+  bottom:0px;
+  left:50%;
+}
+#animation {
+  display:block;
+  margin:auto;
+  overflow:visible;
 }
 @media (max-width:450px) {
   .blurb {
@@ -196,6 +200,6 @@ blockquote {
   .mdc-toolbar__row {
     min-height: 100px;
     padding-top:30px;
-    background-image:radial-gradient(150px 150px,rgba(255,255,255,0.6),var(--mdc-theme-primary));
+    background-image:radial-gradient(150px 150px,rgba(255,255,255,0.6),$mdc-theme-primary);
   }
 }

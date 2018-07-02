@@ -75,7 +75,7 @@ export {
 * @this Wrap
 */
 export function wrap(text, width) {
-  text.each(function() {
+  text.each(/* @this */function() {
     let text = bundle.select(this);
     let words = text.text().split(/\s+/).reverse();
     let word;
