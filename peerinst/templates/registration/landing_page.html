@@ -161,14 +161,17 @@ if (desktop) {
   </section>
 
   <section>
-    <h1 class="mdc-typography--display3 mdc-theme--background">{% trans 'Technical requirements' %}
+    <h1 class="mdc-typography--display3 mdc-theme--background">{% trans 'Browser requirements' %}
       <svg class="underline" width=150 height=4></svg>
     </h1>
 
     <div class="blurb">
+      <div class="balloon">
+          <svg class="browser icon-resize" width=80 height=80></svg>
+      </div>
       <p class="mdc-typography--headline">
         <span style="font-family: 'Cardo', serif;font-style:italic;">my</span>DALITE {% blocktrans %}supports the following browsers:{% endblocktrans %}
-        <ul>
+        <ul class="mdc-typography--headline" style='padding-left:25%'>
           <li>Google Chrome 65+</li>
           <li>Mozilla Firefox 58+</li>
           <li>Microsoft Edge 15+</li>
@@ -178,7 +181,9 @@ if (desktop) {
           <li>Mobile Safari iOS 8+</li>
           <li>Chrome 67+ on Android</li>
         </ul>
-        If you are viewing this site from a supported browser and encounter technical difficulties, please contact:
+      </p>
+      <p class="mdc-typography--headline">
+        If you are viewing this site from a supported browser and encounter technical difficulties, please contact: <a class="text-link" href='mailto:support@scivero.com'>support@scivero.com</a>
       </p>
     </div>
 
@@ -857,6 +862,28 @@ function icons() {
       .attr('fill', 'white')
       .style('font-size', 60*scaleFactor+'px')
       .text('trending_up');
+
+    var browser = bundle.select('.browser');
+
+    var g = browser.append("g")
+    .attr("transform","translate(" + browser.attr('width')/2 + "," + browser.attr('height')/2 + ")");
+
+    g.append('circle')
+      .attr('class', 'custom-icon fill-primary')
+      .attr('cx', 0)
+      .attr('cy', 0)
+      .attr('r', iconRadius)
+      .style('opacity', 0.8);
+
+    g.append('text')
+      .attr('class', 'material-icons custom-icon')
+      .attr('x', 0)
+      .attr('y', 0)
+      .attr('dy', 25*scaleFactor)
+      .attr('text-anchor', 'middle')
+      .attr('fill', 'white')
+      .style('font-size', 50*scaleFactor+'px')
+      .text('settings');
 
     var saltise = bundle.select('.saltise');
 
