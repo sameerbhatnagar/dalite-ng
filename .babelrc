@@ -3,7 +3,7 @@
     [
       "env", {
       "targets": {
-        "browsers": ["last 4 versions"]
+        "browsers": ["last 4 versions", "iOS>=8"]
       },
       "debug": true,
       "modules": false

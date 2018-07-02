@@ -18,9 +18,6 @@ document.head.appendChild(styles);
 var styleSheet = styles.sheet;
 if (desktop) {
   styleSheet.insertRule(".mdc-toolbar--flexible {--mdc-toolbar-ratio-to-extend-flexible:"+window.innerHeight/64+" !important;}", 0);
-  console.info(styleSheet);
-} else {
-  styleSheet.insertRule(".mdc-toolbar--flexible {--mdc-toolbar-ratio-to-extend-flexible:"+1+" !important;}", 0);
 }
 </script>
 
@@ -170,15 +167,17 @@ if (desktop) {
 
     <div class="blurb">
       <p class="mdc-typography--headline">
-        {% blocktrans %}
-        myDALITE supports the following browsers:
-        Google Chrome 65+
-        Mozilla Firefox 58+
-        Safari 9.1+
-        Microsoft Edge 15+
-        Microsoft Internet Explorer 11
-        Opera 51+
-        {% endblocktrans %}
+        <span style="font-family: 'Cardo', serif;font-style:italic;">my</span>DALITE {% blocktrans %}supports the following browsers:{% endblocktrans %}
+        <ul>
+          <li>Google Chrome 65+</li>
+          <li>Mozilla Firefox 58+</li>
+          <li>Safari 9.1+</li>
+          <li>Microsoft Edge 15+</li>
+          <li>Microsoft Internet Explorer 11</li>
+          <li>Opera 51+</li>
+          <li>Mobile Safari iOS 8+</li>
+          <li>Chrome on Android</li>
+        </ul>
       </p>
     </div>
 

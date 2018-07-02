@@ -34,7 +34,9 @@ gulp.task('css', function() {
 gulp.task('autoprefixer', function() {
     return gulp.src('./peerinst/static/peerinst/css/*.min.css')
         .pipe(sourcemaps.init())
-        .pipe(postcss([autoprefixer({browsers: ['last 4 versions']})]))
+        .pipe(postcss([autoprefixer({
+          browsers: ['last 4 versions', 'iOS>=8'],
+         })]))
         .pipe(sourcemaps.write('.'))
         .pipe(gulp.dest('./peerinst/static/peerinst/css/'));
 });
