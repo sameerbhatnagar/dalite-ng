@@ -307,3 +307,6 @@ Bruce][entypo].
 
 # Packaging of front-end bundles
 ./node_modules/gulp/bin/gulp.js build
+
+# Browserslist (90.22% global coverage: http://browserl.ist/?q=last+3+versions%2C+iOS%3E%3D8%2C+ie+11%2C+not+dead)
+['last 3 versions', 'iOS>=8', 'ie 11', 'Safari 9.1', 'not dead']
