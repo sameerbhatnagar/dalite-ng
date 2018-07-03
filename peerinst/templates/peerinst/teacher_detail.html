@@ -55,6 +55,44 @@
 </ul>
 
 
+<h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Groups' %}</h2>
+
+<div class="admin-link">
+  <a href="{% url 'teacher-groups' teacher.id %}">{% trans 'Manage groups' %}</a>
+</div>
+{% if not object.groups.all %}
+<p>{% blocktrans %}You are not currently following any student groups.{% endblocktrans %}</p>
+{% endif %}
+<ul class="mdc-list mdc-list--two-line mdc-list--non-interactive">
+  {% for g in object.groups.all %}
+  <li role="separator" class="mdc-list-divider"></li>
+  <li class="mdc-list-item">
+    <span class="mdc-list-item__graphic mdc-theme--primary">
+      <i class="mdc-theme--primary material-icons md-48">group</i>
+    </span>
+    <span class="mdc-list-item__text mdc-theme--secondary bold">
+      {% if not g.title %} {{ g.name }} {% else %} {{ g.title }} {% endif %}
+      <span class="mdc-list-item__secondary-text">
+        {% trans "Created: " %}{{ g.creation_date }}
+      </span>
+      <span class="mdc-list-item__secondary-text">
+        {% trans "Students: " %} {{ g.student_set.count  }}
+      </span>
+    </span>
+    <span class="mdc-list-item__meta">
+      <a href="{% url 'report-all-assignments' teacher_id=teacher.id group_id=g.name|urlencode:"" %}">
+        <i class="material-icons md-24 mdc-ripple-surface icon-list">bar_chart</i>
+      </a>
+      <a href="{% url 'teacher-groups' teacher.id %}">
+      <i class="material-icons md-24 mdc-ripple-surface icon-list">info</i>
+      </a>
+    </span>
+  </li>
+  {% endfor %}
+  <li role="separator" class="mdc-list-divider"></li>
+</ul>
+
+
 <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Blink scripts' %}</h2>
 <div class="admin-link">
   <a href="{% url 'blinkAssignment-create' %}">{% trans 'Add script' %}</a>
@@ -99,7 +137,7 @@
 <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Assignments' %}</h2>
 <div class="admin-link">
   <a href="{% url 'teacher-assignments' teacher.id %}">{% trans 'Manage assignments' %}</a>
-<span class="admin-link" style="padding-left:0.3em;padding-right:0.5em;">
+  <span style="padding-left:0.3em;padding-right:0.5em;">
   <a href="{% url 'report_selector' teacher_id=teacher.id%}">{% trans '| Custom Report' %}</a>
 </span>
 </div>
@@ -176,42 +214,11 @@
 </ul>
 
 
-<h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Groups' %}</h2>
+<h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Questions' %}</h2>
 
 <div class="admin-link">
-  <a href="{% url 'teacher-groups' teacher.id %}">{% trans 'Manage groups' %}</a>
+  <a href="{% url 'question-create' %}">{% trans 'Create new' %}</a>
 </div>
-{% if not object.groups.all %}
-<p>{% blocktrans %}You are not currently following any student groups.{% endblocktrans %}</p>
-{% endif %}
-<ul class="mdc-list mdc-list--two-line mdc-list--non-interactive">
-  {% for g in object.groups.all %}
-  <li role="separator" class="mdc-list-divider"></li>
-  <li class="mdc-list-item">
-    <span class="mdc-list-item__graphic mdc-theme--primary">
-      <i class="mdc-theme--primary material-icons md-48">group</i>
-    </span>
-    <span class="mdc-list-item__text mdc-theme--secondary bold">
-      {% if not g.title %} {{ g.name }} {% else %} {{ g.title }} {% endif %}
-      <span class="mdc-list-item__secondary-text">
-        {% trans "Created: " %}{{ g.creation_date }}
-      </span>
-      <span class="mdc-list-item__secondary-text">
-        {% trans "Students: " %} {{ g.student_set.count  }}
-      </span>
-    </span>
-    <span class="mdc-list-item__meta">
-      <a href="{% url 'report-all-assignments' teacher_id=teacher.id group_id=g.name|urlencode:"" %}">
-        <i class="material-icons md-24 mdc-ripple-surface icon-list">bar_chart</i>
-      </a>
-      <a href="{% url 'teacher-groups' teacher.id %}">
-      <i class="material-icons md-24 mdc-ripple-surface icon-list">info</i>
-      </a>
-    </span>
-  </li>
-  {% endfor %}
-  <li role="separator" class="mdc-list-divider"></li>
-</ul>
 
 </section>
 </main>

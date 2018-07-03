@@ -351,6 +351,19 @@ class QuestionListView(NoStudentsMixin, LoginRequiredMixin, ListView):
 
 
 # Views related to Question
+class QuestionCreateView(NoStudentsMixin, LoginRequiredMixin, CreateView):
+    """View to create a new question outside of admin."""
+    model = models.Question
+    fields = [
+        'title',
+        'text',
+        'image',
+        'video_url',
+        'answer_style',
+        'category',
+        'discipline',
+        ]
+
 
 class QuestionMixin(object):
 
