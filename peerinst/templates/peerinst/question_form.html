@@ -4,19 +4,26 @@
 
 {% block body %}
 <style>
+.field-container {
+  position:relative;
+  margin-bottom: 10px;
+}
 .number-box {
-  position: relative;
-  top: 15px;
   display: inline-block;
-  margin-right:10px;
+  position: absolute;
+  top:0px;
+  left:0px;
   width: 30px;
   height: 30px;
   border: solid;
   border-radius: 50%;
   border-width: 1px;
   border-color: #54c0db;
-  color:#54c0db;
-  vertical-align: top;
+  background-color:#54c0db;
+  color:white;
+}
+.flush-to-textbox {
+  top:16px;
 }
 .number {
   position: absolute;
@@ -25,23 +32,79 @@
   transform: translate(-50%,-50%);
 }
 .field {
-  display: inline;
+  padding-left: 40px;
 }
-.field-container {
-  margin-bottom: 10px;
+.multiple-select {
+  border-color: rgba(0,0,0,0.15);
+  border-width: 1px;
+  border-radius: 4px;
+  font-family: 'Montserrat', sans-serif;
+  padding:4px;
+  -webkit-appearance : none;
+  -moz-appearance : none;
+  background : none;
+}
+.multiple-select:hover {
+  border-color: black;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background: none;
+}
+.multiple-select:focus {
+  border-color: #54c0db;
+  border-width:2px;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background: none;
+  outline: none;
+}
+.form-label {
+  padding-right:10px;
+  letter-spacing: -.02em;
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.87);
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+}
+.form-helper-text {
+  margin-left:16px;
+  margin-right:16px;
+  color:rgba(0,0,0,0.38);
+  font-size: 0.75rem;
+}
+.top-align {
+  vertical-align: top;
+}
+.mdc-select__native-control {
+  font-size: 0.75rem;
+}
+.mdc-text-field--textarea:not(.mdc-text-field--disabled) {
+  border-color: rgba(0,0,0,0.15);
+  width:100%;
+}
+.mdc-text-field--textarea:not(.mdc-text-field--focused):hover {
+  border-color: black;
+  width:100%;
+}
+.field .mdc-select {
+  margin-top: -12px;
 }
 </style>
 <main>
 <section>
-  <h1 class="mdc-typography--display3" style="position:sticky;">Create Question
+  <h1 class="mdc-typography--display3" style="position:sticky;">{% trans 'Create Question' %}
     <svg class="underline" width=150 height=4></svg>
   </h1>
+
+  <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Step 1: Question parameters' %}</h2>
 
   <form method="post">
     {% csrf_token %}
 
     <div class='field-container'>
-      <div class='number-box'><span class='number'>1</span></div>
+      <div class='number-box flush-to-textbox'><span class='number'>1</span></div>
       <div class='field'>
         <div class="mdc-text-field mdc-text-field--outlined mdc-text-field--dense" data-mdc-auto-init="MDCTextField">
           {{ form.title|add_class:"mdc-text-field__input" }}
@@ -61,13 +124,13 @@
     </div>
 
     <div class='field-container'>
-      <div class='number-box'><span class='number'>2</span></div>
+      <div class='number-box flush-to-textbox'><span class='number'>2</span></div>
       <div class='field'>
         <div class="mdc-text-field mdc-text-field--textarea mdc-text-field--dense mdc-theme--background" data-mdc-auto-init="MDCTextField">
           {{ form.text|add_class:"mdc-text-field__input" }}
           <label for="id_text" class="mdc-floating-label"> {{ form.text.label }}</label>
         </div>
-        <p class="mdc-text-field-helper-text mdc-text-field-helper-text--persistent" aria-hidden="true">
+        <p style='margin-left:16px;margin-right:16px;' class="mdc-text-field-helper-text mdc-text-field-helper-text--persistent" aria-hidden="true">
           {{ form.text.help_text|safe }}
         </p>
         {{ form.text.errors }}
@@ -77,12 +140,18 @@
     <div class='field-container'>
       <div class='number-box'><span class='number'>3</span></div>
       <div class='field'>
-      {{ form.image }}
+        <div class='mdc-form-field'>
+          <span class='form-label'>{{ form.image.label }}: </span>{{ form.image }}
+        </div>
+        <p class="form-helper-text" aria-hidden="true">
+          {{ form.image.help_text|safe }}
+        </p>
+        {{ form.image.errors }}
       </div>
     </div>
 
     <div class='field-container'>
-      <div class='number-box'><span class='number'>4</span></div>
+      <div class='number-box flush-to-textbox'><span class='number'>4</span></div>
       <div class='field'>
         <div class="mdc-text-field mdc-text-field--outlined mdc-text-field--dense" data-mdc-auto-init="MDCTextField">
           {{ form.video_url|add_class:"mdc-text-field__input" }}
@@ -104,26 +173,64 @@
     <div class='field-container'>
       <div class='number-box'><span class='number'>5</span></div>
       <div class='field'>
-      {{form.answer_style}}
+        <div class='mdc-form-field'>
+          <span class='form-label'>{{ form.answer_style.label }}:</span>
+          <div class='mdc-select'>
+            {{ form.answer_style|add_class:"mdc-select__native-control" }}
+            <div class="mdc-select__bottom-line"></div>
+          </div>
+        </div>
+        <p class="form-helper-text" aria-hidden="true">
+          {{ form.answer_style.help_text|safe }}
+        </p>
+        {{ form.answer_style.errors }}
       </div>
     </div>
 
     <div class='field-container'>
       <div class='number-box'><span class='number'>6</span></div>
       <div class='field'>
-        {{form.category}}
+        <span class='form-label top-align'>{{ form.category.label }}:</span>
+        {{ form.category|add_class:'multiple-select mdc-theme--background' }}
+        <p class="form-helper-text" aria-hidden="true">
+          {{ form.category.help_text|safe }}
+        </p>
+        {{ form.category.errors }}
       </div>
     </div>
 
     <div class='field-container'>
       <div class='number-box'><span class='number'>7</span></div>
       <div class='field'>
-      {{form.discipline}}
+        <div class='mdc-form-field'>
+          <span class='form-label'>{{ form.discipline.label }}:</span>
+          <div class='mdc-select'>
+            {{ form.discipline|add_class:"mdc-select__native-control" }}
+            <div class="mdc-select__bottom-line"></div>
+          </div>
+        </div>
+        <p class="form-helper-text" aria-hidden="true">
+          {{ form.discipline.help_text|safe }}
+        </p>
+        {{ form.discipline.errors }}
+      </div>
+    </div>
+
+    <div class='field-container'>
+      <div class='number-box'><span class='number'>8</span></div>
+      <div class='field'>
+        <div class='mdc-form-field'>
+          <span class='form-label'>Collaborators:</span>
+        </div>
+        <p class="form-helper-text" aria-hidden="true">
+          Select teachers who may edit this question and its answers.
+        </p>
+        {{ form.collaborators.errors }}
       </div>
     </div>
 
     <div style="margin-top:20px;">
-      <input class="mdc-button mdc-button--raised" type="submit" value="Submit" />
+      <input class="mdc-button mdc-button--raised" type="submit" value="Next" />
     </div>
   </form>
 

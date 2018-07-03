@@ -91,18 +91,18 @@ class Question(models.Model):
     )
     image = models.ImageField(
         _('Question image'), blank=True, null=True, upload_to='images',
-        help_text=_('An image to include after the question text.')
+        help_text=_('Optional. An image to include after the question text.')
     )
     image_alt_text = models.CharField(
         _('Image Alt Text'), blank=True, max_length=1024, help_text=_(
-            'Alternative text for accessibility. For instance, the student may be using a screen '
+            'Optional. Alternative text for accessibility. For instance, the student may be using a screen '
             'reader.'
         )
     )
     # Videos will be handled by off-site services.
     video_url = models.URLField(
         _('Question video URL'), blank=True, help_text=_(
-            'A video to include after the question text. All videos should include transcripts.'
+            'Optional. A video to include after the question text. All videos should include transcripts.'
         )
     )
     ALPHA = 0
@@ -117,8 +117,15 @@ class Question(models.Model):
             'Whether the answers are annotated with letters (A, B, C…) or numbers (1, 2, 3…).'
         )
     )
-    category = models.ManyToManyField(Category, blank=True)
-    discipline = models.ForeignKey(Discipline, blank=True, null=True)
+    category = models.ManyToManyField(Category,
+        _('Categories'), blank=True, help_text=_(
+            'Optional. Select categories for this question.  You can select multiple categories.'
+        )
+    )
+    discipline = models.ForeignKey(Discipline, blank=True, null=True, help_text=_(
+            'Select the discipline to which this question should be associated.'
+        )
+    )
     ### for when we tie questions to teachers
     # teacher = models.ManyToManyField(Teacher,null=True)
     fake_attributions = models.BooleanField(
@@ -278,7 +285,7 @@ class Assignment(models.Model):
     )
     title = models.CharField(_('Title'), max_length=200)
     questions = models.ManyToManyField(Question, verbose_name=_('Questions'))
-    
+
     owner = models.ManyToManyField(User,blank=True)
 
     def __unicode__(self):
