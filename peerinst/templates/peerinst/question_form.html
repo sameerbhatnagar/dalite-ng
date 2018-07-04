@@ -205,8 +205,14 @@
 
     <div class='field-container'>
       <div class='number-box'><span class='number'>7</span></div>
-      <div id='discipline_form' class='field'>
-        {% include 'peerinst/discipline_select_form.html' %}
+      <div class='field'>
+        <div id='discipline_form'>
+          {% include 'peerinst/discipline_select_form.html' %}
+        </div>
+        <p class="form-helper-text" aria-hidden="true">
+          {{ form.discipline.help_text|safe }}
+        </p>
+        {{ form.discipline.errors }}
       </div>
     </div>
 
