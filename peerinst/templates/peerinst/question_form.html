@@ -60,22 +60,11 @@
   background: none;
   outline: none;
 }
-.form-label {
-  padding-right:10px;
-  letter-spacing: -.02em;
-  font-size: 14px;
-  color: rgba(0, 0, 0, 0.87);
-  -moz-osx-font-smoothing: grayscale;
-  -webkit-font-smoothing: antialiased;
-}
 .form-helper-text {
   margin-left:16px;
   margin-right:16px;
   color:rgba(0,0,0,0.38);
   font-size: 0.75rem;
-}
-.top-align {
-  vertical-align: top;
 }
 .mdc-select__native-control {
   font-size: 0.75rem;
@@ -90,6 +79,9 @@
 }
 .field .mdc-select {
   margin-top: -12px;
+}
+label {
+  padding-right:10px;
 }
 </style>
 <main>
@@ -141,7 +133,7 @@
       <div class='number-box'><span class='number'>3</span></div>
       <div class='field'>
         <div class='mdc-form-field'>
-          <span class='form-label'>{{ form.image.label }}: </span>{{ form.image }}
+          <label for='id_image'>{{ form.image.label }}:</label>{{ form.image }}
         </div>
         <p class="form-helper-text" aria-hidden="true">
           {{ form.image.help_text|safe }}
@@ -174,7 +166,7 @@
       <div class='number-box'><span class='number'>5</span></div>
       <div class='field'>
         <div class='mdc-form-field'>
-          <span class='form-label'>{{ form.answer_style.label }}:</span>
+          <label for='id_answer_style'>{{ form.answer_style.label }}:</label>
           <div class='mdc-select'>
             {{ form.answer_style|add_class:"mdc-select__native-control" }}
             <div class="mdc-select__bottom-line"></div>
@@ -190,8 +182,10 @@
     <div class='field-container'>
       <div class='number-box'><span class='number'>6</span></div>
       <div class='field'>
-        <span class='form-label top-align'>{{ form.category.label }}:</span>
-        {{ form.category|add_class:'multiple-select mdc-theme--background' }}
+        <div class='mdc-form-field'>
+          <label for='id_category'>{{ form.category.label }}:</label>
+          {{ form.category|add_class:'multiple-select mdc-theme--background' }}
+        </div>
         <p class="form-helper-text" aria-hidden="true">
           {{ form.category.help_text|safe }}
         </p>
@@ -203,7 +197,7 @@
       <div class='number-box'><span class='number'>7</span></div>
       <div class='field'>
         <div class='mdc-form-field'>
-          <span class='form-label'>{{ form.discipline.label }}:</span>
+          <label for='id_discipline'>{{ form.discipline.label }}:</label>
           <div class='mdc-select'>
             {{ form.discipline|add_class:"mdc-select__native-control" }}
             <div class="mdc-select__bottom-line"></div>
@@ -229,6 +223,93 @@
       </div>
     </div>
 
+    <div class='field-container'>
+      <div class='number-box'><span class='number'>9</span></div>
+      <div class='field'>
+        <div class='mdc-form-field'>
+          <label for="id_sequential_review">{{ form.fake_attributions.label }}?</label>
+          <div class="mdc-checkbox">
+            {{ form.fake_attributions|add_class:'mdc-checkbox__native-control'}}
+            <div class="mdc-checkbox__background">
+              <svg class="mdc-checkbox__checkmark"
+                   viewBox="0 0 24 24">
+                <path class="mdc-checkbox__checkmark-path"
+                      fill="none"
+                      stroke="white"
+                      d="M1.73,12.91 8.1,19.28 22.79,4.59"/>
+              </svg>
+              <div class="mdc-checkbox__mixedmark"></div>
+            </div>
+          </div>
+        </div>
+        <p class="form-helper-text" aria-hidden="true">
+          {{ form.fake_attributions.help_text|safe }}
+        </p>
+        {{ form.fake_attributions.errors }}
+      </div>
+    </div>
+
+    <div class='field-container'>
+      <div class='number-box'><span class='number'>10</span></div>
+      <div class='field'>
+        <div class='mdc-form-field'>
+          <label for="id_sequential_review">{{ form.sequential_review.label }}?</label>
+          <div class="mdc-checkbox">
+            {{ form.sequential_review|add_class:'mdc-checkbox__native-control'}}
+            <div class="mdc-checkbox__background">
+              <svg class="mdc-checkbox__checkmark"
+                   viewBox="0 0 24 24">
+                <path class="mdc-checkbox__checkmark-path"
+                      fill="none"
+                      stroke="white"
+                      d="M1.73,12.91 8.1,19.28 22.79,4.59"/>
+              </svg>
+              <div class="mdc-checkbox__mixedmark"></div>
+            </div>
+          </div>
+        </div>
+        <p class="form-helper-text" aria-hidden="true">
+          {{ form.sequential_review.help_text|safe }}
+        </p>
+        {{ form.sequential_review.errors }}
+      </div>
+    </div>
+
+    <div class='field-container'>
+      <div class='number-box'><span class='number'>11</span></div>
+      <div class='field'>
+        <div class='mdc-form-field'>
+          <label for='id_discipline'>{{ form.rationale_selection_algorithm.label }}:</label>
+          <div class='mdc-select'>
+            {{ form.rationale_selection_algorithm|add_class:"mdc-select__native-control" }}
+            <div class="mdc-select__bottom-line"></div>
+          </div>
+        </div>
+        <p class="form-helper-text" aria-hidden="true">
+          {{ form.rationale_selection_algorithm.help_text|safe }}
+        </p>
+        {{ form.rationale_selection_algorithm.errors }}
+      </div>
+    </div>
+
+    <div class='field-container'>
+      <div class='number-box'><span class='number'>12</span></div>
+      <div class='field'>
+        <div class='mdc-form-field'>
+          <label for='id_discipline'>{{ form.grading_scheme.label }}:</label>
+          <div class='mdc-select'>
+            {{ form.grading_scheme|add_class:"mdc-select__native-control" }}
+            <div class="mdc-select__bottom-line"></div>
+          </div>
+        </div>
+        <p class="form-helper-text" aria-hidden="true">
+          {{ form.grading_scheme.help_text|safe }}
+        </p>
+        {{ form.grading_scheme.errors }}
+      </div>
+    </div>
+
+
     <div style="margin-top:20px;">
       <input class="mdc-button mdc-button--raised" type="submit" value="Next" />
     </div>
@@ -237,4 +318,10 @@
 </main>
 </section>
 
+{% endblock %}
+
+{% block scripts %}
+<script>
+  bundle.checkbox.MDCCheckbox.attachTo(document.querySelector('.mdc-checkbox'));
+</script>
 {% endblock %}

@@ -1,5 +1,6 @@
 // MDC
 import autoInit from '@material/auto-init/index';
+import * as checkbox from '@material/checkbox/index';
 import * as chips from '@material/chips/index';
 import * as dialog from '@material/dialog/index';
 import * as iconToggle from '@material/icon-toggle/index';
@@ -9,6 +10,7 @@ import * as selectbox from '@material/select/index';
 import * as textField from '@material/textfield/index';
 import * as toolbar from '@material/toolbar/index';
 
+autoInit.register('MDCCheckbox', checkbox.MDCCheckbox);
 autoInit.register('MDCChip', chips.MDCChip);
 autoInit.register('MDCChipSet', chips.MDCChipSet);
 autoInit.register('MDCDialog', dialog.MDCDialog);
@@ -21,6 +23,7 @@ autoInit.register('MDCToolbar', toolbar.MDCToolbar);
 
 export {
   autoInit,
+  checkbox,
   chips,
   dialog,
   iconToggle,

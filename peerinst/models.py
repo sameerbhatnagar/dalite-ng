@@ -123,10 +123,10 @@ class Question(models.Model):
         )
     )
     discipline = models.ForeignKey(Discipline, blank=True, null=True, help_text=_(
-            'Select the discipline to which this question should be associated.'
+            'Optional. Select the discipline to which this question should be associated.'
         )
     )
-    ### for when we tie questions to teachers
+    ### for when we tie questions to teachers...or should it be users??
     # teacher = models.ManyToManyField(Teacher,null=True)
     fake_attributions = models.BooleanField(
         _('Add fake attributions'), default=False, help_text=_(

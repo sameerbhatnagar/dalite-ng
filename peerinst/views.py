@@ -362,7 +362,16 @@ class QuestionCreateView(NoStudentsMixin, LoginRequiredMixin, CreateView):
         'answer_style',
         'category',
         'discipline',
+        #'collaborators',
+        'fake_attributions',
+        'sequential_review',
+        'rationale_selection_algorithm',
+        'grading_scheme'
         ]
+
+    # Custom save is needed to attach user to question
+
+    # Successful question creation should redirect to answer creation
 
 
 class QuestionMixin(object):
