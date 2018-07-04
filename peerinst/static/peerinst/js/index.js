@@ -517,6 +517,18 @@ export function toggleAnswers() {
     }
   );
 }
+
+/** Bind mdc-checkbox
+*  @function
+*/
+export function bindCheckbox() {
+  [].forEach.call(document.querySelectorAll('.mdc-checkbox'),
+    (el) => {
+      bundle.checkbox.MDCCheckbox.attachTo(el);
+    }
+  );
+}
+
 // Commands
 underlines();
 
