@@ -5,7 +5,7 @@ from django import forms
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
-from .models import StudentGroup, Assignment, BlinkAssignmentQuestion, BlinkQuestion, Question, Teacher
+from .models import StudentGroup, Assignment, BlinkAssignmentQuestion, BlinkQuestion, Question, Teacher, Discipline
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from django.forms import ModelForm
@@ -177,6 +177,14 @@ class AddRemoveQuestionForm(forms.Form):
     q = forms.ModelChoiceField(queryset=Question.objects.all())
 
 
+class DisciplineForm(forms.ModelForm):
+    class Meta:
+        model = Discipline
+        fields = ['title']
+
+
+class DisciplineSelectForm(forms.Form):
+    discipline = forms.ModelChoiceField(queryset=Discipline.objects.all())
 
 
 class ReportSelectForm(forms.Form):

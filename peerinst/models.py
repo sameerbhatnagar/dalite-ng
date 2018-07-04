@@ -45,7 +45,7 @@ class Category(models.Model):
 
 class Discipline(models.Model):
     title = models.CharField(
-        _('Discipline Name'), unique=True, max_length=100,
+        _('Discipline name'), unique=True, max_length=100,
         help_text=_(
             'Name of a discipline.'
         ),

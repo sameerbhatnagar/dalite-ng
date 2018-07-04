@@ -30,6 +30,8 @@ urlpatterns = [
         url(r'^update/$',views.AssignmentUpdateView.as_view(),name='assignment-update')
     ])),
     url(r'^question/create$', views.QuestionCreateView.as_view(), name='question-create'),
+    url(r'^discipline/create$', views.DisciplineCreateView.as_view(), name='discipline-create'),
+    url(r'^discipline/form/(?P<pk>[0-9]+)$', views.discipline_select_form, name='discipline-form'),
     url(r'^question-search/$', views.question_search, name='question-search'),
     url(r'^heartbeat/$', views.HeartBeatUrl.as_view(), name='heartbeat'),
 

@@ -357,9 +357,11 @@ class QuestionCreateView(NoStudentsMixin, LoginRequiredMixin, CreateView):
     fields = [
         'title',
         'text',
+        #'language',
         'image',
         'video_url',
         'answer_style',
+        #'course',
         'category',
         'discipline',
         #'collaborators',
@@ -369,9 +371,35 @@ class QuestionCreateView(NoStudentsMixin, LoginRequiredMixin, CreateView):
         'grading_scheme'
         ]
 
+    # Autofill language and discipline based on user
+
     # Custom save is needed to attach user to question
 
     # Successful question creation should redirect to answer creation
+
+
+class DisciplineCreateView(NoStudentsMixin, LoginRequiredMixin, CreateView):
+    """View to create a new discipline outside of admin."""
+    model = models.Discipline
+    fields = [
+        'title',
+        ]
+
+    def get_success_url(self):
+        return reverse('discipline-form', kwargs={'pk':self.object.pk})
+
+
+@login_required
+def discipline_select_form(request, pk):
+    """An AJAX view that simply renders the DisciplineSelectForm."""
+    context={}
+    context['form'] = forms.DisciplineSelectForm(initial={ 'discipline' : Discipline.objects.get(pk=pk)})
+
+    return TemplateResponse(
+        request,
+        'peerinst/discipline_select_form.html',
+        context
+    )
 
 
 class QuestionMixin(object):

@@ -80,9 +80,14 @@
 .field .mdc-select {
   margin-top: -12px;
 }
-label {
+.field label {
   padding-right:10px;
 }
+.add {
+  padding:10px;
+  cursor: pointer;
+}
+
 </style>
 <main>
 <section>
@@ -94,6 +99,8 @@ label {
 
   <form method="post">
     {% csrf_token %}
+
+    <h3>Content</h3>
 
     <div class='field-container'>
       <div class='number-box flush-to-textbox'><span class='number'>1</span></div>
@@ -179,39 +186,10 @@ label {
       </div>
     </div>
 
+    <h3>Authorship</h3>
+
     <div class='field-container'>
       <div class='number-box'><span class='number'>6</span></div>
-      <div class='field'>
-        <div class='mdc-form-field'>
-          <label for='id_category'>{{ form.category.label }}:</label>
-          {{ form.category|add_class:'multiple-select mdc-theme--background' }}
-        </div>
-        <p class="form-helper-text" aria-hidden="true">
-          {{ form.category.help_text|safe }}
-        </p>
-        {{ form.category.errors }}
-      </div>
-    </div>
-
-    <div class='field-container'>
-      <div class='number-box'><span class='number'>7</span></div>
-      <div class='field'>
-        <div class='mdc-form-field'>
-          <label for='id_discipline'>{{ form.discipline.label }}:</label>
-          <div class='mdc-select'>
-            {{ form.discipline|add_class:"mdc-select__native-control" }}
-            <div class="mdc-select__bottom-line"></div>
-          </div>
-        </div>
-        <p class="form-helper-text" aria-hidden="true">
-          {{ form.discipline.help_text|safe }}
-        </p>
-        {{ form.discipline.errors }}
-      </div>
-    </div>
-
-    <div class='field-container'>
-      <div class='number-box'><span class='number'>8</span></div>
       <div class='field'>
         <div class='mdc-form-field'>
           <span class='form-label'>Collaborators:</span>
@@ -222,6 +200,32 @@ label {
         {{ form.collaborators.errors }}
       </div>
     </div>
+
+    <h3>Indexing</h3>
+
+    <div class='field-container'>
+      <div class='number-box'><span class='number'>7</span></div>
+      <div id='discipline_form' class='field'>
+        {% include 'peerinst/discipline_select_form.html' %}
+      </div>
+    </div>
+
+    <div class='field-container'>
+      <div class='number-box'><span class='number'>8</span></div>
+      <div class='field'>
+        <div class='mdc-form-field'>
+          <label for='id_category'>{{ form.category.label }}:</label>
+          {{ form.category|add_class:'multiple-select mdc-theme--background' }}
+          <i id='add_category' class="material-icons mdc-theme--primary md-18 add">add_circle</i>
+        </div>
+        <p class="form-helper-text" aria-hidden="true">
+          {{ form.category.help_text|safe }}
+        </p>
+        {{ form.category.errors }}
+      </div>
+    </div>
+
+    <h3>Options</h3>
 
     <div class='field-container'>
       <div class='number-box'><span class='number'>9</span></div>
@@ -323,5 +327,20 @@ label {
 {% block scripts %}
 <script>
   bundle.bindCheckbox();
+
+  function bindOnClick() {
+    var d = document.getElementById('show_discipline_form');
+    if (d) {
+      d.onclick = function() {
+        function callback() {
+          bundle.autoInit();
+          var input = this.querySelector('.mdc-text-field__input');
+          input.focus();
+        }
+        $('#discipline_form').load("{% url 'discipline-create' %}", callback);
+      }
+    }
+  }
+  bindOnClick();
 </script>
 {% endblock %}
