@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 
 from django.contrib.auth.models import User
+from django.contrib.auth.decorators import login_required
 from django.http import (
     HttpResponse,
     HttpResponseBadRequest,
@@ -13,7 +14,9 @@ from django.shortcuts import render
 from .models import Consent, Tos
 
 
-def consent(req, username, role, version=None):
+@login_required
+def consent(req, role, version=None):
+    username = req.user.username
     _consent, context = _consent_view(req, username, role, version)
     if isinstance(_consent, HttpResponse):
         return _consent
@@ -26,26 +29,35 @@ def consent(req, username, role, version=None):
         return JsonResponse({"consent": False})
 
 
-def consent_modify(req, username, role, version):
+@login_required
+def consent_modify(req, role, version):
+    username = req.user.username
     _consent, context = _consent_view(req, username, role, version)
     if isinstance(_consent, HttpResponse):
         return _consent
     return render(req, "tos/consent.html", context)
 
 
-def consent_update(req, username, role, version):
+@login_required
+def consent_update(req, role, version):
     if req.method != "POST":
         return HttpResponseNotAllowed(["POST"])
+
     if role not in Tos.ROLES:
         return HttpResponseBadRequest("Not a valid role")
+
+    username = req.user.username
+
     try:
         accepted = req.POST["accepted"].lower() == "true"
     except KeyError:
         return HttpResponseBadRequest("Missing parameters")
+
     try:
         user = User.objects.get(username=username)
     except User.DoesNotExist:
         return HttpResponseBadRequest("User doesn't exist")
+
     try:
         tos = Tos.objects.get(role=role[:2], version=version)
     except Tos.DoesNotExist:
@@ -53,7 +65,9 @@ def consent_update(req, username, role, version):
             "There is no terms of service with version "
             '{} for role "{}"'.format(version, role)
         )
+
     Consent.objects.create(user=user, tos=tos, accepted=accepted)
+
     if accepted:
         return HttpResponse("You've accepted!")
     return HttpResponse("You've refused...")

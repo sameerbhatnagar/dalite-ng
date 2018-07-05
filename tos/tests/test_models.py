@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 import random
 import string
 from datetime import datetime
@@ -296,12 +297,13 @@ def _new_user_gen():
             + "".join(
                 letters[random.randrange(0, len(letters))] for _ in range(2, 3)
             ),
+            "password": "test",
         }
         yield user
 
 
 def _add_users(users):
-    return [User.objects.create(**u) for u in users]
+    return [User.objects.create_user(**u) for u in users]
 
 
 def _new_consent(n, users, tos, all_combinations_present=False):

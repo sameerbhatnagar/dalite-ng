@@ -1,8 +1,11 @@
+from __future__ import unicode_literals
 import json
 import random
 
+from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.test import TestCase
+from django.test.client import Client
 
 from ..models import Tos
 from .test_models import (
@@ -16,53 +19,56 @@ from .test_models import (
 
 
 class TestConsentView(TestCase):
-    def test_consent_exists_and_is_true(self):
+    def setUp(self):
+        self.client = Client()
         n_users = 1
         n_tos = 1
         n_consent = 1
-        users = _add_users(_new_user(n_users))
-        tos = _add_tos(_new_tos(n_tos))
-        consents = _new_consent(n_consent, users, tos)
-        consents[0]["accepted"] = True
-        _add_consents(consents)
+        self.users = _add_users(_new_user(n_users))
+        self.tos = _add_tos(_new_tos(n_tos))
+        self.consents = _new_consent(n_consent, self.users, self.tos)
+        for user in self.users:
+            _login_user(self.client, user)
+
+    def test_consent_exists_and_is_true(self):
+        self.consents[0]["accepted"] = True
+        _add_consents(self.consents)
 
         tests = [
             {
-                "username": users[0].username,
-                "role": [r for r in Tos.ROLES if r.startswith(tos[0].role)][0],
+                "role": [
+                    r for r in Tos.ROLES if r.startswith(self.tos[0].role)
+                ][0]
             },
             {
-                "username": users[0].username,
-                "role": [r for r in Tos.ROLES if r.startswith(tos[0].role)][0],
-                "version": int(tos[0].version),
+                "role": [
+                    r for r in Tos.ROLES if r.startswith(self.tos[0].role)
+                ][0],
+                "version": int(self.tos[0].version),
             },
         ]
 
         for test in tests:
             resp = self.client.get(reverse("tos:consent", kwargs=test))
-            body = json.loads(resp.content)
             self.assertEqual(resp.status_code, 200)
+            body = json.loads(resp.content)
             self.assertEqual(body["consent"], True)
 
     def test_consent_exists_and_is_false(self):
-        n_users = 1
-        users = _add_users(_new_user(n_users))
-        n_tos = 1
-        tos = _add_tos(_new_tos(n_tos))
-        n_consent = 1
-        consents = _new_consent(n_consent, users, tos)
-        consents[0]["accepted"] = False
-        _add_consents(consents)
+        self.consents[0]["accepted"] = False
+        _add_consents(self.consents)
 
         tests = [
             {
-                "username": users[0].username,
-                "role": [r for r in Tos.ROLES if r.startswith(tos[0].role)][0],
+                "role": [
+                    r for r in Tos.ROLES if r.startswith(self.tos[0].role)
+                ][0]
             },
             {
-                "username": users[0].username,
-                "role": [r for r in Tos.ROLES if r.startswith(tos[0].role)][0],
-                "version": int(tos[0].version),
+                "role": [
+                    r for r in Tos.ROLES if r.startswith(self.tos[0].role)
+                ][0],
+                "version": int(self.tos[0].version),
             },
         ]
 
@@ -73,20 +79,17 @@ class TestConsentView(TestCase):
             self.assertEqual(body["consent"], False)
 
     def test_consent_doesnt_exist_yet(self):
-        n_users = 1
-        users = _add_users(_new_user(n_users))
-        n_tos = 1
-        tos = _add_tos(_new_tos(n_tos))
-
         tests = [
             {
-                "username": users[0].username,
-                "role": [r for r in Tos.ROLES if r.startswith(tos[0].role)][0],
+                "role": [
+                    r for r in Tos.ROLES if r.startswith(self.tos[0].role)
+                ][0]
             },
             {
-                "username": users[0].username,
-                "role": [r for r in Tos.ROLES if r.startswith(tos[0].role)][0],
-                "version": int(tos[0].version),
+                "role": [
+                    r for r in Tos.ROLES if r.startswith(self.tos[0].role)
+                ][0],
+                "version": int(self.tos[0].version),
             },
         ]
 
@@ -95,40 +98,13 @@ class TestConsentView(TestCase):
             self.assertEqual(resp.status_code, 200)
             self.assertTemplateUsed(resp, "tos/consent.html")
 
-    def test_consent_user_doesnt_exist(self):
-        n_users = 1
-        users = _add_users(_new_user(n_users))
-        n_tos = 1
-        tos = _add_tos(_new_tos(n_tos))
-
-        tests = [
-            {
-                "username": users[0].username + "fdajnfdajfna",
-                "role": [r for r in Tos.ROLES if r.startswith(tos[0].role)][0],
-            },
-            {
-                "username": users[0].username + "fdajnfdajfna",
-                "role": [r for r in Tos.ROLES if r.startswith(tos[0].role)][0],
-                "version": int(tos[0].version),
-            },
-        ]
-
-        for test in tests:
-            resp = self.client.get(reverse("tos:consent", kwargs=test))
-            self.assertEqual(resp.status_code, 400)
-            self.assertIn("User doesn't exist", resp.content)
-
     def test_consent_version_doesnt_exist(self):
-        n_users = 1
-        users = _add_users(_new_user(n_users))
-        n_tos = 1
-        tos = _add_tos(_new_tos(n_tos))
-
         tests = [
             {
-                "username": users[0].username,
-                "role": [r for r in Tos.ROLES if r.startswith(tos[0].role)][0],
-                "version": int(tos[0].version) + 1,
+                "role": [
+                    r for r in Tos.ROLES if r.startswith(self.tos[0].role)
+                ][0],
+                "version": int(self.tos[0].version) + 1,
             }
         ]
 
@@ -142,13 +118,13 @@ class TestConsentView(TestCase):
             )
 
     def test_consent_wrong_method(self):
-        tests = [{"username": "fsajgsjlg", "role": Tos.ROLES[0]}]
+        tests = [{"role": Tos.ROLES[0]}]
         for test in tests:
             resp = self.client.post(reverse("tos:consent", kwargs=test))
             self.assertEqual(resp.status_code, 405)
 
     def test_consent_invalid_role(self):
-        tests = [{"username": "fsajgsjlg", "role": Tos.ROLES[0] + "fdsa"}]
+        tests = [{"role": Tos.ROLES[0] + "fdsa"}]
         for test in tests:
             resp = self.client.get(reverse("tos:consent", kwargs=test))
             self.assertEqual(resp.status_code, 400)
@@ -156,17 +132,24 @@ class TestConsentView(TestCase):
 
 
 class TestConsentModifyView(TestCase):
-    def test_consent_modify(self):
+    def setUp(self):
+        self.client = Client()
         n_users = 1
-        users = _add_users(_new_user(n_users))
         n_tos = 1
-        tos = _add_tos(_new_tos(n_tos))
+        n_consent = 1
+        self.users = _add_users(_new_user(n_users))
+        self.tos = _add_tos(_new_tos(n_tos))
+        self.consents = _new_consent(n_consent, self.users, self.tos)
+        for user in self.users:
+            _login_user(self.client, user)
 
+    def test_consent_modify(self):
         tests = [
             {
-                "username": users[0].username,
-                "role": [r for r in Tos.ROLES if r.startswith(tos[0].role)][0],
-                "version": int(tos[0].version),
+                "role": [
+                    r for r in Tos.ROLES if r.startswith(self.tos[0].role)
+                ][0],
+                "version": int(self.tos[0].version),
             }
         ]
 
@@ -176,22 +159,13 @@ class TestConsentModifyView(TestCase):
             self.assertTemplateUsed(resp, "tos/consent.html")
 
     def test_consent_modify_already_exists(self):
-        n_users = 1
-        users = _add_users(_new_user(n_users))
-        n_tos = 1
-        tos = _add_tos(_new_tos(n_tos))
-
         tests = [
             {
-                "username": users[0].username,
-                "role": [r for r in Tos.ROLES if r.startswith(tos[0].role)][0],
-                "version": int(tos[0].version),
-            },
-            {
-                "username": users[0].username,
-                "role": [r for r in Tos.ROLES if r.startswith(tos[0].role)][0],
-                "version": int(tos[0].version),
-            },
+                "role": [
+                    r for r in Tos.ROLES if r.startswith(self.tos[0].role)
+                ][0],
+                "version": int(self.tos[0].version),
+            }
         ]
 
         for test in tests:
@@ -199,36 +173,13 @@ class TestConsentModifyView(TestCase):
             self.assertEqual(resp.status_code, 200)
             self.assertTemplateUsed(resp, "tos/consent.html")
 
-    def test_consent_modify_user_doesnt_exist(self):
-        n_users = 1
-        users = _add_users(_new_user(n_users))
-        n_tos = 1
-        tos = _add_tos(_new_tos(n_tos))
-
-        tests = [
-            {
-                "username": users[0].username + "fdajnfdajfna",
-                "role": [r for r in Tos.ROLES if r.startswith(tos[0].role)][0],
-                "version": int(tos[0].version),
-            }
-        ]
-
-        for test in tests:
-            resp = self.client.get(reverse("tos:modify", kwargs=test))
-            self.assertEqual(resp.status_code, 400)
-            self.assertIn("User doesn't exist", resp.content)
-
     def test_consent_modify_version_doesnt_exist(self):
-        n_users = 1
-        users = _add_users(_new_user(n_users))
-        n_tos = 1
-        tos = _add_tos(_new_tos(n_tos))
-
         tests = [
             {
-                "username": users[0].username,
-                "role": [r for r in Tos.ROLES if r.startswith(tos[0].role)][0],
-                "version": int(tos[0].version) + 1,
+                "role": [
+                    r for r in Tos.ROLES if r.startswith(self.tos[0].role)
+                ][0],
+                "version": int(self.tos[0].version) + 1,
             }
         ]
 
@@ -242,19 +193,13 @@ class TestConsentModifyView(TestCase):
             )
 
     def test_consent_modify_wrong_method(self):
-        tests = [{"username": "fsajgsjlg", "role": Tos.ROLES[0], "version": 0}]
+        tests = [{"role": Tos.ROLES[0], "version": 0}]
         for test in tests:
             resp = self.client.post(reverse("tos:modify", kwargs=test))
             self.assertEqual(resp.status_code, 405)
 
     def test_consent_modify_invalid_role(self):
-        tests = [
-            {
-                "username": "fsajgsjlg",
-                "role": Tos.ROLES[0] + "fdsa",
-                "version": 0,
-            }
-        ]
+        tests = [{"role": Tos.ROLES[0] + "fdsa", "version": 0}]
         for test in tests:
             resp = self.client.get(reverse("tos:modify", kwargs=test))
             self.assertEqual(resp.status_code, 400)
@@ -262,20 +207,25 @@ class TestConsentModifyView(TestCase):
 
 
 class TestConsentUpdateView(TestCase):
-    def test_consent_update_accepted(self):
+    def setUp(self):
+        self.client = Client()
         n_users = 1
-        users = _add_users(_new_user(n_users))
         n_tos = 1
-        tos = _add_tos(_new_tos(n_tos))
+        n_consent = 1
+        self.users = _add_users(_new_user(n_users))
+        self.tos = _add_tos(_new_tos(n_tos))
+        self.consents = _new_consent(n_consent, self.users, self.tos)
+        for user in self.users:
+            _login_user(self.client, user)
 
+    def test_consent_update_accepted(self):
         tests = [
             (
                 {
-                    "username": users[0].username,
                     "role": [
-                        r for r in Tos.ROLES if r.startswith(tos[0].role)
+                        r for r in Tos.ROLES if r.startswith(self.tos[0].role)
                     ][0],
-                    "version": int(tos[0].version),
+                    "version": int(self.tos[0].version),
                 },
                 {"accepted": True},
             )
@@ -289,19 +239,13 @@ class TestConsentUpdateView(TestCase):
             self.assertIn("You've accepted!", resp.content)
 
     def test_consent_update_refused(self):
-        n_users = 1
-        users = _add_users(_new_user(n_users))
-        n_tos = 1
-        tos = _add_tos(_new_tos(n_tos))
-
         tests = [
             (
                 {
-                    "username": users[0].username,
                     "role": [
-                        r for r in Tos.ROLES if r.startswith(tos[0].role)
+                        r for r in Tos.ROLES if r.startswith(self.tos[0].role)
                     ][0],
-                    "version": int(tos[0].version),
+                    "version": int(self.tos[0].version),
                 },
                 {"accepted": False},
             )
@@ -314,46 +258,14 @@ class TestConsentUpdateView(TestCase):
             self.assertEqual(resp.status_code, 200)
             self.assertIn("You've refused...", resp.content)
 
-    def test_consent_update_user_doesnt_exist(self):
-        n_users = 1
-        users = _add_users(_new_user(n_users))
-        n_tos = 1
-        tos = _add_tos(_new_tos(n_tos))
-
-        tests = [
-            (
-                {
-                    "username": users[0].username + "fdajnfdajfna",
-                    "role": [
-                        r for r in Tos.ROLES if r.startswith(tos[0].role)
-                    ][0],
-                    "version": int(tos[0].version),
-                },
-                {"accepted": random.random() > 0.5},
-            )
-        ]
-
-        for test in tests:
-            resp = self.client.post(
-                reverse("tos:update", kwargs=test[0]), test[1]
-            )
-            self.assertEqual(resp.status_code, 400)
-            self.assertIn("User doesn't exist", resp.content)
-
     def test_consent_update_version_doesnt_exist(self):
-        n_users = 1
-        users = _add_users(_new_user(n_users))
-        n_tos = 1
-        tos = _add_tos(_new_tos(n_tos))
-
         tests = [
             (
                 {
-                    "username": users[0].username,
                     "role": [
-                        r for r in Tos.ROLES if r.startswith(tos[0].role)
+                        r for r in Tos.ROLES if r.startswith(self.tos[0].role)
                     ][0],
-                    "version": int(tos[0].version) + 1,
+                    "version": int(self.tos[0].version) + 1,
                 },
                 {"accepted": random.random() > 0.5},
             )
@@ -371,7 +283,7 @@ class TestConsentUpdateView(TestCase):
             )
 
     def test_consent_update_wrong_method(self):
-        tests = [{"username": "fsajgsjlg", "role": Tos.ROLES[0], "version": 0}]
+        tests = [{"role": Tos.ROLES[0], "version": 0}]
         for test in tests:
             resp = self.client.get(reverse("tos:update", kwargs=test))
             self.assertEqual(resp.status_code, 405)
@@ -379,11 +291,7 @@ class TestConsentUpdateView(TestCase):
     def test_consent_update_invalid_role(self):
         tests = [
             (
-                {
-                    "username": "fsajgsjlg",
-                    "role": Tos.ROLES[0] + "fdsa",
-                    "version": 0,
-                },
+                {"role": Tos.ROLES[0] + "fdsa", "version": 0},
                 {"accepted": random.random() > 0.5},
             )
         ]
@@ -393,3 +301,7 @@ class TestConsentUpdateView(TestCase):
             )
             self.assertEqual(resp.status_code, 400)
             self.assertIn("Not a valid role", resp.content)
+
+
+def _login_user(client, user):
+    client.login(username=user.username, password="test")
