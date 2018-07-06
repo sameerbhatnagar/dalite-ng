@@ -87,17 +87,20 @@
   padding:10px;
   cursor: pointer;
 }
+.padded {
+  padding:10px;
+}
 
 </style>
 <main>
 <section>
-  <h1 class="mdc-typography--display3" style="position:sticky;">{% trans 'Create Question' %}
+  <h1 class="mdc-typography--display3" style="position:sticky;">{% trans 'Question' %}
     <svg class="underline" width=150 height=4></svg>
   </h1>
 
   <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Step 1: Question parameters' %}</h2>
 
-  <form method="post">
+  <form id="question-create-form" method="post">
     {% csrf_token %}
 
     <h3>Content</h3>
@@ -318,12 +321,25 @@
         {{ form.grading_scheme.errors }}
       </div>
     </div>
-
-
-    <div style="margin-top:20px;">
-      <input class="mdc-button mdc-button--raised" type="submit" value="Next" />
-    </div>
   </form>
+
+  <div style="margin-top:20px;">
+    {% if object %}
+    <span class="padded">
+      <input form="question-create-form" class="mdc-button mdc-button--raised" type="submit" value="Update" />
+    </span>
+
+    <span class="padded">
+      <form style="display:inline" id="next" action="{% url 'answer-choice-form' pk=object.pk %}" method="get">
+        <button form="next" type="submit" class="mdc-button mdc-button--raised">Next</button>
+      </form>
+    </span>
+    {% else %}
+    <span class="padded">
+      <input form="question-create-form" class="mdc-button mdc-button--raised" type="submit" value="Add" />
+    </span>
+    {% endif %}
+  </div>
 
 </main>
 </section>

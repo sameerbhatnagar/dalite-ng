@@ -18,6 +18,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.views import redirect_to_login
 from django.core.mail import mail_admins, send_mail
 from django.db.models import Q
+from django.forms import inlineformset_factory, Textarea
 from django.shortcuts import get_object_or_404, render, render_to_response, redirect
 from django.template import loader
 from django.template.response import TemplateResponse
@@ -39,6 +40,7 @@ from opaque_keys.edx.keys import CourseKey
 
 
 from . import heartbeat_checks
+from . import admin
 from . import forms
 from . import models
 from . import rationale_choice
@@ -46,7 +48,7 @@ from .util import SessionStageData, get_object_or_none, int_or_none, roundrobin,
 from .admin_views import get_question_rationale_aggregates, get_assignment_aggregates, AssignmentResultsViewBase
 
 
-from .models import Student, StudentGroup, Teacher, Assignment, BlinkQuestion, BlinkAnswer, BlinkRound, BlinkAssignment, BlinkAssignmentQuestion, Question, Answer, Discipline, VerifiedDomain
+from .models import Student, StudentGroup, Teacher, Assignment, BlinkQuestion, BlinkAnswer, BlinkRound, BlinkAssignment, BlinkAssignmentQuestion, Question, Answer, AnswerChoice, Discipline, VerifiedDomain
 from django.contrib.auth.models import User
 
 #blink
@@ -373,9 +375,65 @@ class QuestionCreateView(NoStudentsMixin, LoginRequiredMixin, CreateView):
 
     # Autofill language and discipline based on user
 
-    # Custom save is needed to attach user to question
+    # Custom save is needed to attach user/teacher to question
 
-    # Successful question creation should redirect to answer creation
+    def get_success_url(self):
+        return reverse('answer-choice-form', kwargs={ 'pk' : self.object.pk })
+
+
+class QuestionUpdateView(NoStudentsMixin, LoginRequiredMixin, UpdateView):
+    """View to edit a new question outside of admin."""
+    model = models.Question
+    fields = [
+        'title',
+        'text',
+        #'language',
+        'image',
+        'video_url',
+        'answer_style',
+        #'course',
+        'category',
+        'discipline',
+        #'collaborators',
+        'fake_attributions',
+        'sequential_review',
+        'rationale_selection_algorithm',
+        'grading_scheme'
+        ]
+    template_name_suffix = '_form'
+
+    def get_success_url(self):
+        return reverse('answer-choice-form', kwargs={ 'pk' : self.object.pk })
+
+
+@login_required
+def answer_choice_form(request, pk):
+    AnswerChoiceFormSet = inlineformset_factory(
+        Question,
+        AnswerChoice,
+        fields=('text','correct'),
+        widgets={'text': Textarea(attrs={'style': 'width: 100%;', 'rows': 3})},
+        formset=admin.AnswerChoiceInlineFormSet,
+        max_num=5,
+        extra=5
+    )
+    question = Question.objects.get(pk=pk)
+
+    if request.method == 'POST':
+        # Populate form; resend if invalid
+        formset = AnswerChoiceFormSet(request.POST,instance=question)
+        if formset.is_valid():
+            formset.save()
+            # Reset the form post-save event
+            formset = AnswerChoiceFormSet(instance=question)
+    else:
+        formset = AnswerChoiceFormSet(instance=question)
+
+    return TemplateResponse(
+        request,
+        'peerinst/answer_choice_form.html',
+        context={ 'question' : question, 'formset' : formset },
+    )
 
 
 class DisciplineCreateView(NoStudentsMixin, LoginRequiredMixin, CreateView):
@@ -392,13 +450,12 @@ class DisciplineCreateView(NoStudentsMixin, LoginRequiredMixin, CreateView):
 @login_required
 def discipline_select_form(request, pk):
     """An AJAX view that simply renders the DisciplineSelectForm."""
-    context={}
-    context['form'] = forms.DisciplineSelectForm(initial={ 'discipline' : Discipline.objects.get(pk=pk)})
+    """Preselects instance with pk."""
 
     return TemplateResponse(
         request,
         'peerinst/discipline_select_form.html',
-        context
+        context={ 'form' : forms.DisciplineSelectForm(initial={ 'discipline' : Discipline.objects.get(pk=pk)}) }
     )
 
 

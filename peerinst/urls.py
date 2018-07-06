@@ -30,8 +30,10 @@ urlpatterns = [
         url(r'^update/$',views.AssignmentUpdateView.as_view(),name='assignment-update')
     ])),
     url(r'^question/create$', views.QuestionCreateView.as_view(), name='question-create'),
+    url(r'^question/update/(?P<pk>[0-9]+)$', views.QuestionUpdateView.as_view(), name='question-update'),
     url(r'^discipline/create$', views.DisciplineCreateView.as_view(), name='discipline-create'),
     url(r'^discipline/form/(?P<pk>[0-9]+)$', views.discipline_select_form, name='discipline-form'),
+    url(r'^answer-choice/form/(?P<pk>[0-9]+)$', views.answer_choice_form, name='answer-choice-form'),
     url(r'^question-search/$', views.question_search, name='question-search'),
     url(r'^heartbeat/$', views.HeartBeatUrl.as_view(), name='heartbeat'),
 

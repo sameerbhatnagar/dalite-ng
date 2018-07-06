@@ -1,0 +1,181 @@
+{% extends 'peerinst/question_start.html' %}
+
+{% load add_class i18n %}
+
+{% block stylesheets %}
+<style>
+.field-container {
+  position:relative;
+  margin-bottom: 10px;
+}
+.number-box {
+  display: inline-block;
+  position: absolute;
+  top:0px;
+  left:0px;
+  width: 30px;
+  height: 30px;
+  border: solid;
+  border-radius: 50%;
+  border-width: 1px;
+  border-color: #54c0db;
+  background-color:#54c0db;
+  color:white;
+}
+.flush-to-textbox {
+  top:16px;
+}
+.number {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+}
+.field {
+  padding-left: 40px;
+}
+.multiple-select {
+  border-color: rgba(0,0,0,0.15);
+  border-width: 1px;
+  border-radius: 4px;
+  font-family: 'Montserrat', sans-serif;
+  padding:4px;
+  -webkit-appearance : none;
+  -moz-appearance : none;
+  background : none;
+}
+.multiple-select:hover {
+  border-color: black;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background: none;
+}
+.multiple-select:focus {
+  border-color: #54c0db;
+  border-width:2px;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background: none;
+  outline: none;
+}
+.form-helper-text {
+  margin-left:16px;
+  margin-right:16px;
+  color:rgba(0,0,0,0.38);
+  font-size: 0.75rem;
+}
+.mdc-select__native-control {
+  font-size: 0.75rem;
+}
+.mdc-text-field--textarea:not(.mdc-text-field--disabled) {
+  border-color: rgba(0,0,0,0.15);
+  width:100%;
+}
+.mdc-text-field--textarea:not(.mdc-text-field--focused):hover {
+  border-color: black;
+  width:100%;
+}
+.field .mdc-select {
+  margin-top: -12px;
+}
+.field label {
+  padding-right:10px;
+}
+.add {
+  padding:10px;
+  cursor: pointer;
+}
+.padded {
+  padding:10px;
+}
+
+</style>
+{% endblock %}
+
+{% block answers %}
+  <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Step 2: Answer choices' %}</h2>
+
+  <h3>{% trans 'Enter 2-5 answer choices' %}</h3>
+
+  <form id="answer-choice-form" method="post">
+    {% csrf_token %}
+    {{ formset.management_form }}
+    {{ formset.non_form_errors }}
+    {% for form in formset %}
+      {{ form.id }}
+      <div class='field-container'>
+        <div class='number-box flush-to-textbox'><span class='number'>{{ forloop.counter }}</span></div>
+        <div class='field'>
+          <div class="mdc-text-field mdc-text-field--textarea mdc-text-field--dense mdc-theme--background" data-mdc-auto-init="MDCTextField">
+            {{ form.text|add_class:"mdc-text-field__input" }}
+            <label for="id_text" class="mdc-floating-label"> {{ form.text.label }}</label>
+          </div>
+          <p style='margin-left:16px;margin-right:16px;' class="mdc-text-field-helper-text mdc-text-field-helper-text--persistent" aria-hidden="true">
+            {{ form.text.help_text|safe }}
+          </p>
+          {{ form.text.errors }}
+        </div>
+
+        <div class='field'>
+          <div class='mdc-form-field'>
+            <label for="id_sequential_review">{{ form.correct.label }}</label>
+            <div class="mdc-checkbox">
+              {{ form.correct|add_class:'mdc-checkbox__native-control'}}
+              <div class="mdc-checkbox__background">
+                <svg class="mdc-checkbox__checkmark"
+                     viewBox="0 0 24 24">
+                  <path class="mdc-checkbox__checkmark-path"
+                        fill="none"
+                        stroke="white"
+                        d="M1.73,12.91 8.1,19.28 22.79,4.59"/>
+                </svg>
+                <div class="mdc-checkbox__mixedmark"></div>
+              </div>
+            </div>
+          </div>
+          {{ form.correct.errors }}
+          <div class='mdc-form-field'>
+            <label for="id_sequential_review">{{ form.DELETE.label }}?</label>
+            <div class="mdc-checkbox">
+              {{ form.DELETE|add_class:'mdc-checkbox__native-control'}}
+              <div class="mdc-checkbox__background">
+                <svg class="mdc-checkbox__checkmark"
+                     viewBox="0 0 24 24">
+                  <path class="mdc-checkbox__checkmark-path"
+                        fill="none"
+                        stroke="white"
+                        d="M1.73,12.91 8.1,19.28 22.79,4.59"/>
+                </svg>
+                <div class="mdc-checkbox__mixedmark"></div>
+              </div>
+            </div>
+          </div>
+          {{ form.DELETE.errors }}
+        </div>
+      </div>
+    {% endfor %}
+    </form>
+
+    <div style="margin-top:20px;">
+      <span class="padded">
+        <form style="display:inline" id="back" action="{% url 'question-update' pk=question.id %}" method="get">
+          <button form="back" type="submit" class="mdc-button mdc-button--raised">Back</button>
+        </form>
+      </span>
+      {% if question.answerchoice_set.count > 0 %}
+      <span class="padded">
+        <input form="answer-choice-form" class="mdc-button mdc-button--raised" type="submit" value="Update" />
+      </span>
+      <span class="padded">
+        <button class="mdc-button mdc-button--raised">Next</button>
+      </span>
+      {% else %}
+      <span class="padded">
+        <input form="answer-choice-form" class="mdc-button mdc-button--raised" type="submit" value="Add" />
+      </span>
+      {% endif %}
+    </div>
+
+{% endblock %}
