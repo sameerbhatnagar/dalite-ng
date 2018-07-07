@@ -29,6 +29,8 @@
       {% endif %}
       </div>
 
+      {% block extra_title %}{% endblock %}
+
       <h2 class="mdc-typography--display1 mdc-theme--secondary">{{question.title}}</h2>
 
       {% if messages %}
@@ -90,6 +92,8 @@
       {% endblock %}
       {% endif %}
     </div>
+
+    {% block extra_content %}{% endblock %}
   </div>
 </section>
 </main>

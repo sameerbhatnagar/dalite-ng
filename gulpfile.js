@@ -9,9 +9,12 @@ const runSequence = require('run-sequence');
 // const rollup = require('rollup-stream');
 // const source = require('vinyl-source-stream');
 
+// Run sass and minify
 gulp.task('sass', function() {
-  return gulp.src('./peerinst/static/peerinst/css/main.scss')
-    .pipe(rename('main.min.css'))
+  return gulp.src('./peerinst/static/peerinst/css/*.scss')
+    .pipe(rename(function(path) {
+      path.extname = '.min.css';
+      }))
     .pipe(sourcemaps.init())
     .pipe(sass({
         outputStyle: 'compressed',
@@ -21,6 +24,7 @@ gulp.task('sass', function() {
     .pipe(gulp.dest('./peerinst/static/peerinst/css/'));
 });
 
+// Process native css files not minified already
 gulp.task('css', function() {
     return gulp.src(['./peerinst/static/peerinst/css/*.css',
                      '!./peerinst/static/peerinst/css/*.min.css'])
@@ -31,6 +35,7 @@ gulp.task('css', function() {
       .pipe(gulp.dest('./peerinst/static/peerinst/css/'));
 });
 
+// Run autoprefixer on minified css files
 gulp.task('autoprefixer', function() {
     return gulp.src('./peerinst/static/peerinst/css/*.min.css')
         .pipe(sourcemaps.init())
@@ -49,6 +54,7 @@ gulp.task('rollup', function() {
     .pipe(gulp.dest('./peerinst/static/peerinst/js/'));
 });*/
 
+// Run rollup to bundle js
 gulp.task('rollup', function() {
   const runCommand = require('child_process').execSync;
   runCommand('./node_modules/.bin/rollup -c', function(err, stdout, stderr) {

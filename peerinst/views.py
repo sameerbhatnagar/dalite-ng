@@ -407,7 +407,7 @@ class QuestionUpdateView(NoStudentsMixin, LoginRequiredMixin, UpdateView):
 
 
 @login_required
-def answer_choice_form(request, pk):
+def answer_choice_form(request, question_id):
     AnswerChoiceFormSet = inlineformset_factory(
         Question,
         AnswerChoice,
@@ -417,7 +417,7 @@ def answer_choice_form(request, pk):
         max_num=5,
         extra=5
     )
-    question = Question.objects.get(pk=pk)
+    question = Question.objects.get(pk=question_id)
 
     if request.method == 'POST':
         # Populate form; resend if invalid

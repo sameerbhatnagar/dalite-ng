@@ -1,0 +1,55 @@
+{% extends 'peerinst/question_start.html' %}
+
+{% load staticfiles compress i18n %}
+
+{% block stylesheets %}
+{% compress css %}
+<link href="{% static 'peerinst/css/authorship.min.css' %}" rel="stylesheet">
+{% endcompress %}
+{% endblock %}
+
+{% block extra_title %}
+<h2 class="mdc-typography--display1 mdc-theme--primary">{% trans 'Step 3: Example answers' %}</h2>
+
+<div class='field-container'>
+  <div class='number-box'><span class='number'>?</span></div>
+  <div class='field'>
+    <p><small>
+      {% blocktrans %}
+      This is a preview of how the question looks in the student interface.  You can add example
+      rationales here that will be shown as choices to students.  You should at least provide a few
+      example rationales for the correct choices.  It's best if you provide a few rationales for each
+      choice, even the incorrect ones.
+      {% endblocktrans %}
+    </small></p>
+  </div>
+</div>
+{% endblock %}
+
+{% block submit_button %}{% trans 'Submit example answer' %}{% endblock %}
+
+{% block extra_content %}
+{{ form.errors }}
+<hr class="simple-hr">
+<h3>{% trans 'Existing sample answers' %}</h3>
+<ul class="mdc-list">
+  {% for sample in question.answer_set.all|dictsort:'first_answer_choice' %}
+      <li><span class='mdc-theme--primary bold'>{{ sample.first_answer_choice_label }}</span>: {{ sample.rationale|safe|striptags }}.</li>
+  {% endfor %}
+</ul>
+<hr class="simple-hr">
+
+<div style="margin-top:20px;">
+  <span class="padded">
+    <form style="display:inline" id="back" action="{% url 'answer-choice-form' question_id=question.id %}" method="get">
+      <button form="back" type="submit" class="mdc-button mdc-button--raised">Back</button>
+    </form>
+  </span>
+  <span class="padded">
+    <form style="display:inline" id="done" action="{% url 'teacher' pk=user.teacher.id %}" method="get">
+      <button form="done" type="submit" class="mdc-button mdc-button--raised">Done</button>
+    </form>
+  </span>
+</div>
+
+{% endblock %}

@@ -154,7 +154,7 @@ def get_question_rationale_aggregates(assignment, question, perpage, choice_id=N
                 # If a.chosen_rationale isn't truthy (in other words, if it is None),
                 # count a itself if include_own_rationales is True; otherwise, count None
                 a if include_own_rationales else None
-            ) 
+            )
             for a in answer_list.select_related('chosen_rationale')
         )
 
@@ -367,19 +367,20 @@ class QuestionPreviewForm(FirstAnswerForm):
     expert = forms.BooleanField(label=_('Expert answer'), initial=True, required=False)
 
 
-class QuestionPreviewView(StaffMemberRequiredMixin, FormView):
-    template_name = 'admin/peerinst/question_preview.html'
+class QuestionPreviewViewBase(FormView):
+    """Non-admin base view for question preview and sample answer form."""
+    template_name = 'peerinst/question_preview.html'
     form_class = QuestionPreviewForm
 
     def get_form_kwargs(self):
         self.question = get_object_or_404(models.Question, pk=self.kwargs['question_id'])
         self.answer_choices = self.question.get_choices()
-        kwargs = super(QuestionPreviewView, self).get_form_kwargs()
+        kwargs = super(QuestionPreviewViewBase, self).get_form_kwargs()
         kwargs.update(answer_choices=self.answer_choices)
         return kwargs
 
     def get_context_data(self, **kwargs):
-        context = super(QuestionPreviewView, self).get_context_data(**kwargs)
+        context = super(QuestionPreviewViewBase, self).get_context_data(**kwargs)
         context.update(question=self.question, answer_choices=self.answer_choices)
         return context
 
@@ -393,7 +394,14 @@ class QuestionPreviewView(StaffMemberRequiredMixin, FormView):
         )
         answer.save()
         messages.add_message(self.request, messages.INFO, _('Example answer saved.'))
-        return super(QuestionPreviewView, self).form_valid(form)
+        return super(QuestionPreviewViewBase, self).form_valid(form)
+
+    def get_success_url(self):
+        return reverse('sample-answer-form', kwargs=dict(question_id=self.question.pk))
+
+
+class QuestionPreviewView(StaffMemberRequiredMixin, QuestionPreviewViewBase):
+    template_name = 'admin/peerinst/question_preview.html'
 
     def get_success_url(self):
         return reverse('question-preview', kwargs=dict(question_id=self.question.pk))

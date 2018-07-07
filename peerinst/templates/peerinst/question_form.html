@@ -1,104 +1,21 @@
 {% extends 'peerinst/base.html' %}
 
-{% load add_class i18n %}
+{% load compress staticfiles add_class i18n %}
+
+{% block stylesheets %}
+{% compress css %}
+<link href="{% static 'peerinst/css/authorship.min.css' %}" rel="stylesheet">
+{% endcompress %}
+{% endblock %}
 
 {% block body %}
-<style>
-.field-container {
-  position:relative;
-  margin-bottom: 10px;
-}
-.number-box {
-  display: inline-block;
-  position: absolute;
-  top:0px;
-  left:0px;
-  width: 30px;
-  height: 30px;
-  border: solid;
-  border-radius: 50%;
-  border-width: 1px;
-  border-color: #54c0db;
-  background-color:#54c0db;
-  color:white;
-}
-.flush-to-textbox {
-  top:16px;
-}
-.number {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%,-50%);
-}
-.field {
-  padding-left: 40px;
-}
-.multiple-select {
-  border-color: rgba(0,0,0,0.15);
-  border-width: 1px;
-  border-radius: 4px;
-  font-family: 'Montserrat', sans-serif;
-  padding:4px;
-  -webkit-appearance : none;
-  -moz-appearance : none;
-  background : none;
-}
-.multiple-select:hover {
-  border-color: black;
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  background: none;
-}
-.multiple-select:focus {
-  border-color: #54c0db;
-  border-width:2px;
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  background: none;
-  outline: none;
-}
-.form-helper-text {
-  margin-left:16px;
-  margin-right:16px;
-  color:rgba(0,0,0,0.38);
-  font-size: 0.75rem;
-}
-.mdc-select__native-control {
-  font-size: 0.75rem;
-}
-.mdc-text-field--textarea:not(.mdc-text-field--disabled) {
-  border-color: rgba(0,0,0,0.15);
-  width:100%;
-}
-.mdc-text-field--textarea:not(.mdc-text-field--focused):hover {
-  border-color: black;
-  width:100%;
-}
-.field .mdc-select {
-  margin-top: -12px;
-}
-.field label {
-  padding-right:10px;
-}
-.add {
-  padding:10px;
-  cursor: pointer;
-}
-.padded {
-  padding:10px;
-}
-
-</style>
 <main>
 <section>
   <h1 class="mdc-typography--display3" style="position:sticky;">{% trans 'Question' %}
     <svg class="underline" width=150 height=4></svg>
   </h1>
 
-  <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Step 1: Question parameters' %}</h2>
+  <h2 class="mdc-typography--display1 mdc-theme--primary">{% trans 'Step 1: Question parameters' %}</h2>
 
   <form id="question-create-form" method="post">
     {% csrf_token %}
@@ -330,7 +247,7 @@
     </span>
 
     <span class="padded">
-      <form style="display:inline" id="next" action="{% url 'answer-choice-form' pk=object.pk %}" method="get">
+      <form style="display:inline" id="next" action="{% url 'answer-choice-form' question_id=object.pk %}" method="get">
         <button form="next" type="submit" class="mdc-button mdc-button--raised">Next</button>
       </form>
     </span>
