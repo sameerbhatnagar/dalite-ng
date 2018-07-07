@@ -267,6 +267,21 @@ class LoginRequiredMixin(object):
         return login_required(view)
 
 
+class ObjectPermissionRequiredUpdateView(UpdateView):
+    """Update dispatch to enforce object-level permissions."""
+
+    def dispatch(self, *args, **kwargs):
+        print('Dispatching')
+        print(self.object_permission_required)
+        print(self.get_object())
+        print(self.request.user.has_perm(self.object_permission_required, self.get_object()))
+
+        if self.request.user.has_perm(self.object_permission_required, self.get_object()):
+            return super(ObjectPermissionRequiredUpdateView, self).dispatch(*args, **kwargs)
+        else:
+            return HttpResponse("You do not have editing rights on this object")
+
+
 def student_check(user):
     try:
         if user.teacher:
@@ -294,7 +309,7 @@ class AssignmentListView(NoStudentsMixin, LoginRequiredMixin, ListView):
     model = models.Assignment
 
 
-class AssignmentUpdateView(NoStudentsMixin,LoginRequiredMixin,DetailView):
+class AssignmentUpdateView(NoStudentsMixin, LoginRequiredMixin ,DetailView):
     """View for updating assignment."""
 
     model = Assignment
@@ -381,8 +396,9 @@ class QuestionCreateView(NoStudentsMixin, LoginRequiredMixin, CreateView):
         return reverse('answer-choice-form', kwargs={ 'pk' : self.object.pk })
 
 
-class QuestionUpdateView(NoStudentsMixin, LoginRequiredMixin, UpdateView):
+class QuestionUpdateView(NoStudentsMixin, LoginRequiredMixin, ObjectPermissionRequiredUpdateView):
     """View to edit a new question outside of admin."""
+    object_permission_required = 'peerinst.change_question'
     model = models.Question
     fields = [
         'title',

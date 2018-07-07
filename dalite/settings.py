@@ -93,6 +93,12 @@ CACHES = {
     }
 }
 
+# Custom authentication for object-level permissions
+AUTHENTICATION_BACKENDS = [
+    'peerinst.backends.CustomPermissions',
+    #'django.contrib.auth.backends.ModelBackend',
+]
+
 # Password validators through django-password-validation (backport from 1.9)
 AUTH_PASSWORD_VALIDATORS = [
     {
