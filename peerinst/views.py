@@ -267,17 +267,6 @@ class LoginRequiredMixin(object):
         return login_required(view)
 
 
-class ObjectPermissionUpdateView(UpdateView):
-    """Update dispatch to enforce object-level permissions."""
-
-    def dispatch(self, *args, **kwargs):
-
-        if self.request.user.has_perm(self.object_permission_required, self.get_object()):
-            return super(ObjectPermissionUpdateView, self).dispatch(*args, **kwargs)
-        else:
-            return HttpResponse("You do not have editing rights on this object")
-
-
 def student_check(user):
     try:
         if user.teacher:
@@ -298,6 +287,16 @@ class NoStudentsMixin(object):
     def as_view(cls, **initkwargs):
         view = super(NoStudentsMixin, cls).as_view(**initkwargs)
         return user_passes_test(student_check, login_url='/access_denied/')(view)
+
+
+class ObjectPermissionUpdateView(UpdateView):
+    """Update dispatch to check object-level permissions."""
+
+    def dispatch(self, *args, **kwargs):
+        if self.request.user.has_perm(self.object_permission_required, self.get_object()):
+            return super(ObjectPermissionUpdateView, self).dispatch(*args, **kwargs)
+        else:
+            return HttpResponse("You do not have editing rights on this object")
 
 
 class AssignmentListView(NoStudentsMixin, LoginRequiredMixin, ListView):
