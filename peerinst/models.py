@@ -126,8 +126,6 @@ class Question(models.Model):
             'Optional. Select the discipline to which this question should be associated.'
         )
     )
-    ### for when we tie questions to teachers...or should it be users??
-    # teacher = models.ManyToManyField(Teacher,null=True)
     fake_attributions = models.BooleanField(
         _('Add fake attributions'), default=False, help_text=_(
             'Add random fake attributions consisting of username and country to rationales.  You '

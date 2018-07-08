@@ -432,21 +432,27 @@ def answer_choice_form(request, question_id):
 
     question = get_object_or_404(models.Question, pk=question_id)
 
-    if request.method == 'POST':
-        # Populate form; resend if invalid
-        formset = AnswerChoiceFormSet(request.POST,instance=question)
-        if formset.is_valid():
-            formset.save()
-            # Reset the form post-save event
-            formset = AnswerChoiceFormSet(instance=question)
-    else:
-        formset = AnswerChoiceFormSet(instance=question)
+    # Check permissions
+    if request.user.has_perm('peerinst.change_question', question):
 
-    return TemplateResponse(
-        request,
-        'peerinst/answer_choice_form.html',
-        context={ 'question' : question, 'formset' : formset },
-    )
+        if request.method == 'POST':
+            # Populate form; resend if invalid
+            formset = AnswerChoiceFormSet(request.POST,instance=question)
+            if formset.is_valid():
+                formset.save()
+                # Reset the form post-save event
+                formset = AnswerChoiceFormSet(instance=question)
+        else:
+            formset = AnswerChoiceFormSet(instance=question)
+
+        return TemplateResponse(
+            request,
+            'peerinst/answer_choice_form.html',
+            context={ 'question' : question, 'formset' : formset },
+        )
+
+    else:
+        raise PermissionDenied
 
 
 class DisciplineCreateView(NoStudentsMixin, LoginRequiredMixin, CreateView):
