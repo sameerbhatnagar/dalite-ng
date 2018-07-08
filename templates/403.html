@@ -1,0 +1,13 @@
+{% extends './errors.html' %}
+
+{% load i18n %}
+
+{% block body %}
+<h1>403 Forbidden</h1>
+
+<p>
+  <i class="material-icons" style="vertical-align:middle;">block</i>
+  {% trans 'You do not have permission to perform that action.' %}
+</p>
+
+{% endblock %}

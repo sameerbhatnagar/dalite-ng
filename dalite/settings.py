@@ -17,7 +17,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['127.0.0.1']
 
@@ -57,7 +57,10 @@ CUSTOM_SETTINGS = os.environ.get('CUSTOM_SETTINGS', 'default')
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'custom-settings/'+CUSTOM_SETTINGS+'/templates')],
+        'DIRS': [
+            os.path.join(BASE_DIR, 'custom-settings/'+CUSTOM_SETTINGS+'/templates'),
+            os.path.join(BASE_DIR, 'templates')
+            ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

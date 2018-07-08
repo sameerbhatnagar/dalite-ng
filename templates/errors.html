@@ -1,0 +1,38 @@
+{% load staticfiles i18n %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <!-- Meta -->
+  <title>{% trans 'Error' %}</title>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="myDALITE">
+
+  <link href="{% static 'peerinst/img/SALTISE-logo-icon.gif' %}" rel="icon">
+
+  <link href="https://fonts.googleapis.com/css?family=Montserrat:300,700" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+  <style>
+    body {
+      margin: 20px;
+      font-family: 'Montserrat', sans-serif;
+      background-color: #54c0db;
+      color: white;
+    }
+    h1 {
+      font-weight: 700;
+    }
+    p {
+      font-weight: 300;
+    }
+  </style>
+</head>
+
+<body>
+  {% block body %}{% endblock %}
+</body>
+</html>

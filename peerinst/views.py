@@ -16,6 +16,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.views import redirect_to_login
+from django.core.exceptions import PermissionDenied
 from django.core.mail import mail_admins, send_mail
 from django.db.models import Q
 from django.forms import inlineformset_factory, Textarea
@@ -296,7 +297,7 @@ class ObjectPermissionUpdateView(UpdateView):
         if self.request.user.has_perm(self.object_permission_required, self.get_object()):
             return super(ObjectPermissionUpdateView, self).dispatch(*args, **kwargs)
         else:
-            return HttpResponse("You do not have editing rights on this object")
+            raise PermissionDenied
 
 
 class AssignmentListView(NoStudentsMixin, LoginRequiredMixin, ListView):
@@ -388,7 +389,7 @@ class QuestionCreateView(NoStudentsMixin, LoginRequiredMixin, CreateView):
     # Custom save is needed to attach user/teacher to question
 
     def get_success_url(self):
-        return reverse('answer-choice-form', kwargs={ 'pk' : self.object.pk })
+        return reverse('answer-choice-form', kwargs={ 'question_id' : self.object.pk })
 
 
 class QuestionUpdateView(NoStudentsMixin, LoginRequiredMixin, ObjectPermissionUpdateView):
@@ -414,7 +415,7 @@ class QuestionUpdateView(NoStudentsMixin, LoginRequiredMixin, ObjectPermissionUp
     template_name_suffix = '_form'
 
     def get_success_url(self):
-        return reverse('answer-choice-form', kwargs={ 'pk' : self.object.pk })
+        return reverse('answer-choice-form', kwargs={ 'question_id' : self.object.pk })
 
 
 @login_required
@@ -428,7 +429,8 @@ def answer_choice_form(request, question_id):
         max_num=5,
         extra=5
     )
-    question = Question.objects.get(pk=question_id)
+
+    question = get_object_or_404(models.Question, pk=question_id)
 
     if request.method == 'POST':
         # Populate form; resend if invalid

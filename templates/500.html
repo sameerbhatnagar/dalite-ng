@@ -1,0 +1,13 @@
+{% extends './errors.html' %}
+
+{% load i18n %}
+
+{% block body %}
+<h1>500 Server Error</h1>
+
+<p>
+  <i class="material-icons" style="vertical-align:middle;">report</i>
+  {% trans 'A server error has occurred.  The webmaster has been notified.' %}
+</p>
+
+{% endblock %}
