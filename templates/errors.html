@@ -1,4 +1,4 @@
-{% load staticfiles i18n %}
+{% load staticfiles compress i18n %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -16,23 +16,16 @@
   <link href="https://fonts.googleapis.com/css?family=Montserrat:300,700" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
-  <style>
-    body {
-      margin: 20px;
-      font-family: 'Montserrat', sans-serif;
-      background-color: #54c0db;
-      color: white;
-    }
-    h1 {
-      font-weight: 700;
-    }
-    p {
-      font-weight: 300;
-    }
-  </style>
+  {% compress css %}
+  <link href="{% static 'peerinst/css/error.min.css' %}" rel="stylesheet">
+  {% endcompress %}
 </head>
 
 <body>
   {% block body %}{% endblock %}
+  <div class="corner_graphic" id="outer"></div>
+  <div class="corner_graphic" id="mid"></div>
+  <div class="corner_graphic" id="inner"></div>
+  <div class="corner_graphic" id="corner"></div>
 </body>
 </html>

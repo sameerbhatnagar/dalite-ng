@@ -16,8 +16,6 @@ class CustomPermissionsBackend(ModelBackend):
                     raise PermissionDenied
                     return False
             except:
-                # Model-level permissions
                 return super(CustomPermissionsBackend, self).has_perm(user_obj, perm)
         else:
-            # Model-level permissions
             return super(CustomPermissionsBackend, self).has_perm(user_obj, perm)
