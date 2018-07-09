@@ -219,10 +219,10 @@
   <a href="{% url 'question-create' %}">{% trans 'Create new' %}</a>
 </div>
 
+<h3>{% trans 'My questions' %}</h3>
 {% if not object.user.question_set.all %}
-<p>{% blocktrans %}You do not have any qusetions.  Create one using the link above!{% endblocktrans %}</p>
-{% endif %}
-
+<p>{% blocktrans %}You do not have any questions.  Create one using the link above!{% endblocktrans %}</p>
+{% else %}
 <ul class="mdc-list mdc-list--two-line mdc-list--non-interactive">
   {% for q in object.user.question_set.all %}
   <li role="separator" class="mdc-list-divider"></li>
@@ -246,8 +246,13 @@
   </li>
   {% endfor %}
   <li role="separator" class="mdc-list-divider"></li>
-  <br>
-  {% for q in object.user.question_set.all %}
+</ul>
+{% endif %}
+
+{% if object.user.collaborators.all %}
+<h3>{% trans 'Collaborations' %}</h3>
+<ul class="mdc-list mdc-list--two-line mdc-list--non-interactive">
+  {% for q in object.user.collaborators.all %}
   <li role="separator" class="mdc-list-divider"></li>
   <li class="mdc-list-item blink" id="edit-blink-{{a.pk}}">
     <span class="mdc-list-item__graphic">
@@ -270,6 +275,7 @@
   {% endfor %}
   <li role="separator" class="mdc-list-divider"></li>
 </ul>
+{% endif %}
 
 </section>
 </main>
