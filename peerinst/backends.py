@@ -16,6 +16,10 @@ class CustomPermissionsBackend(ModelBackend):
                     raise PermissionDenied
                     return False
             except:
-                return super(CustomPermissionsBackend, self).has_perm(user_obj, perm)
+                if user_obj.is_staff:
+                    return super(CustomPermissionsBackend, self).has_perm(user_obj, perm)
+                else:
+                    raise PermissionDenied
+                    return False
         else:
             return super(CustomPermissionsBackend, self).has_perm(user_obj, perm)
