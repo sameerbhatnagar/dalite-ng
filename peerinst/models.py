@@ -89,6 +89,20 @@ class Question(models.Model):
             'students.  The button appears after saving the question for the first time.'
         )
     )
+    parent = models.ForeignKey('Question', blank=True, null=True, on_delete=models.SET_NULL)
+    user = models.ForeignKey(User, blank=True, null=True, on_delete=models.SET_NULL)
+    collaborators = models.ManyToManyField(User, blank=True, related_name='collaborators', help_text=_(
+            'Optional. Other users that may also edit this question.'
+        )
+    )
+    created_on = models.DateTimeField(
+        auto_now_add=True,
+        null=True
+    )
+    last_modified = models.DateTimeField(
+        auto_now=True,
+        null=True
+    )
     image = models.ImageField(
         _('Question image'), blank=True, null=True, upload_to='images',
         help_text=_('Optional. An image to include after the question text.')

@@ -370,23 +370,22 @@ class QuestionCreateView(NoStudentsMixin, LoginRequiredMixin, CreateView):
     fields = [
         'title',
         'text',
-        #'language',
         'image',
         'video_url',
         'answer_style',
-        #'course',
         'category',
         'discipline',
-        #'collaborators',
+        'collaborators',
         'fake_attributions',
         'sequential_review',
         'rationale_selection_algorithm',
         'grading_scheme'
         ]
 
-    # Autofill language and discipline based on user
-
-    # Custom save is needed to attach user/teacher to question
+    # Custom save is needed to attach user to question
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        return super(QuestionCreateView, self).form_valid(form)
 
     def get_success_url(self):
         return reverse('answer-choice-form', kwargs={ 'question_id' : self.object.pk })
@@ -399,14 +398,12 @@ class QuestionUpdateView(NoStudentsMixin, LoginRequiredMixin, ObjectPermissionUp
     fields = [
         'title',
         'text',
-        #'language',
         'image',
         'video_url',
         'answer_style',
-        #'course',
         'category',
         'discipline',
-        #'collaborators',
+        'collaborators',
         'fake_attributions',
         'sequential_review',
         'rationale_selection_algorithm',

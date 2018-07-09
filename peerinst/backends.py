@@ -10,7 +10,7 @@ class CustomPermissionsBackend(ModelBackend):
             try:
                 if obj.user == user_obj:
                     # Has permission for _this_ object; proceed with normal permissions check
-                    return super(CustomPermissionsBackend, self).has_perm(user_obj, perm, obj)
+                    return super(CustomPermissionsBackend, self).has_perm(user_obj, perm)
                 else:
                     # Prevent any further authentication checks
                     raise PermissionDenied

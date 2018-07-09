@@ -220,6 +220,10 @@
   <a href="{% url 'question-create' %}">{% trans 'Create new' %}</a>
 </div>
 
+{% for q in object.user.question_set.all %}
+  {{ q }}
+{% endfor %}
+
 </section>
 </main>
 {% endblock %}

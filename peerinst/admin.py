@@ -74,7 +74,7 @@ class AnswerInline(admin.StackedInline):
 @admin.register(Question)
 class QuestionAdmin(admin.ModelAdmin):
     fieldsets = [
-        (None, {'fields': ['title', 'text', 'discipline', 'category', 'id']}),
+        (None, {'fields': ['title', 'user', 'text', 'created_on', 'last_modified', 'discipline', 'category', 'id']}),
         (_('Question image or video'), {'fields': ['image', 'image_alt_text', 'video_url']}),
         (None, {'fields': [
             'answer_style', 'fake_attributions', 'sequential_review',
@@ -86,7 +86,7 @@ class QuestionAdmin(admin.ModelAdmin):
         'rationale_selection_algorithm': admin.HORIZONTAL,
         'grading_scheme': admin.HORIZONTAL,
     }
-    readonly_fields = ['id']
+    readonly_fields = ['id', 'user', 'created_on', 'last_modified']
     inlines = [AnswerChoiceInline, AnswerInline]
     list_display = ['title', 'discipline']
     list_filter=['category']
