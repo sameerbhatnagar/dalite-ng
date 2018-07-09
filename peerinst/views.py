@@ -409,8 +409,15 @@ class QuestionUpdateView(NoStudentsMixin, LoginRequiredMixin, ObjectPermissionUp
         'rationale_selection_algorithm',
         'grading_scheme'
         ]
-    
+
     template_name_suffix = '_form'
+
+    def form_valid(self, form):
+        # Only owner can update collaborators
+        if not self.object.user == self.request.user:
+            form.cleaned_data['collaborators'] = self.object.collaborators.all()
+
+        return super(QuestionUpdateView, self).form_valid(form)
 
     def get_success_url(self):
         return reverse('answer-choice-form', kwargs={ 'question_id' : self.object.pk })

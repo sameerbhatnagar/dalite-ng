@@ -230,25 +230,29 @@
         {{ form.grading_scheme.errors }}
       </div>
     </div>
-  </form>
 
-  {% if not object or object.user == request.user %}
-    <h3>Authorship</h3>
+    {% if not object or object.user == request.user %}
+    <div>
+    {% else %}
+    <div style="display:none;">
+    {% endif %}
+      <h3>Authorship</h3>
 
-    <div class='field-container'>
-      <div class='number-box'><span class='number'>12</span></div>
-      <div class='field'>
-        <div class='mdc-form-field'>
-          <label for='id_collaborators'>{{ form.collaborators.label }}:</label>
-          {{ form.collaborators|add_class:'multiple-select mdc-theme--background' }}
+      <div class='field-container'>
+        <div class='number-box'><span class='number'>12</span></div>
+        <div class='field'>
+          <div class='mdc-form-field'>
+            <label for='id_collaborators'>{{ form.collaborators.label }}:</label>
+            {{ form.collaborators|add_class:'multiple-select mdc-theme--background' }}
+          </div>
+          <p class="form-helper-text" aria-hidden="true">
+            {{ form.collaborators.help_text|safe }}
+          </p>
+          {{ form.collaborators.errors }}
         </div>
-        <p class="form-helper-text" aria-hidden="true">
-          {{ form.collaborators.help_text|safe }}
-        </p>
-        {{ form.collaborators.errors }}
       </div>
     </div>
-  {% endif %}
+  </form>
 
   <div style="margin-top:20px;">
     {% if object %}
