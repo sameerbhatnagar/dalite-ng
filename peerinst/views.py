@@ -53,6 +53,9 @@ from django.contrib.sessions.models import Session
 from django.db.models.expressions import Func
 from django.db.models import Count
 
+# tos
+from tos.models import Consent
+
 
 LOGGER = logging.getLogger(__name__)
 
@@ -993,6 +996,7 @@ class TeacherDetailView(TeacherBase,DetailView):
         context['LTI_key'] = str(settings.LTI_CLIENT_KEY)
         context['LTI_secret'] = str(settings.LTI_CLIENT_SECRET)
         context['LTI_launch_url'] = str('https://'+self.request.get_host()+'/lti/')
+        context['tos_accepted'] = bool(Consent.get(self.get_object().user.username, "teacher"))
 
         # Set all blink assignments, questions, and rounds for this teacher to inactive
         for a in self.get_object().blinkassignment_set.all():

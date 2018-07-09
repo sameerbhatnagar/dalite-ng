@@ -32,7 +32,7 @@ def consent(req, role, version=None):
 
 
 @login_required
-def consent_modify(req, role, version):
+def consent_modify(req, role, version=None):
     username = req.user.username
     _consent, context = _consent_view(req, username, role, version)
     if isinstance(_consent, HttpResponse):

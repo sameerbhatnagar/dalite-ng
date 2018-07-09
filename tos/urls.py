@@ -14,6 +14,11 @@ urlpatterns = [
         name="modify",
     ),
     url(
+        r"(?P<role>\w{1,})/modify/$",
+        views.consent_modify,
+        name="modify",
+    ),
+    url(
         r"(?P<role>\w{1,})/(?P<version>\d{1,})/$",
         views.consent,
         name="consent",
