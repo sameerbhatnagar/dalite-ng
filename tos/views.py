@@ -1,17 +1,18 @@
 from __future__ import unicode_literals
 
-from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 from django.http import (
     HttpResponse,
     HttpResponseBadRequest,
     HttpResponseNotAllowed,
+    HttpResponseRedirect,
     HttpResponseServerError,
     JsonResponse,
-    HttpResponseRedirect,
 )
 from django.shortcuts import render
 
+from .forms import ConsentForm
 from .models import Consent, Tos
 
 
@@ -36,7 +37,6 @@ def consent_modify(req, role, version):
     _consent, context = _consent_view(req, username, role, version)
     if isinstance(_consent, HttpResponse):
         return _consent
-    context["redirect_to"] = req.GET.get("next", "/welcome/")
     return render(req, "tos/consent.html", context)
 
 
@@ -70,13 +70,9 @@ def consent_update(req, role, version):
 
     Consent.objects.create(user=user, tos=tos, accepted=accepted)
 
-    redirect_to = req.POST.get("next", "/welcome/")
+    redirect_to = req.POST.get("redirect_to", "/welcome/")
 
     return HttpResponseRedirect(redirect_to)
-
-    #  if accepted:
-    #  return HttpResponse("You've accepted!")
-    #  return HttpResponse("You've refused...")
 
 
 def _consent_view(req, username, role, version):
@@ -110,6 +106,7 @@ def _consent_view(req, username, role, version):
         "tos_text": tos.text,
         "version": tos.version,
         "current": tos.current,
+        "redirect_to": req.GET.get("next", "/welcome/"),
     }
 
     return _consent, context

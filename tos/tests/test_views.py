@@ -235,8 +235,8 @@ class TestConsentUpdateView(TestCase):
             resp = self.client.post(
                 reverse("tos:update", kwargs=test[0]), test[1]
             )
-            self.assertEqual(resp.status_code, 200)
-            self.assertIn("You've accepted!", resp.content)
+            self.assertEqual(resp.status_code, 302)
+            self.assertRedirects(resp, "/welcome/", target_status_code=302)
 
     def test_consent_update_refused(self):
         tests = [
@@ -255,8 +255,28 @@ class TestConsentUpdateView(TestCase):
             resp = self.client.post(
                 reverse("tos:update", kwargs=test[0]), test[1]
             )
-            self.assertEqual(resp.status_code, 200)
-            self.assertIn("You've refused...", resp.content)
+            self.assertEqual(resp.status_code, 302)
+            self.assertRedirects(resp, "/welcome/", target_status_code=302)
+
+    def test_consent_update_redirect(self):
+        tests = [
+            (
+                {
+                    "role": [
+                        r for r in Tos.ROLES if r.startswith(self.tos[0].role)
+                    ][0],
+                    "version": int(self.tos[0].version),
+                },
+                {"accepted": True, "redirect_to": "/tos/student/"},
+            )
+        ]
+
+        for test in tests:
+            resp = self.client.post(
+                reverse("tos:update", kwargs=test[0]), test[1]
+            )
+            self.assertEqual(resp.status_code, 302)
+            self.assertRedirects(resp, "/tos/student/", target_status_code=200)
 
     def test_consent_update_version_doesnt_exist(self):
         tests = [
