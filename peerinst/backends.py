@@ -8,7 +8,7 @@ class CustomPermissionsBackend(ModelBackend):
 
         if obj:
             try:
-                if obj.user == user_obj:
+                if user_obj == obj.user or user_obj in obj.collaborators.all():
                     # Has permission for _this_ object; proceed with normal permissions check
                     return super(CustomPermissionsBackend, self).has_perm(user_obj, perm)
                 else:

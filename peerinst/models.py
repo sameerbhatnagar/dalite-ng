@@ -5,6 +5,7 @@ import itertools
 import string
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.db.models import Q
 from django.core import exceptions
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
@@ -91,9 +92,14 @@ class Question(models.Model):
     )
     parent = models.ForeignKey('Question', blank=True, null=True, on_delete=models.SET_NULL)
     user = models.ForeignKey(User, blank=True, null=True, on_delete=models.SET_NULL)
+
+    def teachers_only():
+        return Q(teacher__isnull=False)
+
     collaborators = models.ManyToManyField(User, blank=True, related_name='collaborators', help_text=_(
             'Optional. Other users that may also edit this question.'
-        )
+        ),
+        limit_choices_to=teachers_only()
     )
     created_on = models.DateTimeField(
         auto_now_add=True,

@@ -112,10 +112,11 @@
       <div class='number-box'><span class='number'>6</span></div>
       <div class='field'>
         <div class='mdc-form-field'>
-          <span class='form-label'>Collaborators:</span>
+          <label for='id_collaborators'>{{ form.collaborators.label }}:</label>
+          {{ form.collaborators|add_class:'multiple-select mdc-theme--background' }}
         </div>
         <p class="form-helper-text" aria-hidden="true">
-          Select teachers who may edit this question and its answers.
+          {{ form.collaborators.help_text|safe }}
         </p>
         {{ form.collaborators.errors }}
       </div>

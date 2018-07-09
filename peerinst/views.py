@@ -409,6 +409,7 @@ class QuestionUpdateView(NoStudentsMixin, LoginRequiredMixin, ObjectPermissionUp
         'rationale_selection_algorithm',
         'grading_scheme'
         ]
+    
     template_name_suffix = '_form'
 
     def get_success_url(self):
