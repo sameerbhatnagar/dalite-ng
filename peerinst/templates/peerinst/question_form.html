@@ -106,26 +106,10 @@
       </div>
     </div>
 
-    <h3>Authorship</h3>
-
-    <div class='field-container'>
-      <div class='number-box'><span class='number'>6</span></div>
-      <div class='field'>
-        <div class='mdc-form-field'>
-          <label for='id_collaborators'>{{ form.collaborators.label }}:</label>
-          {{ form.collaborators|add_class:'multiple-select mdc-theme--background' }}
-        </div>
-        <p class="form-helper-text" aria-hidden="true">
-          {{ form.collaborators.help_text|safe }}
-        </p>
-        {{ form.collaborators.errors }}
-      </div>
-    </div>
-
     <h3>Indexing</h3>
 
     <div class='field-container'>
-      <div class='number-box'><span class='number'>7</span></div>
+      <div class='number-box'><span class='number'>6</span></div>
       <div class='field'>
         <div id='discipline_form'>
           {% include 'peerinst/discipline_select_form.html' %}
@@ -138,7 +122,7 @@
     </div>
 
     <div class='field-container'>
-      <div class='number-box'><span class='number'>8</span></div>
+      <div class='number-box'><span class='number'>7</span></div>
       <div class='field'>
         <div class='mdc-form-field'>
           <label for='id_category'>{{ form.category.label }}:</label>
@@ -155,7 +139,7 @@
     <h3>Options</h3>
 
     <div class='field-container'>
-      <div class='number-box'><span class='number'>9</span></div>
+      <div class='number-box'><span class='number'>8</span></div>
       <div class='field'>
         <div class='mdc-form-field'>
           <label for="id_sequential_review">{{ form.fake_attributions.label }}?</label>
@@ -181,7 +165,7 @@
     </div>
 
     <div class='field-container'>
-      <div class='number-box'><span class='number'>10</span></div>
+      <div class='number-box'><span class='number'>9</span></div>
       <div class='field'>
         <div class='mdc-form-field'>
           <label for="id_sequential_review">{{ form.sequential_review.label }}?</label>
@@ -207,7 +191,7 @@
     </div>
 
     <div class='field-container'>
-      <div class='number-box'><span class='number'>11</span></div>
+      <div class='number-box'><span class='number'>10</span></div>
       <div class='field'>
         <div class='mdc-form-field'>
           <label for='id_discipline'>{{ form.rationale_selection_algorithm.label }}:</label>
@@ -224,7 +208,7 @@
     </div>
 
     <div class='field-container'>
-      <div class='number-box'><span class='number'>12</span></div>
+      <div class='number-box'><span class='number'>11</span></div>
       <div class='field'>
         <div class='mdc-form-field'>
           <label for='id_discipline'>{{ form.grading_scheme.label }}:</label>
@@ -240,6 +224,24 @@
       </div>
     </div>
   </form>
+
+  {% if not object or object.user == request.user %}
+  <h3>Authorship</h3>
+
+  <div class='field-container'>
+    <div class='number-box'><span class='number'>6</span></div>
+    <div class='field'>
+      <div class='mdc-form-field'>
+        <label for='id_collaborators'>{{ form.collaborators.label }}:</label>
+        {{ form.collaborators|add_class:'multiple-select mdc-theme--background' }}
+      </div>
+      <p class="form-helper-text" aria-hidden="true">
+        {{ form.collaborators.help_text|safe }}
+      </p>
+      {{ form.collaborators.errors }}
+    </div>
+  </div>
+  {% endif %}
 
   <div style="margin-top:20px;">
     {% if object %}
