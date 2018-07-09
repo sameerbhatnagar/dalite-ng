@@ -361,6 +361,7 @@ input[type="submit"].thumbs-down {
   margin-bottom:10px;
   background-color: white;
 }
+.material-icons.md-15 { font-size: 15px; }
 .material-icons.md-18 { font-size: 18px; }
 .material-icons.md-24 { font-size: 24px; }
 .material-icons.md-32 { font-size: 32px; }
@@ -399,6 +400,9 @@ div.input-ripple-wrapper input {
   color: grey !important;
 }
 
+.inline {
+  vertical-align: middle;
+}
 .iconify {
   position:relative;
   background-color:$mdc-theme-primary;
