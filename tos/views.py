@@ -8,6 +8,7 @@ from django.http import (
     HttpResponseNotAllowed,
     HttpResponseServerError,
     JsonResponse,
+    HttpResponseRedirect,
 )
 from django.shortcuts import render
 
@@ -35,6 +36,7 @@ def consent_modify(req, role, version):
     _consent, context = _consent_view(req, username, role, version)
     if isinstance(_consent, HttpResponse):
         return _consent
+    context["redirect_to"] = req.GET.get("next", "/welcome/")
     return render(req, "tos/consent.html", context)
 
 
@@ -68,9 +70,13 @@ def consent_update(req, role, version):
 
     Consent.objects.create(user=user, tos=tos, accepted=accepted)
 
-    if accepted:
-        return HttpResponse("You've accepted!")
-    return HttpResponse("You've refused...")
+    redirect_to = req.POST.get("next", "/welcome/")
+
+    return HttpResponseRedirect(redirect_to)
+
+    #  if accepted:
+    #  return HttpResponse("You've accepted!")
+    #  return HttpResponse("You've refused...")
 
 
 def _consent_view(req, username, role, version):
