@@ -215,14 +215,61 @@
 
 
 <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Questions' %}</h2>
-
 <div class="admin-link">
   <a href="{% url 'question-create' %}">{% trans 'Create new' %}</a>
 </div>
 
-{% for q in object.user.question_set.all %}
-  {{ q }}
-{% endfor %}
+{% if not object.user.question_set.all %}
+<p>{% blocktrans %}You do not have any qusetions.  Create one using the link above!{% endblocktrans %}</p>
+{% endif %}
+
+<ul class="mdc-list mdc-list--two-line mdc-list--non-interactive">
+  {% for q in object.user.question_set.all %}
+  <li role="separator" class="mdc-list-divider"></li>
+  <li class="mdc-list-item blink" id="edit-blink-{{a.pk}}">
+    <span class="mdc-list-item__graphic">
+      <div class="iconify">
+        <span class="text-on-div-icon bold">{{q.pk}}</span>
+      </div>
+    </span>
+    <span class="mdc-list-item__text mdc-theme--secondary bold">
+      {{q.title|safe|striptags}}
+      <span class="mdc-list-item__secondary-text">
+        {% trans 'Last modified: ' %}{{q.last_modified}}
+      </span>
+    </span>
+    <span class="mdc-list-item__meta">
+      <a href="{% url 'question-update' q.pk %}">
+        <i class="material-icons md-24 mdc-ripple-surface icon-list">mode_edit</i>
+      </a>
+    </span>
+  </li>
+  {% endfor %}
+  <li role="separator" class="mdc-list-divider"></li>
+  <br>
+  {% for q in object.user.question_set.all %}
+  <li role="separator" class="mdc-list-divider"></li>
+  <li class="mdc-list-item blink" id="edit-blink-{{a.pk}}">
+    <span class="mdc-list-item__graphic">
+      <div class="iconify">
+        <span class="text-on-div-icon bold">{{q.pk}}</span>
+      </div>
+    </span>
+    <span class="mdc-list-item__text mdc-theme--secondary bold">
+      {{q.title|safe|striptags}}
+      <span class="mdc-list-item__secondary-text">
+        {% trans 'Last modified: ' %}{{q.last_modified}}
+      </span>
+    </span>
+    <span class="mdc-list-item__meta">
+      <a href="{% url 'question-update' q.pk %}">
+        <i class="material-icons md-24 mdc-ripple-surface icon-list">mode_edit</i>
+      </a>
+    </span>
+  </li>
+  {% endfor %}
+  <li role="separator" class="mdc-list-divider"></li>
+</ul>
 
 </section>
 </main>

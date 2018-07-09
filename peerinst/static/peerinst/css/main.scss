@@ -399,6 +399,22 @@ div.input-ripple-wrapper input {
   color: grey !important;
 }
 
+.iconify {
+  position:relative;
+  background-color:$mdc-theme-primary;
+  border:hidden;
+  border-radius:50%;
+  min-width:48px;
+  min-height:48px;
+}
+.text-on-div-icon {
+  color:white;
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+}
+
 @media (max-height: 650px) {
   .mdc-dialog__body--scrollable {
     max-height: 350px;
