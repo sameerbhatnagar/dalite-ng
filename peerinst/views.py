@@ -982,6 +982,8 @@ class TeacherBase(LoginRequiredMixin,View):
 
     def dispatch(self, *args, **kwargs):
         if self.request.user == Teacher.objects.get(pk=kwargs['pk']).user:
+            if Consent.get(self.request.user.username, "teacher") is None:
+                return HttpResponseRedirect(reverse("tos:modify", args=("teacher",)) + "?next=" + reverse("teacher", args=(kwargs["pk"],)))
             return super(TeacherBase, self).dispatch(*args, **kwargs)
         else:
             return HttpResponse('Access denied!')
