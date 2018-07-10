@@ -12,7 +12,7 @@ from django.http import (
 )
 from django.shortcuts import render
 
-from .forms import ConsentForm
+# from .forms import ConsentForm
 from .models import Consent, Tos
 
 
