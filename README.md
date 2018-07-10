@@ -38,6 +38,25 @@ Setting up the development server
         $ ./manage.py runserver
 
 
+6. Add Sample Consent Form
+  
+  - Navigate to `127.0.0.1:8000/admin/tos` and add a sample Terms of Service (mark it as current)
+  - Login as a Teacher
+
+
+
+
+Front-End Build
+---------------
+
+#### Packaging of front-end bundles
+./node_modules/gulp/bin/gulp.js build
+
+#### Browserslist (90.22% global coverage: http://browserl.ist/?q=last+3+versions%2C+iOS%3E%3D8%2C+ie+11%2C+not+dead)
+['last 3 versions', 'iOS>=8', 'ie 11', 'Safari 9.1', 'not dead']
+
+
+
 Setting up a development server in an Open edX Devstack
 -------------------------------------------------------
 **Note:** This section contains security credentials: dalitepassword, alpha, beta, gamma.  Do **not** use these values on a system open to the Internet! Choose new ones.
@@ -305,8 +324,3 @@ Bruce][entypo].
 [entypo]: http://www.entypo.com/
 
 
-# Packaging of front-end bundles
-./node_modules/gulp/bin/gulp.js build
-
-# Browserslist (90.22% global coverage: http://browserl.ist/?q=last+3+versions%2C+iOS%3E%3D8%2C+ie+11%2C+not+dead)
-['last 3 versions', 'iOS>=8', 'ie 11', 'Safari 9.1', 'not dead']

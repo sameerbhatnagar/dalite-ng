@@ -1,4 +1,4 @@
-"""
+'''
 Django settings for dalite project.
 
 For more information on this file, see
@@ -6,7 +6,7 @@ https://docs.djangoproject.com/en/1.8/topics/settings/
 
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.8/ref/settings/
-"""
+'''
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
@@ -24,6 +24,7 @@ ALLOWED_HOSTS = ['127.0.0.1']
 # Application definition
 
 INSTALLED_APPS = (
+    'tos',
     'peerinst',
     'grappelli',
     'password_validation',
@@ -68,9 +69,9 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-            ],
+            ]
         },
-    },
+    }
 ]
 
 WSGI_APPLICATION = 'dalite.wsgi.application'
@@ -103,21 +104,13 @@ AUTHENTICATION_BACKENDS = (
 
 # Password validators through django-password-validation (backport from 1.9)
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'password_validation.UserAttributeSimilarityValidator',
-    },
+    {'NAME': 'password_validation.UserAttributeSimilarityValidator'},
     {
         'NAME': 'password_validation.MinimumLengthValidator',
-        'OPTIONS': {
-            'min_length': 8,
-        }
+        'OPTIONS': {'min_length': 8},
     },
-    {
-        'NAME': 'password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'password_validation.NumericPasswordValidator',
-    },
+    {'NAME': 'password_validation.CommonPasswordValidator'},
+    {'NAME': 'password_validation.NumericPasswordValidator'},
 ]
 
 # Internationalization
@@ -143,7 +136,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 STATICFILES_DIRS = (
-    os.path.join(BASE_DIR, 'custom-settings/'+CUSTOM_SETTINGS+'/static'),
+    os.path.join(BASE_DIR, 'custom-settings/' + CUSTOM_SETTINGS + '/static'),
 )
 
 STATICFILES_FINDERS = (
@@ -184,10 +177,16 @@ LOGGING = {
             'class': 'logging.FileHandler',
             'filename': os.path.join(BASE_DIR, 'log/student.log'),
         },
+
         'file_teacher_log': {
             'level': 'INFO',
             'class': 'logging.FileHandler',
             'filename': os.path.join(BASE_DIR, 'log/teacher_activity.log'),
+        },
+        'file_tos_log': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'log/tos.log'),
         },
     },
     'loggers': {
@@ -198,6 +197,11 @@ LOGGING = {
         },
         'peerinst.views': {
             'handlers': ['file_student_log'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+        'tos.views': {
+            'handlers': ['file_tos_log'],
             'level': 'INFO',
             'propagate': True,
         },
@@ -235,6 +239,7 @@ try:
     from .local_settings import *
 except ImportError:
     import warnings
+
     warnings.warn(
         'File local_settings.py not found.  You probably want to add it -- see README.md.'
     )
