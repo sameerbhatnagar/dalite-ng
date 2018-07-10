@@ -12,3 +12,4 @@ locust*
 /node_modules
 /CACHE
 partner*.png
+/htmlcov
