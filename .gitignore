@@ -16,3 +16,4 @@ partner*.png
 .venv
 tags
 *.mypy_cache/
+/htmlcov

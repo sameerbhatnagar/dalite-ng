@@ -12,12 +12,10 @@ class BlinkAssignmentTestCase(TestCase):
     test_key = '123'
 
     def setUp(self):
-        BlinkAssignment.objects.create(title=self.test_title,key=self.test_key)
         Teacher.objects.create(user=User.objects.first())
         t=Teacher.objects.first()
+        BlinkAssignment.objects.create(title=self.test_title,teacher=t,key=self.test_key)
 
-        t.blinkassignments.add(BlinkAssignment.objects.first())
-        t.save()
 
     def test_blinkassignment(self):
         a1=BlinkAssignment.objects.get(title=self.test_title)
@@ -30,7 +28,7 @@ class BlinkAssignmentTestCase(TestCase):
         for r,q in zip(ranks,qs):
             bq = BlinkQuestion(question=q, key=q.id)
             bq.save()
-            
+
             assignment_ordering = BlinkAssignmentQuestion(blinkassignment=a1,blinkquestion=bq,rank=r)
             assignment_ordering.save()
 
