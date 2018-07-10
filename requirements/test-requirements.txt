@@ -6,4 +6,4 @@ mock
 ddt
 pyyaml
 selenium==3.11.0
-
+pytz
