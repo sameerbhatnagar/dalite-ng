@@ -7,8 +7,7 @@ import unittest
 class NewVisitorTest(LiveServerTestCase):
 
     def setUp(self):
-        print('Open browser')
-        self.browser = webdriver.Firefox()
+        self.browser = webdriver.Chrome()
 
     def tearDown(self):
         self.browser.quit()
@@ -42,10 +41,10 @@ class NewVisitorTest(LiveServerTestCase):
 
         inputbox.submit()
 
-        time.sleep(10)
+        time.sleep(1)
 
         # New user redirected post sign up
-        self.assertIn('Processing request', self.browser.find_element_by_tag_name('h1').text)
+        self.assertIn('Processing Request', self.browser.find_element_by_tag_name('h1').text)
 
         # New user cannot sign in
         self.browser.get(self.live_server_url+'/login')
