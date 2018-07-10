@@ -5,5 +5,4 @@ factory_boy>=2.5.2,<2.6
 mock
 ddt
 pyyaml
-selenium==3.11.0
-
+selenium==3.13.0

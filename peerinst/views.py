@@ -1031,7 +1031,6 @@ class AnswerSummaryChartView(View):
         answer_rows = [[row[column['name']] for column in columns] for row in answers]
         # Transform the rationales we got from the other function into a format we can easily
         # draw in the page using a template
-        print(answers)
         answer_rationales = [
             {
                 'label': each['label'],
