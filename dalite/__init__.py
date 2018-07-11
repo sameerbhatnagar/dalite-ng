@@ -70,7 +70,8 @@ class ApplicationHookManager(AbstractApplicationHookManager):
         # which is than fed into secure password hash
         generator = hashlib.md5()
         generator.update(base)
-        generator.update(nonce)
+        if nonce:
+            generator.update(nonce)
         return generator.digest()
 
     def authenticated_redirect_to(self, request, lti_data):
@@ -120,7 +121,7 @@ class ApplicationHookManager(AbstractApplicationHookManager):
             self.update_staff_user(user)
 
         login(request, user)
-        
+
         # LTI sessions are created implicitly, and are not terminated when user logs out of Studio/LMS, which may lead
         # to granting access to unauthorized users in shared computer setting. Students have no way to terminate dalite
         # session (other than cleaning cookies). This setting instructs browser to clear session when browser is
