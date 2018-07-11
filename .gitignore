@@ -13,3 +13,4 @@ locust*
 /CACHE
 partner*.png
 /htmlcov
+/media

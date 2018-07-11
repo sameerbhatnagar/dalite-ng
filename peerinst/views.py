@@ -369,6 +369,7 @@ class QuestionCreateView(NoStudentsMixin, LoginRequiredMixin, CreateView):
         'title',
         'text',
         'image',
+        'image_alt_text',
         'video_url',
         'answer_style',
         'category',
