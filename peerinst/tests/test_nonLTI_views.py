@@ -30,3 +30,4 @@ class SignUpTest(TestCase):
         with self.settings(EMAIL_BACKEND=''):
             response = self.client.post(reverse('sign_up'), data={'username':'abc', 'password1':'jdefngath4', 'password2':'jdefngath4', 'email':'abc@def.com', 'url':'http://abc.com'}, follow=True)
             self.assertEqual(response.status_code, 500)
+            self.assertTemplateUsed(response, '500.html')
