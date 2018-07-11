@@ -15,12 +15,13 @@ class NewVisitorTest(LiveServerTestCase):
         self.user = 'test_teacher'
         self.password = 'ssdfl_adfga89'
         user = User.objects.create(username=self.user, password=self.password, is_active=True)
-        Teacher.objects.create(user=user)
+        teacher = Teacher.objects.create(user=user)
 
         self.assertEqual(User.objects.count(), 1)
+        self.assertEqual(Teacher.objects.count(), 1)
 
-    #def tearDown(self):
-        #self.browser.quit()
+    def tearDown(self):
+        self.browser.quit()
 
     def __test_new_user(self):
         # Hit landing page

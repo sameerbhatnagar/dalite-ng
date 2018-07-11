@@ -398,6 +398,7 @@ class QuestionUpdateView(NoStudentsMixin, LoginRequiredMixin, ObjectPermissionUp
         'title',
         'text',
         'image',
+        'image_alt_text',
         'video_url',
         'answer_style',
         'category',
