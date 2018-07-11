@@ -20,6 +20,7 @@ from django.core.exceptions import PermissionDenied
 from django.core.mail import mail_admins, send_mail
 from django.db.models import Q
 from django.forms import inlineformset_factory, Textarea
+from django.http import HttpResponseServerError
 from django.shortcuts import get_object_or_404, render, render_to_response, redirect
 from django.template import loader
 from django.template.response import TemplateResponse
@@ -204,31 +205,28 @@ def sign_up(request):
     if request.method == "POST":
         form = forms.SignUpForm(request.POST)
         if form.is_valid():
+            # Set new users as inactive until verified by an administrator
+            form.instance.is_active = False
+            form.save()
+            # Notify administrators
             try:
-                # Set new users as inactive until verified by Administrator
-                form.instance.is_active = False
-                form.save()
-                # Notify administrators
-                try:
-                    email_context = dict(
-                        user=form.cleaned_data['username'],
-                        date=timezone.now(),
-                        email=form.cleaned_data['email'],
-                        url=form.cleaned_data['url'],
-                        site_name='myDALITE',
-                    )
-                    mail_admins(
-                        'New user request',
-                        'Dear administrator,\n\nA new user {} was created on {}. \n\nEmail: {}  \nVerification url: {} \n\nAccess your administrator account to activate this new user.\n\n{}\n\nCheers,\nThe myDalite Team'.format(form.cleaned_data['username'],timezone.now(),form.cleaned_data['email'],form.cleaned_data['url'],'https://'+request.get_host()+reverse('dashboard')),
-                        fail_silently=True,
-                        html_message=loader.render_to_string(html_email_template_name, context=email_context, request=request),
-                    )
-                except:
-                    pass
-
-                return TemplateResponse(request,'registration/sign_up_done.html')
+                email_context = dict(
+                    user=form.cleaned_data['username'],
+                    date=timezone.now(),
+                    email=form.cleaned_data['email'],
+                    url=form.cleaned_data['url'],
+                    site_name='myDALITE',
+                )
+                mail_admins(
+                    'New user request',
+                    'Dear administrator,\n\nA new user {} was created on {}. \n\nEmail: {}  \nVerification url: {} \n\nAccess your administrator account to activate this new user.\n\n{}\n\nCheers,\nThe myDalite Team'.format(form.cleaned_data['username'],timezone.now(),form.cleaned_data['email'],form.cleaned_data['url'],'https://'+request.get_host()+reverse('dashboard')),
+                    fail_silently=True,
+                    html_message=loader.render_to_string(html_email_template_name, context=email_context, request=request),
+                )
             except:
-                pass
+                return HttpResponseServerError()
+
+            return TemplateResponse(request,'registration/sign_up_done.html')
         else:
             context['form'] = form
     else:
@@ -1039,7 +1037,7 @@ class AnswerSummaryChartView(View):
                     {
                         "text": rationale.rationale.rationale,
                         "count": rationale.count,
-                    } for rationale in each['rationales'] if rationale.rationale is not None
+                        } for rationale in each['rationales'] if rationale.rationale is not None
                 ]
             } for each in answers
         ]
