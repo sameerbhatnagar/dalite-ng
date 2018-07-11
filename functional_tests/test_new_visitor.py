@@ -1,3 +1,5 @@
+
+from django.contrib.auth.hashers import make_password
 from django.test import LiveServerTestCase
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
@@ -12,9 +14,9 @@ class NewVisitorTest(LiveServerTestCase):
         self.browser = webdriver.Chrome()
         self.browser.implicitly_wait(10)
 
-        self.user = 'test_teacher'
+        self.user = 'validated_teacher'
         self.password = 'ssdfl_adfga89'
-        user = User.objects.create(username=self.user, password=self.password, is_active=True)
+        user = User.objects.create(username=self.user, password=make_password(self.password), is_active=True)
         teacher = Teacher.objects.create(user=user)
 
         self.assertEqual(User.objects.count(), 1)
@@ -23,7 +25,7 @@ class NewVisitorTest(LiveServerTestCase):
     def tearDown(self):
         self.browser.quit()
 
-    def __test_new_user(self):
+    def test_new_user(self):
         # Hit landing page
         self.browser.get(self.live_server_url+'/#Features')
         self.assertIn('Features', self.browser.find_element_by_tag_name('h1').text)
@@ -72,7 +74,7 @@ class NewVisitorTest(LiveServerTestCase):
         # Small pause to see last page
         time.sleep(1)
 
-    def __test_new_user_with_email_server_error(self):
+    def test_new_user_with_email_server_error(self):
 
         with self.settings(EMAIL_BACKEND=''):
             self.browser.get(self.live_server_url+'/signup')
@@ -98,9 +100,9 @@ class NewVisitorTest(LiveServerTestCase):
 
             inputbox.submit()
 
-            assert "500" in self.browser.page_source
-
             time.sleep(1)
+
+            assert "500" in self.browser.page_source
 
     def test_validated_user(self):
         # Validated user can login
@@ -113,9 +115,9 @@ class NewVisitorTest(LiveServerTestCase):
 
         inputbox.submit()
 
-        assert "My Account" in self.browser.page_source
-
         time.sleep(1)
+
+        assert "My Account" in self.browser.page_source
 
         # Validated user can browse certain pages
 
