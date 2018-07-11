@@ -14,11 +14,9 @@ class NewVisitorTest(LiveServerTestCase):
 
     def test_new_user(self):
         # Hit landing page
-        self.browser.get(self.live_server_url)
-        #self.assertIn(' ')
-
-
-        self.browser.get(self.live_server_url+'/signup')
+        self.browser.get(self.live_server_url+'/#Features')
+        self.assertIn('Features', self.browser.find_element_by_tag_name('h1').text)
+        self.browser.find_element_by_link_text('Signup').click()
 
         # Sign up page rendered
         self.assertIn('Sign Up', self.browser.find_element_by_tag_name('h1').text)

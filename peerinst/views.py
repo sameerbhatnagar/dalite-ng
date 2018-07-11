@@ -108,7 +108,6 @@ def landing_page(request):
 
     disciplines_json = json.dumps(disciplines)
 
-
     ### try again, with re-ordering
     disciplines_array = []
 
