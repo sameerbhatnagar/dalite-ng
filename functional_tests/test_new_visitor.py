@@ -13,7 +13,6 @@ class NewVisitorTest(LiveServerTestCase):
         self.browser.quit()
 
     def test_new_user(self):
-        print('Navigate to '+self.live_server_url+'/signup')
         self.browser.get(self.live_server_url+'/signup')
 
         # Sign up page rendered
@@ -59,6 +58,36 @@ class NewVisitorTest(LiveServerTestCase):
         time.sleep(1)
 
         assert "your account has not yet been activated" in self.browser.page_source
+
+    def test_new_user_with_email_error(self):
+
+        with self.settings(EMAIL_BACKEND=''):
+            self.browser.get(self.live_server_url+'/signup')
+
+            form = self.browser.find_element_by_tag_name('form')
+            self.assertEqual(form.get_attribute("method"), "post")
+
+            inputbox = self.browser.find_element_by_id('id_email')
+            inputbox.send_keys('test@test.com')
+
+            inputbox = self.browser.find_element_by_id('id_username')
+            inputbox.send_keys('test')
+
+            inputbox = self.browser.find_element_by_id('id_password1')
+            inputbox.send_keys('jka+sldfa+soih')
+
+            inputbox = self.browser.find_element_by_id('id_password2')
+            inputbox.send_keys('jka+sldfa+soih')
+
+            inputbox = self.browser.find_element_by_id('id_url')
+            inputbox.clear()
+            inputbox.send_keys('http://www.mydalite.org')
+
+            inputbox.submit()
+
+            time.sleep(1)
+
+            assert "500" in self.browser.page_source
 
     def __test_validated_user(self):
         self.browser.get(self.live_server_url)

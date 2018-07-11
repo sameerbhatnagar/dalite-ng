@@ -24,7 +24,7 @@ class BlinkAssignmentTestCase(TestCase):
         shuffle(ranks)
 
         ##
-        print('* test that through model effectively adds questions to assignment')
+        # print('* test that through model effectively adds questions to assignment')
         for r,q in zip(ranks,qs):
             bq = BlinkQuestion(question=q, key=q.id)
             bq.save()
@@ -35,7 +35,7 @@ class BlinkAssignmentTestCase(TestCase):
         self.assertEqual(a1.blinkquestions.all().count(),len(ranks))
 
         ##
-        print('* test method to move push a question down in rank')
+        # print('* test method to move push a question down in rank')
         this_q=a1.blinkassignmentquestion_set.get(rank=ranks[0])
         this_q_rank = this_q.rank
         this_q.move_down_rank()
@@ -43,11 +43,11 @@ class BlinkAssignmentTestCase(TestCase):
 
         # print('***')
         # print(a1)
-        print(this_q)
+        # print(this_q)
         self.assertEqual(a1.blinkassignmentquestion_set.get(rank=this_q_rank+1),this_q)
 
         ##
-        print('* test method to move push a question up in rank')
+        # print('* test method to move push a question up in rank')
         this_q=a1.blinkassignmentquestion_set.get(rank=ranks[-1])
         this_q_rank = this_q.rank
         this_q.move_up_rank()

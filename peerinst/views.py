@@ -224,7 +224,8 @@ def sign_up(request):
                     html_message=loader.render_to_string(html_email_template_name, context=email_context, request=request),
                 )
             except:
-                return HttpResponseServerError()
+                response = TemplateResponse(request, '500.html')
+                return HttpResponseServerError(response.render())
 
             return TemplateResponse(request,'registration/sign_up_done.html')
         else:
@@ -1029,15 +1030,16 @@ class AnswerSummaryChartView(View):
         answer_rows = [[row[column['name']] for column in columns] for row in answers]
         # Transform the rationales we got from the other function into a format we can easily
         # draw in the page using a template
-        print(answers)
+        # import pprint
+        # pprint.pprint(answers)
         answer_rationales = [
             {
                 'label': each['label'],
                 'rationales': [
                     {
-                        "text": rationale.rationale.rationale,
-                        "count": rationale.count,
-                        } for rationale in each['rationales'] if rationale.rationale is not None
+                        "text": rationale['rationale'].rationale,
+                        "count": rationale['count'],
+                    } for rationale in each['rationales'] if rationale['rationale'] is not None
                 ]
             } for each in answers
         ]
