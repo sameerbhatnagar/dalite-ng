@@ -1142,15 +1142,14 @@ def reset_question(request, assignment_id, question_id):
 
 
 # Views related to Teacher
-
 class TeacherBase(LoginRequiredMixin,View):
     """Base view for Teacher for custom authentication"""
 
     def dispatch(self, *args, **kwargs):
-        if self.request.user == Teacher.objects.get(pk=kwargs['pk']).user:
+        if self.request.user == get_object_or_404(models.Teacher, pk=kwargs['pk']).user:
             return super(TeacherBase, self).dispatch(*args, **kwargs)
         else:
-            return HttpResponse('Access denied!')
+            raise PermissionDenied
 
 
 class TeacherDetailView(TeacherBase,DetailView):

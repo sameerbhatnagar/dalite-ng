@@ -1,4 +1,3 @@
-
 from django.contrib.auth.hashers import make_password
 from django.test import LiveServerTestCase
 from selenium import webdriver
@@ -104,9 +103,21 @@ class NewVisitorTest(LiveServerTestCase):
 
             assert "500" in self.browser.page_source
 
-    def test_validated_user(self):
+    def __test_validated_user(self):
         # Validated user can login
         self.browser.get(self.live_server_url+'/login')
+
+
+        # Validated user can browse certain pages
+
+        # Validated user cannot access account
+
+        # Validated user can logout
+
+    def test_teacher(self):
+        self.browser.get(self.live_server_url+'/login')
+
+        # Teacher can login and access account
         inputbox = self.browser.find_element_by_id('id_username')
         inputbox.send_keys(self.user)
 
@@ -115,22 +126,10 @@ class NewVisitorTest(LiveServerTestCase):
 
         inputbox.submit()
 
-        time.sleep(1)
-
         assert "My Account" in self.browser.page_source
 
-        # Validated user can browse certain pages
+        # Teacher cannot access other teacher accounts
 
-        # Validated user cannot access account
-
-        # Validated user can logout
-
-    def __test_teacher(self):
-        self.browser.get(self.live_server_url)
-
-        # Teacher can login
-
-        # Teacher can access account
 
         # Teacher can create a blink assignment
 
