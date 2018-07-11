@@ -4,15 +4,25 @@ from selenium.webdriver.common.keys import Keys
 import time
 import unittest
 
+from peerinst.models import User, Teacher
+
 class NewVisitorTest(LiveServerTestCase):
 
     def setUp(self):
         self.browser = webdriver.Chrome()
+        self.browser.implicitly_wait(10)
 
-    def tearDown(self):
-        self.browser.quit()
+        self.user = 'test_teacher'
+        self.password = 'ssdfl_adfga89'
+        user = User.objects.create(username=self.user, password=self.password, is_active=True)
+        Teacher.objects.create(user=user)
 
-    def test_new_user(self):
+        self.assertEqual(User.objects.count(), 1)
+
+    #def tearDown(self):
+        #self.browser.quit()
+
+    def __test_new_user(self):
         # Hit landing page
         self.browser.get(self.live_server_url+'/#Features')
         self.assertIn('Features', self.browser.find_element_by_tag_name('h1').text)
@@ -43,8 +53,6 @@ class NewVisitorTest(LiveServerTestCase):
 
         inputbox.submit()
 
-        time.sleep(1)
-
         # New user redirected post sign up
         self.assertIn('Processing Request', self.browser.find_element_by_tag_name('h1').text)
 
@@ -56,13 +64,14 @@ class NewVisitorTest(LiveServerTestCase):
         inputbox = self.browser.find_element_by_id('id_password')
         inputbox.send_keys('jka+sldfa+soih')
 
-        inputbox.send_keys(Keys.ENTER)
-
-        time.sleep(1)
+        inputbox.submit()
 
         assert "your account has not yet been activated" in self.browser.page_source
 
-    def test_new_user_with_email_server_error(self):
+        # Small pause to see last page
+        time.sleep(1)
+
+    def __test_new_user_with_email_server_error(self):
 
         with self.settings(EMAIL_BACKEND=''):
             self.browser.get(self.live_server_url+'/signup')
@@ -88,14 +97,24 @@ class NewVisitorTest(LiveServerTestCase):
 
             inputbox.submit()
 
-            time.sleep(1)
-
             assert "500" in self.browser.page_source
 
-    def __test_validated_user(self):
-        self.browser.get(self.live_server_url)
+            time.sleep(1)
 
+    def test_validated_user(self):
         # Validated user can login
+        self.browser.get(self.live_server_url+'/login')
+        inputbox = self.browser.find_element_by_id('id_username')
+        inputbox.send_keys(self.user)
+
+        inputbox = self.browser.find_element_by_id('id_password')
+        inputbox.send_keys(self.password)
+
+        inputbox.submit()
+
+        assert "My Account" in self.browser.page_source
+
+        time.sleep(1)
 
         # Validated user can browse certain pages
 
