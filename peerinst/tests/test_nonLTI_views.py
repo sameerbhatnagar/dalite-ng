@@ -3,6 +3,9 @@ from django.core.urlresolvers import reverse
 from django.http import HttpRequest
 from django.test import TestCase
 
+class LandingPageTest(TestCase):
+    pass
+
 class SignUpTest(TestCase):
 
     def test_which_template(self):

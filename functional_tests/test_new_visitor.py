@@ -13,6 +13,11 @@ class NewVisitorTest(LiveServerTestCase):
         self.browser.quit()
 
     def test_new_user(self):
+        # Hit landing page
+        self.browser.get(self.live_server_url)
+        #self.assertIn(' ')
+
+
         self.browser.get(self.live_server_url+'/signup')
 
         # Sign up page rendered
@@ -59,7 +64,7 @@ class NewVisitorTest(LiveServerTestCase):
 
         assert "your account has not yet been activated" in self.browser.page_source
 
-    def test_new_user_with_email_error(self):
+    def test_new_user_with_email_server_error(self):
 
         with self.settings(EMAIL_BACKEND=''):
             self.browser.get(self.live_server_url+'/signup')

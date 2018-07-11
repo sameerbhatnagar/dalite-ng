@@ -70,8 +70,7 @@ class ApplicationHookManager(AbstractApplicationHookManager):
         # which is than fed into secure password hash
         generator = hashlib.md5()
         generator.update(base)
-        if nonce:
-            generator.update(nonce)
+        generator.update(nonce)
         return generator.digest()
 
     def authenticated_redirect_to(self, request, lti_data):
