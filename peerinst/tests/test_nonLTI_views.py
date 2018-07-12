@@ -3,7 +3,7 @@ from django.core.urlresolvers import reverse
 from django.http import HttpRequest
 from django.test import TestCase, TransactionTestCase
 
-from ..models import Discipline, Question, User, Teacher, Student
+from ..models import Discipline, Question, Assignment, User, Teacher, Student
 
 class LandingPageTest(TransactionTestCase):
 
@@ -61,7 +61,7 @@ class SignUpTest(TestCase):
 
 
 class TeacherTest(TestCase):
-    fixtures = ['test_users.yaml']
+    fixtures = ['test_users.yaml', 'peerinst_test_data.yaml']
 
     def setUp(self):
         self.user = User.objects.get(pk=1)
@@ -96,6 +96,22 @@ class TeacherTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'registration/login.html')
 
+    def test_question_list_view(self):
+        logged_in = self.client.login(username=self.user.username, password=self.user.text_pwd)
+        self.assertTrue(logged_in)
+
+        # List matches assignment object
+        response = self.client.get(reverse('question-list', kwargs={ 'assignment_id' : 'Assignment1' }))
+        self.assertEqual(response.status_code, 200)
+        self.assertItemsEqual(response.context['object_list'], Assignment.objects.get(pk='Assignment1').questions.all())
+
+        # Assignment pk invalid -> 404
+        response = self.client.get(reverse('question-list', kwargs={ 'assignment_id' : 'unknown_id' }))
+        self.assertEqual(response.status_code, 404)
+
+    def test_assignment_update(self):
+        pass
+        
 
 class StudentTest(TestCase):
     fixtures = ['test_users.yaml']
@@ -113,3 +129,6 @@ class StudentTest(TestCase):
         self.assertTemplateUsed(response, '403.html')
         response = self.client.post(reverse('assignment-list'))
         self.assertRedirects(response, reverse('login')+'?next=/assignment-list/')
+
+    def test_login_and_answer_question(self):
+        pass

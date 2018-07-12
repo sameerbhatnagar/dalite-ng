@@ -82,7 +82,6 @@ urlpatterns = [
     url(r'^reset/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$', password_views.password_reset_confirm, name='password_reset_confirm'),
     url(r'^reset/done/$', auth_views.password_reset_complete, name='password_reset_complete'),
     url(r'^terms_of_service/teachers/$', views.terms_teacher, name='terms_teacher'),
-    url(r'^access_denied/$', views.access_denied, name='access_denied'),
     url(r'^access_denied_and_logout/$', views.access_denied_and_logout, name='access_denied_and_logout'),
 
     # Blink

@@ -255,10 +255,6 @@ def welcome(request):
         return HttpResponseRedirect(reverse('assignment-list'))
 
 
-def access_denied(request):
-    raise PermissionDenied
-
-
 def access_denied_and_logout(request):
     logout(request)
     raise PermissionDenied
@@ -1104,7 +1100,6 @@ def question(request, assignment_id, question_id):
     )
 
     # Determine stage and view class
-
     if request.GET.get('show_results_view') == 'true':
         stage_class = AnswerSummaryChartView
     elif view_data['answer'] is not None:
@@ -1146,7 +1141,7 @@ def reset_question(request, assignment_id, question_id):
 
 
 # Views related to Teacher
-class TeacherBase(LoginRequiredMixin,View):
+class TeacherBase(NoStudentsMixin,LoginRequiredMixin,View):
     """Base view for Teacher for custom authentication"""
 
     def dispatch(self, *args, **kwargs):
@@ -1157,7 +1152,7 @@ class TeacherBase(LoginRequiredMixin,View):
 
 
 class TeacherDetailView(TeacherBase,DetailView):
-
+    """Teacher account"""
     model = Teacher
 
     def get_context_data(self, **kwargs):
@@ -1187,7 +1182,7 @@ class TeacherDetailView(TeacherBase,DetailView):
 
 
 class TeacherUpdate(TeacherBase,UpdateView):
-
+    """View for user to update teacher properties"""
     model = Teacher
     fields = ['institutions','disciplines']
 

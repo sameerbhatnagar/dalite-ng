@@ -41,7 +41,7 @@ class NoStudentsMixin(object):
     @classmethod
     def as_view(cls, **initkwargs):
         view = super(NoStudentsMixin, cls).as_view(**initkwargs)
-        return user_passes_test(student_check, login_url='/access_denied/')(view)
+        return user_passes_test(student_check, login_url='/access_denied_and_logout/')(view)
 
 
 class LoginRequiredMixin(object):
