@@ -303,7 +303,6 @@ class Assignment(models.Model):
     )
     title = models.CharField(_('Title'), max_length=200)
     questions = models.ManyToManyField(Question, verbose_name=_('Questions'))
-
     owner = models.ManyToManyField(User,blank=True)
 
     def __unicode__(self):

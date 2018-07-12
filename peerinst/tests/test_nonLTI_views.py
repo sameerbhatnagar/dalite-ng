@@ -110,8 +110,11 @@ class TeacherTest(TestCase):
         self.assertEqual(response.status_code, 404)
 
     def test_assignment_update(self):
-        pass
-        
+        logged_in = self.client.login(username=self.user.username, password=self.user.text_pwd)
+        self.assertTrue(logged_in)
+
+        self.fail()
+
 
 class StudentTest(TestCase):
     fixtures = ['test_users.yaml']
