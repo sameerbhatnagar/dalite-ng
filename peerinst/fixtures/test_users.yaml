@@ -1,0 +1,18 @@
+- fields: {username: 'validated_teacher', password: 'ssdfl_adfga89', is_active: True}
+  model: auth.user
+  pk: 1
+- fields: {username: 'other_teacher', password: 'sssdfDSASDdfga89', is_active: True}
+  model: auth.user
+  pk: 2
+- fields: {username: 'student', password: 'asdfvfare4w3', is_active: True}
+  model: auth.user
+  pk: 10
+- fields: {user: 1}
+  model: peerinst.teacher
+  pk: 1
+- fields: {user: 2}
+  model: peerinst.teacher
+  pk: 2
+- fields: {student: 10}
+  model: peerinst.student
+  pk: 1

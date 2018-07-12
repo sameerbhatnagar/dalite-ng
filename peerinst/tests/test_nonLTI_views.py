@@ -3,7 +3,7 @@ from django.core.urlresolvers import reverse
 from django.http import HttpRequest
 from django.test import TestCase, TransactionTestCase
 
-from ..models import Discipline, Question, User, Teacher
+from ..models import Discipline, Question, User, Teacher, Student
 
 class LandingPageTest(TransactionTestCase):
 
@@ -61,24 +61,17 @@ class SignUpTest(TestCase):
 
 
 class TeacherTest(TestCase):
+    fixtures = ['test_users.yaml']
 
     def setUp(self):
-        self.user = 'validated_teacher'
-        self.password = 'ssdfl_adfga89'
-        user = User.objects.create(username=self.user, password=make_password(self.password), is_active=True)
-        teacher = Teacher.objects.create(user=user)
-
-        self.other = 'other_teacher'
-        self.other_password = 'sssdfDSASDdfga89'
-        user = User.objects.create(username=self.other, password=make_password(self.other_password), is_active=True)
-        teacher = Teacher.objects.create(user=user)
-
-        self.assertEqual(User.objects.count(), 2)
-        self.assertEqual(Teacher.objects.count(), 2)
+        self.user = User.objects.get(pk=1)
+        self.user.text_pwd = self.user.password
+        self.user.password = make_password(self.user.text_pwd)
+        self.user.save()
 
     def test_login_and_access_to_accounts(self):
         # Login
-        response = self.client.post(reverse('login'), {'username' : self.user, 'password' : self.password}, follow=True)
+        response = self.client.post(reverse('login'), {'username' : self.user.username, 'password' : self.user.text_pwd}, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['object'].pk, 1)
         self.assertTemplateUsed(response, 'peerinst/teacher_detail.html')
@@ -102,3 +95,21 @@ class TeacherTest(TestCase):
         response = self.client.get(reverse('teacher', kwargs={ 'pk' : 1 }), follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'registration/login.html')
+
+
+class StudentTest(TestCase):
+    fixtures = ['test_users.yaml']
+
+    def setUp(self):
+        self.user = User.objects.get(pk=10)
+        self.user.text_pwd = self.user.password
+        self.user.password = make_password(self.user.text_pwd)
+        self.user.save()
+
+    def test_login_to_web_app(self):
+        # Login -> 403 & forced logout
+        response = self.client.post(reverse('login'), {'username' : self.user.username, 'password' : self.user.text_pwd}, follow=True)
+        self.assertEqual(response.status_code, 403)
+        self.assertTemplateUsed(response, '403.html')
+        response = self.client.post(reverse('assignment-list'))
+        self.assertRedirects(response, reverse('login')+'?next=/assignment-list/')

@@ -83,6 +83,7 @@ urlpatterns = [
     url(r'^reset/done/$', auth_views.password_reset_complete, name='password_reset_complete'),
     url(r'^terms_of_service/teachers/$', views.terms_teacher, name='terms_teacher'),
     url(r'^access_denied/$', views.access_denied, name='access_denied'),
+    url(r'^access_denied_and_logout/$', views.access_denied_and_logout, name='access_denied_and_logout'),
 
     # Blink
     url(r'^blink/(?P<pk>[0-9]+)/$', views.BlinkQuestionFormView.as_view(), name='blink-question'),

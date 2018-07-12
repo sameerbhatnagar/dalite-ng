@@ -14,6 +14,7 @@ import pprint
 
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import PermissionDenied
@@ -241,7 +242,6 @@ def terms_teacher(request):
 
 
 def logout_view(request):
-    from django.contrib.auth import logout
     logout(request)
     return HttpResponseRedirect(reverse('landing_page'))
 
@@ -256,7 +256,12 @@ def welcome(request):
 
 
 def access_denied(request):
-    return HttpResponse('Access denied')
+    raise PermissionDenied
+
+
+def access_denied_and_logout(request):
+    logout(request)
+    raise PermissionDenied
 
 
 class LoginRequiredMixin(object):
@@ -274,7 +279,6 @@ def student_check(user):
     except:
         try:
             if user.student:
-                # Block Students
                 return False
         except:
             # Allow through all non-Students, i.e. "guests"
@@ -285,7 +289,7 @@ class NoStudentsMixin(object):
     @classmethod
     def as_view(cls, **initkwargs):
         view = super(NoStudentsMixin, cls).as_view(**initkwargs)
-        return user_passes_test(student_check, login_url='/access_denied/')(view)
+        return user_passes_test(student_check, login_url='/access_denied_and_logout/')(view)
 
 
 class ObjectPermissionUpdateView(UpdateView):
