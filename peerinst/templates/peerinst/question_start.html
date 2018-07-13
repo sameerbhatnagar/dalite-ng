@@ -14,7 +14,7 @@
         <svg class="underline" width=150 height=4></svg>
       </h1>
 
-      {% if user.teacher and assignment %}
+      {% if not user.student and assignment %}
       <div class="admin-link">
         <a href="{% url 'question-list' assignment_id=assignment.pk %}">{% trans 'Back to assignment' %}</a>
         {% if question.user = user or user in question.collaborators.all %}
