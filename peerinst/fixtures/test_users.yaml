@@ -74,3 +74,9 @@
     owner: [2]
   model: peerinst.assignment
   pk: Assignment2
+- fields:
+    questions: [30]
+    title: Assignment title 3
+    owner: [2]
+  model: peerinst.assignment
+  pk: Assignment3

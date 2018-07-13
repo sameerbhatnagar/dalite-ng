@@ -289,6 +289,30 @@ class TeacherTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn(Question.objects.get(pk=31), assignment.questions.all())
 
+        # Step 3, auto-add to an assignment for different teacher -> Invalid form -> Teacher account page
+        self.assertNotIn(Question.objects.get(pk=32), assignment.questions.all())
+        response = self.client.post(reverse('sample-answer-form-done', kwargs={ 'question_id' : 32 }), {
+            'assignments' : 'Assignment3',
+            }, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'peerinst/teacher_detail.html')
+        self.assertNotIn(Question.objects.get(pk=32), assignment.questions.all())
+
+        # Step 3, not a teacher as post -> 400
+        self.client.logout()
+        logged_in = self.client.login(username=self.guest.username, password=self.guest.text_pwd)
+        self.assertTrue(logged_in)
+
+        response = self.client.post(reverse('sample-answer-form-done', kwargs={ 'question_id' : 32 }), {
+            'assignments' : 'Assignment3',
+            }, follow=True)
+        self.assertEqual(response.status_code, 400)
+        self.assertNotIn(Question.objects.get(pk=32), assignment.questions.all())
+
+        # Step 3, any get -> 400
+        response = self.client.get(reverse('sample-answer-form-done', kwargs={ 'question_id' : 32 }), follow=True)
+        self.assertEqual(response.status_code, 400)
+
     def test_assignment_update_dispatch(self):
         logged_in = self.client.login(username=self.validated_teacher.username, password=self.validated_teacher.text_pwd)
         self.assertTrue(logged_in)
