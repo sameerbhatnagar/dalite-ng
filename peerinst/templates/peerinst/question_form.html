@@ -19,6 +19,9 @@
   <div class="admin-link">
   {% trans 'Created by' %}<i class="material-icons md-18 inline mdc-theme--primary">keyboard_arrow_right</i><span>{{ object.user }}</span>
   </div>
+  {% endif %}
+
+  {% if object %}
   <h2 class="mdc-typography--display1 mdc-theme--primary">{% trans 'Edit question parameters' %}</h2>
   {% else %}
   <h2 class="mdc-typography--display1 mdc-theme--primary">{% trans 'Step 1: Question parameters' %}</h2>

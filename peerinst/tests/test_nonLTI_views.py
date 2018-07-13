@@ -3,7 +3,15 @@ from django.core.urlresolvers import reverse
 from django.http import HttpRequest
 from django.test import TestCase, TransactionTestCase
 
-from ..models import Discipline, Question, Assignment, User, Teacher, Student
+from ..models import Discipline, Question, Assignment, Teacher, Student
+from django.contrib.auth.models import User, Permission
+
+def ready_user(pk):
+    user = User.objects.get(pk=pk)
+    user.text_pwd = user.password
+    user.password = make_password(user.text_pwd)
+    user.save()
+    return user
 
 class LandingPageTest(TransactionTestCase):
 
@@ -61,17 +69,16 @@ class SignUpTest(TestCase):
 
 
 class TeacherTest(TestCase):
-    fixtures = ['test_users.yaml', 'peerinst_test_data.yaml']
+    fixtures = ['test_users.yaml']
 
     def setUp(self):
-        self.user = User.objects.get(pk=1)
-        self.user.text_pwd = self.user.password
-        self.user.password = make_password(self.user.text_pwd)
-        self.user.save()
+        self.validated_teacher = ready_user(1)
+        self.other_teacher = ready_user(2)
+        self.inactive_user = ready_user(3)
 
     def test_login_and_access_to_accounts(self):
         # Login
-        response = self.client.post(reverse('login'), {'username' : self.user.username, 'password' : self.user.text_pwd}, follow=True)
+        response = self.client.post(reverse('login'), {'username' : self.validated_teacher.username, 'password' : self.validated_teacher.text_pwd}, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['object'].pk, 1)
         self.assertTemplateUsed(response, 'peerinst/teacher_detail.html')
@@ -96,8 +103,16 @@ class TeacherTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'registration/login.html')
 
+    def test_refuse_inactive_at_login(self):
+        # @login_required decorator and mixin do NOT check if user.is_active
+        # but authentication backend should.
+        #
+        # Check inactive user cannot login
+        logged_in = self.client.login(username=self.inactive_user.username, password=self.inactive_user.text_pwd)
+        self.assertFalse(logged_in)
+
     def test_question_list_view(self):
-        logged_in = self.client.login(username=self.user.username, password=self.user.text_pwd)
+        logged_in = self.client.login(username=self.validated_teacher.username, password=self.validated_teacher.text_pwd)
         self.assertTrue(logged_in)
 
         # List matches assignment object
@@ -109,11 +124,166 @@ class TeacherTest(TestCase):
         response = self.client.get(reverse('question-list', kwargs={ 'assignment_id' : 'unknown_id' }))
         self.assertEqual(response.status_code, 404)
 
-    def test_assignment_update(self):
-        logged_in = self.client.login(username=self.user.username, password=self.user.text_pwd)
+    def test_question_create(self):
+        logged_in = self.client.login(username=self.validated_teacher.username, password=self.validated_teacher.text_pwd)
         self.assertTrue(logged_in)
 
+        # Step 1, without peerinst.add_question -> 403
+        response = self.client.get(reverse('question-create'))
+        self.assertEqual(response.status_code, 403)
+
+        response = self.client.post(reverse('question-create'), {
+            'text' : 'Text of new question',
+            'title' : 'New question',
+            'answer_style': 0,
+            'image': '',
+            'video_url': '',
+            'rationale_selection_algorithm' : 'prefer_expert_and_highly_voted',
+            'grading_scheme' : 0
+            }, follow=True)
+        self.assertEqual(response.status_code, 403)
+
+        # Step 1, with peerinst.add_question & peerinst.change_question -> 200
+        permission = Permission.objects.get(codename='add_question')
+        self.validated_teacher.user_permissions.add(permission)
+        permission = Permission.objects.get(codename='change_question')
+        self.validated_teacher.user_permissions.add(permission)
+
+        self.assertTrue(self.validated_teacher.has_perm('peerinst.add_question'))
+        self.assertTrue(self.validated_teacher.has_perm('peerinst.change_question'))
+
+        question_count = Question.objects.count()
+
+        response = self.client.get(reverse('question-create'))
+        self.assertContains(response, 'Step 1')
+
+        response = self.client.post(reverse('question-create'), {
+            'text' : 'Text of new question',
+            'title' : 'New question',
+            'answer_style': 0,
+            'image': '',
+            'video_url': '',
+            'rationale_selection_algorithm' : 'prefer_expert_and_highly_voted',
+            'grading_scheme' : 0
+            }, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'peerinst/answer_choice_form.html')
+        self.assertEqual(Question.objects.count(), question_count+1)
+
+    def test_question_update(self):
+        logged_in = self.client.login(username=self.validated_teacher.username, password=self.validated_teacher.text_pwd)
+        self.assertTrue(logged_in)
+
+        # Step 1 (as edit) without ownership --> 403
+        response = self.client.get(reverse('question-update', kwargs={ 'pk' : 28 }))
+        self.assertEqual(response.status_code, 403)
+
+        # Step 1 (as edit) with ownership and permission --> 200
+        permission = Permission.objects.get(codename='change_question')
+        self.validated_teacher.user_permissions.add(permission)
+        response = self.client.get(reverse('question-update', kwargs={ 'pk' : 32 }))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Edit')
+
+        response = self.client.post(reverse('question-update', kwargs={ 'pk' : 32 }), {
+            'text' : 'Text of new question',
+            'title' : 'New question',
+            'answer_style': 0,
+            'image': '',
+            'video_url': '',
+            'rationale_selection_algorithm' : 'prefer_expert_and_highly_voted',
+            'grading_scheme' : 0,
+            'collaborators' : 2
+            }, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(Question.objects.get(pk=32).collaborators.first(), 2)
+
+        # Step 1 (as edit) as collaborator with permission --> 200
+        response = self.client.get(reverse('question-update', kwargs={ 'pk' : 33 }))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Edit')
+
+        ####### This test isn't covering a line of code that it should
+        response = self.client.post(reverse('question-update', kwargs={ 'pk' : 33 }), {
+            'text' : 'Text of new question',
+            'title' : 'New question',
+            'answer_style': 0,
+            'image': '',
+            'video_url': '',
+            'rationale_selection_algorithm' : 'prefer_expert_and_highly_voted',
+            'grading_scheme' : 0,
+            'collaborators' : 2
+            }, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn(self.other_teacher, Question.objects.get(pk=33).collaborators.all())
         self.fail()
+
+    def test_answer_choice_create(self):
+        logged_in = self.client.login(username=self.validated_teacher.username, password=self.validated_teacher.text_pwd)
+        self.assertTrue(logged_in)
+
+        # db check
+        self.assertEqual(Question.objects.count(), 5)
+
+        # Step 2, without ownership -> 403
+        response = self.client.get(reverse('answer-choice-form', kwargs={ 'question_id' : 29 }))
+        self.assertEqual(response.status_code, 403)
+
+        # Step 2, with ownership but no permission -> 403
+        response = self.client.get(reverse('answer-choice-form', kwargs={ 'question_id' : 32 }))
+        self.assertEqual(response.status_code, 403)
+
+        # Step 2, with ownership and permission -> 200
+        permission = Permission.objects.get(codename='change_question')
+        self.validated_teacher.user_permissions.add(permission)
+        response = self.client.get(reverse('answer-choice-form', kwargs={ 'question_id' : 32 }))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['question'], Question.objects.get(pk=32))
+
+        # ... test post (to do but need to send formset in POST)
+        #response = self.client.post(reverse('answer-choice-form', kwargs={ 'question_id' : 32 }), {'question' : 32, 'text' : 'Choice 1'}, follow=True)
+        #self.assertEqual(response.status_code, 200)
+
+    def test_assignment_update_dispatch(self):
+        logged_in = self.client.login(username=self.validated_teacher.username, password=self.validated_teacher.text_pwd)
+        self.assertTrue(logged_in)
+
+        # Access as teacher, non-owner -> 403
+        response = self.client.get(reverse('assignment-update', kwargs={ 'assignment_id' : 'Assignment2' }))
+        self.assertEqual(response.status_code, 403)
+
+        # Access as teacher, owner -> 200
+        response = self.client.get(reverse('assignment-update', kwargs={ 'assignment_id' : 'Assignment1' }))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['teacher'], self.validated_teacher.teacher)
+        self.assertTemplateUsed(response, 'peerinst/assignment_detail.html')
+
+    def test_assignment_update_post(self):
+        logged_in = self.client.login(username=self.validated_teacher.username, password=self.validated_teacher.text_pwd)
+        self.assertTrue(logged_in)
+
+        # As teacher, post valid form to add question -> 200
+        response = self.client.post(reverse('assignment-update', kwargs={ 'assignment_id' : 'Assignment1' }), { 'q' : 31 }, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'peerinst/assignment_detail.html')
+        self.assertIn(Question.objects.get(pk=31), Assignment.objects.get(pk='Assignment1').questions.all())
+
+        # As teacher, post valid form to remove question -> 200
+        response = self.client.post(reverse('assignment-update', kwargs={ 'assignment_id' : 'Assignment1' }), { 'q' : 31 }, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'peerinst/assignment_detail.html')
+        self.assertNotIn(Question.objects.get(pk=31), Assignment.objects.get(pk='Assignment1').questions.all())
+
+        # As teacher, post invalid form to add question -> 400
+        response = self.client.post(reverse('assignment-update', kwargs={ 'assignment_id' : 'Assignment1' }), { 'q' : 3111231 }, follow=True)
+        self.assertEqual(response.status_code, 400)
+
+        # As non-logged in user, post valid form to add question -> Login
+        self.client.logout()
+        response = self.client.post(reverse('assignment-update', kwargs={ 'assignment_id' : 'Assignment1' }), { 'q' : 31 }, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'registration/login.html')
+        self.assertNotIn(Question.objects.get(pk=31), Assignment.objects.get(pk='Assignment1').questions.all())
 
 
 class StudentTest(TestCase):

@@ -21,7 +21,7 @@ from django.core.exceptions import PermissionDenied
 from django.core.mail import mail_admins, send_mail
 from django.db.models import Q
 from django.forms import inlineformset_factory, Textarea
-from django.http import HttpResponseServerError
+from django.http import HttpResponseBadRequest, HttpResponseServerError
 from django.shortcuts import get_object_or_404, render, render_to_response, redirect
 from django.template import loader
 from django.template.response import TemplateResponse
@@ -186,7 +186,6 @@ def dashboard(request):
                 html_message=loader.render_to_string(html_email_template_name, context=email_context, request=request),
             )
 
-
     return TemplateResponse(
         request,
         'peerinst/dashboard.html',
@@ -225,6 +224,7 @@ def sign_up(request):
                 )
             except:
                 response = TemplateResponse(request, '500.html')
+
                 return HttpResponseServerError(response.render())
 
             return TemplateResponse(request,'registration/sign_up_done.html')
@@ -288,35 +288,36 @@ class NoStudentsMixin(object):
         return user_passes_test(student_check, login_url='/access_denied_and_logout/')(view)
 
 
-class ObjectPermissionUpdateView(UpdateView):
-    """Update dispatch to check object-level permissions."""
-
+class ObjectPermissionMixin(object):
+    """Check object-level permissions."""
     def dispatch(self, *args, **kwargs):
-        if self.request.user.has_perm(self.object_permission_required, self.get_object()):
-            return super(ObjectPermissionUpdateView, self).dispatch(*args, **kwargs)
+        try:
+            obj = self.get_object()
+        except:
+            obj = None
+        if self.request.user.has_perm(self.object_permission_required, obj):
+            return super(ObjectPermissionMixin, self).dispatch(*args, **kwargs)
         else:
             raise PermissionDenied
-
 
 class AssignmentListView(NoStudentsMixin, LoginRequiredMixin, ListView):
     """List of assignments used for debugging purposes."""
     model = models.Assignment
 
 
-class AssignmentUpdateView(NoStudentsMixin, LoginRequiredMixin ,DetailView):
+class AssignmentUpdateView(NoStudentsMixin, LoginRequiredMixin, DetailView):
     """View for updating assignment."""
     model = Assignment
 
     def dispatch(self, *args, **kwargs):
-        if not (self.request.user in self.get_object().owner.all() or self.request.user.is_staff):
-            return HttpResponse("You do not have editing rights on this assignment")
-
-        return super(AssignmentUpdateView, self).dispatch(*args, **kwargs)
+        if self.request.user in self.get_object().owner.all() or self.request.user.is_staff:
+            return super(AssignmentUpdateView, self).dispatch(*args, **kwargs)
+        else:
+            raise PermissionDenied
 
     def get_context_data(self, **kwargs):
         context = super(AssignmentUpdateView, self).get_context_data(**kwargs)
-        context['teacher'] = Teacher.objects.get(user=self.request.user)
-
+        context['teacher'] = get_object_or_404(models.Teacher, user=self.request.user)
         return context
 
     def get_object(self):
@@ -324,23 +325,20 @@ class AssignmentUpdateView(NoStudentsMixin, LoginRequiredMixin ,DetailView):
 
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
-        if request.user.is_authenticated():
-            form = forms.AddRemoveQuestionForm(request.POST)
-            print(form)
-            if form.is_valid():
-                question = form.cleaned_data['q']
-                if not question in self.object.questions.all():
-                    self.object.questions.add(question)
-                else:
-                    self.object.questions.remove(question)
-                self.object.save()
-
-                return HttpResponseRedirect(reverse("assignment-update", kwargs={'assignment_id': self.object.pk}))
+        form = forms.AddRemoveQuestionForm(request.POST)
+        if form.is_valid():
+            question = form.cleaned_data['q']
+            if not question in self.object.questions.all():
+                self.object.questions.add(question)
             else:
-                return HttpResponse("error")
-        else:
-            return HttpResponse("error3")
+                self.object.questions.remove(question)
 
+            self.object.save()
+            return HttpResponseRedirect(reverse("assignment-update", kwargs={'assignment_id': self.object.pk}))
+        else:
+            # Bad request
+            response = TemplateResponse(request, '400.html')
+            return HttpResponseBadRequest(response.render())
 
 
 class QuestionListView(NoStudentsMixin, LoginRequiredMixin, ListView):
@@ -358,8 +356,9 @@ class QuestionListView(NoStudentsMixin, LoginRequiredMixin, ListView):
 
 
 # Views related to Question
-class QuestionCreateView(NoStudentsMixin, LoginRequiredMixin, CreateView):
+class QuestionCreateView(NoStudentsMixin, LoginRequiredMixin, ObjectPermissionMixin, CreateView):
     """View to create a new question outside of admin."""
+    object_permission_required = 'peerinst.add_question'
     model = models.Question
     fields = [
         'title',
@@ -386,7 +385,7 @@ class QuestionCreateView(NoStudentsMixin, LoginRequiredMixin, CreateView):
         return reverse('answer-choice-form', kwargs={ 'question_id' : self.object.pk })
 
 
-class QuestionUpdateView(NoStudentsMixin, LoginRequiredMixin, ObjectPermissionUpdateView):
+class QuestionUpdateView(NoStudentsMixin, LoginRequiredMixin, ObjectPermissionMixin, UpdateView):
     """View to edit a new question outside of admin."""
     object_permission_required = 'peerinst.change_question'
     model = models.Question
@@ -410,9 +409,11 @@ class QuestionUpdateView(NoStudentsMixin, LoginRequiredMixin, ObjectPermissionUp
 
     def form_valid(self, form):
         # Only owner can update collaborators
+        print(self.object.user)
+        print(self.request.user)
         if not self.object.user == self.request.user:
+            print('HHHHHHEEEEERRRE')
             form.cleaned_data['collaborators'] = self.object.collaborators.all()
-
         return super(QuestionUpdateView, self).form_valid(form)
 
     def get_success_url(self):
@@ -420,6 +421,7 @@ class QuestionUpdateView(NoStudentsMixin, LoginRequiredMixin, ObjectPermissionUp
 
 
 @login_required
+@user_passes_test(student_check, login_url='/access_denied_and_logout/')
 def answer_choice_form(request, question_id):
     AnswerChoiceFormSet = inlineformset_factory(
         Question,
@@ -430,12 +432,10 @@ def answer_choice_form(request, question_id):
         max_num=5,
         extra=5
     )
-
     question = get_object_or_404(models.Question, pk=question_id)
 
     # Check permissions
     if request.user.has_perm('peerinst.change_question', question):
-
         if request.method == 'POST':
             # Populate form; resend if invalid
             formset = AnswerChoiceFormSet(request.POST,instance=question)
@@ -451,7 +451,6 @@ def answer_choice_form(request, question_id):
             'peerinst/answer_choice_form.html',
             context={ 'question' : question, 'formset' : formset },
         )
-
     else:
         raise PermissionDenied
 
@@ -1650,7 +1649,7 @@ def question_search(request):
                     }
                 )
     else:
-        return HttpResponseRedirect(reverse('access_denied'))
+        return HttpResponseRedirect(reverse('access_denied_and_logout'))
 
 
 def blink_get_current_url(request,username):

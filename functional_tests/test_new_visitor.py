@@ -7,19 +7,22 @@ import unittest
 
 from peerinst.models import User, Teacher
 
+def ready_user(pk):
+    user = User.objects.get(pk=pk)
+    user.text_pwd = user.password
+    user.password = make_password(user.text_pwd)
+    user.save()
+    return user
+
 class NewVisitorTest(LiveServerTestCase):
+    fixtures = ['test_users.yaml']
 
     def setUp(self):
         self.browser = webdriver.Chrome()
         self.browser.implicitly_wait(10)
 
-        self.user = 'validated_teacher'
-        self.password = 'ssdfl_adfga89'
-        user = User.objects.create(username=self.user, password=make_password(self.password), is_active=True)
-        teacher = Teacher.objects.create(user=user)
-
-        self.assertEqual(User.objects.count(), 1)
-        self.assertEqual(Teacher.objects.count(), 1)
+        self.validated_teacher = ready_user(1)
+        self.inactive_user = ready_user(3)
 
     def tearDown(self):
         self.browser.quit()
@@ -68,10 +71,11 @@ class NewVisitorTest(LiveServerTestCase):
 
         inputbox.submit()
 
-        assert "your account has not yet been activated" in self.browser.page_source
-
         # Small pause to see last page
         time.sleep(1)
+
+        assert "your account has not yet been activated" in self.browser.page_source
+
 
     def test_new_user_with_email_server_error(self):
 
@@ -103,10 +107,27 @@ class NewVisitorTest(LiveServerTestCase):
 
             assert "500" in self.browser.page_source
 
+
+    def test_inactive_user_login(self):
+        self.browser.get(self.live_server_url+'/login')
+
+        # Inactive user cannot login
+        inputbox = self.browser.find_element_by_id('id_username')
+        inputbox.send_keys(self.inactive_user.username)
+
+        inputbox = self.browser.find_element_by_id('id_password')
+        inputbox.send_keys(self.inactive_user.text_pwd)
+
+        inputbox.submit()
+
+        time.sleep(1)
+
+        assert "your account has not yet been activated" in self.browser.page_source
+
+
     def __test_validated_user(self):
         # Validated user can login
         self.browser.get(self.live_server_url+'/login')
-
 
         # Validated user can browse certain pages
 
@@ -119,10 +140,10 @@ class NewVisitorTest(LiveServerTestCase):
 
         # Teacher can login and access account
         inputbox = self.browser.find_element_by_id('id_username')
-        inputbox.send_keys(self.user)
+        inputbox.send_keys(self.validated_teacher.username)
 
         inputbox = self.browser.find_element_by_id('id_password')
-        inputbox.send_keys(self.password)
+        inputbox.send_keys(self.validated_teacher.text_pwd)
 
         inputbox.submit()
 
