@@ -10,6 +10,9 @@
 - fields: {username: 'student', password: 'asdfvfare4w3', is_active: True}
   model: auth.user
   pk: 10
+- fields: {username: 'guest', password: 'asdfdfsasvfare4w3', is_active: True}
+  model: auth.user
+  pk: 11
 - fields: {user: 1}
   model: peerinst.teacher
   pk: 1

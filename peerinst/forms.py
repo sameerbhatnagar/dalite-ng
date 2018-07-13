@@ -87,6 +87,24 @@ class AssignmentCreateForm(forms.ModelForm):
         fields = ['identifier','title']
 
 
+class AssignmentMultiselectForm(forms.Form):
+
+    def __init__(self, user=None, *args, **kwargs):
+        super(AssignmentMultiselectForm, self).__init__(*args, **kwargs)
+        if user:
+            self.fields['assignments'] = forms.ModelMultipleChoiceField(
+            queryset=user.assignment_set.all(),
+            label=_('Assignments'),
+            help_text=_('Optional. Select assignments to add this question.  You can select multiple assignments.')
+            )
+        else:
+            self.fields['assignments'] = forms.ModelMultipleChoiceField(
+            queryset=Assignment.objects.all(),
+            label=_('Assignments'),
+            help_text=_('Optional. Select assignments to add this question.  You can select multiple assignments.')
+            )
+
+
 class TeacherAssignmentsForm(forms.Form):
     """Simple form to help update teacher assignments"""
     assignment = forms.ModelChoiceField(queryset=Assignment.objects.all())

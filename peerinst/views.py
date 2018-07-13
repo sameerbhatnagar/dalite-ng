@@ -459,6 +459,35 @@ def answer_choice_form(request, question_id):
         raise PermissionDenied
 
 
+@login_required
+@user_passes_test(student_check, login_url='/access_denied_and_logout/')
+def sample_answer_form_done(request, question_id):
+    question = get_object_or_404(models.Question, pk=question_id)
+
+    if request.method == "POST":
+        try:
+            teacher = Teacher.objects.get(user=request.user)
+            form = forms.AssignmentMultiselectForm(request.user, request.POST)
+            if form.is_valid():
+                assignments = form.cleaned_data['assignments'].all()
+                for a in assignments:
+                    if teacher.user in a.owner.all():
+                        if question not in a.questions.all():
+                            a.questions.add(question)
+                    else:
+                        raise PermissionDenied
+
+            return HttpResponseRedirect(reverse('teacher', kwargs={ 'pk' : teacher.pk }))
+        except:
+            # Bad request
+            response = TemplateResponse(request, '400.html')
+            return HttpResponseBadRequest(response.render())
+    else:
+        # Bad request
+        response = TemplateResponse(request, '400.html')
+        return HttpResponseBadRequest(response.render())
+
+
 class DisciplineCreateView(NoStudentsMixin, LoginRequiredMixin, CreateView):
     """View to create a new discipline outside of admin."""
     model = models.Discipline
@@ -1129,7 +1158,7 @@ def question(request, assignment_id, question_id):
 @user_passes_test(student_check, login_url='/access_denied_and_logout/')
 def reset_question(request, assignment_id, question_id):
     """ Clear all answers from user (for testing) """
-    
+
     assignment = get_object_or_404(models.Assignment, pk=assignment_id)
     question = get_object_or_404(models.Question, pk=question_id)
     user_token = request.user.username

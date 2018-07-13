@@ -173,3 +173,5 @@ class NewVisitorTest(LiveServerTestCase):
         # Teacher cannot edit other questions
 
         # Teacher cannot delete any questions
+
+        # Need a test to assert reset question never appears in LTI

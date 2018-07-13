@@ -14,7 +14,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import FormView
-from .forms import FirstAnswerForm
+from .forms import FirstAnswerForm, AssignmentMultiselectForm
 from . import models
 from .admin import AnswerAdmin
 from .util import make_percent_function, student_list_from_student_groups
@@ -30,7 +30,6 @@ def student_check(user):
     except:
         try:
             if user.student:
-                # Block Students
                 return False
         except:
             # Allow through all non-Students, i.e. "guests"
@@ -412,7 +411,11 @@ class QuestionPreviewViewBase(NoStudentsMixin, LoginRequiredMixin, FormView):
 
     def get_context_data(self, **kwargs):
         context = super(QuestionPreviewViewBase, self).get_context_data(**kwargs)
-        context.update(question=self.question, answer_choices=self.answer_choices)
+        context.update(
+            question=self.question,
+            answer_choices=self.answer_choices,
+            assignment_form=AssignmentMultiselectForm(self.request.user)
+        )
         return context
 
     def form_valid(self, form):

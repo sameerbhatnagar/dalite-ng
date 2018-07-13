@@ -35,6 +35,7 @@ urlpatterns = [
     url(r'^discipline/form/(?P<pk>[0-9]+)$', views.discipline_select_form, name='discipline-form'),
     url(r'^answer-choice/form/(?P<question_id>[0-9]+)$', views.answer_choice_form, name='answer-choice-form'),
     url(r'^sample-answer/form/(?P<question_id>[0-9]+)$', admin_views.QuestionPreviewViewBase.as_view(), name='sample-answer-form'),
+    url(r'^sample-answer/form/(?P<question_id>[0-9]+)/done$', views.sample_answer_form_done, name='sample-answer-form-done'),
     url(r'^question-search/$', views.question_search, name='question-search'),
     url(r'^heartbeat/$', views.HeartBeatUrl.as_view(), name='heartbeat'),
 

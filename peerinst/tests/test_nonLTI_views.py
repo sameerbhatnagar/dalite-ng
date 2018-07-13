@@ -75,6 +75,7 @@ class TeacherTest(TestCase):
         self.validated_teacher = ready_user(1)
         self.other_teacher = ready_user(2)
         self.inactive_user = ready_user(3)
+        self.guest = ready_user(11)
 
     def test_login_and_access_to_accounts(self):
         # Login
@@ -254,6 +255,39 @@ class TeacherTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Answer choices cannot be changed if any students have answered this question')
         self.assertNotContains(response, '<form id="answer-choice-form" method="post">')
+
+    def test_sample_answers(self):
+        # Step 3, any non-student can post
+        logged_in = self.client.login(username=self.guest.username, password=self.guest.text_pwd)
+        self.assertTrue(logged_in)
+
+        response = self.client.get(reverse('sample-answer-form', kwargs={ 'question_id' : 29 }))
+        self.assertNotContains(response, 'id="add_question_to_assignment"')
+
+        answer_count = Question.objects.get(pk=29).answer_set.filter(user_token__exact='').count()
+        response = self.client.post(reverse('sample-answer-form', kwargs={ 'question_id' : 29 }), {
+            'first_answer_choice' : 1,
+            'rationale' : 'Test sample rationale',
+            }, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(answer_count+1, Question.objects.get(pk=29).answer_set.filter(user_token__exact='').count())
+
+        # Step 3, auto-add to an assignment for teacher
+        # NB: Question doesn't have to belong to teacher
+        self.client.logout()
+        logged_in = self.client.login(username=self.validated_teacher.username, password=self.validated_teacher.text_pwd)
+        self.assertTrue(logged_in)
+
+        response = self.client.get(reverse('sample-answer-form', kwargs={ 'question_id' : 31 }))
+        self.assertContains(response, 'id="add_question_to_assignment"')
+
+        assignment = Assignment.objects.get(pk='Assignment1')
+        self.assertNotIn(Question.objects.get(pk=31), assignment.questions.all())
+        response = self.client.post(reverse('sample-answer-form-done', kwargs={ 'question_id' : 31 }), {
+            'assignments' : 'Assignment1',
+            }, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(Question.objects.get(pk=31), assignment.questions.all())
 
     def test_assignment_update_dispatch(self):
         logged_in = self.client.login(username=self.validated_teacher.username, password=self.validated_teacher.text_pwd)
