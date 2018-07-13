@@ -409,10 +409,7 @@ class QuestionUpdateView(NoStudentsMixin, LoginRequiredMixin, ObjectPermissionMi
 
     def form_valid(self, form):
         # Only owner can update collaborators
-        print(self.object.user)
-        print(self.request.user)
         if not self.object.user == self.request.user:
-            print('HHHHHHEEEEERRRE')
             form.cleaned_data['collaborators'] = self.object.collaborators.all()
         return super(QuestionUpdateView, self).form_valid(form)
 

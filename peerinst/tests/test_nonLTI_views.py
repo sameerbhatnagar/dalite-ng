@@ -203,10 +203,9 @@ class TeacherTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Edit')
 
-        ####### This test isn't covering a line of code that it should
         response = self.client.post(reverse('question-update', kwargs={ 'pk' : 33 }), {
             'text' : 'Text of new question',
-            'title' : 'New question',
+            'title' : 'New title for question 5',
             'answer_style': 0,
             'image': '',
             'video_url': '',
@@ -216,7 +215,7 @@ class TeacherTest(TestCase):
             }, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertNotIn(self.other_teacher, Question.objects.get(pk=33).collaborators.all())
-        self.fail()
+        self.assertEqual(Question.objects.get(pk=33).title, 'New title for question 5')
 
     def test_answer_choice_create(self):
         logged_in = self.client.login(username=self.validated_teacher.username, password=self.validated_teacher.text_pwd)
