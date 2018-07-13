@@ -1129,7 +1129,7 @@ def question(request, assignment_id, question_id):
 @user_passes_test(student_check, login_url='/access_denied_and_logout/')
 def reset_question(request, assignment_id, question_id):
     """ Clear all answers from user (for testing) """
-
+    
     assignment = get_object_or_404(models.Assignment, pk=assignment_id)
     question = get_object_or_404(models.Question, pk=question_id)
     user_token = request.user.username

@@ -34,7 +34,9 @@
 <h3>{% trans 'Existing sample answers' %}</h3>
 <ul class="mdc-list">
   {% for sample in question.answer_set.all|dictsort:'first_answer_choice' %}
+    {% if not sample.user_token %}
       <li><span class='mdc-theme--primary bold'>{{ sample.first_answer_choice_label }}</span>: {{ sample.rationale|safe|striptags }}.</li>
+    {% endif %}
   {% endfor %}
 </ul>
 <hr class="simple-hr">
