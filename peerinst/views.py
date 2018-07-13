@@ -471,10 +471,10 @@ class DisciplineCreateView(NoStudentsMixin, LoginRequiredMixin, CreateView):
 
 
 @login_required
+@user_passes_test(student_check, login_url='/access_denied_and_logout/')
 def discipline_select_form(request, pk):
     """An AJAX view that simply renders the DisciplineSelectForm."""
     """Preselects instance with pk."""
-
     return TemplateResponse(
         request,
         'peerinst/discipline_select_form.html',
@@ -1125,6 +1125,8 @@ def question(request, assignment_id, question_id):
     return result
 
 
+@login_required
+@user_passes_test(student_check, login_url='/access_denied_and_logout/')
 def reset_question(request, assignment_id, question_id):
     """ Clear all answers from user (for testing) """
 

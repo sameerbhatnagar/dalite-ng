@@ -240,7 +240,7 @@ class TeacherTest(TestCase):
         self.assertEqual(response.context['question'], Question.objects.get(pk=32))
         self.assertContains(response, '<form id="answer-choice-form" method="post">')
 
-        # ... test post (to do but need to send formset in POST)
+        # ... test post (to do but need to send formset in POST) -> 302 to step 3
         #response = self.client.post(reverse('answer-choice-form', kwargs={ 'question_id' : 32 }), {'question' : 32, 'text' : 'Choice 1'}, follow=True)
         #self.assertEqual(response.status_code, 200)
 
