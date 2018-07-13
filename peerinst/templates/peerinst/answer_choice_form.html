@@ -13,6 +13,7 @@
 {% endblock %}
 
 {% block answers %}
+  {% if formset %}
   <h3>{% trans 'Enter 2-5 answer choices' %}</h3>
 
   <form id="answer-choice-form" method="post">
@@ -73,6 +74,24 @@
       </div>
     {% endfor %}
     </form>
+    {% else %}
+    <br>
+    <div class='field-container'>
+      <div class='number-box'><span class='number'>?</span></div>
+      <div class='field'>
+        <p><small>
+          {% blocktrans %}
+          Answer choices cannot be changed if any students have answered this question.  However, you can clone this question and create new answer choices.
+          {% endblocktrans %}
+        </small></p>
+      </div>
+    </div>
+    <ul id="answer-choices">
+      {% for label, choice in question.get_choices %}
+      <li class="dense-list">{{ label }}. {{ choice|safe }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
 
     <div style="margin-top:20px;">
       <span class="padded">
@@ -80,9 +99,10 @@
           <button form="back" type="submit" class="mdc-button mdc-button--raised">Back</button>
         </form>
       </span>
+      {% if formset %}
       {% if question.answerchoice_set.count > 0 %}
       <span class="padded">
-        <input form="answer-choice-form" class="mdc-button mdc-button--raised" type="submit" value="Update" />
+        <input form="answer-choice-form" class="mdc-button mdc-button--raised" type="submit" value="Save and next" />
       </span>
       <span class="padded">
         <form style="display:inline" id="next" action="{% url 'sample-answer-form' question_id=question.id %}" method="get">
@@ -91,7 +111,14 @@
       </span>
       {% else %}
       <span class="padded">
-        <input form="answer-choice-form" class="mdc-button mdc-button--raised" type="submit" value="Add" />
+        <input form="answer-choice-form" class="mdc-button mdc-button--raised" type="submit" value="Save and next" />
+      </span>
+      {% endif %}
+      {% else %}
+      <span class="padded">
+        <form style="display:inline" id="next" action="{% url 'sample-answer-form' question_id=question.id %}" method="get">
+          <button form="next" type="submit" class="mdc-button mdc-button--raised">Next</button>
+        </form>
       </span>
       {% endif %}
     </div>

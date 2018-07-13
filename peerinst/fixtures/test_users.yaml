@@ -54,6 +54,11 @@
     upvotes: 10, downvotes: 1,
     show_to_others: true, user_token: rhtof}
   model: peerinst.answer
+- fields: {assignment: Assignment1, chosen_rationale: null, first_answer_choice: 3,
+    question: 29, rationale: Rationale text 1 for choice 3, second_answer_choice: 3,
+    show_to_others: true, user_token: yosbj}
+  model: peerinst.answer
+  pk: 861
 - fields:
     questions: [29, 30]
     title: Assignment title 1
@@ -66,8 +71,3 @@
     owner: [2]
   model: peerinst.assignment
   pk: Assignment2
-- fields: {assignment: Assignment1, chosen_rationale: null, first_answer_choice: 3,
-    question: 29, rationale: Rationale text 1 for choice 3, second_answer_choice: 3,
-    show_to_others: true, user_token: yosbj}
-  model: peerinst.answer
-  pk: 861

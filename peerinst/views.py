@@ -431,6 +431,14 @@ def answer_choice_form(request, question_id):
     )
     question = get_object_or_404(models.Question, pk=question_id)
 
+    # Check if student answers exist
+    if question.answer_set.exclude(user_token__exact='').count() > 0:
+        return TemplateResponse(
+            request,
+            'peerinst/answer_choice_form.html',
+            context={ 'question' : question },
+        )
+
     # Check permissions
     if request.user.has_perm('peerinst.change_question', question):
         if request.method == 'POST':
@@ -438,8 +446,7 @@ def answer_choice_form(request, question_id):
             formset = AnswerChoiceFormSet(request.POST,instance=question)
             if formset.is_valid():
                 formset.save()
-                # Reset the form post-save event
-                formset = AnswerChoiceFormSet(instance=question)
+                return HttpResponseRedirect(reverse('sample-answer-form', kwargs={ 'question_id' : question.pk }))
         else:
             formset = AnswerChoiceFormSet(instance=question)
 

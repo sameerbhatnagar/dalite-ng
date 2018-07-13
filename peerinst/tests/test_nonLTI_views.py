@@ -225,7 +225,7 @@ class TeacherTest(TestCase):
         self.assertEqual(Question.objects.count(), 5)
 
         # Step 2, without ownership -> 403
-        response = self.client.get(reverse('answer-choice-form', kwargs={ 'question_id' : 29 }))
+        response = self.client.get(reverse('answer-choice-form', kwargs={ 'question_id' : 30 }))
         self.assertEqual(response.status_code, 403)
 
         # Step 2, with ownership but no permission -> 403
@@ -238,10 +238,22 @@ class TeacherTest(TestCase):
         response = self.client.get(reverse('answer-choice-form', kwargs={ 'question_id' : 32 }))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['question'], Question.objects.get(pk=32))
+        self.assertContains(response, '<form id="answer-choice-form" method="post">')
 
         # ... test post (to do but need to send formset in POST)
         #response = self.client.post(reverse('answer-choice-form', kwargs={ 'question_id' : 32 }), {'question' : 32, 'text' : 'Choice 1'}, follow=True)
         #self.assertEqual(response.status_code, 200)
+
+        # Step 2, access if student answer exists -> Message
+        q = Question.objects.get(pk=29)
+        q.user = self.validated_teacher
+        q.save()
+        self.assertEqual(self.validated_teacher, Question.objects.get(pk=29).user)
+
+        response = self.client.get(reverse('answer-choice-form', kwargs={ 'question_id' : 29 }))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Answer choices cannot be changed if any students have answered this question')
+        self.assertNotContains(response, '<form id="answer-choice-form" method="post">')
 
     def test_assignment_update_dispatch(self):
         logged_in = self.client.login(username=self.validated_teacher.username, password=self.validated_teacher.text_pwd)
