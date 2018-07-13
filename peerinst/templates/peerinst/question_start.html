@@ -18,14 +18,16 @@
       <div class="admin-link">
         {% if assignment %}
           <a href="{% url 'question-list' assignment_id=assignment.pk %}">{% trans 'Back to assignment' %}</a>
-          <span style="padding-left:0.3em;padding-right:0.5em;">|</span>
         {% endif %}
+
         {% if question.user = user or user in question.collaborators.all %}
+        <span style="padding-left:0.3em;padding-right:0.5em;">|</span>
         <a href="{% url 'question-update' question.id %}">{% trans 'Edit question' %}</a>
         {% endif %}
+
         {% if assignment %}
         {% if first_choice_label and second_choice_label %}
-          <span style="padding-left:0.3em;padding-right:0.5em;">|</span><a href="{% url 'reset-question' assignment_id=assignment.pk question_id=question.id %}">{% trans 'Reset answers' %}</a>
+        <span style="padding-left:0.3em;padding-right:0.5em;">|</span><a href="{% url 'reset-question' assignment_id=assignment.pk question_id=question.id %}">{% trans 'Reset answers' %}</a>
         {% endif %}
         {% endif %}
       </div>
