@@ -175,3 +175,5 @@ class NewVisitorTest(LiveServerTestCase):
         # Teacher cannot delete any questions
 
         # Need a test to assert reset question never appears in LTI
+
+        # Teacher clones: check new and old question states

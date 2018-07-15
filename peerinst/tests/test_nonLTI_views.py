@@ -313,6 +313,36 @@ class TeacherTest(TestCase):
         response = self.client.get(reverse('sample-answer-form-done', kwargs={ 'question_id' : 32 }), follow=True)
         self.assertEqual(response.status_code, 400)
 
+    def test_question_cloning(self):
+        logged_in = self.client.login(username=self.validated_teacher.username, password=self.validated_teacher.text_pwd)
+        self.assertTrue(logged_in)
+        permission = Permission.objects.get(codename='add_question')
+        self.validated_teacher.user_permissions.add(permission)
+        permission = Permission.objects.get(codename='change_question')
+        self.validated_teacher.user_permissions.add(permission)
+
+        # Clone question 33
+        question = Question.objects.get(pk=33)
+        response = self.client.get(reverse('question-clone', kwargs={ 'pk' : 33 }))
+        self.assertContains(response, 'Step 1')
+
+        response = self.client.post(reverse('question-clone', kwargs={ 'pk' : 33 }), {
+            'text' : 'Text of cloned question',
+            'title' : 'Title for cloned question',
+            'answer_style': 0,
+            'image': '',
+            'video_url': '',
+            'rationale_selection_algorithm' : 'prefer_expert_and_highly_voted',
+            'grading_scheme' : 0,
+        }, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'peerinst/answer_choice_form.html')
+        self.assertEqual(question, Question.objects.get(pk=33))
+        new_question = Question.objects.get(title='Title for cloned question')
+        self.assertNotEqual(question.pk, new_question.pk)
+        self.assertEqual(self.validated_teacher, new_question.user)
+        self.assertEqual(question, new_question.parent)
+
     def test_assignment_update_dispatch(self):
         logged_in = self.client.login(username=self.validated_teacher.username, password=self.validated_teacher.text_pwd)
         self.assertTrue(logged_in)

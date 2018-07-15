@@ -385,6 +385,33 @@ class QuestionCreateView(NoStudentsMixin, LoginRequiredMixin, ObjectPermissionMi
         return reverse('answer-choice-form', kwargs={ 'question_id' : self.object.pk })
 
 
+class QuestionCloneView(QuestionCreateView):
+    """View to create a question from existing"""
+
+    def get_initial(self, *args, **kwargs):
+         super(QuestionCloneView, self).get_initial(*args, **kwargs)
+         question = get_object_or_404(models.Question, pk=self.kwargs['pk'])
+         initial = {
+            'text' : question.text,
+            'image' : question.image,
+            'image_alt_text' : question.image_alt_text,
+            'video_url' : question.video_url,
+            'answer_style' : question.answer_style,
+            'category' : question.category.all(),
+            'discipline' : question.discipline,
+            'fake_attributions' : question.fake_attributions,
+            'sequential_review' : question.sequential_review,
+            'rationale_selection_algorithm' : question.rationale_selection_algorithm,
+            'grading_scheme' : question.grading_scheme,
+         }
+         return initial
+
+    # Custom save is needed to attach parent question to clone
+    def form_valid(self, form):
+        form.instance.parent = get_object_or_404(models.Question, pk=self.kwargs['pk'])
+        return super(QuestionCloneView, self).form_valid(form)
+
+
 class QuestionUpdateView(NoStudentsMixin, LoginRequiredMixin, ObjectPermissionMixin, UpdateView):
     """View to edit a new question outside of admin."""
     object_permission_required = 'peerinst.change_question'
@@ -431,16 +458,17 @@ def answer_choice_form(request, question_id):
     )
     question = get_object_or_404(models.Question, pk=question_id)
 
-    # Check if student answers exist
-    if question.answer_set.exclude(user_token__exact='').count() > 0:
-        return TemplateResponse(
-            request,
-            'peerinst/answer_choice_form.html',
-            context={ 'question' : question },
-        )
-
     # Check permissions
     if request.user.has_perm('peerinst.change_question', question):
+
+        # Check if student answers exist
+        if question.answer_set.exclude(user_token__exact='').count() > 0:
+            return TemplateResponse(
+                request,
+                'peerinst/answer_choice_form.html',
+                context={ 'question' : question },
+            )
+
         if request.method == 'POST':
             # Populate form; resend if invalid
             formset = AnswerChoiceFormSet(request.POST,instance=question)
