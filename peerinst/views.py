@@ -511,6 +511,29 @@ def discipline_select_form(request, pk):
     )
 
 
+class CategoryCreateView(NoStudentsMixin, LoginRequiredMixin, CreateView):
+    """View to create a new discipline outside of admin."""
+    model = models.Category
+    fields = [
+        'title',
+        ]
+
+    def get_success_url(self):
+        return reverse('category-form', kwargs={'pk':self.object.pk})
+
+
+@login_required
+@user_passes_test(student_check, login_url='/access_denied_and_logout/')
+def category_select_form(request, pk):
+    """An AJAX view that simply renders the CategorySelectForm."""
+    """Preselects instance with pk."""
+    return TemplateResponse(
+        request,
+        'peerinst/category_select_form.html',
+        context={ 'form' : forms.CategorySelectForm() }
+    )
+
+
 class QuestionMixin(object):
 
     def get_context_data(self, **kwargs):
