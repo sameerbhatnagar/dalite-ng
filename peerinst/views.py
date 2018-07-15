@@ -1687,9 +1687,9 @@ def question_search(request):
         # All matching questions
         # TODO: add search on categories
         if limit_search == "true":
-            query = Question.objects.filter(Q(text__icontains=search_string) | Q(title__icontains=search_string)).filter(discipline__in=request.user.teacher.disciplines.all()).exclude(id__in=q_qs)
+            query = Question.objects.filter(Q(text__icontains=search_string) | Q(title__icontains=search_string) | Q(category__title__icontains=search_string) ).filter(discipline__in=request.user.teacher.disciplines.all()).exclude(id__in=q_qs)
         else:
-            query = Question.objects.filter(Q(text__icontains=search_string) | Q(title__icontains=search_string)).exclude(id__in=q_qs)
+            query = Question.objects.filter(Q(text__icontains=search_string) | Q(title__icontains=search_string) | Q(category__title__icontains=search_string)).exclude(id__in=q_qs)
 
         if query.count() > 50:
             return TemplateResponse(
