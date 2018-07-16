@@ -476,7 +476,10 @@ def answer_choice_form(request, question_id):
                 formset.save()
                 return HttpResponseRedirect(reverse('sample-answer-form', kwargs={ 'question_id' : question.pk }))
         else:
-            formset = AnswerChoiceFormSet(instance=question)
+            if question.answerchoice_set.count() == 0 and question.parent:
+                formset = AnswerChoiceFormSet(instance=question.parent)
+            else:
+                formset = AnswerChoiceFormSet(instance=question)
 
         return TemplateResponse(
             request,

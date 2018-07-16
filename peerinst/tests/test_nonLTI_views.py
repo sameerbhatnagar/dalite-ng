@@ -343,6 +343,11 @@ class TeacherTest(TestCase):
         self.assertEqual(self.validated_teacher, new_question.user)
         self.assertEqual(question, new_question.parent)
 
+        # Inherit parent answer choices for initial
+        response = self.client.get(reverse('answer-choice-form', kwargs={ 'question_id' : new_question.pk }))
+        self.assertContains(response, question.answerchoice_set.all())
+
+
     def test_assignment_update_dispatch(self):
         logged_in = self.client.login(username=self.validated_teacher.username, password=self.validated_teacher.text_pwd)
         self.assertTrue(logged_in)
