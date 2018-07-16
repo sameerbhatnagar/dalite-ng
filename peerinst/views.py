@@ -246,6 +246,7 @@ def logout_view(request):
     return HttpResponseRedirect(reverse('landing_page'))
 
 
+@login_required
 def welcome(request):
     log(request)
     try:

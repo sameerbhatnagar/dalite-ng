@@ -112,6 +112,17 @@ class TeacherTest(TestCase):
         logged_in = self.client.login(username=self.inactive_user.username, password=self.inactive_user.text_pwd)
         self.assertFalse(logged_in)
 
+    def test_redirect_logged_in_user(self):
+        logged_in = self.client.login(username=self.validated_teacher.username, password=self.validated_teacher.text_pwd)
+        self.assertTrue(logged_in)
+
+        response = self.client.get(reverse('login'), follow=True)
+        self.assertTemplateNotUsed(response, 'registration/login.html')
+
+        self.client.logout()
+        response = self.client.get(reverse('welcome'), follow=True)
+        self.assertTemplateUsed(response, 'registration/login.html')
+
     def test_question_list_view(self):
         logged_in = self.client.login(username=self.validated_teacher.username, password=self.validated_teacher.text_pwd)
         self.assertTrue(logged_in)
