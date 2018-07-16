@@ -75,6 +75,13 @@
     {% endfor %}
     </form>
     {% else %}
+
+    <ul id="answer-choices">
+      {% for label, choice in question.get_choices %}
+      <li class="dense-list">{{ label }}. {{ choice|safe }}</li>
+      {% endfor %}
+    </ul>
+
     <br>
     <div class='field-container'>
       <div class='number-box'><span class='number'>?</span></div>
@@ -86,11 +93,6 @@
         </small></p>
       </div>
     </div>
-    <ul id="answer-choices">
-      {% for label, choice in question.get_choices %}
-      <li class="dense-list">{{ label }}. {{ choice|safe }}</li>
-      {% endfor %}
-    </ul>
     {% endif %}
 
     <div style="margin-top:20px;">
