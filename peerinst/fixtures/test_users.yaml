@@ -1,0 +1,82 @@
+- fields: {username: 'validated_teacher', password: 'ssdfl_adfga89', is_active: True}
+  model: auth.user
+  pk: 1
+- fields: {username: 'other_teacher', password: 'sssdfDSASDdfga89', is_active: True}
+  model: auth.user
+  pk: 2
+- fields: {username: 'inactive_user', password: 'sssdfDSASDdfga89', is_active: False}
+  model: auth.user
+  pk: 3
+- fields: {username: 'student', password: 'asdfvfare4w3', is_active: True}
+  model: auth.user
+  pk: 10
+- fields: {username: 'guest', password: 'asdfdfsasvfare4w3', is_active: True}
+  model: auth.user
+  pk: 11
+- fields: {user: 1}
+  model: peerinst.teacher
+  pk: 1
+- fields: {user: 2}
+  model: peerinst.teacher
+  pk: 2
+- fields: {student: 10}
+  model: peerinst.student
+  pk: 1
+- fields: {answer_style: 0, image: '', text: Text of question 1, title: Question 1, video_url: ''}
+  model: peerinst.question
+  pk: 29
+- fields: {answer_style: 0, image: '', text: Text of question 2, title: Question 2, video_url: ''}
+  model: peerinst.question
+  pk: 30
+- fields: {answer_style: 0, image: '', text: Text of question 3, title: Question 3, video_url: ''}
+  model: peerinst.question
+  pk: 31
+- fields: {answer_style: 0, image: '', text: Text of question 4, title: Question 4, video_url: '', user: 1}
+  model: peerinst.question
+  pk: 32
+- fields: {answer_style: 0, image: '', text: Text of question 5, title: Question 5, video_url: '', user: 2, collaborators: [1]}
+  model: peerinst.question
+  pk: 33
+- fields: {correct: true, question: 29, text: Choice 1 (correct)}
+  model: peerinst.answerchoice
+  pk: 88
+- fields: {correct: true, question: 29, text: Choice 2 (correct)}
+  model: peerinst.answerchoice
+  pk: 89
+- fields: {correct: false, question: 29, text: Choice 3 (not correct)}
+  model: peerinst.answerchoice
+  pk: 90
+- fields: {correct: false, question: 29, text: Choice 4 (not correct)}
+  model: peerinst.answerchoice
+  pk: 91
+- fields: {correct: false, question: 29, text: Choice 5 (not correct)}
+  model: peerinst.answerchoice
+  pk: 92
+- fields: {assignment: Assignment1, chosen_rationale: 861, first_answer_choice: 1,
+    question: 29, rationale: Rationale text 1 for choice 1, second_answer_choice: 3,
+    upvotes: 10, downvotes: 1,
+    show_to_others: true, user_token: rhtof}
+  model: peerinst.answer
+- fields: {assignment: Assignment1, chosen_rationale: null, first_answer_choice: 3,
+    question: 29, rationale: Rationale text 1 for choice 3, second_answer_choice: 3,
+    show_to_others: true, user_token: yosbj}
+  model: peerinst.answer
+  pk: 861
+- fields:
+    questions: [29, 30]
+    title: Assignment title 1
+    owner: [1]
+  model: peerinst.assignment
+  pk: Assignment1
+- fields:
+    questions: [30]
+    title: Assignment title 2
+    owner: [2]
+  model: peerinst.assignment
+  pk: Assignment2
+- fields:
+    questions: [30]
+    title: Assignment title 3
+    owner: [2]
+  model: peerinst.assignment
+  pk: Assignment3

@@ -17,3 +17,4 @@ partner*.png
 tags
 *.mypy_cache/
 /htmlcov
+/media

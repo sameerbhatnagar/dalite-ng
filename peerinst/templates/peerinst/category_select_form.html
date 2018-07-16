@@ -1,0 +1,8 @@
+{% load add_class %}
+
+<div class='mdc-form-field'>
+  <label for='id_category'>{{ form.category.label }}:</label>
+  {{ form.category|add_class:'multiple-select mdc-theme--background' }}
+  <i id='show_category_form' class="material-icons mdc-theme--primary md-18 add">add_circle</i>
+</div>
+{{ form.category.errors }}

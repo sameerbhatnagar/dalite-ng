@@ -17,7 +17,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = True 
 
 ALLOWED_HOSTS = ['127.0.0.1']
 
@@ -148,6 +148,10 @@ STATICFILES_FINDERS = (
 COMPRESS_ENABLED = True
 KEEP_COMMENTS_ON_MINIFYING = False
 HTML_MINIFY = True
+
+COMPRESS_URL = STATIC_URL
+COMPRESS_ROOT = STATIC_ROOT
+
 
 # LOGIN_URL = 'login'
 LOGIN_URL = 'login'

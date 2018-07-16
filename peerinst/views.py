@@ -14,12 +14,14 @@ import pprint
 
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import PermissionDenied
 from django.core.mail import mail_admins, send_mail
 from django.db.models import Q
 from django.forms import inlineformset_factory, Textarea
+from django.http import HttpResponseBadRequest, HttpResponseServerError
 from django.shortcuts import get_object_or_404, render, render_to_response, redirect
 from django.template import loader
 from django.template.response import TemplateResponse
@@ -110,7 +112,6 @@ def landing_page(request):
 
     disciplines_json = json.dumps(disciplines)
 
-
     ### try again, with re-ordering
     disciplines_array = []
 
@@ -188,7 +189,6 @@ def dashboard(request):
                 html_message=loader.render_to_string(html_email_template_name, context=email_context, request=request),
             )
 
-
     return TemplateResponse(
         request,
         'peerinst/dashboard.html',
@@ -207,31 +207,30 @@ def sign_up(request):
     if request.method == "POST":
         form = forms.SignUpForm(request.POST)
         if form.is_valid():
+            # Set new users as inactive until verified by an administrator
+            form.instance.is_active = False
+            form.save()
+            # Notify administrators
             try:
-                # Set new users as inactive until verified by Administrator
-                form.instance.is_active = False
-                form.save()
-                # Notify administrators
-                try:
-                    email_context = dict(
-                        user=form.cleaned_data['username'],
-                        date=timezone.now(),
-                        email=form.cleaned_data['email'],
-                        url=form.cleaned_data['url'],
-                        site_name='myDALITE',
-                    )
-                    mail_admins(
-                        'New user request',
-                        'Dear administrator,\n\nA new user {} was created on {}. \n\nEmail: {}  \nVerification url: {} \n\nAccess your administrator account to activate this new user.\n\n{}\n\nCheers,\nThe myDalite Team'.format(form.cleaned_data['username'],timezone.now(),form.cleaned_data['email'],form.cleaned_data['url'],'https://'+request.get_host()+reverse('dashboard')),
-                        fail_silently=True,
-                        html_message=loader.render_to_string(html_email_template_name, context=email_context, request=request),
-                    )
-                except:
-                    pass
-
-                return TemplateResponse(request,'registration/sign_up_done.html')
+                email_context = dict(
+                    user=form.cleaned_data['username'],
+                    date=timezone.now(),
+                    email=form.cleaned_data['email'],
+                    url=form.cleaned_data['url'],
+                    site_name='myDALITE',
+                )
+                mail_admins(
+                    'New user request',
+                    'Dear administrator,\n\nA new user {} was created on {}. \n\nEmail: {}  \nVerification url: {} \n\nAccess your administrator account to activate this new user.\n\n{}\n\nCheers,\nThe myDalite Team'.format(form.cleaned_data['username'],timezone.now(),form.cleaned_data['email'],form.cleaned_data['url'],'https://'+request.get_host()+reverse('dashboard')),
+                    fail_silently=True,
+                    html_message=loader.render_to_string(html_email_template_name, context=email_context, request=request),
+                )
             except:
-                pass
+                response = TemplateResponse(request, '500.html')
+
+                return HttpResponseServerError(response.render())
+
+            return TemplateResponse(request,'registration/sign_up_done.html')
         else:
             context['form'] = form
     else:
@@ -246,7 +245,6 @@ def terms_teacher(request):
 
 
 def logout_view(request):
-    from django.contrib.auth import logout
     logout(request)
     return HttpResponseRedirect(reverse('landing_page'))
 
@@ -260,8 +258,9 @@ def welcome(request):
         return HttpResponseRedirect(reverse('assignment-list'))
 
 
-def access_denied(request):
-    return HttpResponse('Access denied')
+def access_denied_and_logout(request):
+    logout(request)
+    raise PermissionDenied
 
 
 class LoginRequiredMixin(object):
@@ -279,7 +278,6 @@ def student_check(user):
     except:
         try:
             if user.student:
-                # Block Students
                 return False
         except:
             # Allow through all non-Students, i.e. "guests"
@@ -290,42 +288,39 @@ class NoStudentsMixin(object):
     @classmethod
     def as_view(cls, **initkwargs):
         view = super(NoStudentsMixin, cls).as_view(**initkwargs)
-        return user_passes_test(student_check, login_url='/access_denied/')(view)
+        return user_passes_test(student_check, login_url='/access_denied_and_logout/')(view)
 
 
-class ObjectPermissionUpdateView(UpdateView):
-    """Update dispatch to check object-level permissions."""
-
+class ObjectPermissionMixin(object):
+    """Check object-level permissions."""
     def dispatch(self, *args, **kwargs):
-        if self.request.user.has_perm(self.object_permission_required, self.get_object()):
-            return super(ObjectPermissionUpdateView, self).dispatch(*args, **kwargs)
+        try:
+            obj = self.get_object()
+        except:
+            obj = None
+        if self.request.user.has_perm(self.object_permission_required, obj):
+            return super(ObjectPermissionMixin, self).dispatch(*args, **kwargs)
         else:
             raise PermissionDenied
-
 
 class AssignmentListView(NoStudentsMixin, LoginRequiredMixin, ListView):
     """List of assignments used for debugging purposes."""
     model = models.Assignment
 
 
-class AssignmentUpdateView(NoStudentsMixin, LoginRequiredMixin ,DetailView):
+class AssignmentUpdateView(NoStudentsMixin, LoginRequiredMixin, DetailView):
     """View for updating assignment."""
-
     model = Assignment
 
     def dispatch(self, *args, **kwargs):
-
-        if self.request.user.is_authenticated() and not (\
-            self.request.user in self.get_object().owner.all() or self.request.user.is_staff\
-            ):
-            return HttpResponse("You do not have editing rights on this assignment")
-
-        return super(AssignmentUpdateView, self).dispatch(*args, **kwargs)
+        if self.request.user in self.get_object().owner.all() or self.request.user.is_staff:
+            return super(AssignmentUpdateView, self).dispatch(*args, **kwargs)
+        else:
+            raise PermissionDenied
 
     def get_context_data(self, **kwargs):
         context = super(AssignmentUpdateView, self).get_context_data(**kwargs)
-        context['teacher'] = Teacher.objects.get(user=self.request.user)
-
+        context['teacher'] = get_object_or_404(models.Teacher, user=self.request.user)
         return context
 
     def get_object(self):
@@ -333,23 +328,20 @@ class AssignmentUpdateView(NoStudentsMixin, LoginRequiredMixin ,DetailView):
 
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
-        if request.user.is_authenticated():
-            form = forms.AddRemoveQuestionForm(request.POST)
-            print(form)
-            if form.is_valid():
-                question = form.cleaned_data['q']
-                if not question in self.object.questions.all():
-                    self.object.questions.add(question)
-                else:
-                    self.object.questions.remove(question)
-                self.object.save()
-
-                return HttpResponseRedirect(reverse("assignment-update", kwargs={'assignment_id': self.object.pk}))
+        form = forms.AddRemoveQuestionForm(request.POST)
+        if form.is_valid():
+            question = form.cleaned_data['q']
+            if not question in self.object.questions.all():
+                self.object.questions.add(question)
             else:
-                return HttpResponse("error")
-        else:
-            return HttpResponse("error3")
+                self.object.questions.remove(question)
 
+            self.object.save()
+            return HttpResponseRedirect(reverse("assignment-update", kwargs={'assignment_id': self.object.pk}))
+        else:
+            # Bad request
+            response = TemplateResponse(request, '400.html')
+            return HttpResponseBadRequest(response.render())
 
 
 class QuestionListView(NoStudentsMixin, LoginRequiredMixin, ListView):
@@ -367,13 +359,15 @@ class QuestionListView(NoStudentsMixin, LoginRequiredMixin, ListView):
 
 
 # Views related to Question
-class QuestionCreateView(NoStudentsMixin, LoginRequiredMixin, CreateView):
+class QuestionCreateView(NoStudentsMixin, LoginRequiredMixin, ObjectPermissionMixin, CreateView):
     """View to create a new question outside of admin."""
+    object_permission_required = 'peerinst.add_question'
     model = models.Question
     fields = [
         'title',
         'text',
         'image',
+        'image_alt_text',
         'video_url',
         'answer_style',
         'category',
@@ -394,7 +388,41 @@ class QuestionCreateView(NoStudentsMixin, LoginRequiredMixin, CreateView):
         return reverse('answer-choice-form', kwargs={ 'question_id' : self.object.pk })
 
 
-class QuestionUpdateView(NoStudentsMixin, LoginRequiredMixin, ObjectPermissionUpdateView):
+class QuestionCloneView(QuestionCreateView):
+    """View to create a question from existing"""
+
+    def get_initial(self, *args, **kwargs):
+         super(QuestionCloneView, self).get_initial(*args, **kwargs)
+         question = get_object_or_404(models.Question, pk=self.kwargs['pk'])
+         initial = {
+            'text' : question.text,
+            'image' : question.image,
+            'image_alt_text' : question.image_alt_text,
+            'video_url' : question.video_url,
+            'answer_style' : question.answer_style,
+            'category' : question.category.all(),
+            'discipline' : question.discipline,
+            'fake_attributions' : question.fake_attributions,
+            'sequential_review' : question.sequential_review,
+            'rationale_selection_algorithm' : question.rationale_selection_algorithm,
+            'grading_scheme' : question.grading_scheme,
+         }
+         return initial
+
+    # Custom save is needed to attach parent question to clone
+    def form_valid(self, form):
+        form.instance.parent = get_object_or_404(models.Question, pk=self.kwargs['pk'])
+        return super(QuestionCloneView, self).form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super(QuestionCloneView, self).get_context_data(**kwargs)
+        context.update(
+            parent=get_object_or_404(models.Question, pk=self.kwargs['pk'])
+        )
+        return context
+
+
+class QuestionUpdateView(NoStudentsMixin, LoginRequiredMixin, ObjectPermissionMixin, UpdateView):
     """View to edit a new question outside of admin."""
     object_permission_required = 'peerinst.change_question'
     model = models.Question
@@ -402,6 +430,7 @@ class QuestionUpdateView(NoStudentsMixin, LoginRequiredMixin, ObjectPermissionUp
         'title',
         'text',
         'image',
+        'image_alt_text',
         'video_url',
         'answer_style',
         'category',
@@ -419,7 +448,6 @@ class QuestionUpdateView(NoStudentsMixin, LoginRequiredMixin, ObjectPermissionUp
         # Only owner can update collaborators
         if not self.object.user == self.request.user:
             form.cleaned_data['collaborators'] = self.object.collaborators.all()
-
         return super(QuestionUpdateView, self).form_valid(form)
 
     def get_success_url(self):
@@ -427,6 +455,7 @@ class QuestionUpdateView(NoStudentsMixin, LoginRequiredMixin, ObjectPermissionUp
 
 
 @login_required
+@user_passes_test(student_check, login_url='/access_denied_and_logout/')
 def answer_choice_form(request, question_id):
     AnswerChoiceFormSet = inlineformset_factory(
         Question,
@@ -437,30 +466,67 @@ def answer_choice_form(request, question_id):
         max_num=5,
         extra=5
     )
-
     question = get_object_or_404(models.Question, pk=question_id)
 
     # Check permissions
     if request.user.has_perm('peerinst.change_question', question):
+
+        # Check if student answers exist
+        if question.answer_set.exclude(user_token__exact='').count() > 0:
+            return TemplateResponse(
+                request,
+                'peerinst/answer_choice_form.html',
+                context={ 'question' : question },
+            )
 
         if request.method == 'POST':
             # Populate form; resend if invalid
             formset = AnswerChoiceFormSet(request.POST,instance=question)
             if formset.is_valid():
                 formset.save()
-                # Reset the form post-save event
-                formset = AnswerChoiceFormSet(instance=question)
+                return HttpResponseRedirect(reverse('sample-answer-form', kwargs={ 'question_id' : question.pk }))
         else:
-            formset = AnswerChoiceFormSet(instance=question)
+            if question.answerchoice_set.count() == 0 and question.parent:
+                formset = AnswerChoiceFormSet(instance=question.parent)
+            else:
+                formset = AnswerChoiceFormSet(instance=question)
 
         return TemplateResponse(
             request,
             'peerinst/answer_choice_form.html',
             context={ 'question' : question, 'formset' : formset },
         )
-
     else:
         raise PermissionDenied
+
+
+@login_required
+@user_passes_test(student_check, login_url='/access_denied_and_logout/')
+def sample_answer_form_done(request, question_id):
+    question = get_object_or_404(models.Question, pk=question_id)
+
+    if request.method == "POST":
+        try:
+            teacher = Teacher.objects.get(user=request.user)
+            form = forms.AssignmentMultiselectForm(request.user, request.POST)
+            if form.is_valid():
+                assignments = form.cleaned_data['assignments'].all()
+                for a in assignments:
+                    if teacher.user in a.owner.all():
+                        if question not in a.questions.all():
+                            a.questions.add(question)
+                    else:
+                        raise PermissionDenied
+
+            return HttpResponseRedirect(reverse('teacher', kwargs={ 'pk' : teacher.pk }))
+        except:
+            # Bad request
+            response = TemplateResponse(request, '400.html')
+            return HttpResponseBadRequest(response.render())
+    else:
+        # Bad request
+        response = TemplateResponse(request, '400.html')
+        return HttpResponseBadRequest(response.render())
 
 
 class DisciplineCreateView(NoStudentsMixin, LoginRequiredMixin, CreateView):
@@ -475,14 +541,37 @@ class DisciplineCreateView(NoStudentsMixin, LoginRequiredMixin, CreateView):
 
 
 @login_required
+@user_passes_test(student_check, login_url='/access_denied_and_logout/')
 def discipline_select_form(request, pk):
     """An AJAX view that simply renders the DisciplineSelectForm."""
     """Preselects instance with pk."""
-
     return TemplateResponse(
         request,
         'peerinst/discipline_select_form.html',
         context={ 'form' : forms.DisciplineSelectForm(initial={ 'discipline' : Discipline.objects.get(pk=pk)}) }
+    )
+
+
+class CategoryCreateView(NoStudentsMixin, LoginRequiredMixin, CreateView):
+    """View to create a new discipline outside of admin."""
+    model = models.Category
+    fields = [
+        'title',
+        ]
+
+    def get_success_url(self):
+        return reverse('category-form', kwargs={'pk':self.object.pk})
+
+
+@login_required
+@user_passes_test(student_check, login_url='/access_denied_and_logout/')
+def category_select_form(request, pk):
+    """An AJAX view that simply renders the CategorySelectForm."""
+    """Preselects instance with pk."""
+    return TemplateResponse(
+        request,
+        'peerinst/category_select_form.html',
+        context={ 'form' : forms.CategorySelectForm() }
     )
 
 
@@ -1034,15 +1123,16 @@ class AnswerSummaryChartView(View):
         answer_rows = [[row[column['name']] for column in columns] for row in answers]
         # Transform the rationales we got from the other function into a format we can easily
         # draw in the page using a template
-        print(answers)
+        # import pprint
+        # pprint.pprint(answers)
         answer_rationales = [
             {
                 'label': each['label'],
                 'rationales': [
                     {
-                        "text": rationale.rationale.rationale,
-                        "count": rationale.count,
-                    } for rationale in each['rationales'] if rationale.rationale is not None
+                        "text": rationale['rationale'].rationale,
+                        "count": rationale['count'],
+                    } for rationale in each['rationales'] if rationale['rationale'] is not None
                 ]
             } for each in answers
         ]
@@ -1102,7 +1192,6 @@ def question(request, assignment_id, question_id):
     )
 
     # Determine stage and view class
-
     if request.GET.get('show_results_view') == 'true':
         stage_class = AnswerSummaryChartView
     elif view_data['answer'] is not None:
@@ -1129,6 +1218,8 @@ def question(request, assignment_id, question_id):
     return result
 
 
+@login_required
+@user_passes_test(student_check, login_url='/access_denied_and_logout/')
 def reset_question(request, assignment_id, question_id):
     """ Clear all answers from user (for testing) """
 
@@ -1144,21 +1235,21 @@ def reset_question(request, assignment_id, question_id):
 
 
 # Views related to Teacher
-
-class TeacherBase(LoginRequiredMixin,View):
+class TeacherBase(NoStudentsMixin,LoginRequiredMixin,View):
     """Base view for Teacher for custom authentication"""
 
     def dispatch(self, *args, **kwargs):
-        if self.request.user == Teacher.objects.get(pk=kwargs['pk']).user:
+        if self.request.user == get_object_or_404(models.Teacher, pk=kwargs['pk']).user:
             if Consent.get(self.request.user.username, "teacher") is None:
                 return HttpResponseRedirect(reverse("tos:modify", args=("teacher",)) + "?next=" + reverse("teacher", args=(kwargs["pk"],)))
+
             return super(TeacherBase, self).dispatch(*args, **kwargs)
         else:
-            return HttpResponse('Access denied!')
+            raise PermissionDenied
 
 
 class TeacherDetailView(TeacherBase,DetailView):
-
+    """Teacher account"""
     model = Teacher
 
     def get_context_data(self, **kwargs):
@@ -1189,7 +1280,7 @@ class TeacherDetailView(TeacherBase,DetailView):
 
 
 class TeacherUpdate(TeacherBase,UpdateView):
-
+    """View for user to update teacher properties"""
     model = Teacher
     fields = ['institutions','disciplines']
 
@@ -1641,9 +1732,9 @@ def question_search(request):
         # All matching questions
         # TODO: add search on categories
         if limit_search == "true":
-            query = Question.objects.filter(Q(text__icontains=search_string) | Q(title__icontains=search_string)).filter(discipline__in=request.user.teacher.disciplines.all()).exclude(id__in=q_qs)
+            query = Question.objects.filter(Q(text__icontains=search_string) | Q(title__icontains=search_string) | Q(category__title__icontains=search_string) ).filter(discipline__in=request.user.teacher.disciplines.all()).exclude(id__in=q_qs)
         else:
-            query = Question.objects.filter(Q(text__icontains=search_string) | Q(title__icontains=search_string)).exclude(id__in=q_qs)
+            query = Question.objects.filter(Q(text__icontains=search_string) | Q(title__icontains=search_string) | Q(category__title__icontains=search_string)).exclude(id__in=q_qs)
 
         if query.count() > 50:
             return TemplateResponse(
@@ -1661,7 +1752,7 @@ def question_search(request):
                     }
                 )
     else:
-        return HttpResponseRedirect(reverse('access_denied'))
+        return HttpResponseRedirect(reverse('access_denied_and_logout'))
 
 
 def blink_get_current_url(request,username):

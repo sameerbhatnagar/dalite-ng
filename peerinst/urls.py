@@ -30,11 +30,15 @@ urlpatterns = [
         url(r'^update/$',views.AssignmentUpdateView.as_view(),name='assignment-update')
     ])),
     url(r'^question/create$', views.QuestionCreateView.as_view(), name='question-create'),
+    url(r'^question/clone/(?P<pk>[0-9]+)$', views.QuestionCloneView.as_view(), name='question-clone'),
     url(r'^question/update/(?P<pk>[0-9]+)$', views.QuestionUpdateView.as_view(), name='question-update'),
     url(r'^discipline/create$', views.DisciplineCreateView.as_view(), name='discipline-create'),
     url(r'^discipline/form/(?P<pk>[0-9]+)$', views.discipline_select_form, name='discipline-form'),
+    url(r'^category/create$', views.CategoryCreateView.as_view(), name='category-create'),
+    url(r'^category/form/(?P<pk>[0-9]+)$', views.category_select_form, name='category-form'),
     url(r'^answer-choice/form/(?P<question_id>[0-9]+)$', views.answer_choice_form, name='answer-choice-form'),
     url(r'^sample-answer/form/(?P<question_id>[0-9]+)$', admin_views.QuestionPreviewViewBase.as_view(), name='sample-answer-form'),
+    url(r'^sample-answer/form/(?P<question_id>[0-9]+)/done$', views.sample_answer_form_done, name='sample-answer-form-done'),
     url(r'^question-search/$', views.question_search, name='question-search'),
     url(r'^heartbeat/$', views.HeartBeatUrl.as_view(), name='heartbeat'),
 
@@ -82,7 +86,7 @@ urlpatterns = [
     url(r'^reset/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$', password_views.password_reset_confirm, name='password_reset_confirm'),
     url(r'^reset/done/$', auth_views.password_reset_complete, name='password_reset_complete'),
     url(r'^terms_of_service/teachers/$', views.terms_teacher, name='terms_teacher'),
-    url(r'^access_denied/$', views.access_denied, name='access_denied'),
+    url(r'^access_denied_and_logout/$', views.access_denied_and_logout, name='access_denied_and_logout'),
 
     # Blink
     url(r'^blink/(?P<pk>[0-9]+)/$', views.BlinkQuestionFormView.as_view(), name='blink-question'),
