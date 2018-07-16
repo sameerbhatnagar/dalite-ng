@@ -95,7 +95,7 @@
 
     <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'My questions' %}</h2>
 
-    {% for g in request.user.question_set.all %}
+    {% for g in all_questions %}
     {% if g not in object.questions.all %}
     <div class="mdc-card" id={{g.id|slugify}}>
       <div class="mdc-typography--title bold" style="margin-bottom:5px;">

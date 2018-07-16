@@ -317,7 +317,10 @@ class AssignmentUpdateView(NoStudentsMixin, LoginRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(AssignmentUpdateView, self).get_context_data(**kwargs)
-        context['teacher'] = get_object_or_404(models.Teacher, user=self.request.user)
+        teacher = get_object_or_404(models.Teacher, user=self.request.user)
+        context['teacher'] = teacher
+        all_qs = teacher.user.question_set.all() | teacher.user.collaborators.all()
+        context['all_questions'] = all_qs.distinct()
         return context
 
     def get_object(self):
