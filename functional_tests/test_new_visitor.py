@@ -155,6 +155,8 @@ class NewVisitorTest(LiveServerTestCase):
         welcome = self.browser.find_element_by_id('link-to-login-or-welcome')
         assert "Welcome back "+self.validated_teacher.username in welcome.text
 
+        time.sleep(1)
+
         # Teacher cannot access other teacher accounts
 
         # Teacher can create a blink assignment
