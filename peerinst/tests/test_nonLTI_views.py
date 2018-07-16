@@ -184,7 +184,6 @@ class TeacherTest(TestCase):
         self.validated_teacher.user_permissions.add(permission)
         response = self.client.get(reverse('question-update', kwargs={ 'pk' : 32 }))
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'Edit')
 
         response = self.client.post(reverse('question-update', kwargs={ 'pk' : 32 }), {
             'text' : 'Text of new question',
@@ -202,7 +201,6 @@ class TeacherTest(TestCase):
         # Step 1 (as edit) as collaborator with permission --> 200
         response = self.client.get(reverse('question-update', kwargs={ 'pk' : 33 }))
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'Edit')
 
         response = self.client.post(reverse('question-update', kwargs={ 'pk' : 33 }), {
             'text' : 'Text of new question',
@@ -325,6 +323,9 @@ class TeacherTest(TestCase):
         question = Question.objects.get(pk=33)
         response = self.client.get(reverse('question-clone', kwargs={ 'pk' : 33 }))
         self.assertContains(response, 'Step 1')
+        self.assertContains(response, 'Cloned from')
+        self.assertContains(response, question.title)
+        self.assertContains(response, question.user.username)
 
         response = self.client.post(reverse('question-clone', kwargs={ 'pk' : 33 }), {
             'text' : 'Text of cloned question',
@@ -345,8 +346,8 @@ class TeacherTest(TestCase):
 
         # Inherit parent answer choices for initial
         response = self.client.get(reverse('answer-choice-form', kwargs={ 'question_id' : new_question.pk }))
+        self.assertEqual(response.status_code, 200)
         self.assertContains(response, question.answerchoice_set.all())
-
 
     def test_assignment_update_dispatch(self):
         logged_in = self.client.login(username=self.validated_teacher.username, password=self.validated_teacher.text_pwd)

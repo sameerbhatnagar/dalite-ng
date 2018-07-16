@@ -151,7 +151,6 @@ class NewVisitorTest(LiveServerTestCase):
 
         # Teacher cannot access other teacher accounts
 
-
         # Teacher can create a blink assignment
 
         # Teacher can delete a blink assignment
@@ -176,4 +175,4 @@ class NewVisitorTest(LiveServerTestCase):
 
         # Need a test to assert reset question never appears in LTI
 
-        # Teacher clones: check new and old question states
+        # Teacher clones: check new and old question states including answer_choices

@@ -411,6 +411,13 @@ class QuestionCloneView(QuestionCreateView):
         form.instance.parent = get_object_or_404(models.Question, pk=self.kwargs['pk'])
         return super(QuestionCloneView, self).form_valid(form)
 
+    def get_context_data(self, **kwargs):
+        context = super(QuestionCloneView, self).get_context_data(**kwargs)
+        context.update(
+            parent=get_object_or_404(models.Question, pk=self.kwargs['pk'])
+        )
+        return context
+
 
 class QuestionUpdateView(NoStudentsMixin, LoginRequiredMixin, ObjectPermissionMixin, UpdateView):
     """View to edit a new question outside of admin."""

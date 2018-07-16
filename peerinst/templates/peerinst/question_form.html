@@ -17,17 +17,19 @@
         <svg class="underline" width=150 height=4></svg>
       </h1>
 
-      {% if object and not object.user == request.user %}
+      {% if object and not parent %}
       <div class="admin-link">
       {% trans 'Created by' %}<i class="material-icons md-18 inline mdc-theme--primary">keyboard_arrow_right</i><span>{{ object.user }}</span>
       </div>
+      {% else %}
+      {% if parent %}
+      <div class="admin-link">
+      {% trans 'Cloned from' %}<i class="material-icons md-18 inline mdc-theme--primary">keyboard_arrow_right</i><span class='bold'>{{ parent.title }}</span> <span>{% trans ' by ' %}{{ parent.user }}</span>
+      </div>
+      {% endif %}
       {% endif %}
 
-      {% if object %}
-      <h2 class="mdc-typography--display1 mdc-theme--primary">{% trans 'Edit question parameters' %}</h2>
-      {% else %}
       <h2 class="mdc-typography--display1 mdc-theme--primary">{% trans 'Step 1: Question parameters' %}</h2>
-      {% endif %}
 
       <form id="question-create-form" enctype="multipart/form-data" method="post">
         {% csrf_token %}
