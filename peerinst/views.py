@@ -410,6 +410,10 @@ class QuestionCloneView(QuestionCreateView):
          }
          return initial
 
+    def get_object(self, queryset=None):
+        # Remove link on object to pk to dump object permissions
+        return None
+
     # Custom save is needed to attach parent question to clone
     def form_valid(self, form):
         form.instance.parent = get_object_or_404(models.Question, pk=self.kwargs['pk'])
@@ -703,7 +707,7 @@ class QuestionFormView(QuestionMixin, FormView):
         student, created_student = Student.objects.get_or_create(student=user)
 
         course_title = self.lti_data.edx_lti_parameters.get('context_title')
-        if not course_title:
+        if course_title:
             group, created_group = StudentGroup.objects.get_or_create(name=course_id,title=course_title)
         else:
             group, created_group = StudentGroup.objects.get_or_create(name=course_id)

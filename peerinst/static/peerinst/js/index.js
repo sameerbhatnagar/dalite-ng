@@ -135,9 +135,9 @@ export function revealOnClick(elementSelector, groupSelector) {
 
       group.transition()
         .ease(d3.easeCubicIn)
-        .duration(1000)
+        .duration(800)
         .delay((d, i) => {
-          return 1000/count*(count-i-1);
+          return 800/count*(count-i-1);
         })
         .style('opacity', 0)
         .on('end', /* @this */ function() {
@@ -152,9 +152,9 @@ export function revealOnClick(elementSelector, groupSelector) {
 
       group.transition()
         .ease(d3.easeCubicOut)
-        .duration(1000)
+        .duration(800)
         .delay((d, i) => {
-          return 1000/count*i;
+          return 800/count*i;
         })
         .style('opacity', 1)
         .on('start', /* @this */ function() {

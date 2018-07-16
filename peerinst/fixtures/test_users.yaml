@@ -37,6 +37,9 @@
 - fields: {answer_style: 0, image: '', text: Text of question 5, title: Question 5, video_url: '', user: 2, collaborators: [1]}
   model: peerinst.question
   pk: 33
+- fields: {answer_style: 0, image: '', text: Text of question 6, title: Question 6, video_url: '', user: 2}
+  model: peerinst.question
+  pk: 43
 - fields: {correct: true, question: 29, text: Choice 1 (correct)}
   model: peerinst.answerchoice
   pk: 88
