@@ -441,6 +441,20 @@ class QuestionUpdateView(NoStudentsMixin, LoginRequiredMixin, ObjectPermissionMi
 
     template_name_suffix = '_form'
 
+    def get_form(self, form_class=None):
+        # Check if student answers exist
+        if self.object.answer_set.exclude(user_token__exact='').count() > 0:
+            return None
+        else:
+            return super(QuestionUpdateView, self).get_form(form_class)
+
+    def post(self, request, *args, **kwargs):
+        # Check if student answers exist
+        if self.get_object().answer_set.exclude(user_token__exact='').count() > 0:
+            raise PermissionDenied
+        else:
+            return super(QuestionUpdateView, self).post(request, *args, **kwargs)
+
     def form_valid(self, form):
         # Only owner can update collaborators
         if not self.object.user == self.request.user:

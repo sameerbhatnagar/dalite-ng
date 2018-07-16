@@ -111,7 +111,7 @@ class Question(models.Model):
     )
     image = models.ImageField(
         _('Question image'), blank=True, null=True, upload_to='images',
-        help_text=_('Optional. An image to include after the question text.')
+        help_text=_('Optional. An image to include after the question text.  Accepted formats: .jpg, .jpeg, .png, .gif')
     )
     image_alt_text = models.CharField(
         _('Image Alt Text'), blank=True, max_length=1024, help_text=_(

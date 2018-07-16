@@ -216,6 +216,29 @@ class TeacherTest(TestCase):
         self.assertNotIn(self.other_teacher, Question.objects.get(pk=33).collaborators.all())
         self.assertEqual(Question.objects.get(pk=33).title, 'New title for question 5')
 
+        # Step 1, access if student answer exists -> Message
+        q = Question.objects.get(pk=29)
+        q.user = self.validated_teacher
+        q.save()
+        self.assertEqual(self.validated_teacher, Question.objects.get(pk=29).user)
+
+        response = self.client.get(reverse('question-update', kwargs={ 'pk' : 29 }))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Question properties cannot be changed if any students have submitted an answer')
+        self.assertNotContains(response, '<form id="question-create-form" enctype="multipart/form-data" method="post">')
+
+        response = self.client.post(reverse('question-update', kwargs={ 'pk' : 29 }), {
+            'text' : 'Text of new question',
+            'title' : 'New title for question',
+            'answer_style': 0,
+            'image': '',
+            'video_url': '',
+            'rationale_selection_algorithm' : 'prefer_expert_and_highly_voted',
+            'grading_scheme' : 0,
+            'collaborators' : 2
+            }, follow=True)
+        self.assertEqual(response.status_code, 403)
+
     def test_answer_choice_create(self):
         logged_in = self.client.login(username=self.validated_teacher.username, password=self.validated_teacher.text_pwd)
         self.assertTrue(logged_in)
