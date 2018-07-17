@@ -112,6 +112,17 @@ class TeacherTest(TestCase):
         logged_in = self.client.login(username=self.inactive_user.username, password=self.inactive_user.text_pwd)
         self.assertFalse(logged_in)
 
+    def test_redirect_logged_in_user(self):
+        logged_in = self.client.login(username=self.validated_teacher.username, password=self.validated_teacher.text_pwd)
+        self.assertTrue(logged_in)
+
+        response = self.client.get(reverse('login'), follow=True)
+        self.assertTemplateNotUsed(response, 'registration/login.html')
+
+        self.client.logout()
+        response = self.client.get(reverse('welcome'), follow=True)
+        self.assertTemplateUsed(response, 'registration/login.html')
+
     def test_question_list_view(self):
         logged_in = self.client.login(username=self.validated_teacher.username, password=self.validated_teacher.text_pwd)
         self.assertTrue(logged_in)
@@ -244,7 +255,7 @@ class TeacherTest(TestCase):
         self.assertTrue(logged_in)
 
         # db check
-        self.assertEqual(Question.objects.count(), 5)
+        self.assertEqual(Question.objects.count(), 6)
 
         # Step 2, without ownership -> 403
         response = self.client.get(reverse('answer-choice-form', kwargs={ 'question_id' : 30 }))
@@ -342,15 +353,15 @@ class TeacherTest(TestCase):
         permission = Permission.objects.get(codename='change_question')
         self.validated_teacher.user_permissions.add(permission)
 
-        # Clone question 33
-        question = Question.objects.get(pk=33)
-        response = self.client.get(reverse('question-clone', kwargs={ 'pk' : 33 }))
+        # Clone question 43
+        question = Question.objects.get(pk=43)
+        response = self.client.get(reverse('question-clone', kwargs={ 'pk' : 43 }))
         self.assertContains(response, 'Step 1')
         self.assertContains(response, 'Cloned from')
         self.assertContains(response, question.title)
         self.assertContains(response, question.user.username)
 
-        response = self.client.post(reverse('question-clone', kwargs={ 'pk' : 33 }), {
+        response = self.client.post(reverse('question-clone', kwargs={ 'pk' : 43 }), {
             'text' : 'Text of cloned question',
             'title' : 'Title for cloned question',
             'answer_style': 0,
@@ -361,7 +372,7 @@ class TeacherTest(TestCase):
         }, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'peerinst/answer_choice_form.html')
-        self.assertEqual(question, Question.objects.get(pk=33))
+        self.assertEqual(question, Question.objects.get(pk=43))
         new_question = Question.objects.get(title='Title for cloned question')
         self.assertNotEqual(question.pk, new_question.pk)
         self.assertEqual(self.validated_teacher, new_question.user)

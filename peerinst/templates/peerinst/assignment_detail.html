@@ -93,13 +93,13 @@
     </ul>
     {% endfor %}
 
-    <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'My questions' %}</h2>
+    <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'My questions' %}<i id='reveal-on-click' class='material-icons md-48 mdc-theme--primary inline'>keyboard_arrow_right</i></h2>
 
-    {% for g in request.user.question_set.all %}
+    {% for g in all_questions %}
     {% if g not in object.questions.all %}
-    <div class="mdc-card" id={{g.id|slugify}}>
+    <div class="all-my-questions mdc-card" id={{g.id|slugify}} style="display: none;">
       <div class="mdc-typography--title bold" style="margin-bottom:5px;">
-        {{g.title|safe}}
+        {{g.title|safe}} <i class='material-icons md-18 mdc-theme--primary inline link'>link</i>
       </div>
 
       <div class="mdc-typography--body1">
@@ -202,6 +202,8 @@
 <script>
 bundle.toggleImages();
 bundle.toggleAnswers();
+bundle.revealOnClick('#reveal-on-click', '.all-my-questions');
+
 var limitSearch = document.querySelector('#limit-search');
 bundle.iconToggle.MDCIconToggle.attachTo(limitSearch);
 var search = document.getElementById('search-bar');

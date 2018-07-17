@@ -419,6 +419,10 @@ div.input-ripple-wrapper input {
   transform:translate(-50%,-50%);
 }
 
+.link {
+  transform: rotate(-45deg);
+}
+
 @media (max-height: 650px) {
   .mdc-dialog__body--scrollable {
     max-height: 350px;

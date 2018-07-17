@@ -31,6 +31,7 @@ class NewVisitorTest(LiveServerTestCase):
         # Hit landing page
         self.browser.get(self.live_server_url+'/#Features')
         self.assertIn('Features', self.browser.find_element_by_tag_name('h1').text)
+        self.assertIn('Login', self.browser.find_element_by_id('link-to-login-or-welcome').text)
         self.browser.find_element_by_link_text('Signup').click()
 
         # Sign up page rendered
@@ -148,6 +149,13 @@ class NewVisitorTest(LiveServerTestCase):
         inputbox.submit()
 
         assert "My Account" in self.browser.page_source
+
+        # Welcome authenticated user on landing pages
+        self.browser.get(self.live_server_url)
+        welcome = self.browser.find_element_by_id('link-to-login-or-welcome')
+        assert "Welcome back "+self.validated_teacher.username in welcome.text
+
+        time.sleep(1)
 
         # Teacher cannot access other teacher accounts
 

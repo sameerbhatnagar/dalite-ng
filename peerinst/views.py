@@ -249,6 +249,7 @@ def logout_view(request):
     return HttpResponseRedirect(reverse('landing_page'))
 
 
+@login_required
 def welcome(request):
     log(request)
     try:
@@ -320,7 +321,10 @@ class AssignmentUpdateView(NoStudentsMixin, LoginRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(AssignmentUpdateView, self).get_context_data(**kwargs)
-        context['teacher'] = get_object_or_404(models.Teacher, user=self.request.user)
+        teacher = get_object_or_404(models.Teacher, user=self.request.user)
+        context['teacher'] = teacher
+        all_qs = teacher.user.question_set.all() | teacher.user.collaborators.all()
+        context['all_questions'] = all_qs.distinct()
         return context
 
     def get_object(self):
@@ -408,6 +412,10 @@ class QuestionCloneView(QuestionCreateView):
             'grading_scheme' : question.grading_scheme,
          }
          return initial
+
+    def get_object(self, queryset=None):
+        # Remove link on object to pk to dump object permissions
+        return None
 
     # Custom save is needed to attach parent question to clone
     def form_valid(self, form):
@@ -702,7 +710,7 @@ class QuestionFormView(QuestionMixin, FormView):
         student, created_student = Student.objects.get_or_create(student=user)
 
         course_title = self.lti_data.edx_lti_parameters.get('context_title')
-        if not course_title:
+        if course_title:
             group, created_group = StudentGroup.objects.get_or_create(name=course_id,title=course_title)
         else:
             group, created_group = StudentGroup.objects.get_or_create(name=course_id)

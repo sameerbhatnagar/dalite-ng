@@ -5,6 +5,7 @@ from django.conf.urls import include, url
 
 #testing
 from django.views.decorators.clickjacking import xframe_options_sameorigin
+from django.contrib.auth.decorators import user_passes_test
 from django.views.decorators.cache import cache_page
 from django.contrib.auth import views as auth_views
 
@@ -13,6 +14,9 @@ import password_validation.views as password_views
 
 from . import admin_views
 from . import views
+
+def not_authenticated(user):
+    return not user.is_authenticated()
 
 urlpatterns = [
     # DALITE
@@ -76,7 +80,7 @@ urlpatterns = [
     # Auth
     url(r'^$', cache_page(3600)(views.landing_page), name='landing_page'),
     url(r'^signup/$', views.sign_up, name='sign_up'),
-    url(r'^login/$', auth_views.login, name='login'),
+    url(r'^login/$', user_passes_test(not_authenticated, login_url='/welcome/')(auth_views.login), name='login'),
     url(r'^logout/$', views.logout_view, name='logout'),
     url(r'^welcome/$', views.welcome, name='welcome'),
     url(r'^password_change/$', password_views.password_change, name='password_change'),
