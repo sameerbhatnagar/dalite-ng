@@ -82,6 +82,11 @@
           <form style="display:inline;" method="post" action="#">
             {% csrf_token %}
             <input type="hidden" name="q" value="{{g.pk}}" />
+            {% if user in g.collaborators or user == g.user %}
+            <button class="material-icons small-button mdc-button mdc-card__action mdc-card__action--button mdc-button--raised" type="button" onclick="window.location.href='{% url 'question-update' pk=g.id %}'"><i class="material-icons">settings</i></button>
+            {% else %}
+            <button class="material-icons small-button mdc-button mdc-card__action mdc-card__action--button mdc-button--raised" type="button" onclick="window.location.href='{% url 'question-clone' pk=g.id %}'"><i class="material-icons">settings</i></button>
+            {% endif %}
             <input class="material-icons small-button mdc-button mdc-card__action mdc-card__action--button mdc-button--raised" type="submit" value="clear"/>
           </form>
         </div>
@@ -99,7 +104,7 @@
     {% if g not in object.questions.all %}
     <div class="all-my-questions mdc-card" id={{g.id|slugify}} style="display: none;">
       <div class="mdc-typography--title bold" style="margin-bottom:5px;">
-        {{g.title|safe}} <i class='material-icons md-18 mdc-theme--primary inline link'>link</i>
+        {{g.title|safe}}
       </div>
 
       <div class="mdc-typography--body1">
@@ -142,6 +147,11 @@
           <form style="display:inline" method="post" action="#{{g.id|slugify}}">
             {% csrf_token %}
             <input type="hidden" name="q" value="{{g.pk}}" />
+            {% if user in g.collaborators or user == g.user %}
+            <button class="material-icons small-button mdc-button mdc-card__action mdc-card__action--button mdc-button--raised" type="button" onclick="window.location.href='{% url 'question-update' pk=g.id %}'"><i class="material-icons">settings</i></button>
+            {% else %}
+            <button class="material-icons small-button mdc-button mdc-card__action mdc-card__action--button mdc-button--raised" type="button" onclick="window.location.href='{% url 'question-clone' pk=g.id %}'"><i class="material-icons">settings</i></button>
+            {% endif %}
             <input class="material-icons small-button mdc-button mdc-card__action mdc-card__action--button mdc-button--raised" type="submit" value="add" />
           </form>
         </div>
