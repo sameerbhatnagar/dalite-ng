@@ -5,5 +5,10 @@ factory_boy>=2.5.2,<2.6
 mock
 ddt
 pyyaml
+<<<<<<< HEAD
 selenium==3.13.0
 pytz
+=======
+pytz
+selenium==3.13.0
+>>>>>>> d6423e7076421358595bf8ab27b0d152652f4070

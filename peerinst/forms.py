@@ -5,7 +5,7 @@ from django import forms
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
-from .models import StudentGroup, Assignment, BlinkAssignmentQuestion, BlinkQuestion, Question, Teacher, Discipline
+from .models import StudentGroup, Assignment, BlinkAssignmentQuestion, BlinkQuestion, Question, Teacher, Discipline, Category
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from django.forms import ModelForm
@@ -85,6 +85,24 @@ class AssignmentCreateForm(forms.ModelForm):
     class Meta:
         model = Assignment
         fields = ['identifier','title']
+
+
+class AssignmentMultiselectForm(forms.Form):
+
+    def __init__(self, user=None, *args, **kwargs):
+        super(AssignmentMultiselectForm, self).__init__(*args, **kwargs)
+        if user:
+            self.fields['assignments'] = forms.ModelMultipleChoiceField(
+            queryset=user.assignment_set.all(),
+            label=_('Assignments'),
+            help_text=_('Optional. Select assignments to add this question.  You can select multiple assignments.')
+            )
+        else:
+            self.fields['assignments'] = forms.ModelMultipleChoiceField(
+            queryset=Assignment.objects.all(),
+            label=_('Assignments'),
+            help_text=_('Optional. Select assignments to add this question.  You can select multiple assignments.')
+            )
 
 
 class TeacherAssignmentsForm(forms.Form):
@@ -185,6 +203,10 @@ class DisciplineForm(forms.ModelForm):
 
 class DisciplineSelectForm(forms.Form):
     discipline = forms.ModelChoiceField(queryset=Discipline.objects.all())
+
+
+class CategorySelectForm(forms.Form):
+    category = forms.ModelMultipleChoiceField(queryset=Category.objects.all())
 
 
 class ReportSelectForm(forms.Form):

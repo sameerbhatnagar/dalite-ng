@@ -111,6 +111,59 @@ export function wrap(text, width) {
   });
 }
 
+/** Reveal elements and rotate icon
+* @function
+* @param {String} elementSelector
+* @param {String} groupSelector
+*/
+export function revealOnClick(elementSelector, groupSelector) {
+  let d = d3.select(elementSelector)
+    .style('cursor', 'pointer')
+    .style('transform', 'rotate(0deg)');
+
+  let group = d3.selectAll(groupSelector);
+
+  let count = group.size();
+
+  d.on('click', () => {
+    if (d.attr('show') == 'true') {
+      d.transition()
+        .ease(d3.easeCubicIn)
+        .duration(1000)
+        .style('transform', 'rotate(0deg)')
+        .attr('show', 'false');
+
+      group.transition()
+        .ease(d3.easeCubicIn)
+        .duration(800)
+        .delay((d, i) => {
+          return 800/count*(count-i-1);
+        })
+        .style('opacity', 0)
+        .on('end', /* @this */ function() {
+          d3.select(this).style('display', 'none');
+        });
+    } else {
+      d.transition()
+        .ease(d3.easeCubicOut)
+        .duration(1000)
+        .style('transform', 'rotate(90deg)')
+        .attr('show', 'true');
+
+      group.transition()
+        .ease(d3.easeCubicOut)
+        .duration(800)
+        .delay((d, i) => {
+          return 800/count*i;
+        })
+        .style('opacity', 1)
+        .on('start', /* @this */ function() {
+          d3.select(this).style('display', 'block');
+        });
+    }
+  });
+}
+
 /** Underline h1 with svg
 *  @function
 */
