@@ -69,7 +69,7 @@
   </span>
   <span class="padded">
     {% if user.teacher %}
-      <button form="add_question_to_assignment" type="submit" class="mdc-button mdc-button--raised">Done</button>
+      <input form="add_question_to_assignment" type="submit" class="mdc-button mdc-button--raised" value="{% trans 'Done' %}">
     {% else %}
       <form style="display:inline" id="done" action="{% url 'welcome' %}" method="get">
         <button form="done" type="submit" class="mdc-button mdc-button--raised">Done</button>
