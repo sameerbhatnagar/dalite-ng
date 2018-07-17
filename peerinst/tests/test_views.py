@@ -106,7 +106,8 @@ class QuestionViewTestCase(TestCase):
         self.client.login(username=user.username, password=password or 'test')
 
     def question_get(self):
-        response = self.client.get(self.question_url)
+        # follow=True required in case of redirects
+        response = self.client.get(self.question_url, follow=True)
         # commented out by Sam because on TOS integration is meant to redirect (code 301) for new users
         # self.assertEqual(response.status_code, 200)
         return response

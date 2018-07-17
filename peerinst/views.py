@@ -781,20 +781,11 @@ class QuestionStartView(QuestionFormView):
         return super(QuestionStartView, self).form_valid(form)
 
     def dispatch(self, *args, **kwargs):
-
-        print('outside')
-        print(self.request.user)
-        print(get_object_or_404(User, username=self.request.user).username)
-        if self.request.user == get_object_or_404(User, username=self.request.user):
-            print('inside')
-            print(self.request.user)
-            print(Consent.get(self.request.user.username, "student"))
-            if Consent.get(self.request.user.username, "student") is None:
-                print('****inside')
-                return HttpResponseRedirect(reverse("tos:modify", args=("student",)) + "?next=" + self.request.path)
-            else:
-                return super(QuestionStartView,self).dispatch(*args, **kwargs)
-        else:
+        try:
+            student = Student.objects.get(student=self.request.user)
+            if Consent.get(student.student.username, "student") is None:
+                return HttpResponseRedirect(reverse("tos:consent", kwargs={ 'role' : 'student'}) + "?next=" + self.request.path)
+        except:
             return super(QuestionStartView,self).dispatch(*args, **kwargs)
 
 class QuestionReviewBaseView(QuestionFormView):
