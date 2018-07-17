@@ -52,7 +52,7 @@ from .admin_views import get_question_rationale_aggregates, get_assignment_aggre
 
 
 from .models import Student, StudentGroup, Teacher, Assignment, BlinkQuestion, BlinkAnswer, BlinkRound, BlinkAssignment, BlinkAssignmentQuestion, Question, Answer, AnswerChoice, Discipline, VerifiedDomain
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 
 #blink
 from django.http import JsonResponse
@@ -251,6 +251,11 @@ def welcome(request):
     log(request)
     try:
         teacher = Teacher.objects.get(user=request.user)
+        # Check if teacher group exists and ensure _this_ teacher belongs to it
+        teacher_group = get_object_or_none(Group, name=settings.TEACHER_GROUP)
+        if teacher_group:
+            if teacher_group not in teacher.user.groups.all():
+                teacher.user.groups.add(teacher_group)
         return HttpResponseRedirect(reverse('teacher', kwargs={ 'pk' : teacher.pk }))
     except ObjectDoesNotExist:
         return HttpResponseRedirect(reverse('assignment-list'))

@@ -6,8 +6,8 @@ from selenium.webdriver.common.keys import Keys
 import time
 import unittest
 
-from django.contrib.auth.models import Permission
-from peerinst.models import User, Teacher, Question
+from django.contrib.auth.models import Permission, Group
+from peerinst.models import User, Teacher, Question, Assignment
 
 def ready_user(pk):
     user = User.objects.get(pk=pk)
@@ -26,10 +26,16 @@ class NewUserTests(StaticLiveServerTestCase):
         self.validated_teacher = ready_user(1)
         self.inactive_user = ready_user(3)
 
+        self.group = Group.objects.get(name="Teacher")
+        self.assertFalse(self.group.permissions.all())
+
         permission = Permission.objects.get(codename='add_question')
-        self.validated_teacher.user_permissions.add(permission)
+        self.group.permissions.add(permission)
         permission = Permission.objects.get(codename='change_question')
-        self.validated_teacher.user_permissions.add(permission)
+        self.group.permissions.add(permission)
+        self.assertEqual(self.group.permissions.count(), 2)
+
+        self.assertFalse(self.validated_teacher.get_all_permissions())
 
 
     def tearDown(self):
@@ -147,9 +153,8 @@ class NewUserTests(StaticLiveServerTestCase):
 
 
     def test_teacher(self):
-        self.browser.get(self.live_server_url+'/login')
-
         # Teacher can login and access account
+        self.browser.get(self.live_server_url+'/login')
         inputbox = self.browser.find_element_by_id('id_username')
         inputbox.send_keys(self.validated_teacher.username)
 
@@ -157,6 +162,11 @@ class NewUserTests(StaticLiveServerTestCase):
         inputbox.send_keys(self.validated_teacher.text_pwd)
 
         inputbox.submit()
+
+        assert "My Account" in self.browser.page_source
+
+        # Teacher redirected to account if logged in
+        self.browser.get(self.live_server_url+'/login')
 
         assert "My Account" in self.browser.page_source
 
@@ -214,14 +224,23 @@ class NewUserTests(StaticLiveServerTestCase):
         self.browser.get(self.live_server_url + reverse('question-update', kwargs={ 'pk' : 43 }))
         assert "Forbidden" in self.browser.page_source
 
-        # Welcome authenticated user on landing pages
-        self.browser.get(self.live_server_url)
-        welcome = self.browser.find_element_by_id('link-to-login-or-welcome')
-        assert "Welcome back "+self.validated_teacher.username in welcome.text
+        # Teacher can create an assignment
+        self.browser.get(self.live_server_url + reverse('teacher', kwargs={ 'pk' : 1 } ))
+        manage_assignments_button = self.browser.find_element_by_link_text('Manage assignments').click()
+        assert "Create a new assignment" in self.browser.page_source
 
-        # Teacher cannot access other teacher accounts
-        self.browser.get(self.live_server_url + reverse('teacher', kwargs={ 'pk' : 2} ))
-        assert "Forbidden" in self.browser.page_source
+        inputbox = self.browser.find_element_by_id('id_identifier')
+        inputbox.send_keys('New unique assignment identifier')
+
+        inputbox = self.browser.find_element_by_id('id_title')
+        inputbox.send_keys('New assignment title')
+
+        inputbox.submit()
+
+        assert "New unique assignment identifier" in self.browser.page_source
+        assert Assignment.objects.filter(identifier="New unique assignment identifier").count() == 1
+
+        # Teacher can edit an assignment
 
         # Teacher can create a blink assignment
 
@@ -229,13 +248,16 @@ class NewUserTests(StaticLiveServerTestCase):
 
         # Teacher can edit a blink assignment
 
-        # Teacher can create an assignment
+        # Access account from link in top right corner
 
-        # Teacher can delete an assignment
+        # Welcome authenticated user on landing pages
+        self.browser.get(self.live_server_url)
+        welcome = self.browser.find_element_by_id('link-to-login-or-welcome')
+        assert "Welcome back "+self.validated_teacher.username in welcome.text
 
-        # Teacher can edit an assignment
-
-
+        # Teacher cannot access other teacher accounts
+        self.browser.get(self.live_server_url + reverse('teacher', kwargs={ 'pk' : 2 } ))
+        assert "Forbidden" in self.browser.page_source
 
 
 

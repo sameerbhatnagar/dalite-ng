@@ -17,7 +17,7 @@ from . import views
 
 def not_authenticated(user):
     return not user.is_authenticated()
-
+    
 urlpatterns = [
     # DALITE
     # Assignment table of contents - Enforce sameorigin to prevent access from LMS

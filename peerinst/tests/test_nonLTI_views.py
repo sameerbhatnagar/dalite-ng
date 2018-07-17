@@ -4,7 +4,7 @@ from django.http import HttpRequest
 from django.test import TestCase, TransactionTestCase
 
 from ..models import Discipline, Question, Assignment, Teacher, Student
-from django.contrib.auth.models import User, Permission
+from django.contrib.auth.models import User, Permission, Group
 
 def ready_user(pk):
     user = User.objects.get(pk=pk)
@@ -77,6 +77,18 @@ class TeacherTest(TestCase):
         self.inactive_user = ready_user(3)
         self.guest = ready_user(11)
 
+        self.group = Group.objects.get(name="Teacher")
+        self.assertFalse(self.group.permissions.all())
+
+        permission = Permission.objects.get(codename='add_question')
+        self.group.permissions.add(permission)
+        permission = Permission.objects.get(codename='change_question')
+        self.group.permissions.add(permission)
+        self.assertEqual(self.group.permissions.count(), 2)
+
+        self.assertFalse(self.validated_teacher.get_all_permissions())
+
+
     def test_login_and_access_to_accounts(self):
         # Login
         response = self.client.post(reverse('login'), {'username' : self.validated_teacher.username, 'password' : self.validated_teacher.text_pwd}, follow=True)
@@ -104,6 +116,7 @@ class TeacherTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'registration/login.html')
 
+
     def test_refuse_inactive_at_login(self):
         # @login_required decorator and mixin do NOT check if user.is_active
         # but authentication backend should.
@@ -111,6 +124,22 @@ class TeacherTest(TestCase):
         # Check inactive user cannot login
         logged_in = self.client.login(username=self.inactive_user.username, password=self.inactive_user.text_pwd)
         self.assertFalse(logged_in)
+
+
+    def test_adding_permissions(self):
+        logged_in = self.client.login(username=self.validated_teacher.username, password=self.validated_teacher.text_pwd)
+        self.assertTrue(logged_in)
+
+        response = self.client.get(reverse('question-create'))
+        self.assertEqual(response.status_code, 403)
+
+        response = self.client.get(reverse('welcome'))
+        self.assertRedirects(response, reverse('teacher', kwargs={ 'pk' : 1 }))
+        self.assertIn(self.group, self.validated_teacher.groups.all())
+
+        response = self.client.get(reverse('question-create'))
+        self.assertEqual(response.status_code, 200)
+
 
     def test_redirect_logged_in_user(self):
         logged_in = self.client.login(username=self.validated_teacher.username, password=self.validated_teacher.text_pwd)
@@ -122,6 +151,7 @@ class TeacherTest(TestCase):
         self.client.logout()
         response = self.client.get(reverse('welcome'), follow=True)
         self.assertTemplateUsed(response, 'registration/login.html')
+
 
     def test_question_list_view(self):
         logged_in = self.client.login(username=self.validated_teacher.username, password=self.validated_teacher.text_pwd)
@@ -135,6 +165,7 @@ class TeacherTest(TestCase):
         # Assignment pk invalid -> 404
         response = self.client.get(reverse('question-list', kwargs={ 'assignment_id' : 'unknown_id' }))
         self.assertEqual(response.status_code, 404)
+
 
     def test_question_create(self):
         logged_in = self.client.login(username=self.validated_teacher.username, password=self.validated_teacher.text_pwd)
@@ -160,6 +191,9 @@ class TeacherTest(TestCase):
         self.validated_teacher.user_permissions.add(permission)
         permission = Permission.objects.get(codename='change_question')
         self.validated_teacher.user_permissions.add(permission)
+
+        ## NB: it is good practice to refresh from db after permissions change
+        self.validated_teacher = User.objects.get(pk=1)
 
         self.assertTrue(self.validated_teacher.has_perm('peerinst.add_question'))
         self.assertTrue(self.validated_teacher.has_perm('peerinst.change_question'))

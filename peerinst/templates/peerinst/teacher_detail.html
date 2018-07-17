@@ -165,7 +165,7 @@
       </a>
       <i id="activate-dialog-{{a.pk|slugify}}" class="material-icons md-24 mdc-ripple-surface icon-list">info</i>
       {% if object.user in a.owner.all or object.user.is_staff %}
-        <a href="{% url 'assignment-update' a.pk %}">
+        <a  id="edit-assignment-{{ a.pk|slugify }}" href="{% url 'assignment-update' a.pk %}">
           <i class="material-icons md-24 mdc-ripple-surface icon-list">mode_edit</i>
         </a>
       {% endif %}

@@ -83,3 +83,7 @@
     owner: [2]
   model: peerinst.assignment
   pk: Assignment3
+- fields:
+    name: Teacher
+    permissions: []
+  model: auth.group

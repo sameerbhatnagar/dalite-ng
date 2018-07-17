@@ -137,7 +137,9 @@ class ApplicationHookManager(AbstractApplicationHookManager):
         :return: bool
         """
         user_roles = set(extra_params.get("roles", set()))
-        return bool(self.ADMIN_ACCESS_ROLES.intersection(user_roles))
+        #return bool(self.ADMIN_ACCESS_ROLES.intersection(user_roles))
+        # SALTISE/S4 version has no staff users
+        return False
 
     def update_staff_user(self, user):
         """
