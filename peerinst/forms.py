@@ -8,6 +8,7 @@ from django.utils.translation import ugettext_lazy as _
 from .models import StudentGroup, Assignment, BlinkAssignmentQuestion, BlinkQuestion, Question, Teacher, Discipline, Category
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
+from django.db.models import Count, Q
 from django.forms import ModelForm
 
 import password_validation
@@ -93,27 +94,25 @@ class AssignmentMultiselectForm(forms.Form):
         super(AssignmentMultiselectForm, self).__init__(*args, **kwargs)
         if user:
             # Remove assignments with question and assignments with student answers
-            if question:
-                queryset = user.assignment_set.all()
-            else:
-                queryset = user.assignment_set.all()
-
-            self.fields['assignments'] = forms.ModelMultipleChoiceField(
-            queryset=queryset,
-            label=_('Assignments'),
-            help_text=_('Optional. Select assignments to add this question.  You can select multiple assignments.  Assignments that this question is already a part of will not appear in list.')
-            )
+            queryset = user.assignment_set.all()
         else:
-            if question:
-                queryset = Assignment.objects.all()
-            else:
-                queryset = Assignment.objects.all()
+            queryset = Assignment.objects.all()
 
-            self.fields['assignments'] = forms.ModelMultipleChoiceField(
-            queryset=queryset,
-            label=_('Assignments'),
-            help_text=_('Optional. Select assignments to add this question.  You can select multiple assignments.  Assignments that this question is already a part of will not appear in list.')
-            )
+        num_student_rationales = Count('answer',filter=~Q(user_token=''))
+
+        if question:
+            queryset = queryset.annotate(num_student_rationales=num_student_rationales)\
+            .filter(Q(num_student_rationales=0))\
+            .exclude(questions=question)
+        else:
+            queryset = queryset.annotate(num_student_rationales=num_student_rationales)\
+            .filter(Q(num_student_rationales=0))
+
+        self.fields['assignments'] = forms.ModelMultipleChoiceField(
+        queryset=queryset,
+        label=_('Assignments'),
+        help_text=_('Optional. Select assignments to add this question.  You can select multiple assignments.  Assignments that this question is already a part of will not appear in list.')
+        )
 
 
 class TeacherAssignmentsForm(forms.Form):
