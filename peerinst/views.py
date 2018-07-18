@@ -542,7 +542,8 @@ def sample_answer_form_done(request, question_id):
                 assignments = form.cleaned_data['assignments'].all()
                 for a in assignments:
                     if teacher.user in a.owner.all():
-                        if question not in a.questions.all():
+                        # Check for student answers
+                        if a.answer_set.exclude(user_token__exact='').count() == 0 and question not in a.questions.all():
                             a.questions.add(question)
                     else:
                         raise PermissionDenied

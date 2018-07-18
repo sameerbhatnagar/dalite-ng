@@ -92,8 +92,9 @@ class AssignmentMultiselectForm(forms.Form):
     def __init__(self, user=None, question=None, *args, **kwargs):
         super(AssignmentMultiselectForm, self).__init__(*args, **kwargs)
         if user:
+            # Remove assignments with question and assignments with student answers
             if question:
-                queryset = user.assignment_set.all() & question.assignment_set.all()
+                queryset = user.assignment_set.all()
             else:
                 queryset = user.assignment_set.all()
 
@@ -104,7 +105,7 @@ class AssignmentMultiselectForm(forms.Form):
             )
         else:
             if question:
-                queryset = Assignment.objects.all() & question.assignment_set.all()
+                queryset = Assignment.objects.all()
             else:
                 queryset = Assignment.objects.all()
 
