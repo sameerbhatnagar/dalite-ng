@@ -104,12 +104,12 @@
       {% if formset %}
       {% if question.answerchoice_set.count > 0 %}
       <span class="padded">
-        <input form="answer-choice-form" class="mdc-button mdc-button--raised" type="submit" value="{% trans 'Save and next' %}" />
-      </span>
-      <span class="padded">
         <form style="display:inline" id="next" action="{% url 'sample-answer-form' question_id=question.id %}" method="get">
           <button form="next" type="submit" class="mdc-button mdc-button--raised">{% trans 'Next' %}</button>
         </form>
+      </span>
+      <span class="padded">
+        <input form="answer-choice-form" class="mdc-button mdc-button--raised" type="submit" value="{% trans 'Save and next' %}" />
       </span>
       {% else %}
       <span class="padded">
