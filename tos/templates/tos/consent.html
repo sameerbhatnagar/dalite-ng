@@ -1,41 +1,66 @@
-{% extends 'tos/base.html' %}
-{% block content %}
+{% extends 'peerinst/base.html' %}
 
-<form id="tos-container" action="{% url 'tos:update' role version %}" method="post">
+{% load staticfiles i18n compress %}
 
-  {% csrf_token %}
+{% block stylesheets %}
+  {% compress css %}
+    <link rel="stylesheet" href="{% static 'tos/css/styles.min.css' %}"></link>
+  {% endcompress %}
+{% endblock %}
 
-  <h1 class="mdc-typography--display3">Terms of Service</h1>
+{% block body %}
+  <main>
+    <section class='mdc-typography'>
+      <h1 class="mdc-typography--display3">{% trans 'Terms of Service' %}
+        <svg class="underline" width=150 height=4></svg>
+      </h1>
 
-  {% if role == "student" %}
-  <p>Would you be willing to share your answers so that other students may 
-    learn from them? They will be kept anonymous and you may change your mind 
-    at any time.</p>
-  {% elif role == "teacher" %}
-  <p>Would you be willing to share your questions so that other teachers may 
-    benefit from them? You may change your mind at any time.</p>
-  {% endif %}
+      <form id="tos-container" action="{% url 'tos:update' role version %}" method="post">
+        {% csrf_token %}
 
-  <div id="tos-text">{{ tos_text|safe }}</div>
+        {% if role == "student" %}
+        <p>
+          {% blocktrans %}
+          Would you be willing to share your answers so that other students may
+          learn from them? They will be kept anonymous and you may change your mind
+          at any time.
+          {% endblocktrans %}
+        </p>
+        {% elif role == "teacher" %}
+        <p>
+          {% blocktrans %}
+          Would you be willing to share your questions so that other teachers may
+          benefit from them? You can author new questions if you agree to share,
+          otherwise you are free to use existing questions.
+          {% endblocktrans %}
+        </p>
+        {% endif %}
 
-  {% if current %}
-  <div id="tos-version">Version: {{ version }} (current)</div>
-  {% else %}
-  <div id="tos-version">Version: {{ version }}</div>
-  {% endif %}
+        <div id="tos-text">{{ tos_text|safe }}</div>
 
-  <button type="submit" name="accepted" value="true" id="tos-accept" class="mdc-button mdc-button--raised">
-    <i class="material-icons mdc-button__icon" aria-hidden="true">done</i>
-    Accept
-  </button>
+        {% if current %}
+        <div id="tos-version">Version: {{ version }} (current)</div>
+        {% else %}
+        <div id="tos-version">Version: {{ version }}</div>
+        {% endif %}
 
-  <button type="submit" name="accepted" value="false" id="tos-refuse" class="mdc-button mdc-button--outlined">
-    <i class="material-icons mdc-button__icon" aria-hidden="true">clear</i>
-    Refuse
-  </button>
+        <button type="submit" name="accepted" value="true" id="tos-accept" class="mdc-button mdc-button--raised">
+          <i class="material-icons mdc-button__icon" aria-hidden="true">done</i>
+          Accept
+        </button>
 
-  <input type="hidden" name="redirect_to" value="{{ redirect_to }}"></input>
+        <button type="submit" name="accepted" value="false" id="tos-refuse" class="mdc-button mdc-button--raised">
+          <i class="material-icons mdc-button__icon" aria-hidden="true">clear</i>
+          Refuse
+        </button>
 
-</form>
+        <input type="hidden" name="redirect_to" value="{{ redirect_to }}"></input>
 
+      </form>
+    </section>
+  </main>
+{% endblock %}
+
+{% block scripts %}
+  <script src="{% static 'tos/js/scripts.min.js' %}" type="text/javascript"></script>
 {% endblock %}

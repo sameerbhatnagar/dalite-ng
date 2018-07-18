@@ -83,7 +83,10 @@ gulp.task('tos-styles', function() {
         includePaths: './node_modules',
       }),
     )
-    .pipe(postcss([autoprefixer({browsers: ['last 4 versions']})]))
+    .pipe(postcss([autoprefixer({
+      browsers:
+        ['last 3 versions', 'iOS>=8', 'ie 11', 'Safari 9.1', 'not dead'],
+     })]))
     .pipe(concat('styles.min.css'))
     .pipe(sourcemaps.write('.'))
     .pipe(gulp.dest('tos/static/tos/css'));
