@@ -453,6 +453,11 @@ class TeacherTest(TestCase):
         self.assertTemplateUsed(response, 'peerinst/assignment_detail.html')
         self.assertIn(Question.objects.get(pk=31), Assignment.objects.get(pk='Assignment4').questions.all())
 
+        # As teacher, post valid form to add question with student answers -> 403
+        response = self.client.post(reverse('assignment-update', kwargs={ 'assignment_id' : 'Assignment1' }), { 'q' : 31 }, follow=True)
+        self.assertEqual(response.status_code, 403)
+        self.assertNotIn(Question.objects.get(pk=31), Assignment.objects.get(pk='Assignment1').questions.all())
+
         # As teacher, post valid form to remove question -> 200
         response = self.client.post(reverse('assignment-update', kwargs={ 'assignment_id' : 'Assignment4' }), { 'q' : 31 }, follow=True)
         self.assertEqual(response.status_code, 200)

@@ -320,7 +320,7 @@ class AssignmentCopyView(NoStudentsMixin, LoginRequiredMixin, CreateView):
          super(AssignmentCopyView, self).get_initial(*args, **kwargs)
          assignment = get_object_or_404(models.Assignment, pk=self.kwargs['assignment_id'])
          initial = {
-            'title' : assignment.title,
+            'title' : _('Copy of ')+assignment.title,
          }
          return initial
 

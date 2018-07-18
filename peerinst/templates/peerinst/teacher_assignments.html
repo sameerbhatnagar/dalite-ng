@@ -68,10 +68,15 @@
               <input class="material-icons md-24 mdc-button small-button" style="padding:0pt;margin:0pt;" type="submit" value="remove_circle"/>
             </div>
         </form> -->
-        <a href="{% url 'assignment-update' a.pk %}" class="md-24">
-          <i class="material-icons md-24 mdc-ripple-surface icon-list">mode_edit</i>
-        </a>
-
+        {% if user in a.owner.all and a.answer_set.count == 0 or user.is_staff %}
+          <a  id="edit-assignment-{{ a.pk|slugify }}" href="{% url 'assignment-update' a.pk %}">
+            <i class="material-icons md-24 mdc-ripple-surface icon-list">mode_edit</i>
+          </a>
+        {% else %}
+          <a  id="copy-assignment-{{ a.pk|slugify }}" href="{% url 'assignment-copy' a.pk %}">
+            <i class="material-icons md-24 mdc-ripple-surface icon-list">file_copy</i>
+          </a>
+        {% endif %}
       </span>
     </li>
     {% endfor %}
