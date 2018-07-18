@@ -6,6 +6,16 @@
 {% compress css %}
 <link href="{% static 'peerinst/css/authorship.min.css' %}" rel="stylesheet">
 {% endcompress %}
+<style>
+.image-field {
+  padding-top:6px;
+  padding-bottom: 6px;
+  padding-left: 16px;
+  color: rgba(0,0,0,0.87);
+  font-size: 14px;
+  font-family: 'Montserrat', sans-serif;
+}
+</style>
 {% endblock %}
 
 {% block body %}
@@ -74,8 +84,12 @@
           <div class='field-container'>
             <div class='number-box'><span class='number'>3</span></div>
             <div class='field'>
-              <div class='mdc-form-field'>
-                <label for='id_image'>{{ form.image.label }}:</label>{{ form.image }} <span class='mdc-typography--body1' id='warning' style='display:none;color:red;'>{% trans 'File too large' %}</span>
+              <div class='mdc-form-field' style="display:block;">
+                <label for='id_image'>{{ form.image.label }}:</label>
+              </div>
+              <div class='image-field'>
+                {{form.image}}
+                <span class='mdc-typography--body1 bold' id='warning' style='display:none;color:red;'>{% trans 'Max file size 1MB' %}</span>
               </div>
               <p class="form-helper-text" aria-hidden="true">
                 {{ form.image.help_text|safe }}

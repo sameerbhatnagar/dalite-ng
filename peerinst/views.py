@@ -537,6 +537,13 @@ class QuestionUpdateView(NoStudentsMixin, LoginRequiredMixin, ObjectPermissionMi
             form.cleaned_data['collaborators'] = self.object.collaborators.all()
         return super(QuestionUpdateView, self).form_valid(form)
 
+    def get_context_data(self, **kwargs):
+        context = super(QuestionUpdateView, self).get_context_data(**kwargs)
+        context.update(
+            parent=self.object.parent
+        )
+        return context
+
     def get_success_url(self):
         return reverse('answer-choice-form', kwargs={ 'question_id' : self.object.pk })
 
