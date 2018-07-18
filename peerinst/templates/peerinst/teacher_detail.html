@@ -181,7 +181,7 @@
         <i class="material-icons md-24 mdc-ripple-surface icon-list">bar_chart</i>
       </a>
       <i id="activate-dialog-{{a.pk|slugify}}" class="material-icons md-24 mdc-ripple-surface icon-list">info</i>
-      {% if object.user in a.owner.all and a.answer_set.count == 0 or object.user.is_staff %}
+      {% if object.user in a.owner.all and a.answer_set.count == 0 %}
         <a  id="edit-assignment-{{ a.pk|slugify }}" href="{% url 'assignment-update' a.pk %}">
           <i class="material-icons md-24 mdc-ripple-surface icon-list">mode_edit</i>
         </a>
