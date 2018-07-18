@@ -44,6 +44,7 @@ urlpatterns = [
     url(r'^sample-answer/form/(?P<question_id>[0-9]+)$', admin_views.QuestionPreviewViewBase.as_view(), name='sample-answer-form'),
     url(r'^sample-answer/form/(?P<question_id>[0-9]+)/done$', views.sample_answer_form_done, name='sample-answer-form-done'),
     url(r'^assignment/copy/(?P<assignment_id>[^/]+)$', views.AssignmentCopyView.as_view(), name='assignment-copy'),
+    url(r'^assignment/edit/(?P<assignment_id>[^/]+)$', views.AssignmentEditView.as_view(), name='assignment-edit'),
     url(r'^question-search/$', views.question_search, name='question-search'),
     url(r'^heartbeat/$', views.HeartBeatUrl.as_view(), name='heartbeat'),
 

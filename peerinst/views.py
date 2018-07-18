@@ -328,6 +328,13 @@ class AssignmentCopyView(NoStudentsMixin, LoginRequiredMixin, CreateView):
         # Remove link on object to pk to dump object permissions
         return None
 
+
+    def get_context_data(self, **kwargs):
+        context = super(AssignmentCopyView, self).get_context_data(**kwargs)
+        teacher = get_object_or_404(models.Teacher, user=self.request.user)
+        context['teacher'] = teacher
+        return context
+
     # Custom save is needed to attach questions and user
     def form_valid(self, form):
         assignment = get_object_or_404(models.Assignment, pk=self.kwargs['assignment_id'])
@@ -338,6 +345,25 @@ class AssignmentCopyView(NoStudentsMixin, LoginRequiredMixin, CreateView):
         teacher.assignments.add(form.instance)
         teacher.save()
         return super(AssignmentCopyView, self).form_valid(form)
+
+    def get_success_url(self):
+        return reverse('assignment-update', kwargs={ 'assignment_id' : self.object.pk })
+
+
+class AssignmentEditView(NoStudentsMixin, LoginRequiredMixin, UpdateView):
+    """View for editing assignment title and identifier."""
+    model = Assignment
+    template_name_suffix = '_edit'
+    fields = ['title']
+
+    def get_object(self):
+        return get_object_or_404(models.Assignment, pk=self.kwargs['assignment_id'])
+
+    def get_context_data(self, **kwargs):
+        context = super(AssignmentEditView, self).get_context_data(**kwargs)
+        teacher = get_object_or_404(models.Teacher, user=self.request.user)
+        context['teacher'] = teacher
+        return context
 
     def get_success_url(self):
         return reverse('assignment-update', kwargs={ 'assignment_id' : self.object.pk })

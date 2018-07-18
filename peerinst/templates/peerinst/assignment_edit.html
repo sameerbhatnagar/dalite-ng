@@ -22,14 +22,16 @@
         <span style="padding-left:0.3em;padding-right:0.5em;">|</span><a href="{% url 'teacher-assignments' teacher.id %}">{% trans 'Back to My Assignments' %}</a>
       </div>
 
-      <h2 class="mdc-typography--display1 mdc-theme--primary">{% trans 'Copy an assignment' %}</h2>
+      <h2 class="mdc-typography--display1 mdc-theme--primary">{% trans 'Edit assignment' %}</h2>
+
+      <h3>{% trans 'Identifier' %}: {{object.pk}}</h3>
 
       <div class='field-container'>
         <div class='number-box'><span class='number'>?</span></div>
         <div class='field'>
           <p><small>
             {% blocktrans %}
-            Assignments cannot be modified once they contain student answers.  After providing a unique identifier below and submitting the form, a copy of this assignment will be made that can be edited.
+            The assignment identifier cannot be changed as learning management systems (like Moodle) use the identifier to find the assignment.
             {% endblocktrans %}
           </small></p>
         </div>
@@ -54,7 +56,7 @@
           </p>
           {{ field.errors }}
         {% endfor %}
-        <input class="mdc-button mdc-button--raised" type="submit" value="Create" />
+        <input class="mdc-button mdc-button--raised" type="submit" value="Update" />
       </form>
 
 </main>
