@@ -857,12 +857,20 @@ class QuestionStartView(QuestionFormView):
         return super(QuestionStartView, self).form_valid(form)
 
     def dispatch(self, *args, **kwargs):
-        try:
-            student = Student.objects.get(student=self.request.user)
-            if Consent.get(student.student.username, "student") is None:
+
+        # Check for any TOS
+        if Consent.get(self.request.user.username, "student") is None:
+            return HttpResponseRedirect(reverse("tos:consent", kwargs={ 'role' : 'student'}) + "?next=" + self.request.path)
+        else:
+            latest_student_consent = Consent.objects.filter(
+                user__username=self.request.user.username,
+                tos__role="st",
+                ).order_by("-datetime").first()
+            # Check if TOS is current
+            if not latest_student_consent.tos.current:
                 return HttpResponseRedirect(reverse("tos:consent", kwargs={ 'role' : 'student'}) + "?next=" + self.request.path)
-        except:
-            return super(QuestionStartView,self).dispatch(*args, **kwargs)
+            else:
+                return super(QuestionStartView,self).dispatch(*args, **kwargs)
 
 class QuestionReviewBaseView(QuestionFormView):
     """Common base class for sequential and non-sequential review types."""
@@ -1345,10 +1353,20 @@ class TeacherBase(NoStudentsMixin,LoginRequiredMixin,View):
 
     def dispatch(self, *args, **kwargs):
         if self.request.user == get_object_or_404(models.Teacher, pk=kwargs['pk']).user:
+
+            # Check for any TOS
             if Consent.get(self.request.user.username, "teacher") is None:
                 return HttpResponseRedirect(reverse("tos:modify", args=("teacher",)) + "?next=" + reverse("teacher", args=(kwargs["pk"],)))
-
-            return super(TeacherBase, self).dispatch(*args, **kwargs)
+            else:
+                latest_teacher_consent = Consent.objects.filter(
+                    user__username=self.get_object().user.username,
+                    tos__role="te",
+                    ).order_by("-datetime").first()
+                # Check if TOS is current
+                if not latest_teacher_consent.tos.current:
+                    return HttpResponseRedirect(reverse("tos:modify", args=("teacher",)) + "?next=" + reverse("teacher", args=(kwargs["pk"],)))
+                else:
+                    return super(TeacherBase, self).dispatch(*args, **kwargs)
         else:
             raise PermissionDenied
 
@@ -1365,11 +1383,11 @@ class TeacherDetailView(TeacherBase, DetailView):
         context['tos_accepted'] = bool(Consent.get(self.get_object().user.username, "teacher"))
 
         #### To revisit!
-        consent = Consent.objects.filter(
+        latest_teacher_consent = Consent.objects.filter(
             user__username=self.get_object().user.username,
             tos__role="te",
             ).order_by("-datetime").first()
-        context['tos_timestamp'] = consent.datetime
+        context['tos_timestamp'] = latest_teacher_consent.datetime
 
         # Set all blink assignments, questions, and rounds for this teacher to inactive
         for a in self.get_object().blinkassignment_set.all():
