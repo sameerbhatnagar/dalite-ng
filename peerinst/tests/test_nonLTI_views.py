@@ -387,7 +387,7 @@ class TeacherTest(TestCase):
         permission = Permission.objects.get(codename='change_question')
         self.validated_teacher.user_permissions.add(permission)
 
-        # Clone question 43
+        # Clone question 43 from another user
         question = Question.objects.get(pk=43)
         response = self.client.get(reverse('question-clone', kwargs={ 'pk' : 43 }))
         self.assertContains(response, 'Step 1')
@@ -425,8 +425,12 @@ class TeacherTest(TestCase):
         response = self.client.get(reverse('assignment-update', kwargs={ 'assignment_id' : 'Assignment2' }))
         self.assertEqual(response.status_code, 403)
 
-        # Access as teacher, owner -> 200
+        # Access as teacher, owner, but with student answers -> 403
         response = self.client.get(reverse('assignment-update', kwargs={ 'assignment_id' : 'Assignment1' }))
+        self.assertEqual(response.status_code, 403)
+
+        # Access as teacher, owner, with no student answers -> 200
+        response = self.client.get(reverse('assignment-update', kwargs={ 'assignment_id' : 'Assignment4' }))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['teacher'], self.validated_teacher.teacher)
         self.assertTemplateUsed(response, 'peerinst/assignment_detail.html')
@@ -436,27 +440,27 @@ class TeacherTest(TestCase):
         self.assertTrue(logged_in)
 
         # As teacher, post valid form to add question -> 200
-        response = self.client.post(reverse('assignment-update', kwargs={ 'assignment_id' : 'Assignment1' }), { 'q' : 31 }, follow=True)
+        response = self.client.post(reverse('assignment-update', kwargs={ 'assignment_id' : 'Assignment4' }), { 'q' : 31 }, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'peerinst/assignment_detail.html')
-        self.assertIn(Question.objects.get(pk=31), Assignment.objects.get(pk='Assignment1').questions.all())
+        self.assertIn(Question.objects.get(pk=31), Assignment.objects.get(pk='Assignment4').questions.all())
 
         # As teacher, post valid form to remove question -> 200
-        response = self.client.post(reverse('assignment-update', kwargs={ 'assignment_id' : 'Assignment1' }), { 'q' : 31 }, follow=True)
+        response = self.client.post(reverse('assignment-update', kwargs={ 'assignment_id' : 'Assignment4' }), { 'q' : 31 }, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'peerinst/assignment_detail.html')
-        self.assertNotIn(Question.objects.get(pk=31), Assignment.objects.get(pk='Assignment1').questions.all())
+        self.assertNotIn(Question.objects.get(pk=31), Assignment.objects.get(pk='Assignment4').questions.all())
 
         # As teacher, post invalid form to add question -> 400
-        response = self.client.post(reverse('assignment-update', kwargs={ 'assignment_id' : 'Assignment1' }), { 'q' : 3111231 }, follow=True)
+        response = self.client.post(reverse('assignment-update', kwargs={ 'assignment_id' : 'Assignment4' }), { 'q' : 3111231 }, follow=True)
         self.assertEqual(response.status_code, 400)
 
         # As non-logged in user, post valid form to add question -> Login
         self.client.logout()
-        response = self.client.post(reverse('assignment-update', kwargs={ 'assignment_id' : 'Assignment1' }), { 'q' : 31 }, follow=True)
+        response = self.client.post(reverse('assignment-update', kwargs={ 'assignment_id' : 'Assignment4' }), { 'q' : 31 }, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'registration/login.html')
-        self.assertNotIn(Question.objects.get(pk=31), Assignment.objects.get(pk='Assignment1').questions.all())
+        self.assertNotIn(Question.objects.get(pk=31), Assignment.objects.get(pk='Assignment4').questions.all())
 
 
 class StudentTest(TestCase):

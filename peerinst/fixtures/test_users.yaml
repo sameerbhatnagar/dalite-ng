@@ -84,6 +84,12 @@
   model: peerinst.assignment
   pk: Assignment3
 - fields:
+    questions: [30]
+    title: Assignment title 4
+    owner: [1]
+  model: peerinst.assignment
+  pk: Assignment4
+- fields:
     name: Teacher
     permissions: []
   model: auth.group

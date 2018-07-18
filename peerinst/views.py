@@ -316,8 +316,13 @@ class AssignmentUpdateView(NoStudentsMixin, LoginRequiredMixin, DetailView):
     model = Assignment
 
     def dispatch(self, *args, **kwargs):
+        # Check object permissions (to be refactored using mixin)
         if self.request.user in self.get_object().owner.all() or self.request.user.is_staff:
-            return super(AssignmentUpdateView, self).dispatch(*args, **kwargs)
+            # Check for student answers
+            if self.get_object().answer_set.exclude(user_token__exact='').count() > 0:
+                raise PermissionDenied
+            else:
+                return super(AssignmentUpdateView, self).dispatch(*args, **kwargs)
         else:
             raise PermissionDenied
 
@@ -532,7 +537,7 @@ def sample_answer_form_done(request, question_id):
     if request.method == "POST":
         try:
             teacher = Teacher.objects.get(user=request.user)
-            form = forms.AssignmentMultiselectForm(request.user, request.POST)
+            form = forms.AssignmentMultiselectForm(request.user, question, request.POST)
             if form.is_valid():
                 assignments = form.cleaned_data['assignments'].all()
                 for a in assignments:

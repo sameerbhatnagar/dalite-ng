@@ -414,7 +414,7 @@ class QuestionPreviewViewBase(NoStudentsMixin, LoginRequiredMixin, FormView):
         context.update(
             question=self.question,
             answer_choices=self.answer_choices,
-            assignment_form=AssignmentMultiselectForm(self.request.user)
+            assignment_form=AssignmentMultiselectForm(self.request.user, self.question)
         )
         return context
 

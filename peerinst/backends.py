@@ -8,6 +8,7 @@ class CustomPermissionsBackend(ModelBackend):
 
         if obj:
             try:
+                # Assumes ownership is defined by user OneToOneField or collaborators ManyToManyField
                 if user_obj == obj.user or user_obj in obj.collaborators.all():
                     # Has permission for _this_ object; proceed with normal permissions check
                     return super(CustomPermissionsBackend, self).has_perm(user_obj, perm)
