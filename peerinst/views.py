@@ -1359,7 +1359,7 @@ class TeacherBase(NoStudentsMixin,LoginRequiredMixin,View):
                 return HttpResponseRedirect(reverse("tos:modify", args=("teacher",)) + "?next=" + reverse("teacher", args=(kwargs["pk"],)))
             else:
                 latest_teacher_consent = Consent.objects.filter(
-                    user__username=self.get_object().user.username,
+                    user__username=self.request.user.username,
                     tos__role="te",
                     ).order_by("-datetime").first()
                 # Check if TOS is current
