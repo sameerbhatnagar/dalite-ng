@@ -331,13 +331,13 @@
         {% if form %}
           {% if object %}
           <span class="padded">
-            <input form="question-create-form" class="mdc-button mdc-button--raised" type="submit" value="Save and next" />
-          </span>
-
-          <span class="padded">
             <form style="display:inline" id="next" action="{% url 'answer-choice-form' question_id=object.pk %}" method="get">
               <button form="next" type="submit" class="mdc-button mdc-button--raised">Next</button>
             </form>
+          </span>
+
+          <span class="padded">
+            <input form="question-create-form" class="mdc-button mdc-button--raised" type="submit" value="Save and next" />
           </span>
           {% else %}
           <span class="padded">
