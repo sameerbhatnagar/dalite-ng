@@ -1353,7 +1353,7 @@ class TeacherBase(NoStudentsMixin,LoginRequiredMixin,View):
             raise PermissionDenied
 
 
-class TeacherDetailView(TeacherBase,DetailView):
+class TeacherDetailView(TeacherBase, DetailView):
     """Teacher account"""
     model = Teacher
 
@@ -1363,6 +1363,13 @@ class TeacherDetailView(TeacherBase,DetailView):
         context['LTI_secret'] = str(settings.LTI_CLIENT_SECRET)
         context['LTI_launch_url'] = str('https://'+self.request.get_host()+'/lti/')
         context['tos_accepted'] = bool(Consent.get(self.get_object().user.username, "teacher"))
+
+        #### To revisit!
+        consent = Consent.objects.filter(
+            user__username=self.get_object().user.username,
+            tos__role="te",
+            ).order_by("-datetime").first()
+        context['tos_timestamp'] = consent.datetime
 
         # Set all blink assignments, questions, and rounds for this teacher to inactive
         for a in self.get_object().blinkassignment_set.all():
