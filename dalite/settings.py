@@ -17,7 +17,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True 
+DEBUG = True
 
 ALLOWED_HOSTS = ['127.0.0.1']
 
@@ -237,6 +237,12 @@ PASSWORD_GENERATOR_NONCE = os.environ.get('PASSWORD_GENERATOR_NONCE', None)
 
 # Configureation file for the heartbeat view, should contain json file. See this url for file contents.
 HEARTBEAT_REQUIRED_FREE_SPACE_PERCENTAGE = 20
+
+
+# NB: Object level permissions are checked for certain models, including Question
+# TEACHER_GROUP will be automatically added to teachers at login
+# This group and its permissions need to be set through admin site 
+TEACHER_GROUP = "Teacher"
 
 
 try:

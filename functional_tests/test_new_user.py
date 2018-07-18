@@ -1,11 +1,13 @@
 from django.contrib.auth.hashers import make_password
-from django.test import LiveServerTestCase
+from django.core.urlresolvers import reverse
+from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 import time
 import unittest
 
-from peerinst.models import User, Teacher
+from django.contrib.auth.models import Permission, Group
+from peerinst.models import User, Teacher, Question, Assignment
 
 def ready_user(pk):
     user = User.objects.get(pk=pk)
@@ -14,7 +16,7 @@ def ready_user(pk):
     user.save()
     return user
 
-class NewVisitorTest(LiveServerTestCase):
+class NewUserTests(StaticLiveServerTestCase):
     fixtures = ['test_users.yaml']
 
     def setUp(self):
@@ -24,8 +26,21 @@ class NewVisitorTest(LiveServerTestCase):
         self.validated_teacher = ready_user(1)
         self.inactive_user = ready_user(3)
 
+        self.group = Group.objects.get(name="Teacher")
+        self.assertFalse(self.group.permissions.all())
+
+        permission = Permission.objects.get(codename='add_question')
+        self.group.permissions.add(permission)
+        permission = Permission.objects.get(codename='change_question')
+        self.group.permissions.add(permission)
+        self.assertEqual(self.group.permissions.count(), 2)
+
+        self.assertFalse(self.validated_teacher.get_all_permissions())
+
+
     def tearDown(self):
         self.browser.quit()
+
 
     def test_new_user(self):
         # Hit landing page
@@ -136,10 +151,10 @@ class NewVisitorTest(LiveServerTestCase):
 
         # Validated user can logout
 
-    def test_teacher(self):
-        self.browser.get(self.live_server_url+'/login')
 
+    def test_teacher(self):
         # Teacher can login and access account
+        self.browser.get(self.live_server_url+'/login')
         inputbox = self.browser.find_element_by_id('id_username')
         inputbox.send_keys(self.validated_teacher.username)
 
@@ -150,14 +165,82 @@ class NewVisitorTest(LiveServerTestCase):
 
         assert "My Account" in self.browser.page_source
 
-        # Welcome authenticated user on landing pages
-        self.browser.get(self.live_server_url)
-        welcome = self.browser.find_element_by_id('link-to-login-or-welcome')
-        assert "Welcome back "+self.validated_teacher.username in welcome.text
+        # Teacher redirected to account if logged in
+        self.browser.get(self.live_server_url+'/login')
+
+        assert "My Account" in self.browser.page_source
+
+        # Teacher can create a question
+        self.browser.find_element_by_link_text('Create new').click()
 
         time.sleep(1)
 
-        # Teacher cannot access other teacher accounts
+        assert "Step 1" in self.browser.find_element_by_tag_name('h2').text
+
+        inputbox = self.browser.find_element_by_id('id_title')
+        inputbox.send_keys('Test title')
+
+        inputbox = self.browser.find_element_by_id('id_text')
+        inputbox.send_keys('Test text')
+
+        inputbox.submit()
+
+        assert "Step 2" in self.browser.find_element_by_tag_name('h2').text
+
+        inputbox = self.browser.find_element_by_id('id_answerchoice_set-0-text')
+        inputbox.send_keys('Answer 1')
+
+        inputbox = self.browser.find_element_by_id('id_answerchoice_set-1-text')
+        inputbox.send_keys('Answer 2')
+
+        self.browser.find_element_by_id('id_answerchoice_set-0-correct').click()
+
+        inputbox.submit()
+
+        assert "Step 3" in self.browser.find_element_by_tag_name('h2').text
+
+        form = self.browser.find_element_by_id('add_question_to_assignment').submit()
+
+        assert "My Account" in self.browser.find_element_by_tag_name('h1').text
+        assert "Test title" in self.browser.page_source
+
+        # Teacher can edit their questions
+        question = Question.objects.get(title='Test title')
+        edit_button = self.browser.find_element_by_id('edit-question-'+str(question.id)).click()
+
+        assert "Step 1" in self.browser.find_element_by_tag_name('h2').text
+
+        inputbox = self.browser.find_element_by_id('id_text')
+        inputbox.send_keys(' edited')
+
+        inputbox.submit()
+
+        question.refresh_from_db()
+
+        assert "Step 2" in self.browser.find_element_by_tag_name('h2').text
+        assert "Test text edited" in question.text
+
+        # Teacher cannot edit another teacher's questions
+        self.browser.get(self.live_server_url + reverse('question-update', kwargs={ 'pk' : 43 }))
+        assert "Forbidden" in self.browser.page_source
+
+        # Teacher can create an assignment
+        self.browser.get(self.live_server_url + reverse('teacher', kwargs={ 'pk' : 1 } ))
+        manage_assignments_button = self.browser.find_element_by_link_text('Manage assignments').click()
+        assert "Create a new assignment" in self.browser.page_source
+
+        inputbox = self.browser.find_element_by_id('id_identifier')
+        inputbox.send_keys('New unique assignment identifier')
+
+        inputbox = self.browser.find_element_by_id('id_title')
+        inputbox.send_keys('New assignment title')
+
+        inputbox.submit()
+
+        assert "New unique assignment identifier" in self.browser.page_source
+        assert Assignment.objects.filter(identifier="New unique assignment identifier").count() == 1
+
+        # Teacher can edit an assignment
 
         # Teacher can create a blink assignment
 
@@ -165,19 +248,20 @@ class NewVisitorTest(LiveServerTestCase):
 
         # Teacher can edit a blink assignment
 
-        # Teacher can create an assignment
+        # Access account from link in top right corner
 
-        # Teacher can delete an assignment
+        # Welcome authenticated user on landing pages
+        self.browser.get(self.live_server_url)
+        welcome = self.browser.find_element_by_id('link-to-login-or-welcome')
+        assert "Welcome back "+self.validated_teacher.username in welcome.text
 
-        # Teacher can edit an assignment
+        # Teacher cannot access other teacher accounts
+        self.browser.get(self.live_server_url + reverse('teacher', kwargs={ 'pk' : 2 } ))
+        assert "Forbidden" in self.browser.page_source
 
-        # Teacher can create a question
 
-        # Teacher can edit their questions
 
         # Checkout what answer choice form looks like if student answers
-
-        # Teacher cannot edit other questions
 
         # Teacher cannot delete any questions
 

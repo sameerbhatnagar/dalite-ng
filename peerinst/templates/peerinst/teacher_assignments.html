@@ -1,6 +1,12 @@
 {% extends 'peerinst/base.html' %}
 
-{% load i18n add_class %}
+{% load i18n add_class compress staticfiles %}
+
+{% block stylesheets %}
+{% compress css %}
+<link href="{% static 'peerinst/css/authorship.min.css' %}" rel="stylesheet">
+{% endcompress %}
+{% endblock %}
 
 {% block body %}
 
@@ -14,6 +20,19 @@
   </div>
 
   <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Create a new assignment' %}</h2>
+
+  <div class='field-container'>
+    <div class='number-box'><span class='number'>?</span></div>
+    <div class='field'>
+      <p><small>
+        {% blocktrans %}
+        The assignment title may be displayed and should be informative. The assignment identifier is used as the keyword to access the assignment through a url.  It must be unique but does not need to be informative.
+        {% endblocktrans %}
+      </small></p>
+    </div>
+  </div>
+
+
   {{form.errors}}
   <form method="post">
     {% csrf_token %}
@@ -68,10 +87,15 @@
               <input class="material-icons md-24 mdc-button small-button" style="padding:0pt;margin:0pt;" type="submit" value="remove_circle"/>
             </div>
         </form> -->
-        <a href="{% url 'assignment-update' a.pk %}" class="md-24">
-          <i class="material-icons md-24 mdc-ripple-surface icon-list">mode_edit</i>
-        </a>
-
+        {% if user in a.owner.all and a.answer_set.count == 0 or user.is_staff %}
+          <a  id="edit-assignment-{{ a.pk|slugify }}" href="{% url 'assignment-update' a.pk %}">
+            <i class="material-icons md-24 mdc-ripple-surface icon-list">mode_edit</i>
+          </a>
+        {% else %}
+          <a  id="copy-assignment-{{ a.pk|slugify }}" href="{% url 'assignment-copy' a.pk %}">
+            <i class="material-icons md-24 mdc-ripple-surface icon-list">file_copy</i>
+          </a>
+        {% endif %}
       </span>
     </li>
     {% endfor %}

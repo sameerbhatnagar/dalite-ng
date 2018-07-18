@@ -52,7 +52,7 @@ from .admin_views import get_question_rationale_aggregates, get_assignment_aggre
 
 
 from .models import Student, StudentGroup, Teacher, Assignment, BlinkQuestion, BlinkAnswer, BlinkRound, BlinkAssignment, BlinkAssignmentQuestion, Question, Answer, AnswerChoice, Discipline, VerifiedDomain
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 
 #blink
 from django.http import JsonResponse
@@ -254,6 +254,11 @@ def welcome(request):
     log(request)
     try:
         teacher = Teacher.objects.get(user=request.user)
+        # Check if teacher group exists and ensure _this_ teacher belongs to it
+        teacher_group = get_object_or_none(Group, name=settings.TEACHER_GROUP)
+        if teacher_group:
+            if teacher_group not in teacher.user.groups.all():
+                teacher.user.groups.add(teacher_group)
         return HttpResponseRedirect(reverse('teacher', kwargs={ 'pk' : teacher.pk }))
     except ObjectDoesNotExist:
         return HttpResponseRedirect(reverse('assignment-list'))
@@ -309,13 +314,76 @@ class AssignmentListView(NoStudentsMixin, LoginRequiredMixin, ListView):
     model = models.Assignment
 
 
+class AssignmentCopyView(NoStudentsMixin, LoginRequiredMixin, CreateView):
+    """View to create an assignment from existing"""
+    model = models.Assignment
+    form_class = forms.AssignmentCreateForm
+
+    def get_initial(self, *args, **kwargs):
+         super(AssignmentCopyView, self).get_initial(*args, **kwargs)
+         assignment = get_object_or_404(models.Assignment, pk=self.kwargs['assignment_id'])
+         initial = {
+            'title' : _('Copy of ')+assignment.title,
+         }
+         return initial
+
+    def get_object(self, queryset=None):
+        # Remove link on object to pk to dump object permissions
+        return None
+
+
+    def get_context_data(self, **kwargs):
+        context = super(AssignmentCopyView, self).get_context_data(**kwargs)
+        teacher = get_object_or_404(models.Teacher, user=self.request.user)
+        context['teacher'] = teacher
+        return context
+
+    # Custom save is needed to attach questions and user
+    def form_valid(self, form):
+        assignment = get_object_or_404(models.Assignment, pk=self.kwargs['assignment_id'])
+        form.instance.save()
+        form.instance.questions = assignment.questions.all()
+        form.instance.owner.add(self.request.user)
+        teacher = get_object_or_404(models.Teacher, user=self.request.user)
+        teacher.assignments.add(form.instance)
+        teacher.save()
+        return super(AssignmentCopyView, self).form_valid(form)
+
+    def get_success_url(self):
+        return reverse('assignment-update', kwargs={ 'assignment_id' : self.object.pk })
+
+
+class AssignmentEditView(NoStudentsMixin, LoginRequiredMixin, UpdateView):
+    """View for editing assignment title and identifier."""
+    model = Assignment
+    template_name_suffix = '_edit'
+    fields = ['title']
+
+    def get_object(self):
+        return get_object_or_404(models.Assignment, pk=self.kwargs['assignment_id'])
+
+    def get_context_data(self, **kwargs):
+        context = super(AssignmentEditView, self).get_context_data(**kwargs)
+        teacher = get_object_or_404(models.Teacher, user=self.request.user)
+        context['teacher'] = teacher
+        return context
+
+    def get_success_url(self):
+        return reverse('assignment-update', kwargs={ 'assignment_id' : self.object.pk })
+
+
 class AssignmentUpdateView(NoStudentsMixin, LoginRequiredMixin, DetailView):
     """View for updating assignment."""
     model = Assignment
 
     def dispatch(self, *args, **kwargs):
+        # Check object permissions (to be refactored using mixin)
         if self.request.user in self.get_object().owner.all() or self.request.user.is_staff:
-            return super(AssignmentUpdateView, self).dispatch(*args, **kwargs)
+            # Check for student answers
+            if self.get_object().answer_set.exclude(user_token__exact='').count() > 0:
+                raise PermissionDenied
+            else:
+                return super(AssignmentUpdateView, self).dispatch(*args, **kwargs)
         else:
             raise PermissionDenied
 
@@ -472,6 +540,13 @@ class QuestionUpdateView(NoStudentsMixin, LoginRequiredMixin, ObjectPermissionMi
             form.cleaned_data['collaborators'] = self.object.collaborators.all()
         return super(QuestionUpdateView, self).form_valid(form)
 
+    def get_context_data(self, **kwargs):
+        context = super(QuestionUpdateView, self).get_context_data(**kwargs)
+        context.update(
+            parent=self.object.parent
+        )
+        return context
+
     def get_success_url(self):
         return reverse('answer-choice-form', kwargs={ 'question_id' : self.object.pk })
 
@@ -530,12 +605,13 @@ def sample_answer_form_done(request, question_id):
     if request.method == "POST":
         try:
             teacher = Teacher.objects.get(user=request.user)
-            form = forms.AssignmentMultiselectForm(request.user, request.POST)
+            form = forms.AssignmentMultiselectForm(request.user, question, request.POST)
             if form.is_valid():
                 assignments = form.cleaned_data['assignments'].all()
                 for a in assignments:
                     if teacher.user in a.owner.all():
-                        if question not in a.questions.all():
+                        # Check for student answers
+                        if a.answer_set.exclude(user_token__exact='').count() == 0 and question not in a.questions.all():
                             a.questions.add(question)
                     else:
                         raise PermissionDenied

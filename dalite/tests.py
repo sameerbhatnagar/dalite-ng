@@ -113,10 +113,10 @@ class ApplicationHookManagerTests(SimpleTestCase):
         ({"roles": []}, False),
         ({"roles": ["Unknown role"]}, False),
         ({"roles": [LTIRoles.LEARNER]}, False),
-        ({"roles": [LTIRoles.INSTRUCTOR]}, True),
-        ({"roles": [LTIRoles.STAFF]}, True),
-        ({"roles": [LTIRoles.LEARNER, LTIRoles.INSTRUCTOR]}, True),
-        ({"roles": [LTIRoles.LEARNER, LTIRoles.STAFF]}, True),
+        ({"roles": [LTIRoles.INSTRUCTOR]}, False),
+        ({"roles": [LTIRoles.STAFF]}, False),
+        ({"roles": [LTIRoles.LEARNER, LTIRoles.INSTRUCTOR]}, False),
+        ({"roles": [LTIRoles.LEARNER, LTIRoles.STAFF]}, False),
     )
     def test_is_staff_user(self, extra_args, is_staff_expected, user_objects_manager):
         is_staff_actual = self.manager.is_user_staff(extra_args)
