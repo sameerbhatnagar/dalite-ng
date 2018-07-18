@@ -339,7 +339,7 @@ class TeacherTest(TestCase):
         self.assertEqual(answer_count+1, Question.objects.get(pk=29).answer_set.filter(user_token__exact='').count())
 
         # Step 3, auto-add to an assignment for teacher
-        # NB: Question doesn't have to belong to teacher
+        # NB: Question doesn't have to belong to teacher but assignment does
         self.client.logout()
         logged_in = self.client.login(username=self.validated_teacher.username, password=self.validated_teacher.text_pwd)
         self.assertTrue(logged_in)
@@ -351,6 +351,14 @@ class TeacherTest(TestCase):
         self.assertNotIn(Question.objects.get(pk=31), assignment.questions.all())
         response = self.client.post(reverse('sample-answer-form-done', kwargs={ 'question_id' : 31 }), {
             'assignments' : 'Assignment1',
+            }, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn(Question.objects.get(pk=31), assignment.questions.all())
+
+        assignment = Assignment.objects.get(pk='Assignment4')
+        self.assertNotIn(Question.objects.get(pk=31), assignment.questions.all())
+        response = self.client.post(reverse('sample-answer-form-done', kwargs={ 'question_id' : 31 }), {
+            'assignments' : 'Assignment4',
             }, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertIn(Question.objects.get(pk=31), assignment.questions.all())

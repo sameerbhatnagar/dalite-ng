@@ -156,7 +156,7 @@
     <span class="mdc-list-item__text mdc-theme--secondary bold">
       {{ a.identifier }}
       <span class="mdc-list-item__secondary-text">
-        {{ a.questions.count }} {% trans "questions" %}
+        {{ a.questions.count }} {% trans "questions" %}, {{ a.answer_set.count }} {% trans "answers" %}
       </span>
     </span>
     <span class="mdc-list-item__meta">
@@ -164,9 +164,13 @@
         <i class="material-icons md-24 mdc-ripple-surface icon-list">bar_chart</i>
       </a>
       <i id="activate-dialog-{{a.pk|slugify}}" class="material-icons md-24 mdc-ripple-surface icon-list">info</i>
-      {% if object.user in a.owner.all or object.user.is_staff %}
+      {% if object.user in a.owner.all and a.answer_set.count == 0 or object.user.is_staff %}
         <a  id="edit-assignment-{{ a.pk|slugify }}" href="{% url 'assignment-update' a.pk %}">
           <i class="material-icons md-24 mdc-ripple-surface icon-list">mode_edit</i>
+        </a>
+      {% else %}
+        <a  id="copy-assignment-{{ a.pk|slugify }}" href="{% url 'assignment-copy' a.pk %}">
+          <i class="material-icons md-24 mdc-ripple-surface icon-list">file_copy</i>
         </a>
       {% endif %}
 

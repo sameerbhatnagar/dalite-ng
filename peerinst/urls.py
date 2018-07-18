@@ -17,7 +17,7 @@ from . import views
 
 def not_authenticated(user):
     return not user.is_authenticated()
-    
+
 urlpatterns = [
     # DALITE
     # Assignment table of contents - Enforce sameorigin to prevent access from LMS
@@ -43,6 +43,7 @@ urlpatterns = [
     url(r'^answer-choice/form/(?P<question_id>[0-9]+)$', views.answer_choice_form, name='answer-choice-form'),
     url(r'^sample-answer/form/(?P<question_id>[0-9]+)$', admin_views.QuestionPreviewViewBase.as_view(), name='sample-answer-form'),
     url(r'^sample-answer/form/(?P<question_id>[0-9]+)/done$', views.sample_answer_form_done, name='sample-answer-form-done'),
+    url(r'^assignment/copy/(?P<assignment_id>[^/]+)$', views.AssignmentCopyView.as_view(), name='assignment-copy'),
     url(r'^question-search/$', views.question_search, name='question-search'),
     url(r'^heartbeat/$', views.HeartBeatUrl.as_view(), name='heartbeat'),
 

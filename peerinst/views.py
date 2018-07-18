@@ -311,6 +311,38 @@ class AssignmentListView(NoStudentsMixin, LoginRequiredMixin, ListView):
     model = models.Assignment
 
 
+class AssignmentCopyView(NoStudentsMixin, LoginRequiredMixin, CreateView):
+    """View to create an assignment from existing"""
+    model = models.Assignment
+    form_class = forms.AssignmentCreateForm
+
+    def get_initial(self, *args, **kwargs):
+         super(AssignmentCopyView, self).get_initial(*args, **kwargs)
+         assignment = get_object_or_404(models.Assignment, pk=self.kwargs['assignment_id'])
+         initial = {
+            'title' : assignment.title,
+         }
+         return initial
+
+    def get_object(self, queryset=None):
+        # Remove link on object to pk to dump object permissions
+        return None
+
+    # Custom save is needed to attach questions and user
+    def form_valid(self, form):
+        assignment = get_object_or_404(models.Assignment, pk=self.kwargs['assignment_id'])
+        form.instance.save()
+        form.instance.questions = assignment.questions.all()
+        form.instance.owner.add(self.request.user)
+        teacher = get_object_or_404(models.Teacher, user=self.request.user)
+        teacher.assignments.add(form.instance)
+        teacher.save()
+        return super(AssignmentCopyView, self).form_valid(form)
+
+    def get_success_url(self):
+        return reverse('assignment-update', kwargs={ 'assignment_id' : self.object.pk })
+
+
 class AssignmentUpdateView(NoStudentsMixin, LoginRequiredMixin, DetailView):
     """View for updating assignment."""
     model = Assignment
