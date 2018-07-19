@@ -5,6 +5,14 @@
 {% block stylesheets %}
   {% compress css %}
     <link rel="stylesheet" href="{% static 'tos/css/styles.min.css' %}"></link>
+    <style>
+    .footnote {
+      margin-top:15px;
+      line-height: 1.1;
+      font-style: italic;
+      font-size: 10px;
+    }
+    </style>
   {% endcompress %}
 {% endblock %}
 
@@ -15,41 +23,41 @@
         <svg class="underline" width=150 height=4></svg>
       </h1>
 
+      <h2 class='mdc-typography--display1'>{% trans 'Welcome!' %}</h2>
+
+      {% if role == "student" %}
+      <p class='mdc-typography--body1'>
+        {% blocktrans %}
+        Please carefully read our Terms of Service (ToS) and Privacy Policy in the box below, and either accept or decline at the bottom of the page.
+
+        The ToS that follows is an agreement (the "Agreement") between you and the SALTISE research network. By using myDALITE.org, you accept and agree to be legally bound by this Agreement, whether or not you are a registered user. The Privacy Policy describes how your personal data is collected and processed when you use the site.
+        {% endblocktrans %}
+      </p>
+      {% elif role == "teacher" %}
+      <p class='mdc-typography--body1'>
+        {% blocktrans %}
+        Please carefully read our Terms of Service (ToS) and Privacy Policy in the box below, and either accept or decline at the bottom of the page.
+
+        The ToS that follows is an agreement (the "Agreement") between you and the SALTISE Research network. By using myDALITE.org, you accept and agree to be legally bound by this Agreement, whether or not you are a registered user. The Privacy Policy describes how your personal data is collected and processed when you use the site.
+        {% endblocktrans %}
+      </p>
+      {% endif %}
+      <div class='mdc-typography--caption footnote'>
+        1. The SALTISE research network reserves the right to modify these ToS at any time without advance notice. Any changes to these ToS will be effective immediately upon posting on this page, with an updated effective date.
+      </div>
+      <div class='mdc-typography--caption footnote'>
+        2. Any version of these ToS in a language other than English is provided for convenience and you understand and agree that the English language version will control if there is any conflict.
+      </div>
+
       <form id="tos-container" action="{% url 'tos:update' role version %}" method="post">
         {% csrf_token %}
-
-        {% if role == "student" %}
-        <p>
-          {% blocktrans %}
-          Welcome to myDALITE.org, an open source platform for higher level learning activities. Please carefully read our Terms of Service (ToS), Honor Code, and Privacy Policy in the box below, and either accept or decline at the bottom of the page.
-          
-          These ToS and the Honor Code that follow are agreements (the "Agreements") between you and the SALTISE Research network. By using the myDALITE.org, you accept and agree to be legally bound by the Agreements, whether or not you are a registered user. Please also read the Privacy Policy for myDALITE.org before you use any portion of the site. The Privacy Policy describes how your personal data is collected and processed when you use the site.
-
-          The SALTISE research network reserves the right to modify these ToS at any time without advance notice. Any changes to these ToS will be effective immediately upon posting on this page, with an updated effective date.
-
-          Any version of these ToS in a language other than English is provided for convenience and you understand and agree that the English language version will control if there is any conflict.
-          {% endblocktrans %}
-        </p>
-        {% elif role == "teacher" %}
-        <p>
-          {% blocktrans %}
-          Welcome to myDALITE.org, an open source platform for higher level learning activities. Please carefully read our Terms of Service (ToS) and Privacy Policy in the box below, and either accept or decline at the bottom of the page.
-          
-          These ToS that follow are agreements (the "Agreements") between you and the SALTISE Research network. By using the myDALITE.org, you accept and agree to be legally bound by the Agreements, whether or not you are a registered user. Please also read the Privacy Policy for myDALITE.org before you use any portion of the site. The Privacy Policy describes how your personal data is collected and processed when you use the site.
-
-          The SALTISE research network reserves the right to modify these ToS at any time without advance notice. Any changes to these TOS will be effective immediately upon posting on this page, with an updated effective date.
-
-          Any version of these ToS in a language other than English is provided for convenience and you understand and agree that the English language version will control if there is any conflict.
-          {% endblocktrans %}
-        </p>
-        {% endif %}
 
         <div id="tos-text">{{ tos_text|safe }}</div>
 
         {% if current %}
-        <div id="tos-version">Version: {{ version }} (current)</div>
+        <div class='mdc-typography--caption' id="tos-version">Version: {{ version }} (current)</div>
         {% else %}
-        <div id="tos-version">Version: {{ version }}</div>
+        <div class='mdc-typography--caption' id="tos-version">Version: {{ version }}</div>
         {% endif %}
 
         <button type="submit" name="accepted" value="true" id="tos-accept" class="mdc-button mdc-button--raised">
