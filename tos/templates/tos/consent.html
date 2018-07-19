@@ -46,12 +46,12 @@
 
         <button type="submit" name="accepted" value="true" id="tos-accept" class="mdc-button mdc-button--raised">
           <i class="material-icons mdc-button__icon" aria-hidden="true">done</i>
-          Accept
+          {% trans 'Share' %}
         </button>
 
         <button type="submit" name="accepted" value="false" id="tos-refuse" class="mdc-button mdc-button--raised">
           <i class="material-icons mdc-button__icon" aria-hidden="true">clear</i>
-          Refuse
+          {% trans 'Refuse' %}
         </button>
 
         <input type="hidden" name="redirect_to" value="{{ redirect_to }}"></input>
