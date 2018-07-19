@@ -247,6 +247,7 @@ TEACHER_GROUP = "Teacher"
 
 try:
     from .local_settings import *
+    INSTALLED_APPS += LOCAL_APPS
 except ImportError:
     import warnings
 
