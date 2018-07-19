@@ -17,6 +17,9 @@ class Tos(models.Model):
         max_length=2, choices=tuple((role[:2], role) for role in ROLES)
     )
 
+    def __unicode__(self):
+        return self.role+'_'+self.version
+
     class Meta:
         unique_together = (("role", "version"), ("role", "hash"))
 

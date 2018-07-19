@@ -30,6 +30,9 @@ from __future__ import unicode_literals
 from django.db.models import Count, Max
 from django.utils.translation import ugettext_lazy as _, ugettext
 
+from django.contrib.auth.models import User
+from tos.models import Consent
+
 
 class RationaleSelectionError(Exception):
     """Raised when an error occurs during rationale selection.
@@ -46,7 +49,9 @@ def _base_selection_algorithm(
     first_choice = first_answer_choice
     answer_choices = question.answerchoice_set.all()
     # Find all public rationales for this question.
-    all_rationales = models.Answer.objects.filter(question=question, show_to_others=True)
+    ## Rationales are selected based on those who have not refused to include rationales prior to implementation of TOS
+    usernames_to_exclude = Consent.objects.filter(tos__role='st').values('user__username').annotate(Max('datetime')).filter(accepted=False).values_list('user__username')
+    all_rationales = models.Answer.objects.filter(question=question, show_to_others=True).exclude(user_token__in=usernames_to_exclude)
     # Select a second answer to offer at random.  If the user's answer wasn't correct, the
     # second answer choice offered must be correct.
     if answer_choices[first_choice - 1].correct:
