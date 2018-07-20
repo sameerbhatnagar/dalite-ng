@@ -190,9 +190,6 @@ class QuestionViewTest(QuestionViewTestCase):
         self.assertIn(first_answer_choice, second_answer_choices)
 
         for a in self.question.answer_set.filter(user_token='no_share'):
-            print(a.rationale)
-            print(str(rationale_choices))
-            print([num for elem in rationale_choices for num in elem])
             self.assertNotIn(a.rationale, str(rationale_choices))
 
         # Select a different answer during review.
