@@ -33,6 +33,12 @@ class GetStudentConsent(QuestionViewTestCase):
         pass
 
 
+    def test_student_can_change_consent(self):
+        """Test consent form accessible through template"""
+        response = self.question_get()
+        print(response)
+        self.assertContains(response, '/tos/student/modify/')
+
 
 class GetTeacherConsent(QuestionViewTestCase):
 
