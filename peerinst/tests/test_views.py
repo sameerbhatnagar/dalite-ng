@@ -85,7 +85,7 @@ class QuestionViewTestCase(TestCase):
 
     def add_user_to_even_answers(self):
         c = 0
-        for a in self.question.answer_set.all()[:10]:
+        for a in self.question.answer_set.all():
             if c%2 == 0:
                 a.user_token=User.objects.get(username='no_share').username
                 a.save()
@@ -182,7 +182,10 @@ class QuestionViewTest(QuestionViewTestCase):
         ]
         self.assertIn(first_answer_choice, second_answer_choices)
 
-        print(rationale_choices)
+        for a in self.question.answer_set.filter(user_token='no_share'):
+            print(a.rationale)
+            print(rationale_choices)
+            self.assertNotIn(a.rationale, rationale_choices)
 
         # Select a different answer during review.
         second_answer_choice = next(choice for choice in second_answer_choices if choice != first_answer_choice)
