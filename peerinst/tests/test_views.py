@@ -75,7 +75,7 @@ class QuestionViewTestCase(TestCase):
         self.set_question(factories.QuestionFactory(
             choices=5, choices__correct=[2, 4], choices__rationales=4,
         ))
-        self.add_user_to_first_answer()
+        self.add_user_to_even_answers()
         self.addCleanup(mock.patch.stopall)
         signal_patcher = mock.patch('django_lti_tool_provider.signals.Signals.Grade.updated.send')
         self.mock_send_grade_signal = signal_patcher.start()
@@ -83,11 +83,12 @@ class QuestionViewTestCase(TestCase):
         self.mock_get_grade = grade_patcher.start()
         self.mock_get_grade.return_value = Grade.CORRECT
 
-    def add_user_to_first_answer(self):
+    def add_user_to_even_answers(self):
         c = 0
         for a in self.question.answer_set.all()[:10]:
             if c%2 == 0:
                 a.user_token=User.objects.get(username='no_share').username
+                a.save()
             c=c+1
 
     def set_question(self, question):
