@@ -709,6 +709,21 @@ class QuestionReload(Exception):
 class QuestionFormView(QuestionMixin, FormView):
     """Base class for the form views in the student UI."""
 
+    def dispatch(self, *args, **kwargs):
+        # Check for any TOS
+        if Consent.get(self.request.user.username, "student") is None:
+            return HttpResponseRedirect(reverse("tos:consent", kwargs={ 'role' : 'student'}) + "?next=" + self.request.path)
+        else:
+            latest_student_consent = Consent.objects.filter(
+                user__username=self.request.user.username,
+                tos__role="st",
+                ).order_by("-datetime").first()
+            # Check if TOS is current
+            if not latest_student_consent.tos.current:
+                return HttpResponseRedirect(reverse("tos:consent", kwargs={ 'role' : 'student'}) + "?next=" + self.request.path)
+            else:
+                return super(QuestionFormView,self).dispatch(*args, **kwargs)
+
     def emit_event(self, name, **data):
         """Log an event in a JSON format similar to the edx-platform tracking logs.
         """
@@ -856,21 +871,6 @@ class QuestionStartView(QuestionFormView):
         )
         return super(QuestionStartView, self).form_valid(form)
 
-    def dispatch(self, *args, **kwargs):
-
-        # Check for any TOS
-        if Consent.get(self.request.user.username, "student") is None:
-            return HttpResponseRedirect(reverse("tos:consent", kwargs={ 'role' : 'student'}) + "?next=" + self.request.path)
-        else:
-            latest_student_consent = Consent.objects.filter(
-                user__username=self.request.user.username,
-                tos__role="st",
-                ).order_by("-datetime").first()
-            # Check if TOS is current
-            if not latest_student_consent.tos.current:
-                return HttpResponseRedirect(reverse("tos:consent", kwargs={ 'role' : 'student'}) + "?next=" + self.request.path)
-            else:
-                return super(QuestionStartView,self).dispatch(*args, **kwargs)
 
 class QuestionReviewBaseView(QuestionFormView):
     """Common base class for sequential and non-sequential review types."""

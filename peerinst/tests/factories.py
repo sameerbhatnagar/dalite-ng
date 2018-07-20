@@ -30,12 +30,13 @@ class UserFactory(factory.DjangoModelFactory):
         if not create:
             return
 
-        consent = Consent(
-            user = user,
-            accepted = False,
-            tos = Tos.objects.first()
-            )
-        consent.save()
+        if Tos.objects.exists():
+            consent = Consent(
+                user = user,
+                accepted = False,
+                tos = Tos.objects.first()
+                )
+            consent.save()
 
 
 class AnswerFactory(factory.DjangoModelFactory):

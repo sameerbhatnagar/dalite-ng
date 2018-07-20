@@ -136,7 +136,7 @@ class TopRationalesTestCase(TestCase):
 
         self.assertEquals(sums['chosen'], 5000)
         self.assertEquals(len(rationales['chosen']), perpage if perpage < 5000 else 5000)
-        
+
         self.assertEquals(sums['wrong_to_right'], 1250)
         self.assertEquals(len(rationales['wrong_to_right']), perpage if perpage < 1250 else 1250)
         self.assertEquals(sums['right_to_wrong'], 1250)
