@@ -18,7 +18,7 @@ class Tos(models.Model):
     )
 
     def __unicode__(self):
-        return self.role+'_'+str(self.version)
+        return (str(self.role)+'_'+str(self.version))
 
     class Meta:
         unique_together = (("role", "version"), ("role", "hash"))
@@ -128,6 +128,9 @@ class Consent(models.Model):
             output, bool
         ), "Postcondition failed"
         return output
+
+    def __unicode__(self):
+        return('version '+str(self.tos.version)+' for '+str(self.tos.role) + ' ' + str(self.user))
 
 
 def _compute_hash(text):
