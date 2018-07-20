@@ -804,7 +804,7 @@ class QuestionFormView(QuestionMixin, FormView):
         if course_title:
             group, created_group = StudentGroup.objects.get_or_create(name=course_id,title=course_title)
         else:
-            group, created_group = StudentGroup.objects.get_or_create(name=course_id)
+            group, created_group = StudentGroup.objects.get_or_create(name=course_id,title='')
 
         if created_group:
             group.save()

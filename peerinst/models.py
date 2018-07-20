@@ -412,6 +412,7 @@ class StudentGroup(models.Model):
     creation_date = models.DateField(
         blank=True,
         null=True,
+        auto_now=True,
     )
 
     def __unicode__(self):
