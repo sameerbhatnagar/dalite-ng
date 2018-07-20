@@ -63,6 +63,13 @@ class QuestionViewTestCase(TestCase):
         tos.save()
         no_share_user = User(username='no_share', email='test@test.com')
         no_share_user.save()
+        # To test latest consent is used
+        consent = Consent(
+            user = no_share_user,
+            accepted = True,
+            tos = Tos.objects.first()
+            )
+        consent.save()
         no_consent = Consent(
             user = no_share_user,
             accepted = False,
@@ -184,8 +191,9 @@ class QuestionViewTest(QuestionViewTestCase):
 
         for a in self.question.answer_set.filter(user_token='no_share'):
             print(a.rationale)
-            print(rationale_choices)
-            self.assertNotIn(a.rationale, rationale_choices)
+            print(str(rationale_choices))
+            print([num for elem in rationale_choices for num in elem])
+            self.assertNotIn(a.rationale, str(rationale_choices))
 
         # Select a different answer during review.
         second_answer_choice = next(choice for choice in second_answer_choices if choice != first_answer_choice)
