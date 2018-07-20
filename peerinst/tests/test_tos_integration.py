@@ -1,5 +1,6 @@
 from django.core.urlresolvers import reverse
 from .test_views import QuestionViewTestCase
+from django.test import TestCase
 from peerinst.models import Student
 from tos.models import Consent, Tos
 
@@ -36,11 +37,10 @@ class GetStudentConsent(QuestionViewTestCase):
     def test_student_can_change_consent(self):
         """Test consent form accessible through template"""
         response = self.question_get()
-        print(response)
         self.assertContains(response, '/tos/student/modify/')
 
 
-class GetTeacherConsent(QuestionViewTestCase):
+class GetTeacherConsent(TestCase):
 
     def __test_consent_unseen_teacher(self):
         """test Consent form shown to new students in LTI"""

@@ -8,6 +8,7 @@ import unittest
 
 from django.contrib.auth.models import Permission, Group
 from peerinst.models import User, Teacher, Question, Assignment
+from tos.models import Tos
 
 def ready_user(pk):
     user = User.objects.get(pk=pk)
@@ -36,6 +37,15 @@ class NewUserTests(StaticLiveServerTestCase):
         self.assertEqual(self.group.permissions.count(), 2)
 
         self.assertFalse(self.validated_teacher.get_all_permissions())
+
+        # Add TOS for teachers
+        new_TOS = Tos(
+            version = 1,
+            text = 'Test',
+            current = True,
+            role = 'te',
+        )
+        new_TOS.save()
 
 
     def tearDown(self):
@@ -163,7 +173,15 @@ class NewUserTests(StaticLiveServerTestCase):
 
         inputbox.submit()
 
+        time.sleep(1)
+
+        assert "Terms of Service" in self.browser.page_source
+
+        button = self.browser.find_element_by_id('tos-accept')
+        button.click()
+
         assert "My Account" in self.browser.page_source
+        assert "Terms of service: Sharing" in self.browser.page_source
 
         # Teacher redirected to account if logged in
         self.browser.get(self.live_server_url+'/login')

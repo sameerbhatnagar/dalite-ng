@@ -77,6 +77,22 @@ class TeacherTest(TestCase):
         self.inactive_user = ready_user(3)
         self.guest = ready_user(11)
 
+        # Skip TOS interactions
+        from tos.models import Consent, Tos
+        tos = Tos(
+            version = 1,
+            text = 'Test',
+            current = True,
+            role = 'te',
+        )
+        tos.save()
+        consent = Consent(
+            user = self.validated_teacher,
+            accepted = True,
+            tos = Tos.objects.first()
+            )
+        consent.save()
+
         self.group = Group.objects.get(name="Teacher")
         self.assertFalse(self.group.permissions.all())
 
