@@ -183,7 +183,36 @@ class NewUserTests(StaticLiveServerTestCase):
         assert "My Account" in self.browser.page_source
         assert "Terms of service: Sharing" in self.browser.page_source
 
-        # Teacher redirected to account if logged in
+        # Logout and log back in -> skip tos
+        self.browser.get(self.live_server_url+'/logout')
+        self.browser.get(self.live_server_url+'/login')
+        inputbox = self.browser.find_element_by_id('id_username')
+        inputbox.send_keys(self.validated_teacher.username)
+
+        inputbox = self.browser.find_element_by_id('id_password')
+        inputbox.send_keys(self.validated_teacher.text_pwd)
+
+        inputbox.submit()
+
+        time.sleep(1)
+        assert "My Account" in self.browser.page_source
+
+        # Add a new current TOS for teachers and refresh account -> tos
+        new_TOS = Tos(
+            version = 2,
+            text = 'Test 2',
+            current = True,
+            role = 'te',
+        )
+        new_TOS.save()
+
+        self.browser.get(self.live_server_url+'/login')
+        assert "Terms of Service" in self.browser.page_source
+
+        button = self.browser.find_element_by_id('tos-accept')
+        button.click()
+
+        # Teacher generally redirected to account if logged in
         self.browser.get(self.live_server_url+'/login')
 
         assert "My Account" in self.browser.page_source

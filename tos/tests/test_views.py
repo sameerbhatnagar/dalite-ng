@@ -276,6 +276,7 @@ class TestConsentUpdateView(TestCase):
                 reverse("tos:update", kwargs=test[0]), test[1]
             )
             self.assertEqual(resp.status_code, 302)
+            print(resp)
             self.assertRedirects(resp, "/tos/student/", target_status_code=200)
 
     def test_consent_update_version_doesnt_exist(self):
