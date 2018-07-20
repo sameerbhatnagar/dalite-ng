@@ -130,7 +130,7 @@ class Consent(models.Model):
         return output
 
     def __unicode__(self):
-        return('version '+self.tos.version+' for '+self.tos.role + self.tos.user)
+        return('version '+str(self.tos.version)+' for '+self.tos.role + self.tos.user)
 
 
 def _compute_hash(text):
