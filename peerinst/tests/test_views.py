@@ -12,7 +12,8 @@ from django_lti_tool_provider.views import LTIView
 import ddt
 import mock
 
-from ..models import Question
+from django.contrib.auth.models import User
+from ..models import Question, Answer
 from ..util import SessionStageData
 from . import factories
 
@@ -60,18 +61,34 @@ class QuestionViewTestCase(TestCase):
             role = 'st',
         )
         tos.save()
+        no_share_user = User(username='no_share', email='test@test.com')
+        no_share_user.save()
+        no_consent = Consent(
+            user = no_share_user,
+            accepted = False,
+            tos = Tos.objects.first()
+            )
+        no_consent.save()
 
         self.user = factories.UserFactory()
         self.assignment = factories.AssignmentFactory()
         self.set_question(factories.QuestionFactory(
             choices=5, choices__correct=[2, 4], choices__rationales=4,
         ))
+        self.add_user_to_first_answer()
         self.addCleanup(mock.patch.stopall)
         signal_patcher = mock.patch('django_lti_tool_provider.signals.Signals.Grade.updated.send')
         self.mock_send_grade_signal = signal_patcher.start()
         grade_patcher = mock.patch('peerinst.models.Answer.get_grade')
         self.mock_get_grade = grade_patcher.start()
         self.mock_get_grade.return_value = Grade.CORRECT
+
+    def add_user_to_first_answer(self):
+        c = 0
+        for a in self.question.answer_set.all()[:10]:
+            if c%2 == 0:
+                a.user_token=User.objects.get(username='no_share').username
+            c=c+1
 
     def set_question(self, question):
         self.question = question
@@ -163,6 +180,8 @@ class QuestionViewTest(QuestionViewTestCase):
             choice for choice, unused_label, unused_rationales in rationale_choices
         ]
         self.assertIn(first_answer_choice, second_answer_choices)
+
+        print(rationale_choices)
 
         # Select a different answer during review.
         second_answer_choice = next(choice for choice in second_answer_choices if choice != first_answer_choice)
