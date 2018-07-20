@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 import factory
 
 from .. import models
+from tos.models import Tos, Consent
 
 
 class UserFactory(factory.DjangoModelFactory):
@@ -23,6 +24,18 @@ class UserFactory(factory.DjangoModelFactory):
     is_superuser = False
     last_login = datetime.datetime(2012, 1, 1)
     date_joined = datetime.datetime(2011, 1, 1)
+
+    @factory.post_generation
+    def consent(user, create, extracted, **kwargs):
+        if not create:
+            return
+
+        consent = Consent(
+            user = user,
+            accepted = False,
+            tos = Tos.objects.first()
+            )
+        consent.save()
 
 
 class AnswerFactory(factory.DjangoModelFactory):

@@ -18,7 +18,7 @@ class Tos(models.Model):
     )
 
     def __unicode__(self):
-        return self.role+'_'+self.version
+        return self.role+'_'+str(self.version)
 
     class Meta:
         unique_together = (("role", "version"), ("role", "hash"))

@@ -11,6 +11,8 @@ from django.http import (
     JsonResponse,
 )
 from django.shortcuts import render
+from django.template.response import TemplateResponse
+from django.utils.translation import ugettext_lazy as _
 
 # from .forms import ConsentForm
 from .models import Consent, Tos
@@ -86,12 +88,13 @@ def _consent_view(req, username, role, version):
     version = int(version) if version is not None else version
 
     if not Tos.objects.filter(role=role[:2]):
-        return (
-            HttpResponseServerError(
-                "There isn't any terms of service version yet."
-            ),
-            None,
-        )
+        response = TemplateResponse(
+            req,
+            '500.html',
+            context={'message' : _("There is no terms of service yet."),}
+            )
+
+        return HttpResponseServerError(response.render()), None
 
     tos, err = Tos.get(role=role, version=version)
 

@@ -50,6 +50,17 @@ class QuestionViewTestCase(TestCase):
 
     def setUp(self):
         super(QuestionViewTestCase, self).setUp()
+
+        # TOS integration
+        from tos.models import Consent, Tos
+        tos = Tos(
+            version = 1,
+            text = 'Test',
+            current = True,
+            role = 'st',
+        )
+        tos.save()
+
         self.user = factories.UserFactory()
         self.assignment = factories.AssignmentFactory()
         self.set_question(factories.QuestionFactory(
