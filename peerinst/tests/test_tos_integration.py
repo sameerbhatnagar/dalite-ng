@@ -29,19 +29,7 @@ class TOSError(QuestionViewTestCase):
 
 class GetStudentConsent(QuestionViewTestCase):
 
-    def __test_consent_unseen_student(self):
-        """test Consent form shown to new students in LTI"""
-        pass
-
-
     def test_student_can_change_consent(self):
         """Test consent form accessible through template"""
         response = self.question_get()
         self.assertContains(response, '/tos/student/modify/')
-
-
-class GetTeacherConsent(TestCase):
-
-    def __test_consent_unseen_teacher(self):
-        """test Consent form shown to new students in LTI"""
-        pass

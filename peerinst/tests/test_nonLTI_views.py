@@ -4,6 +4,7 @@ from django.http import HttpRequest
 from django.test import TestCase, TransactionTestCase
 
 from ..models import Discipline, Question, Assignment, Teacher, Student
+from tos.models import Consent, Tos
 from django.contrib.auth.models import User, Permission, Group
 
 def ready_user(pk):
@@ -78,7 +79,6 @@ class TeacherTest(TestCase):
         self.guest = ready_user(11)
 
         # Skip TOS interactions
-        from tos.models import Consent, Tos
         tos = Tos(
             version = 1,
             text = 'Test',
@@ -339,12 +339,9 @@ class TeacherTest(TestCase):
         self.assertNotContains(response, '<form id="answer-choice-form" method="post">')
 
     def test_sample_answers(self):
-        # Step 3, any non-student can post
-        logged_in = self.client.login(username=self.guest.username, password=self.guest.text_pwd)
+        # Step 3, teacher
+        logged_in = self.client.login(username=self.validated_teacher.username, password=self.validated_teacher.text_pwd)
         self.assertTrue(logged_in)
-
-        response = self.client.get(reverse('sample-answer-form', kwargs={ 'question_id' : 29 }))
-        self.assertNotContains(response, 'id="add_question_to_assignment"')
 
         answer_count = Question.objects.get(pk=29).answer_set.filter(user_token__exact='').count()
         response = self.client.post(reverse('sample-answer-form', kwargs={ 'question_id' : 29 }), {
@@ -388,7 +385,7 @@ class TeacherTest(TestCase):
         self.assertTemplateUsed(response, 'peerinst/teacher_detail.html')
         self.assertNotIn(Question.objects.get(pk=32), assignment.questions.all())
 
-        # Step 3, not a teacher as post -> 400
+        # Step 3, not a teacher as post -> 403 due to TOS mixin
         self.client.logout()
         logged_in = self.client.login(username=self.guest.username, password=self.guest.text_pwd)
         self.assertTrue(logged_in)
@@ -396,10 +393,13 @@ class TeacherTest(TestCase):
         response = self.client.post(reverse('sample-answer-form-done', kwargs={ 'question_id' : 32 }), {
             'assignments' : 'Assignment3',
             }, follow=True)
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 403)
         self.assertNotIn(Question.objects.get(pk=32), assignment.questions.all())
 
         # Step 3, any get -> 400
+        logged_in = self.client.login(username=self.validated_teacher.username, password=self.validated_teacher.text_pwd)
+        self.assertTrue(logged_in)
+
         response = self.client.get(reverse('sample-answer-form-done', kwargs={ 'question_id' : 32 }), follow=True)
         self.assertEqual(response.status_code, 400)
 
@@ -490,6 +490,52 @@ class TeacherTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'registration/login.html')
         self.assertNotIn(Question.objects.get(pk=31), Assignment.objects.get(pk='Assignment4').questions.all())
+
+    def test_TOS_mixin(self):
+        logged_in = self.client.login(username=self.validated_teacher.username, password=self.validated_teacher.text_pwd)
+        self.assertTrue(logged_in)
+
+        consent = Consent(
+            user = self.validated_teacher,
+            accepted = False,
+            tos = Tos.objects.first()
+            )
+        consent.save()
+
+        permission = Permission.objects.get(codename='add_question')
+        self.validated_teacher.user_permissions.add(permission)
+        permission = Permission.objects.get(codename='change_question')
+        self.validated_teacher.user_permissions.add(permission)
+
+        # Question create
+        response = self.client.get(reverse('question-create'), follow=True)
+        self.assertEqual(response.status_code, 403)
+        self.assertTemplateUsed(response, '403.html')
+
+        # Question clone
+        response = self.client.get(reverse('question-clone', kwargs={ 'pk' : 43 }), follow=True)
+        self.assertEqual(response.status_code, 403)
+        self.assertTemplateUsed(response, '403.html')
+
+        # Question update
+        response = self.client.get(reverse('question-update', kwargs={ 'pk' : 32 }), follow=True)
+        self.assertEqual(response.status_code, 403)
+        self.assertTemplateUsed(response, '403.html')
+
+        # Answer choice create/update
+        response = self.client.get(reverse('answer-choice-form', kwargs={ 'question_id' : 32 }), follow=True)
+        self.assertEqual(response.status_code, 403)
+        self.assertTemplateUsed(response, '403.html')
+
+        # Sample answer create
+        response = self.client.get(reverse('sample-answer-form', kwargs={ 'question_id' : 32 }), follow=True)
+        self.assertEqual(response.status_code, 403)
+        self.assertTemplateUsed(response, '403.html')
+
+        # Sample answer submit
+        response = self.client.get(reverse('sample-answer-form-done', kwargs={ 'question_id' : 32 }), follow=True)
+        self.assertEqual(response.status_code, 403)
+        self.assertTemplateUsed(response, '403.html')
 
 
 class StudentTest(TestCase):

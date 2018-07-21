@@ -19,36 +19,8 @@ from . import models
 from .admin import AnswerAdmin
 from .util import make_percent_function, student_list_from_student_groups
 
-## Refactor out from both .views and here!!!
-from django.contrib.auth.decorators import login_required, user_passes_test
+from .mixins import LoginRequiredMixin, NoStudentsMixin, TOSAcceptanceRequiredMixin
 
-def student_check(user):
-    try:
-        if user.teacher:
-            # Let through Teachers unconditionally
-            return True
-    except:
-        try:
-            if user.student:
-                return False
-        except:
-            # Allow through all non-Students, i.e. "guests"
-            return True
-
-class NoStudentsMixin(object):
-    """A simple mixin to explicitly allow Teacher but prevent Student access to a view."""
-    @classmethod
-    def as_view(cls, **initkwargs):
-        view = super(NoStudentsMixin, cls).as_view(**initkwargs)
-        return user_passes_test(student_check, login_url='/access_denied_and_logout/')(view)
-
-
-class LoginRequiredMixin(object):
-    @classmethod
-    def as_view(cls, **initkwargs):
-        view = super(LoginRequiredMixin, cls).as_view(**initkwargs)
-        return login_required(view)
-####
 
 class StaffMemberRequiredMixin(object):
     @classmethod
@@ -397,7 +369,7 @@ class QuestionPreviewForm(FirstAnswerForm):
     expert = forms.BooleanField(label=_('Expert answer'), initial=True, required=False)
 
 
-class QuestionPreviewViewBase(NoStudentsMixin, LoginRequiredMixin, FormView):
+class QuestionPreviewViewBase(LoginRequiredMixin, NoStudentsMixin, TOSAcceptanceRequiredMixin, FormView):
     """Non-admin base view for question preview and sample answer form."""
     template_name = 'peerinst/question_preview.html'
     form_class = QuestionPreviewForm

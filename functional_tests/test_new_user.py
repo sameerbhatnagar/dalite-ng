@@ -306,7 +306,7 @@ class NewUserTests(StaticLiveServerTestCase):
         self.browser.get(self.live_server_url + reverse('teacher', kwargs={ 'pk' : 2 } ))
         assert "Forbidden" in self.browser.page_source
 
-
+        # Teacher declines TOS
 
         # Checkout what answer choice form looks like if student answers
 

@@ -50,6 +50,7 @@ from . import rationale_choice
 from .util import SessionStageData, get_object_or_none, int_or_none, roundrobin, student_list_from_student_groups
 from .admin_views import get_question_rationale_aggregates, get_assignment_aggregates, AssignmentResultsViewBase
 
+from .mixins import LoginRequiredMixin, NoStudentsMixin, ObjectPermissionMixin, TOSAcceptanceRequiredMixin, student_check, teacher_tos_accepted_check
 
 from .models import Student, StudentGroup, Teacher, Assignment, BlinkQuestion, BlinkAnswer, BlinkRound, BlinkAssignment, BlinkAssignmentQuestion, Question, Answer, AnswerChoice, Discipline, VerifiedDomain
 from django.contrib.auth.models import User, Group
@@ -66,7 +67,7 @@ from django.db.models.expressions import Func
 from django.db.models import Count, Value, Case, Q, When, CharField
 
 # tos
-from tos.models import Consent
+from tos.models import Consent, Tos
 
 
 LOGGER = logging.getLogger(__name__)
@@ -241,7 +242,12 @@ def sign_up(request):
 
 def terms_teacher(request):
     log(request)
-    return TemplateResponse(request, 'registration/terms.html')
+    tos, err = Tos.get('teacher')
+    return TemplateResponse(
+        request,
+        'registration/terms.html',
+        context={ 'tos' : tos }
+        )
 
 
 def logout_view(request):
@@ -264,57 +270,21 @@ def welcome(request):
         return HttpResponseRedirect(reverse('assignment-list'))
 
 
+def access_denied(request):
+    raise PermissionDenied
+
+
 def access_denied_and_logout(request):
     logout(request)
     raise PermissionDenied
 
 
-class LoginRequiredMixin(object):
-    @classmethod
-    def as_view(cls, **initkwargs):
-        view = super(LoginRequiredMixin, cls).as_view(**initkwargs)
-        return login_required(view)
-
-
-def student_check(user):
-    try:
-        if user.teacher:
-            # Let through Teachers unconditionally
-            return True
-    except:
-        try:
-            if user.student:
-                return False
-        except:
-            # Allow through all non-Students, i.e. "guests"
-            return True
-
-class NoStudentsMixin(object):
-    """A simple mixin to explicitly allow Teacher but prevent Student access to a view."""
-    @classmethod
-    def as_view(cls, **initkwargs):
-        view = super(NoStudentsMixin, cls).as_view(**initkwargs)
-        return user_passes_test(student_check, login_url='/access_denied_and_logout/')(view)
-
-
-class ObjectPermissionMixin(object):
-    """Check object-level permissions."""
-    def dispatch(self, *args, **kwargs):
-        try:
-            obj = self.get_object()
-        except:
-            obj = None
-        if self.request.user.has_perm(self.object_permission_required, obj):
-            return super(ObjectPermissionMixin, self).dispatch(*args, **kwargs)
-        else:
-            raise PermissionDenied
-
-class AssignmentListView(NoStudentsMixin, LoginRequiredMixin, ListView):
+class AssignmentListView(LoginRequiredMixin, NoStudentsMixin, ListView):
     """List of assignments used for debugging purposes."""
     model = models.Assignment
 
 
-class AssignmentCopyView(NoStudentsMixin, LoginRequiredMixin, CreateView):
+class AssignmentCopyView(LoginRequiredMixin, NoStudentsMixin, CreateView):
     """View to create an assignment from existing"""
     model = models.Assignment
     form_class = forms.AssignmentCreateForm
@@ -353,7 +323,7 @@ class AssignmentCopyView(NoStudentsMixin, LoginRequiredMixin, CreateView):
         return reverse('assignment-update', kwargs={ 'assignment_id' : self.object.pk })
 
 
-class AssignmentEditView(NoStudentsMixin, LoginRequiredMixin, UpdateView):
+class AssignmentEditView(LoginRequiredMixin, NoStudentsMixin, UpdateView):
     """View for editing assignment title and identifier."""
     model = Assignment
     template_name_suffix = '_edit'
@@ -372,7 +342,7 @@ class AssignmentEditView(NoStudentsMixin, LoginRequiredMixin, UpdateView):
         return reverse('assignment-update', kwargs={ 'assignment_id' : self.object.pk })
 
 
-class AssignmentUpdateView(NoStudentsMixin, LoginRequiredMixin, DetailView):
+class AssignmentUpdateView(LoginRequiredMixin, NoStudentsMixin, DetailView):
     """View for updating assignment."""
     model = Assignment
 
@@ -416,7 +386,7 @@ class AssignmentUpdateView(NoStudentsMixin, LoginRequiredMixin, DetailView):
             return HttpResponseBadRequest(response.render())
 
 
-class QuestionListView(NoStudentsMixin, LoginRequiredMixin, ListView):
+class QuestionListView(LoginRequiredMixin, NoStudentsMixin, ListView):
     """List of questions used for debugging purposes."""
     model = models.Assignment
 
@@ -431,7 +401,7 @@ class QuestionListView(NoStudentsMixin, LoginRequiredMixin, ListView):
 
 
 # Views related to Question
-class QuestionCreateView(NoStudentsMixin, LoginRequiredMixin, ObjectPermissionMixin, CreateView):
+class QuestionCreateView(LoginRequiredMixin, NoStudentsMixin, ObjectPermissionMixin, TOSAcceptanceRequiredMixin, CreateView):
     """View to create a new question outside of admin."""
     object_permission_required = 'peerinst.add_question'
     model = models.Question
@@ -498,7 +468,7 @@ class QuestionCloneView(QuestionCreateView):
         return context
 
 
-class QuestionUpdateView(NoStudentsMixin, LoginRequiredMixin, ObjectPermissionMixin, UpdateView):
+class QuestionUpdateView(LoginRequiredMixin, NoStudentsMixin, ObjectPermissionMixin, TOSAcceptanceRequiredMixin, UpdateView):
     """View to edit a new question outside of admin."""
     object_permission_required = 'peerinst.change_question'
     model = models.Question
@@ -553,6 +523,7 @@ class QuestionUpdateView(NoStudentsMixin, LoginRequiredMixin, ObjectPermissionMi
 
 @login_required
 @user_passes_test(student_check, login_url='/access_denied_and_logout/')
+@user_passes_test(teacher_tos_accepted_check, login_url='/access_denied/')
 def answer_choice_form(request, question_id):
     AnswerChoiceFormSet = inlineformset_factory(
         Question,
@@ -599,6 +570,7 @@ def answer_choice_form(request, question_id):
 
 @login_required
 @user_passes_test(student_check, login_url='/access_denied_and_logout/')
+@user_passes_test(teacher_tos_accepted_check, login_url='/access_denied/')
 def sample_answer_form_done(request, question_id):
     question = get_object_or_404(models.Question, pk=question_id)
 
@@ -627,7 +599,7 @@ def sample_answer_form_done(request, question_id):
         return HttpResponseBadRequest(response.render())
 
 
-class DisciplineCreateView(NoStudentsMixin, LoginRequiredMixin, CreateView):
+class DisciplineCreateView(LoginRequiredMixin, NoStudentsMixin, TOSAcceptanceRequiredMixin, CreateView):
     """View to create a new discipline outside of admin."""
     model = models.Discipline
     fields = [
@@ -640,6 +612,7 @@ class DisciplineCreateView(NoStudentsMixin, LoginRequiredMixin, CreateView):
 
 @login_required
 @user_passes_test(student_check, login_url='/access_denied_and_logout/')
+@user_passes_test(teacher_tos_accepted_check, login_url='/access_denied/')
 def discipline_select_form(request, pk):
     """An AJAX view that simply renders the DisciplineSelectForm."""
     """Preselects instance with pk."""
@@ -650,7 +623,7 @@ def discipline_select_form(request, pk):
     )
 
 
-class CategoryCreateView(NoStudentsMixin, LoginRequiredMixin, CreateView):
+class CategoryCreateView(LoginRequiredMixin, NoStudentsMixin, TOSAcceptanceRequiredMixin, CreateView):
     """View to create a new discipline outside of admin."""
     model = models.Category
     fields = [
@@ -663,6 +636,7 @@ class CategoryCreateView(NoStudentsMixin, LoginRequiredMixin, CreateView):
 
 @login_required
 @user_passes_test(student_check, login_url='/access_denied_and_logout/')
+@user_passes_test(teacher_tos_accepted_check, login_url='/access_denied/')
 def category_select_form(request, pk):
     """An AJAX view that simply renders the CategorySelectForm."""
     """Preselects instance with pk."""
@@ -1354,7 +1328,7 @@ def reset_question(request, assignment_id, question_id):
 
 
 # Views related to Teacher
-class TeacherBase(NoStudentsMixin,LoginRequiredMixin,View):
+class TeacherBase(LoginRequiredMixin, NoStudentsMixin, View):
     """Base view for Teacher for custom authentication"""
 
     def dispatch(self, *args, **kwargs):
@@ -1415,13 +1389,13 @@ class TeacherDetailView(TeacherBase, DetailView):
         return context
 
 
-class TeacherUpdate(TeacherBase,UpdateView):
+class TeacherUpdate(TeacherBase, UpdateView):
     """View for user to update teacher properties"""
     model = Teacher
     fields = ['institutions','disciplines']
 
 
-class TeacherAssignments(TeacherBase,ListView):
+class TeacherAssignments(TeacherBase, ListView):
     """View to modify assignments associated to Teacher"""
 
     model = Teacher
@@ -1467,7 +1441,7 @@ class TeacherAssignments(TeacherBase,ListView):
         return HttpResponseRedirect(reverse('teacher-assignments',  kwargs={ 'pk' : self.teacher.pk }))
 
 
-class TeacherGroups(TeacherBase,ListView):
+class TeacherGroups(TeacherBase, ListView):
     """View to modify groups associated to Teacher"""
 
     model = Teacher
@@ -1550,7 +1524,7 @@ class TeacherBlinks(TeacherBase,ListView):
 
 # Views related to Blink
 
-class BlinkQuestionFormView(SingleObjectMixin,FormView):
+class BlinkQuestionFormView(SingleObjectMixin, FormView):
 
     form_class = forms.BlinkAnswerForm
     template_name = 'peerinst/blink.html'
@@ -1987,7 +1961,7 @@ def blink_reset(request,pk):
     return HttpResponseRedirect(reverse('blink-summary', kwargs={ 'pk' : pk }))
 
 
-class BlinkAssignmentCreate(LoginRequiredMixin,CreateView):
+class BlinkAssignmentCreate(LoginRequiredMixin, CreateView):
 
     model = BlinkAssignment
     fields = ['title']
