@@ -19,7 +19,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 
 # Application definition
 
@@ -241,7 +241,7 @@ HEARTBEAT_REQUIRED_FREE_SPACE_PERCENTAGE = 20
 
 # NB: Object level permissions are checked for certain models, including Question
 # TEACHER_GROUP will be automatically added to teachers at login
-# This group and its permissions need to be set through admin site 
+# This group and its permissions need to be set through admin site
 TEACHER_GROUP = "Teacher"
 
 

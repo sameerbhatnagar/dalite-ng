@@ -70,9 +70,11 @@
           <div class='field-container'>
             <div class='number-box flush-to-textbox'><span class='number'>2</span></div>
             <div class='field'>
-              <div class="mdc-text-field mdc-text-field--textarea mdc-text-field--dense mdc-theme--background" data-mdc-auto-init="MDCTextField">
-                {{ form.text|add_class:"mdc-text-field__input" }}
-                <label for="id_text" class="mdc-floating-label"> {{ form.text.label }}</label>
+              <div class='mdc-form-field' style="display:block;">
+                <label for="id_text"> {{ form.text.label }}</label>
+              </div>
+              <div class="mdc-text-field mdc-text-field--textarea">
+                {{ form.text }}
               </div>
               <p style='margin-left:16px;margin-right:16px;' class="mdc-text-field-helper-text mdc-text-field-helper-text--persistent" aria-hidden="true">
                 {{ form.text.help_text|safe }}
@@ -85,7 +87,7 @@
             <div class='number-box'><span class='number'>3</span></div>
             <div class='field'>
               <div class='mdc-form-field' style="display:block;">
-                <label for='id_image'>{{ form.image.label }}:</label>
+                <label for='id_image'>{{ form.image.label }}</label>
               </div>
               <div class='image-field'>
                 {{form.image}}
@@ -413,6 +415,13 @@
     }
   }
   limitFileSize();
+
+  // TinyMCE bind to textarea
+  tinymce.init({
+    selector: 'textArea',
+    menubar: false,
+    toolbar: 'undo redo | bold italic superscript subscript | link image'
+  });
 </script>
 {% endif %}
 {% endblock %}

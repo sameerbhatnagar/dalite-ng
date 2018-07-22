@@ -27,7 +27,6 @@
         <div class='field'>
           <div class="mdc-text-field mdc-text-field--textarea mdc-text-field--dense mdc-theme--background" data-mdc-auto-init="MDCTextField">
             {{ form.text|add_class:"mdc-text-field__input" }}
-            <label for="id_text" class="mdc-floating-label"> {{ form.text.label }}</label>
           </div>
           <p style='margin-left:16px;margin-right:16px;' class="mdc-text-field-helper-text mdc-text-field-helper-text--persistent" aria-hidden="true">
             {{ form.text.help_text|safe }}
@@ -128,4 +127,15 @@
       {% endif %}
     </div>
 
+{% endblock %}
+
+{% block scripts %}
+<script>
+// TinyMCE bind to textarea
+tinymce.init({
+  selector: 'textArea',
+  menubar: false,
+  toolbar: 'undo redo | bold italic superscript subscript | link image'
+});
+</script>
 {% endblock %}
