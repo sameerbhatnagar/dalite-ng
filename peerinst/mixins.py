@@ -55,4 +55,4 @@ class TOSAcceptanceRequiredMixin(object):
     @classmethod
     def as_view(cls, **initkwargs):
         view = super(TOSAcceptanceRequiredMixin, cls).as_view(**initkwargs)
-        return user_passes_test(teacher_tos_accepted_check, login_url='/access_denied/')(view)
+        return user_passes_test(teacher_tos_accepted_check, login_url='/tos/required/')(view)

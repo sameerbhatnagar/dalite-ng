@@ -3,6 +3,7 @@ from . import views
 
 app_name = "tos"
 urlpatterns = [
+    url(r'^required/$', views.tos_required, name='tos_required'),
     url(
         r"(?P<role>\w{1,})/(?P<version>\d{1,})/update/$",
         views.consent_update,

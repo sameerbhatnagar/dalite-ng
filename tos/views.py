@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from django.http import (
     HttpResponse,
     HttpResponseBadRequest,
+    HttpResponseForbidden,
     HttpResponseNotAllowed,
     HttpResponseRedirect,
     HttpResponseServerError,
@@ -113,3 +114,9 @@ def _consent_view(req, username, role, version):
     }
 
     return _consent, context
+
+
+@login_required
+def tos_required(request):
+    response = TemplateResponse(request, 'tos/tos_required.html')
+    return HttpResponseForbidden(response.render())

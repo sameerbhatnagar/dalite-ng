@@ -510,32 +510,32 @@ class TeacherTest(TestCase):
         # Question create
         response = self.client.get(reverse('question-create'), follow=True)
         self.assertEqual(response.status_code, 403)
-        self.assertTemplateUsed(response, '403.html')
+        self.assertTemplateUsed(response, 'tos/tos_required.html')
 
         # Question clone
         response = self.client.get(reverse('question-clone', kwargs={ 'pk' : 43 }), follow=True)
         self.assertEqual(response.status_code, 403)
-        self.assertTemplateUsed(response, '403.html')
+        self.assertTemplateUsed(response, 'tos/tos_required.html')
 
         # Question update
         response = self.client.get(reverse('question-update', kwargs={ 'pk' : 32 }), follow=True)
         self.assertEqual(response.status_code, 403)
-        self.assertTemplateUsed(response, '403.html')
+        self.assertTemplateUsed(response, 'tos/tos_required.html')
 
         # Answer choice create/update
         response = self.client.get(reverse('answer-choice-form', kwargs={ 'question_id' : 32 }), follow=True)
         self.assertEqual(response.status_code, 403)
-        self.assertTemplateUsed(response, '403.html')
+        self.assertTemplateUsed(response, 'tos/tos_required.html')
 
         # Sample answer create
         response = self.client.get(reverse('sample-answer-form', kwargs={ 'question_id' : 32 }), follow=True)
         self.assertEqual(response.status_code, 403)
-        self.assertTemplateUsed(response, '403.html')
+        self.assertTemplateUsed(response, 'tos/tos_required.html')
 
         # Sample answer submit
         response = self.client.get(reverse('sample-answer-form-done', kwargs={ 'question_id' : 32 }), follow=True)
         self.assertEqual(response.status_code, 403)
-        self.assertTemplateUsed(response, '403.html')
+        self.assertTemplateUsed(response, 'tos/tos_required.html')
 
 
 class StudentTest(TestCase):

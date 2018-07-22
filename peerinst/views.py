@@ -21,7 +21,7 @@ from django.core.exceptions import PermissionDenied
 from django.core.mail import mail_admins, send_mail
 from django.db.models import Q
 from django.forms import inlineformset_factory, Textarea
-from django.http import HttpResponseBadRequest, HttpResponseServerError
+from django.http import HttpResponseBadRequest, HttpResponseForbidden, HttpResponseServerError
 from django.shortcuts import get_object_or_404, render, render_to_response, redirect
 from django.template import loader
 from django.template.response import TemplateResponse
@@ -523,7 +523,7 @@ class QuestionUpdateView(LoginRequiredMixin, NoStudentsMixin, ObjectPermissionMi
 
 @login_required
 @user_passes_test(student_check, login_url='/access_denied_and_logout/')
-@user_passes_test(teacher_tos_accepted_check, login_url='/access_denied/')
+@user_passes_test(teacher_tos_accepted_check, login_url='/tos/required/')
 def answer_choice_form(request, question_id):
     AnswerChoiceFormSet = inlineformset_factory(
         Question,
@@ -570,7 +570,7 @@ def answer_choice_form(request, question_id):
 
 @login_required
 @user_passes_test(student_check, login_url='/access_denied_and_logout/')
-@user_passes_test(teacher_tos_accepted_check, login_url='/access_denied/')
+@user_passes_test(teacher_tos_accepted_check, login_url='/tos/required/')
 def sample_answer_form_done(request, question_id):
     question = get_object_or_404(models.Question, pk=question_id)
 
@@ -612,7 +612,7 @@ class DisciplineCreateView(LoginRequiredMixin, NoStudentsMixin, TOSAcceptanceReq
 
 @login_required
 @user_passes_test(student_check, login_url='/access_denied_and_logout/')
-@user_passes_test(teacher_tos_accepted_check, login_url='/access_denied/')
+@user_passes_test(teacher_tos_accepted_check, login_url='/tos/required/')
 def discipline_select_form(request, pk):
     """An AJAX view that simply renders the DisciplineSelectForm."""
     """Preselects instance with pk."""
@@ -636,7 +636,7 @@ class CategoryCreateView(LoginRequiredMixin, NoStudentsMixin, TOSAcceptanceRequi
 
 @login_required
 @user_passes_test(student_check, login_url='/access_denied_and_logout/')
-@user_passes_test(teacher_tos_accepted_check, login_url='/access_denied/')
+@user_passes_test(teacher_tos_accepted_check, login_url='/tos/required/')
 def category_select_form(request, pk):
     """An AJAX view that simply renders the CategorySelectForm."""
     """Preselects instance with pk."""
