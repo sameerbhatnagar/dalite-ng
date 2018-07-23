@@ -63,14 +63,6 @@ export {
 } from 'd3';
 
 
-// Popmotion
-import * as pop from 'popmotion';
-
-export {
-  pop,
-};
-
-
 // Custom functions
 /** Mike Bostock's svg line wrap function
 *   https://bl.ocks.org/mbostock/7555321

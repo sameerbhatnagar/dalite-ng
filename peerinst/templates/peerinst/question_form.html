@@ -70,7 +70,7 @@
           <div class='field-container'>
             <div class='number-box flush-to-textbox'><span class='number'>2</span></div>
             <div class='field'>
-              <div class='mdc-form-field' style="display:block;">
+              <div class='mdc-form-field' style="display:block; padding-top:15px; margin-bottom:10px;">
                 <label for="id_text"> {{ form.text.label }}</label>
               </div>
               <div class="mdc-text-field mdc-text-field--textarea">
@@ -419,8 +419,11 @@
   // TinyMCE bind to textarea
   tinymce.init({
     selector: 'textArea',
+    elementpath: false,
+    branding: false,
     menubar: false,
-    toolbar: 'undo redo | bold italic superscript subscript | link image'
+    toolbar: 'undo redo | bold italic superscript subscript | link image',
+    content_css: "{% static 'peerinst/css/tiny.min.css' %}",
   });
 </script>
 {% endif %}

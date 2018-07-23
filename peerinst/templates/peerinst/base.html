@@ -14,8 +14,8 @@
   <!-- Polyfills for non-awesome browsers -->
   <script src="https://cdn.polyfill.io/v2/polyfill.min.js"></script>
 
-  <!-- TinyMCE for rich text input -->
-  <script src="https://cloud.tinymce.com/stable/tinymce.min.js?apiKey=1ssc2u70j8s6h0zts7518g9n0uxmqbr2kclbnnwbg0ehzioh"></script>
+  <!-- Self-hosted tinyMCE -->
+  <script src="{% static 'peerinst/js/tinymce/js/tinymce/tinymce.min.js' %}"></script>
 
   <!-- Local resources -->
   <link href="{% static 'peerinst/img/SALTISE-logo-icon.gif' %}" rel="icon">
@@ -107,7 +107,7 @@
 
   <!-- JS bundle -->
   {% compress js %}
-  <script src="{% static 'peerinst/js/index.min.js'  %}"></script>
+  <script src="{% static 'peerinst/js/index.min.js' %}"></script>
   {% endcompress %}
 
   {% block scripts %}{% endblock %}

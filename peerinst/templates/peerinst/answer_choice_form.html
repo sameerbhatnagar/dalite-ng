@@ -25,8 +25,8 @@
       <div class='field-container'>
         <div class='number-box flush-to-textbox'><span class='number'>{{ forloop.counter }}</span></div>
         <div class='field'>
-          <div class="mdc-text-field mdc-text-field--textarea mdc-text-field--dense mdc-theme--background" data-mdc-auto-init="MDCTextField">
-            {{ form.text|add_class:"mdc-text-field__input" }}
+          <div class="mdc-text-field mdc-text-field--textarea">
+            {{ form.text }}
           </div>
           <p style='margin-left:16px;margin-right:16px;' class="mdc-text-field-helper-text mdc-text-field-helper-text--persistent" aria-hidden="true">
             {{ form.text.help_text|safe }}
@@ -133,9 +133,12 @@
 <script>
 // TinyMCE bind to textarea
 tinymce.init({
-  selector: 'textArea',
+  selector: "textarea",
+  elementpath: false,
+  branding: false,
   menubar: false,
-  toolbar: 'undo redo | bold italic superscript subscript | link image'
+  toolbar: 'undo redo | bold italic superscript subscript | link image',
+  content_css: "{% static 'peerinst/css/tiny.min.css' %}"
 });
 </script>
 {% endblock %}
