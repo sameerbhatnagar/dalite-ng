@@ -166,29 +166,30 @@ def dashboard(request):
         form = forms.ActivateForm(request.POST)
         if form.is_valid():
             user = form.cleaned_data['user']
-            try:
-                user.is_active = True
-                user.save()
+            user.is_active = True
+            user.save()
 
-                if form.cleaned_data['is_teacher']:
-                    teacher = Teacher(user=user)
-                    teacher.save()
-            except:
-                pass
+            if form.cleaned_data['is_teacher']:
+                teacher = Teacher(user=user)
+                teacher.save()
 
             # Notify user
-            email_context = dict(
-                username=user.username,
-                site_name='myDALITE',
-            )
-            send_mail(
-                _('Your myDALITE account has been activated'),
-                'Dear {},\n\nYour account has been recently activated. \n\nYou can login at:\n\n{}\n\nCheers,\nThe myDalite Team'.format(user.username,'https://'+request.get_host(),),
-                'noreply@myDALITE.org',
-                [user.email],
-                fail_silently=True,
-                html_message=loader.render_to_string(html_email_template_name, context=email_context, request=request),
-            )
+            try:
+                email_context = dict(
+                    username=user.username,
+                    site_name='myDALITE',
+                )
+                send_mail(
+                    _('Your myDALITE account has been activated'),
+                    'Dear {},\n\nYour account has been recently activated. \n\nYou can login at:\n\n{}\n\nCheers,\nThe myDalite Team'.format(user.username,'https://'+request.get_host(),),
+                    'noreply@myDALITE.org',
+                    [user.email],
+                    fail_silently=True,
+                    html_message=loader.render_to_string(html_email_template_name, context=email_context, request=request),
+                )
+            except:
+                response = TemplateResponse(request, '500.html')
+                return HttpResponseServerError(response.render())
 
     return TemplateResponse(
         request,
@@ -228,7 +229,6 @@ def sign_up(request):
                 )
             except:
                 response = TemplateResponse(request, '500.html')
-
                 return HttpResponseServerError(response.render())
 
             return TemplateResponse(request,'registration/sign_up_done.html')

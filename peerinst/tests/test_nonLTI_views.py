@@ -1,4 +1,5 @@
 from django.contrib.auth.hashers import make_password
+from django.core import mail
 from django.core.urlresolvers import reverse
 from django.http import HttpRequest
 from django.test import TestCase, TransactionTestCase
@@ -65,6 +66,39 @@ class SignUpTest(TestCase):
 
         with self.settings(EMAIL_BACKEND=''):
             response = self.client.post(reverse('sign_up'), data={'username':'abc', 'password1':'jdefngath4', 'password2':'jdefngath4', 'email':'abc@def.com', 'url':'http://abc.com'}, follow=True)
+            self.assertEqual(response.status_code, 500)
+            self.assertTemplateUsed(response, '500.html')
+
+
+class AdminTest(TestCase):
+    fixtures = ['test_users.yaml']
+
+    def setUp(self):
+        self.admin = ready_user(99)
+
+    def test_dashboard(self):
+        logged_in = self.client.login(username=self.admin.username, password=self.admin.text_pwd)
+        self.assertTrue(logged_in)
+
+        response = self.client.get(reverse('dashboard'))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'peerinst/dashboard.html')
+
+        response = self.client.post(reverse('dashboard'), { 'user' : 3 })
+        self.assertTrue(User.objects.get(pk=3).is_active)
+        self.assertRaises(Teacher.DoesNotExist, Teacher.objects.get, user__pk=3)
+
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].subject, 'Your myDALITE account has been activated')
+
+        inactive_user = User.objects.get(pk=3)
+        inactive_user.is_active = False
+        inactive_user.save()
+
+        with self.settings(EMAIL_BACKEND=''):
+            response = self.client.post(reverse('dashboard'), { 'user' : 3, 'is_teacher' : 'on' })
+            self.assertTrue(User.objects.get(pk=3).is_active)
+            self.assertTrue(Teacher.objects.get(user__pk=3))
             self.assertEqual(response.status_code, 500)
             self.assertTemplateUsed(response, '500.html')
 
