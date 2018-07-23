@@ -7,7 +7,7 @@ import time
 import unittest
 
 from django.contrib.auth.models import Permission, Group
-from peerinst.models import User, Teacher, Question, Assignment
+from peerinst.models import User, Question, Assignment
 from tos.models import Tos
 
 def ready_user(pk):
@@ -40,10 +40,10 @@ class NewUserTests(StaticLiveServerTestCase):
 
         # Add TOS for teachers
         new_TOS = Tos(
-            version = 1,
-            text = 'Test',
-            current = True,
-            role = 'te',
+            version=1,
+            text='Test',
+            current=True,
+            role='te',
         )
         new_TOS.save()
 
@@ -199,10 +199,10 @@ class NewUserTests(StaticLiveServerTestCase):
 
         # Add a new current TOS for teachers and refresh account -> tos
         new_TOS = Tos(
-            version = 2,
-            text = 'Test 2',
-            current = True,
-            role = 'te',
+            version=2,
+            text='Test 2',
+            current=True,
+            role='te',
         )
         new_TOS.save()
 
@@ -227,45 +227,60 @@ class NewUserTests(StaticLiveServerTestCase):
         inputbox = self.browser.find_element_by_id('id_title')
         inputbox.send_keys('Test title')
 
-        inputbox = self.browser.find_element_by_id('id_text')
-        inputbox.send_keys('Test text')
+        tinymce_embed = self.browser.find_element_by_tag_name('iframe')
+        self.browser.switch_to_frame(tinymce_embed)
+        ifrinputbox = self.browser.find_element_by_id('tinymce')
+        ifrinputbox.send_keys('Test text')
+        self.browser.switch_to_default_content()
 
         inputbox.submit()
 
         assert "Step 2" in self.browser.find_element_by_tag_name('h2').text
 
-        inputbox = self.browser.find_element_by_id('id_answerchoice_set-0-text')
-        inputbox.send_keys('Answer 1')
+        tinymce_embed = self.browser.find_element_by_id('id_answerchoice_set-0-text_ifr')
+        self.browser.switch_to_frame(tinymce_embed)
+        ifrinputbox = self.browser.find_element_by_id('tinymce')
+        ifrinputbox.send_keys('Answer 1')
+        self.browser.switch_to_default_content()
 
-        inputbox = self.browser.find_element_by_id('id_answerchoice_set-1-text')
-        inputbox.send_keys('Answer 2')
+        tinymce_embed = self.browser.find_element_by_id('id_answerchoice_set-1-text_ifr')
+        self.browser.switch_to_frame(tinymce_embed)
+        ifrinputbox = self.browser.find_element_by_id('tinymce')
+        ifrinputbox.send_keys('Answer 2')
+        self.browser.switch_to_default_content()
 
         self.browser.find_element_by_id('id_answerchoice_set-0-correct').click()
+
+        inputbox = self.browser.find_element_by_id('answer-choice-form')
 
         inputbox.submit()
 
         assert "Step 3" in self.browser.find_element_by_tag_name('h2').text
 
-        form = self.browser.find_element_by_id('add_question_to_assignment').submit()
+        self.browser.find_element_by_id('add_question_to_assignment').submit()
 
         assert "My Account" in self.browser.find_element_by_tag_name('h1').text
         assert "Test title" in self.browser.page_source
 
         # Teacher can edit their questions
         question = Question.objects.get(title='Test title')
-        edit_button = self.browser.find_element_by_id('edit-question-'+str(question.id)).click()
+        self.browser.find_element_by_id('edit-question-'+str(question.id)).click()
 
         assert "Step 1" in self.browser.find_element_by_tag_name('h2').text
 
-        inputbox = self.browser.find_element_by_id('id_text')
-        inputbox.send_keys(' edited')
+        tinymce_embed = self.browser.find_element_by_tag_name('iframe')
+        self.browser.switch_to_frame(tinymce_embed)
+        ifrinputbox = self.browser.find_element_by_id('tinymce')
+        ifrinputbox.send_keys('Edited: ')
+        self.browser.switch_to_default_content()
 
+        inputbox = self.browser.find_element_by_id('id_title')
         inputbox.submit()
 
         question.refresh_from_db()
 
         assert "Step 2" in self.browser.find_element_by_tag_name('h2').text
-        assert "Test text edited" in question.text
+        assert "Edited: Test text" in question.text
 
         # Teacher cannot edit another teacher's questions
         self.browser.get(self.live_server_url + reverse('question-update', kwargs={ 'pk' : 43 }))
@@ -273,7 +288,7 @@ class NewUserTests(StaticLiveServerTestCase):
 
         # Teacher can create an assignment
         self.browser.get(self.live_server_url + reverse('teacher', kwargs={ 'pk' : 1 } ))
-        manage_assignments_button = self.browser.find_element_by_link_text('Manage assignments').click()
+        self.browser.find_element_by_link_text('Manage assignments').click()
         assert "Create a new assignment" in self.browser.page_source
 
         inputbox = self.browser.find_element_by_id('id_identifier')
