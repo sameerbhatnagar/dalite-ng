@@ -46,30 +46,55 @@ def consent_modify(req, role, version=None):
 @login_required
 def consent_update(req, role, version):
     if req.method != "POST":
-        return HttpResponseNotAllowed(["POST"])
+        resp = TemplateResponse(req, "405.html")
+        return HttpResponseNotAllowed(["POST"], resp.render())
 
     if role not in Tos.ROLES:
-        return HttpResponseBadRequest("Not a valid role")
+        resp = TemplateResponse(
+            req,
+            "400.html",
+            context={"message": _('"{}" isn\'t a valid role.'.format(role))},
+        )
+        return HttpResponseBadRequest(resp.render())
 
     username = req.user.username
 
     try:
         accepted = req.POST["accepted"].lower() == "true"
     except KeyError:
-        return HttpResponseBadRequest("Missing parameters")
+        resp = TemplateResponse(
+            req,
+            "400.html",
+            context={"message": _("There are missing parameters.")},
+        )
+        return HttpResponseBadRequest(resp.render())
 
     try:
         user = User.objects.get(username=username)
     except User.DoesNotExist:
-        return HttpResponseBadRequest("User doesn't exist")
+        resp = TemplateResponse(
+            req,
+            "400.html",
+            context={
+                "message": _('The user "{}" doesn\'t exist.'.format(username))
+            },
+        )
+        return HttpResponseBadRequest(resp.render())
 
     try:
         tos = Tos.objects.get(role=role[:2], version=version)
     except Tos.DoesNotExist:
-        return HttpResponseBadRequest(
-            "There is no terms of service with version "
-            '{} for role "{}"'.format(version, role)
+        resp = TemplateResponse(
+            req,
+            "400.html",
+            context={
+                "message": _(
+                    "There is no terms of service with version "
+                    '{} for role "{}"'.format(version, role)
+                )
+            },
         )
+        return HttpResponseBadRequest(resp.render())
 
     Consent.objects.create(user=user, tos=tos, accepted=accepted)
 
@@ -80,27 +105,42 @@ def consent_update(req, role, version):
 
 def _consent_view(req, username, role, version):
     if req.method != "GET":
-        return HttpResponseNotAllowed(["GET"]), None
+        resp = TemplateResponse(req, "405.html")
+        return HttpResponseNotAllowed(["GET"], resp.render()), None
     if role not in Tos.ROLES:
-        return HttpResponseBadRequest("Not a valid role"), None
+        resp = TemplateResponse(
+            req,
+            "400.html",
+            context={"message": _('"{}" isn\'t a valid role.'.format(role))},
+        )
+        return HttpResponseBadRequest(resp.render()), None
     if not User.objects.filter(username=username).exists():
-        return HttpResponseBadRequest("User doesn't exist"), None
+        resp = TemplateResponse(
+            req,
+            "400.html",
+            context={
+                "message": _('The user "{}" doesn\'t exist.'.format(username))
+            },
+        )
+        return HttpResponseBadRequest(resp.render()), None
 
     version = int(version) if version is not None else version
+    print(Tos.objects.all())
 
     if not Tos.objects.filter(role=role[:2]):
-        response = TemplateResponse(
+        resp = TemplateResponse(
             req,
-            '500.html',
-            context={'message' : _("There is no terms of service yet."),}
-            )
+            "500.html",
+            context={"message": _("There is no terms of service yet.")},
+        )
 
-        return HttpResponseServerError(response.render()), None
+        return HttpResponseServerError(resp.render()), None
 
     tos, err = Tos.get(role=role, version=version)
 
     if tos is None:
-        return HttpResponseBadRequest(err), None
+        resp = TemplateResponse(req, "400.html", context={"message": _(err)})
+        return HttpResponseBadRequest(resp.render()), None
 
     _consent = Consent.get(username=username, role=role, version=version)
 
@@ -118,5 +158,5 @@ def _consent_view(req, username, role, version):
 
 @login_required
 def tos_required(request):
-    response = TemplateResponse(request, 'tos/tos_required.html')
+    response = TemplateResponse(request, "tos/tos_required.html")
     return HttpResponseForbidden(response.render())

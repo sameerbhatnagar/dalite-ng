@@ -128,7 +128,9 @@ class TestConsentView(TestCase):
         for test in tests:
             resp = self.client.get(reverse("tos:consent", kwargs=test))
             self.assertEqual(resp.status_code, 400)
-            self.assertIn("Not a valid role", resp.content)
+            self.assertIn(
+                '"{}" isn\'t a valid role.'.format(test["role"]), resp.content
+            )
 
 
 class TestConsentModifyView(TestCase):
@@ -203,7 +205,9 @@ class TestConsentModifyView(TestCase):
         for test in tests:
             resp = self.client.get(reverse("tos:modify", kwargs=test))
             self.assertEqual(resp.status_code, 400)
-            self.assertIn("Not a valid role", resp.content)
+            self.assertIn(
+                '"{}" isn\'t a valid role.'.format(test["role"]), resp.content
+            )
 
 
 class TestConsentUpdateView(TestCase):
@@ -213,7 +217,9 @@ class TestConsentUpdateView(TestCase):
         n_tos = 1
         n_consent = 1
         self.users = _add_users(_new_user(n_users))
-        self.tos = _add_tos(_new_tos(n_tos))
+        self.tos = _add_tos(_new_tos(n_tos, role="student")) + _add_tos(
+            _new_tos(n_tos, role="teacher")
+        )
         self.consents = _new_consent(n_consent, self.users, self.tos)
         for user in self.users:
             _login_user(self.client, user)
@@ -262,21 +268,22 @@ class TestConsentUpdateView(TestCase):
         tests = [
             (
                 {
-                    "role": [
+                    "role": next(
                         r for r in Tos.ROLES if r.startswith(self.tos[0].role)
-                    ][0],
+                    ),
                     "version": int(self.tos[0].version),
                 },
                 {"accepted": True, "redirect_to": "/tos/student/"},
             )
         ]
+        print(self.tos)
+        print(self.consents)
 
         for test in tests:
             resp = self.client.post(
                 reverse("tos:update", kwargs=test[0]), test[1]
             )
             self.assertEqual(resp.status_code, 302)
-            print(resp)
             self.assertRedirects(resp, "/tos/student/", target_status_code=200)
 
     def test_consent_update_version_doesnt_exist(self):
@@ -321,7 +328,10 @@ class TestConsentUpdateView(TestCase):
                 reverse("tos:update", kwargs=test[0]), test[1]
             )
             self.assertEqual(resp.status_code, 400)
-            self.assertIn("Not a valid role", resp.content)
+            self.assertIn(
+                '"{}" isn\'t a valid role.'.format(test[0]["role"]),
+                resp.content,
+            )
 
 
 def _login_user(client, user):

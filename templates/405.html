@@ -1,0 +1,14 @@
+{% extends './errors.html' %}
+
+{% load i18n %}
+
+{% block body %}
+<h1>405 Method Not Allowed</h1>
+
+<p>
+  {% trans 'An invalid method was used to access this page.' %}
+</p>
+
+<i class="corner-icon material-icons" style="vertical-align:middle;">search</i>
+
+{% endblock %}

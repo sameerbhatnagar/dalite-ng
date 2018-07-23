@@ -93,7 +93,7 @@ class Consent(models.Model):
         ), "Precondition failed for `version`"
         assert isinstance(latest, bool), "Precondition failed for `version`"
         assert (
-            version is None and not latest
+            version is None or not latest
         ), "If `version` is given, `latest` must be False"
 
         consent = None
