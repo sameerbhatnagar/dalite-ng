@@ -37,7 +37,21 @@ class FirstAnswerForm(forms.Form):
     )
 
     def __init__(self, answer_choices, *args, **kwargs):
-        choice_texts = [mark_safe(". ".join(pair)) for pair in answer_choices]
+        print([pair[1] for pair in answer_choices])
+        choice_texts = [
+            mark_safe(
+                ". ".join(
+                    (
+                        pair[0],
+                        ("<br>" + "&nbsp" * 5).join(
+                            re.split(r"<br(?: /)?>", pair[1])
+                        ),
+                    )
+                )
+            )
+            for pair in answer_choices
+        ]
+        #  choice_texts = [mark_safe(". ".join(pair)) for pair in answer_choices]
         self.base_fields["first_answer_choice"].choices = enumerate(
             choice_texts, 1
         )
@@ -298,6 +312,9 @@ class ReportSelectForm(forms.Form):
 
 class AnswerChoiceForm(forms.ModelForm):
     def clean_text(self):
-        return re.match(
-            r"^(?:<p>)?(.*?)(?:</p>)?$", self.cleaned_data["text"]
-        ).group(1)
+        if self.cleaned_data["text"].startswith("<p>"):
+            return "<br>".join(
+                re.findall(r"(?<=<p>)(.+)(?=</p>)", self.cleaned_data["text"])
+            )
+        else:
+            return self.cleaned_data["text"]
