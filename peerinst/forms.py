@@ -313,7 +313,6 @@ class ReportSelectForm(forms.Form):
 class AnswerChoiceForm(forms.ModelForm):
     def clean_text(self):
         if self.cleaned_data["text"].startswith("<p>"):
-            #  return ("<br>" + "&nbsp" * 5).join(
             return "<br>".join(
                 re.findall(r"(?<=<p>)(.+)(?=</p>)", self.cleaned_data["text"])
             )
