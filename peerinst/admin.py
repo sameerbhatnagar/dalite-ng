@@ -51,19 +51,6 @@ class AnswerChoiceInlineFormSet(forms.BaseInlineFormSet):
             )
         if errors:
             raise exceptions.ValidationError(errors)
-        #  texts = [
-        #  re.match(
-        #  r"^(?:<p>)?(.*?)(?:</p>)?$", f.cleaned_data["text"]
-        #  ).group(1)
-        #  for f in forms
-        #  ]
-        #  for form in forms:
-        #  modified_text = re.match(
-        #  r"^(?:<p>)?(.*?)(?:</p>)?$", form.cleaned_data["text"]
-        #  ).group(1)
-        #  form.cleaned_data["text"] = modified_text
-        #  form.instance.text = modified_text
-        #  form.save()
 
 
 class AnswerChoiceInline(admin.TabularInline):
