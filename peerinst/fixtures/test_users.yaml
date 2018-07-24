@@ -13,6 +13,9 @@
 - fields: {username: 'guest', password: 'asdfdfsasvfare4w3', is_active: True}
   model: auth.user
   pk: 11
+- fields: {username: 'admin', password: 'asdadvbsdfhjt3t3', is_active: True, is_superuser: True}
+  model: auth.user
+  pk: 99
 - fields: {user: 1}
   model: peerinst.teacher
   pk: 1

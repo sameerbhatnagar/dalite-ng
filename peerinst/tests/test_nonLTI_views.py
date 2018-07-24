@@ -1,4 +1,5 @@
 from django.contrib.auth.hashers import make_password
+from django.core import mail
 from django.core.urlresolvers import reverse
 from django.http import HttpRequest
 from django.test import TestCase, TransactionTestCase
@@ -69,6 +70,39 @@ class SignUpTest(TestCase):
             self.assertTemplateUsed(response, '500.html')
 
 
+class AdminTest(TestCase):
+    fixtures = ['test_users.yaml']
+
+    def setUp(self):
+        self.admin = ready_user(99)
+
+    def test_dashboard(self):
+        logged_in = self.client.login(username=self.admin.username, password=self.admin.text_pwd)
+        self.assertTrue(logged_in)
+
+        response = self.client.get(reverse('dashboard'))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'peerinst/dashboard.html')
+
+        response = self.client.post(reverse('dashboard'), { 'user' : 3 })
+        self.assertTrue(User.objects.get(pk=3).is_active)
+        self.assertRaises(Teacher.DoesNotExist, Teacher.objects.get, user__pk=3)
+
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].subject, 'Your myDALITE account has been activated')
+
+        inactive_user = User.objects.get(pk=3)
+        inactive_user.is_active = False
+        inactive_user.save()
+
+        with self.settings(EMAIL_BACKEND=''):
+            response = self.client.post(reverse('dashboard'), { 'user' : 3, 'is_teacher' : 'on' })
+            self.assertTrue(User.objects.get(pk=3).is_active)
+            self.assertTrue(Teacher.objects.get(user__pk=3))
+            self.assertEqual(response.status_code, 500)
+            self.assertTemplateUsed(response, '500.html')
+
+
 class TeacherTest(TestCase):
     fixtures = ['test_users.yaml']
 
@@ -104,7 +138,6 @@ class TeacherTest(TestCase):
 
         self.assertFalse(self.validated_teacher.get_all_permissions())
 
-
     def test_login_and_access_to_accounts(self):
         # Login
         response = self.client.post(reverse('login'), {'username' : self.validated_teacher.username, 'password' : self.validated_teacher.text_pwd}, follow=True)
@@ -132,7 +165,6 @@ class TeacherTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'registration/login.html')
 
-
     def test_refuse_inactive_at_login(self):
         # @login_required decorator and mixin do NOT check if user.is_active
         # but authentication backend should.
@@ -140,7 +172,6 @@ class TeacherTest(TestCase):
         # Check inactive user cannot login
         logged_in = self.client.login(username=self.inactive_user.username, password=self.inactive_user.text_pwd)
         self.assertFalse(logged_in)
-
 
     def test_adding_permissions(self):
         logged_in = self.client.login(username=self.validated_teacher.username, password=self.validated_teacher.text_pwd)
@@ -156,7 +187,6 @@ class TeacherTest(TestCase):
         response = self.client.get(reverse('question-create'))
         self.assertEqual(response.status_code, 200)
 
-
     def test_redirect_logged_in_user(self):
         logged_in = self.client.login(username=self.validated_teacher.username, password=self.validated_teacher.text_pwd)
         self.assertTrue(logged_in)
@@ -167,7 +197,6 @@ class TeacherTest(TestCase):
         self.client.logout()
         response = self.client.get(reverse('welcome'), follow=True)
         self.assertTemplateUsed(response, 'registration/login.html')
-
 
     def test_question_list_view(self):
         logged_in = self.client.login(username=self.validated_teacher.username, password=self.validated_teacher.text_pwd)
@@ -181,7 +210,6 @@ class TeacherTest(TestCase):
         # Assignment pk invalid -> 404
         response = self.client.get(reverse('question-list', kwargs={ 'assignment_id' : 'unknown_id' }))
         self.assertEqual(response.status_code, 404)
-
 
     def test_question_create(self):
         logged_in = self.client.login(username=self.validated_teacher.username, password=self.validated_teacher.text_pwd)
@@ -536,6 +564,9 @@ class TeacherTest(TestCase):
         response = self.client.get(reverse('sample-answer-form-done', kwargs={ 'question_id' : 32 }), follow=True)
         self.assertEqual(response.status_code, 403)
         self.assertTemplateUsed(response, 'tos/tos_required.html')
+
+    def test_assignment_copy(self):
+        pass
 
 
 class StudentTest(TestCase):

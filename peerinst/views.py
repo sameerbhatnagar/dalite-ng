@@ -50,7 +50,6 @@ from django.core.exceptions import ObjectDoesNotExist
 from opaque_keys import InvalidKeyError
 from opaque_keys.edx.keys import CourseKey
 
-
 from . import heartbeat_checks
 from . import admin
 from . import forms
@@ -110,7 +109,6 @@ from django.db.models import Count, Value, Case, Q, When, CharField
 # tos
 from tos.models import Consent, Tos
 
-
 LOGGER = logging.getLogger(__name__)
 LOGGER_teacher_activity = logging.getLogger("teacher_activity")
 
@@ -124,15 +122,8 @@ def log(request):
         browser = request.META["HTTP_USER_AGENT"]
         remote = request.META["REMOTE_ADDR"]
         LOGGER_teacher_activity.info(
-            user
-            + " | "
-            + timestamp_request
-            + " | "
-            + message
-            + " | "
-            + browser
-            + " | "
-            + remote
+            user + " | " + timestamp_request + " | " + message + " | " +
+            browser + " | " + remote
         )
 
     return
@@ -149,23 +140,22 @@ def landing_page(request):
     disciplines[str("All")][str("students")] = Student.objects.count()
     disciplines[str("All")][str("teachers")] = Teacher.objects.count()
 
-    for d in Discipline.objects.annotate(num_q=Count("question")).order_by(
-        "-num_q"
-    )[:3]:
+    for d in Discipline.objects.annotate(num_q=Count("question")
+                                        ).order_by("-num_q")[:3]:
         disciplines[str(d.title)] = {}
-        disciplines[str(d.title)][str("questions")] = Question.objects.filter(
-            discipline=d
-        ).count()
-        disciplines[str(d.title)][str("rationales")] = Answer.objects.filter(
-            question__discipline=d
-        ).count()
+        disciplines[str(
+            d.title
+        )][str("questions")] = Question.objects.filter(discipline=d).count()
+        disciplines[str(
+            d.title
+        )][str("rationales")] = Answer.objects.filter(question__discipline=d
+                                                     ).count()
 
         question_list = d.question_set.values_list("id", flat=True)
         disciplines[str(d.title)][str("students")] = len(
             set(
                 Answer.objects.filter(question_id__in=question_list)
-                .exclude(user_token="")
-                .values_list("user_token", flat=True)
+                .exclude(user_token="").values_list("user_token", flat=True)
             )
         )
 
@@ -185,22 +175,19 @@ def landing_page(request):
 
     disciplines_array.append(d2)
 
-    for d in Discipline.objects.annotate(num_q=Count("question")).order_by(
-        "-num_q"
-    )[:3]:
+    for d in Discipline.objects.annotate(num_q=Count("question")
+                                        ).order_by("-num_q")[:3]:
         d2 = {}
         d2[str("name")] = str(d.title)
         d2[str("questions")] = Question.objects.filter(discipline=d).count()
-        d2[str("rationales")] = Answer.objects.filter(
-            question__discipline=d
-        ).count()
+        d2[str("rationales")] = Answer.objects.filter(question__discipline=d
+                                                     ).count()
 
         question_list = d.question_set.values_list("id", flat=True)
         disciplines[str(d.title)][str("students")] = len(
             set(
                 Answer.objects.filter(question_id__in=question_list)
-                .exclude(user_token="")
-                .values_list("user_token", flat=True)
+                .exclude(user_token="").values_list("user_token", flat=True)
             )
         )
 
@@ -211,7 +198,10 @@ def landing_page(request):
     return TemplateResponse(
         request,
         "registration/landing_page.html",
-        context={"disciplines": disciplines_array, "json": disciplines_json},
+        context={
+            "disciplines": disciplines_array,
+            "json": disciplines_json
+        },
     )
 
 
@@ -228,41 +218,46 @@ def dashboard(request):
     if request.method == "POST":
         form = forms.ActivateForm(request.POST)
         if form.is_valid():
-            user = form.cleaned_data["user"]
-            try:
-                user.is_active = True
-                user.save()
+            user = form.cleaned_data['user']
+            user.is_active = True
+            user.save()
 
-                if form.cleaned_data["is_teacher"]:
-                    teacher = Teacher(user=user)
-                    teacher.save()
-            except:
-                pass
+            if form.cleaned_data['is_teacher']:
+                teacher = Teacher(user=user)
+                teacher.save()
 
             # Notify user
-            email_context = dict(username=user.username, site_name="myDALITE")
-            send_mail(
-                _("Your myDALITE account has been activated"),
-                "Dear {},\n\nYour account has been recently activated. \n\nYou can login at:\n\n{}\n\nCheers,\nThe myDalite Team".format(
-                    user.username, "https://" + request.get_host()
-                ),
-                "noreply@myDALITE.org",
-                [user.email],
-                fail_silently=True,
-                html_message=loader.render_to_string(
-                    html_email_template_name,
-                    context=email_context,
-                    request=request,
-                ),
-            )
+            try:
+                email_context = dict(
+                    username=user.username,
+                    site_name='myDALITE',
+                )
+                send_mail(
+                    _('Your myDALITE account has been activated'),
+                    'Dear {},\n\nYour account has been recently activated. \n\nYou can login at:\n\n{}\n\nCheers,\nThe myDalite Team'.
+                    format(
+                        user.username,
+                        'https://' + request.get_host(),
+                    ),
+                    'noreply@myDALITE.org',
+                    [user.email],
+                    fail_silently=True,
+                    html_message=loader.render_to_string(
+                        html_email_template_name,
+                        context=email_context,
+                        request=request
+                    ),
+                )
+            except:
+                response = TemplateResponse(request, '500.html')
+                return HttpResponseServerError(response.render())
 
     return TemplateResponse(
         request,
         "peerinst/dashboard.html",
         context={
-            "new_users": User.objects.filter(is_active=False).order_by(
-                "-date_joined"
-            )
+            "new_users":
+                User.objects.filter(is_active=False).order_by("-date_joined")
         },
     )
 
@@ -291,7 +286,8 @@ def sign_up(request):
                 )
                 mail_admins(
                     "New user request",
-                    "Dear administrator,\n\nA new user {} was created on {}. \n\nEmail: {}  \nVerification url: {} \n\nAccess your administrator account to activate this new user.\n\n{}\n\nCheers,\nThe myDalite Team".format(
+                    "Dear administrator,\n\nA new user {} was created on {}. \n\nEmail: {}  \nVerification url: {} \n\nAccess your administrator account to activate this new user.\n\n{}\n\nCheers,\nThe myDalite Team".
+                    format(
                         form.cleaned_data["username"],
                         timezone.now(),
                         form.cleaned_data["email"],
@@ -306,8 +302,7 @@ def sign_up(request):
                     ),
                 )
             except:
-                response = TemplateResponse(request, "500.html")
-
+                response = TemplateResponse(request, '500.html')
                 return HttpResponseServerError(response.render())
 
             return TemplateResponse(request, "registration/sign_up_done.html")
@@ -439,21 +434,18 @@ class AssignmentUpdateView(LoginRequiredMixin, NoStudentsMixin, DetailView):
     def dispatch(self, *args, **kwargs):
         # Check object permissions (to be refactored using mixin)
         if (
-            self.request.user in self.get_object().owner.all()
-            or self.request.user.is_staff
+            self.request.user in self.get_object().owner.all() or
+            self.request.user.is_staff
         ):
             # Check for student answers
             if (
-                self.get_object()
-                .answer_set.exclude(user_token__exact="")
-                .count()
-                > 0
+                self.get_object().answer_set.exclude(user_token__exact="")
+                .count() > 0
             ):
                 raise PermissionDenied
             else:
-                return super(AssignmentUpdateView, self).dispatch(
-                    *args, **kwargs
-                )
+                return super(AssignmentUpdateView,
+                             self).dispatch(*args, **kwargs)
         else:
             raise PermissionDenied
 
@@ -558,17 +550,28 @@ class QuestionCloneView(QuestionCreateView):
         super(QuestionCloneView, self).get_initial(*args, **kwargs)
         question = get_object_or_404(models.Question, pk=self.kwargs["pk"])
         initial = {
-            "text": question.text,
-            "image": question.image,
-            "image_alt_text": question.image_alt_text,
-            "video_url": question.video_url,
-            "answer_style": question.answer_style,
-            "category": question.category.all(),
-            "discipline": question.discipline,
-            "fake_attributions": question.fake_attributions,
-            "sequential_review": question.sequential_review,
-            "rationale_selection_algorithm": question.rationale_selection_algorithm,
-            "grading_scheme": question.grading_scheme,
+            "text":
+                question.text,
+            "image":
+                question.image,
+            "image_alt_text":
+                question.image_alt_text,
+            "video_url":
+                question.video_url,
+            "answer_style":
+                question.answer_style,
+            "category":
+                question.category.all(),
+            "discipline":
+                question.discipline,
+            "fake_attributions":
+                question.fake_attributions,
+            "sequential_review":
+                question.sequential_review,
+            "rationale_selection_algorithm":
+                question.rationale_selection_algorithm,
+            "grading_scheme":
+                question.grading_scheme,
         }
         return initial
 
@@ -635,16 +638,14 @@ class QuestionUpdateView(
         ):
             raise PermissionDenied
         else:
-            return super(QuestionUpdateView, self).post(
-                request, *args, **kwargs
-            )
+            return super(QuestionUpdateView,
+                         self).post(request, *args, **kwargs)
 
     def form_valid(self, form):
         # Only owner can update collaborators
         if not self.object.user == self.request.user:
-            form.cleaned_data[
-                "collaborators"
-            ] = self.object.collaborators.all()
+            form.cleaned_data["collaborators"
+                             ] = self.object.collaborators.all()
         return super(QuestionUpdateView, self).form_valid(form)
 
     def get_context_data(self, **kwargs):
@@ -667,7 +668,10 @@ def answer_choice_form(request, question_id):
         AnswerChoice,
         form=forms.AnswerChoiceForm,
         fields=("text", "correct"),
-        widgets={"text": Textarea(attrs={"style": "width: 100%;", "rows": 3})},
+        widgets={"text": Textarea(attrs={
+            "style": "width: 100%;",
+            "rows": 3
+        })},
         formset=admin.AnswerChoiceInlineFormSet,
         max_num=5,
         extra=5,
@@ -705,7 +709,10 @@ def answer_choice_form(request, question_id):
         return TemplateResponse(
             request,
             "peerinst/answer_choice_form.html",
-            context={"question": question, "formset": formset},
+            context={
+                "question": question,
+                "formset": formset
+            },
         )
     else:
         raise PermissionDenied
@@ -729,9 +736,9 @@ def sample_answer_form_done(request, question_id):
                     if teacher.user in a.owner.all():
                         # Check for student answers
                         if (
-                            a.answer_set.exclude(user_token__exact="").count()
-                            == 0
-                            and question not in a.questions.all()
+                            a.answer_set.exclude(user_token__exact=""
+                                                ).count() == 0 and
+                            question not in a.questions.all()
                         ):
                             a.questions.add(question)
                     else:
@@ -772,9 +779,10 @@ def discipline_select_form(request, pk):
         request,
         "peerinst/discipline_select_form.html",
         context={
-            "form": forms.DisciplineSelectForm(
-                initial={"discipline": Discipline.objects.get(pk=pk)}
-            )
+            "form":
+                forms.DisciplineSelectForm(
+                    initial={"discipline": Discipline.objects.get(pk=pk)}
+                )
         },
     )
 
@@ -805,6 +813,7 @@ def category_select_form(request, pk):
 
 
 class QuestionMixin(object):
+
     def get_context_data(self, **kwargs):
         context = super(QuestionMixin, self).get_context_data(**kwargs)
         context.update(
@@ -843,24 +852,20 @@ class QuestionFormView(QuestionMixin, FormView):
         # Check for any TOS
         if Consent.get(self.request.user.username, "student") is None:
             return HttpResponseRedirect(
-                reverse("tos:consent", kwargs={"role": "student"})
-                + "?next="
-                + self.request.path
+                reverse("tos:consent", kwargs={"role": "student"}) + "?next=" +
+                self.request.path
             )
         else:
             latest_student_consent = (
                 Consent.objects.filter(
                     user__username=self.request.user.username, tos__role="st"
-                )
-                .order_by("-datetime")
-                .first()
+                ).order_by("-datetime").first()
             )
             # Check if TOS is current
             if not latest_student_consent.tos.current:
                 return HttpResponseRedirect(
-                    reverse("tos:consent", kwargs={"role": "student"})
-                    + "?next="
-                    + self.request.path
+                    reverse("tos:consent", kwargs={"role": "student"}) +
+                    "?next=" + self.request.path
                 )
             else:
                 return super(QuestionFormView, self).dispatch(*args, **kwargs)
@@ -882,9 +887,8 @@ class QuestionFormView(QuestionMixin, FormView):
             edx_org = None
 
         grade_handler_re = re.compile(
-            "https?://[^/]+/courses/{course_id}/xblock/(?P<usage_key>[^/]+)/".format(
-                course_id=re.escape(course_id)
-            )
+            "https?://[^/]+/courses/{course_id}/xblock/(?P<usage_key>[^/]+)/".
+            format(course_id=re.escape(course_id))
         )
         usage_key = None
         outcome_service_url = self.lti_data.edx_lti_parameters.get(
@@ -1097,16 +1101,15 @@ class QuestionReviewBaseView(QuestionFormView):
         return kwargs
 
     def get_context_data(self, **kwargs):
-        context = super(QuestionReviewBaseView, self).get_context_data(
-            **kwargs
-        )
+        context = super(QuestionReviewBaseView,
+                        self).get_context_data(**kwargs)
         context.update(
             first_choice_label=self.question.get_choice_label(
                 self.first_answer_choice
             ),
             rationale=self.rationale,
-            sequential_review=self.stage_data.get("completed_stage")
-            == "sequential-review",
+            sequential_review=self.stage_data.get("completed_stage") ==
+            "sequential-review",
         )
         return context
 
@@ -1130,14 +1133,10 @@ class QuestionSequentialReviewView(QuestionReviewBaseView):
         # Select alternating rationales from the lists of rationales for the different answer
         # choices.  Skip the "I stick with my own rationale" option marked by id == None.
         rationale_sequence = list(
-            roundrobin(
-                [
-                    (id, label, rationale)
-                    for id, rationale in rationales
-                    if id is not None
-                ]
-                for choice, label, rationales in self.rationale_choices
-            )
+            roundrobin([(id, label, rationale)
+                        for id, rationale in rationales
+                        if id is not None]
+                       for choice, label, rationales in self.rationale_choices)
         )
         self.current_rationale = rationale_sequence[0]
         self.stage_data.update(
@@ -1147,9 +1146,8 @@ class QuestionSequentialReviewView(QuestionReviewBaseView):
         )
 
     def get_context_data(self, **kwargs):
-        context = super(QuestionSequentialReviewView, self).get_context_data(
-            **kwargs
-        )
+        context = super(QuestionSequentialReviewView,
+                        self).get_context_data(**kwargs)
         self.select_next_rationale()
         context.update(current_rationale=self.current_rationale)
         return context
@@ -1206,12 +1204,13 @@ class QuestionReviewView(QuestionReviewBaseView):
                 version=self.choose_rationales.version,
                 description=unicode(self.choose_rationales.description),
             ),
-            rationales=[
-                {"id": id, "text": rationale}
-                for choice, label, rationales in self.rationale_choices
-                for id, rationale in rationales
-                if id is not None
-            ],
+            rationales=[{
+                "id": id,
+                "text": rationale
+            }
+                        for choice, label, rationales in self.rationale_choices
+                        for id, rationale in rationales
+                        if id is not None],
             chosen_rationale_id=self.chosen_rationale_id,
             success="correct" if grade == 1.0 else "incorrect",
             grade=grade,
@@ -1235,8 +1234,8 @@ class QuestionReviewView(QuestionReviewBaseView):
                     )
                 )
             if (
-                chosen_rationale.first_answer_choice
-                != self.second_answer_choice
+                chosen_rationale.first_answer_choice !=
+                self.second_answer_choice
             ):
                 self.start_over(
                     _(
@@ -1319,6 +1318,7 @@ class QuestionSummaryView(QuestionMixin, TemplateView):
 
 
 class HeartBeatUrl(View):
+
     def get(self, request):
 
         checks = []
@@ -1373,32 +1373,32 @@ class AnswerSummaryChartView(View):
         ]
         # Other columns will be dynamically present, depending on which choices
         # were available on a given question.
-        to_columns = [
-            (
-                "to_{}".format(question.get_choice_label(i)),
-                "To {}".format(question.get_choice_label(i)),
-            )
-            for i in range(1, question.answerchoice_set.count() + 1)
-        ]
+        to_columns = [(
+            "to_{}".format(question.get_choice_label(i)),
+            "To {}".format(question.get_choice_label(i)),
+        ) for i in range(1,
+                         question.answerchoice_set.count() + 1)]
         # Initialize a list of answers that we can add details to
         answers = []
         for i, answer in enumerate(question.answerchoice_set.all(), start=1):
             # Get the label for the row, and the counts for how many students chose
             # this answer the first time, and the second time.
             answer_row = {
-                "label": "Answer {}: {}".format(
-                    question.get_choice_label(i), answer.text
-                ),
-                "before": models.Answer.objects.filter(
-                    question=question,
-                    first_answer_choice=i,
-                    assignment=assignment,
-                ).count(),
-                "after": models.Answer.objects.filter(
-                    question=question,
-                    second_answer_choice=i,
-                    assignment=assignment,
-                ).count(),
+                "label":
+                    "Answer {}: {}"
+                    .format(question.get_choice_label(i), answer.text),
+                "before":
+                    models.Answer.objects.filter(
+                        question=question,
+                        first_answer_choice=i,
+                        assignment=assignment,
+                    ).count(),
+                "after":
+                    models.Answer.objects.filter(
+                        question=question,
+                        second_answer_choice=i,
+                        assignment=assignment,
+                    ).count(),
             }
             for j, column in enumerate(to_columns, start=1):
                 # For every other answer, determine the count of students who chose
@@ -1421,32 +1421,29 @@ class AnswerSummaryChartView(View):
             # Save everything about this answer into the list of table rows
             answers.append(answer_row)
         # Build a list of all the columns that will be used in this chart
-        columns = [
-            {"name": name, "label": label}
-            for name, label in static_columns + to_columns
-        ]
+        columns = [{
+            "name": name,
+            "label": label
+        } for name, label in static_columns + to_columns]
         # Build a two-dimensional list with a value for each cell in the chart
-        answer_rows = [
-            [row[column["name"]] for column in columns] for row in answers
-        ]
+        answer_rows = [[row[column["name"]]
+                        for column in columns]
+                       for row in answers]
         # Transform the rationales we got from the other function into a format we can easily
         # draw in the page using a template
         # import pprint
         # pprint.pprint(answers)
-        answer_rationales = [
-            {
-                "label": each["label"],
-                "rationales": [
-                    {
-                        "text": rationale["rationale"].rationale,
-                        "count": rationale["count"],
-                    }
-                    for rationale in each["rationales"]
-                    if rationale["rationale"] is not None
-                ],
+        answer_rationales = [{
+            "label":
+                each["label"],
+            "rationales": [{
+                "text": rationale["rationale"].rationale,
+                "count": rationale["count"],
             }
-            for each in answers
-        ]
+                           for rationale in each["rationales"]
+                           if rationale["rationale"] is not None],
+        }
+                             for each in answers]
         # Render the template using the relevant variables and return it as an HTTP response.
         return TemplateResponse(
             request,
@@ -1569,32 +1566,29 @@ class TeacherBase(LoginRequiredMixin, NoStudentsMixin, View):
 
     def dispatch(self, *args, **kwargs):
         if (
-            self.request.user
-            == get_object_or_404(models.Teacher, pk=kwargs["pk"]).user
+            self.request.user == get_object_or_404(
+                models.Teacher, pk=kwargs["pk"]
+            ).user
         ):
 
             # Check for any TOS
             if Consent.get(self.request.user.username, "teacher") is None:
                 return HttpResponseRedirect(
-                    reverse("tos:modify", args=("teacher",))
-                    + "?next="
-                    + reverse("teacher", args=(kwargs["pk"],))
+                    reverse("tos:modify", args=("teacher", )) + "?next=" +
+                    reverse("teacher", args=(kwargs["pk"], ))
                 )
             else:
                 latest_teacher_consent = (
                     Consent.objects.filter(
                         user__username=self.request.user.username,
                         tos__role="te",
-                    )
-                    .order_by("-datetime")
-                    .first()
+                    ).order_by("-datetime").first()
                 )
                 # Check if TOS is current
                 if not latest_teacher_consent.tos.current:
                     return HttpResponseRedirect(
-                        reverse("tos:modify", args=("teacher",))
-                        + "?next="
-                        + reverse("teacher", args=(kwargs["pk"],))
+                        reverse("tos:modify", args=("teacher", )) + "?next=" +
+                        reverse("teacher", args=(kwargs["pk"], ))
                     )
                 else:
                     return super(TeacherBase, self).dispatch(*args, **kwargs)
@@ -1611,9 +1605,8 @@ class TeacherDetailView(TeacherBase, DetailView):
         context = super(TeacherDetailView, self).get_context_data(**kwargs)
         context["LTI_key"] = str(settings.LTI_CLIENT_KEY)
         context["LTI_secret"] = str(settings.LTI_CLIENT_SECRET)
-        context["LTI_launch_url"] = str(
-            "https://" + self.request.get_host() + "/lti/"
-        )
+        context["LTI_launch_url"
+               ] = str("https://" + self.request.get_host() + "/lti/")
         context["tos_accepted"] = bool(
             Consent.get(self.get_object().user.username, "teacher")
         )
@@ -1622,9 +1615,7 @@ class TeacherDetailView(TeacherBase, DetailView):
         latest_teacher_consent = (
             Consent.objects.filter(
                 user__username=self.get_object().user.username, tos__role="te"
-            )
-            .order_by("-datetime")
-            .first()
+            ).order_by("-datetime").first()
         )
         context["tos_timestamp"] = latest_teacher_consent.datetime
 
@@ -1771,8 +1762,7 @@ class TeacherBlinks(TeacherBase, ListView):
         ]
         # Send as context questions not already part of teacher's blinks
         context["suggested_questions"] = [
-            q
-            for q in teacher_discipline_questions
+            q for q in teacher_discipline_questions
             if q not in teacher_blink_questions
         ]
 
@@ -1830,11 +1820,15 @@ class BlinkQuestionFormView(SingleObjectMixin, FormView):
                 self.request,
                 "peerinst/blink_error.html",
                 context={
-                    "message": "Voting is closed",
-                    "url": reverse(
-                        "blink-get-current",
-                        kwargs={"username": self.object.teacher.user.username},
-                    ),
+                    "message":
+                        "Voting is closed",
+                    "url":
+                        reverse(
+                            "blink-get-current",
+                            kwargs={
+                                "username": self.object.teacher.user.username
+                            },
+                        ),
                 },
             )
 
@@ -1845,11 +1839,15 @@ class BlinkQuestionFormView(SingleObjectMixin, FormView):
                 self.request,
                 "peerinst/blink_error.html",
                 context={
-                    "message": "You may only vote once",
-                    "url": reverse(
-                        "blink-get-current",
-                        kwargs={"username": self.object.teacher.user.username},
-                    ),
+                    "message":
+                        "You may only vote once",
+                    "url":
+                        reverse(
+                            "blink-get-current",
+                            kwargs={
+                                "username": self.object.teacher.user.username
+                            },
+                        ),
                 },
             )
         else:
@@ -1861,9 +1859,8 @@ class BlinkQuestionFormView(SingleObjectMixin, FormView):
                         vote_time=timezone.now(),
                         voting_round=blinkround,
                     ).save()
-                    self.request.session[
-                        "BQid_" + self.object.key + "_R_" + str(blinkround.id)
-                    ] = True
+                    self.request.session["BQid_" + self.object.key + "_R_" +
+                                         str(blinkround.id)] = True
                     self.request.session[
                         "BQid_" + self.object.key
                     ] = form.cleaned_data["first_answer_choice"]
@@ -1872,13 +1869,16 @@ class BlinkQuestionFormView(SingleObjectMixin, FormView):
                         self.request,
                         "peerinst/blink_error.html",
                         context={
-                            "message": "Error; try voting again",
-                            "url": reverse(
-                                "blink-get-current",
-                                kwargs={
-                                    "username": self.object.teacher.user.username
-                                },
-                            ),
+                            "message":
+                                "Error; try voting again",
+                            "url":
+                                reverse(
+                                    "blink-get-current",
+                                    kwargs={
+                                        "username":
+                                            self.object.teacher.user.username
+                                    },
+                                ),
                         },
                     )
             else:
@@ -1886,13 +1886,16 @@ class BlinkQuestionFormView(SingleObjectMixin, FormView):
                     self.request,
                     "peerinst/blink_error.html",
                     context={
-                        "message": "Voting is closed",
-                        "url": reverse(
-                            "blink-get-current",
-                            kwargs={
-                                "username": self.object.teacher.user.username
-                            },
-                        ),
+                        "message":
+                            "Voting is closed",
+                        "url":
+                            reverse(
+                                "blink-get-current",
+                                kwargs={
+                                    "username":
+                                        self.object.teacher.user.username
+                                },
+                            ),
                     },
                 )
 
@@ -1919,16 +1922,13 @@ class BlinkQuestionDetailView(DetailView):
     model = BlinkQuestion
 
     def get_context_data(self, **kwargs):
-        context = super(BlinkQuestionDetailView, self).get_context_data(
-            **kwargs
-        )
+        context = super(BlinkQuestionDetailView,
+                        self).get_context_data(**kwargs)
 
         # Check if user is a Teacher
         if (
-            self.request.user.is_authenticated()
-            and Teacher.objects.filter(
-                user__username=self.request.user
-            ).exists()
+            self.request.user.is_authenticated() and
+            Teacher.objects.filter(user__username=self.request.user).exists()
         ):
 
             # Check question belongs to this Teacher
@@ -1958,7 +1958,8 @@ class BlinkQuestionDetailView(DetailView):
 
                 # Create round
                 r = BlinkRound(
-                    question=self.object, activate_time=datetime.datetime.now()
+                    question=self.object,
+                    activate_time=datetime.datetime.now()
                 )
                 r.save()
             else:
@@ -1984,9 +1985,8 @@ class BlinkQuestionDetailView(DetailView):
             )
 
         context["teacher"] = self.object.teacher.user.username
-        context["round"] = BlinkRound.objects.filter(
-            question=self.object
-        ).count()
+        context["round"] = BlinkRound.objects.filter(question=self.object
+                                                    ).count()
         context["time_left"] = time_left
 
         return context
@@ -2016,11 +2016,10 @@ def blink_assignment_start(request, pk):
                 reverse(
                     "blink-summary",
                     kwargs={
-                        "pk": blinkassignment.blinkquestions.order_by(
-                            "blinkassignmentquestion__rank"
-                        )
-                        .first()
-                        .pk
+                        "pk":
+                            blinkassignment.blinkquestions.
+                            order_by("blinkassignmentquestion__rank").first()
+                            .pk
                     },
                 )
             )
@@ -2039,7 +2038,10 @@ def blink_assignment_start(request, pk):
         return TemplateResponse(
             request,
             "peerinst/blink_error.html",
-            context={"message": "Error", "url": reverse("logout")},
+            context={
+                "message": "Error",
+                "url": reverse("logout")
+            },
         )
 
 
@@ -2075,7 +2077,10 @@ def blink_assignment_delete(request, pk):
         return TemplateResponse(
             request,
             "peerinst/blink_error.html",
-            context={"message": "Error", "url": reverse("logout")},
+            context={
+                "message": "Error",
+                "url": reverse("logout")
+            },
         )
 
 
@@ -2106,9 +2111,9 @@ def blink_get_next(request, pk):
                     reverse(
                         "blink-summary",
                         kwargs={
-                            "pk": blinkassignment.blinkassignmentquestion_set.get(
-                                rank=rank + 1
-                            ).blinkquestion.pk
+                            "pk":
+                                blinkassignment.blinkassignmentquestion_set.
+                                get(rank=rank + 1).blinkquestion.pk
                         },
                     )
                 )
@@ -2118,9 +2123,9 @@ def blink_get_next(request, pk):
                     reverse(
                         "blink-question",
                         kwargs={
-                            "pk": blinkassignment.blinkassignmentquestion_set.get(
-                                rank=rank + 1
-                            ).blinkquestion.pk
+                            "pk":
+                                blinkassignment.blinkassignmentquestion_set.
+                                get(rank=rank + 1).blinkquestion.pk
                         },
                     )
                 )
@@ -2182,7 +2187,10 @@ def blink_waiting(request, username, assignment=""):
     return TemplateResponse(
         request,
         "peerinst/blink_waiting.html",
-        context={"assignment": assignment, "teacher": teacher},
+        context={
+            "assignment": assignment,
+            "teacher": teacher
+        },
     )
 
 
@@ -2213,18 +2221,18 @@ def question_search(request):
         if limit_search == "true":
             query = (
                 Question.objects.filter(
-                    Q(text__icontains=search_string)
-                    | Q(title__icontains=search_string)
-                    | Q(category__title__icontains=search_string)
+                    Q(text__icontains=search_string) |
+                    Q(title__icontains=search_string) |
+                    Q(category__title__icontains=search_string)
                 )
                 .filter(discipline__in=request.user.teacher.disciplines.all())
                 .exclude(id__in=q_qs)
             )
         else:
             query = Question.objects.filter(
-                Q(text__icontains=search_string)
-                | Q(title__icontains=search_string)
-                | Q(category__title__icontains=search_string)
+                Q(text__icontains=search_string) |
+                Q(title__icontains=search_string) |
+                Q(category__title__icontains=search_string)
             ).exclude(id__in=q_qs)
 
         if query.count() > 50:
@@ -2285,16 +2293,14 @@ def blink_count(request, pk):
         )
     except:
         try:
-            blinkround = BlinkRound.objects.filter(
-                question=blinkquestion
-            ).latest("deactivate_time")
+            blinkround = BlinkRound.objects.filter(question=blinkquestion
+                                                  ).latest("deactivate_time")
         except:
             return JsonResponse()
 
     context = {}
-    context["count"] = BlinkAnswer.objects.filter(
-        voting_round=blinkround
-    ).count()
+    context["count"] = BlinkAnswer.objects.filter(voting_round=blinkround
+                                                 ).count()
 
     return JsonResponse(context)
 
@@ -2329,17 +2335,14 @@ def blink_latest_results(request, pk):
     results = {}
 
     blinkquestion = BlinkQuestion.objects.get(pk=pk)
-    blinkround = BlinkRound.objects.filter(question=blinkquestion).latest(
-        "deactivate_time"
-    )
+    blinkround = BlinkRound.objects.filter(question=blinkquestion
+                                          ).latest("deactivate_time")
 
     c = 1
     for label, text in blinkquestion.question.get_choices():
         results[label] = (
             BlinkAnswer.objects.filter(question=blinkquestion)
-            .filter(voting_round=blinkround)
-            .filter(answer_choice=c)
-            .count()
+            .filter(voting_round=blinkround).filter(answer_choice=c).count()
         )
         c = c + 1
 
@@ -2422,7 +2425,8 @@ class BlinkAssignmentUpdate(LoginRequiredMixin, DetailView):
 
                 return HttpResponseRedirect(
                     reverse(
-                        "blinkAssignment-update", kwargs={"pk": self.object.pk}
+                        "blinkAssignment-update",
+                        kwargs={"pk": self.object.pk}
                     )
                 )
             else:
@@ -2444,8 +2448,8 @@ class BlinkAssignmentUpdate(LoginRequiredMixin, DetailView):
                         blinkquestion.save()
 
                         if (
-                            not blinkquestion
-                            in self.object.blinkquestions.all()
+                            not blinkquestion in
+                            self.object.blinkquestions.all()
                         ):
                             relationship = BlinkAssignmentQuestion(
                                 blinkassignment=self.object,
@@ -2467,8 +2471,8 @@ class BlinkAssignmentUpdate(LoginRequiredMixin, DetailView):
                     if form.is_valid():
                         blinkquestion = form.cleaned_data["blink"]
                         if (
-                            not blinkquestion
-                            in self.object.blinkquestions.all()
+                            not blinkquestion in
+                            self.object.blinkquestions.all()
                         ):
                             relationship = BlinkAssignmentQuestion(
                                 blinkassignment=self.object,
@@ -2499,8 +2503,7 @@ def assignment_timeline_data(request, assignment_id, question_id):
     qs = (
         models.Answer.objects.filter(assignment_id=assignment_id)
         .filter(question_id=question_id)
-        .annotate(date=DateExtractFunc("time"))
-        .values("date")
+        .annotate(date=DateExtractFunc("time")).values("date")
         .annotate(N=Count("id"))
     )
 
@@ -2517,16 +2520,14 @@ def network_data(request, assignment_id):
             links[answer.user_token] = {}
             if answer.chosen_rationale:
                 if (
-                    answer.chosen_rationale.user_token
-                    in links[answer.user_token]
+                    answer.chosen_rationale.user_token in
+                    links[answer.user_token]
                 ):
-                    links[answer.user_token][
-                        answer.chosen_rationale.user_token
-                    ] += 1
+                    links[answer.user_token][answer.chosen_rationale.user_token
+                                            ] += 1
                 else:
-                    links[answer.user_token][
-                        answer.chosen_rationale.user_token
-                    ] = 1
+                    links[answer.user_token][answer.chosen_rationale.user_token
+                                            ] = 1
 
     # serialize
     links_array = []
@@ -2546,10 +2547,10 @@ def report_selector(request, teacher_id):
         request,
         "peerinst/report_selector.html",
         {
-            "report_select_form": forms.ReportSelectForm(
-                teacher_username=request.user
-            ),
-            "teacher_id": teacher_id,
+            "report_select_form":
+                forms.ReportSelectForm(teacher_username=request.user),
+            "teacher_id":
+                teacher_id,
         },
     )
 
@@ -2577,9 +2578,8 @@ def report(request, teacher_id="", assignment_id="", group_id=""):
         )
 
     student_id_list = student_list_from_student_groups(student_groups)
-    answer_qs = Answer.objects.filter(
-        assignment_id__in=assignment_list
-    ).filter(user_token__in=student_id_list)
+    answer_qs = Answer.objects.filter(assignment_id__in=assignment_list
+                                     ).filter(user_token__in=student_id_list)
 
     # all data
     assignment_data = []
@@ -2625,23 +2625,23 @@ def report(request, teacher_id="", assignment_id="", group_id=""):
             transitions = answer_qs_question.annotate(
                 transition=Case(
                     When(
-                        Q(first_answer_choice__in=correct_answer_choices)
-                        & Q(second_answer_choice__in=correct_answer_choices),
+                        Q(first_answer_choice__in=correct_answer_choices) &
+                        Q(second_answer_choice__in=correct_answer_choices),
                         then=Value("rr"),
                     ),
                     When(
-                        Q(first_answer_choice__in=correct_answer_choices)
-                        & ~Q(second_answer_choice__in=correct_answer_choices),
+                        Q(first_answer_choice__in=correct_answer_choices) &
+                        ~Q(second_answer_choice__in=correct_answer_choices),
                         then=Value("rw"),
                     ),
                     When(
-                        ~Q(first_answer_choice__in=correct_answer_choices)
-                        & Q(second_answer_choice__in=correct_answer_choices),
+                        ~Q(first_answer_choice__in=correct_answer_choices) &
+                        Q(second_answer_choice__in=correct_answer_choices),
                         then=Value("wr"),
                     ),
                     When(
-                        ~Q(first_answer_choice__in=correct_answer_choices)
-                        & ~Q(second_answer_choice__in=correct_answer_choices),
+                        ~Q(first_answer_choice__in=correct_answer_choices) &
+                        ~Q(second_answer_choice__in=correct_answer_choices),
                         then=Value("ww"),
                     ),
                     output_field=CharField(),
@@ -2672,8 +2672,7 @@ def report(request, teacher_id="", assignment_id="", group_id=""):
             for field_name, field_label in zip(field_names, field_labels):
                 counts = (
                     answer_qs_question.values_list(field_name)
-                    .order_by(field_name)
-                    .annotate(count=Count(field_name))
+                    .order_by(field_name).annotate(count=Count(field_name))
                 )
 
                 d_q_a_d = {}
@@ -2681,12 +2680,10 @@ def report(request, teacher_id="", assignment_id="", group_id=""):
                 d_q_a_d["data"] = []
                 for c in counts:
                     d_q_a_c = {}
-                    d_q_a_c["answer_choice"] = list(string.ascii_uppercase)[
-                        c[0] - 1
-                    ]
-                    d_q_a_c["answer_choice_correct"] = answer_choices_correct[
-                        c[0] - 1
-                    ]
+                    d_q_a_c["answer_choice"] = list(string.ascii_uppercase
+                                                   )[c[0] - 1]
+                    d_q_a_c["answer_choice_correct"
+                           ] = answer_choices_correct[c[0] - 1]
                     d_q_a_c["count"] = c[1]
                     d_q_a_d["data"].append(d_q_a_c)
                 d_q["answer_distributions"].append(d_q_a_d)
@@ -2696,8 +2693,7 @@ def report(request, teacher_id="", assignment_id="", group_id=""):
             d_q["transitions"] = []
             for field_name, field_label in zip(field_names, field_labels):
                 counts = (
-                    transitions.values_list(field_name)
-                    .order_by(field_name)
+                    transitions.values_list(field_name).order_by(field_name)
                     .annotate(count=Count(field_name))
                 )
 
@@ -2728,14 +2724,16 @@ def report(request, teacher_id="", assignment_id="", group_id=""):
             for first_choice_index in range(1, q.answerchoice_set.count() + 1):
                 d_q_cf = {}
                 first_answer_qs = (
-                    q.answer_set.filter(first_answer_choice=first_choice_index)
-                    .exclude(user_token="")
+                    q.answer_set.filter(
+                        first_answer_choice=first_choice_index
+                    ).exclude(user_token="")
                     .filter(assignment_id=a.identifier)
                 )
                 d_q_cf["first_answer_choice"] = first_choice_index
                 d_q_cf["second_answer_choice"] = []
                 for second_choice_index in range(
-                    1, q.answerchoice_set.count() + 1
+                    1,
+                    q.answerchoice_set.count() + 1
                 ):
                     d_q_cf_a2 = {}
                     d_q_cf_a2["value"] = second_choice_index
@@ -2753,13 +2751,13 @@ def report(request, teacher_id="", assignment_id="", group_id=""):
             for student_response in answer_qs_question:
                 d_q_a = {}
                 d_q_a["student"] = student_response.user_token
-                d_q_a["first_answer_choice"] = list(string.ascii_uppercase)[
-                    student_response.first_answer_choice - 1
-                ]
+                d_q_a["first_answer_choice"] = list(
+                    string.ascii_uppercase
+                )[student_response.first_answer_choice - 1]
                 d_q_a["rationale"] = student_response.rationale
-                d_q_a["second_answer_choice"] = list(string.ascii_uppercase)[
-                    student_response.second_answer_choice - 1
-                ]
+                d_q_a["second_answer_choice"] = list(
+                    string.ascii_uppercase
+                )[student_response.second_answer_choice - 1]
                 if student_response.chosen_rationale_id:
                     d_q_a["chosen_rationale"] = Answer.objects.get(
                         pk=student_response.chosen_rationale_id
@@ -2786,8 +2784,7 @@ def report(request, teacher_id="", assignment_id="", group_id=""):
         # for aggregate gradebook over all assignments
         ## student level gradebook
         num_responses_by_student = (
-            answer_qs.values("user_token")
-            .order_by("user_token")
+            answer_qs.values("user_token").order_by("user_token")
             .annotate(num_responses=Count("user_token"))
         )
 
@@ -2802,9 +2799,8 @@ def report(request, teacher_id="", assignment_id="", group_id=""):
         # aggregate results for each student
         for question, student_entries in student_transitions_by_q.items():
             for student_entry in student_entries:
-                student_gradebook_dict[student_entry["user_token"]][
-                    student_entry["transition"]
-                ] += 1
+                student_gradebook_dict[student_entry["user_token"]
+                                      ][student_entry["transition"]] += 1
                 student_gradebook_dict_by_q[student_entry["user_token"]][
                     question
                 ] = student_entry["transition"]
@@ -2823,9 +2819,8 @@ def report(request, teacher_id="", assignment_id="", group_id=""):
             for question in question_list:
 
                 try:
-                    d_g[question] = student_gradebook_dict_by_q[student][
-                        question.title
-                    ]
+                    d_g[question
+                       ] = student_gradebook_dict_by_q[student][question.title]
 
                 except KeyError as e:
                     d_g[question] = "-"
@@ -2836,8 +2831,7 @@ def report(request, teacher_id="", assignment_id="", group_id=""):
         # for aggregate gradebook over all assignments
         ## question level gradebook
         num_responses_by_question = (
-            answer_qs.values("question_id")
-            .order_by("question_id")
+            answer_qs.values("question_id").order_by("question_id")
             .annotate(num_responses=Count("user_token"))
         )
 
@@ -2853,9 +2847,8 @@ def report(request, teacher_id="", assignment_id="", group_id=""):
         for q, student_entries in student_transitions_by_q.items():
             question = Question.objects.get(title=q)
             for student_entry in student_entries:
-                question_gradebook_dict[question][
-                    student_entry["transition"]
-                ] += 1
+                question_gradebook_dict[question][student_entry["transition"]
+                                                 ] += 1
 
         # array for template
         gradebook_question = []

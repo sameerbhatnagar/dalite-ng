@@ -279,6 +279,7 @@ class TestConsentUpdateView(TestCase):
         print(self.tos)
         print(self.consents)
 
+        print(Tos.objects.all())
         for test in tests:
             resp = self.client.post(
                 reverse("tos:update", kwargs=test[0]), test[1]

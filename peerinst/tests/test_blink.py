@@ -1,58 +1,70 @@
 # -*- coding: utf-8 -*-
 
-from django.test import TestCase
-from ..models import Question,BlinkQuestion,BlinkAssignment,BlinkAssignmentQuestion,Teacher
-from django.db.models import Count
 from random import shuffle
+
+from django.contrib.auth.hashers import make_password
+from django.db.models import Count
+from django.test import TestCase
+
 from django.contrib.auth.models import User
+from ..models import Question, BlinkQuestion, BlinkAssignment, BlinkAssignmentQuestion, Teacher
+
+def ready_user(pk):
+    user = User.objects.get(pk=pk)
+    user.text_pwd = user.password
+    user.password = make_password(user.text_pwd)
+    user.save()
+    return user
 
 class BlinkAssignmentTestCase(TestCase):
-    fixtures=['peerinst_test_data.yaml']
+    fixtures = ['test_users.yaml']
     test_title = 'testA1'
     test_key = '123'
 
     def setUp(self):
-        Teacher.objects.create(user=User.objects.first())
-        t=Teacher.objects.first()
-        BlinkAssignment.objects.create(title=self.test_title,teacher=t,key=self.test_key)
-
-
-    def __test_blinkassignment(self):
-        a1=BlinkAssignment.objects.get(title=self.test_title)
+        self.validated_teacher = ready_user(1)
+        self.teacher = Teacher.objects.get(user=self.validated_teacher)
+        self.blinkassignment = BlinkAssignment.objects.create(
+            title=self.test_title,
+            teacher=self.teacher,
+            key=self.test_key
+        )
         qs = Question.objects.all()
-        ranks=range(len(qs))
-        shuffle(ranks)
+        self.ranks = range(len(qs))
+        shuffle(self.ranks)
 
-        ##
-        # print('* test that through model effectively adds questions to assignment')
-        for r,q in zip(ranks,qs):
+        for r, q in zip(self.ranks, qs):
             bq = BlinkQuestion(question=q, key=q.id)
             bq.save()
 
-            assignment_ordering = BlinkAssignmentQuestion(blinkassignment=a1,blinkquestion=bq,rank=r)
+            assignment_ordering = BlinkAssignmentQuestion(blinkassignment=self.blinkassignment, blinkquestion=bq, rank=r)
             assignment_ordering.save()
 
-        self.assertEqual(a1.blinkquestions.all().count(),len(ranks))
+        self.assertEqual(self.blinkassignment.blinkquestions.all().count(), len(self.ranks))
 
-        ##
-        # print('* test method to move push a question down in rank')
-        this_q=a1.blinkassignmentquestion_set.get(rank=ranks[0])
+    def test_move_down_rank(self):
+        print("Move down")
+        print(self.blinkassignment.blinkassignmentquestion_set.all())
+        this_q = self.blinkassignment.blinkassignmentquestion_set.get(rank=0)
         this_q_rank = this_q.rank
         print(this_q)
-        print(a1.blinkassignmentquestion_set.all())
+        print(this_q.rank)
         this_q.move_down_rank()
         this_q.save()
+        print(self.blinkassignment.blinkassignmentquestion_set.all())
 
-        # print('***')
-        # print(a1)
-        # print(this_q)
-        self.assertEqual(a1.blinkassignmentquestion_set.get(rank=this_q_rank+1),this_q)
+        self.assertEqual(self.blinkassignment.blinkassignmentquestion_set.get(rank=this_q_rank+1), this_q)
 
-        ##
-        # print('* test method to move push a question up in rank')
-        this_q=a1.blinkassignmentquestion_set.get(rank=ranks[-1])
+    def test_move_up_rank(self):
+        print("Move up")
+        print(self.blinkassignment.blinkassignmentquestion_set.all())
+        this_q = self.blinkassignment.blinkassignmentquestion_set.get(rank=2)
         this_q_rank = this_q.rank
+        print(this_q)
+        print(this_q.rank)
         this_q.move_up_rank()
+        print(this_q.rank)
         this_q.save()
+        print(self.blinkassignment.blinkassignmentquestion_set.all())
 
-        self.assertEqual(a1.blinkassignmentquestion_set.get(rank=this_q_rank-1),this_q)
+        self.assertEqual(self.blinkassignment.blinkassignmentquestion_set.get(rank=this_q_rank-1), this_q)
