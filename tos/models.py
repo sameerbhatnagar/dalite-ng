@@ -18,7 +18,7 @@ class Tos(models.Model):
     )
 
     def __unicode__(self):
-        return (str(self.role)+'_'+str(self.version))
+        return str(self.role) + "_" + str(self.version)
 
     class Meta:
         unique_together = (("role", "version"), ("role", "hash"))
@@ -81,7 +81,7 @@ class Consent(models.Model):
     datetime = models.DateTimeField(editable=False, auto_now=True)
 
     @staticmethod
-    def get(username, role, version=None):
+    def get(username, role, version=None, latest=False):
         assert isinstance(
             username, basestring
         ), "Precondition failed for `username`"
@@ -91,6 +91,10 @@ class Consent(models.Model):
         assert version is None or (
             isinstance(version, int) and version >= 0
         ), "Precondition failed for `version`"
+        assert isinstance(latest, bool), "Precondition failed for `version`"
+        assert (
+            version is None or not latest
+        ), "If `version` is given, `latest` must be False"
 
         consent = None
 
@@ -98,11 +102,13 @@ class Consent(models.Model):
 
         if version is None:
             try:
+                # returns the latest current consent if `latest` is False
+                # or the latest of all consents if `latest` is True
                 consent = (
                     Consent.objects.filter(
                         user__username=username,
                         tos__role=role,
-                        tos__current=True,
+                        tos__current=not latest,
                     )
                     .order_by("-datetime")[0]
                     .accepted
@@ -130,7 +136,14 @@ class Consent(models.Model):
         return output
 
     def __unicode__(self):
-        return('version '+str(self.tos.version)+' for '+str(self.tos.role) + ' ' + str(self.user))
+        return (
+            "version "
+            + str(self.tos.version)
+            + " for "
+            + str(self.tos.role)
+            + " "
+            + str(self.user)
+        )
 
 
 def _compute_hash(text):

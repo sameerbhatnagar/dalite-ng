@@ -278,12 +278,14 @@ def _new_user(n):
 def _new_user_gen():
     letters = string.ascii_letters
     chars = string.ascii_letters + string.digits + "_-."
+    extra_chars_gen = _extra_chars_gen()
     while True:
         user = {
             "username": "".join(
                 letters[random.randrange(0, len(letters))]
                 for _ in range(random.randint(1, 12))
-            ),
+            )
+            + next(extra_chars_gen),
             "email": "".join(
                 chars[random.randrange(0, len(chars))]
                 for _ in range(random.randrange(1, 32))
@@ -336,3 +338,19 @@ def _new_consent_gen(users, tos):
 
 def _add_consents(consents):
     return [Consent.objects.create(**c) for c in consents]
+
+
+def _extra_chars_gen():
+    letters = string.ascii_letters
+    indices = [0]
+    while True:
+        yield "".join(letters[i] for i in indices)
+        for i in range(len(indices)):
+            if indices[i] < len(letters) - 1:
+                indices[i] += 1
+                break
+            else:
+                if i == len(indices) - 1:
+                    indices = [0] * len(indices)
+                    indices.append(0)
+                    break
