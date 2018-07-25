@@ -197,7 +197,20 @@ class BlinkAnswerForm(forms.Form):
     )
 
     def __init__(self, answer_choices, *args, **kwargs):
-        choice_texts = [mark_safe(". ".join(pair)) for pair in answer_choices]
+        choice_texts = [
+            mark_safe(
+                ". ".join(
+                    (
+                        pair[0],
+                        ("<br>" + "&nbsp" * 5).join(
+                            re.split(r"<br(?: /)?>", pair[1])
+                        ),
+                    )
+                )
+            )
+            for pair in answer_choices
+        ]
+        #choice_texts = [mark_safe(". ".join(pair)) for pair in answer_choices]
         self.base_fields["first_answer_choice"].choices = enumerate(
             choice_texts, 1
         )
