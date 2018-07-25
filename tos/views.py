@@ -14,6 +14,7 @@ from django.http import (
 from django.shortcuts import render
 from django.template.response import TemplateResponse
 from django.utils.translation import ugettext_lazy as _
+from django.views.decorators.http import require_http_methods
 
 # from .forms import ConsentForm
 from .models import Consent, Tos
@@ -44,11 +45,8 @@ def consent_modify(req, role, version=None):
 
 
 @login_required
+@require_http_methods(["POST"])
 def consent_update(req, role, version):
-    if req.method != "POST":
-        resp = TemplateResponse(req, "405.html")
-        return HttpResponseNotAllowed(["POST"], resp.render())
-
     if role not in Tos.ROLES:
         resp = TemplateResponse(
             req,
@@ -103,10 +101,8 @@ def consent_update(req, role, version):
     return HttpResponseRedirect(redirect_to)
 
 
+@require_http_methods(["GET"])
 def _consent_view(req, username, role, version):
-    if req.method != "GET":
-        resp = TemplateResponse(req, "405.html")
-        return HttpResponseNotAllowed(["GET"], resp.render()), None
     if role not in Tos.ROLES:
         resp = TemplateResponse(
             req,
