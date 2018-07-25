@@ -16,11 +16,11 @@ from django.template.response import TemplateResponse
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_http_methods
 
-# from .forms import ConsentForm
-from .models import Consent, Tos
+from ..models import Consent, Tos
 
 
 @login_required
+@require_http_methods(["GET"])
 def consent(req, role, version=None):
     username = req.user.username
     _consent, context = _consent_view(req, username, role, version)
@@ -36,6 +36,7 @@ def consent(req, role, version=None):
 
 
 @login_required
+@require_http_methods(["GET"])
 def consent_modify(req, role, version=None):
     username = req.user.username
     _consent, context = _consent_view(req, username, role, version)
@@ -101,7 +102,6 @@ def consent_update(req, role, version):
     return HttpResponseRedirect(redirect_to)
 
 
-@require_http_methods(["GET"])
 def _consent_view(req, username, role, version):
     if role not in Tos.ROLES:
         resp = TemplateResponse(
@@ -121,7 +121,6 @@ def _consent_view(req, username, role, version):
         return HttpResponseBadRequest(resp.render()), None
 
     version = int(version) if version is not None else version
-    print(Tos.objects.all())
 
     if not Tos.objects.filter(role=role[:2]):
         resp = TemplateResponse(
@@ -153,6 +152,6 @@ def _consent_view(req, username, role, version):
 
 
 @login_required
-def tos_required(request):
-    response = TemplateResponse(request, "tos/tos_required.html")
-    return HttpResponseForbidden(response.render())
+def tos_required(req):
+    resp = TemplateResponse(req, "tos/tos_required.html")
+    return HttpResponseForbidden(resp.render())

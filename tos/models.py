@@ -1,9 +1,17 @@
 from __future__ import unicode_literals
 
+
 import hashlib
 
 from django.contrib.auth.models import User
 from django.db import models
+
+
+class Role(models.Model):
+    role = models.CharField(max_length=32, primary_key=True)
+
+    def __unicode__(self):
+        return "role {}".format(self.role)
 
 
 class Tos(models.Model):
@@ -144,6 +152,61 @@ class Consent(models.Model):
             + " "
             + str(self.user)
         )
+
+
+class EmailType(models.Model):
+    role = models.ForeignKey(Role, on_delete=models.CASCADE)
+    type = models.CharField(max_length=32)
+
+    def __unicode__(self):
+        return "email type {} for {}".format(self.type, self.role)
+
+    class Meta:
+        unique_together = ("role", "type")
+
+
+class EmailConsent(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    email_type = models.ForeignKey(EmailType, on_delete=models.CASCADE)
+    accepted = models.BooleanField()
+    datetime = models.DateTimeField(editable=False, auto_now=True)
+
+    @staticmethod
+    def get(username, role, email_type):
+        assert isinstance(
+            username, basestring
+        ), "Precondition failed for `username`"
+        assert isinstance(role, basestring), "Precondition failed for `role`"
+        assert isinstance(
+            email_type, basestring
+        ), "Precondition failed for `email_type`"
+        assert EmailType.objects.filter(
+            role=role, type=email_type
+        ).exists(), "Precondition failed: there is no matching email_type for the given type and role"
+
+        consent = None
+
+        try:
+            consent = (
+                EmailConsent.objects.filter(
+                    user__username=username,
+                    email_type__role=role,
+                    email_type__type=email_type,
+                )
+                .order_by("-datetime")[0]
+                .accepted
+            )
+        except IndexError:
+            consent = None
+
+        output = consent
+        assert output is None or isinstance(
+            output, bool
+        ), "Postcondition failed"
+        return output
+
+    def __unicode__(self):
+        return "{} for {}".format(self.email_type, self.user)
 
 
 def _compute_hash(text):
