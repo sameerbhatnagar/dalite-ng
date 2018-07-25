@@ -13,6 +13,8 @@ from django.utils.encoding import smart_bytes
 from . import rationale_choice
 from django.contrib.auth.models import User
 
+from jsonfield import JSONField
+
 #testing
 import uuid
 
@@ -607,3 +609,17 @@ class BlinkAssignmentQuestion(models.Model):
     #Reporting structure
     #Front-end assignment making
     #Sorting by label "easy, tricky, peer, hard"
+
+class LtiEvent(models.Model):
+    # question = models.ForeignKey(Question,blank=True,null=True)
+    # assignment = models.ForeignKey(Assignment,blank=True,null=True)
+    # user = models.ForeignKey(User,blank=True, null=True)
+    event_type = models.CharField(max_length=100)
+    event_log = JSONField(default={})
+    timestamp = models.DateTimeField(
+        auto_now_add=True,
+        null=True
+    )
+
+    def __unicode__(self):
+        return str(self.timestamp)
