@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-import re
+import re,json
 
 from django.core import exceptions
 from django import forms
@@ -23,6 +23,7 @@ from .models import (
     BlinkAssignment,
     BlinkAssignmentQuestion,
     VerifiedDomain,
+    LtiEvent,
 )
 
 
@@ -237,3 +238,7 @@ class StudentGroupAdmin(admin.ModelAdmin):
 @admin.register(VerifiedDomain)
 class VerifiedDomainAdmin(admin.ModelAdmin):
     pass
+
+@admin.register(LtiEvent)
+class LtiEventAdmin(admin.ModelAdmin):
+    readonly_fields = ["event_type","event_log","timestamp"]

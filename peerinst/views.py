@@ -92,6 +92,7 @@ from .models import (
     AnswerChoice,
     Discipline,
     VerifiedDomain,
+    LtiEvent,
 )
 from django.contrib.auth.models import User, Group
 
@@ -940,6 +941,10 @@ class QuestionFormView(QuestionMixin, FormView):
 
         # Write JSON to log file
         LOGGER.info(json.dumps(event))
+        lti_event = LtiEvent(
+            event_type=name,\
+            event_log=json.dumps(event))
+        lti_event.save()
 
         # Automatically keep track of student, student groups and their relationships based on lti data
         user = User.objects.get(username=self.user_token)

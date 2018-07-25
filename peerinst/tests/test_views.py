@@ -13,7 +13,7 @@ import ddt
 import mock
 
 from django.contrib.auth.models import User
-from ..models import Question, Answer
+from ..models import Question, Answer, LtiEvent, Assignment
 from ..util import SessionStageData
 from . import factories
 
@@ -346,7 +346,11 @@ class EventLogTest(QuestionViewTestCase):
         # Show the question and verify the logged event.
         response = self.question_get()
         event = self.verify_event(logger, scoring_disabled=scoring_disabled, is_edx_course_id=is_edx_course_id)
+        lti_event = LtiEvent.objects.create(\
+            event_type=event['event_type'],\
+            event_log=event)
         self.assertEqual(event['event_type'], 'problem_show')
+        self.assertEqual(lti_event.event_type,'problem_show')
         logger.reset_mock()
 
         # Provide a first answer and a rationale, and verify the logged event.
@@ -396,3 +400,5 @@ class EventLogTest(QuestionViewTestCase):
         self.log_in_with_lti(lti_params=lti_params)
 
         self._test_events(logger, is_edx_course_id=False)
+
+
