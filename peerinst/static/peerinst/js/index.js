@@ -487,6 +487,22 @@ export function addDialog() {
 }
 
 
+/** Add question delete function
+*  @function
+*/
+export function bindDeleteQuestion(url) {
+  [].forEach.call(document.querySelectorAll('[id^=delete-question]'),
+    (el) => {
+      el.onclick = () => {
+        let posting = $.post(url, {pk: el.getAttribute('question')}, () => {
+            $('.list-item-question-'+el.getAttribute('question')).hide();
+        });
+      };
+    }
+  );
+}
+
+
 /** Toggle image visibility
 *  @function
 */

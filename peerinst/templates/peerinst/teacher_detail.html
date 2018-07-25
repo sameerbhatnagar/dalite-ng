@@ -311,7 +311,7 @@
 {% compress js inline %}
 <script>
 bundle.addDialog();
-
+bundle.bindDeleteQuestion("{% url 'question-delete' %}");
 
 
 
@@ -347,15 +347,6 @@ $.ajaxSetup({
     }
 });
 
-[].forEach.call(document.querySelectorAll('[id^=delete-question]'),
-  (el) => {
-    el.onclick = () => {
-      var posting = $.post("{% url 'question-delete' %}", { pk : el.getAttribute('question') }, () => {
-          $('.list-item-question-'+el.getAttribute('question')).hide();
-      });
-    };
-  }
-);
 
 
 function edit_user() {
