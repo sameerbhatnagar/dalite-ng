@@ -255,9 +255,13 @@ class NewUserTests(StaticLiveServerTestCase):
 
         inputbox.submit()
 
+        print(Question.objects.get(title="Test title").created_on)
+
         assert "Step 3" in self.browser.find_element_by_tag_name('h2').text
 
         self.browser.find_element_by_id('add_question_to_assignment').submit()
+
+        time.sleep(1)
 
         assert "My Account" in self.browser.find_element_by_tag_name('h1').text
         assert "Test title" in self.browser.page_source
