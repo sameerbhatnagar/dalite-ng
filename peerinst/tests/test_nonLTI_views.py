@@ -565,6 +565,24 @@ class TeacherTest(TestCase):
         self.assertEqual(response.status_code, 403)
         self.assertTemplateUsed(response, 'tos/tos_required.html')
 
+    def test_question_delete(self):
+        logged_in = self.client.login(username=self.validated_teacher.username, password=self.validated_teacher.text_pwd)
+        self.assertTrue(logged_in)
+
+        # 'Delete', i.e. hide, question for teacher (ajax only)
+        response = self.client.post(reverse('question-delete'), { 'pk' : 32 }, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertEqual(response.status_code, 200)
+        q = Question.objects.get(pk=32)
+        self.assertIn(q, self.validated_teacher.teacher.deleted_questions.all())
+
+        # Check this question is not searchable
+        #response = self.client.get(reverse('question-search')+"?search_string=Question&type=assignment&id=Assignment1")
+        #print(response.context['search_results'])
+        #self.assertNotIn(q, response.context['search_results'])
+
+    def test_question_undelete(self):
+        pass
+
     def test_assignment_copy(self):
         pass
 

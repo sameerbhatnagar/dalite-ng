@@ -17,13 +17,15 @@ from django.contrib import messages
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.views import redirect_to_login
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.core.mail import mail_admins, send_mail
+from django.core.urlresolvers import reverse, reverse_lazy
 from django.db.models import Q
 from django.forms import inlineformset_factory, Textarea
 from django.http import (
     HttpResponseBadRequest,
     HttpResponseForbidden,
+    HttpResponseRedirect,
     HttpResponseServerError,
 )
 from django.shortcuts import (
@@ -38,15 +40,14 @@ from django.utils.decorators import method_decorator
 from django.utils.html import escape, format_html
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
+from django.views.decorators.http import require_POST
 from django.views.generic import DetailView
 from django.views.generic.base import TemplateView, View
 from django.views.generic.edit import FormView, UpdateView, CreateView
 from django.views.generic.list import ListView
 from django_lti_tool_provider.signals import Signals
 from django_lti_tool_provider.models import LtiUserData
-from django.http import HttpResponseRedirect
-from django.core.urlresolvers import reverse, reverse_lazy
-from django.core.exceptions import ObjectDoesNotExist
+
 from opaque_keys import InvalidKeyError
 from opaque_keys.edx.keys import CourseKey
 
@@ -657,6 +658,23 @@ class QuestionUpdateView(
         return reverse(
             "answer-choice-form", kwargs={"question_id": self.object.pk}
         )
+
+
+@login_required
+@user_passes_test(student_check, login_url="/access_denied_and_logout/")
+@require_POST
+def question_delete(request):
+    """Hide questions from teacher"""
+    if request.is_ajax():
+        # Ajax only
+        question = get_object_or_404(Question, pk=request.POST.get('pk'))
+        teacher = get_object_or_404(Teacher, user=request.user)
+        teacher.deleted_questions.add(question)
+        return HttpResponse()
+    else:
+        # Bad request
+        response = TemplateResponse(request, "400.html")
+        return HttpResponseBadRequest(response.render())
 
 
 @login_required
@@ -1801,7 +1819,6 @@ class TeacherBlinks(TeacherBase, ListView):
 
 # Views related to Blink
 
-
 class BlinkQuestionFormView(SingleObjectMixin, FormView):
 
     form_class = forms.BlinkAnswerForm
@@ -2215,6 +2232,11 @@ def question_search(request):
             a_qs = Assignment.objects.get(identifier=id).questions.all()
             q_qs = [q.id for q in a_qs]
             form_field_name = "q"
+
+        if type == None:
+            # Bad request
+            response = TemplateResponse(request, "400.html")
+            return HttpResponseBadRequest(response.render())
 
         # All matching questions
         # TODO: add search on categories

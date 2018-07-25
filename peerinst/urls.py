@@ -36,6 +36,7 @@ urlpatterns = [
     url(r'^question/create$', views.QuestionCreateView.as_view(), name='question-create'),
     url(r'^question/clone/(?P<pk>[0-9]+)$', views.QuestionCloneView.as_view(), name='question-clone'),
     url(r'^question/update/(?P<pk>[0-9]+)$', views.QuestionUpdateView.as_view(), name='question-update'),
+    url(r'^question/delete', views.question_delete, name='question-delete'),
     url(r'^discipline/create$', views.DisciplineCreateView.as_view(), name='discipline-create'),
     url(r'^discipline/form/(?P<pk>[0-9]+)$', views.discipline_select_form, name='discipline-form'),
     url(r'^category/create$', views.CategoryCreateView.as_view(), name='category-create'),

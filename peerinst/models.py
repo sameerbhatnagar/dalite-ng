@@ -475,6 +475,7 @@ class Teacher(models.Model):
     institutions = models.ManyToManyField(Institution, blank=True)
     disciplines = models.ManyToManyField(Discipline, blank=True)
     assignments = models.ManyToManyField(Assignment, blank=True)
+    deleted_questions = models.ManyToManyField(Question, blank=True)
     groups = models.ManyToManyField(StudentGroup, blank=True)
 
     def get_absolute_url(self):
