@@ -42,9 +42,7 @@ def new_users(n):
                         for _ in range(random.randint(2, 3))
                     ),
                 ),
-                "password": "".join(
-                    random.choice(chars) for _ in range(random.randint(1, 32))
-                ),
+                "password": "test",
             }
 
     gen = generator()

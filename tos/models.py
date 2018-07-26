@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 import hashlib
 
 from django.contrib.auth.models import User
-from django.db import models
+from django.db import models, transaction
 
 
 class Role(models.Model):
@@ -157,12 +157,27 @@ class Consent(models.Model):
 class EmailType(models.Model):
     role = models.ForeignKey(Role, on_delete=models.CASCADE)
     type = models.CharField(max_length=32)
+    title = models.TextField()
+    description = models.TextField()
+    show_order = models.PositiveIntegerField(blank=True)
 
     def __unicode__(self):
         return "email type {} for {}".format(self.type, self.role)
 
     class Meta:
         unique_together = ("role", "type")
+
+    def save(self, *args, **kwargs):
+        if not self.show_order:
+            self.show_order = len(EmailType.objects.filter(role=self.role)) + 1
+        else:
+            with transaction.atomic():
+                for row in EmailType.objects.filter(
+                    role=self.role, show_order__gte=self.show_order
+                ):
+                    row.show_order = row.show_order + 1
+                    row.save()
+        super(EmailType, self).save(*args, **kwargs)
 
 
 class EmailConsent(models.Model):

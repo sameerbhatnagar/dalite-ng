@@ -132,7 +132,7 @@ class TestTosModel(TestCase):
             )
 
 
-class TestTosConsent(TestCase):
+class TestTosConsentModel(TestCase):
     def test_new_tos_consent(self):
         n_users = 10
         n_tos = 5
@@ -231,7 +231,7 @@ class TestTosConsent(TestCase):
             self.assertIs(consent, None)
 
 
-class TestEmailConsent(TestCase):
+class TestEmailConsentModel(TestCase):
     def test_new_email_consent(self):
         n_users = 10
         n_roles = 2

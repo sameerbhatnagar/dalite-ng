@@ -49,7 +49,7 @@
         2. Any version of these ToS in a language other than English is provided for convenience and you understand and agree that the English language version will control if there is any conflict.
       </div>
 
-      <form id="tos-container" action="{% url 'tos:update' role version %}" method="post">
+      <form id="tos-container" action="{% url 'tos:tos_update' role version %}" method="post">
         {% csrf_token %}
 
         <div id="tos-text">{{ tos_text|safe }}</div>

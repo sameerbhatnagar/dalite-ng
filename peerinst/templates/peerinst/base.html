@@ -51,7 +51,7 @@
         {% if user.teacher %}
         Teacher: <a class="bold" href="{% url 'teacher' pk=user.teacher.pk %}">{{ request.user.username }}</a>
         {% else %}
-        User: <a class="bold" href="{% url 'tos:modify' 'student' %}?next={{ request.path }}">{{ request.user.username }}</a>
+        User: <a class="bold" href="{% url 'tos:tos_modify' 'student' %}?next={{ request.path }}">{{ request.user.username }}</a>
         {% endif %}
         <br>
         {% if not user.student %}

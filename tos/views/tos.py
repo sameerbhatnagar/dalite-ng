@@ -21,14 +21,14 @@ from ..models import Consent, Tos
 
 @login_required
 @require_http_methods(["GET"])
-def consent(req, role, version=None):
+def tos_consent(req, role, version=None):
     username = req.user.username
     _consent, context = _consent_view(req, username, role, version)
     if isinstance(_consent, HttpResponse):
         return _consent
 
     if _consent is None:
-        return render(req, "tos/consent.html", context)
+        return render(req, "tos/tos_modify.html", context)
     elif _consent:
         return JsonResponse({"consent": True})
     else:
@@ -37,17 +37,17 @@ def consent(req, role, version=None):
 
 @login_required
 @require_http_methods(["GET"])
-def consent_modify(req, role, version=None):
+def tos_consent_modify(req, role, version=None):
     username = req.user.username
     _consent, context = _consent_view(req, username, role, version)
     if isinstance(_consent, HttpResponse):
         return _consent
-    return render(req, "tos/consent.html", context)
+    return render(req, "tos/tos_modify.html", context)
 
 
 @login_required
 @require_http_methods(["POST"])
-def consent_update(req, role, version):
+def tos_consent_update(req, role, version):
     if role not in Tos.ROLES:
         resp = TemplateResponse(
             req,

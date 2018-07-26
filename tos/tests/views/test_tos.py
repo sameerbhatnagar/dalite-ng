@@ -7,8 +7,8 @@ from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.client import Client
 
-from ..models import Tos
-from .test_models import (
+from tos.models import Tos
+from ..test_models import (
     _add_consents,
     _add_tos,
     _add_users,
@@ -16,9 +16,10 @@ from .test_models import (
     _new_tos,
     _new_user,
 )
+from .utils import login_user
 
 
-class TestConsentView(TestCase):
+class TestTosConsentView(TestCase):
     def setUp(self):
         self.client = Client()
         n_users = 1
@@ -28,7 +29,7 @@ class TestConsentView(TestCase):
         self.tos = _add_tos(_new_tos(n_tos))
         self.consents = _new_consent(n_consent, self.users, self.tos)
         for user in self.users:
-            _login_user(self.client, user)
+            login_user(self.client, user)
 
     def test_consent_exists_and_is_true(self):
         self.consents[0]["accepted"] = True
@@ -49,7 +50,7 @@ class TestConsentView(TestCase):
         ]
 
         for test in tests:
-            resp = self.client.get(reverse("tos:consent", kwargs=test))
+            resp = self.client.get(reverse("tos:tos_consent", kwargs=test))
             self.assertEqual(resp.status_code, 200)
             body = json.loads(resp.content)
             self.assertEqual(body["consent"], True)
@@ -73,7 +74,7 @@ class TestConsentView(TestCase):
         ]
 
         for test in tests:
-            resp = self.client.get(reverse("tos:consent", kwargs=test))
+            resp = self.client.get(reverse("tos:tos_consent", kwargs=test))
             body = json.loads(resp.content)
             self.assertEqual(resp.status_code, 200)
             self.assertEqual(body["consent"], False)
@@ -94,9 +95,9 @@ class TestConsentView(TestCase):
         ]
 
         for test in tests:
-            resp = self.client.get(reverse("tos:consent", kwargs=test))
+            resp = self.client.get(reverse("tos:tos_consent", kwargs=test))
             self.assertEqual(resp.status_code, 200)
-            self.assertTemplateUsed(resp, "tos/consent.html")
+            self.assertTemplateUsed(resp, "tos/tos_modify.html")
 
     def test_consent_version_doesnt_exist(self):
         tests = [
@@ -109,7 +110,7 @@ class TestConsentView(TestCase):
         ]
 
         for test in tests:
-            resp = self.client.get(reverse("tos:consent", kwargs=test))
+            resp = self.client.get(reverse("tos:tos_consent", kwargs=test))
             self.assertEqual(resp.status_code, 400)
             self.assertIn(
                 "There is no terms of service with version "
@@ -120,20 +121,20 @@ class TestConsentView(TestCase):
     def test_consent_wrong_method(self):
         tests = [{"role": Tos.ROLES[0]}]
         for test in tests:
-            resp = self.client.post(reverse("tos:consent", kwargs=test))
+            resp = self.client.post(reverse("tos:tos_consent", kwargs=test))
             self.assertEqual(resp.status_code, 405)
 
     def test_consent_invalid_role(self):
         tests = [{"role": Tos.ROLES[0] + "fdsa"}]
         for test in tests:
-            resp = self.client.get(reverse("tos:consent", kwargs=test))
+            resp = self.client.get(reverse("tos:tos_consent", kwargs=test))
             self.assertEqual(resp.status_code, 400)
             self.assertIn(
                 '"{}" isn\'t a valid role.'.format(test["role"]), resp.content
             )
 
 
-class TestConsentModifyView(TestCase):
+class TestTosConsentModifyView(TestCase):
     def setUp(self):
         self.client = Client()
         n_users = 1
@@ -143,7 +144,7 @@ class TestConsentModifyView(TestCase):
         self.tos = _add_tos(_new_tos(n_tos))
         self.consents = _new_consent(n_consent, self.users, self.tos)
         for user in self.users:
-            _login_user(self.client, user)
+            login_user(self.client, user)
 
     def test_consent_modify(self):
         tests = [
@@ -156,9 +157,9 @@ class TestConsentModifyView(TestCase):
         ]
 
         for test in tests:
-            resp = self.client.get(reverse("tos:modify", kwargs=test))
+            resp = self.client.get(reverse("tos:tos_modify", kwargs=test))
             self.assertEqual(resp.status_code, 200)
-            self.assertTemplateUsed(resp, "tos/consent.html")
+            self.assertTemplateUsed(resp, "tos/tos_modify.html")
 
     def test_consent_modify_already_exists(self):
         tests = [
@@ -171,9 +172,9 @@ class TestConsentModifyView(TestCase):
         ]
 
         for test in tests:
-            resp = self.client.get(reverse("tos:modify", kwargs=test))
+            resp = self.client.get(reverse("tos:tos_modify", kwargs=test))
             self.assertEqual(resp.status_code, 200)
-            self.assertTemplateUsed(resp, "tos/consent.html")
+            self.assertTemplateUsed(resp, "tos/tos_modify.html")
 
     def test_consent_modify_version_doesnt_exist(self):
         tests = [
@@ -186,7 +187,7 @@ class TestConsentModifyView(TestCase):
         ]
 
         for test in tests:
-            resp = self.client.get(reverse("tos:modify", kwargs=test))
+            resp = self.client.get(reverse("tos:tos_modify", kwargs=test))
             self.assertEqual(resp.status_code, 400)
             self.assertIn(
                 "There is no terms of service with version "
@@ -197,20 +198,20 @@ class TestConsentModifyView(TestCase):
     def test_consent_modify_wrong_method(self):
         tests = [{"role": Tos.ROLES[0], "version": 0}]
         for test in tests:
-            resp = self.client.post(reverse("tos:modify", kwargs=test))
+            resp = self.client.post(reverse("tos:tos_modify", kwargs=test))
             self.assertEqual(resp.status_code, 405)
 
     def test_consent_modify_invalid_role(self):
         tests = [{"role": Tos.ROLES[0] + "fdsa", "version": 0}]
         for test in tests:
-            resp = self.client.get(reverse("tos:modify", kwargs=test))
+            resp = self.client.get(reverse("tos:tos_modify", kwargs=test))
             self.assertEqual(resp.status_code, 400)
             self.assertIn(
                 '"{}" isn\'t a valid role.'.format(test["role"]), resp.content
             )
 
 
-class TestConsentUpdateView(TestCase):
+class TestTosConsentUpdateView(TestCase):
     def setUp(self):
         self.client = Client()
         n_users = 1
@@ -222,7 +223,7 @@ class TestConsentUpdateView(TestCase):
         )
         self.consents = _new_consent(n_consent, self.users, self.tos)
         for user in self.users:
-            _login_user(self.client, user)
+            login_user(self.client, user)
 
     def test_consent_update_accepted(self):
         tests = [
@@ -239,7 +240,7 @@ class TestConsentUpdateView(TestCase):
 
         for test in tests:
             resp = self.client.post(
-                reverse("tos:update", kwargs=test[0]), test[1]
+                reverse("tos:tos_update", kwargs=test[0]), test[1]
             )
             self.assertEqual(resp.status_code, 302)
             self.assertRedirects(resp, "/welcome/", target_status_code=302)
@@ -259,7 +260,7 @@ class TestConsentUpdateView(TestCase):
 
         for test in tests:
             resp = self.client.post(
-                reverse("tos:update", kwargs=test[0]), test[1]
+                reverse("tos:tos_update", kwargs=test[0]), test[1]
             )
             self.assertEqual(resp.status_code, 302)
             self.assertRedirects(resp, "/welcome/", target_status_code=302)
@@ -273,7 +274,7 @@ class TestConsentUpdateView(TestCase):
                     ),
                     "version": int(self.tos[0].version),
                 },
-                {"accepted": True, "redirect_to": "/tos/student/"},
+                {"accepted": True, "redirect_to": "/tos/tos/student/"},
             )
         ]
         print(self.tos)
@@ -282,10 +283,12 @@ class TestConsentUpdateView(TestCase):
         print(Tos.objects.all())
         for test in tests:
             resp = self.client.post(
-                reverse("tos:update", kwargs=test[0]), test[1]
+                reverse("tos:tos_update", kwargs=test[0]), test[1]
             )
             self.assertEqual(resp.status_code, 302)
-            self.assertRedirects(resp, "/tos/student/", target_status_code=200)
+            self.assertRedirects(
+                resp, "/tos/tos/student/", target_status_code=200
+            )
 
     def test_consent_update_version_doesnt_exist(self):
         tests = [
@@ -302,7 +305,7 @@ class TestConsentUpdateView(TestCase):
 
         for test in tests:
             resp = self.client.post(
-                reverse("tos:update", kwargs=test[0]), test[1]
+                reverse("tos:tos_update", kwargs=test[0]), test[1]
             )
             self.assertEqual(resp.status_code, 400)
             self.assertIn(
@@ -314,7 +317,7 @@ class TestConsentUpdateView(TestCase):
     def test_consent_update_wrong_method(self):
         tests = [{"role": Tos.ROLES[0], "version": 0}]
         for test in tests:
-            resp = self.client.get(reverse("tos:update", kwargs=test))
+            resp = self.client.get(reverse("tos:tos_update", kwargs=test))
             self.assertEqual(resp.status_code, 405)
 
     def test_consent_update_invalid_role(self):
@@ -326,14 +329,10 @@ class TestConsentUpdateView(TestCase):
         ]
         for test in tests:
             resp = self.client.post(
-                reverse("tos:update", kwargs=test[0]), test[1]
+                reverse("tos:tos_update", kwargs=test[0]), test[1]
             )
             self.assertEqual(resp.status_code, 400)
             self.assertIn(
                 '"{}" isn\'t a valid role.'.format(test[0]["role"]),
                 resp.content,
             )
-
-
-def _login_user(client, user):
-    client.login(username=user.username, password="test")
