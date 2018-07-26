@@ -131,14 +131,15 @@
 
 {% block scripts %}
 <script>
-// TinyMCE bind to textarea
-tinymce.init({
-  selector: "textarea",
-  elementpath: false,
-  branding: false,
-  menubar: false,
-  toolbar: 'undo redo | bold italic underline superscript subscript',
-  content_css: "{% static 'peerinst/css/tiny.min.css' %}",
-});
+  // TinyMCE bind to textarea
+  tinymce.init({
+    selector: 'textArea',
+    elementpath: false,
+    branding: false,
+    plugins: 'charmap',
+    menubar: false,
+    toolbar: 'undo redo | bold italic  underline superscript subscript | charmap',
+    content_css: "{% static 'peerinst/css/tiny.min.css' %}",
+  });
 </script>
 {% endblock %}
