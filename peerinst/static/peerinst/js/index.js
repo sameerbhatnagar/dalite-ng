@@ -487,22 +487,29 @@ export function addDialog() {
 }
 
 
-/** Add question delete function
+/** Handle question delete/undelete for teacher account view
 *  @function
 *  @param {String} url
 */
-export function bindDeleteQuestion(url) {
-  [].forEach.call(document.querySelectorAll('[id^=delete-question]'),
-    (el) => {
-      el.onclick = () => {
-        $.post(url, {pk: el.getAttribute('question')}, () => {
-          $('.list-item-question-'+el.getAttribute('question')).hide();
-        });
-      };
+export function handleQuestionDelete(url) {
+  // Toggle questions
+  $('.toggle-deleted-questions').click( () => {
+      $('li[class*=\'list-item-question\']').slideToggle();
+      $('[id^=delete-question]').toggle();
+      $('[id^=undelete-question]').toggle();
+      $('#hide-deleted-questions').toggle();
+      $('#show-deleted-questions').toggle();
+  });
+
+  // Delete/undelete
+  $('[id*=delete-question]').click( (event) => {
+      let el = event.target;
+      $.post(url, {pk: $(el).attr('question')}, () => {
+        $('.list-item-question-'+$(el).attr('question')).slideToggle();
+      });
     }
   );
 }
-
 
 /** Toggle image visibility
 *  @function

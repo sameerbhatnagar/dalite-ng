@@ -325,6 +325,13 @@ input[type="submit"].thumbs-down {
   cursor: pointer;
   overflow: visible;
 }
+.fake-link {
+  color: gray;
+  cursor: default;
+}
+.clickable {
+  cursor: pointer;
+}
 .input-ripple-wrapper {
    margin-right:6px;
    float:left;

@@ -56,11 +56,11 @@
     {% if tos_accepted %}
       <span class="mdc-list-item__graphic mdc-theme--primary"><i class="material-icons md-48">check</i></span>
       <span class="mdc-list-item__text mdc-theme--secondary bold">
-      Terms of service: Sharing
+      {% trans 'Terms of service: Sharing' %}
     {% else %}
       <span class="mdc-list-item__graphic mdc-theme--primary"><i class="material-icons md-48" style="color:red;">clear</i></span>
       <span class="mdc-list-item__text mdc-theme--secondary bold">
-      Terms of service: Not sharing
+      {% trans 'Terms of service: Not sharing' %}
       {% endif %}
       <span class="mdc-list-item__secondary-text">
         {% trans 'Signed: ' %}{{ tos_timestamp }}
@@ -237,6 +237,7 @@
 <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Questions' %}</h2>
 <div class="admin-link">
   <a href="{% url 'question-create' %}">{% trans 'Create new' %}</a>
+  <span style="padding-left:0.3em;padding-right:0.5em;">|</span><span id='show-deleted-questions' class='toggle-deleted-questions fake-link clickable'>{% trans 'Show deleted' %}</span><span id='hide-deleted-questions' class='toggle-deleted-questions fake-link clickable'>{% trans 'Hide deleted' %}</span>
 </div>
 
 <h3>{% trans 'My questions' %}</h3>
@@ -245,7 +246,6 @@
 {% else %}
 <ul class="mdc-list mdc-list--two-line mdc-list--non-interactive">
   {% for q in object.user.question_set.all|dictsortreversed:'created_on' %}
-    {% if q not in object.deleted_questions.all %}
     <li role="separator" class="mdc-list-divider list-item-question-{{ q.pk }}"></li>
     <li class="mdc-list-item list-item-question-{{ q.pk }}">
       <span class="mdc-list-item__graphic">
@@ -260,13 +260,13 @@
         </span>
       </span>
       <span class="mdc-list-item__meta">
-        <i id="delete-question-{{ q.pk }}" question="{{ q.pk }}"  class="material-icons md-24 mdc-ripple-surface icon-list">delete</i>
+        <i id="undelete-question-{{ q.pk }}" question="{{ q.pk }}" class="material-icons md-24 mdc-ripple-surface icon-list">restore_from_trash</i>
+        <i id="delete-question-{{ q.pk }}" question="{{ q.pk }}" class="material-icons md-24 mdc-ripple-surface icon-list">delete</i>
         <a id="edit-question-{{ q.pk }}" href="{% url 'question-update' q.pk %}">
           <i class="material-icons md-24 mdc-ripple-surface icon-list">mode_edit</i>
         </a>
       </span>
     </li>
-    {% endif %}
   {% endfor %}
   <li role="separator" class="mdc-list-divider"></li>
 </ul>
@@ -276,7 +276,6 @@
 <h3>{% trans 'Collaborations' %}</h3>
 <ul class="mdc-list mdc-list--two-line mdc-list--non-interactive">
   {% for q in object.user.collaborators.all %}
-    {% if q not in object.deleted_questions.all %}
     <li role="separator" class="mdc-list-divider list-item-question-{{ q.pk }}"></li>
     <li class="mdc-list-item list-item-question-{{ q.pk }}">
       <span class="mdc-list-item__graphic">
@@ -291,13 +290,13 @@
         </span>
       </span>
       <span class="mdc-list-item__meta">
+        <i id="undelete-question-{{ q.pk }}" question="{{ q.pk }}" class="material-icons md-24 mdc-ripple-surface icon-list">restore_from_trash</i>
         <i id="delete-question-{{ q.pk }}" question="{{ q.pk }}" class="material-icons md-24 mdc-ripple-surface icon-list">delete</i>
         <a id="edit-question-{{ q.pk }}" href="{% url 'question-update' q.pk %}">
           <i class="material-icons md-24 mdc-ripple-surface icon-list">mode_edit</i>
         </a>
       </span>
     </li>
-    {% endif %}
   {% endfor %}
   <li role="separator" class="mdc-list-divider"></li>
 </ul>
@@ -311,9 +310,15 @@
 {% compress js inline %}
 <script>
 bundle.addDialog();
-bundle.bindDeleteQuestion("{% url 'question-delete' %}");
 
+// Hide all deleted questions
+{% for q in object.deleted_questions.all %}
+$('.list-item-question-{{ q.pk }}').hide();
+$('[id^=undelete-question]').hide();
+$('#hide-deleted-questions').hide();
+{% endfor %}
 
+bundle.handleQuestionDelete("{% url 'question-delete' %}");
 
 
 // Get csrf token (https://docs.djangoproject.com/en/1.8/ref/csrf/)

@@ -665,12 +665,33 @@ class QuestionUpdateView(
 @user_passes_test(student_check, login_url="/access_denied_and_logout/")
 @require_POST
 def question_delete(request):
-    """Hide questions from teacher"""
+    """Hide questions that a teacher deletes"""
     if request.is_ajax():
         # Ajax only
         question = get_object_or_404(Question, pk=request.POST.get('pk'))
         teacher = get_object_or_404(Teacher, user=request.user)
-        teacher.deleted_questions.add(question)
+        if question not in teacher.deleted_questions.all():
+            teacher.deleted_questions.add(question)
+        else:
+            teacher.deleted_questions.remove(question)
+        return HttpResponse()
+    else:
+        # Bad request
+        response = TemplateResponse(request, "400.html")
+        return HttpResponseBadRequest(response.render())
+
+
+@login_required
+@user_passes_test(student_check, login_url="/access_denied_and_logout/")
+@require_POST
+def question_undelete(request):
+    """Unhide questions that a teacher deletes"""
+    if request.is_ajax():
+        # Ajax only
+        question = get_object_or_404(Question, pk=request.POST.get('pk'))
+        teacher = get_object_or_404(Teacher, user=request.user)
+        if question in teacher.deleted_questions.all():
+            teacher.deleted_questions.remove(question)
         return HttpResponse()
     else:
         # Bad request
