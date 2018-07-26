@@ -136,10 +136,12 @@
     selector: 'textArea',
     elementpath: false,
     branding: false,
-    plugins: 'charmap',
+    plugins: ['autosave', 'charmap', 'textcolor', 'link'],
     menubar: false,
-    toolbar: 'undo redo | bold italic  underline superscript subscript | charmap',
+    toolbar: 'undo redo | bold italic  underline superscript subscript forecolor | link | charmap',
     content_css: "{% static 'peerinst/css/tiny.min.css' %}",
+    link_assume_external_targets: true,
+    default_link_target: '_blank',
   });
 </script>
 {% endblock %}
