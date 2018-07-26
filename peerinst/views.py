@@ -683,24 +683,6 @@ def question_delete(request):
 
 @login_required
 @user_passes_test(student_check, login_url="/access_denied_and_logout/")
-@require_POST
-def question_undelete(request):
-    """Unhide questions that a teacher deletes"""
-    if request.is_ajax():
-        # Ajax only
-        question = get_object_or_404(Question, pk=request.POST.get('pk'))
-        teacher = get_object_or_404(Teacher, user=request.user)
-        if question in teacher.deleted_questions.all():
-            teacher.deleted_questions.remove(question)
-        return HttpResponse()
-    else:
-        # Bad request
-        response = TemplateResponse(request, "400.html")
-        return HttpResponseBadRequest(response.render())
-
-
-@login_required
-@user_passes_test(student_check, login_url="/access_denied_and_logout/")
 @user_passes_test(teacher_tos_accepted_check, login_url="/tos/required/")
 def answer_choice_form(request, question_id):
     AnswerChoiceFormSet = inlineformset_factory(
