@@ -1,32 +1,31 @@
 {% extends "peerinst/base.html" %}
 
-{% load add_class %}
+{% load add_class i18n %}
 
 {% block body %}
-
 <main>
 <section>
-  <h1 class="mdc-typography--display3" style="position:sticky;">Login
+  <h1 class="mdc-typography--display3" style="position:sticky;">{% trans 'Login' %}
     <svg class="underline" width=150 height=4></svg>
   </h1>
 
   <div class="admin-link">
-    <a href="{% url 'password_reset' %}">Forgot password</a> | <a href="{% url 'sign_up' %}">Sign up</a>
+    <a href="{% url 'password_reset' %}">{% trans 'Forgot password' %}</a> | <a href="{% url 'sign_up' %}">{% trans 'Sign up' %}</a>
   </div>
 
   {% if form.errors %}
     <p>
-      Your username and password didn't match or your account has not yet been activated. Please try again.
+      {% trans "Your username and password didn't match or your account has not yet been activated. Please try again." %}
     </p>
   {% endif %}
 
   {% if next %}
     {% if user.is_authenticated %}
       <p>
-        Your account doesn't have access to this page. To proceed, please login with an account that has access.
+        {% trans "Your account doesn't have access to this page. To proceed, please login with an account that has access." %}
       </p>
     {% else %}
-      <p>Please login to access this page.</p>
+      <p>{% trans 'Please login to access this page.' %}</p>
     {% endif %}
   {% endif %}
 
@@ -55,9 +54,9 @@
       <div class="mdc-notched-outline__idle"></div>
     </div>
 
-    <div>
+    <div class='padded-top'>
       <input type="hidden" name="next" value="{{ next }}"/>
-      <input class="mdc-button mdc-button--raised" type="submit" value="Submit"/>
+      <input class="mdc-button mdc-button--raised" type="submit" value="{% trans 'Submit' %}"/>
     </div>
   </form>
 </section>

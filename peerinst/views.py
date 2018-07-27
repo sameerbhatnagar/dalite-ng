@@ -111,36 +111,14 @@ from django.db.models import Count, Value, Case, Q, When, CharField
 # tos
 from tos.models import Consent, Tos
 
+
 LOGGER = logging.getLogger(__name__)
 LOGGER_teacher_activity = logging.getLogger("teacher_activity")
 
 
-def log(request):
-
-    if "HTTP_USER_AGENT" in request.META:
-        message = request.path
-        user = str(request.user)
-        timestamp_request = str(timezone.now())
-        browser = request.META["HTTP_USER_AGENT"]
-        remote = request.META["REMOTE_ADDR"]
-        LOGGER_teacher_activity.info(
-            user
-            + " | "
-            + timestamp_request
-            + " | "
-            + message
-            + " | "
-            + browser
-            + " | "
-            + remote
-        )
-
-    return
-
-
 # Views related to Auth
 def landing_page(request):
-    log(request)
+    
     disciplines = {}
 
     disciplines[str("All")] = {}
@@ -271,7 +249,6 @@ def dashboard(request):
 
 
 def sign_up(request):
-    log(request)
 
     template = "registration/sign_up.html"
     html_email_template_name = "registration/sign_up_admin_email_html.html"
@@ -322,7 +299,6 @@ def sign_up(request):
 
 
 def terms_teacher(request):
-    log(request)
     tos, err = Tos.get("teacher")
     return TemplateResponse(
         request, "registration/terms.html", context={"tos": tos}
@@ -336,7 +312,6 @@ def logout_view(request):
 
 @login_required
 def welcome(request):
-    log(request)
     try:
         teacher = Teacher.objects.get(user=request.user)
         # Check if teacher group exists and ensure _this_ teacher belongs to it
@@ -2620,7 +2595,6 @@ def report_selector(request, teacher_id):
 
 
 def report(request, teacher_id="", assignment_id="", group_id=""):
-    log(request)
     template_name = "peerinst/report_all_rationales.html"
     teacher = Teacher.objects.get(pk=teacher_id)
 
