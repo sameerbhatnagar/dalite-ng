@@ -320,10 +320,20 @@ input[type="submit"].thumbs-down {
   height:20pt;
   margin:4pt;
 }
+.padded-top {
+  margin-top: 20px;
+}
 .icon-list {
   margin-left:20px;
   cursor: pointer;
   overflow: visible;
+}
+.fake-link {
+  color: gray;
+  cursor: default;
+}
+.clickable {
+  cursor: pointer;
 }
 .input-ripple-wrapper {
    margin-right:6px;
@@ -422,6 +432,106 @@ div.input-ripple-wrapper input {
 .link {
   transform: rotate(-45deg);
 }
+
+/* Authorship */
+
+.field-container {
+  position:relative;
+  margin-bottom: 10px;
+}
+.number-box {
+  display: inline-block;
+  position: absolute;
+  top:0px;
+  left:0px;
+  width: 30px;
+  height: 30px;
+  border: solid;
+  border-radius: 50%;
+  border-width: 1px;
+  border-color: #54c0db;
+  background-color:#54c0db;
+  color:white;
+}
+.number {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+}
+.field {
+  padding-left: 40px;
+}
+
+.flush-to-textbox {
+  top:16px;
+}
+.multiple-select {
+  border-color: rgba(0,0,0,0.15);
+  border-width: 1px;
+  border-radius: 4px;
+  font-family: 'Montserrat', sans-serif;
+  padding:4px;
+  -webkit-appearance : none;
+  -moz-appearance : none;
+  background : none;
+}
+.multiple-select:hover {
+  border-color: black;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background: none;
+}
+.multiple-select:focus {
+  border-color: #54c0db;
+  border-width:2px;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background: none;
+  outline: none;
+}
+.form-helper-text {
+  margin-left:16px;
+  margin-right:16px;
+  color:rgba(0,0,0,0.38);
+  font-size: 0.75rem;
+}
+.mdc-select__native-control {
+  font-size: 0.75rem;
+}
+.mdc-text-field--textarea:not(.mdc-text-field--disabled) {
+  border-color: rgba(0,0,0,0.15);
+  width:100%;
+}
+.mdc-text-field--textarea:not(.mdc-text-field--focused):hover {
+  border-color: black;
+  width:100%;
+}
+.field .mdc-select {
+  margin-top: -12px;
+}
+.field label {
+  padding-right:10px;
+}
+.add {
+  padding:10px;
+  cursor: pointer;
+}
+.padded {
+  padding:10px;
+}
+.simple-hr {
+  margin-top:20px;
+  border-top-color:rgba(0,0,0,0.15);
+  border-style:none;
+  border-top-style:solid;
+}
+
+
+
+
 
 @media (max-height: 650px) {
   .mdc-dialog__body--scrollable {

@@ -2,19 +2,13 @@
 
 {% load staticfiles compress i18n add_class %}
 
-{% block stylesheets %}
-{% compress css %}
-<link href="{% static 'peerinst/css/authorship.min.css' %}" rel="stylesheet">
-{% endcompress %}
-{% endblock %}
-
 {% block extra_title %}
-<h2 class="mdc-typography--display1 mdc-theme--primary">{% trans 'Step 3: Example answers' %}</h2>
+<h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Step 3: Example answers' %}</h2>
 
 <div class='field-container'>
   <div class='number-box'><span class='number'>?</span></div>
   <div class='field'>
-    <p><small>
+    <p class="mdc-typography--body1"><small>
       {% blocktrans %}
       This is a preview of how the question looks in the student interface.  You can add example
       rationales here that will be shown as choices to students.  You should at least provide a few

@@ -2,6 +2,14 @@
 
 {% load compress i18n %}
 
+{% block stylesheets %}
+<style>
+.deleted {
+  background-color: lightgray;
+}
+</style>
+{% endblock %}
+
 {% block body %}
 <main>
 <section>
@@ -56,11 +64,11 @@
     {% if tos_accepted %}
       <span class="mdc-list-item__graphic mdc-theme--primary"><i class="material-icons md-48">check</i></span>
       <span class="mdc-list-item__text mdc-theme--secondary bold">
-      Terms of service: Sharing
+      {% trans 'Terms of service: Sharing' %}
     {% else %}
       <span class="mdc-list-item__graphic mdc-theme--primary"><i class="material-icons md-48" style="color:red;">clear</i></span>
       <span class="mdc-list-item__text mdc-theme--secondary bold">
-      Terms of service: Not sharing
+      {% trans 'Terms of service: Not sharing' %}
       {% endif %}
       <span class="mdc-list-item__secondary-text">
         {% trans 'Signed: ' %}{{ tos_timestamp }}
@@ -88,7 +96,7 @@
   <a href="{% url 'teacher-groups' teacher.id %}">{% trans 'Manage groups' %}</a>
 </div>
 {% if not object.groups.all %}
-<p>{% blocktrans %}You are not currently following any student groups.{% endblocktrans %}</p>
+<p class='mdc-typography--body1'>{% blocktrans %}You are not currently following any student groups.{% endblocktrans %}</p>
 {% endif %}
 <ul class="mdc-list mdc-list--two-line mdc-list--non-interactive">
   {% for g in object.groups.all %}
@@ -127,7 +135,7 @@
 <p style="margin-bottom:10pt;">{% trans 'Student link' %}: <span class="bold">{{ request.get_host}}{% url 'blink-get-current' object.user.username %}</span></p>
 
 {% if not object.blinkassignment_set.all %}
-<p>{% blocktrans %}A blink script is a series of blink questions strung together into one activity.  You do not have any blink scripts.{% endblocktrans %}</p>
+<p class='mdc-typography--body1'>{% blocktrans %}A blink script is a series of blink questions strung together into one activity.  You do not have any blink scripts.{% endblocktrans %}</p>
 {% endif %}
 
 <ul class="mdc-list mdc-list--two-line mdc-list--non-interactive">
@@ -164,12 +172,11 @@
 <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Assignments' %}</h2>
 <div class="admin-link">
     <a href="{% url 'teacher-assignments' teacher.id %}">{% trans 'Manage assignments' %}</a>
-    <span style="padding-left:0.3em;padding-right:0.5em;">
-    <a href="{% url 'report_selector' teacher_id=teacher.id%}">{% trans '| Custom Report' %}</a>
+    <span style="padding-left:0.3em;padding-right:0.5em;">|</span><a href="{% url 'report_selector' teacher_id=teacher.id%}">{% trans 'Custom reports' %}</a>
   </span>
 </div>
 {% if not object.assignments.all %}
-<p>{% blocktrans %}You do not have any assignments.{% endblocktrans %}</p>
+<p class='mdc-typography--body1'>{% blocktrans %}You do not have any assignments.{% endblocktrans %}</p>
 {% endif %}
 <ul class="mdc-list mdc-list--two-line mdc-list--non-interactive">
   {% for a in object.assignments.all %}
@@ -247,15 +254,15 @@
 <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Questions' %}</h2>
 <div class="admin-link">
   <a href="{% url 'question-create' %}">{% trans 'Create new' %}</a>
+  <span style="padding-left:0.3em;padding-right:0.5em;">|</span><span id='show-deleted-questions' class='toggle-deleted-questions fake-link clickable'>{% trans 'Show deleted' %}</span><span id='hide-deleted-questions' class='toggle-deleted-questions fake-link clickable'>{% trans 'Hide deleted' %}</span>
 </div>
 
 <h3>{% trans 'My questions' %}</h3>
 {% if not object.user.question_set.all %}
-<p>{% blocktrans %}You do not have any questions.  Create one using the link above!{% endblocktrans %}</p>
+<p class='mdc-typography--body1'>{% blocktrans %}You do not have any questions.  Create one using the link above!{% endblocktrans %}</p>
 {% else %}
 <ul class="mdc-list mdc-list--two-line mdc-list--non-interactive">
   {% for q in object.user.question_set.all|dictsortreversed:'created_on' %}
-    {% if q not in object.deleted_questions.all %}
     <li role="separator" class="mdc-list-divider list-item-question-{{ q.pk }}"></li>
     <li class="mdc-list-item list-item-question-{{ q.pk }}">
       <span class="mdc-list-item__graphic">
@@ -270,13 +277,13 @@
         </span>
       </span>
       <span class="mdc-list-item__meta">
-        <i id="delete-question-{{ q.pk }}" question="{{ q.pk }}"  class="material-icons md-24 mdc-ripple-surface icon-list">delete</i>
+        <i question="{{ q.pk }}" class="undelete-question-{{ q.pk }} material-icons md-24 mdc-ripple-surface icon-list">restore_from_trash</i>
+        <i question="{{ q.pk }}" class="delete-question-{{ q.pk }} material-icons md-24 mdc-ripple-surface icon-list">delete</i>
         <a id="edit-question-{{ q.pk }}" href="{% url 'question-update' q.pk %}">
           <i class="material-icons md-24 mdc-ripple-surface icon-list">mode_edit</i>
         </a>
       </span>
     </li>
-    {% endif %}
   {% endfor %}
   <li role="separator" class="mdc-list-divider"></li>
 </ul>
@@ -286,7 +293,6 @@
 <h3>{% trans 'Collaborations' %}</h3>
 <ul class="mdc-list mdc-list--two-line mdc-list--non-interactive">
   {% for q in object.user.collaborators.all %}
-    {% if q not in object.deleted_questions.all %}
     <li role="separator" class="mdc-list-divider list-item-question-{{ q.pk }}"></li>
     <li class="mdc-list-item list-item-question-{{ q.pk }}">
       <span class="mdc-list-item__graphic">
@@ -301,13 +307,13 @@
         </span>
       </span>
       <span class="mdc-list-item__meta">
-        <i id="delete-question-{{ q.pk }}" question="{{ q.pk }}" class="material-icons md-24 mdc-ripple-surface icon-list">delete</i>
+        <i question="{{ q.pk }}" class="undelete-question-{{ q.pk }} material-icons md-24 mdc-ripple-surface icon-list">restore_from_trash</i>
+        <i question="{{ q.pk }}" class="delete-question-{{ q.pk }} material-icons md-24 mdc-ripple-surface icon-list">delete</i>
         <a id="edit-question-{{ q.pk }}" href="{% url 'question-update' q.pk %}">
           <i class="material-icons md-24 mdc-ripple-surface icon-list">mode_edit</i>
         </a>
       </span>
     </li>
-    {% endif %}
   {% endfor %}
   <li role="separator" class="mdc-list-divider"></li>
 </ul>
@@ -321,9 +327,19 @@
 {% compress js inline %}
 <script>
 bundle.addDialog();
-bundle.bindDeleteQuestion("{% url 'question-delete' %}");
 
+// Hide all deleted questions and set global scope state variable
+var deletedQuestionsHidden = true;
+$('[class*=undelete-question]').hide()
+{% for q in object.deleted_questions.all %}
+$('#hide-deleted-questions').hide();
+$('.list-item-question-{{ q.pk }}').hide();
+$('.list-item-question-{{ q.pk }}').addClass('deleted');
+$('.undelete-question-{{ q.pk }}').show();
+$('.delete-question-{{ q.pk }}').hide();
+{% endfor %}
 
+bundle.handleQuestionDelete("{% url 'question-delete' %}");
 
 
 // Get csrf token (https://docs.djangoproject.com/en/1.8/ref/csrf/)

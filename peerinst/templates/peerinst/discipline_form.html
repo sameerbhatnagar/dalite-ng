@@ -1,4 +1,4 @@
-{% load add_class %}
+{% load i18n add_class %}
 
 <form id="discipline_create_form" action="{% url 'discipline-create' %}" method="post">
   {% csrf_token %}
@@ -16,39 +16,15 @@
     {{ field.errors }}
   {% endfor %}
   <div>
-    <input form="discipline_create_form" class="mdc-button mdc-button--raised" type="submit" value="Create"/>
+    <input form="discipline_create_form" class="mdc-button mdc-button--raised" type="submit" value="{% trans 'Create' %}"/>
   </div>
 </form>
 
-
 <script>
-// Get csrf token (https://docs.djangoproject.com/en/1.8/ref/csrf/)
-// using jQuery
-function getCookie(name) {
-    var cookieValue = null;
-    if (document.cookie && document.cookie != '') {
-        var cookies = document.cookie.split(';');
-        for (var i = 0; i < cookies.length; i++) {
-            var cookie = jQuery.trim(cookies[i]);
-            // Does this cookie string begin with the name we want?
-            if (cookie.substring(0, name.length + 1) == (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
-}
-var csrftoken = getCookie('csrftoken');
-
-function csrfSafeMethod(method) {
-    // these HTTP methods do not require CSRF protection
-    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-}
 $.ajaxSetup({
     beforeSend: function(xhr, settings) {
-        if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
-            xhr.setRequestHeader("X-CSRFToken", csrftoken);
+        if (!bundle.csrfSafeMethod(settings.type) && !this.crossDomain) {
+            xhr.setRequestHeader("X-CSRFToken", bundle.getCookie('csrftoken'));
         }
     }
 });
@@ -71,7 +47,7 @@ $( "#discipline_create_form" ).submit(function( event ) {
   posting.done(function(data) {
     $('#discipline_form').empty().append(data);
     bundle.autoInit();
-    bindAjaxTextInputForm('show_discipline_form', 'discipline_form', "{% url 'discipline-create' %}");
+    bundle.bindAjaxTextInputForm('show_discipline_form', 'discipline_form', "{% url 'discipline-create' %}");
   });
 });
 </script>

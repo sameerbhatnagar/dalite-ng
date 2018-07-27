@@ -63,6 +63,66 @@ export {
 } from 'd3';
 
 
+// Ajax
+/** Define csrf safe HTTP methods
+*   https://docs.djangoproject.com/en/1.8/ref/csrf/
+* @function
+* @param {String} method
+* @return {Boolean}
+*/
+export function csrfSafeMethod(method) {
+    // these HTTP methods do not require CSRF protection
+    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+}
+
+/** Get csrf token using jQuery
+*   https://docs.djangoproject.com/en/1.8/ref/csrf/
+* @function
+* @param {String} name
+* @return {String}
+*/
+export function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie != '') {
+        let cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            let cookie = jQuery.trim(cookies[i]);
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                cookieValue=decodeURIComponent(cookie.substring(name.length+1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+
+/** Replace element with text input form using Ajax
+* @function
+* @param {String} idToBind
+* @param {String} formToReplace
+* @param {String} url
+*/
+export function bindAjaxTextInputForm(idToBind, formToReplace, url) {
+  let d = document.getElementById(idToBind);
+  if (d) {
+    d.onclick = function() {
+      /** The callback
+      * @function
+      * @this Callback
+      */
+      function callback() {
+        bundle.autoInit();
+        let input = this.querySelector('.mdc-text-field__input');
+        input.focus();
+      }
+      $('#'+formToReplace).load(url, callback);
+    };
+  }
+}
+
+
 // Custom functions
 /** Mike Bostock's svg line wrap function
 *   https://bl.ocks.org/mbostock/7555321
@@ -487,22 +547,39 @@ export function addDialog() {
 }
 
 
-/** Add question delete function
+/** Handle question delete/undelete for teacher account view
 *  @function
 *  @param {String} url
 */
-export function bindDeleteQuestion(url) {
-  [].forEach.call(document.querySelectorAll('[id^=delete-question]'),
-    (el) => {
-      el.onclick = () => {
-        $.post(url, {pk: el.getAttribute('question')}, () => {
-          $('.list-item-question-'+el.getAttribute('question')).hide();
-        });
-      };
+export function handleQuestionDelete(url) {
+  // Toggle questions
+  $('.toggle-deleted-questions').click( () => {
+      $('.deleted').slideToggle();
+      $('#hide-deleted-questions').toggle();
+      $('#show-deleted-questions').toggle();
+      deletedQuestionsHidden = !deletedQuestionsHidden;
+  });
+
+  // Delete/undelete
+  $('[class*=delete-question]').click( (event) => {
+      let el = event.target;
+      let pk = $(el).attr('question');
+      let posting = $.post(url, {pk: pk});
+      posting.done( (data) => {
+        if (data['action'] == 'restore' ) {
+          $('.list-item-question-'+pk).removeClass('deleted');
+        } else {
+          $('.list-item-question-'+pk).addClass('deleted');
+        }
+        $('.undelete-question-'+pk).toggle();
+        $('.delete-question-'+pk).toggle();
+        if (deletedQuestionsHidden == true) {
+          $('.list-item-question-'+pk).slideToggle('deleted');
+        }
+      });
     }
   );
 }
-
 
 /** Toggle image visibility
 *  @function

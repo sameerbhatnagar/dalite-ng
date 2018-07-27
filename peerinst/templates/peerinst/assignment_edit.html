@@ -2,12 +2,6 @@
 
 {% load compress staticfiles add_class i18n %}
 
-{% block stylesheets %}
-{% compress css %}
-<link href="{% static 'peerinst/css/authorship.min.css' %}" rel="stylesheet">
-{% endcompress %}
-{% endblock %}
-
 {% block body %}
 <main>
 <section>

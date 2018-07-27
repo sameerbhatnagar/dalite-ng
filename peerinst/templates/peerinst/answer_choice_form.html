@@ -2,14 +2,8 @@
 
 {% load compress staticfiles add_class i18n %}
 
-{% block stylesheets %}
-{% compress css %}
-<link href="{% static 'peerinst/css/authorship.min.css' %}" rel="stylesheet">
-{% endcompress %}
-{% endblock %}
-
 {% block extra_title %}
-<h2 class="mdc-typography--display1 mdc-theme--primary">{% trans 'Step 2: Answer choices' %}</h2>
+<h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Step 2: Answer choices' %}</h2>
 {% endblock %}
 
 {% block answers %}
