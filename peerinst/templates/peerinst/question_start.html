@@ -61,6 +61,9 @@
       <form method="post">
         {% csrf_token %}
         {% block inner_form %}
+        <!--
+        <span class="mdc-typography--body1">{{ form.first_answer_choice.label }}</span>
+        -->
         <ul>
         {% for choice in form.first_answer_choice %}
           <li>
