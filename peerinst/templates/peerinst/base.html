@@ -66,13 +66,13 @@
       <div class="header-right">
         {% if user.is_authenticated %}
         {% if user.teacher %}
-        Teacher: <a class="bold" href="{% url 'teacher' pk=user.teacher.pk %}">{{ request.user.username }}</a>
+        {% trans 'Teacher' %}: <a class="bold" href="{% url 'teacher' pk=user.teacher.pk %}">{{ request.user.username }}</a>
         {% else %}
-        User: <a class="bold" href="{% url 'tos:modify' 'student' %}?next={{ request.path }}">{{ request.user.username }}</a>
+        {% trans 'User' %}: <a class="bold" href="{% url 'tos:modify' 'student' %}?next={{ request.path }}">{{ request.user.username }}</a>
         {% endif %}
         <br>
         {% if not user.student %}
-        <a class="bold" href="{% url 'logout' %}">Logout</a>
+        <a class="bold" href="{% url 'logout' %}">{% trans 'Logout' %}</a>
         {% endif %}
         {% endif %}
       </div>
