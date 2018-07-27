@@ -810,6 +810,36 @@ def discipline_select_form(request, pk):
     )
 
 
+class DisciplinesCreateView(
+    LoginRequiredMixin, NoStudentsMixin, CreateView
+):
+    """View to create a new discipline outside of admin."""
+
+    model = models.Discipline
+    fields = ["title"]
+    template_name = "peerinst/disciplines_form.html"
+
+    def get_success_url(self):
+        return reverse("disciplines-form")
+
+
+@login_required
+@user_passes_test(student_check, login_url="/access_denied_and_logout/")
+def disciplines_select_form(request):
+    """An AJAX view that simply renders the DisciplinesSelectForm."""
+    """Preselects instance with teachers current set."""
+    return TemplateResponse(
+        request,
+        "peerinst/disciplines_select_form.html",
+        context={
+            "form":
+                forms.DisciplinesSelectForm(
+                    initial={"disciplines": request.user.teacher.disciplines.all()}
+                )
+        },
+    )
+
+
 class CategoryCreateView(
     LoginRequiredMixin, NoStudentsMixin, TOSAcceptanceRequiredMixin, CreateView
 ):

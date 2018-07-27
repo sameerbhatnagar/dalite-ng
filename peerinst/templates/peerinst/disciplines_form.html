@@ -1,6 +1,6 @@
-{% load add_class %}
+{% load i18n add_class %}
 
-<form id="category_create_form" action="{% url 'category-create' %}" method="post">
+<form id="discipline_create_form" action="{% url 'disciplines-create' %}" method="post">
   {% csrf_token %}
   {% for field in form %}
     <div class="mdc-text-field mdc-text-field--outlined mdc-text-field--dense" data-mdc-auto-init="MDCTextField">
@@ -16,7 +16,7 @@
     {{ field.errors }}
   {% endfor %}
   <div>
-    <input form="category_create_form" class="mdc-button mdc-button--raised" type="submit" value="Create"/>
+    <input form="discipline_create_form" class="mdc-button mdc-button--raised" type="submit" value="{% trans 'Create' %}"/>
   </div>
 </form>
 
@@ -30,7 +30,7 @@ $.ajaxSetup({
 });
 
 // Attach a submit handler to the form
-$( "#category_create_form" ).submit(function( event ) {
+$( "#discipline_create_form" ).submit(function( event ) {
 
   // Stop form from submitting normally
   event.preventDefault();
@@ -45,9 +45,9 @@ $( "#category_create_form" ).submit(function( event ) {
 
   // Put the results in a div
   posting.done(function(data) {
-    $('#category_form').empty().append(data);
+    $('#discipline_form').empty().append(data);
     bundle.autoInit();
-    bundle.bindAjaxTextInputForm('show_category_form', 'category_form', "{% url 'category-create' %}");
+    bundle.bindAjaxTextInputForm('show_discipline_form', 'discipline_form', "{% url 'disciplines-create' %}");
   });
 });
 </script>

@@ -293,6 +293,10 @@ class DisciplineSelectForm(forms.Form):
     discipline = forms.ModelChoiceField(queryset=Discipline.objects.all())
 
 
+class DisciplinesSelectForm(forms.Form):
+    disciplines = forms.ModelMultipleChoiceField(queryset=Discipline.objects.all())
+
+
 class CategorySelectForm(forms.Form):
     category = forms.ModelMultipleChoiceField(queryset=Category.objects.all())
 

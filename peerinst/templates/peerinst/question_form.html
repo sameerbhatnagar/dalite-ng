@@ -3,9 +3,6 @@
 {% load compress staticfiles add_class i18n %}
 
 {% block stylesheets %}
-{% compress css %}
-<link href="{% static 'peerinst/css/authorship.min.css' %}" rel="stylesheet">
-{% endcompress %}
 <style>
 .image-field {
   padding-top:6px;
@@ -368,24 +365,8 @@
 {% if form %}
 <script>
   bundle.bindCheckbox();
-
-  function bindAjaxTextInputForm(idToBind, formToReplace, url) {
-    'use strict';
-    var d = document.getElementById(idToBind);
-    if (d) {
-      d.onclick = function() {
-        function callback() {
-          bundle.autoInit();
-          var input = this.querySelector('.mdc-text-field__input');
-          input.focus();
-        }
-        $('#'+formToReplace).load(url, callback);
-      }
-    }
-  }
-
-  bindAjaxTextInputForm('show_discipline_form', 'discipline_form', "{% url 'discipline-create' %}");
-  bindAjaxTextInputForm('show_category_form', 'category_form', "{% url 'category-create' %}");
+  bundle.bindAjaxTextInputForm('show_discipline_form', 'discipline_form', "{% url 'discipline-create' %}");
+  bundle.bindAjaxTextInputForm('show_category_form', 'category_form', "{% url 'category-create' %}");
 
   function limitFileSize() {
     'use strict';

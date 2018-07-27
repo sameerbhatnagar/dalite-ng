@@ -1,56 +1,71 @@
 {% extends 'peerinst/base.html' %}
 
-{% load i18n %}
+{% load i18n add_class compress %}
+
+{% block stylesheets %}
+{% compress css inline %}
+<style>
+  label {
+    padding-right: 10px;
+  }
+</style>
+{% endcompress %}
+{% endblock %}
 
 {% block body %}
-
-<style>
-form {
-  padding-top: 20px;
-}
-form option {
-  font-family: 'Montserrat', sans-serif;
-  font-size: 10pt;
-}
-form label {
-  vertical-align: top;
-  padding-right:10px;
-}
-.form_field_wrapper {
-  padding-bottom: 10px;
-}
-</style>
-
 <main>
 <section>
   <h1 class="mdc-typography--display3" style="position:sticky;">{% trans 'Identity' %}
     <svg class="underline" width=150 height=4></svg>
   </h1>
 
-  <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Edit discipline and institution' %}</h2>
+  <div class="admin-link">
+    <a href="{% url 'welcome' %}">{% trans 'Back to My Account' %}</a>
+  </div>
 
-  <p>{% blocktrans %}Select content disciplines and the institutions where you teach.  You can select multiple choices using the shift button.{% endblocktrans %}</p>
+  <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Select discipline and institution' %}</h2>
+
+  <div class='field-container'>
+    <div class='number-box'><span class='number'>?</span></div>
+    <div class='field'>
+      <p class="mdc-theme--secondary"><small>
+        {% blocktrans %}
+        Select content disciplines and the institutions where you teach.  You can select multiple choices using the shift button.
+        {% endblocktrans %}
+      </small></p>
+    </div>
+  </div>
 
   {{ form.non_field_errors }}
 
   <form action="{% url 'teacher-update' object.id %}" method="post">
       {% csrf_token %}
 
-      <div class="form_field_wrapper">
-        {{ form.institutions.errors }}
-        {{ form.institutions.label_tag }}
-        {{ form.institutions }}
+      <div class='mdc-form-field'>
+        <label for='id_category'>{{ form.institutions.label }}:</label>
+        {{ form.institutions|add_class:'multiple-select mdc-theme--background' }}
       </div>
+      {{ form.institutions.errors }}
 
-      <div class="form_field_wrapper">
+      <div class='padded-top'>
+        <div id='discipline_form'>
+          {% include 'peerinst/disciplines_select_form.html' %}
+        </div>
+        <p class="form-helper-text" aria-hidden="true">
+          {{ form.disciplines.help_text|safe }}
+        </p>
         {{ form.disciplines.errors }}
-        {{ form.disciplines.label_tag }}
-        {{ form.disciplines }}
       </div>
 
-      <input class="mdc-button mdc-button--raised" type="submit" value="Update"/>
+      <input class="mdc-button mdc-button--raised padded-top" type="submit" value="{% trans 'Update' %}"/>
   </form>
 
 </section>
 </main>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  bundle.bindAjaxTextInputForm('show_discipline_form', 'discipline_form', "{% url 'disciplines-create' %}");
+</script>
 {% endblock %}
