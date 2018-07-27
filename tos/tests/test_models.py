@@ -8,7 +8,9 @@ import pytz
 from django.contrib.auth.models import User
 from django.db import IntegrityError
 from django.test import TestCase
-from tos.models import EmailConsent, Tos, Consent as TosConsent, _compute_hash
+
+from tos.models import Consent as TosConsent
+from tos.models import EmailConsent, EmailType, Tos, _compute_hash
 
 from .generators import (
     add_email_consents,
@@ -54,7 +56,6 @@ class TestTosModel(TestCase):
         data = new_tos(2, roles=roles[0]) + new_tos(1, roles=roles[1])
         data[1]["version"] = data[0]["version"]
         data[2]["version"] = data[0]["version"]
-        print(data)
 
         Tos.objects.create(**data[0])
         Tos.objects.create(**data[2])
@@ -231,13 +232,30 @@ class TestTosConsentModel(TestCase):
             self.assertIs(consent, None)
 
 
+class TestEmailTypeModel(TestCase):
+    def test_new_email_type(self):
+        n_roles = 1
+        n = 3
+        roles = add_roles(new_roles(n_roles))
+        data = new_email_types(n, roles)
+
+        for i, d in enumerate(data):
+            email_type = EmailType.objects.create(**d)
+            self.assertIsInstance(email_type, EmailType)
+            self.assertEqual(email_type.role.role, d["role"].role)
+            self.assertEqual(email_type.type, d["type"])
+            self.assertEqual(email_type.title, d["title"])
+            self.assertEqual(email_type.description, d["description"])
+            self.assertEqual(email_type.show_order, i + 1)
+
+
 class TestEmailConsentModel(TestCase):
     def test_new_email_consent(self):
-        n_users = 10
+        n_users = 5
         n_roles = 2
         n_per_type = 3
         n_overlapping_types = 1
-        n = 30
+        n = n_users * n_roles * n_per_type
         users = add_users(new_users(n_users))
         roles = add_roles(new_roles(n_roles))
         email_types = add_email_types(
@@ -246,7 +264,7 @@ class TestEmailConsentModel(TestCase):
             )
         )
         data = new_email_consents(
-            n, users, email_types, all_types_present=True
+            n, users, email_types, all_combinations_present=True
         )
 
         for d in data:
@@ -274,7 +292,9 @@ class TestEmailConsentModel(TestCase):
             )
         )
         consents = add_email_consents(
-            new_email_consents(n, users, email_types, all_types_present=True)
+            new_email_consents(
+                n, users, email_types, all_combinations_present=True
+            )
         )
 
         tests = [
@@ -303,7 +323,7 @@ class TestEmailConsentModel(TestCase):
                 self.assertGreater(corrects[0].datetime, correct.datetime)
             self.assertEqual(consent, corrects[0].accepted)
 
-    def test_get_email_consent(self):
+    def test_get_email_consent_doesnt_exist(self):
         n_users = 5
         n_roles = 2
         n_per_type = 4
@@ -318,7 +338,7 @@ class TestEmailConsentModel(TestCase):
         )
         consents = add_email_consents(
             new_email_consents(
-                n, users[:-1], email_types[:-1], all_types_present=True
+                n, users[:-1], email_types[:-1], all_combinations_present=True
             )
         )
 
@@ -329,16 +349,7 @@ class TestEmailConsentModel(TestCase):
                 "role": email_type.role.role,
             }
             for email_type in email_types
-        ] + [
-            {
-                "username": user.username,
-                "email_type": email_type.type,
-                "role": email_types[-1].role.role,
-            }
-            for user in users
         ]
-
-        print(tests)
 
         for i, test in enumerate(tests):
             print("Failed at test: {}".format(i))

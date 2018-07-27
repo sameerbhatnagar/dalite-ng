@@ -5,9 +5,9 @@ import commonjs from 'rollup-plugin-commonjs';
 import uglify from 'rollup-plugin-uglify';
 
 export default {
-  input: 'tos/static/tos/js/index.js',
+  input: 'tos/static/tos/js/email.js',
   output: {
-    file: 'tos/static/tos/js/scripts.min.js',
+    file: 'tos/static/tos/js/email.min.js',
     name: 'tos',
     format: 'iife',
     sourceMap: 'inline',

@@ -53,7 +53,8 @@ def new_roles(n):
     def generator():
         chars = string.ascii_lowercase
         gen = _extra_chars_gen()
-        max_length = 32
+        #  max_length = 32
+        max_length = 2
         while True:
             yield {
                 "role": "".join(
@@ -145,7 +146,8 @@ def new_email_types(
 ):
     def generator(role):
         chars = string.ascii_lowercase
-        max_length = 32
+        #  max_length = 32
+        max_length = 2
         gen = _extra_chars_gen()
         while True:
             yield {
@@ -153,6 +155,13 @@ def new_email_types(
                 "type": "".join(
                     random.choice(chars)
                     for _ in range(random.randint(1, max_length))
+                )
+                + next(gen),
+                "title": "".join(
+                    random.choice(chars) for _ in range(random.randint(1, 32))
+                ),
+                "description": "".join(
+                    random.choice(chars) for _ in range(random.randint(1, 100))
                 ),
             }
 
@@ -180,14 +189,11 @@ def new_email_types(
     return types
 
 
-def new_email_consents(n, users, email_types, all_types_present=False):
-    if all_types_present and n < len(email_types):
+def new_email_consents(n, users, email_types, all_combinations_present=False):
+    if all_combinations_present and n < len(email_types) * len(users):
         raise ValueError("Not enough consents for all email types")
 
     def generator(users, email_types):
-        email_types = (
-            [email_types] if not isinstance(email_types, list) else email_types
-        )
         while True:
             yield {
                 "user": random.choice(users),
@@ -195,9 +201,9 @@ def new_email_consents(n, users, email_types, all_types_present=False):
                 "accepted": random.random() > 0.5,
             }
 
-    if all_types_present:
-        n_per_type = n // len(email_types)
-        gens = [generator(users, t) for t in email_types]
+    if all_combinations_present:
+        n_per_type = n // (len(email_types) * len(users))
+        gens = [generator([u], [t]) for t in email_types for u in users]
         consents = []
         for gen in gens:
             consents += [next(gen) for _ in range(n_per_type)]

@@ -12,10 +12,13 @@ const concat = require('gulp-concat');
 
 // Run sass and minify
 gulp.task('sass', function() {
-  return gulp.src('./peerinst/static/peerinst/css/*.scss')
-    .pipe(rename(function(path) {
-      path.extname = '.min.css';
-      }))
+  return gulp
+    .src('./peerinst/static/peerinst/css/*.scss')
+    .pipe(
+      rename(function(path) {
+        path.extname = '.min.css';
+      }),
+    )
     .pipe(sourcemaps.init())
     .pipe(
       sass({
@@ -29,25 +32,40 @@ gulp.task('sass', function() {
 
 // Process native css files not minified already
 gulp.task('css', function() {
-    return gulp.src(['./peerinst/static/peerinst/css/*.css',
-                     '!./peerinst/static/peerinst/css/*.min.css'])
-      .pipe(rename(function(path) {
+  return gulp
+    .src([
+      './peerinst/static/peerinst/css/*.css',
+      '!./peerinst/static/peerinst/css/*.min.css',
+    ])
+    .pipe(
+      rename(function(path) {
         path.extname = '.min.css';
-        }))
-      .pipe(postcss([cssnano()]))
-      .pipe(gulp.dest('./peerinst/static/peerinst/css/'));
+      }),
+    )
+    .pipe(postcss([cssnano()]))
+    .pipe(gulp.dest('./peerinst/static/peerinst/css/'));
 });
 
 // Run autoprefixer on minified css files
 gulp.task('autoprefixer', function() {
-    return gulp.src('./peerinst/static/peerinst/css/*.min.css')
-        .pipe(sourcemaps.init())
-        .pipe(postcss([autoprefixer({
-          browsers:
-            ['last 3 versions', 'iOS>=8', 'ie 11', 'Safari 9.1', 'not dead'],
-         })]))
-        .pipe(sourcemaps.write('.'))
-        .pipe(gulp.dest('./peerinst/static/peerinst/css/'));
+  return gulp
+    .src('./peerinst/static/peerinst/css/*.min.css')
+    .pipe(sourcemaps.init())
+    .pipe(
+      postcss([
+        autoprefixer({
+          browsers: [
+            'last 3 versions',
+            'iOS>=8',
+            'ie 11',
+            'Safari 9.1',
+            'not dead',
+          ],
+        }),
+      ]),
+    )
+    .pipe(sourcemaps.write('.'))
+    .pipe(gulp.dest('./peerinst/static/peerinst/css/'));
 });
 
 /* Not working; error thrown
@@ -70,7 +88,7 @@ gulp.task('rollup', function() {
 });
 
 gulp.task('build', function(callback) {
-     runSequence('sass', 'css', 'autoprefixer', 'rollup', callback);
+  runSequence('sass', 'css', 'autoprefixer', 'rollup', callback);
 });
 
 gulp.task('tos-styles', function() {
@@ -83,19 +101,42 @@ gulp.task('tos-styles', function() {
         includePaths: './node_modules',
       }),
     )
-    .pipe(postcss([autoprefixer({
-      browsers:
-        ['last 3 versions', 'iOS>=8', 'ie 11', 'Safari 9.1', 'not dead'],
-     })]))
+    .pipe(
+      postcss([
+        autoprefixer({
+          browsers: [
+            'last 3 versions',
+            'iOS>=8',
+            'ie 11',
+            'Safari 9.1',
+            'not dead',
+          ],
+        }),
+      ]),
+    )
     .pipe(concat('styles.min.css'))
     .pipe(sourcemaps.write('.'))
     .pipe(gulp.dest('tos/static/tos/css'));
 });
 
-gulp.task('tos-scripts', function() {
+gulp.task('tos-scripts-tos', function() {
   const runCommand = require('child_process').execSync;
   runCommand(
-    './node_modules/.bin/rollup -c ./rollup/tos-rollup.config.js',
+    './node_modules/.bin/rollup -c ./rollup/tos/tos-rollup.config.js',
+    function(err, stdout, stderr) {
+      console.log('Output: ' + stdout);
+      console.log('Error: ' + stderr);
+      if (err) {
+        console.log('Error: ' + err);
+      }
+    },
+  );
+});
+
+gulp.task('tos-scripts-email', function() {
+  const runCommand = require('child_process').execSync;
+  runCommand(
+    './node_modules/.bin/rollup -c ./rollup/tos/email-rollup.config.js',
     function(err, stdout, stderr) {
       console.log('Output: ' + stdout);
       console.log('Error: ' + stderr);
@@ -107,10 +148,11 @@ gulp.task('tos-scripts', function() {
 });
 
 gulp.task('tos-build', function(callback) {
-  runSequence('tos-styles', 'tos-scripts', callback);
+  runSequence('tos-styles', 'tos-scripts-tos', 'tos-scripts-email', callback);
 });
 
 gulp.task('watch', function() {
   gulp.watch('./tos/static/tos/css/*.scss', ['tos-styles']);
-  gulp.watch('./tos/static/tos/js/index.js', ['tos-scripts']);
+  gulp.watch('./tos/static/tos/js/tos.js', ['tos-scripts-tos']);
+  gulp.watch('./tos/static/tos/js/email.js', ['tos-scripts-email']);
 });

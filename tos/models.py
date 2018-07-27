@@ -1,6 +1,5 @@
 from __future__ import unicode_literals
 
-
 import hashlib
 
 from django.contrib.auth.models import User
@@ -169,14 +168,18 @@ class EmailType(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.show_order:
+            self.show_order = (
+                len(
+                    EmailType.objects.filter(role=self.role).exclude(
+                        type="all"
+                    )
+                )
+                + 1
+            )
+
+        if self.type == "all":
             self.show_order = len(EmailType.objects.filter(role=self.role)) + 1
-        else:
-            with transaction.atomic():
-                for row in EmailType.objects.filter(
-                    role=self.role, show_order__gte=self.show_order
-                ):
-                    row.show_order = row.show_order + 1
-                    row.save()
+
         super(EmailType, self).save(*args, **kwargs)
 
 
@@ -187,7 +190,7 @@ class EmailConsent(models.Model):
     datetime = models.DateTimeField(editable=False, auto_now=True)
 
     @staticmethod
-    def get(username, role, email_type):
+    def get(username, role, email_type, default=None, ignore_all=False):
         assert isinstance(
             username, basestring
         ), "Precondition failed for `username`"
@@ -212,7 +215,23 @@ class EmailConsent(models.Model):
                 .accepted
             )
         except IndexError:
-            consent = None
+            consent = default
+
+        if not ignore_all and email_type != "all":
+            try:
+                consent_all = (
+                    EmailConsent.objects.filter(
+                        user__username=username,
+                        email_type__role=role,
+                        email_type__type=email_type,
+                    )
+                    .order_by("-datetime")[0]
+                    .accepted
+                )
+                if not consent_all:
+                    consent = False
+            except IndexError:
+                pass
 
         output = consent
         assert output is None or isinstance(
@@ -229,3 +248,13 @@ def _compute_hash(text):
     output = hashlib.md5(text.encode()).hexdigest()
     assert isinstance(output, basestring) and len(output) == 32
     return output
+
+
+def _create_email_type_all(role):
+    EmailType.objects.create(
+        role=role,
+        type="all",
+        title="All email",
+        description="Turn off all non-administrative email from Dalite.",
+        show_order=len(EmailType.objects.filter(role=role)),
+    )

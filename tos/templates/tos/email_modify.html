@@ -23,9 +23,33 @@
         <svg class="underline" width=150 height=4></svg>
       </h1>
 
-      <form id="email-settings-container" action="{% url 'tos:email_update' role %}" method="post">
+      <form id="email-settings-form" action="{% url 'tos:email_update' role %}" method="post">
         {% csrf_token %}
 
+        {% for email_type in email_types %}
+        <div class="email-consent">
+          <h2>{{ email_type.title }}</h2>
+          <p>{{ email_type.description }}</p>
+          {% if email_type.type == 'all' %}
+          <div id="btn-toggle-all" class="btn-toggle">
+          {% elif all_accepted %}
+          <div class="btn-toggle">
+          {% else %}
+          <div class="btn-toggle btn-toggle--disabled">
+          {% endif %}
+            {% if email_type.accepted %}
+            <input type="checkbox" name="{{ email_type.type }}-consent" checked></input>
+            <div class="btn-toggle--selected">{% trans 'On' %}</div>
+            <div >{% trans 'Off' %}</div>
+            {% else %}
+            <input type="checkbox" name="{{ email_type.type }}-consent"></input>
+            <div>{% trans 'On' %}</div>
+            <div class="btn-toggle--selected">{% trans 'Off' %}</div>
+            {% endif %}
+          </div>
+        </div>
+        {% endfor %}
+        <input id="email-settings-save" type="submit" class="mdc-button mdc-button--unelevated" value='{% trans 'Save' %}'></input>
       </form>
 
     </section>
@@ -33,5 +57,5 @@
 {% endblock %}
 
 {% block scripts %}
-  <script src="{% static 'tos/js/scripts.min.js' %}" type="text/javascript"></script>
+  <script src="{% static 'tos/js/email.min.js' %}" type="text/javascript"></script>
 {% endblock %}
