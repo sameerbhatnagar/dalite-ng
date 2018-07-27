@@ -501,7 +501,7 @@ export function handleQuestionDelete(url) {
   });
 
   // Delete/undelete
-  $('[id*=delete-question]').click( (event) => {
+  $('[class*=delete-question]').click( (event) => {
       let el = event.target;
       let pk = $(el).attr('question');
       let posting = $.post(url, {pk: pk});
@@ -512,8 +512,8 @@ export function handleQuestionDelete(url) {
         } else {
           $('.list-item-question-'+pk).addClass('deleted');
         }
-        $('#undelete-question-'+pk).toggle();
-        $('#delete-question-'+pk).toggle();
+        $('.undelete-question-'+pk).toggle();
+        $('.delete-question-'+pk).toggle();
         if (deletedQuestionsHidden == true) {
           $('.list-item-question-'+pk).slideToggle('deleted');
         }

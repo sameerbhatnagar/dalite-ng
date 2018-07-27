@@ -268,8 +268,8 @@
         </span>
       </span>
       <span class="mdc-list-item__meta">
-        <i id="undelete-question-{{ q.pk }}" question="{{ q.pk }}" class="material-icons md-24 mdc-ripple-surface icon-list">restore_from_trash</i>
-        <i id="delete-question-{{ q.pk }}" question="{{ q.pk }}" class="material-icons md-24 mdc-ripple-surface icon-list">delete</i>
+        <i question="{{ q.pk }}" class="undelete-question-{{ q.pk }} material-icons md-24 mdc-ripple-surface icon-list">restore_from_trash</i>
+        <i question="{{ q.pk }}" class="delete-question-{{ q.pk }} material-icons md-24 mdc-ripple-surface icon-list">delete</i>
         <a id="edit-question-{{ q.pk }}" href="{% url 'question-update' q.pk %}">
           <i class="material-icons md-24 mdc-ripple-surface icon-list">mode_edit</i>
         </a>
@@ -298,8 +298,8 @@
         </span>
       </span>
       <span class="mdc-list-item__meta">
-        <i id="undelete-question-{{ q.pk }}" question="{{ q.pk }}" class="material-icons md-24 mdc-ripple-surface icon-list">restore_from_trash</i>
-        <i id="delete-question-{{ q.pk }}" question="{{ q.pk }}" class="material-icons md-24 mdc-ripple-surface icon-list">delete</i>
+        <i question="{{ q.pk }}" class="undelete-question-{{ q.pk }} material-icons md-24 mdc-ripple-surface icon-list">restore_from_trash</i>
+        <i question="{{ q.pk }}" class="delete-question-{{ q.pk }} material-icons md-24 mdc-ripple-surface icon-list">delete</i>
         <a id="edit-question-{{ q.pk }}" href="{% url 'question-update' q.pk %}">
           <i class="material-icons md-24 mdc-ripple-surface icon-list">mode_edit</i>
         </a>
@@ -321,13 +321,13 @@ bundle.addDialog();
 
 // Hide all deleted questions and set global scope state variable
 var deletedQuestionsHidden = true;
-$('[id^=undelete-question]').hide()
+$('[class*=undelete-question]').hide()
 {% for q in object.deleted_questions.all %}
 $('#hide-deleted-questions').hide();
 $('.list-item-question-{{ q.pk }}').hide();
 $('.list-item-question-{{ q.pk }}').addClass('deleted');
-$('#undelete-question-{{ q.pk }}').show();
-$('#delete-question-{{ q.pk }}').hide();
+$('.undelete-question-{{ q.pk }}').show();
+$('.delete-question-{{ q.pk }}').hide();
 {% endfor %}
 
 bundle.handleQuestionDelete("{% url 'question-delete' %}");
