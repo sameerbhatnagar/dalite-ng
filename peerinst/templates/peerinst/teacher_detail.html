@@ -60,7 +60,7 @@
     <span class="mdc-list-item__meta"><i class="material-icons md-24">settings</i></span>
   </li>
   <li role="separator" class="mdc-list-divider"></li>
-  <li class="mdc-list-item" onclick="window.location.href='{% url 'tos:modify' 'teacher' %}?next={{ request.path }}'" style="cursor:pointer;">
+  <li class="mdc-list-item" onclick="window.location.href='{% url 'tos:tos_modify' 'teacher' %}?next={{ request.path }}'" style="cursor:pointer;">
     {% if tos_accepted %}
       <span class="mdc-list-item__graphic mdc-theme--primary"><i class="material-icons md-48">check</i></span>
       <span class="mdc-list-item__text mdc-theme--secondary bold">
@@ -72,6 +72,16 @@
       {% endif %}
       <span class="mdc-list-item__secondary-text">
         {% trans 'Signed: ' %}{{ tos_timestamp }}
+      </span>
+    </span>
+    <span class="mdc-list-item__meta"><i class="material-icons md-24">settings</i></span>
+  </li>
+  <li role="separator" class="mdc-list-divider"></li>
+  <li class="mdc-list-item" onclick="window.location.href='{% url 'tos:email_modify' 'teacher' %}?next={{ request.path }}'" style="cursor:pointer;">
+    <span class="mdc-list-item__graphic mdc-theme--primary"><i class="material-icons md-48">email</i></span>
+    <span class="mdc-list-item__text mdc-theme--secondary bold">
+      <span class="mdc-list-item__secondary-text">
+        {% trans "Email settings" %}
       </span>
     </span>
     <span class="mdc-list-item__meta"><i class="material-icons md-24">settings</i></span>

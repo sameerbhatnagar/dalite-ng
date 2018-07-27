@@ -14,20 +14,21 @@ from django.http import (
 from django.shortcuts import render
 from django.template.response import TemplateResponse
 from django.utils.translation import ugettext_lazy as _
+from django.views.decorators.http import require_http_methods
 
-# from .forms import ConsentForm
-from .models import Consent, Tos
+from ..models import Consent, Tos
 
 
 @login_required
-def consent(req, role, version=None):
+@require_http_methods(["GET"])
+def tos_consent(req, role, version=None):
     username = req.user.username
     _consent, context = _consent_view(req, username, role, version)
     if isinstance(_consent, HttpResponse):
         return _consent
 
     if _consent is None:
-        return render(req, "tos/consent.html", context)
+        return render(req, "tos/tos_modify.html", context)
     elif _consent:
         return JsonResponse({"consent": True})
     else:
@@ -35,20 +36,18 @@ def consent(req, role, version=None):
 
 
 @login_required
-def consent_modify(req, role, version=None):
+@require_http_methods(["GET"])
+def tos_consent_modify(req, role, version=None):
     username = req.user.username
     _consent, context = _consent_view(req, username, role, version)
     if isinstance(_consent, HttpResponse):
         return _consent
-    return render(req, "tos/consent.html", context)
+    return render(req, "tos/tos_modify.html", context)
 
 
 @login_required
-def consent_update(req, role, version):
-    if req.method != "POST":
-        resp = TemplateResponse(req, "405.html")
-        return HttpResponseNotAllowed(["POST"], resp.render())
-
+@require_http_methods(["POST"])
+def tos_consent_update(req, role, version):
     if role not in Tos.ROLES:
         resp = TemplateResponse(
             req,
@@ -104,9 +103,6 @@ def consent_update(req, role, version):
 
 
 def _consent_view(req, username, role, version):
-    if req.method != "GET":
-        resp = TemplateResponse(req, "405.html")
-        return HttpResponseNotAllowed(["GET"], resp.render()), None
     if role not in Tos.ROLES:
         resp = TemplateResponse(
             req,
@@ -125,7 +121,6 @@ def _consent_view(req, username, role, version):
         return HttpResponseBadRequest(resp.render()), None
 
     version = int(version) if version is not None else version
-    print(Tos.objects.all())
 
     if not Tos.objects.filter(role=role[:2]):
         resp = TemplateResponse(
@@ -157,6 +152,6 @@ def _consent_view(req, username, role, version):
 
 
 @login_required
-def tos_required(request):
-    response = TemplateResponse(request, "tos/tos_required.html")
-    return HttpResponseForbidden(response.render())
+def tos_required(req):
+    resp = TemplateResponse(req, "tos/tos_required.html")
+    return HttpResponseForbidden(resp.render())
