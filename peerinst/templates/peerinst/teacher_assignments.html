@@ -2,181 +2,174 @@
 
 {% load i18n add_class compress staticfiles %}
 
-{% block stylesheets %}
-{% compress css %}
-<link href="{% static 'peerinst/css/authorship.min.css' %}" rel="stylesheet">
-{% endcompress %}
-{% endblock %}
-
 {% block body %}
-
 <main>
-<section>
-  <h1 class="mdc-typography--display3" style="position:sticky;">{% trans 'My Assignments' %}
-    <svg class="underline" width=150 height=4></svg>
-  </h1>
-  
-  <div class="admin-link">
-    <a href="{% url 'teacher' teacher.id %}">{% trans 'Back to My Account' %}</a>
-  </div>
+  <section>
+    <h1 class="mdc-typography--display3" style="position:sticky;">{% trans 'My Assignments' %}
+      <svg class="underline" width=150 height=4></svg>
+    </h1>
 
-  <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Create a new assignment' %}</h2>
-
-  <div class='field-container'>
-    <div class='number-box'><span class='number'>?</span></div>
-    <div class='field'>
-      <p><small>
-        {% blocktrans %}
-        The assignment title may be displayed and should be informative. The assignment identifier is used as the keyword to access the assignment through a url.  It must be unique but does not need to be informative.
-        {% endblocktrans %}
-      </small></p>
+    <div class="admin-link">
+      <a href="{% url 'teacher' teacher.id %}">{% trans 'Back to My Account' %}</a>
     </div>
-  </div>
 
+    <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Create a new assignment' %}</h2>
 
-  {{form.errors}}
-  <form method="post">
-    {% csrf_token %}
-    {% for field in form %}
-      <div class="mdc-text-field mdc-text-field--outlined mdc-text-field--dense" data-mdc-auto-init="MDCTextField">
-        {{ field|add_class:"mdc-text-field__input" }}
-        {{ field.label_tag|add_class:"mdc-floating-label"|cut:":" }}
-        <div class="mdc-notched-outline">
-          <svg>
-            <path class="mdc-notched-outline__path"/>
-          </svg>
-        </div>
-        <div class="mdc-notched-outline__idle"></div>
+    <div class='field-container'>
+      <div class='number-box'><span class='number'>?</span></div>
+      <div class='field'>
+        <p><small>
+          {% blocktrans %}
+          The assignment title may be displayed and should be informative. The assignment identifier is used as the keyword to access the assignment through a url.  It must be unique but does not need to be informative.
+          {% endblocktrans %}
+        </small></p>
       </div>
-      <p class="mdc-text-field-helper-text mdc-text-field-helper-text--persistent" aria-hidden="true">
-        {{ field.help_text|safe }}
-      </p>
-      {{ field.errors }}
-    {% endfor %}
-    <input class="mdc-button mdc-button--raised" type="submit" value="Create" />
-  </form>
+    </div>
 
 
-  <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'My assignments' %}</h2>
+    {{form.errors}}
+    <form method="post">
+      {% csrf_token %}
+      {% for field in form %}
+        <div class="mdc-text-field mdc-text-field--outlined mdc-text-field--dense" data-mdc-auto-init="MDCTextField">
+          {{ field|add_class:"mdc-text-field__input" }}
+          {{ field.label_tag|add_class:"mdc-floating-label"|cut:":" }}
+          <div class="mdc-notched-outline">
+            <svg>
+              <path class="mdc-notched-outline__path"/>
+            </svg>
+          </div>
+          <div class="mdc-notched-outline__idle"></div>
+        </div>
+        <p class="mdc-text-field-helper-text mdc-text-field-helper-text--persistent" aria-hidden="true">
+          {{ field.help_text|safe }}
+        </p>
+        {{ field.errors }}
+      {% endfor %}
+      <input class="mdc-button mdc-button--raised" type="submit" value="Create" />
+    </form>
 
-  <p>{% trans 'These are the assignments for which you are an author, and have editing rights.' %}</p>
 
-  {% if not owned_assignments %}
-    <p>{% blocktrans %} You currently do not have editing rights on any assignments. Make a new assignment of your own with the form above to be able to modify it.{% endblocktrans %}</p>
-  {% endif %}
+    <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'My assignments' %}</h2>
 
-  <ul class="mdc-list mdc-list--two-line mdc-list--non-interactive">
-    {% for a in owned_assignments %}
-    <li role="separator" class="mdc-list-divider"></li>
-    <li class="mdc-list-item">
-      <span class="mdc-list-item__graphic mdc-theme--primary">
-          <a href="{% url 'question-list' a.pk %}" style="transform:translateY(4pt);">
-            <i class="mdc-theme--primary material-icons md-48">assignment</i>
-          </a>
-      </span>
-      <span class="mdc-list-item__text mdc-theme--secondary bold">
-        {{ a.identifier }}
-        <span class="mdc-list-item__secondary-text">
-          {{ a.questions.count }} {% trans "questions" %}
+    <p>{% trans 'These are the assignments for which you are an author, and have editing rights.' %}</p>
+
+    {% if not owned_assignments %}
+      <p>{% blocktrans %} You currently do not have editing rights on any assignments. Make a new assignment of your own with the form above to be able to modify it.{% endblocktrans %}</p>
+    {% endif %}
+
+    <ul class="mdc-list mdc-list--two-line mdc-list--non-interactive">
+      {% for a in owned_assignments %}
+      <li role="separator" class="mdc-list-divider"></li>
+      <li class="mdc-list-item">
+        <span class="mdc-list-item__graphic mdc-theme--primary">
+            <a href="{% url 'question-list' a.pk %}" style="transform:translateY(4pt);">
+              <i class="mdc-theme--primary material-icons md-48">assignment</i>
+            </a>
         </span>
-      </span>
-      <span class="mdc-list-item__meta">
-<!--         <form method="post" style="display:inline;">
-            {% csrf_token %}
-            <input type="hidden" id="id_assignment" name="assignment" value="{{g.pk}}"/>
-            <div class="mdc-ripple-surface input-ripple-wrapper">
-              <input class="material-icons md-24 mdc-button small-button" style="padding:0pt;margin:0pt;" type="submit" value="remove_circle"/>
-            </div>
-        </form> -->
-        {% if user in a.owner.all and a.answer_set.count == 0 %}
-          <a  id="edit-assignment-{{ a.pk|slugify }}" href="{% url 'assignment-update' a.pk %}">
+        <span class="mdc-list-item__text mdc-theme--secondary bold">
+          {{ a.identifier }}
+          <span class="mdc-list-item__secondary-text">
+            {{ a.questions.count }} {% trans "questions" %}
+          </span>
+        </span>
+        <span class="mdc-list-item__meta">
+  <!--         <form method="post" style="display:inline;">
+              {% csrf_token %}
+              <input type="hidden" id="id_assignment" name="assignment" value="{{g.pk}}"/>
+              <div class="mdc-ripple-surface input-ripple-wrapper">
+                <input class="material-icons md-24 mdc-button small-button" style="padding:0pt;margin:0pt;" type="submit" value="remove_circle"/>
+              </div>
+          </form> -->
+          {% if user in a.owner.all and a.answer_set.count == 0 %}
+            <a  id="edit-assignment-{{ a.pk|slugify }}" href="{% url 'assignment-update' a.pk %}">
+              <i class="material-icons md-24 mdc-ripple-surface icon-list">mode_edit</i>
+            </a>
+          {% else %}
+            <a  id="copy-assignment-{{ a.pk|slugify }}" href="{% url 'assignment-copy' a.pk %}">
+              <i class="material-icons md-24 mdc-ripple-surface icon-list">file_copy</i>
+            </a>
+          {% endif %}
+        </span>
+      </li>
+      {% endfor %}
+      <li role="separator" class="mdc-list-divider"></li>
+    </ul>
+
+
+
+
+    <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Following' %}</h2>
+
+    <p>{% blocktrans %} These are the assignments you are following, and for which reports will be available (based on your selected groups).{% endblocktrans %}</p>
+
+    {% if not teacher.assignments.all %}
+    <p>{% blocktrans %} You do not have any assignments.  You can select and modify an existing assignment from the list below or create a new one.{% endblocktrans %}</p>
+    {% endif %}
+
+    <ul class="mdc-list mdc-list--two-line mdc-list--non-interactive">
+      {% for g in teacher.assignments.all %}
+      <li role="separator" class="mdc-list-divider"></li>
+      <li class="mdc-list-item">
+        <span class="mdc-list-item__graphic mdc-theme--primary">
+            <a href="{% url 'question-list' g.pk %}" style="transform:translateY(4pt);">
+              <i class="mdc-theme--primary material-icons md-48">assignment</i>
+            </a>
+        </span>
+        <span class="mdc-list-item__text mdc-theme--secondary bold">
+          {{ g.identifier }}
+          <span class="mdc-list-item__secondary-text">
+            {{ g.questions.count }} {% trans "questions" %}
+          </span>
+        </span>
+        <span class="mdc-list-item__meta">
+          <form method="post" style="display:inline;">
+              {% csrf_token %}
+              <input type="hidden" id="id_assignment" name="assignment" value="{{g.pk}}"/>
+              <div class="mdc-ripple-surface input-ripple-wrapper">
+                <input class="material-icons md-24 mdc-button small-button" style="padding:0pt;margin:0pt;" type="submit" value="remove_circle"/>
+              </div>
+          </form>
+          {% if g.owner == teacher.user %}
+          <a href="{% url 'assignment-update' g.pk %}" class="md-24">
             <i class="material-icons md-24 mdc-ripple-surface icon-list">mode_edit</i>
           </a>
-        {% else %}
-          <a  id="copy-assignment-{{ a.pk|slugify }}" href="{% url 'assignment-copy' a.pk %}">
-            <i class="material-icons md-24 mdc-ripple-surface icon-list">file_copy</i>
-          </a>
-        {% endif %}
-      </span>
-    </li>
-    {% endfor %}
-    <li role="separator" class="mdc-list-divider"></li>
-  </ul>
+          {% endif %}
 
-
-
-
-  <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Following' %}</h2>
-
-  <p>{% blocktrans %} These are the assignments you are following, and for which reports will be available (based on your selected groups).{% endblocktrans %}</p>
-
-  {% if not teacher.assignments.all %}
-  <p>{% blocktrans %} You do not have any assignments.  You can select and modify an existing assignment from the list below or create a new one.{% endblocktrans %}</p>
-  {% endif %}
-
-  <ul class="mdc-list mdc-list--two-line mdc-list--non-interactive">
-    {% for g in teacher.assignments.all %}
-    <li role="separator" class="mdc-list-divider"></li>
-    <li class="mdc-list-item">
-      <span class="mdc-list-item__graphic mdc-theme--primary">
-          <a href="{% url 'question-list' g.pk %}" style="transform:translateY(4pt);">
-            <i class="mdc-theme--primary material-icons md-48">assignment</i>
-          </a>
-      </span>
-      <span class="mdc-list-item__text mdc-theme--secondary bold">
-        {{ g.identifier }}
-        <span class="mdc-list-item__secondary-text">
-          {{ g.questions.count }} {% trans "questions" %}
         </span>
-      </span>
-      <span class="mdc-list-item__meta">
-        <form method="post" style="display:inline;">
+      </li>
+      {% endfor %}
+      <li role="separator" class="mdc-list-divider"></li>
+    </ul>
+
+
+    <h2 class="mdc-typography--display1 mdc-theme--secondary">All</h2>
+    {% trans 'These are all the assignments in the database.' %}
+
+    <ul class="mdc-list mdc-list--two-line mdc-list--non-interactive">
+      {% for g in object_list.all %}
+      {% if g not in teacher.assignments.all %}
+      <li role="separator" class="mdc-list-divider"></li>
+      <li class="mdc-list-item">
+        <span class="mdc-list-item__graphic mdc-theme--primary">
+          <form method="post">
             {% csrf_token %}
+            <input class="material-icons small-button mdc-button mdc-button--raised" type="submit" value="add"/>
             <input type="hidden" id="id_assignment" name="assignment" value="{{g.pk}}"/>
-            <div class="mdc-ripple-surface input-ripple-wrapper">
-              <input class="material-icons md-24 mdc-button small-button" style="padding:0pt;margin:0pt;" type="submit" value="remove_circle"/>
-            </div>
-        </form>
-        {% if g.owner == teacher.user %}
-        <a href="{% url 'assignment-update' g.pk %}" class="md-24">
-          <i class="material-icons md-24 mdc-ripple-surface icon-list">mode_edit</i>
-        </a>
-        {% endif %}
-
-      </span>
-    </li>
-    {% endfor %}
-    <li role="separator" class="mdc-list-divider"></li>
-  </ul>
-
-
-  <h2 class="mdc-typography--display1 mdc-theme--secondary">All</h2>
-  {% trans 'These are all the assignments in the database.' %}
-
-  <ul class="mdc-list mdc-list--two-line mdc-list--non-interactive">
-    {% for g in object_list.all %}
-    {% if g not in teacher.assignments.all %}
-    <li role="separator" class="mdc-list-divider"></li>
-    <li class="mdc-list-item">
-      <span class="mdc-list-item__graphic mdc-theme--primary">
-        <form method="post">
-          {% csrf_token %}
-          <input class="material-icons small-button mdc-button mdc-button--raised" type="submit" value="add"/>
-          <input type="hidden" id="id_assignment" name="assignment" value="{{g.pk}}"/>
-        </form>
-      </span>
-      <span class="mdc-list-item__text mdc-theme--secondary bold">
-        {{ g.identifier }}
-        <span class="mdc-list-item__secondary-text">
-          {{ g.questions.count }} {% trans "questions" %}
+          </form>
         </span>
-      </span>
-    </li>
-    {% endif %}
-    {% endfor %}
-    <li role="separator" class="mdc-list-divider"></li>
-  </ul>
+        <span class="mdc-list-item__text mdc-theme--secondary bold">
+          {{ g.identifier }}
+          <span class="mdc-list-item__secondary-text">
+            {{ g.questions.count }} {% trans "questions" %}
+          </span>
+        </span>
+      </li>
+      {% endif %}
+      {% endfor %}
+      <li role="separator" class="mdc-list-divider"></li>
+    </ul>
 
-</section>
+  </section>
 </main>
 {% endblock %}
