@@ -86,7 +86,7 @@
   <a href="{% url 'teacher-groups' teacher.id %}">{% trans 'Manage groups' %}</a>
 </div>
 {% if not object.groups.all %}
-<p>{% blocktrans %}You are not currently following any student groups.{% endblocktrans %}</p>
+<p class='mdc-typography--body1'>{% blocktrans %}You are not currently following any student groups.{% endblocktrans %}</p>
 {% endif %}
 <ul class="mdc-list mdc-list--two-line mdc-list--non-interactive">
   {% for g in object.groups.all %}
@@ -125,7 +125,7 @@
 <p style="margin-bottom:10pt;">{% trans 'Student link' %}: <span class="bold">{{ request.get_host}}{% url 'blink-get-current' object.user.username %}</span></p>
 
 {% if not object.blinkassignment_set.all %}
-<p>{% blocktrans %}A blink script is a series of blink questions strung together into one activity.  You do not have any blink scripts.{% endblocktrans %}</p>
+<p class='mdc-typography--body1'>{% blocktrans %}A blink script is a series of blink questions strung together into one activity.  You do not have any blink scripts.{% endblocktrans %}</p>
 {% endif %}
 
 <ul class="mdc-list mdc-list--two-line mdc-list--non-interactive">
@@ -166,7 +166,7 @@
   </span>
 </div>
 {% if not object.assignments.all %}
-<p>{% blocktrans %}You do not have any assignments.{% endblocktrans %}</p>
+<p class='mdc-typography--body1'>{% blocktrans %}You do not have any assignments.{% endblocktrans %}</p>
 {% endif %}
 <ul class="mdc-list mdc-list--two-line mdc-list--non-interactive">
   {% for a in object.assignments.all %}
@@ -249,7 +249,7 @@
 
 <h3>{% trans 'My questions' %}</h3>
 {% if not object.user.question_set.all %}
-<p>{% blocktrans %}You do not have any questions.  Create one using the link above!{% endblocktrans %}</p>
+<p class='mdc-typography--body1'>{% blocktrans %}You do not have any questions.  Create one using the link above!{% endblocktrans %}</p>
 {% else %}
 <ul class="mdc-list mdc-list--two-line mdc-list--non-interactive">
   {% for q in object.user.question_set.all|dictsortreversed:'created_on' %}
