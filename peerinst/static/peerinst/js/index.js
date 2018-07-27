@@ -494,18 +494,29 @@ export function addDialog() {
 export function handleQuestionDelete(url) {
   // Toggle questions
   $('.toggle-deleted-questions').click( () => {
-      $('li[class*=\'list-item-question\']').slideToggle();
-      $('[id^=delete-question]').toggle();
-      $('[id^=undelete-question]').toggle();
+      $('.deleted').slideToggle();
       $('#hide-deleted-questions').toggle();
       $('#show-deleted-questions').toggle();
+      deletedQuestionsHidden = !deletedQuestionsHidden;
   });
 
   // Delete/undelete
   $('[id*=delete-question]').click( (event) => {
       let el = event.target;
-      $.post(url, {pk: $(el).attr('question')}, () => {
-        $('.list-item-question-'+$(el).attr('question')).slideToggle();
+      let pk = $(el).attr('question');
+      let posting = $.post(url, {pk: pk});
+      posting.done( (data) => {
+        console.info(data);
+        if (data['action'] == 'restore' ) {
+          $('.list-item-question-'+pk).removeClass('deleted');
+        } else {
+          $('.list-item-question-'+pk).addClass('deleted');
+        }
+        $('#undelete-question-'+pk).toggle();
+        $('#delete-question-'+pk).toggle();
+        if (deletedQuestionsHidden == true) {
+          $('.list-item-question-'+pk).slideToggle('deleted');
+        }
       });
     }
   );

@@ -672,9 +672,10 @@ def question_delete(request):
         teacher = get_object_or_404(Teacher, user=request.user)
         if question not in teacher.deleted_questions.all():
             teacher.deleted_questions.add(question)
+            return JsonResponse({ 'action' : 'delete' })
         else:
             teacher.deleted_questions.remove(question)
-        return HttpResponse()
+            return JsonResponse({ 'action' : 'restore' })
     else:
         # Bad request
         response = TemplateResponse(request, "400.html")

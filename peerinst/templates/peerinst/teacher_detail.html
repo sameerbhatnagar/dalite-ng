@@ -2,6 +2,14 @@
 
 {% load compress i18n %}
 
+{% block stylesheets %}
+<style>
+.deleted {
+  background-color: lightgray;
+}
+</style>
+{% endblock %}
+
 {% block body %}
 <main>
 <section>
@@ -311,11 +319,15 @@
 <script>
 bundle.addDialog();
 
-// Hide all deleted questions
+// Hide all deleted questions and set global scope state variable
+var deletedQuestionsHidden = true;
+$('[id^=undelete-question]').hide()
 {% for q in object.deleted_questions.all %}
-$('.list-item-question-{{ q.pk }}').hide();
-$('[id^=undelete-question]').hide();
 $('#hide-deleted-questions').hide();
+$('.list-item-question-{{ q.pk }}').hide();
+$('.list-item-question-{{ q.pk }}').addClass('deleted');
+$('#undelete-question-{{ q.pk }}').show();
+$('#delete-question-{{ q.pk }}').hide();
 {% endfor %}
 
 bundle.handleQuestionDelete("{% url 'question-delete' %}");
