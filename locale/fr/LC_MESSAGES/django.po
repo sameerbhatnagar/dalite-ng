@@ -1,0 +1,1953 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-05-28 02:39+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: dalite/settings.py:132
+msgid "English"
+msgstr "Anglais"
+
+#: dalite/settings.py:133
+msgid "French"
+msgstr "Français"
+
+#: dalite/urls.py:16 peerinst/templates/admin/peerinst/index.html:5
+msgid "Dalite NG administration"
+msgstr "Administration Dalite NG"
+
+#: peerinst/admin.py:24
+msgid "There must be at least two answer choices."
+msgstr "Il doit y avoir au moins deux choix de réponses."
+
+#: peerinst/admin.py:27
+msgid "At least one of the answers must be marked as correct."
+msgstr "Au moins une réponse doit être marquée comme exacte."
+
+#: peerinst/admin.py:43
+msgid "Associated answer"
+msgstr "Réponse connexe"
+
+#: peerinst/admin.py:46
+msgid ""
+"An example rationale that will be shown to students during the answer review."
+msgstr ""
+"Exemple d'explication qui sera présentée aux étudiants lors de la révision "
+"des réponses."
+
+#: peerinst/admin.py:48
+msgid ""
+"The number of the associated answer; 1 = first answer, 2 = second answer etc."
+msgstr ""
+"Le nombre associé à la réponse connexe; 1 = première réponse, 2 = deuxième "
+"réponse, etc."
+
+#: peerinst/admin.py:55
+msgid "example answer"
+msgstr "Exemple de réponse"
+
+#: peerinst/admin.py:56
+msgid "example answers"
+msgstr "Exemples de réponses"
+
+#: peerinst/admin.py:64
+msgid ""
+"You can add example answers more comfortably by using the \"Preview\" button "
+"in the top right corner.  The button appears after saving the question for "
+"the first time."
+msgstr ""
+"Vous pouvez ajouter des exemples de réponses plus facilement en utilisant le "
+"bouton \"Aperçu\" dans le coin supérieur droit. Le bouton apparaît après "
+"avoir sauvegardé la question pour la première fois."
+
+#: peerinst/admin.py:78
+msgid "Question image or video"
+msgstr "Image ou vidéo associée à la question"
+
+#: peerinst/admin.py:119
+msgid "Show selected answers to students"
+msgstr "Montrer les réponses choisies aux étudiants"
+
+#: peerinst/admin_views.py:199
+msgid "Total rationales upvoted"
+msgstr "N. total d'explications ayant obtenu un vote positif"
+
+#: peerinst/admin_views.py:200
+msgid "Total rationales chosen"
+msgstr "N. total d'explications choisies"
+
+#: peerinst/admin_views.py:201
+msgid "Total rationales chosen for right to wrong answer switches"
+msgstr ""
+"N. total d'explications choisies pour justifier un changement d'une bonne "
+"réponse en mauvaise réponse"
+
+#: peerinst/admin_views.py:202
+msgid "Total rationales chosen for wrong to right answer switches"
+msgstr ""
+"N. total d'explications choisies pour justifier un changement d'une mauvaise "
+"réponse en bonne réponse"
+
+#: peerinst/admin_views.py:208
+#: peerinst/templates/peerinst/report_all_rationales.html:120
+#: peerinst/templates/peerinst/report_all_rationales.html:136
+msgid "Count"
+msgstr "Décompte"
+
+#: peerinst/admin_views.py:209 peerinst/models.py:302
+#: peerinst/templates/peerinst/report_all_rationales.html:171
+msgid "Rationale"
+msgstr "Explication"
+
+#: peerinst/admin_views.py:210
+#: peerinst/templates/admin/peerinst/attribution_stats.html:8
+msgid "Upvotes"
+msgstr "Votes positifs"
+
+#: peerinst/admin_views.py:211
+#: peerinst/templates/admin/peerinst/attribution_stats.html:10
+msgid "Downvotes"
+msgstr "Votes négatifs"
+
+#: peerinst/admin_views.py:212
+msgid "Answers with this chosen rationale"
+msgstr "Réponses associées à cette explication"
+
+#: peerinst/admin_views.py:229
+msgid "(Student stuck to own rationale)"
+msgstr "(L'étudiant s'en tient à sa propre explication)"
+
+#: peerinst/admin_views.py:240
+msgid "Upvoted rationales"
+msgstr "Explications ayant obtenu un vote positif"
+
+#: peerinst/admin_views.py:245
+msgid "Top rationales chosen"
+msgstr "Explications les plus choisies"
+
+#: peerinst/admin_views.py:250
+msgid "Top rationales chosen for right to wrong answer switches"
+msgstr ""
+"Explications les plus choisies pour justifier un changement d'une bonne "
+"réponse en mauvaise réponse"
+
+#: peerinst/admin_views.py:255
+msgid "Top rationales chosen for wrong to right answer switches"
+msgstr ""
+"Explications les plus choisies pour justifier un changement d'une mauvaise "
+"réponse en bonne réponse"
+
+#: peerinst/admin_views.py:309
+msgid "Total number of answers recorded:"
+msgstr "Nombre total de réponses obtenues :"
+
+#: peerinst/admin_views.py:310
+msgid "Total number of participating students:"
+msgstr "Nombre total d'étudiants ayant participé :"
+
+#: peerinst/admin_views.py:311
+#, fuzzy
+#| msgid "Correct answer choices â second attempt:"
+msgid "Correct answer choices – first attempt:"
+msgstr "Bon choix de réponse à la deuxième tentative :"
+
+# msgid "Bon choix de réponse à la première tentative :"
+#: peerinst/admin_views.py:312 peerinst/admin_views.py:314
+#: peerinst/admin_views.py:316
+#, fuzzy
+#| msgid "â³ Percentage of total answers:"
+msgid "↳ Percentage of total answers:"
+msgstr "â³ Pourcentage des réponses au total :"
+
+#: peerinst/admin_views.py:313
+#, fuzzy
+#| msgid "Correct answer choices â second attempt:"
+msgid "Correct answer choices – second attempt:"
+msgstr "Bon choix de réponse à la deuxième tentative :"
+
+#: peerinst/admin_views.py:315
+msgid "Number of answer choice switches:"
+msgstr "Nombre de changements de choix de réponse :"
+
+#: peerinst/admin_views.py:319
+#, python-brace-format
+msgid "Switches to answer {index}:"
+msgstr "Changements de réponse {index}:"
+
+#: peerinst/admin_views.py:339
+msgid "No."
+msgstr "Non"
+
+#: peerinst/admin_views.py:339
+msgid "Question ID"
+msgstr "Id. de la question"
+
+#: peerinst/admin_views.py:339
+msgid "Total answers"
+msgstr "Nombre total de réponses"
+
+#: peerinst/admin_views.py:339
+msgid "Total students"
+msgstr "Nombre total d'étudiants"
+
+#: peerinst/admin_views.py:340
+msgid "First correct"
+msgstr "Première réponse exacte"
+
+#: peerinst/admin_views.py:340 peerinst/admin_views.py:341
+#: peerinst/templates/admin/peerinst/attribution_stats.html:9
+#: peerinst/templates/admin/peerinst/attribution_stats.html:11
+#: peerinst/templates/admin/peerinst/attribution_stats.html:13
+msgid "Percent"
+msgstr "Pourcentage"
+
+#: peerinst/admin_views.py:340
+msgid "Second correct"
+msgstr "Deuxième réponse exacte"
+
+#: peerinst/admin_views.py:341
+msgid "Switches"
+msgstr "Changements"
+
+#: peerinst/admin_views.py:344
+#, python-brace-format
+msgid "To {index}"
+msgstr "À {index}"
+
+#: peerinst/admin_views.py:345
+msgid "Show answers"
+msgstr "Montrer les réponses"
+
+#: peerinst/admin_views.py:367
+msgid "Expert answer"
+msgstr "Réponse d'expert"
+
+#: peerinst/admin_views.py:395
+msgid "Example answer saved."
+msgstr "Exemple de réponse sauvegardée."
+
+#: peerinst/admin_views.py:446
+#, python-brace-format
+msgid "List of {model_name} saved."
+msgstr ""
+
+# msgid "List of {model_name} saved."
+# msgstr "Liste de {nom_modèle} sauvegardée."
+#: peerinst/admin_views.py:489 peerinst/admin_views.py:492
+msgid "---all---"
+msgstr "toutes"
+
+#: peerinst/apps.py:10
+msgid "Dalite Peer Instruction"
+msgstr "Instructions sur Dalite Peer"
+
+#: peerinst/forms.py:22 peerinst/forms.py:116
+msgid "Choose one of these answers:"
+msgstr "Choisissez l'une de ces réponses :"
+
+#: peerinst/forms.py:64
+msgid "Please select exactly one rationale."
+msgstr "Veuillez sélectionner une explication exactement."
+
+#: peerinst/forms.py:79
+msgid "Please vote up or down."
+msgstr "Veuillez voter positivement ou négativement."
+
+#: peerinst/forms.py:151
+msgid "Website"
+msgstr "Site Web"
+
+#: peerinst/forms.py:154
+msgid ""
+"Please provide an institutional url listing yourself as a faculty member and "
+"showing your e-mail address."
+msgstr ""
+"Veuillez fournir l'adresse URL de votre établissement où vous apparaissez "
+"sur la liste des membres du corps professoral et indiquant votre adresse de "
+"courriel."
+
+#: peerinst/forms.py:184
+msgid "Choose which groups you would like your report to include:"
+msgstr "Choisissez quels groupes vous souhaitez inclure dans votre rapport :"
+
+#: peerinst/forms.py:188
+msgid "Choose which assignments you would like your report to include:"
+msgstr "Choisissez quels exercices vous souhaitez inclure dans votre rapport :"
+
+#: peerinst/models.py:21
+msgid "Hyphens may not be used in this field."
+msgstr "Vous ne pouvez pas utiliser de traits d'union dans ce champ."
+
+#: peerinst/models.py:31
+msgid "Category Name"
+msgstr "Nom de la catégorie"
+
+#: peerinst/models.py:33
+msgid "Name of a category questions can be sorted into."
+msgstr ""
+"Le nom de la catégorie dans laquelle les questions peuvent être triées."
+
+#: peerinst/models.py:42
+msgid "category"
+msgstr "catégorie"
+
+#: peerinst/models.py:43
+msgid "categories"
+msgstr "catégories"
+
+#: peerinst/models.py:48
+msgid "Discipline Name"
+msgstr "Nom de la discipline"
+
+#: peerinst/models.py:50
+msgid "Name of a discipline."
+msgstr "Nom d'une discipline."
+
+#: peerinst/models.py:59
+msgid "discipline"
+msgstr "discipline"
+
+#: peerinst/models.py:60
+msgid "disciplines"
+msgstr "disciplines"
+
+#: peerinst/models.py:74
+msgid ""
+"Use this ID to refer to the question in the LMS. Note: The question will "
+"have to have been saved at least once before an ID is available."
+msgstr ""
+"Utilisez cet identifiant pour renvoyer à la question dans le LMS. Remarque : "
+"La question devra être sauvegardée au moins une fois avant que l'identifiant "
+"ne soit disponible."
+
+#: peerinst/models.py:79
+msgid "Question title"
+msgstr "Titre de la question"
+
+#: peerinst/models.py:81
+msgid ""
+"A title for the question. Used for lookup when creating assignments, but not "
+"presented to the student."
+msgstr ""
+"Titre pour la question. Utilisé pour les recherches lorsque vous créez des "
+"exercices, mais non présenté à l'étudiant."
+
+#: peerinst/models.py:86
+msgid "Question text"
+msgstr "Texte associé à la question"
+
+#: peerinst/models.py:87
+msgid ""
+"Enter the question text.  You can use HTML tags for formatting.  You can use "
+"the \"Preview\" button in the top right corner to see what the question will "
+"look like for students.  The button appears after saving the question for "
+"the first time."
+msgstr ""
+"Saisissez le texte de la question. Vous pouvez utiliser des balises HTML "
+"pour la mise en forme. Vous pouvez utiliser le bouton \"Aperçu\" dans le "
+"coin supérieur droit pour obtenir un aperçu de la question telle qu'elle "
+"sera affichée pour les étudiants. Le bouton apparaîtra après avoir "
+"sauvegardé la question pour la première fois."
+
+#: peerinst/models.py:93
+msgid "Question image"
+msgstr "Image associée à la question"
+
+#: peerinst/models.py:94
+msgid "An image to include after the question text."
+msgstr "Image à ajouter après le texte de la question"
+
+#: peerinst/models.py:97
+msgid "Image Alt Text"
+msgstr "Texte alternatif pour l'image"
+
+#: peerinst/models.py:98
+msgid ""
+"Alternative text for accessibility. For instance, the student may be using a "
+"screen reader."
+msgstr ""
+"Texte alternatif pour des raisons d'accessibilité. Par exemple, l'étudiant "
+"pourrait utiliser un lecteur d'écran."
+
+#: peerinst/models.py:104
+msgid "Question video URL"
+msgstr "Adresse URL de la vidéo associée à la question"
+
+#: peerinst/models.py:105
+msgid ""
+"A video to include after the question text. All videos should include "
+"transcripts."
+msgstr ""
+"Vidéo à ajouter après le texte de la question. Toutes les vidéos doivent "
+"comprendre une transcription."
+
+#: peerinst/models.py:115
+msgid "Answer style"
+msgstr "Style de réponse"
+
+#: peerinst/models.py:117
+#, fuzzy
+#| msgid ""
+#| "Whether the answers are annotated with letters (A, B, Câ¦) or numbers (1, "
+#| "2, 3â¦)."
+msgid ""
+"Whether the answers are annotated with letters (A, B, C…) or numbers (1, 2, "
+"3…)."
+msgstr ""
+"Que les réponses soient annotées avec des lettres (A, B, Câ¦) ou des "
+"chiffres (1, 2, 3â¦)."
+
+#: peerinst/models.py:125
+msgid "Add fake attributions"
+msgstr "Ajouter de fausses attributions"
+
+#: peerinst/models.py:126
+msgid ""
+"Add random fake attributions consisting of username and country to "
+"rationales.  You can configure the lists of fake values and countries from "
+"the start page of the admin interface."
+msgstr ""
+"Ajoutez de fausses attributions, soit un nom d'utilisateur et un pays, aux "
+"explications. Vous pouvez configurer les listes de fausses valeurs et de "
+"faux pays à partir de la page d'accueil de l'interface administrateur."
+
+#: peerinst/models.py:132
+msgid "Sequential rationale review"
+msgstr "Examen séquentiel des explications"
+
+#: peerinst/models.py:133
+msgid ""
+"Show rationales sequentially and allow to vote on them before the final "
+"review."
+msgstr ""
+"Présente les explications de façon séquentielle et permet de voter sur "
+"celles-ci avant la révision finale."
+
+#: peerinst/models.py:137
+msgid "Rationale selection algorithm"
+msgstr "Algorithme de sélection des explications"
+
+#: peerinst/models.py:139
+msgid ""
+"The algorithm to use for choosing the rationales presented to students "
+"during question review.  This option is ignored if you selected sequential "
+"review."
+msgstr ""
+"Algorithme utilisé pour choisir les explications présentées aux étudiants "
+"lors de la révision des questions. Cette option est ignorée si vous avez "
+"sélectionné l'examen séquentiel."
+
+#: peerinst/models.py:144
+msgid "Standard"
+msgstr "Standard"
+
+#: peerinst/models.py:145
+msgid "Advanced"
+msgstr "Avancé"
+
+#: peerinst/models.py:148
+msgid "Grading scheme"
+msgstr "Schéma de notation"
+
+#: peerinst/models.py:150
+msgid ""
+"Grading scheme to use. The \"Standard\" scheme awards 1 point if the "
+"student's final answer is correct, and 0 points otherwise. The \"Advanced\" "
+"scheme awards 0.5 points if the student's initial guess is correct, and 0.5 "
+"points if they subsequently stick with or change to the correct answer."
+msgstr ""
+"Schéma de notation à utiliser. Le schéma \"Standard\" alloue 1 point si la "
+"réponse finale de l'étudiant est correcte et 0 point autrement. Le schéma "
+"\"Avancé\" alloue 0,5 points si sa première réponse est exacte et 0,5 points "
+"s'il s'en tient ensuite à la bonne réponse ou s'il change sa réponse pour la "
+"bonne réponse."
+
+#: peerinst/models.py:168
+msgid "You can only specify one of the image and video URL fields."
+msgstr ""
+"Vous pouvez seulement préciser une adresse URL pour une seule image ou une "
+"seule vidéo."
+
+#: peerinst/models.py:171
+msgid ""
+"You must provide alternative text for accessibility if providing an image."
+msgstr ""
+"Vous devez fournir un texte alternatif, pour des raisons d'accessibilité, si "
+"vous fournissez une image."
+
+#: peerinst/models.py:256
+msgid "question"
+msgstr "question"
+
+#: peerinst/models.py:257
+#: peerinst/templates/peerinst/teacher_assignments.html:60
+#: peerinst/templates/peerinst/teacher_assignments.html:104
+#: peerinst/templates/peerinst/teacher_assignments.html:146
+#: peerinst/templates/peerinst/teacher_detail.html:121
+msgid "questions"
+msgstr "questions"
+
+#: peerinst/models.py:262
+msgid "Text"
+msgstr "Texte"
+
+#: peerinst/models.py:263
+msgid "Correct?"
+msgstr "Exact?"
+
+#: peerinst/models.py:270
+msgid "answer choice"
+msgstr "choix de réponse"
+
+#: peerinst/models.py:271
+msgid "answer choices"
+msgstr "choix de réponses"
+
+#: peerinst/models.py:276
+msgid "identifier"
+msgstr "identifiant"
+
+#: peerinst/models.py:277
+msgid "A unique identifier for this assignment used for inclusion in a course."
+msgstr ""
+"Identifiant unique, pour cet exercice, utilisé pour s'inscrire au cours."
+
+#: peerinst/models.py:279 peerinst/models.py:496
+msgid "Title"
+msgstr "Titre"
+
+#: peerinst/models.py:280 peerinst/templates/admin/peerinst/index.html:37
+#: peerinst/templates/peerinst/question_list.html:18
+msgid "Questions"
+msgstr "Questions"
+
+#: peerinst/models.py:294
+msgid "assignment"
+msgstr "exercice"
+
+#: peerinst/models.py:295
+msgid "assignments"
+msgstr "exercices"
+
+#: peerinst/models.py:301 peerinst/models.py:319
+msgid "First answer choice"
+msgstr "Premier choix de réponse"
+
+#: peerinst/models.py:304 peerinst/models.py:324
+msgid "Second answer choice"
+msgstr "Deuxième choix de réponse"
+
+#: peerinst/models.py:308
+msgid "Show to others?"
+msgstr "Montrer aux autres?"
+
+#: peerinst/models.py:310
+msgid "Expert rationale?"
+msgstr "Explication d'expert?"
+
+#: peerinst/models.py:311
+msgid "Whether this answer is a pre-seeded expert rationale."
+msgstr ""
+"Si cette réponse constitue une explication d'expert fournie préalablement."
+
+#: peerinst/models.py:328
+msgid "{} for question {}"
+msgstr "{} à la question {}"
+
+#: peerinst/models.py:356
+msgid "fake username"
+msgstr "faux nom d'utilisateur"
+
+#: peerinst/models.py:357
+msgid "fake usernames"
+msgstr "faux noms d'utilisateurs"
+
+#: peerinst/models.py:363
+msgid "fake country"
+msgstr "faux pays"
+
+#: peerinst/models.py:364
+msgid "fake countries"
+msgstr "faux pays"
+
+#: peerinst/models.py:382
+msgid "Vote type"
+msgstr "Type de vote"
+
+#: peerinst/models.py:401
+msgid "group"
+msgstr "groupe"
+
+#: peerinst/models.py:402
+msgid "groups"
+msgstr "groupes"
+
+#: peerinst/models.py:419
+msgid "student"
+msgstr "étudiant(e)"
+
+#: peerinst/models.py:420
+msgid "students"
+msgstr "étudiants"
+
+#: peerinst/models.py:424
+msgid "Name of school."
+msgstr "Nom de l'école"
+
+#: peerinst/models.py:430
+msgid "institution"
+msgstr "établissement"
+
+#: peerinst/models.py:431
+msgid "institutions"
+msgstr "établissements"
+
+#: peerinst/models.py:435
+msgid ""
+"Teacher-only email domain, if available.  Email addresses with these domains "
+"will be treated as verified."
+msgstr ""
+"Domaine de courriel pour les professeurs seulement, si disponible. Les "
+"adresses de courriel comportant ces domaines seront considérées comme "
+"vérifiées."
+
+#: peerinst/models.py:442
+msgid "verified email domain name"
+msgstr "nom de domaine de courriel vérifié"
+
+#: peerinst/models.py:462
+msgid "teacher"
+msgstr "professeur(e)"
+
+#: peerinst/models.py:463
+msgid "teachers"
+msgstr "professeurs"
+
+#: peerinst/models.py:471
+msgid "Time limit"
+msgstr "Limite de temps"
+
+#: peerinst/models.py:490
+msgid "Answer choice"
+msgstr "Choix de réponse"
+
+#: peerinst/models.py:511
+msgid "blink assignment"
+msgstr "exercice clignotant"
+
+#: peerinst/models.py:512
+msgid "blink assignments"
+msgstr "exercices clignotants"
+
+#: peerinst/rationale_choice.py:61
+msgid "Can't proceed since the course staff did not provide example answers."
+msgstr ""
+"Impossible de continuer puisque le responsable du cours n'a pas fourni "
+"d'exemples de réponses."
+
+#: peerinst/rationale_choice.py:82
+msgid "I stick with my own rationale."
+msgstr "Je m'en tiens à ma propre explication."
+
+#: peerinst/rationale_choice.py:96
+msgid "Simple random rationale selection"
+msgstr "Simple sélection d'explication au hasard"
+
+#: peerinst/rationale_choice.py:98 peerinst/rationale_choice.py:115
+msgid ""
+"The two answer choices presented will include the answer the user chose.  If "
+"the user's\n"
+"    answer wasn't correct, the second choice will be a correct answer.  If "
+"the user's answer was\n"
+"    correct, the second choice presented will be weighted by the number of "
+"available rationales,\n"
+"    i.e. an answer that has only a few rationales available will have a low "
+"chance of being shown\n"
+"    to the user.  Up to four rationales are presented to the user for each "
+"choice, if available.\n"
+"    In addition, the user can choose to stick with their own rationale.\n"
+"    "
+msgstr ""
+"Les deux choix de réponse présentés comprendront la réponse choisie par "
+"l'utilisateur. Si la réponse de l'utilisateur n'était pas exacte, le "
+"deuxième choix constituera une bonne réponse. Si la réponse de l'utilisateur "
+"était exacte, le deuxième choix présenté dépendra du nombre d'explications "
+"disponibles. Cela signifie qu'une réponse pour laquelle seulement quelques "
+"explications sont disponibles aura une peu de chance d'être présentée à "
+"l'utilisateur. Jusqu'à quatre explications sont présentées à l'utilisateur "
+"pour chaque choix, si disponibles. De plus, l'utilisateur peut choisir de "
+"s'en tenir à sa propre explication."
+
+#: peerinst/rationale_choice.py:113
+msgid "Simple random rationale selection for sequential review"
+msgstr "Simple sélection d'explication au hasard pour l'examen séquentiel"
+
+#: peerinst/rationale_choice.py:156
+msgid "Prefer expert and highly votes rationales"
+msgstr ""
+"Préférence pour les explications d'experts ou ayant obtenu un grand nombre "
+"de votes"
+
+#: peerinst/rationale_choice.py:158
+msgid ""
+"The two answer choices presented will include the answer the user chose.  If "
+"the user's\n"
+"    answer wasn't correct, the second choice will be a correct answer.  If "
+"the user's answer was\n"
+"    correct, the second choice presented will be weighted by the number of "
+"available rationales,\n"
+"    i.e. an answer that has only a few rationales available will have a low "
+"chance of being shown\n"
+"    to the user.  Up to four rationales are presented to the user for each "
+"choice, if available.\n"
+"    In addition, the user can choose to stick with their own rationale.\n"
+"\n"
+"    The four rationales will include at least one \"expert\" rationale, if "
+"available, and at least\n"
+"    one rationale with more than half the maximum number of votes, if "
+"available.\n"
+"    "
+msgstr ""
+"Les deux choix de réponse présentés comprendront la réponse choisie par "
+"l'utilisateur. Si la réponse de l'utilisateur n'était pas exacte, le "
+"deuxième choix constituera une bonne réponse. Si la réponse de l'utilisateur "
+"était exacte, le deuxième choix présenté dépendra du nombre d'explications "
+"disponibles. Cela signifie qu'une réponse pour laquelle seulement quelques "
+"explications sont disponibles aura une peu de chance d'être présentée à "
+"l'utilisateur. Jusqu'à quatre explications sont présentées à l'utilisateur "
+"pour chaque choix, si disponibles. De plus, l'utilisateur peut choisir de "
+"s'en tenir à sa propre explication. Les quatre explications comporteront au "
+"moins une explication d'\"expert\", si disponible, et au moins une "
+"explication ayant reçu plus de la moitié du nombre maximal de votes, si "
+"disponible."
+
+#: peerinst/templates/admin/peerinst/assignment/change_form.html:7
+msgid "View assignment results"
+msgstr "Voir les résultats des exercices"
+
+#: peerinst/templates/admin/peerinst/assignment_results.html:4
+#: peerinst/templates/peerinst/assignment_results_by_group.html:4
+msgid "Assignment results"
+msgstr "Résultats des exercices"
+
+#: peerinst/templates/admin/peerinst/assignment_results.html:12
+#: peerinst/templates/admin/peerinst/question_rationales.html:12
+#: peerinst/templates/peerinst/assignment_results_by_group.html:12
+msgid "Home"
+msgstr "Accueil"
+
+#: peerinst/templates/admin/peerinst/assignment_results.html:13
+#: peerinst/templates/peerinst/assignment_results_by_group.html:13
+msgid "results"
+msgstr "résultats"
+
+#: peerinst/templates/admin/peerinst/assignment_results.html:18
+#: peerinst/templates/peerinst/assignment_results_by_group.html:18
+msgid "Results for the assignment"
+msgstr "Résultats de l'exercice"
+
+#: peerinst/templates/admin/peerinst/assignment_results.html:49
+#: peerinst/templates/peerinst/assignment_results_by_group.html:49
+msgid "this assignment"
+msgstr "cet exercice"
+
+#: peerinst/templates/admin/peerinst/assignment_results.html:50
+#: peerinst/templates/peerinst/assignment_results_by_group.html:50
+msgid "all"
+msgstr "tous"
+
+#: peerinst/templates/admin/peerinst/assignment_results.html:51
+#: peerinst/templates/peerinst/assignment_results_by_group.html:51
+msgid "rationales"
+msgstr "explications"
+
+#: peerinst/templates/admin/peerinst/attribution_analysis.html:11
+#: peerinst/templates/admin/peerinst/index.html:64
+msgid "Attribution bias analysis"
+msgstr "Analyse du biais d'attribution"
+
+#: peerinst/templates/admin/peerinst/attribution_analysis.html:19
+msgid "Run analysis"
+msgstr "Exécuter l'analyse"
+
+#: peerinst/templates/admin/peerinst/attribution_analysis.html:26
+msgid "Statistics by username"
+msgstr "Statistiques par nom d'utilisateur"
+
+#: peerinst/templates/admin/peerinst/attribution_analysis.html:32
+msgid "Statistics by country"
+msgstr "Statistiques par pays"
+
+#: peerinst/templates/admin/peerinst/attribution_stats.html:6
+msgid "Name"
+msgstr "Nom"
+
+#: peerinst/templates/admin/peerinst/attribution_stats.html:7
+msgid "Total attributions"
+msgstr "Nombre total d'attributions"
+
+#: peerinst/templates/admin/peerinst/attribution_stats.html:12
+msgid "Final choices"
+msgstr "Choix définitifs"
+
+#: peerinst/templates/admin/peerinst/index.html:10
+msgid "Student progress by assignment"
+msgstr "Progrès de l'étudiant(e) par exercice"
+
+#: peerinst/templates/admin/peerinst/index.html:22
+msgid "No assignments defined."
+msgstr "Aucun exercice défini."
+
+#: peerinst/templates/admin/peerinst/index.html:29
+msgid "Management"
+msgstr "Gestion"
+
+#: peerinst/templates/admin/peerinst/index.html:32
+#: peerinst/templates/peerinst/question_list.html:77
+#: peerinst/templates/peerinst/teacher_detail.html:99
+msgid "Assignments"
+msgstr "Exercices"
+
+#: peerinst/templates/admin/peerinst/index.html:42
+msgid "Question categories"
+msgstr "Catégories de questions"
+
+#: peerinst/templates/admin/peerinst/index.html:48
+msgid "Users"
+msgstr "Utilisateurs"
+
+#: peerinst/templates/admin/peerinst/index.html:54
+msgid "Fake usernames"
+msgstr "Faux noms d'utilisateurs"
+
+#: peerinst/templates/admin/peerinst/index.html:59
+msgid "Fake countries"
+msgstr "Faux noms de pays"
+
+#: peerinst/templates/admin/peerinst/question/change_form.html:6
+msgid "Preview"
+msgstr "Aperçu"
+
+#: peerinst/templates/admin/peerinst/question_preview.html:6
+#, fuzzy
+#| msgid ""
+#| "This is a preview of how the question looks in the student interface. You "
+#| "can add example\n"
+#| "  rationales here that will be shown as choices to students.  You should "
+#| "at least provide a few\n"
+#| "  example rationales for the correct choices.  It's best if you provide a "
+#| "few rationales for each\n"
+#| "  choice, even the incorrect ones.\n"
+#| "  "
+msgid ""
+"\n"
+"  This is a preview of how the question looks in the student interface.  You "
+"can add example\n"
+"  rationales here that will be shown as choices to students.  You should at "
+"least provide a few\n"
+"  example rationales for the correct choices.  It's best if you provide a "
+"few rationales for each\n"
+"  choice, even the incorrect ones.\n"
+"  "
+msgstr ""
+"Il s'agit d'un aperçu sur la façon dont les questions apparaîtront dans "
+"l'interface étudiante. Vous pouvez ajouter ici des exemples d'explications "
+"qui seront présentées comme des choix possibles aux étudiants. Vous devez au "
+"minimum fournir quelques exemples d'explications pour les bonnes réponses. "
+"Il est préférables que vous fournissiez quelques explications pour chaque "
+"choix, même si elles sont inexactes."
+
+#: peerinst/templates/admin/peerinst/question_preview.html:15
+msgid "Submit example answer"
+msgstr "Fournissez un exemple de réponse"
+
+#: peerinst/templates/admin/peerinst/question_rationales.html:4
+msgid "Top %(perpage)s Rationales"
+msgstr "Explications ayant les meilleurs % (par page)"
+
+#: peerinst/templates/admin/peerinst/question_rationales.html:15
+msgid "Top %(perpage)s rationales "
+msgstr "Explications ayant les meilleurs % (par page)"
+
+#: peerinst/templates/admin/peerinst/question_rationales.html:20
+
+msgid "Top %(perpage)s rationales for answers to %(question)s"
+msgstr ""
+"Explications ayant les meilleurs % (par page) pour les réponses aux % "
+"(questions)"
+
+#: peerinst/templates/admin/peerinst/question_rationales.html:53
+msgid "answers"
+msgstr "réponses"
+
+#: peerinst/templates/admin/peerinst/string_list.html:10
+msgid "List of "
+msgstr "Liste de"
+
+#: peerinst/templates/admin/peerinst/string_list.html:19
+#: peerinst/templates/peerinst/blink.html:45
+#: peerinst/templates/peerinst/question_review.html:51
+msgid "Submit"
+msgstr "Soumettre"
+
+#: peerinst/templates/peerinst/assignment_detail.html:14
+msgid "Back to My Assignments"
+msgstr "Revenir à Mes exercices"
+
+#: peerinst/templates/peerinst/assignment_detail.html:65
+#: peerinst/templates/peerinst/blinkassignment_detail.html:64
+#: peerinst/templates/peerinst/blinkassignment_detail.html:164
+#: peerinst/templates/peerinst/question_list.html:38
+#: peerinst/templates/peerinst/question_search_results.html:30
+#: peerinst/templates/peerinst/teacher_detail.html:36
+msgid "Discipline"
+msgstr "Disciplines"
+
+#: peerinst/templates/peerinst/assignment_detail.html:68
+#: peerinst/templates/peerinst/blinkassignment_detail.html:67
+#: peerinst/templates/peerinst/blinkassignment_detail.html:167
+#: peerinst/templates/peerinst/question_list.html:41
+#: peerinst/templates/peerinst/question_search_results.html:33
+msgid "Categories"
+msgstr "Catégories"
+
+#: peerinst/templates/peerinst/assignment_detail.html:72
+#: peerinst/templates/peerinst/blinkassignment_detail.html:71
+#: peerinst/templates/peerinst/blinkassignment_detail.html:171
+#: peerinst/templates/peerinst/question_list.html:45
+#: peerinst/templates/peerinst/question_search_results.html:37
+msgid "Uncategorized"
+msgstr "Non classé"
+
+#: peerinst/templates/peerinst/assignment_detail.html:76
+#: peerinst/templates/peerinst/blinkassignment_detail.html:75
+#: peerinst/templates/peerinst/blinkassignment_detail.html:175
+#: peerinst/templates/peerinst/question_list.html:49
+#: peerinst/templates/peerinst/question_search_results.html:41
+msgid "Difficulty"
+msgstr "Difficulté"
+
+#: peerinst/templates/peerinst/assignment_detail.html:97
+#: peerinst/templates/peerinst/blinkassignment_detail.html:196
+msgid "Search database"
+msgstr "Chercher dans la base de données"
+
+#: peerinst/templates/peerinst/assignment_detail.html:100
+#: peerinst/templates/peerinst/blinkassignment_detail.html:116
+#: peerinst/templates/peerinst/blinkassignment_detail.html:199
+msgid "Return to top"
+msgstr "Haut de la page"
+
+#: peerinst/templates/peerinst/assignment_detail.html:120
+#: peerinst/templates/peerinst/blinkassignment_detail.html:219
+msgid "Limit search to questions in your discipline(s) (recommended)"
+msgstr ""
+"Limiter la recherche aux questions de votre (vos) discipline(s) (recommandé)"
+
+#: peerinst/templates/peerinst/assignment_detail.html:125
+#: peerinst/templates/peerinst/assignment_list.html:18
+#: peerinst/templates/peerinst/blinkassignment_detail.html:224
+msgid "Search"
+msgstr "Chercher"
+
+#: peerinst/templates/peerinst/assignment_detail.html:135
+#: peerinst/templates/peerinst/blinkassignment_detail.html:234
+msgid "Search database for questions containing above string."
+msgstr ""
+"Chercher dans la base de données des questions contenant la série de mots ci-"
+"dessus."
+
+#: peerinst/templates/peerinst/assignment_list.html:8
+msgid "Browse Assignments"
+msgstr "Parcourir les exercices"
+
+#: peerinst/templates/peerinst/assignment_list.html:39
+msgid "No assignments available."
+msgstr "Aucun exercice disponible"
+
+#: peerinst/templates/peerinst/blink.html:8
+#: peerinst/templates/peerinst/blinkquestion_detail.html:12
+msgid "Blink Question"
+msgstr "Question clignotante"
+
+#: peerinst/templates/peerinst/blink_waiting.html:9
+msgid "Blink"
+msgstr "Clignotant"
+
+#: peerinst/templates/peerinst/blink_waiting.html:14
+msgid "Waiting for students"
+msgstr "En attente de la réponse des étudiants"
+
+#: peerinst/templates/peerinst/blink_waiting.html:16
+#: peerinst/templates/peerinst/teacher_detail.html:62
+msgid "Student link"
+msgstr "Lien pour l'étudiant(e)"
+
+#: peerinst/templates/peerinst/blink_waiting.html:22
+msgid "Waiting for teacher"
+msgstr "En attente de la réponse du professeur"
+
+#: peerinst/templates/peerinst/blinkassignment_detail.html:8
+msgid "Update Script"
+msgstr "Mettre à jour le script"
+
+#: peerinst/templates/peerinst/blinkassignment_detail.html:13
+#: peerinst/templates/peerinst/report_all_rationales.html:17
+#: peerinst/templates/peerinst/teacher_assignments.html:13
+#: peerinst/templates/peerinst/teacher_groups.html:13
+msgid "Back to My Account"
+msgstr "Revenir à Mon compte"
+
+#: peerinst/templates/peerinst/blinkassignment_detail.html:108
+msgid ""
+"There are currently no blink questions in this script.  You can add them "
+"from the lists below."
+msgstr ""
+"Il n'y a aucune question clignotante actuellement dans ce script. Vous "
+"pouvez en ajouter une à partir des listes ci-dessous."
+
+#: peerinst/templates/peerinst/blinkassignment_detail.html:113
+msgid "All your blinks"
+msgstr "Toutes vos questions clignotantes"
+
+#: peerinst/templates/peerinst/blinkassignment_detail.html:121
+msgid "Filter"
+msgstr "Filtre"
+
+#: peerinst/templates/peerinst/blinkassignment_detail.html:192
+msgid ""
+"You currently have no blink questions.  You can add them from the list below."
+msgstr ""
+"Vous n'avez aucune question clignotante actuellement. Vous pouvez en ajouter "
+"une à partir de la liste ci-dessous."
+
+#: peerinst/templates/peerinst/cookie_help.html:7
+
+msgid ""
+"\n"
+"  This component cannot be shown because your browser does not seem to "
+"accept third-party cookies.\n"
+"  You should configure your browser to allow all cookies for the site "
+"%(host)s and reload this\n"
+"  page.\n"
+"  "
+msgstr "\n"
+"Vous ne pouvez pas voir cet élément parce que votre navigateur ne semble pas "
+"accepter les témoins de tierce partie. Vous devez configurer votre "
+"navigateur pour qu'il autorise l'utilisation de tous les fichiers témoins "
+"sur ce site %(host)s et recharger cette page."
+
+#: peerinst/templates/peerinst/cookie_help.html:14
+#, fuzzy, python-format
+#| msgid ""
+#| "\n"
+#| "  In Internet Explorer, this can be done by going to Tools â Internet "
+#| "Options â Privacy â Sites,\n"
+#| "  entering %(host)s in the address field and clicking \"Allow\".\n"
+#| "  "
+msgid ""
+"\n"
+"  In Internet Explorer, this can be done by going to Tools → Internet "
+"Options → Privacy → Sites,\n"
+"  entering %(host)s in the address field and clicking \"Allow\".\n"
+"  "
+msgstr ""
+"Dans Internet Explorer, vous pouvez le faire en cliquant sur Outils â "
+"Options Internet â Confidentialité â Sites, et en saisissant %(host)s dans "
+"le champ Adresse du site Web et en cliquant sur \"Autoriser\".\n"
+
+#: peerinst/templates/peerinst/dashboard.html:8
+msgid "Inactive users"
+msgstr "Utilisateurs inactifs"
+
+#: peerinst/templates/peerinst/dashboard.html:53
+msgid "No users to add."
+msgstr "Aucun utilisateur à ajouter"
+
+#: peerinst/templates/peerinst/heartbeat.html:4
+msgid "Heartbeat for dalite-ng"
+msgstr "Heartbeat pour Dalite NG"
+
+#: peerinst/templates/peerinst/question_list.html:14
+msgid "Edit question list"
+msgstr "Modifier la liste de questions"
+
+#: peerinst/templates/peerinst/question_list.html:102
+msgid "Student rationales"
+msgstr "Explications des étudiants"
+
+#: peerinst/templates/peerinst/question_list.html:127
+msgid "Analytics"
+msgstr "Analytique"
+
+#: peerinst/templates/peerinst/question_list.html:145
+msgid "There are currently no questions in this assignment"
+msgstr "Il n'y a actuellement aucune question associée à cet exercice."
+
+#: peerinst/templates/peerinst/question_review.html:9
+msgid ""
+"\n"
+"  Consider the problem again, and select the most convincing rationale.\n"
+"  "
+msgstr "\ns"
+"Examinez de nouveau le problème et sélectionnez l'explication la plus "
+"convaincante."
+
+#: peerinst/templates/peerinst/question_review.html:13
+msgid ""
+"\n"
+"  Consider the problem again, noting the rationales below that have been "
+"provided by other\n"
+"  students.  They may, or may not, cause you to reconsider your answer.  "
+"Read them and select your\n"
+"  final answer.\n"
+"  "
+msgstr "\n"
+"Examinez de nouveau le problème en tenant compte des explications ci-dessous "
+"qui ont été fournies par les autres étudiants. Elles peuvent ou non "
+"influencer votre décision de modifier votre réponse. Lisez-les et "
+"sélectionnez votre réponse définitive."
+
+#: peerinst/templates/peerinst/question_review_base.html:26
+
+msgid ""
+"\n"
+"    You answered <strong>%(first_choice_label)s</strong> and gave this "
+"rationale:\n"
+msgstr "\n"
+"Vous avez répondu <strong>%(first_choice_label)s</strong> et avez fourni "
+"l'explication suivante :\n"
+
+#: peerinst/templates/peerinst/question_search_error.html:5
+msgid "Your search returned too many results.  Please try a different keyword."
+msgstr ""
+"Votre recherche comporte trop de résultats. Veuillez réessayer avec un autre "
+"mot-clé."
+
+#: peerinst/templates/peerinst/question_search_error.html:7
+msgid "unique results"
+msgstr "résultats uniques"
+
+#: peerinst/templates/peerinst/question_search_results.html:57
+msgid "No search results"
+msgstr "Aucun résultat"
+
+#: peerinst/templates/peerinst/question_sequential_review.html:8
+msgid ""
+"\n"
+"  Below is an answer provided by another student.  Please indicate whether "
+"you think this answer is\n"
+"  correct using the vote buttons below.  You will be able to select your "
+"preferred rationale in the\n"
+"  final review.\n"
+"  "
+msgstr "\n"
+"Vous trouverez ci-dessous une réponse fournie par un autre étudiant. "
+"Veuillez préciser si vous pensez que cette réponse est exacte en vous "
+"servant des boutons de vote ci-dessous. Vous serez en mesure de choisir "
+"l'explication que vous privilégiez lors de l'examen final."
+
+#: peerinst/templates/peerinst/question_sequential_review.html:20
+msgid "Answer "
+msgstr "Réponse"
+
+#: peerinst/templates/peerinst/question_start.html:13
+#: peerinst/templates/peerinst/report_all_rationales.html:27
+#: peerinst/templates/peerinst/report_all_rationales.html:102
+msgid "Question"
+msgstr "Question"
+
+#: peerinst/templates/peerinst/question_start.html:20
+msgid "Back to assignment"
+msgstr "Revenir à l'exercice"
+
+#: peerinst/templates/peerinst/question_start.html:22
+msgid "Edit question"
+msgstr "Modifier la question"
+
+#: peerinst/templates/peerinst/question_start.html:25
+msgid "Reset answers"
+msgstr "Réinitialiser les réponses"
+
+#: peerinst/templates/peerinst/question_start.html:86
+msgid "Next"
+msgstr "Suivante"
+
+#: peerinst/templates/peerinst/question_summary.html:9
+msgid ""
+"        You stuck with your answer choice and rationale.\n"
+"      "
+msgstr "Vous vous en tenez à votre choix de réponse et votre explication."
+
+#: peerinst/templates/peerinst/question_summary.html:13
+msgid ""
+"\n"
+"        You stuck with your answer choice and selected this rationale:\n"
+"      "
+msgstr "\n"
+"Vous vous en tenez à votre choix de réponse et avez sélectionné "
+"l'explication suivante :"
+
+#: peerinst/templates/peerinst/question_summary.html:19
+
+msgid ""
+"\n"
+"      You then changed your answer to <strong>%(second_choice_label)s</"
+"strong>\n"
+"      and selected this rationale:\n"
+"    "
+msgstr "\n"
+"Vous avez ensuite modifié votre réponse pour <strong>"
+"%(second_choice_label)s</strong>\n"
+" et avez sélectionné l'explication suivante :"
+
+#: peerinst/templates/peerinst/report_all_rationales.html:12
+msgid "Report"
+msgstr "Rapport"
+
+#: peerinst/templates/peerinst/report_all_rationales.html:19
+msgid "Custom Report"
+msgstr "Rapport personnalisé"
+
+#: peerinst/templates/peerinst/report_all_rationales.html:22
+msgid "Question-level gradebook"
+msgstr "Carnet de note pour chaque question"
+
+#: peerinst/templates/peerinst/report_all_rationales.html:45
+msgid "Student-level gradebook"
+msgstr "Carnet de note pour chaque étudiant(e)"
+
+#: peerinst/templates/peerinst/report_all_rationales.html:50
+#: peerinst/templates/peerinst/report_all_rationales.html:169
+msgid "Student"
+msgstr "Étudiant(e)"
+
+#: peerinst/templates/peerinst/report_all_rationales.html:80
+msgid "Details by Assignment"
+msgstr "Détails par exercice"
+
+#: peerinst/templates/peerinst/report_all_rationales.html:89
+msgid "Overall Student Transitions"
+msgstr "Transitions générales des étudiants"
+
+#: peerinst/templates/peerinst/report_all_rationales.html:115
+msgid "Summary"
+msgstr "Résumé"
+
+#: peerinst/templates/peerinst/report_all_rationales.html:116
+msgid "Total Number Responses:"
+msgstr "Nombre total de réponses"
+
+#: peerinst/templates/peerinst/report_all_rationales.html:120
+msgid "Answer Choice"
+msgstr "Choix de réponse"
+
+#: peerinst/templates/peerinst/report_all_rationales.html:125
+msgid "Correct"
+msgstr "Exact"
+
+#: peerinst/templates/peerinst/report_all_rationales.html:136
+msgid "Transition Type"
+msgstr "Type de transition"
+
+#: peerinst/templates/peerinst/report_all_rationales.html:149
+msgid "Confusion Matrix"
+msgstr "Matrice de confusion"
+
+#: peerinst/templates/peerinst/report_all_rationales.html:162
+msgid "Student Responses"
+msgstr "Réponses des étudiants"
+
+#: peerinst/templates/peerinst/report_all_rationales.html:164
+msgid "Back to top"
+msgstr "Haut de la page"
+
+#: peerinst/templates/peerinst/report_all_rationales.html:170
+msgid "First Answer"
+msgstr "Première réponse"
+
+#: peerinst/templates/peerinst/report_all_rationales.html:172
+msgid "Second Answer"
+msgstr "Deuxième réponse"
+
+#: peerinst/templates/peerinst/report_all_rationales.html:173
+msgid "Chosen Rationale"
+msgstr "Explication choisie"
+
+#: peerinst/templates/peerinst/report_all_rationales.html:174
+msgid "Time Submitted"
+msgstr "Heure soumise"
+
+#: peerinst/templates/peerinst/report_selector.html:10
+msgid "Custom Reports"
+msgstr "Rapports personnalisés"
+
+#: peerinst/templates/peerinst/report_selector.html:18
+msgid "Generate Report"
+msgstr "Produire un rapport"
+
+#: peerinst/templates/peerinst/teacher_assignments.html:9
+msgid "My Assignments"
+msgstr "Mes exercices"
+
+#: peerinst/templates/peerinst/teacher_assignments.html:16
+msgid "Create a new assignment"
+msgstr "Créer un nouvel exercice"
+
+#: peerinst/templates/peerinst/teacher_assignments.html:40
+msgid "My assignments"
+msgstr "Mes exercices"
+
+#: peerinst/templates/peerinst/teacher_assignments.html:42
+msgid ""
+"These are the assignments for which you are an author, and have editing "
+"rights."
+msgstr ""
+"Voici les exercices pour lesquels vous êtes auteur et avez des droits de "
+"modification."
+
+#: peerinst/templates/peerinst/teacher_assignments.html:45
+msgid ""
+" You currently do not have editing rights on any assignments. Make a new "
+"assignment of your own with the form above to be able to modify it."
+msgstr ""
+"Vous n'avez actuellement aucun droit de modification pour aucun exercice. "
+"Créez un nouvel exercice vous-même à l'aide du formulaire ci-dessus pour "
+"être en mesure de le modifier."
+
+#: peerinst/templates/peerinst/teacher_assignments.html:84
+msgid "Following"
+msgstr "Suivant"
+
+#: peerinst/templates/peerinst/teacher_assignments.html:86
+msgid ""
+" These are the assignments you are following, and for which reports will be "
+"available (based on your selected groups)."
+msgstr ""
+"Voici les exercices que vous suivez et pour lesquels des rapports seroont "
+"disponibles (selon les groupes que vous avez sélectionnés)."
+
+#: peerinst/templates/peerinst/teacher_assignments.html:89
+msgid ""
+" You do not have any assignments.  You can select and modify an existing "
+"assignment from the list below or create a new one."
+msgstr ""
+"Vous n'avez aucun exercice. Vous pouvez sélectionner et modifier un exercice "
+"existant à partir de la liste ci-dessous ou en créer un nouveau."
+
+#: peerinst/templates/peerinst/teacher_assignments.html:129
+msgid "These are all the assignments in the database."
+msgstr "Voici tous les exercices présents dans la base de données."
+
+#: peerinst/templates/peerinst/teacher_detail.html:8
+msgid "My Account"
+msgstr "Mon compte"
+
+#: peerinst/templates/peerinst/teacher_detail.html:12
+#: peerinst/templates/peerinst/teacher_form.html:26
+msgid "Identity"
+msgstr "Identité"
+
+#: peerinst/templates/peerinst/teacher_detail.html:20
+msgid "Email: "
+msgstr "Courriel :"
+
+#: peerinst/templates/peerinst/teacher_detail.html:23
+msgid "Member since: "
+msgstr "Membre depuis :"
+
+#: peerinst/templates/peerinst/teacher_detail.html:49
+msgid "Institution"
+msgstr "Établissement"
+
+#: peerinst/templates/peerinst/teacher_detail.html:58
+msgid "Blink scripts"
+msgstr "Scripts clignotants"
+
+#: peerinst/templates/peerinst/teacher_detail.html:60
+msgid "Add script"
+msgstr "Ajouter un script"
+
+#: peerinst/templates/peerinst/teacher_detail.html:65
+msgid ""
+"A blink script is a series of blink questions strung together into one "
+"activity.  You do not have any blink scripts."
+msgstr ""
+"Un script clignotant est une série de questions clignotantes rassemblées en "
+"une seule activité. Vous n'avez aucun script clignotant."
+
+#: peerinst/templates/peerinst/teacher_detail.html:82
+msgid "question(s)"
+msgstr "question(s)"
+
+#: peerinst/templates/peerinst/teacher_detail.html:101
+msgid "Manage assignments"
+msgstr "Gérer les exercices"
+
+#: peerinst/templates/peerinst/teacher_detail.html:103
+msgid "| Custom Report"
+msgstr "Rapport personnalisé"
+
+#: peerinst/templates/peerinst/teacher_detail.html:107
+msgid "You do not have any assignments."
+msgstr "Vous n'avez aucun exercice."
+
+#: peerinst/templates/peerinst/teacher_detail.html:146
+msgid "How to use in your course through LTI"
+msgstr "Comment l'utiliser dans votre cours par l'entremise du LTI"
+
+#: peerinst/templates/peerinst/teacher_detail.html:150
+msgid ""
+"Use the following to configure the LTI tool in your Learning Management "
+"System (e.g. Moodle, OpenEdx)"
+msgstr ""
+"Utilisez les options suivantes pour configurer l'outil LTI dans votre "
+"Gestionnaire d'apprentissage (p. ex., Moodle, OpenEdx)."
+
+#: peerinst/templates/peerinst/teacher_detail.html:152
+msgid "LTI Launch URL"
+msgstr "URL de lancement du LTI"
+
+#: peerinst/templates/peerinst/teacher_detail.html:153
+msgid "LTI Consumer Key"
+msgstr "Clé du consommateur LTI"
+
+#: peerinst/templates/peerinst/teacher_detail.html:154
+msgid "LTI Shared Secret"
+msgstr "Secret partagé LTI"
+
+#: peerinst/templates/peerinst/teacher_detail.html:156
+msgid ""
+"To import any of the questions below, copy and paste the text below the "
+"question title into the <em>Custom Paramaters</em> box of your LTI tool"
+msgstr ""
+"Pour importer l'une ou l'autre des questions ci-dessous, copiez et collez le "
+"texte sous le titre de la question dans la fenêtre <em>Personnaliser les "
+"paramètres</em> de votre outil LTI"
+
+#: peerinst/templates/peerinst/teacher_detail.html:161
+msgid "assignment_id"
+msgstr "id_exercice"
+
+#: peerinst/templates/peerinst/teacher_detail.html:162
+msgid "question id"
+msgstr "id. de la question"
+
+#: peerinst/templates/peerinst/teacher_detail.html:179
+msgid "Groups"
+msgstr "Groupes"
+
+#: peerinst/templates/peerinst/teacher_detail.html:182
+msgid "Manage groups"
+msgstr "Gérer les groupes"
+
+#: peerinst/templates/peerinst/teacher_detail.html:185
+msgid "You are not currently following any student groups."
+msgstr "Vous ne suivez pas actuellement de groupes d'étudiants."
+
+#: peerinst/templates/peerinst/teacher_detail.html:197
+#: peerinst/templates/peerinst/teacher_groups.html:31
+#: peerinst/templates/peerinst/teacher_groups.html:73
+msgid "Created: "
+msgstr "Créé le :"
+
+#: peerinst/templates/peerinst/teacher_detail.html:200
+#: peerinst/templates/peerinst/teacher_groups.html:34
+#: peerinst/templates/peerinst/teacher_groups.html:76
+msgid "Students: "
+msgstr "Étudiants :"
+
+#: peerinst/templates/peerinst/teacher_form.html:30
+msgid "Edit discipline and institution"
+msgstr "Modifier la discipline et l'établissement"
+
+#: peerinst/templates/peerinst/teacher_form.html:32
+msgid ""
+"Select content disciplines and the institutions where you teach.  You can "
+"select multiple choices using the shift button."
+msgstr ""
+"Sélectionnez vos disciplines et vos établissements d'enseignement. Vous "
+"pouvez sélectionner plusieurs réponses à l'aide de la touche Majuscule."
+
+#: peerinst/templates/peerinst/teacher_groups.html:9
+msgid "My Groups"
+msgstr "Mes groupes"
+
+#: peerinst/templates/peerinst/teacher_groups.html:16
+msgid "Current"
+msgstr "Actuel(s)"
+
+#: peerinst/templates/peerinst/teacher_groups.html:18
+msgid ""
+"You are not currently following any student groups.  You can select groups "
+"to follow from the lists below."
+msgstr ""
+"Vous ne suivez actuellement aucun groupe d'étudiants. Vous pouvez "
+"sélectionner les groupes à suivre à partir des listes ci-dessous."
+
+#: peerinst/templates/peerinst/teacher_groups.html:56
+msgid "All"
+msgstr "Tous"
+
+#: peerinst/templates/registration/account_activated_html.html:7
+msgid "Welcome to myDALITE"
+msgstr "Bienvenue dans myDALITE"
+
+#: peerinst/templates/registration/account_activated_html.html:9
+msgid "You're receiving this email because your account has been activated."
+msgstr "Vous recevez ce courriel parce que votre compte a été activé."
+
+#: peerinst/templates/registration/account_activated_html.html:11
+msgid "You can login at:"
+msgstr "Vous pouvez ouvrir une session au :"
+
+#: peerinst/templates/registration/account_activated_html.html:15
+#: peerinst/templates/registration/password_reset_email.html:17
+#: peerinst/templates/registration/password_reset_email_html.html:17
+msgid "Your username, in case you've forgotten:"
+msgstr "Votre nom d'utilisateur, si vous l'avez oublié :"
+
+#: peerinst/templates/registration/account_activated_html.html:17
+#: peerinst/templates/registration/password_reset_email.html:19
+#: peerinst/templates/registration/password_reset_email_html.html:19
+msgid "Thanks for using our site!"
+msgstr "Merci d'utiliser notre site!"
+
+#: peerinst/templates/registration/account_activated_html.html:19
+#: peerinst/templates/registration/password_reset_email.html:21
+#: peerinst/templates/registration/password_reset_email_html.html:21
+#: peerinst/templates/registration/sign_up_admin_email_html.html:25
+
+msgid "The %(site_name)s team"
+msgstr "L'équipte %(nom_site)"
+
+#: peerinst/templates/registration/landing_page.html:212
+msgid "Login"
+msgstr "Connexion"
+
+#: peerinst/templates/registration/landing_page.html:213
+msgid "Signup"
+msgstr "Inscription"
+
+#: peerinst/templates/registration/landing_page.html:225
+msgid "Features"
+msgstr "Fonctionnalités"
+
+#: peerinst/templates/registration/landing_page.html:234
+msgid ""
+" <span style=\"font-family: 'Cardo', serif;font-style:italic;\">my</"
+"span>DALITE is a free open-source web-based platform that promotes "
+"<strong>deep learning</strong>. Its pedagogical foundations are guided by "
+"social learning and based on learning principles and practical know-how. It "
+"engages students in cognitive tasks that include written self-explanation, "
+"comparison and evaluation of explanations produced by peers, and reflection. "
+msgstr ""
+"DALITE est une plateforme libre et gratuite en ligne qui fait la promotion "
+"de l'<strong>apprentissage profond</strong>. Ses fondements pédagogiques "
+"sont guidés par l'apprentissage social et reposent sur les principes "
+"d'apprentissage et le savoir-faire pratique. Elle incite les étudiants à "
+"entreprendre des tâches cognitives comportant des explications auto-"
+"rédigées, une comparaison et une évaluation des explications fournies par "
+"des pairs, et la réflexion."
+
+#: peerinst/templates/registration/landing_page.html:243
+msgid ""
+" <strong>Peer instruction</strong> is an active learning strategy "
+"popularized by Eric Mazur from Harvard University. It involves a sequence of "
+"steps that promotes critical thinking and discussion through the use of "
+"multiple choice conceptual questions.  It encourages students to first "
+"reflect on a conceptually challenging idea, vote, <strong>discuss with "
+"peers</strong>, and revote. "
+msgstr ""
+"L'<strong>apprentissage par les pairs</strong est une stratégie "
+"d'apprentissage actif rendue célèbre par Eric Mazur de l'Université Harvard. "
+"Elle consiste en une séquence d'étapes qui favorise la pensée critique et la "
+"discussion par l'utilisation de questions conceptuelles à choix multiples. "
+"Elle encourage d'abord les étudiants à réfléchir à une idée complexe d'un "
+"point de vue conceptuel, à voter, à <strong>discuter avec des pairs</strong> "
+"et à voter de nouveau."
+
+#: peerinst/templates/registration/landing_page.html:252
+msgid ""
+" With <span style=\"font-family: 'Cardo', serif;font-style:italic;\">my</"
+"span>DALITE, teachers can use the same questions <strong>in class</strong> "
+"in polling mode, or assign questions as <strong>out-of-class</strong> "
+"homework through any learning management system.  Teachers can peruse "
+"content based on analytics and get reports for how their students are doing "
+"over time. "
+msgstr ""
+"Avec <span style=\"font-family: 'Cardo', serif;font-style:italic;\">my</"
+"span>DALITE, les professeurs peuvent utiliser les mêmes questions <strong>en "
+"classe</strong>, en mode sondage, ou donner les questions comme devoirs "
+"<strong>en dehors des cours</strong> par l'entremise d'un gestionnaire "
+"d'apprentissage. Les professeurs peuvent parcourir le contenu en fonction "
+"des analyses et obtenir des rapports sur l'évolution de leurs étudiants au "
+"fil du temps."
+
+#: peerinst/templates/registration/landing_page.html:261
+msgid ""
+" <span style=\"font-family: 'Cardo', serif;font-style:italic;\">my</"
+"span>DALITE has a <strong>growing database</strong> of questions in subjects "
+"ranging from chemistry to the humanities. It is funded by the SALTISE/S4 "
+"grant and aims to be the home of an open-source community offering high-"
+"impact high-quality learning resources <strong>built for teachers by "
+"teachers</strong>. If you don't find the type of content you are looking "
+"for, you can author new question items and contribute to the ever-growing "
+"community!  The current top disciplines are:"
+msgstr ""
+"<span style=\"font-family: 'Cardo', serif;font-style:italic;\">my</"
+"span>DALITE possède une <strong>base de données grandissante</strong> de "
+"questions portant sur des sujets allant de la chimie aux sciences humaines. "
+"Il est financé par la subvention SALTISE/S4 et vise à devenir le lieu "
+"d'échange d'une communauté libre de droits offrant des ressources "
+"d'apprentissage de grande qualité <strong>conçue par et pour des "
+"professeurs</strong> ayant des retombées importantes. Si vous ne trouvez pas "
+"le type de contenu que vous cherchez, vous pouvez rédiger de nouvelles "
+"questions et contribuer à cette communauté grandissante! Les disciplines les "
+"mieux représentées actuellement sont :"
+
+#: peerinst/templates/registration/landing_page.html:299
+msgid "Interactive History"
+msgstr "Historique interactive"
+
+#: peerinst/templates/registration/landing_page.html:308
+msgid ""
+"This research has shown my<span style=\"font-family: 'Montserrat', sans-"
+"serif;font-style:normal;\">DALITE</span> to be an effective tool for "
+"supporting deep learning."
+msgstr ""
+"Cette étude a démontré que my<span style=\"font-family: 'Montserrat', sans-"
+"serif;font-style:normal;\">DALITE</span> était un outil efficace pour "
+"favoriser l'apprentissage profond."
+
+#: peerinst/templates/registration/landing_page.html:320
+msgid ""
+"\n"
+"        <a class=\"text-link\" href=\"http://www.saltise.ca\">SALTISE</a> is "
+"a learning community that fosters the research and development of tools and "
+"resources for <strong>pedagogical innovation</strong>.  It brings together "
+"educators (researchers and practitioners) and professional development "
+"personnel across the province of Quebec, and welcomes national and "
+"international partnerships.\n"
+"        "
+msgstr ""
+"\n"
+"        <a class=\"text-link\" href=\"http://www.saltise.ca\">SALTISE</a> "
+"est une communauté d'apprentissage qui met l'accent sur la recherche et la "
+"conception d'outils et de ressources favorisant l'<strong>innovation "
+"pédagogique</strong>. Elle rassemble des éducateurs (chercheurs et "
+"professionnels de l'enseignement) et du personnel spécialisé dans la "
+"formation continue à travers la province de Québec. Elle est favorables à "
+"l'établissement de partenariats à l'échelle nationale et internationale."
+"n        "
+
+#: peerinst/templates/registration/landing_page.html:328
+msgid ""
+" The SALTISE/S4 project is a major five-year multi-institution "
+"infrastructure grant hosted at Dawson College. The mandate is to develop a "
+"<strong>data-driven platform</strong> founded on three pillars: "
+msgstr ""
+"Le projet SALTISE/S4 est une importante subvention d'infrastructure multi-"
+"établissements de cinq ans chapeautée par le Collège Dawson. Son mandat "
+"consiste à concevoir une <strong>plateforme basée sur des données probantes</"
+"strong> reposant sur trois piliers :"
+
+#: peerinst/templates/registration/landing_page.html:334
+msgid ""
+"A place where the pedagogical strategies and artefacts teachers produce can "
+"be hosted and showcased to a network of colleagues, and can be iteratively "
+"improved based on the data associated with the different contexts in which "
+"they are used."
+msgstr ""
+"Un endroit où les stratégies pédagogiques et les artéfacts produits par les "
+"professeurs peuvent être conservés, présentés à un réseau de collègues et "
+"améliorés d'une façon itérative en fonction des données associées aux "
+"différents contextes dans lequels elles sont utilisées."
+
+#: peerinst/templates/registration/landing_page.html:339
+msgid ""
+"The platform will enable learning science researchers to engage directly and "
+"seamlessly with practitioners to support the development of effective "
+"pedagogical practices and learning processes, and ultimately bring learning "
+"science to the classroom faster."
+msgstr ""
+"La plateforme permettra aux chercheurs dans le domaine des sciences de "
+"l'apprentissage de collaborer directement et harmonieusement avec des "
+"professionnels de l'enseignement pour soutenir l'élaboration de pratiques "
+"pédagogiques et de procédés d'apprentissage efficaces et, en fin de compte, "
+"de transposer plus rapidement les connaissances provenant des sciences de "
+"l'apprentissage dans les salles de classes."
+
+#: peerinst/templates/registration/landing_page.html:344
+msgid ""
+"This cloud-hosted service will put students at the heart of the research-"
+"design loop.  As we build novel learning resources, we provide a persistent "
+"home where it is possible to monitor how student knowldge evolves across "
+"years, instead of one semester."
+msgstr ""
+"Ce service, hébergé dans un nuage informatique, mettra les étudiants au "
+"coeur du cycle de recherche-conception. Alors que nous développons de "
+"nouvelles ressources d'apprentissage, nous offrons un lieu permanent où il "
+"est possible d'exercer une surveillance sur la façon dont les connaissances "
+"des étudiants évoluent avec les années plutôt qu'au court d'un seul semestre."
+
+#: peerinst/templates/registration/landing_page.html:352
+msgid "Partners"
+msgstr "Partenaires"
+
+#: peerinst/templates/registration/landing_page.html:996
+msgid "Initial co-design development"
+msgstr "Coconception initiale"
+
+#: peerinst/templates/registration/landing_page.html:998
+msgid ""
+"Teachers from Dawson College, John Abbott College, and Vanier College "
+"collaborated with Jim Slotta and the Ontario Institute of Studies in "
+"Education to design the tool"
+msgstr ""
+"Les professeurs du Collège Dawson, du Collège John Abbott et du Collège "
+"Vanier ont travaillé en collaboration avec Jim Slotta et l'Institut d'études "
+"pédagogiques de l'Ontario pour concevoir l'outil."
+
+#: peerinst/templates/registration/landing_page.html:1001
+msgid "First major release"
+msgstr "Première version majeure"
+
+#: peerinst/templates/registration/landing_page.html:1003
+msgid ""
+"Beta version of PHP app for Asynchronous Peer Instruction (AsPI) deployed"
+msgstr ""
+"Déploiement de la version bêta de l'app. PHP d'apprentissage asynchrone par "
+"les pairs"
+
+#: peerinst/templates/registration/landing_page.html:1006
+msgid "First major study"
+msgstr "Première étude importante"
+
+#: peerinst/templates/registration/landing_page.html:1023
+msgid "Second major release"
+msgstr "Deuxième version majeure"
+
+#: peerinst/templates/registration/landing_page.html:1025
+msgid "Completely re-written by HarvardX as an open-source LTI compliant tool"
+msgstr ""
+"Réécriture complète par HarvardX en tant qu'outil libre de droits conforme à "
+"la norme LTI"
+
+#: peerinst/templates/registration/landing_page.html:1070
+msgid "Third major release"
+msgstr "Troisième version majeure"
+
+#: peerinst/templates/registration/landing_page.html:1072
+msgid ""
+"Extended from an LTI tool to a modern web app in preparation for widespread "
+"use by practitioners"
+msgstr ""
+"Transformation de l'outil LTI en une application Web moderne en préparation "
+"pour son utilisation répandue par les professionnels de l'enseignement"
+
+#: peerinst/templates/registration/landing_page.html:1075
+msgid "New feature development"
+msgstr "Conception de nouvelles fonctionnalités"
+
+#: peerinst/templates/registration/landing_page.html:1077
+msgid ""
+"Content authoring, better analytics, stand-alone functionality outside of an "
+"LTI environment, and more..."
+msgstr ""
+"Créateur de contenu, meilleures capacités d'analyse, utilisation autonome à "
+"l'extérieur d'une environnement LTI et plus encore..."
+
+#: peerinst/templates/registration/landing_page.html:1116
+msgid "Click/hover to expand"
+msgstr "Cliquez ou déplacer le curseur pour développer le texte"
+
+#: peerinst/templates/registration/password_change_form.html:17
+msgid ""
+"Please enter your old password, for security's sake, and then your new "
+"password twice so we can verify you typed it correctly."
+msgstr ""
+"Veuillez saisir votre ancien mot de passe, pour des raisons de sécurité, "
+"puis votre nouveau mot de passe deux fois pour que nous puissions nous "
+"assurer que vous l'avez saisi correctement."
+
+#: peerinst/templates/registration/password_change_form.html:40
+msgid "Change password"
+msgstr "Modifier votre mot de passe"
+
+#: peerinst/templates/registration/password_reset_complete.html:15
+msgid "Your password has been set.  You may go ahead and log in now."
+msgstr ""
+"Votre mot de passe a été configuré. Vous pouvez maintenant ouvrir une "
+"session."
+
+#: peerinst/templates/registration/password_reset_complete.html:18
+msgid "Log in"
+msgstr "Connexion"
+
+#: peerinst/templates/registration/password_reset_confirm.html:17
+msgid ""
+"Please enter your new password twice so we can verify you typed it correctly."
+msgstr ""
+"Veuillez saisir votre nouveau mot de passe deux fois pour que nous puissions "
+"nous assurer que vous l'avez saisi correctement."
+
+#: peerinst/templates/registration/password_reset_confirm.html:40
+msgid "Set password"
+msgstr "Configurer un mot de passe"
+
+#: peerinst/templates/registration/password_reset_confirm.html:46
+msgid ""
+"The password reset link was invalid, possibly because it has already been "
+"used.  Please request a new password reset."
+msgstr ""
+"Le lien de réinitialisation du mot de passe était invalide, possiblement "
+"parce qu'il avait déjà été utilisé. Veuillez refaire une demande de "
+"réinitialisation du mot de passe."
+
+#: peerinst/templates/registration/password_reset_email.html:5
+
+msgid ""
+"\n"
+"You're receiving this email because you requested a password reset for your "
+"user account at %(site_name)s.\n"
+"\n"
+msgstr "\n"
+"Vous recevez ce courriel parce que vous avez demandé de réinitialiser votre "
+"compte utilisateur au %(site_name)s.\n"
+"\n"
+
+#: peerinst/templates/registration/password_reset_email.html:11
+#: peerinst/templates/registration/password_reset_email_html.html:11
+msgid "Please go to the following page and choose a new password:"
+msgstr ""
+"Veuillez vous rendre à la page suivante et choisir un nouveau mot de passe :"
+
+#: peerinst/templates/registration/password_reset_email_html.html:7
+msgid "Password reset"
+msgstr "Réinitialisation du mot de passe"
+
+#: peerinst/templates/registration/password_reset_email_html.html:9
+msgid ""
+"You're receiving this email because you requested a password reset for your "
+"user account at "
+msgstr ""
+"Vous recevez ce courriel parce que vous avez demandé de réinitialiser votre "
+"mot de passe pour votre compte utilisateur au "
+
+#: peerinst/templates/registration/sign_up_admin_email_html.html:7
+msgid "New User Request"
+msgstr "Demande de nouveau compte utilisateur"
+
+#: peerinst/templates/registration/sign_up_admin_email_html.html:9
+msgid "Dear administrator,"
+msgstr "Madame l'administratrice, Monsieur l'administrateur"
+
+#: peerinst/templates/registration/sign_up_admin_email_html.html:11
+msgid "A new user was created on "
+msgstr "Un nouveau compte utilisateur a été créé le "
+
+#: peerinst/templates/registration/sign_up_admin_email_html.html:14
+msgid "Username"
+msgstr "Nom d'utilisateur"
+
+#: peerinst/templates/registration/sign_up_admin_email_html.html:15
+msgid "Email"
+msgstr "Courriel"
+
+#: peerinst/templates/registration/sign_up_admin_email_html.html:16
+msgid "Verification url"
+msgstr "URL de vérification"
+
+#: peerinst/templates/registration/sign_up_admin_email_html.html:19
+msgid "Access your administrator account to activate this new user at:"
+msgstr ""
+"Connectez-vous à votre compte administrateur pour activer ce nouvel "
+"utilisateur au :"
+
+#: peerinst/templates/registration/sign_up_admin_email_html.html:23
+msgid "Cheers"
+msgstr "Hourra!"
+
+#: peerinst/views.py:167
+msgid "Your myDALITE account has been activated"
+msgstr "Votre compte myDALITE a été activé."
+
+#: peerinst/views.py:468
+msgid "There was a problem with your submission"
+msgstr "Un problème est survenu avec votre demande."
+
+#: peerinst/views.py:469
+msgid "Check the form below."
+msgstr "Veuillez vérifier le formulaire ci-dessous."
+
+#: peerinst/views.py:710
+msgid ""
+"The rationale you chose does not exist anymore.  This should not happen.  "
+"Please start over with the question."
+msgstr ""
+"L'explication que vous avez choisie n'existe plus. Ceci ne devrait pas se "
+"produire. Veuillez recommencer la question."
+
+#: peerinst/views.py:715
+msgid ""
+"The rationale you chose does not match your second answer choice.  This "
+"should not happen.  Please start over with the question."
+msgstr ""
+"L'explication que vous avez choisie ne corresponda pas à votre deuxième "
+"choix de réponse. Ceci ne devrait pas se produire. Veuillez recommencer la "
+"question."
+
+#: src/httplib2/python2/httplib2/__init__.py:424
+#: src/httplib2/python3/httplib2/__init__.py:344
+
+msgid "Content purported to be compressed with %s but failed to decompress."
+msgstr ""
+"Le contenu est censé être comprimé avec %s, mais n'a pas pu être décompressé."
+
+#: src/httplib2/python2/httplib2/__init__.py:534
+#: src/httplib2/python3/httplib2/__init__.py:495
+
+msgid "Unsupported value for qop: %s."
+msgstr "Unsupported value for qop: %s."
+
+#: src/httplib2/python2/httplib2/__init__.py:537
+#: src/httplib2/python2/httplib2/__init__.py:599
+#: src/httplib2/python3/httplib2/__init__.py:498
+#: src/httplib2/python3/httplib2/__init__.py:560
+
+msgid "Unsupported value for algorithm: %s."
+msgstr "Unsupported value for algorithm: %s."
+
+#: src/httplib2/python2/httplib2/__init__.py:596
+#: src/httplib2/python3/httplib2/__init__.py:557
+msgid "The challenge doesn't contain a server nonce, or this one is empty."
+msgstr "The challenge doesn't contain a server nonce, or this one is empty."
+
+#: src/httplib2/python2/httplib2/__init__.py:602
+#: src/httplib2/python3/httplib2/__init__.py:563
+
+msgid "Unsupported value for pw-algorithm: %s."
+msgstr "Unsupported value for pw-algorithm: %s."
+
+#: src/httplib2/python2/httplib2/__init__.py:1417
+#: src/httplib2/python3/httplib2/__init__.py:1095
+msgid "Redirected but the response is missing a Location: header."
+msgstr "Redirected but the response is missing a Location: header."
+
+msgid "Create Script"
+msgstr "Génerer une séquence"
