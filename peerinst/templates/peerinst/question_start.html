@@ -39,9 +39,9 @@
       </ul>
       {% endif %}
 
-      <p class="mdc-typography--body1">
+      <div class="mdc-typography--body1">
         {{ question.text|safe }}
-      </p>
+      </div>
 
       {% if question.image %}
       <img class="question-image" src="{{ question.image.url }}" height="{{ question.image.height }}"
@@ -61,7 +61,6 @@
       <form method="post">
         {% csrf_token %}
         {% block inner_form %}
-        <span class="mdc-typography--body1">{{ form.first_answer_choice.label }}</span>
         <ul>
         {% for choice in form.first_answer_choice %}
           <li>
