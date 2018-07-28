@@ -12,6 +12,9 @@ import views
 
 admin.site.site_header = admin.site.site_title = _('Dalite NG administration')
 
+#LTI
+urlpatterns = [url(r'^lti/', include('django_lti_tool_provider.urls')),]
+
 # Apps
 urlpatterns = i18n_patterns(
     url(r'^tos/', include('tos.urls', namespace='tos')),
@@ -23,7 +26,6 @@ urlpatterns = i18n_patterns(
         name='admin_index_wrapper',
     ),
     url(r'^admin/', include(admin.site.urls)),
-    url(r'^lti/', include('django_lti_tool_provider.urls')),
 )
 
 # Set language view
