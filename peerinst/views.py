@@ -1506,7 +1506,7 @@ def redirect_to_login_or_show_cookie_help(request):
     return redirect_to_login(request.get_full_path())
 
 
-def question(request, assignment_id, question_id, language_requested=None):
+def question(request, assignment_id, question_id):
     """Load common question data and dispatch to the right question stage.
 
     This dispatcher loads the session state and relevant database objects.  Based on the available
