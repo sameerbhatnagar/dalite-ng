@@ -1523,7 +1523,6 @@ def question(request, assignment_id, question_id):
     user_token = request.user.username
     view_data = dict(
         request=request,
-        language_requested=language_requested,
         assignment=assignment,
         question=question,
         user_token=user_token,
