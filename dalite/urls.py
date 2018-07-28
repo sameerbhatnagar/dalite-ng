@@ -18,7 +18,7 @@ admin.site.site_header = admin.site.site_title = _('Dalite NG administration')
 urlpatterns = [url(r'^lti/', include('django_lti_tool_provider.urls')),]
 
 # Apps
-urlpatterns = i18n_patterns(
+urlpatterns += i18n_patterns(
     url(r'^tos/', include('tos.urls', namespace='tos')),
     url(r'', include('peerinst.urls')),
     url(r'^assignment/(?P<assignment_id>[^/]+)/', include([\
