@@ -22,17 +22,7 @@ urlpatterns = [
     # DALITE
     # Assignment table of contents - Enforce sameorigin to prevent access from LMS
     url(r'^assignment-list/$', xframe_options_sameorigin(views.AssignmentListView.as_view()), name='assignment-list'),
-    url(r'^assignment/(?P<assignment_id>[^/]+)/', include([\
-        # Question table of contents for assignment - Enforce sameorigin to prevent access from LMS
-        url(r'^$', xframe_options_sameorigin(views.QuestionListView.as_view()), name='question-list'),\
-        url(r'(?P<question_id>\d+)/', include([\
-            # Dalite question
-            url(r'^$', views.question, name='question'),\
-            # Question reset (for testing purposes) - Enforce sameorigin to prevent access from LMS
-            url(r'^reset/$', views.reset_question, name='reset-question'),
-        ])),
-        url(r'^update/$',views.AssignmentUpdateView.as_view(),name='assignment-update')
-    ])),
+
     url(r'^question/create$', views.QuestionCreateView.as_view(), name='question-create'),
     url(r'^question/clone/(?P<pk>[0-9]+)$', views.QuestionCloneView.as_view(), name='question-clone'),
     url(r'^question/update/(?P<pk>[0-9]+)$', views.QuestionUpdateView.as_view(), name='question-update'),
