@@ -97,7 +97,6 @@ export function getCookie(name) {
     return cookieValue;
 }
 
-
 /** Replace element with text input form using Ajax
 * @function
 * @param {String} idToBind
@@ -124,6 +123,39 @@ export function bindAjaxTextInputForm(idToBind, formToReplace, url) {
 
 
 // Custom functions
+/** Corner language switcher
+* @function
+* @param {String} svgSelector
+* @param {String} lang
+* @param {String} className
+*/
+export function cornerGraphic(svgSelector, lang, className) {
+  let svg = d3.select(svgSelector);
+  let w = +svg.attr('width');
+  let h = +svg.attr('height');
+
+  const g = svg.append('g');
+  g.append('path')
+  .attr('class', className)
+  .attr('d', () => {
+    let path = d3.path();
+    path.moveTo(0, h);
+    path.lineTo(w, 0);
+    path.lineTo(w, h);
+    path.closePath();
+    return path;
+  });
+
+  g.append('text')
+  .attr('x', w-w/3)
+  .attr('y', h-h/3+h/6)
+  .attr('text-anchor', 'middle')
+  .style('fill', 'white')
+  .style('font-size', h/3+'px')
+  .text(lang);
+}
+
+
 /** Mike Bostock's svg line wrap function
 *   https://bl.ocks.org/mbostock/7555321
 *   (only slightly modified)
@@ -585,7 +617,6 @@ export function handleQuestionDelete(url) {
 *  @function
 */
 export function toggleImages() {
-  console.info('Hi');
   [].forEach.call(document.querySelectorAll('.toggle-images'),
     (el) => {
       console.info(sessionStorage.images);
