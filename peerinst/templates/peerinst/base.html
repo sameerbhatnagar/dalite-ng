@@ -38,7 +38,7 @@
 <body>
   <form action="{% url 'set_language' %}" method="post" style='position:fixed;bottom:10px;right:10px;'>
     {% csrf_token %}
-    <input name="next" type="hidden" value={{ request.path|cut:LANGUAGE_CODE|slice:"1:" }} />
+    <input name="next" type="hidden" value={{ request.path|slice:"3:"|urlencode }} />
     <select name="language">
         {% get_current_language as LANGUAGE_CODE %}
         {% get_available_languages as LANGUAGES %}
