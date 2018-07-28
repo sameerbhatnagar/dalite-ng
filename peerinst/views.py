@@ -841,7 +841,6 @@ class QuestionMixin(object):
             answer_choices=self.answer_choices,
             correct=self.question.answerchoice_set.filter(correct=True),
             experts=self.question.answer_set.filter(expert=True),
-            language_requested = self.language_requested,
         )
         return context
 
