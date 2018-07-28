@@ -126,10 +126,11 @@ export function bindAjaxTextInputForm(idToBind, formToReplace, url) {
 /** Corner language switcher
 * @function
 * @param {String} svgSelector
+* @param {String} formID
 * @param {String} lang
 * @param {String} className
 */
-export function cornerGraphic(svgSelector, lang, className) {
+export function cornerGraphic(svgSelector, formID, lang, className) {
   let svg = d3.select(svgSelector);
   let w = +svg.attr('width');
   let h = +svg.attr('height');
@@ -153,6 +154,10 @@ export function cornerGraphic(svgSelector, lang, className) {
   .style('fill', 'white')
   .style('font-size', h/3+'px')
   .text(lang);
+
+  g.on('click', () => {
+    document.getElementById(formID).submit();
+  });
 }
 
 

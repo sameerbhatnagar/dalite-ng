@@ -43,6 +43,7 @@
     position: fixed;
     bottom: 0%;
     right: 0%;
+    cursor: pointer;
   }
   </style>
 
@@ -58,16 +59,14 @@
 
 <body>
 
-  <form action="{% url 'set_language' %}" method="post">
+  <form id="switchLanguage" action="{% url 'set_language' %}" method="post">
     {% csrf_token %}
     <input name="next" type="hidden" value={{ request.path|slice:"3:"|urlencode }} />
     <input name="language" type="hidden" value={% if LANGUAGE_CODE == 'en' %}fr{% else %}en{% endif %} />
-    <button class="mdc-theme--secondary" type="submit" aria-label="Language">
-      {% if LANGUAGE_CODE == 'en' %}FR{% else %}EN{% endif %}
-    </button>
   </form>
 
   <svg id="corner" class="corner" width=35 height=35></svg>
+
 
   <!-- Custom header for local instance -->
   <header>
@@ -143,7 +142,7 @@
   {% compress js %}
   <script src="{% static 'peerinst/js/index.min.js' %}"></script>
   <script>
-  bundle.cornerGraphic('#corner', {% if LANGUAGE_CODE == 'en' %}'FR'{% else %}'EN'{% endif %}, 'mdc-theme--secondary');
+  bundle.cornerGraphic('#corner', 'switchLanguage', {% if LANGUAGE_CODE == 'en' %}'FR'{% else %}'EN'{% endif %}, 'mdc-theme--secondary');
   </script>
   {% endcompress %}
 
