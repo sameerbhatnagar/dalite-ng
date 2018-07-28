@@ -841,6 +841,7 @@ class QuestionMixin(object):
             answer_choices=self.answer_choices,
             correct=self.question.answerchoice_set.filter(correct=True),
             experts=self.question.answer_set.filter(expert=True),
+            language_requested = self.language_requested,
         )
         return context
 
@@ -1505,7 +1506,7 @@ def redirect_to_login_or_show_cookie_help(request):
     return redirect_to_login(request.get_full_path())
 
 
-def question(request, assignment_id, question_id):
+def question(request, assignment_id, question_id, language_requested=None):
     """Load common question data and dispatch to the right question stage.
 
     This dispatcher loads the session state and relevant database objects.  Based on the available
@@ -1522,6 +1523,7 @@ def question(request, assignment_id, question_id):
     user_token = request.user.username
     view_data = dict(
         request=request,
+        language_requested=language_requested,
         assignment=assignment,
         question=question,
         user_token=user_token,

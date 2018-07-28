@@ -15,12 +15,12 @@ def logger_signal(sender, environ, **kwargs):
     #     browser + " | " + remote
     # )
     if "HTTP_USER_AGENT" in environ:
-        import pprint
-        pprint.pprint(environ)
         log = {}
         log["HTTP_REFERER"] = environ.get("HTTP_REFERER")
         log["HTTP_USER_AGENT"] = environ.get("HTTP_USER_AGENT")
         log["REMOTE_ADDR"] = environ.get("REMOTE_ADDR")
         log["QUERY_STRING"] = environ.get("QUERY_STRING")
         log["timestamp"] = str(timezone.now())
-        pprint.pprint(log)
+        # import pprint
+        # pprint.pprint(log)
+        pass

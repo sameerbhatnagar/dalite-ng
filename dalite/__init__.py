@@ -77,6 +77,7 @@ class ApplicationHookManager(AbstractApplicationHookManager):
         action = lti_data.get('custom_action')
         assignment_id = lti_data.get('custom_assignment_id')
         question_id = lti_data.get('custom_question_id')
+        language_requested = lti_data.get('language_requested','en')
         show_results_view = lti_data.get('custom_show_results_view', 'false')
 
         if action == 'launch-admin':
@@ -86,7 +87,8 @@ class ApplicationHookManager(AbstractApplicationHookManager):
                 'admin:peerinst_question_change', args=(question_id,)
             )
 
-        redirect_url =  reverse('question', kwargs=dict(assignment_id=assignment_id, question_id=question_id))
+        redirect_url =  reverse('question', 
+            kwargs=dict(assignment_id=assignment_id, question_id=question_id, language_requested=language_requested))
         if show_results_view == 'true':
             redirect_url += '?show_results_view=true'
         return redirect_url
