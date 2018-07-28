@@ -25,6 +25,21 @@
   <link href="{% static 'peerinst/css/main.min.css' %}" rel="stylesheet">
   {% endcompress %}
 
+  <style>
+  .mdc-fab {
+    position: fixed;
+    bottom: 0.5rem;
+    right: 0.5rem;
+  }
+
+  @media(min-width: 1024px) {
+     .mdc-fab {
+      bottom: 1rem;
+      right: 1rem;
+    }
+  }
+  </style>
+
   <!-- External resources -->
   <link href="https://unpkg.com/ionicons@4.2.4/dist/css/ionicons.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -36,20 +51,14 @@
 </head>
 
 <body>
-  <form action="{% url 'set_language' %}" method="post" style='position:fixed;bottom:10px;right:10px;'>
+
+  <form action="{% url 'set_language' %}" method="post">
     {% csrf_token %}
     <input name="next" type="hidden" value={{ request.path|slice:"3:"|urlencode }} />
-    <select name="language">
-        {% get_current_language as LANGUAGE_CODE %}
-        {% get_available_languages as LANGUAGES %}
-        {% get_language_info_list for LANGUAGES as languages %}
-        {% for language in languages %}
-          <option value="{{ language.code }}"{% if language.code == LANGUAGE_CODE %} selected="selected"{% endif %}>
-              {{ language.name_local }} ({{ language.code }})
-          </option>
-        {% endfor %}
-    </select>
-    <input type="submit" value="Go" />
+    <input name="language" type="hidden" value={% if LANGUAGE_CODE == 'en' %}fr{% else %}en{% endif %} />
+    <button class="mdc-fab mdc-fab--mini" type="submit" aria-label="Language">
+      <span class="mdc-fab__icon" style='font-size:16px;'>{% if LANGUAGE_CODE == 'en' %}FR{% else %}EN{% endif %}</span>
+    </button>
   </form>
 
   <!-- Custom header for local instance -->
