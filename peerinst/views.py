@@ -878,7 +878,7 @@ class QuestionFormView(QuestionMixin, FormView):
         else:
             latest_student_consent = (
                 Consent.objects.filter(
-                    user__username=self.request.user.username, tos__role="st"
+                    user__username=self.request.user.username, tos__role="student"
                 )
                 .order_by("-datetime")
                 .first()
@@ -1614,7 +1614,7 @@ class TeacherBase(LoginRequiredMixin, NoStudentsMixin, View):
                 latest_teacher_consent = (
                     Consent.objects.filter(
                         user__username=self.request.user.username,
-                        tos__role="te",
+                        tos__role="teacher",
                     )
                     .order_by("-datetime")
                     .first()
@@ -1651,7 +1651,7 @@ class TeacherDetailView(TeacherBase, DetailView):
         #### To revisit!
         latest_teacher_consent = (
             Consent.objects.filter(
-                user__username=self.get_object().user.username, tos__role="te"
+                user__username=self.get_object().user.username, tos__role="teacher"
             )
             .order_by("-datetime")
             .first()
