@@ -72,7 +72,7 @@ def new_roles(n):
 def new_tos(n, roles, all_roles_present=False, random_current=True):
     def generator(roles):
         chars = string.ascii_letters
-        roles = [roles] if isinstance(roles, basestring) else roles
+        roles = [roles] if isinstance(roles, Role) else roles
         versions = {role: 0 for role in roles}
         gens = {role: _extra_chars_gen() for role in roles}
         while True:

@@ -2,7 +2,8 @@ from django.core.urlresolvers import reverse
 from .test_views import QuestionViewTestCase
 from django.test import TestCase
 from peerinst.models import Student
-from tos.models import Consent, Tos
+from tos.models import Consent, Role, Tos
+from tos.tests.generators import add_roles, new_roles
 
 
 class TOSError(QuestionViewTestCase):
@@ -17,8 +18,11 @@ class TOSError(QuestionViewTestCase):
             response, "There is no terms of service yet.", status_code=500
         )
 
+        # create role
+        role = Role.objects.get(role="student")
+
         # Add TOS
-        new_TOS = Tos(version=1, text="Test", current=True, role="st")
+        new_TOS = Tos(version=1, text="Test", current=True, role=role)
         new_TOS.save()
         response = self.question_get()
         self.assertRedirects(
