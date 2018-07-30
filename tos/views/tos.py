@@ -7,6 +7,7 @@ from django.http import (
     HttpResponseBadRequest,
     HttpResponseForbidden,
     HttpResponseNotAllowed,
+    HttpResponseNotFound,
     HttpResponseRedirect,
     HttpResponseServerError,
     JsonResponse,
@@ -48,7 +49,9 @@ def tos_consent_modify(req, role, version=None):
 @login_required
 @require_http_methods(["POST"])
 def tos_consent_update(req, role, version):
-    if role not in Role.objects.all().values_list('role',flat=True):
+    try:
+        r = Role.objects.get(role__iexact=role)
+    except Role.DoesNotExist:
         resp = TemplateResponse(
             req,
             "400.html",
@@ -81,7 +84,7 @@ def tos_consent_update(req, role, version):
         return HttpResponseBadRequest(resp.render())
 
     try:
-        tos = Tos.objects.get(role=role, version=version)
+        tos = Tos.objects.get(role=r, version=version)
     except Tos.DoesNotExist:
         resp = TemplateResponse(
             req,
@@ -103,7 +106,10 @@ def tos_consent_update(req, role, version):
 
 
 def _consent_view(req, username, role, version):
-    if role not in Role.objects.all().values_list('role',flat=True):
+
+    try:
+        r = Role.objects.get(role__iexact=role)
+    except Role.DoesNotExist:
         resp = TemplateResponse(
             req,
             "400.html",
@@ -122,14 +128,13 @@ def _consent_view(req, username, role, version):
 
     version = int(version) if version is not None else version
 
-    if not Tos.objects.filter(role=role):
+    if not Tos.objects.filter(role=r):
         resp = TemplateResponse(
             req,
-            "500.html",
+            "404.html",
             context={"message": _("There is no terms of service yet.")},
         )
-
-        return HttpResponseServerError(resp.render()), None
+        return HttpResponseNotFound(resp.render()), None
 
     tos, err = Tos.get(role=role, version=version)
 

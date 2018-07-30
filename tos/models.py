@@ -41,7 +41,7 @@ class Tos(models.Model):
 
     @staticmethod
     def get(role, version=None):
-        assert role in Role.objects.all().values_list('role',flat=True), "Precondition failed for `role`"
+        assert Role.objects.filter(role=role).exists(), "Precondition failed for `role`"
 
         assert version is None or (
             isinstance(version, int) and version >= 0
@@ -86,8 +86,7 @@ class Consent(models.Model):
         assert isinstance(
             username, basestring
         ), "Precondition failed for `username`"
-        
-        assert role in Role.objects.all().values_list('role',flat=True), "Precondition failed for `role`"
+        assert Role.objects.filter(role=role).exists(), "Precondition failed for `role`"
 
         assert version is None or (
             isinstance(version, int) and version >= 0

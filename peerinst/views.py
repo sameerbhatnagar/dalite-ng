@@ -118,7 +118,7 @@ LOGGER_teacher_activity = logging.getLogger("teacher_activity")
 
 # Views related to Auth
 def landing_page(request):
-    
+
     disciplines = {}
 
     disciplines[str("All")] = {}
