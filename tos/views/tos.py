@@ -16,7 +16,7 @@ from django.template.response import TemplateResponse
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_http_methods
 
-from ..models import Consent, Tos
+from ..models import Consent, Tos, Role
 
 
 @login_required
@@ -48,7 +48,7 @@ def tos_consent_modify(req, role, version=None):
 @login_required
 @require_http_methods(["POST"])
 def tos_consent_update(req, role, version):
-    if role not in Tos.ROLES:
+    if role not in Role.objects.all().values_list('role',flat=True):
         resp = TemplateResponse(
             req,
             "400.html",
@@ -81,7 +81,7 @@ def tos_consent_update(req, role, version):
         return HttpResponseBadRequest(resp.render())
 
     try:
-        tos = Tos.objects.get(role=role[:2], version=version)
+        tos = Tos.objects.get(role=role, version=version)
     except Tos.DoesNotExist:
         resp = TemplateResponse(
             req,
@@ -103,7 +103,7 @@ def tos_consent_update(req, role, version):
 
 
 def _consent_view(req, username, role, version):
-    if role not in Tos.ROLES:
+    if role not in Role.objects.all().values_list('role',flat=True):
         resp = TemplateResponse(
             req,
             "400.html",
@@ -122,7 +122,7 @@ def _consent_view(req, username, role, version):
 
     version = int(version) if version is not None else version
 
-    if not Tos.objects.filter(role=role[:2]):
+    if not Tos.objects.filter(role=role):
         resp = TemplateResponse(
             req,
             "500.html",

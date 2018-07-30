@@ -4,7 +4,8 @@ import hashlib
 
 from django.contrib.auth.models import User
 from django.db import models, transaction
-
+from django.core.urlresolvers import reverse
+from django.http import HttpResponseRedirect
 
 class Role(models.Model):
     role = models.CharField(max_length=32, primary_key=True)
@@ -14,15 +15,12 @@ class Role(models.Model):
 
 
 class Tos(models.Model):
-    ROLES = ("student", "teacher")
     version = models.PositiveIntegerField()
     hash = models.CharField(max_length=32, editable=False)
     text = models.TextField()
     created = models.DateTimeField(editable=False, auto_now=True)
     current = models.BooleanField()
-    role = models.CharField(
-        max_length=2, choices=tuple((role[:2], role) for role in ROLES)
-    )
+    role = models.ForeignKey(Role, on_delete=models.CASCADE)
 
     def __unicode__(self):
         return str(self.role) + "_" + str(self.version)
@@ -43,9 +41,8 @@ class Tos(models.Model):
 
     @staticmethod
     def get(role, version=None):
-        assert isinstance(role, basestring) and role in (
-            list(Tos.ROLES) + [r[:2] for r in Tos.ROLES]
-        ), "Precondition failed for `role`"
+        assert role in Role.objects.all().values_list('role',flat=True), "Precondition failed for `role`"
+
         assert version is None or (
             isinstance(version, int) and version >= 0
         ), "Precondition failed for `version`"
@@ -53,15 +50,12 @@ class Tos(models.Model):
         tos = None
         err = None
 
-        role = role[:2]
-        role_long = [r for r in Tos.ROLES if r.startswith(role)][0]
-
         if version is None:
             try:
                 tos = Tos.objects.get(role=role, current=True)
             except Tos.DoesNotExist:
                 err = 'No terms of service exist yet for role "{}".'.format(
-                    role_long
+                    role
                 )
         else:
             try:
@@ -69,7 +63,7 @@ class Tos(models.Model):
             except Tos.DoesNotExist:
                 err = (
                     "There is no terms of service with version "
-                    '{} for role "{}"'.format(version, role_long)
+                    '{} for role "{}"'.format(version, role)
                 )
 
         output = (tos, err)
@@ -92,9 +86,9 @@ class Consent(models.Model):
         assert isinstance(
             username, basestring
         ), "Precondition failed for `username`"
-        assert isinstance(role, basestring) and role in (
-            list(Tos.ROLES) + [r[:2] for r in Tos.ROLES]
-        ), "Precondition failed for `role`"
+        
+        assert role in Role.objects.all().values_list('role',flat=True), "Precondition failed for `role`"
+
         assert version is None or (
             isinstance(version, int) and version >= 0
         ), "Precondition failed for `version`"
@@ -104,8 +98,6 @@ class Consent(models.Model):
         ), "If `version` is given, `latest` must be False"
 
         consent = None
-
-        role = role[:2]
 
         if version is None:
             try:
