@@ -7,11 +7,16 @@ from django.db import models, transaction
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 
+
 class Role(models.Model):
     role = models.CharField(max_length=32, primary_key=True)
 
     def __unicode__(self):
         return "role {}".format(self.role)
+
+    def save(self, *args, **kwargs):
+        self.role = self.role.lower()
+        super(Role, self).save(*args, **kwargs)
 
 
 class Tos(models.Model):
@@ -41,7 +46,10 @@ class Tos(models.Model):
 
     @staticmethod
     def get(role, version=None):
-        assert Role.objects.filter(role=role).exists(), "Precondition failed for `role`"
+        assert (
+            isinstance(role, basestring)
+            and Role.objects.filter(role=role).exists()
+        ), "Precondition failed for `role`"
 
         assert version is None or (
             isinstance(version, int) and version >= 0
@@ -52,14 +60,14 @@ class Tos(models.Model):
 
         if version is None:
             try:
-                tos = Tos.objects.get(role=role, current=True)
+                tos = Tos.objects.get(role__role=role, current=True)
             except Tos.DoesNotExist:
                 err = 'No terms of service exist yet for role "{}".'.format(
                     role
                 )
         else:
             try:
-                tos = Tos.objects.get(role=role, version=version)
+                tos = Tos.objects.get(role__role=role, version=version)
             except Tos.DoesNotExist:
                 err = (
                     "There is no terms of service with version "
@@ -86,7 +94,10 @@ class Consent(models.Model):
         assert isinstance(
             username, basestring
         ), "Precondition failed for `username`"
-        assert Role.objects.filter(role=role).exists(), "Precondition failed for `role`"
+        assert (
+            isinstance(role, basestring)
+            and Role.objects.filter(role=role).exists()
+        ), "Precondition failed for `role`"
 
         assert version is None or (
             isinstance(version, int) and version >= 0
@@ -98,6 +109,13 @@ class Consent(models.Model):
 
         consent = None
 
+        try:
+            role_ = Role.objects.get(role=role)
+        except Role.DoesNotExist:
+            raise RuntimeError(
+                "This should have been catched in the precondition"
+            )
+
         if version is None:
             try:
                 # returns the latest current consent if `latest` is False
@@ -105,7 +123,7 @@ class Consent(models.Model):
                 consent = (
                     Consent.objects.filter(
                         user__username=username,
-                        tos__role=role,
+                        tos__role=role_,
                         tos__current=not latest,
                     )
                     .order_by("-datetime")[0]
@@ -118,7 +136,7 @@ class Consent(models.Model):
                 consent = (
                     Consent.objects.filter(
                         user__username=username,
-                        tos__role=role,
+                        tos__role=role_,
                         tos__version=version,
                     )
                     .order_by("-datetime")[0]
