@@ -14,7 +14,7 @@ from peerinst import views as peerinst_views
 
 admin.site.site_header = admin.site.site_title = _('Dalite NG administration')
 
-#LTI
+# LTI
 urlpatterns = [url(r'^lti/', include('django_lti_tool_provider.urls')),]
 
 # Apps
@@ -31,7 +31,7 @@ urlpatterns += i18n_patterns(
             url(r'^reset/$', peerinst_views.reset_question, name='reset-question'),
         ])),
         url(r'^update/$',peerinst_views.AssignmentUpdateView.as_view(),name='assignment-update')
-    ])),    
+    ])),
     url(r'^grappelli/', include('grappelli.urls')),
     url(
         r'admin_index_wrapper/',
@@ -46,5 +46,3 @@ urlpatterns += [url(r'^i18n/', include('django.conf.urls.i18n')),]
 
 # Media
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-
-
