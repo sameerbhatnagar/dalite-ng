@@ -57,7 +57,7 @@ class QuestionViewTestCase(TestCase):
         # TOS integration
         from tos.models import Consent, Role, Tos
 
-        role = Role.objects.create(role="student")
+        role = Role.objects.get(role="student")
 
         tos = Tos(version=1, text="Test", current=True, role=role)
         tos.save()

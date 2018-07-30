@@ -41,7 +41,7 @@ class NewUserTests(StaticLiveServerTestCase):
         self.assertFalse(self.validated_teacher.get_all_permissions())
 
         # Add TOS for teachers
-        role = Role.objects.create(role="teacher")
+        role = Role.objects.get(role="teacher")
         new_TOS = Tos(version=1, text="Test", current=True, role=role)
         new_TOS.save()
 
