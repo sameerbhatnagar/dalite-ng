@@ -40,7 +40,7 @@ from django.utils.decorators import method_decorator
 from django.utils.html import escape, format_html
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_POST, require_safe
 from django.views.generic import DetailView
 from django.views.generic.base import TemplateView, View
 from django.views.generic.edit import FormView, UpdateView, CreateView
@@ -117,6 +117,7 @@ LOGGER_teacher_activity = logging.getLogger("teacher_activity")
 
 
 # Views related to Auth
+@require_safe
 def landing_page(request):
 
     disciplines = {}
