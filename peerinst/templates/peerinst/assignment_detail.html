@@ -105,6 +105,7 @@
 
     {% for g in all_questions %}
     {% if g not in object.questions.all %}
+    {% if g not in teacher.deleted_questions.all %}
     <div class="all-my-questions mdc-card" id={{g.id|slugify}} style="display: none;">
       <div class="mdc-typography--title bold" style="margin-bottom:5px;">
         {{g.title|safe}}
@@ -160,6 +161,7 @@
         </div>
       </div>
     </div>
+    {% endif %}
     {% endif %}
     {% endfor %}
 
