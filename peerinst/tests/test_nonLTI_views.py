@@ -155,7 +155,7 @@ class TeacherTest(TestCase):
         self.guest = ready_user(11)
 
         # Skip TOS interactions
-        role = Role.objects.create(role="teacher")
+        role = Role.objects.get(role="teacher")
         tos = Tos(version=1, text="Test", current=True, role=role)
         tos.save()
         consent = Consent(

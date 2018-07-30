@@ -1,6 +1,7 @@
 from django.db.models.signals import post_migrate
 from django.dispatch import receiver
-from .models import Role, EmailType
+
+from .models import EmailType, Role
 
 
 @receiver(post_migrate)
@@ -8,8 +9,9 @@ def row_addition_signal(sender, **kwargs):
     roles = ("teacher", "student")
 
     for role in roles:
-        Role.objects.create(role)
-        EmailType.objects.create(**(all_email_type(role)))
+        if not Role.objects.filter(role=role).exists():
+            role_ = Role.objects.create(role=role)
+            EmailType.objects.create(**all_email_type(role_))
 
 
 def all_email_type(role):
