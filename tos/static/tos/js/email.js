@@ -27,7 +27,6 @@ function toggleButtonAll(event) {
     }
   } else {
     let toggleButtons = document.getElementsByClassName('btn-toggle');
-    console.log(toggleButtons);
     for (let i = 0; i < toggleButtons.length; i++) {
       if (toggleButtons[i] != container) {
         toggleButtons[i].classList.add('btn-toggle--disabled');
@@ -39,6 +38,8 @@ function toggleButtonAll(event) {
 Array.from(document.getElementsByClassName('btn-toggle')).map(x =>
   x.addEventListener('click', e => toggleButton(e)),
 );
-document
-  .getElementById('btn-toggle-all')
-  .addEventListener('click', e => toggleButtonAll(e));
+
+let toggleAll = document.getElementById('btn-toggle-all');
+if (toggleAll) {
+  toggleAll.addEventListener('click', e => toggleButtonAll(e));
+}
