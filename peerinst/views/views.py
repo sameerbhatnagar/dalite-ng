@@ -51,25 +51,25 @@ from django_lti_tool_provider.models import LtiUserData
 from opaque_keys import InvalidKeyError
 from opaque_keys.edx.keys import CourseKey
 
-from . import heartbeat_checks
-from . import admin
-from . import forms
-from . import models
-from . import rationale_choice
-from .util import (
+from .. import heartbeat_checks
+from .. import admin
+from .. import forms
+from .. import models
+from .. import rationale_choice
+from ..util import (
     SessionStageData,
     get_object_or_none,
     int_or_none,
     roundrobin,
     student_list_from_student_groups,
 )
-from .admin_views import (
+from ..admin_views import (
     get_question_rationale_aggregates,
     get_assignment_aggregates,
     AssignmentResultsViewBase,
 )
 
-from .mixins import (
+from ..mixins import (
     LoginRequiredMixin,
     NoStudentsMixin,
     ObjectPermissionMixin,
@@ -78,7 +78,7 @@ from .mixins import (
     teacher_tos_accepted_check,
 )
 
-from .models import (
+from ..models import (
     Student,
     StudentGroup,
     Teacher,
@@ -111,10 +111,8 @@ from django.db.models import Count, Value, Case, Q, When, CharField
 # tos
 from tos.models import Consent, Tos
 
-
 LOGGER = logging.getLogger(__name__)
 LOGGER_teacher_activity = logging.getLogger("teacher_activity")
-
 
 # Views related to Auth
 @require_safe
