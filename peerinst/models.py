@@ -22,6 +22,7 @@ from django.utils.translation import ugettext_lazy as _
 from jsonfield import JSONField
 
 from . import rationale_choice
+from .students import create_token
 
 
 def no_hyphens(value):
@@ -751,6 +752,8 @@ class StudentAssignment(models.Model):
                     "This error should not be possible. Check asserts and "
                     "mail types."
                 )
+
+            context = {"token": create_token(self.student.user.username)}
 
             try:
                 send_mail(
