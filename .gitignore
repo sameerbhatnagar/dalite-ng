@@ -18,6 +18,3 @@ tags
 *.mypy_cache/
 /htmlcov
 /media
-GTAGS
-GPATH
-GRTAGS
