@@ -3,20 +3,23 @@ from __future__ import unicode_literals
 
 import itertools
 import string
-from django.core.exceptions import ValidationError
-from django.db import models
-from django.db.models import Q
-from django.core import exceptions
-from django.core.urlresolvers import reverse
-from django.utils.translation import ugettext_lazy as _
-from django.utils.encoding import smart_bytes
-from . import rationale_choice
-from django.contrib.auth.models import User
-
-from jsonfield import JSONField
 
 # testing
 import uuid
+from datetime import datetime
+
+import pytz
+from django.contrib.auth.models import User
+from django.core import exceptions
+from django.core.exceptions import ValidationError
+from django.core.urlresolvers import reverse
+from django.db import models
+from django.db.models import Q
+from django.utils.encoding import smart_bytes
+from django.utils.translation import ugettext_lazy as _
+from jsonfield import JSONField
+
+from . import rationale_choice
 
 
 def no_hyphens(value):
@@ -74,8 +77,9 @@ class Question(models.Model):
     id = models.AutoField(
         primary_key=True,
         help_text=_(
-            "Use this ID to refer to the question in the LMS. Note: The question will have to have "
-            "been saved at least once before an ID is available."
+            "Use this ID to refer to the question in the LMS. Note: The "
+            "question will have to have been saved at least once before an ID "
+            "is available."
         ),
     )
     title = models.CharField(
@@ -83,16 +87,17 @@ class Question(models.Model):
         unique=True,
         max_length=100,
         help_text=_(
-            "A title for the question. Used for lookup when creating assignments, but not "
-            "presented to the student."
+            "A title for the question. Used for lookup when creating "
+            "assignments, but not presented to the student."
         ),
     )
     text = models.TextField(
         _("Question text"),
         help_text=_(
-            "Enter the question text.  You can use HTML tags for formatting.  You can use the "
-            '"Preview" button in the top right corner to see what the question will look like for '
-            "students.  The button appears after saving the question for the first time."
+            "Enter the question text.  You can use HTML tags for formatting. "
+            'You can use the "Preview" button in the top right corner to '
+            "see what the question will look like for students.  The button "
+            "appears after saving the question for the first time."
         ),
     )
     parent = models.ForeignKey(
@@ -120,7 +125,8 @@ class Question(models.Model):
         null=True,
         upload_to="images",
         help_text=_(
-            "Optional. An image to include after the question text.  Accepted formats: .jpg, .jpeg, .png, .gif"
+            "Optional. An image to include after the question text. Accepted "
+            "formats: .jpg, .jpeg, .png, .gif"
         ),
     )
     image_alt_text = models.CharField(
@@ -128,8 +134,8 @@ class Question(models.Model):
         blank=True,
         max_length=1024,
         help_text=_(
-            "Optional. Alternative text for accessibility. For instance, the student may be using a screen "
-            "reader."
+            "Optional. Alternative text for accessibility. For instance, the "
+            "student may be using a screen reader."
         ),
     )
     # Videos will be handled by off-site services.
@@ -137,7 +143,8 @@ class Question(models.Model):
         _("Question video URL"),
         blank=True,
         help_text=_(
-            "Optional. A video to include after the question text. All videos should include transcripts."
+            "Optional. A video to include after the question text. All "
+            "videos should include transcripts."
         ),
     )
     ALPHA = 0
@@ -148,7 +155,8 @@ class Question(models.Model):
         choices=ANSWER_STYLE_CHOICES,
         default=ALPHA,
         help_text=_(
-            "Whether the answers are annotated with letters (A, B, C…) or numbers (1, 2, 3…)."
+            "Whether the answers are annotated with letters (A, B, C…) or "
+            "numbers (1, 2, 3…)."
         ),
     )
     category = models.ManyToManyField(
@@ -156,7 +164,8 @@ class Question(models.Model):
         _("Categories"),
         blank=True,
         help_text=_(
-            "Optional. Select categories for this question.  You can select multiple categories."
+            "Optional. Select categories for this question.  You can select "
+            "multiple categories."
         ),
     )
     discipline = models.ForeignKey(
@@ -164,23 +173,25 @@ class Question(models.Model):
         blank=True,
         null=True,
         help_text=_(
-            "Optional. Select the discipline to which this question should be associated."
+            "Optional. Select the discipline to which this question should "
+            "be associated."
         ),
     )
     fake_attributions = models.BooleanField(
         _("Add fake attributions"),
         default=False,
         help_text=_(
-            "Add random fake attributions consisting of username and country to rationales.  You "
-            "can configure the lists of fake values and countries from the start page of the "
-            "admin interface."
+            "Add random fake attributions consisting of username and country "
+            "to rationales. You can configure the lists of fake values and "
+            "countries from the start page of the admin interface."
         ),
     )
     sequential_review = models.BooleanField(
         _("Sequential rationale review"),
         default=False,
         help_text=_(
-            "Show rationales sequentially and allow to vote on them before the final review."
+            "Show rationales sequentially and allow to vote on them before "
+            "the final review."
         ),
     )
     rationale_selection_algorithm = models.CharField(
@@ -189,8 +200,9 @@ class Question(models.Model):
         default="prefer_expert_and_highly_voted",
         max_length=100,
         help_text=_(
-            "The algorithm to use for choosing the rationales presented to students during "
-            "question review.  This option is ignored if you selected sequential review."
+            "The algorithm to use for choosing the rationales presented to "
+            "students during question review.  This option is ignored if you "
+            "selected sequential review."
         ),
     )
     GRADING_SCHEME_CHOICES = (
@@ -203,10 +215,11 @@ class Question(models.Model):
         default=GradingScheme.STANDARD,
         help_text=_(
             "Grading scheme to use. "
-            'The "Standard" scheme awards 1 point if the student\'s final answer is correct, '
-            'and 0 points otherwise. The "Advanced" scheme awards 0.5 points '
-            "if the student's initial guess is correct, and 0.5 points "
-            "if they subsequently stick with or change to the correct answer."
+            'The "Standard" scheme awards 1 point if the student\'s final '
+            'answer is correct, and 0 points otherwise. The "Advanced" scheme '
+            "awards 0.5 points if the student's initial guess is correct, and "
+            "0.5 points if they subsequently stick with or change to the "
+            "correct answer."
         ),
     )
 
@@ -381,7 +394,11 @@ class Answer(models.Model):
         _("Second answer choice"), blank=True, null=True
     )
     chosen_rationale = models.ForeignKey("self", blank=True, null=True)
-    user_token = models.CharField(max_length=100, blank=True)
+    user_token = models.CharField(
+        max_length=100,
+        blank=True,
+        help_text=_("Corresponds to the user's username."),
+    )
     show_to_others = models.BooleanField(_("Show to others?"), default=True)
     expert = models.BooleanField(
         _("Expert rationale?"),
@@ -691,7 +708,53 @@ class LtiEvent(models.Model):
 
 
 class StudentAssignment(models.Model):
-    assignment = models.ForeignKey(Assignment)
+    student = models.ForeignKey(Student, on_delete=models.CASCADE)
+    group = models.ForeignKey(Group, on_delete=models.CASCADE)
+    assignment = models.ForeignKey(Assignment, on_delete=models.CASCADE)
     first_access = models.DateField(editable=False, auto_now=True)
     last_access = models.DateField(editable=False, auto_now=True)
     due_date = models.DateField()
+
+    def send_email(self):
+        pass
+
+    def get_current_question(self):
+        # get the answer or None for each question of the assignment
+        answers = [
+            Answer.objects.filter(
+                user_token=self.student.user.username, question=question
+            ).first()
+            for question in self.assignment.questions.all()
+        ]
+        has_first_answer = [
+            a.first_answer_choice is not None if a else False for a in answers
+        ]
+        # if a question has at least one missing answer (no first choice or no
+        # answer), returns the first question with no answer or no first answer
+        # choice
+        if not all(has_first_answer):
+            output = self.assignment.questions.all()[
+                has_first_answer.index(False)
+            ]
+        else:
+            has_second_answer = [
+                a.second_answer_choice is not None for a in answers
+            ]
+            # if there is a question missing the second answer, returns it or
+            # returns None if all questions have been answered twice
+            if not all(has_second_answer):
+                output = self.assignment.questions.all()[
+                    has_second_answer.index(False)
+                ]
+            else:
+                output = None
+
+        assert output is None or isinstance(
+            output, Question
+        ), "Postcondition failed"
+        return ouput
+
+    def is_expired(self):
+        output = datetime.now(pytz.utc) > due_date
+        assert isinstance(output, bool)
+        return output
