@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 import itertools
+import smtplib
 import string
 
 # testing
@@ -12,6 +13,7 @@ import pytz
 from django.contrib.auth.models import User
 from django.core import exceptions
 from django.core.exceptions import ValidationError
+from django.core.mail import send_mail
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.db.models import Q
@@ -709,14 +711,69 @@ class LtiEvent(models.Model):
 
 class StudentAssignment(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
-    group = models.ForeignKey(Group, on_delete=models.CASCADE)
+    group = models.ForeignKey(StudentGroup, on_delete=models.CASCADE)
     assignment = models.ForeignKey(Assignment, on_delete=models.CASCADE)
     first_access = models.DateField(editable=False, auto_now=True)
     last_access = models.DateField(editable=False, auto_now=True)
     due_date = models.DateField()
 
-    def send_email(self):
-        pass
+    def send_email(self, mail_type="login"):
+        assert isinstance(mail_type, basestring) and mail_type in (
+            "confirmation",
+            "login",
+            "new_assignment",
+        ), "Precondition failed for `mail_type`"
+
+        err = None
+
+        user_email = self.student.user.email
+
+        if user_email:
+            if mail_type == "confirmation":
+
+                subject = "Confirm myDALITE account"
+                message = (
+                    "Please confirm myDALITE account by clicking on the "
+                    "link below."
+                )
+                template = "students/email_confirmation.html"
+
+            elif mail_type == "login":
+
+                template = "students/email_login.html"
+
+            elif mail_type == "new_assignment":
+
+                template = "students/email_new_assignment.html"
+
+            else:
+                raise RuntimeError(
+                    "This error should not be possible. Check asserts and "
+                    "mail types."
+                )
+
+            try:
+                send_mail(
+                    subject,
+                    message,
+                    "noreply@myDALITE.org",
+                    [user_email],
+                    fail_silently=False,
+                    html_message=loader.render_to_string(
+                        template, context=context
+                    ),
+                )
+            except smtplib.SMTPException:
+                err = "There was an error sending the email."
+        else:
+            err = "There is no email associated with user {}".format(
+                self.student.user.username
+            )
+
+        output = err
+        assert err is None or isinstance(
+            output, basestring
+        ), "Postcondition failed"
 
     def get_current_question(self):
         # get the answer or None for each question of the assignment
@@ -756,5 +813,5 @@ class StudentAssignment(models.Model):
 
     def is_expired(self):
         output = datetime.now(pytz.utc) > due_date
-        assert isinstance(output, bool)
+        assert isinstance(output, bool), "Postcondition failed"
         return output
