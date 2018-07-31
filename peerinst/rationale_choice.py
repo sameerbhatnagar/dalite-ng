@@ -50,7 +50,7 @@ def _base_selection_algorithm(
     answer_choices = question.answerchoice_set.all()
     # Find all public rationales for this question.
     ## Rationales are selected based on those who have not refused to include rationales prior to implementation of TOS
-    usernames_to_exclude = Consent.objects.filter(tos__role='st').values('user__username').annotate(Max('datetime')).filter(accepted=False).values_list('user__username')
+    usernames_to_exclude = Consent.objects.filter(tos__role='student').values('user__username').annotate(Max('datetime')).filter(accepted=False).values_list('user__username')
     all_rationales = models.Answer.objects.filter(question=question, show_to_others=True).exclude(user_token__in=usernames_to_exclude)
     # Select a second answer to offer at random.  If the user's answer wasn't correct, the
     # second answer choice offered must be correct.

@@ -134,7 +134,7 @@ class ApplicationHookManagerTests(SimpleTestCase):
             'custom_assignment_id': assignment_id,
             'custom_question_id': question_id
         }
-        expected_redirect = "/assignment/{assignment_id}/{question_id}/".format(
+        expected_redirect = "/en/assignment/{assignment_id}/{question_id}/".format(
             assignment_id=assignment_id, question_id=question_id
         )
         actual_redirect = self.manager.authenticated_redirect_to(request, lti_data)
@@ -142,12 +142,12 @@ class ApplicationHookManagerTests(SimpleTestCase):
         self.assertEqual(actual_redirect, expected_redirect)
 
     @ddt.data(
-        ('assignment_1', 1, None, '/assignment/assignment_1/1/'),
-        ('assignment_2', 123, None, '/assignment/assignment_2/123/'),
-        (None, None, 'launch-admin', '/admin/'),
-        ('assignment_2', 123, 'launch-admin', '/admin/'),
-        ('assignment_1', 1, 'edit-question', '/admin/peerinst/question/1/'),
-        ('assignment_2', 123, 'edit-question', '/admin/peerinst/question/123/'),
+        ('assignment_1', 1, None, '/en/assignment/assignment_1/1/'),
+        ('assignment_2', 123, None, '/en/assignment/assignment_2/123/'),
+        (None, None, 'launch-admin', '/en/admin/'),
+        ('assignment_2', 123, 'launch-admin', '/en/admin/'),
+        ('assignment_1', 1, 'edit-question', '/en/admin/peerinst/question/1/'),
+        ('assignment_2', 123, 'edit-question', '/en/admin/peerinst/question/123/'),
     )
     @ddt.unpack
     def test_authenticated_redirect_studio_user(
@@ -189,7 +189,7 @@ class TestViews(TestCase):
         request.user.is_authenticated.return_value = True
         response = admin_index_wrapper(request)
         self.assertEquals(response.status_code, 302)
-        self.assertEquals(response['Location'], "/admin/")
+        self.assertEquals(response['Location'], "/en/admin/")
 
     def test_admin_index_wrapper_not_authenticated(self):
         request = mock.Mock()

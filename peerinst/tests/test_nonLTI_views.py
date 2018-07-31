@@ -894,3 +894,16 @@ class StudentTest(TestCase):
 
     def test_login_and_answer_question(self):
         pass
+
+
+class CustomMiddlewareTest(TestCase):
+
+    def test_405_response(self):
+        response = self.client.post(
+            reverse("landing_page"),
+            follow=True,
+        )
+        print(response)
+
+        self.assertEqual(response.status_code, 405)
+        self.assertTemplateUsed(response, "405.html")
