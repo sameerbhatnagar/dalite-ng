@@ -1018,6 +1018,17 @@ class QuestionFormView(QuestionMixin, FormView):
             messages.error(self.request, msg)
         raise QuestionReload()
 
+    def get_context_data(self, **kwargs):
+        context = super(QuestionFormView, self).get_context_data(
+            **kwargs
+        )
+        # Pass hint so that template knows context
+        if self.lti_data:
+            context.update(lti=True,)
+        else:
+            context.update(lti=False,)
+        return context
+
 
 class QuestionStartView(QuestionFormView):
     """Render a question with answer choices.

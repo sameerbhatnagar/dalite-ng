@@ -95,6 +95,14 @@
 
     {% block extra_content %}{% endblock %}
   </div>
+
+  {% if not lti %}
+  <div class='nav-question'>
+    <a class='prev-question' href="{% url 'navigate-assignment' assignment_id=assignment.pk question_id=question.id direction='prev' %}"><i class="inline material-icons md-24">keyboard_arrow_left</i><span class='admin-link'>{% trans 'Previous question' %}<span></a>
+    <a class='next-question' href="{% url 'navigate-assignment' assignment_id=assignment.pk question_id=question.id direction='next' %}"><span class='admin-link'>{% trans 'Next question' %}</span><i class="inline material-icons md-24">keyboard_arrow_right</i></a>
+  </div>
+  {% endif %}
+  
 </section>
 </main>
 {% endblock %}

@@ -101,6 +101,17 @@ urlpatterns = [
     ),
     url(r"^question-search/$", views.question_search, name="question-search"),
     url(r"^heartbeat/$", views.HeartBeatUrl.as_view(), name="heartbeat"),
+    # Standalone
+    url(
+        r"^live/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$",
+        views.live,
+        name="live",
+    ),
+    url(
+        r"^live/(?P<assignment_id>[^/]+)/(?P<question_id>\d+)/(?P<direction>(next|prev))/$",
+        views.navigate_assignment,
+        name="navigate-assignment",
+    ),
     # Admin
     url(r"^dashboard/$", views.dashboard, name="dashboard"),
     url(r"^admin/$", admin_views.AdminIndexView.as_view(), name="admin-index"),
