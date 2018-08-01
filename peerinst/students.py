@@ -6,51 +6,28 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 from django.conf import settings
 
-import jwt
+from .utils import create_token, verify_token
 
 
 def create_student_token(email, exp=timedelta(weeks=16)):
     assert isinstance(email, basestring), "Precondition failed for `email`"
 
-    key = settings.SECRET_KEY
-
-    if student_assignment is None:
-        payload = {
-            "email": email,
-            "aud": "dalite",
-            "iat": datetime.now(pytz.utc),
-            "exp": datetime.now() + exp,
-        }
-    else:
-        payload = {
-            "email": email,
-            "student_assignment": student_assignment.pk,
-            "aud": "dalite",
-            "iat": datetime.now(pytz.utc),
-            "exp": datetime.now() + exp,
-        }
-
-    output = jwt.encode(payload, key)
+    payload = {"email": email}
+    output = create_token(payload, exp=exp)
 
     assert isinstance(output, basestring), "Postcondition failed"
     return output
 
 
-def verify_token(token):
+def verify_student_token(token):
     assert isinstance(token, basestring), "Precondition failed for `token`"
 
-    key = settings.SECRET_KEY
-
-    email, err = None, None
-
+    payload, err = verify_token(token)
     try:
-        email = jwt.decode(token, key)["email"]
+        email = payload["email"]
     except KeyError:
-        err = "Token was incorrectly created."
-    except jwt.exceptions.ExpiredSignatureError:
-        err = "Token expired"
-    except jwt.InvalidTokenError:
-        err = "Invalid token"
+        email = None
+        err = "This wasn't a student token"
 
     output = (email, err)
     assert (
@@ -68,7 +45,7 @@ def authenticate_student(token):
 
     resp = None
 
-    email, err = verify_token(token)
+    email, err = verify_student_token(token)
 
     if err is not None:
         resp = TemplateResponse(

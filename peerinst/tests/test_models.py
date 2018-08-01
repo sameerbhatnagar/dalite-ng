@@ -165,10 +165,10 @@ class TestStudentGroupAssignment(TestCase):
 
 class TestStudentAssignment(TestCase):
     def setUp(self):
-        n_students = 15
-        n_assignments = 20
+        n_students = 5
+        n_assignments = 3
         n_groups = 2
-        n_questions = 100
+        n_questions = 10
         min_questions = 5
         n_group_assignments = 3
 

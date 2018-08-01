@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-import base64
 import itertools
 import smtplib
 import string
@@ -24,6 +23,7 @@ from jsonfield import JSONField
 
 from . import rationale_choice
 from .students import create_student_token, get_student_username_and_password
+from .utils import create_token, verify_token
 
 
 def no_hyphens(value):
@@ -510,11 +510,19 @@ class StudentGroup(models.Model):
     @staticmethod
     def get(hash_):
         assert isinstance(hash_, basestring), "Precondition failed for `hash_`"
-        group_name = base64.urlsafe_b64decode(hash_.encode()).decode()
-        try:
-            assignment = StudentGroup.objects.get(name=group_name)
-        except StudentGroup.DoesNotExist:
-            assignment = None
+        payload, err = verify_token(hash_)
+        if payload is not None:
+            try:
+                group_name = payload["group_name"]
+            except KeyError:
+                group_name = None
+                assignment = None
+
+        if group_name:
+            try:
+                assignment = StudentGroup.objects.get(name=group_name)
+            except StudentGroup.DoesNotExist:
+                assignment = None
 
         output = assignment
         assert output is None or isinstance(
@@ -524,7 +532,8 @@ class StudentGroup(models.Model):
 
     @property
     def hash(self):
-        output = base64.urlsafe_b64encode(self.name.encode()).decode()
+        payload = {"group_name": self.name}
+        output = create_token(payload)
         assert isinstance(output, basestring), "Postcondition failed"
         return output
 
@@ -777,17 +786,24 @@ class StudentGroupAssignment(models.Model):
     @staticmethod
     def get(hash_):
         assert isinstance(hash_, basestring), "Precondition failed for `hash_`"
-        group_name, assignment_identifier, id_ = (
-            base64.urlsafe_b64decode(hash_.encode()).decode().split(":")
-        )
-        try:
-            assignment = StudentGroupAssignment.objects.get(
-                id=id_,
-                group__name=group_name,
-                assignment__identifier=assignment_identifier,
-            )
-        except StudentGroupAssignment.DoesNotExist:
-            assignment = None
+        payload, err = verify_token(hash_)
+        if payload is not None:
+            try:
+                group_name = payload["group_name"]
+                assignment_identifier = payload["assignment_identifier"]
+                id_ = payload["id"]
+            except KeyError:
+                id_ = None
+                assignment = None
+        if id_ is not None:
+            try:
+                assignment = StudentGroupAssignment.objects.get(
+                    id=id_,
+                    group__name=group_name,
+                    assignment__identifier=assignment_identifier,
+                )
+            except StudentGroupAssignment.DoesNotExist:
+                assignment = None
 
         output = assignment
         assert output is None or isinstance(
@@ -797,11 +813,12 @@ class StudentGroupAssignment(models.Model):
 
     @property
     def hash(self):
-        output = base64.urlsafe_b64encode(
-            "{}:{}:{}".format(
-                self.group.name, self.assignment.identifier, self.id
-            ).encode()
-        ).decode()
+        payload = {
+            "group_name": self.group.name,
+            "assignment_identifier": self.assignment.identifier,
+            "id": self.id,
+        }
+        output = create_token(payload)
         assert isinstance(output, basestring), "Postcondition failed"
         return output
 
