@@ -9,9 +9,7 @@ from django.conf import settings
 import jwt
 
 
-def create_student_token(
-    email, student_assignment=None, exp=timedelta(weeks=16)
-):
+def create_student_token(email, exp=timedelta(weeks=16)):
     assert isinstance(email, basestring), "Precondition failed for `email`"
 
     key = settings.SECRET_KEY

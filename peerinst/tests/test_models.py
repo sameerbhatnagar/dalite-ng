@@ -89,6 +89,25 @@ class TestStudent(TestCase):
             self.assertEqual(student.student.username, username)
 
 
+class TestStudentGroup(TestCase):
+    def test_new_student_group(self):
+        n_groups = 20
+        data = new_groups(n_groups)
+
+        for d in data:
+            group = StudentGroup.objects.create(**d)
+            self.assertIsInstance(group, StudentGroup)
+            self.assertEqual(group.name, d["name"])
+            self.assertEqual(group.title, d["title"])
+
+    def test_hashing(self):
+        n_groups = 20
+        groups = add_groups(new_groups(n_groups))
+
+        for group in groups:
+            self.assertEqual(group, StudentGroup.get(group.hash))
+
+
 class TestStudentGroupAssignment(TestCase):
     def setUp(self):
         n_assignments = 20
@@ -149,12 +168,15 @@ class TestStudentAssignment(TestCase):
         n_assignments = 20
         n_groups = 2
         n_questions = 100
+        min_questions = 5
         n_group_assignments = 3
 
         questions = add_questions(new_questions(n_questions))
         groups = add_groups(new_groups(n_groups))
         assignments = add_assignments(
-            new_assignments(n_assignments, questions)
+            new_assignments(
+                n_assignments, questions, min_questions=min_questions
+            )
         )
         self.students = add_students(new_students(n_students))
         self.groups = add_student_group_assignments(
@@ -176,4 +198,7 @@ class TestStudentAssignment(TestCase):
             )
 
     def test_get_current_question_no_answers(self):
-        pass
+        n = 1
+        assignment = add_student_assignments(
+            new_student_assignments(n, self.groups, self.students)
+        )[0]

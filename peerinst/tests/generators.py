@@ -19,8 +19,8 @@ from peerinst.models import (
 from tos.models import Consent as TosConsent
 
 
-def new_assignments(n, questions):
-    def generator():
+def new_assignments(n, questions, min_questions=1):
+    def generator(min_questions):
         chars = string.ascii_letters + string.digits + "_-."
         gen = _extra_chars_gen()
         while True:
@@ -36,11 +36,11 @@ def new_assignments(n, questions):
                     random.choice(chars) for _ in range(random.randint(1, 50))
                 ),
                 "questions": random.sample(
-                    questions, k=random.randint(1, len(questions))
+                    questions, k=random.randint(min_questions, len(questions))
                 ),
             }
 
-    gen = generator()
+    gen = generator(min_questions)
     return [next(gen) for _ in range(n)]
 
 
