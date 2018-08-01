@@ -16,7 +16,7 @@ def create_token(payload, exp=timedelta(weeks=16)):
         {
             "aud": "dalite",
             "iat": datetime.now(pytz.utc),
-            "exp": datetime.now() + exp,
+            "exp": datetime.now(pytz.utc) + exp,
         }
     )
 

@@ -45,7 +45,7 @@ def authenticate_student(token):
 
     resp = None
 
-    email, err = verify_token(token)
+    email, err = verify_student_token(token)
 
     if err is not None:
         resp = TemplateResponse(
