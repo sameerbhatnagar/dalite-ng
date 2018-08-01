@@ -8,6 +8,7 @@ import pytz
 from django.contrib.auth.models import User
 
 from peerinst.models import (
+    Answer,
     Assignment,
     Question,
     Student,
@@ -17,6 +18,40 @@ from peerinst.models import (
     Teacher,
 )
 from tos.models import Consent as TosConsent
+
+
+def new_answers(n, assignments):
+    if n > sum(
+        len(a.group_assignment.assignment.questions.all()) for a in assignments
+    ):
+        raise RuntimeError("There aren't enough questions in the assignments")
+    answers = []
+    current = {
+        i: 0 if len(a.group_assignment.assignment.questions.all()) else None
+        for i, a in enumerate(assignments)
+    }
+    while len(answers) < n:
+        i = random.choice([k for k, v in current.items() if v is not None])
+        answers.append(
+            {
+                "question": assignments[
+                    i
+                ].group_assignment.assignment.questions.all()[current[i]],
+                "assignment": assignments[i].group_assignment.assignment,
+                "user_token": assignments[i].student.student.username,
+                "first_answer_choice": random.randint(0, 5),
+                "rationale": "".join(
+                    random.choice(string.ascii_letters) for _ in range(100)
+                ),
+            }
+        )
+        current[i] += 1
+        if current[i] >= len(
+            assignments[i].group_assignment.assignment.questions.all()
+        ):
+            current[i] = None
+
+    return answers
 
 
 def new_assignments(n, questions, min_questions=1):
@@ -75,7 +110,7 @@ def new_questions(n):
                 "title": "{}{}".format(
                     "".join(
                         random.choice(chars)
-                        for _ in range(random.randint(1, 50))
+                        for _ in range(random.randint(1, 10))
                     ),
                     next(gen),
                 ),
@@ -146,6 +181,10 @@ def new_student_group_assignments(n, groups, assignments, due_date=None):
     return [next(gen) for _ in range(n)]
 
 
+def add_answers(answers):
+    return [Answer.objects.create(**a) for a in answers]
+
+
 def add_assignments(assignments):
     assignments_ = [
         Assignment.objects.create(
@@ -178,6 +217,19 @@ def add_student_group_assignments(group_assignments):
     return [
         StudentGroupAssignment.objects.create(**g) for g in group_assignments
     ]
+
+
+def add_second_choice_to_answers(answers, n_second_choices=None):
+    assignments = set((a.assignment for a in answers))
+    for assignment in assignments:
+        answers_ = [a for a in answers if a.assignment == assignment]
+        for i in range(n_second_choices or random.randrange(1, len(answers_))):
+            answers_[i].chosen_rationale = random.choice(answers_)
+            answers_[i].second_answer_choice = answers_[
+                i
+            ].chosen_rationale.first_answer_choice
+            answers_[i].save()
+    return answers
 
 
 def _extra_chars_gen():
