@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
-
 from django.test import TestCase
+import hashlib
 
 from . import factories
-from ..models import GradingScheme
+from ..models import GradingScheme, StudentGroupAssignment
+from .generators import *
 
 
 class SelectedChoice(object):
@@ -12,11 +13,12 @@ class SelectedChoice(object):
 
 
 class AnswerModelTestCase(TestCase):
-
     def setUp(self):
         super(AnswerModelTestCase, self).setUp()
         # Create question with two choices (correct/incorrect):
-        self.question = factories.QuestionFactory(choices=2, choices__correct=[1])
+        self.question = factories.QuestionFactory(
+            choices=2, choices__correct=[1]
+        )
         # Create answers for question, considering all possible combinations of correctness values:
         self.answers = []
         selected_choices = (
@@ -29,7 +31,7 @@ class AnswerModelTestCase(TestCase):
             answer = factories.AnswerFactory(
                 question=self.question,
                 first_answer_choice=first_answer_choice,
-                second_answer_choice=second_answer_choice
+                second_answer_choice=second_answer_choice,
             )
             self.answers.append(answer)
 
@@ -65,3 +67,75 @@ class AnswerModelTestCase(TestCase):
         """
         self.question.grading_scheme = GradingScheme.ADVANCED
         self._assert_grades(expected_grades=[1.0, 0.5, 0.5, 0.0])
+
+
+class TestStudent(TestCase):
+    def test_new_student(self):
+        n = 2
+        max_username_length = 30
+        data = new_students(n)
+
+        for d in data:
+            student = Student.create(**d)
+            username = hashlib.md5(d["email"].encode()).hexdigest()[
+                :max_username_length
+            ]
+            self.assertIsInstance(student, Student)
+            self.assertEqual(student.student.email, d["email"])
+            self.assertEqual(student.student.username, username)
+
+
+class TestStudentGroupAssignment(TestCase):
+    def setUp(self):
+        n_assignments = 20
+        n_groups = 2
+        n_questions = 100
+
+        questions = add_questions(new_questions(n_questions))
+        self.groups = add_groups(new_groups(n_groups))
+        self.assignments = add_assignments(
+            new_assignments(n_assignments, questions)
+        )
+
+    def test_new_student_group_assignment(self):
+        n = 10
+        data = new_student_group_assignments(n, self.groups, self.assignments)
+
+        for d in data:
+            group = StudentGroupAssignment.objects.create(**d)
+            self.assertIsInstance(group, StudentGroupAssignment)
+            self.assertEqual(group.group, d["group"])
+            self.assertEqual(group.assignment, d["assignment"])
+
+
+class TestStudentAssignment(TestCase):
+    def setUp(self):
+        n_students = 15
+        n_assignments = 20
+        n_groups = 2
+        n_questions = 100
+        n_group_assignments = 3
+
+        questions = add_questions(new_questions(n_questions))
+        groups = add_groups(new_groups(n_groups))
+        assignments = add_assignments(
+            new_assignments(n_assignments, questions)
+        )
+        self.students = add_students(new_students(n_students))
+        self.groups = add_student_group_assignments(
+            new_student_group_assignments(
+                n_group_assignments, groups, assignments
+            )
+        )
+
+    def test_new_student_assignment(self):
+        n = 30
+        data = new_student_assignments(n, self.groups, self.students)
+
+        for d in data:
+            assignment = StudentAssignment.objects.create(**d)
+            self.assertIsInstance(assignment, StudentAssignment)
+            self.assertEqual(assignment.student, d["student"])
+            self.assertEqual(
+                assignment.group_assignment, d["group_assignment"]
+            )

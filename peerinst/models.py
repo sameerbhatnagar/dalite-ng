@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 import itertools
 import smtplib
 import string
+
 # testing
 import uuid
 from datetime import datetime
@@ -523,11 +524,28 @@ class Student(models.Model):
         Adds the student by using hashes of the email for the username and
         password.
         """
-        username, password = get_student_username_and_password(email)
-        err = None
-        try:
-            User.objects.create_user(username=username, email=email, password=password)
-        except 
+
+        assert isinstance(email, basestring), "Precondition failed for `email`"
+
+        student = None
+
+        if (
+            not User.objects.filter(email=email).exists()
+            and not Student.objects.filter(student__email=email).exists()
+        ):
+
+            username, password = get_student_username_and_password(email)
+
+            user = User.objects.create_user(
+                username=username, email=email, password=password
+            )
+            student = Student.objects.create(student=user)
+
+        output = student
+        assert output is None or isinstance(
+            output, Student
+        ), "Postcondition failed"
+        return output
 
 
 class Institution(models.Model):
@@ -721,9 +739,20 @@ class LtiEvent(models.Model):
         return str(self.timestamp)
 
 
+class StudentGroupAssignment(models.Model):
+    group = models.ForeignKey(StudentGroup, on_delete=models.CASCADE)
+    assignment = models.ForeignKey(Assignment, on_delete=models.CASCADE)
+    due_date = models.DateTimeField(blank=True, null=True)
+
+    def __unicode__(self):
+        return "{} for {}".format(self.assignment, self.group)
+
+
 class StudentAssignment(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
-    group_assignment = models.ForeignKey(StudentAssignment, on_delete=models.CASCADE)
+    group_assignment = models.ForeignKey(
+        StudentGroupAssignment, on_delete=models.CASCADE
+    )
     first_access = models.DateTimeField(editable=False, auto_now=True)
     last_access = models.DateTimeField(editable=False, auto_now=True)
 
@@ -833,12 +862,3 @@ class StudentAssignment(models.Model):
         output = datetime.now(pytz.utc) > due_date
         assert isinstance(output, bool), "Postcondition failed"
         return output
-
-
-class StudentGroupAssignment(models.Model):
-    group = models.ForeignKey(StudentGroup, on_delete=models.CASCADE)
-    assignment = models.ForeignKey(Assignment, on_delete=models.CASCADE)
-    due_date = models.DateTimeField()
-
-    def __unicode__(self):
-        return "{} for {}".format(self.assignment, self.group)
