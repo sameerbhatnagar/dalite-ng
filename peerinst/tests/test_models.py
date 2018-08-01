@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
+from datetime import datetime, timedelta
 from django.test import TestCase
 import hashlib
+import pytz
+from operator import add
+from functools import reduce
 
 from . import factories
 from ..models import GradingScheme, StudentGroupAssignment
@@ -107,6 +111,37 @@ class TestStudentGroupAssignment(TestCase):
             self.assertEqual(group.group, d["group"])
             self.assertEqual(group.assignment, d["assignment"])
 
+    def test_is_expired(self):
+        due_dates = [
+            datetime.now(pytz.utc),
+            datetime.now(pytz.utc) + timedelta(days=1),
+        ]
+        assignments = add_student_group_assignments(
+            reduce(
+                add,
+                (
+                    new_student_group_assignments(
+                        1, self.groups, self.assignments, due_date=due_date
+                    )
+                    for due_date in due_dates
+                ),
+            )
+        )
+
+        self.assertEqual(assignments[0].is_expired(), True)
+        self.assertEqual(assignments[1].is_expired(), False)
+
+    def test_hashing(self):
+        n = 10
+        assignments = add_student_group_assignments(
+            new_student_group_assignments(n, self.groups, self.assignments)
+        )
+
+        for assignment in assignments:
+            self.assertEqual(
+                assignment, StudentGroupAssignment.get(assignment.hash)
+            )
+
 
 class TestStudentAssignment(TestCase):
     def setUp(self):
@@ -139,3 +174,6 @@ class TestStudentAssignment(TestCase):
             self.assertEqual(
                 assignment.group_assignment, d["group_assignment"]
             )
+
+    def test_get_current_question_no_answers(self):
+        pass
