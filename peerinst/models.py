@@ -510,7 +510,7 @@ class StudentGroup(models.Model):
     @staticmethod
     def get(hash_):
         assert isinstance(hash_, basestring), "Precondition failed for `hash_`"
-        group_name = base64.urlsafe_b64decode(hash_)
+        group_name = base64.urlsafe_b64decode(hash_.encode()).decode()
         try:
             assignment = StudentGroup.objects.get(name=group_name)
         except StudentGroup.DoesNotExist:
@@ -524,7 +524,7 @@ class StudentGroup(models.Model):
 
     @property
     def hash(self):
-        output = base64.urlsafe_b64encode(self.name)
+        output = base64.urlsafe_b64encode(self.name.encode()).decode()
         assert isinstance(output, basestring), "Postcondition failed"
         return output
 
@@ -777,9 +777,9 @@ class StudentGroupAssignment(models.Model):
     @staticmethod
     def get(hash_):
         assert isinstance(hash_, basestring), "Precondition failed for `hash_`"
-        group_name, assignment_identifier, id_ = base64.urlsafe_b64decode(
-            hash_
-        ).split(":")
+        group_name, assignment_identifier, id_ = (
+            base64.urlsafe_b64decode(hash_.encode()).decode().split(":")
+        )
         try:
             assignment = StudentGroupAssignment.objects.get(
                 id=id_,
@@ -800,8 +800,8 @@ class StudentGroupAssignment(models.Model):
         output = base64.urlsafe_b64encode(
             "{}:{}:{}".format(
                 self.group.name, self.assignment.identifier, self.id
-            )
-        )
+            ).encode()
+        ).decode()
         assert isinstance(output, basestring), "Postcondition failed"
         return output
 
@@ -889,7 +889,9 @@ class StudentAssignment(models.Model):
         # get the answer or None for each question of the assignment
         answers = [
             Answer.objects.filter(
-                user_token=self.student.user.username, question=question
+                user_token=self.student.student.username,
+                question=question,
+                assignment=self.group_assignment.assignment,
             ).first()
             for question in questions
         ]
@@ -915,4 +917,4 @@ class StudentAssignment(models.Model):
         assert output is None or isinstance(
             output, Question
         ), "Postcondition failed"
-        return ouput
+        return output

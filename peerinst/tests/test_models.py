@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
-from datetime import datetime, timedelta
-from django.test import TestCase
 import hashlib
-import pytz
-from operator import add
+from datetime import datetime, timedelta
 from functools import reduce
+from operator import add
+
+import pytz
+from django.test import TestCase
 
 from . import factories
 from ..models import GradingScheme, StudentGroupAssignment
@@ -202,3 +203,117 @@ class TestStudentAssignment(TestCase):
         assignment = add_student_assignments(
             new_student_assignments(n, self.groups, self.students)
         )[0]
+
+        correct = assignment.group_assignment.assignment.questions.all()[0]
+
+        question = assignment.get_current_question()
+
+        self.assertEqual(correct, question)
+
+    def test_get_current_question_only_first_answer_choices(self):
+        n_assignments = 3
+        assignments = add_student_assignments(
+            new_student_assignments(n_assignments, self.groups, self.students)
+        )
+        answers = [
+            add_answers(
+                new_answers(
+                    random.randrange(
+                        1,
+                        len(
+                            assignment.group_assignment.assignment.questions.all()
+                        ),
+                    ),
+                    [assignment],
+                )
+            )
+            for assignment in assignments
+        ]
+
+        for i in range(len(assignments)):
+            current = assignments[i].get_current_question()
+            self.assertEqual(
+                current,
+                assignments[i].group_assignment.assignment.questions.all()[
+                    len(answers[i])
+                ],
+            )
+
+    def test_get_current_question_all_first_answer_choices(self):
+        n_assignments = 1
+        assignment = add_student_assignments(
+            new_student_assignments(n_assignments, self.groups, self.students)
+        )[0]
+        add_answers(
+            new_answers(
+                len(assignment.group_assignment.assignment.questions.all()),
+                [assignment],
+            )
+        )
+
+        current = assignment.group_assignment.assignment.questions.all()[0]
+
+        question = assignment.get_current_question()
+
+        self.assertEqual(current, question)
+
+    def test_get_current_question_only_some_second_choices(self):
+        n_assignments = 3
+        assignments = add_student_assignments(
+            new_student_assignments(n_assignments, self.groups, self.students)
+        )
+        answers_ = [
+            add_answers(
+                new_answers(
+                    len(
+                        assignment.group_assignment.assignment.questions.all()
+                    ),
+                    [assignment],
+                )
+            )
+            for assignment in assignments
+        ]
+
+        answers = [
+            [
+                aa
+                for aa in add_second_choice_to_answers(a)
+                if aa.chosen_rationale is not None
+            ]
+            for a in answers_
+        ]
+
+        for i in range(len(assignments)):
+            current = assignments[i].get_current_question()
+            self.assertEqual(
+                current,
+                assignments[i].group_assignment.assignment.questions.all()[
+                    len(answers[i])
+                ],
+            )
+
+    def test_get_current_question_all_second_choices(self):
+        n_assignments = 3
+        assignments = add_student_assignments(
+            new_student_assignments(n_assignments, self.groups, self.students)
+        )
+        answers_ = [
+            add_answers(
+                new_answers(
+                    len(
+                        assignment.group_assignment.assignment.questions.all()
+                    ),
+                    [assignment],
+                )
+            )
+            for assignment in assignments
+        ]
+
+        answers = [
+            add_second_choice_to_answers(a, n_second_choices=len(a))
+            for a in answers_
+        ]
+
+        for i in range(len(assignments)):
+            current = assignments[i].get_current_question()
+            self.assertIs(current, None)
