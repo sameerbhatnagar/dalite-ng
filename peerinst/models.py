@@ -4,7 +4,6 @@ from __future__ import unicode_literals
 import itertools
 import smtplib
 import string
-
 # testing
 import uuid
 from datetime import datetime
@@ -22,6 +21,7 @@ from django.utils.translation import ugettext_lazy as _
 from jsonfield import JSONField
 
 from . import rationale_choice
+from .students import create_student_token, get_student_username_and_password
 
 
 def no_hyphens(value):
@@ -517,6 +517,18 @@ class Student(models.Model):
         verbose_name = _("student")
         verbose_name_plural = _("students")
 
+    @staticmethod
+    def create(email):
+        """
+        Adds the student by using hashes of the email for the username and
+        password.
+        """
+        username, password = get_student_username_and_password(email)
+        err = None
+        try:
+            User.objects.create_user(username=username, email=email, password=password)
+        except 
+
 
 class Institution(models.Model):
     name = models.CharField(
@@ -711,11 +723,12 @@ class LtiEvent(models.Model):
 
 class StudentAssignment(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
-    group = models.ForeignKey(StudentGroup, on_delete=models.CASCADE)
-    assignment = models.ForeignKey(Assignment, on_delete=models.CASCADE)
-    first_access = models.DateField(editable=False, auto_now=True)
-    last_access = models.DateField(editable=False, auto_now=True)
-    due_date = models.DateField()
+    group_assignment = models.ForeignKey(StudentAssignment, on_delete=models.CASCADE)
+    first_access = models.DateTimeField(editable=False, auto_now=True)
+    last_access = models.DateTimeField(editable=False, auto_now=True)
+
+    def __unicode__(self):
+        return "{} for {}".format(self.group_assignment, self.student)
 
     def send_email(self, mail_type="login"):
         assert isinstance(mail_type, basestring) and mail_type in (
@@ -752,6 +765,11 @@ class StudentAssignment(models.Model):
                     "mail types."
                 )
 
+            context = {
+                "token": create_token(self.student.user.username),
+                "link": "",
+            }
+
             try:
                 send_mail(
                     subject,
@@ -781,7 +799,7 @@ class StudentAssignment(models.Model):
             Answer.objects.filter(
                 user_token=self.student.user.username, question=question
             ).first()
-            for question in self.assignment.questions.all()
+            for question in self.group_assignment.assignment.questions.all()
         ]
         has_first_answer = [
             a.first_answer_choice is not None if a else False for a in answers
@@ -790,7 +808,7 @@ class StudentAssignment(models.Model):
         # answer), returns the first question with no answer or no first answer
         # choice
         if not all(has_first_answer):
-            output = self.assignment.questions.all()[
+            output = self.group_assignment.assignment.questions.all()[
                 has_first_answer.index(False)
             ]
         else:
@@ -800,7 +818,7 @@ class StudentAssignment(models.Model):
             # if there is a question missing the second answer, returns it or
             # returns None if all questions have been answered twice
             if not all(has_second_answer):
-                output = self.assignment.questions.all()[
+                output = self.group_assignment.assignment.questions.all()[
                     has_second_answer.index(False)
                 ]
             else:
@@ -815,3 +833,12 @@ class StudentAssignment(models.Model):
         output = datetime.now(pytz.utc) > due_date
         assert isinstance(output, bool), "Postcondition failed"
         return output
+
+
+class StudentGroupAssignment(models.Model):
+    group = models.ForeignKey(StudentGroup, on_delete=models.CASCADE)
+    assignment = models.ForeignKey(Assignment, on_delete=models.CASCADE)
+    due_date = models.DateTimeField()
+
+    def __unicode__(self):
+        return "{} for {}".format(self.assignment, self.group)
