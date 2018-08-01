@@ -16,7 +16,7 @@ from django.core import exceptions
 from django.core.exceptions import ValidationError
 from django.core.mail import send_mail
 from django.core.urlresolvers import reverse
-from django.db import models
+from django.db import models, IntegrityError
 from django.db.models import Q
 from django.utils.encoding import smart_bytes
 from django.utils.translation import ugettext_lazy as _
@@ -507,6 +507,27 @@ class StudentGroup(models.Model):
         verbose_name = _("group")
         verbose_name_plural = _("groups")
 
+    @staticmethod
+    def get(hash_):
+        assert isinstance(hash_, basestring), "Precondition failed for `hash_`"
+        group_name = base64.urlsafe_b64decode(hash_)
+        try:
+            assignment = StudentGroup.objects.get(name=group_name)
+        except StudentGroup.DoesNotExist:
+            assignment = None
+
+        output = assignment
+        assert output is None or isinstance(
+            output, StudentGroup
+        ), "Postcondition failed"
+        return output
+
+    @property
+    def hash(self):
+        output = base64.urlsafe_b64encode(self.name)
+        assert isinstance(output, basestring), "Postcondition failed"
+        return output
+
 
 class Student(models.Model):
     student = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -756,9 +777,9 @@ class StudentGroupAssignment(models.Model):
     @staticmethod
     def get(hash_):
         assert isinstance(hash_, basestring), "Precondition failed for `hash_`"
-        group_name, assignment_identifier, id_ = (
-            base64.urlsafe_b64decode(hash_.encode()).decode().split(":")
-        )
+        group_name, assignment_identifier, id_ = base64.urlsafe_b64decode(
+            hash_
+        ).split(":")
         try:
             assignment = StudentGroupAssignment.objects.get(
                 id=id_,
@@ -780,7 +801,7 @@ class StudentGroupAssignment(models.Model):
             "{}:{}:{}".format(
                 self.group.name, self.assignment.identifier, self.id
             )
-        ).decode()
+        )
         assert isinstance(output, basestring), "Postcondition failed"
         return output
 
@@ -863,12 +884,14 @@ class StudentAssignment(models.Model):
         ), "Postcondition failed"
 
     def get_current_question(self):
+        questions = self.group_assignment.assignment.questions.all()
+
         # get the answer or None for each question of the assignment
         answers = [
             Answer.objects.filter(
                 user_token=self.student.user.username, question=question
             ).first()
-            for question in self.group_assignment.assignment.questions.all()
+            for question in questions
         ]
         has_first_answer = [
             a.first_answer_choice is not None if a else False for a in answers
@@ -877,9 +900,7 @@ class StudentAssignment(models.Model):
         # answer), returns the first question with no answer or no first answer
         # choice
         if not all(has_first_answer):
-            output = self.group_assignment.assignment.questions.all()[
-                has_first_answer.index(False)
-            ]
+            output = questions[has_first_answer.index(False)]
         else:
             has_second_answer = [
                 a.second_answer_choice is not None for a in answers
@@ -887,9 +908,7 @@ class StudentAssignment(models.Model):
             # if there is a question missing the second answer, returns it or
             # returns None if all questions have been answered twice
             if not all(has_second_answer):
-                output = self.group_assignment.assignment.questions.all()[
-                    has_second_answer.index(False)
-                ]
+                output = questions[has_second_answer.index(False)]
             else:
                 output = None
 
