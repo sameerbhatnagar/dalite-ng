@@ -67,8 +67,12 @@ def new_assignments(n, questions, min_questions=1):
                     ),
                     next(gen),
                 ),
-                "title": "".join(
-                    random.choice(chars) for _ in range(random.randint(1, 50))
+                "title": "{}{}".format(
+                    "".join(
+                        random.choice(chars)
+                        for _ in range(random.randint(1, 50))
+                    ),
+                    next(gen),
                 ),
                 "questions": random.sample(
                     questions, k=random.randint(min_questions, len(questions))
