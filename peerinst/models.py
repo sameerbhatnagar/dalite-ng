@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import base64
 import itertools
 import smtplib
 import string
@@ -747,6 +748,42 @@ class StudentGroupAssignment(models.Model):
     def __unicode__(self):
         return "{} for {}".format(self.assignment, self.group)
 
+    def is_expired(self):
+        output = datetime.now(pytz.utc) > self.due_date
+        assert isinstance(output, bool), "Postcondition failed"
+        return output
+
+    @staticmethod
+    def get(hash_):
+        assert isinstance(hash_, basestring), "Precondition failed for `hash_`"
+        group_name, assignment_identifier, id_ = (
+            base64.urlsafe_b64decode(hash_.encode()).decode().split(":")
+        )
+        try:
+            assignment = StudentGroupAssignment.objects.get(
+                id=id_,
+                group__name=group_name,
+                assignment__identifier=assignment_identifier,
+            )
+        except StudentGroupAssignment.DoesNotExist:
+            assignment = None
+
+        output = assignment
+        assert output is None or isinstance(
+            output, StudentGroupAssignment
+        ), "Postcondition failed"
+        return output
+
+    @property
+    def hash(self):
+        output = base64.urlsafe_b64encode(
+            "{}:{}:{}".format(
+                self.group.name, self.assignment.identifier, self.id
+            )
+        ).decode()
+        assert isinstance(output, basestring), "Postcondition failed"
+        return output
+
 
 class StudentAssignment(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
@@ -755,6 +792,9 @@ class StudentAssignment(models.Model):
     )
     first_access = models.DateTimeField(editable=False, auto_now=True)
     last_access = models.DateTimeField(editable=False, auto_now=True)
+
+    class Meta:
+        unique_together = ("student", "group_assignment")
 
     def __unicode__(self):
         return "{} for {}".format(self.group_assignment, self.student)
@@ -857,8 +897,3 @@ class StudentAssignment(models.Model):
             output, Question
         ), "Postcondition failed"
         return ouput
-
-    def is_expired(self):
-        output = datetime.now(pytz.utc) > due_date
-        assert isinstance(output, bool), "Postcondition failed"
-        return output

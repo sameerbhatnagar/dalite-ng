@@ -114,34 +114,35 @@ def new_students(n):
     return [next(gen) for _ in range(n)]
 
 
-def new_student_assignments(n, groups, students):
-    def generator():
+def new_student_assignments(n, group_assignments, students):
+    def generator(group_assignments, students):
         while True:
             yield {
                 "student": random.choice(students),
-                "group_assignment": random.choice(groups),
+                "group_assignment": random.choice(group_assignments),
             }
 
-    gen = generator()
+    gen = generator(group_assignments, students)
     return [next(gen) for _ in range(n)]
 
 
-def new_student_group_assignments(n, groups, assignments):
-    def generator():
+def new_student_group_assignments(n, groups, assignments, due_date=None):
+    def generator(groups, assignments, due_date):
         while True:
-            if random.random() > 0.5:
-                datetime_ = datetime.now(pytz.utc) + timedelta(
-                    days=random.randint(1, 60)
-                )
-            else:
-                datetime_ = None
+            if due_date is None:
+                if random.random() > 0.5:
+                    due_date = datetime.now(pytz.utc) + timedelta(
+                        days=random.randint(1, 60)
+                    )
+                else:
+                    due_date = None
             yield {
                 "group": random.choice(groups),
                 "assignment": random.choice(assignments),
-                "due_date": datetime_,
+                "due_date": due_date,
             }
 
-    gen = generator()
+    gen = generator(groups, assignments, due_date)
     return [next(gen) for _ in range(n)]
 
 

@@ -3,26 +3,34 @@ from datetime import datetime, timedelta
 
 import pytz
 from django.contrib.auth.models import User
+from django.contrib.auth import authenticate
 from django.conf import settings
 
 import jwt
 
 
-def create_student_token(username, email, exp=timedelta(weeks=16)):
-    assert isinstance(
-        username, basestring
-    ), "Precondition failed for `username`"
+def create_student_token(
+    email, student_assignment=None, exp=timedelta(weeks=16)
+):
     assert isinstance(email, basestring), "Precondition failed for `email`"
 
     key = settings.SECRET_KEY
 
-    payload = {
-        "username": username,
-        "email": email,
-        "aud": "dalite",
-        "iat": datetime.now(pytz.utc),
-        "exp": datetime.now() + exp,
-    }
+    if student_assignment is None:
+        payload = {
+            "email": email,
+            "aud": "dalite",
+            "iat": datetime.now(pytz.utc),
+            "exp": datetime.now() + exp,
+        }
+    else:
+        payload = {
+            "email": email,
+            "student_assignment": student_assignment.pk,
+            "aud": "dalite",
+            "iat": datetime.now(pytz.utc),
+            "exp": datetime.now() + exp,
+        }
 
     output = jwt.encode(payload, key)
 
@@ -35,12 +43,10 @@ def verify_token(token):
 
     key = settings.SECRET_KEY
 
-    username, email, err = None, None
+    email, err = None, None
 
     try:
-        payload = jwt.decode(token, key)
-        username = payload["username"]
-        email = payload["email"]
+        email = jwt.decode(token, key)["email"]
     except KeyError:
         err = "Token was incorrectly created."
     except jwt.exceptions.ExpiredSignatureError:
@@ -59,7 +65,7 @@ def verify_token(token):
     return output
 
 
-def login_student(token):
+def authenticate_student(token):
     assert isinstance(token, basestring), "Precondition failed for `token`"
 
     resp = None
@@ -67,7 +73,7 @@ def login_student(token):
     email, err = verify_token(token)
 
     if err is not None:
-        template = TemplateResponse(
+        resp = TemplateResponse(
             req,
             "400.html",
             context={
@@ -77,7 +83,7 @@ def login_student(token):
                 )
             },
         )
-        resp = HttpResponseBadRequest(template.render())
+        output = HttpResponseBadRequest(resp.render())
 
     else:
 
@@ -89,18 +95,19 @@ def login_student(token):
         )
 
         if user is None:
-            template = TemplateResponse(
+            resp = TemplateResponse(
                 req,
                 "401.html",
                 context={
                     "message": _("The account hasn't been verified yet.")
                 },
             )
-            resp = HttpResponseUnauthorized(template.render())
+            output = HttpResponseUnauthorized(resp.render())
+        else:
+            output = user
 
-    output = resp
-    assert output is None or isinstance(
-        output, HttpResponse
+    assert isinstance(output, HttpResponse) or isinstance(
+        output, User
     ), "Postcondition failed"
     return output
 
