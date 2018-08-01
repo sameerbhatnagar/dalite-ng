@@ -22,7 +22,6 @@ urlpatterns = [
     # DALITE
     # Assignment table of contents - Enforce sameorigin to prevent access from LMS
     url(r'^assignment-list/$', xframe_options_sameorigin(views.AssignmentListView.as_view()), name='assignment-list'),
-
     url(r'^question/create$', views.QuestionCreateView.as_view(), name='question-create'),
     url(r'^question/clone/(?P<pk>[0-9]+)$', views.QuestionCloneView.as_view(), name='question-clone'),
     url(r'^question/update/(?P<pk>[0-9]+)$', views.QuestionUpdateView.as_view(), name='question-update'),
@@ -41,6 +40,10 @@ urlpatterns = [
     url(r'^question-search/$', views.question_search, name='question-search'),
     url(r'^heartbeat/$', views.HeartBeatUrl.as_view(), name='heartbeat'),
 
+
+    # Standalone
+    url(r'^live/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$', views.live, name='live'),
+    url(r'^live/(?P<assignment_id>[^/]+)/(?P<question_id>\d+)/(?P<direction>(next|prev))/$', views.navigate_assignment, name='navigate-assignment'),
 
     # Admin
     url(r'^dashboard/$', views.dashboard, name='dashboard'),
