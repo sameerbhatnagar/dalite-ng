@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import base64
 import itertools
 import smtplib
 import string
@@ -510,19 +511,11 @@ class StudentGroup(models.Model):
     @staticmethod
     def get(hash_):
         assert isinstance(hash_, basestring), "Precondition failed for `hash_`"
-        payload, err = verify_token(hash_)
-        if payload is not None:
-            try:
-                group_name = payload["group_name"]
-            except KeyError:
-                group_name = None
-                assignment = None
-
-        if group_name:
-            try:
-                assignment = StudentGroup.objects.get(name=group_name)
-            except StudentGroup.DoesNotExist:
-                assignment = None
+        id_ = int(base64.urlsafe_b64decode(hash_.encode()).decode())
+        try:
+            assignment = StudentGroup.objects.get(id=id_)
+        except StudentGroup.DoesNotExist:
+            assignment = None
 
         output = assignment
         assert output is None or isinstance(
@@ -533,7 +526,7 @@ class StudentGroup(models.Model):
     @property
     def hash(self):
         payload = {"group_name": self.name}
-        output = create_token(payload)
+        output = base64.urlsafe_b64encode(str(self.id).encode()).decode()
         assert isinstance(output, basestring), "Postcondition failed"
         return output
 
@@ -786,24 +779,11 @@ class StudentGroupAssignment(models.Model):
     @staticmethod
     def get(hash_):
         assert isinstance(hash_, basestring), "Precondition failed for `hash_`"
-        payload, err = verify_token(hash_)
-        if payload is not None:
-            try:
-                group_name = payload["group_name"]
-                assignment_identifier = payload["assignment_identifier"]
-                id_ = payload["id"]
-            except KeyError:
-                id_ = None
-                assignment = None
-        if id_ is not None:
-            try:
-                assignment = StudentGroupAssignment.objects.get(
-                    id=id_,
-                    group__name=group_name,
-                    assignment__identifier=assignment_identifier,
-                )
-            except StudentGroupAssignment.DoesNotExist:
-                assignment = None
+        id_ = int(base64.urlsafe_b64decode(hash_.encode()).decode())
+        try:
+            assignment = StudentGroupAssignment.objects.get(id=id_)
+        except StudentGroupAssignment.DoesNotExist:
+            assignment = None
 
         output = assignment
         assert output is None or isinstance(
@@ -813,12 +793,7 @@ class StudentGroupAssignment(models.Model):
 
     @property
     def hash(self):
-        payload = {
-            "group_name": self.group.name,
-            "assignment_identifier": self.assignment.identifier,
-            "id": self.id,
-        }
-        output = create_token(payload)
+        output = base64.urlsafe_b64encode(str(self.id).encode()).decode()
         assert isinstance(output, basestring), "Postcondition failed"
         return output
 
@@ -915,6 +890,7 @@ class StudentAssignment(models.Model):
         has_first_answer = [
             a.first_answer_choice is not None if a else False for a in answers
         ]
+        print(has_first_answer)
         # if a question has at least one missing answer (no first choice or no
         # answer), returns the first question with no answer or no first answer
         # choice
@@ -924,6 +900,8 @@ class StudentAssignment(models.Model):
             has_second_answer = [
                 a.second_answer_choice is not None for a in answers
             ]
+            print(questions)
+            print(has_second_answer)
             # if there is a question missing the second answer, returns it or
             # returns None if all questions have been answered twice
             if not all(has_second_answer):
