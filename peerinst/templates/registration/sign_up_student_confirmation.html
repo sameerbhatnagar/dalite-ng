@@ -10,8 +10,10 @@
     </h1>
 
     <p class='mdc-typography--body1'>
-      {% trans 'Your registration has been confirmed in: ' %}<span class='bold'>{{ group.title }}</span>
+      {% trans 'Your registration has been confirmed in: ' %}
     </p>
+
+    <blockquote class='bold'>{{ group.title }}</blockquote>
 
     <p class='mdc-typography--body1'>
       {% trans 'Your will receive an e-mail notification when a new assignment is distributed by your teacher with a link to access it.' %}
