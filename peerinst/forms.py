@@ -343,6 +343,14 @@ class AnswerChoiceForm(forms.ModelForm):
             return self.cleaned_data["text"]
 
 
+class StudentGroupCreateForm(forms.ModelForm):
+    """Simple form to create a new group"""
+
+    class Meta:
+        model = StudentGroup
+        fields = ["title", "name"]
+
+
 class StudentGroupAssignmentForm(ModelForm):
      class Meta:
          model = StudentGroupAssignment

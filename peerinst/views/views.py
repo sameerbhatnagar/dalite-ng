@@ -1800,6 +1800,7 @@ class TeacherGroups(TeacherBase, ListView):
         context = super(TeacherGroups, self).get_context_data(**kwargs)
         context["teacher"] = self.teacher
         context["form"] = forms.TeacherGroupsForm()
+        context["create_form"] = forms.StudentGroupCreateForm()
 
         return context
 
@@ -1813,6 +1814,23 @@ class TeacherGroups(TeacherBase, ListView):
             else:
                 self.teacher.groups.add(group)
             self.teacher.save()
+        else:
+            form = forms.StudentGroupCreateForm(request.POST)
+            if form.is_valid():
+                form.save()
+                # Add created_by field!
+                self.teacher.groups.add(form.instance)
+            else:
+                return render(
+                    request,
+                    self.template_name,
+                    {
+                        "teacher": self.teacher,
+                        "form": forms.TeacherGroupsForm(),
+                        "create_form": form,
+                        "object_list": StudentGroup.objects.all(),
+                    },
+                )
 
         return HttpResponseRedirect(
             reverse("teacher-groups", kwargs={"pk": self.teacher.pk})

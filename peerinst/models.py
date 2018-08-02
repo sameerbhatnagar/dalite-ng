@@ -497,6 +497,7 @@ class StudentGroup(models.Model):
     name = models.CharField(max_length=100, unique=True)
     title = models.CharField(max_length=100, null=True, blank=True)
     creation_date = models.DateField(blank=True, null=True, auto_now=True)
+    #created_by = models.ForeignKey('Teacher', blank=True, null=True, on_delete=models.SET_NULL)
 
     def __unicode__(self):
         if not self.title:
