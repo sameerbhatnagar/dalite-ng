@@ -14,7 +14,7 @@ def create_student_token(email, exp=timedelta(weeks=16)):
     assert isinstance(email, basestring), "Precondition failed for `email`"
 
     payload = {"email": email}
-    output = base64.urlsafe_b64encode(create_token(payload, exp=exp)).decode()
+    output = create_token(payload, exp=exp)
 
     assert isinstance(output, basestring), "Postcondition failed"
     return output
@@ -23,9 +23,7 @@ def create_student_token(email, exp=timedelta(weeks=16)):
 def verify_student_token(token):
     assert isinstance(token, basestring), "Precondition failed for `token`"
 
-    payload, err = verify_token(
-        base64.urlsafe_b64decode(token.encode()).decode()
-    )
+    payload, err = verify_token(token)
     try:
         email = payload["email"]
     except KeyError:

@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+import base64
 
 import pytz
 import jwt
@@ -20,7 +21,9 @@ def create_token(payload, exp=timedelta(weeks=16)):
         }
     )
 
-    output = jwt.encode(payload_, key)
+    output = base64.urlsafe_b64encode(
+        jwt.encode(payload_, key).encode()
+    ).decode()
 
     assert isinstance(output, basestring), "Postcondition failed"
     return output
@@ -34,7 +37,11 @@ def verify_token(token):
     payload, err = None, None
 
     try:
-        payload = jwt.decode(token, key, audience="dalite")
+        payload = jwt.decode(
+            base64.urlsafe_b64decode(token.encode()).decode(),
+            key,
+            audience="dalite",
+        )
     except KeyError:
         err = "Token was incorrectly created."
     except jwt.exceptions.ExpiredSignatureError:
