@@ -81,12 +81,27 @@ class TestStudent(TestCase):
         data = new_students(n)
 
         for d in data:
-            student = Student.create(**d)
+            student = Student.get_or_create(**d)
             username = hashlib.md5(d["email"].encode()).hexdigest()[
                 :max_username_length
             ]
             self.assertIsInstance(student, Student)
             self.assertEqual(student.student.email, d["email"])
+            self.assertEqual(student.student.username, username)
+
+    def test_get_student_user_exists(self):
+        n = 2
+        max_username_length = 30
+        students = new_students(n)
+        add_students(students)
+
+        for s in students:
+            student = Student.get_or_create(**s)
+            username = hashlib.md5(s["email"].encode()).hexdigest()[
+                :max_username_length
+            ]
+            self.assertIsInstance(student, Student)
+            self.assertEqual(student.student.email, s["email"])
             self.assertEqual(student.student.username, username)
 
 
