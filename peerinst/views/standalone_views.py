@@ -33,24 +33,25 @@ def signup_through_link(request, group_hash):
     group = StudentGroup.get(group_hash)
 
     if group is None:
-        raise Http404
+        raise Http404()
     else:
         if request.method == 'POST':
             form = EmailForm(request.POST)
             if form.is_valid():
-                # Create student
-                student = Student.create(form.cleaned_data['email'])
-                if student is None:
-                    # Try to get current student
-                    student = get_object_or_404(Student, student__email=form.cleaned_data['email'])
+                student = Student.get_or_create(form.cleaned_data['email'])
 
-                # Add to group (only *active* users should be counted)
-                student.groups.add(group)
+                if student is not None:
+                    # Add to group (only *active* users should be counted)
+                    student.groups.add(group)
 
-                # Send confirmation e-mail
-                student.send_confirmation_email()
+                    # Send confirmation e-mail
+                    student.send_confirmation_email()
 
-                return TemplateResponse(request, 'registration/sign_up_student_done.html', context={'student' : student, 'group': group})
+                    return TemplateResponse(request, 'registration/sign_up_student_done.html', context={'student' : student, 'group': group})
+                else:
+                    response = TemplateResponse(request, "500.html")
+                    return HttpResponseServerError(response.render())
+
         else:
             form = EmailForm()
 
@@ -64,7 +65,7 @@ def confirm_signup_through_link(request, token):
     logout(request)
 
     # Validate token and activate account
-    email = verify_student_token(token)
+    email, error = verify_student_token(token)
 
     if email is not None:
         student = get_object_or_404(Student, student__email=email)
