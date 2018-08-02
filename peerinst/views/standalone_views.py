@@ -45,19 +45,21 @@ def signup_through_link(request, group_hash):
         if request.method == "POST":
             form = EmailForm(request.POST)
             if form.is_valid():
-                student = Student.get_or_create(form.cleaned_data['email'])
 
-                if student is not None:
-                    # Add to group (only *active* users should be counted)
-                    student.groups.add(group)
+                # Create student
+                student = Student.get_or_create(form.cleaned_data["email"])
 
-                    # Send confirmation e-mail
-                    student.send_confirmation_email()
+                # Add to group (only *active* users should be counted)
+                student.groups.add(group)
 
-                    return TemplateResponse(request, 'registration/sign_up_student_done.html', context={'student' : student, 'group': group})
-                else:
-                    response = TemplateResponse(request, "500.html")
-                    return HttpResponseServerError(response.render())
+                # Send confirmation e-mail
+                student.send_confirmation_email(request.get_host())
+
+                return TemplateResponse(
+                    request,
+                    "registration/sign_up_student_done.html",
+                    context={"student": student, "group": group},
+                )
 
         else:
             form = EmailForm()
