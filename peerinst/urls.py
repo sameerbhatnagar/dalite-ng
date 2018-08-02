@@ -118,7 +118,7 @@ urlpatterns = [
         name="signup-through-link",
     ),
     url(
-        r"^live/signup/confirm/(?P<token>[0-9A-Za-z=_-]+)$",
+        r"^live/signup/confirm/(?P<group_hash>[0-9A-Za-z=_-]+)/(?P<token>[0-9A-Za-z=_-]+)$",
         views.confirm_signup_through_link,
         name="confirm-signup-through-link",
     ),

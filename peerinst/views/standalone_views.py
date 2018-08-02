@@ -46,14 +46,11 @@ def signup_through_link(request, group_hash):
             form = EmailForm(request.POST)
             if form.is_valid():
 
-                # Create student
+                # Get or create student
                 student = Student.get_or_create(form.cleaned_data["email"])
 
-                # Add to group (only *active* users should be counted)
-                student.groups.add(group)
-
                 # Send confirmation e-mail
-                student.send_confirmation_email(request.get_host())
+                student.send_confirmation_email(group, request.get_host())
 
                 return TemplateResponse(
                     request,
@@ -72,21 +69,26 @@ def signup_through_link(request, group_hash):
 
 
 @require_safe
-def confirm_signup_through_link(request, token):
+def confirm_signup_through_link(request, group_hash, token):
 
     # Call logout to ensure a clean session
     logout(request)
 
     # Validate token and activate account
     email, err = verify_student_token(token)
+    group = StudentGroup.get(group_hash)
+
+    if group is None:
+        raise Http404()
 
     if email is not None:
         student = get_object_or_404(Student, student__email=email)
         student.student.is_active = True
+        student.groups.add(group)
         student.save()
 
         return TemplateResponse(
-            request, "registration/sign_up_student_confirmation.html"
+            request, "registration/sign_up_student_confirmation.html", context={'group' : group}
         )
     else:
         raise PermissionDenied

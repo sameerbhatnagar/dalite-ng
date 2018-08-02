@@ -576,14 +576,15 @@ class Student(models.Model):
         assert isinstance(output, Student), "Postcondition failed"
         return output
 
-    def send_confirmation_email(self, host):
+    def send_confirmation_email(self, group, host):
         """Sends e-mail with link for confirmation of account."""
         assert isinstance(host, basestring), "Precondition failed for `host`"
         err = None
 
         user_email = self.student.email
         token = create_student_token(user_email)
-        link = reverse("confirm-signup-through-link", kwargs={"token": token})
+        hash = group.hash
+        link = reverse("confirm-signup-through-link", kwargs={"group_hash": hash, "token": token})
 
         subject = "Confirm myDALITE account"
         message = (
@@ -592,7 +593,7 @@ class Student(models.Model):
             + link
         )
         template = "students/email_confirmation.html"
-        context = {"token": token, "link": link, "host": host}
+        context = {"link": link, "host": host}
 
         try:
             send_mail(
