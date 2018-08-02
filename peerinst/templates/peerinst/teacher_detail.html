@@ -108,7 +108,7 @@
     <span class="mdc-list-item__text mdc-theme--secondary bold">
       {% if not g.title %} {{ g.name }} {% else %} {{ g.title }} {% endif %}
       <span class="mdc-list-item__secondary-text">
-        {% trans "Created: " %}{{ g.creation_date }}
+        {% trans "Created: " %} {{ g.creation_date }}
       </span>
       <span class="mdc-list-item__secondary-text">
         {% trans "Students: " %} {{ g.student_set.count  }}
@@ -118,8 +118,8 @@
       <a href="{% url 'report-all-assignments' teacher_id=teacher.id group_id=g.name|urlencode:"" %}">
         <i class="material-icons md-24 mdc-ripple-surface icon-list">bar_chart</i>
       </a>
-      <a href="{% url 'teacher-groups' teacher.id %}">
-      <i class="material-icons md-24 mdc-ripple-surface icon-list">info</i>
+      <a href="{% url 'group-detail' pk=teacher.id group_hash=g.hash %}">
+      <i class="material-icons md-24 mdc-ripple-surface icon-list">share</i>
       </a>
     </span>
   </li>

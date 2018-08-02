@@ -8,6 +8,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from .models import (
     StudentGroup,
+    StudentGroupAssignment,
     Assignment,
     BlinkAssignmentQuestion,
     BlinkQuestion,
@@ -279,6 +280,11 @@ class ActivateForm(forms.Form):
     )
 
 
+class EmailForm(forms.Form):
+    """Form for user email address"""
+    email = forms.EmailField()
+
+
 class AddRemoveQuestionForm(forms.Form):
     q = forms.ModelChoiceField(queryset=Question.objects.all())
 
@@ -335,3 +341,9 @@ class AnswerChoiceForm(forms.ModelForm):
             )
         else:
             return self.cleaned_data["text"]
+
+
+class StudentGroupAssignmentForm(ModelForm):
+     class Meta:
+         model = StudentGroupAssignment
+         fields = '__all__'

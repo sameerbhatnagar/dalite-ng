@@ -18,6 +18,7 @@ from django.core.mail import send_mail
 from django.core.urlresolvers import reverse
 from django.db import models, IntegrityError
 from django.db.models import Q
+from django.template import loader
 from django.utils.encoding import smart_bytes
 from django.utils.translation import ugettext_lazy as _
 from jsonfield import JSONField
@@ -563,6 +564,10 @@ class Student(models.Model):
             user = User.objects.create_user(
                 username=username, email=email, password=password
             )
+
+            # Set inactive until confirmed by user
+            user.is_active = False
+            user.save()
             student = Student.objects.create(student=user)
 
         output = student
@@ -570,6 +575,41 @@ class Student(models.Model):
             output, Student
         ), "Postcondition failed"
         return output
+
+
+    def send_confirmation_email(self):
+        """Sends e-mail with link for confirmation of account."""
+        err = None
+
+        user_email = self.student.email
+        token = create_student_token(user_email)
+        link = reverse('confirm-signup-through-link', kwargs={'token' : token})
+
+        subject = "Confirm myDALITE account"
+        message = (
+            "Please confirm myDALITE account by going to: https://mydalite.org/"+link
+        )
+        template = "students/email_confirmation.html"
+        context = {"token" : token, "link" : link}
+
+        try:
+            send_mail(
+                subject,
+                message,
+                "noreply@myDALITE.org",
+                [user_email],
+                fail_silently=False,
+                html_message=loader.render_to_string(
+                    template, context=context
+                ),
+            )
+        except smtplib.SMTPException:
+            err = "There was an error sending the email."
+
+        output = err
+        assert err is None or isinstance(
+            output, basestring
+        ), "Postcondition failed"
 
 
 class Institution(models.Model):
@@ -814,7 +854,6 @@ class StudentAssignment(models.Model):
 
     def send_email(self, mail_type="login"):
         assert isinstance(mail_type, basestring) and mail_type in (
-            "confirmation",
             "login",
             "new_assignment",
         ), "Precondition failed for `mail_type`"
@@ -824,20 +863,22 @@ class StudentAssignment(models.Model):
         user_email = self.student.user.email
 
         if user_email:
-            if mail_type == "confirmation":
 
-                subject = "Confirm myDALITE account"
+            if mail_type == "login":
+
+                subject = "Login to myDALITE"
                 message = (
-                    "Please confirm myDALITE account by clicking on the "
-                    "link below."
+                    "Click link below to login to your account."
                 )
-                template = "students/email_confirmation.html"
-
-            elif mail_type == "login":
 
                 template = "students/email_login.html"
 
             elif mail_type == "new_assignment":
+
+                subject = "Access assignment"
+                message = (
+                    "Click link below to access your assignment."
+                )
 
                 template = "students/email_new_assignment.html"
 

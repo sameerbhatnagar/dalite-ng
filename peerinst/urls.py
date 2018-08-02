@@ -103,14 +103,24 @@ urlpatterns = [
     url(r"^heartbeat/$", views.HeartBeatUrl.as_view(), name="heartbeat"),
     # Standalone
     url(
-        r"^live/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$",
+        r"^live/(?P<token>[0-9A-Za-z_\.]+)/(?P<assignment_hash>[0-9A-Za-z]+)$",
         views.live,
         name="live",
     ),
     url(
-        r"^live/(?P<assignment_id>[^/]+)/(?P<question_id>\d+)/(?P<direction>(next|prev))/$",
+        r"^live/(?P<assignment_id>[^/]+)/(?P<question_id>\d+)/(?P<direction>(next|prev))$",
         views.navigate_assignment,
         name="navigate-assignment",
+    ),
+    url(
+        r"^live/signup/(?P<group_hash>[0-9A-Za-z=_-]+)$",
+        views.signup_through_link,
+        name="signup-through-link",
+    ),
+    url(
+        r"^live/signup/confirm/(?P<token>[0-9A-Za-z_\.]+)$",
+        views.confirm_signup_through_link,
+        name="confirm-signup-through-link",
     ),
     # Admin
     url(r"^dashboard/$", views.dashboard, name="dashboard"),
@@ -184,6 +194,11 @@ urlpatterns = [
         r"^teacher/(?P<pk>[0-9]+)/groups/$",
         views.TeacherGroups.as_view(),
         name="teacher-groups",
+    ),
+    url(
+        r"^teacher/(?P<pk>[0-9]+)/group/(?P<group_hash>[0-9A-Za-z=_-]+)$",
+        views.TeacherGroupDetail.as_view(),
+        name="group-detail",
     ),
     url(
         r"^teacher/(?P<teacher_id>[0-9]+)/report/(?P<assignment_id>[^/]+)/all_groups/$",

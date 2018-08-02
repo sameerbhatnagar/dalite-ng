@@ -13,9 +13,9 @@
     <a href="{% url 'teacher' teacher.id %}">{% trans 'Back to My Account' %}</a>
   </div>
 
-  <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Current' %}</h2>
+  <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'My LTI groups' %}</h2>
   {% if not teacher.groups.all %}
-  <p>{% blocktrans %}You are not currently following any student groups.  You can select groups to follow from the lists below.{% endblocktrans %}</p>
+  <p>{% blocktrans %}You are not currently following any student LTI groups.  You can select LTI groups to follow from the lists below.{% endblocktrans %}</p>
   {% endif %}
 
   <ul class="mdc-list mdc-list--two-line mdc-list--non-interactive">
@@ -53,7 +53,7 @@
   <p> Logic to come to suggest groups based on assignments. </p>
   -->
 
-  <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'All' %}</h2>
+  <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'All LTI groups' %}</h2>
 
   <ul class="mdc-list mdc-list--two-line mdc-list--non-interactive">
     {% for g in object_list.all %}

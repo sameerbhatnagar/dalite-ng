@@ -23,6 +23,7 @@ from django.core.urlresolvers import reverse, reverse_lazy
 from django.db.models import Q
 from django.forms import inlineformset_factory, Textarea
 from django.http import (
+    Http404,
     HttpResponseBadRequest,
     HttpResponseForbidden,
     HttpResponseRedirect,
@@ -1640,6 +1641,36 @@ class TeacherBase(LoginRequiredMixin, NoStudentsMixin, View):
                     return super(TeacherBase, self).dispatch(*args, **kwargs)
         else:
             raise PermissionDenied
+
+
+class TeacherGroupDetail(TeacherBase, DetailView):
+    """Share link for a group"""
+
+    model = Teacher
+    template_name = "peerinst/teacher_group_detail.html"
+
+    def get_object(self):
+        self.teacher = get_object_or_404(Teacher, user=self.request.user)
+        hash = self.kwargs.get('group_hash', None)
+
+        if hash is not None:
+            obj = StudentGroup.get(hash)
+
+            if obj is None:
+                raise Http404()
+
+            return obj
+
+        else:
+            # Bad request
+            response = TemplateResponse(self.request, "400.html")
+            return HttpResponseBadRequest(response.render())
+
+    def get_context_data(self, **kwargs):
+        context = super(TeacherGroupDetail, self).get_context_data(**kwargs)
+        context["teacher"] = self.teacher
+
+        return context
 
 
 class TeacherDetailView(TeacherBase, DetailView):
