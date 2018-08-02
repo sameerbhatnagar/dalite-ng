@@ -2,3 +2,4 @@
 
 django-storages-redux==1.3
 sentry
+boto==2.38.0
