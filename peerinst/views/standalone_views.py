@@ -40,11 +40,12 @@ def signup_through_link(request, group_hash):
     group = StudentGroup.get(group_hash)
 
     if group is None:
-        raise Http404
+        raise Http404()
     else:
         if request.method == "POST":
             form = EmailForm(request.POST)
             if form.is_valid():
+
                 # Create student
                 student = Student.get_or_create(form.cleaned_data["email"])
 
@@ -59,6 +60,7 @@ def signup_through_link(request, group_hash):
                     "registration/sign_up_student_done.html",
                     context={"student": student, "group": group},
                 )
+
         else:
             form = EmailForm()
 
