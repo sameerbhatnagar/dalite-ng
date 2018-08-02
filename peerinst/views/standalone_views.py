@@ -46,18 +46,13 @@ def signup_through_link(request, group_hash):
             form = EmailForm(request.POST)
             if form.is_valid():
                 # Create student
-                student = Student.create(form.cleaned_data["email"])
-                if student is None:
-                    # Try to get current student
-                    student = get_object_or_404(
-                        Student, student__email=form.cleaned_data["email"]
-                    )
+                student = Student.get_or_create(form.cleaned_data["email"])
 
                 # Add to group (only *active* users should be counted)
                 student.groups.add(group)
 
                 # Send confirmation e-mail
-                student.send_confirmation_email()
+                student.send_confirmation_email(request.get_host())
 
                 return TemplateResponse(
                     request,

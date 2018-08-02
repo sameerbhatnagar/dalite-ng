@@ -575,8 +575,9 @@ class Student(models.Model):
         assert isinstance(output, Student), "Postcondition failed"
         return output
 
-    def send_confirmation_email(self):
+    def send_confirmation_email(self, host):
         """Sends e-mail with link for confirmation of account."""
+        assert isinstance(host, basestring), "Precondition failed for `host`"
         err = None
 
         user_email = self.student.email
@@ -589,7 +590,7 @@ class Student(models.Model):
             + link
         )
         template = "students/email_confirmation.html"
-        context = {"token": token, "link": link}
+        context = {"token": token, "link": link, "host": host}
 
         try:
             send_mail(
