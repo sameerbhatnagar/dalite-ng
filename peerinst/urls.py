@@ -103,7 +103,7 @@ urlpatterns = [
     url(r"^heartbeat/$", views.HeartBeatUrl.as_view(), name="heartbeat"),
     # Standalone
     url(
-        r"^live/(?P<token>[0-9A-Za-z_\.]+)/(?P<assignment_hash>[0-9A-Za-z]+)$",
+        r"^live/(?P<token>[0-9A-Za-z_=\.]+)/(?P<assignment_hash>[0-9A-Za-z]+)$",
         views.live,
         name="live",
     ),
@@ -118,7 +118,7 @@ urlpatterns = [
         name="signup-through-link",
     ),
     url(
-        r"^live/signup/confirm/(?P<token>[0-9A-Za-z_]+)$",
+        r"^live/signup/confirm/(?P<token>[0-9A-Za-z_=\.]+)$",
         views.confirm_signup_through_link,
         name="confirm-signup-through-link",
     ),

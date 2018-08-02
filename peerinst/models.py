@@ -587,7 +587,8 @@ class Student(models.Model):
 
         subject = "Confirm myDALITE account"
         message = (
-            "Please confirm myDALITE account by going to: https://mydalite.org/"
+            "Please confirm myDALITE account by going to: "
+            + host
             + link
         )
         template = "students/email_confirmation.html"
