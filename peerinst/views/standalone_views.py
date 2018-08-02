@@ -12,7 +12,7 @@ from django.http import (
     HttpResponseBadRequest,
     HttpResponseRedirect,
     HttpResponseForbidden,
-    HttpResponseServerError
+    HttpResponseServerError,
 )
 from django.shortcuts import get_object_or_404, render
 from django.template.response import TemplateResponse
@@ -20,7 +20,14 @@ from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_POST, require_safe
 
 from ..forms import EmailForm, StudentGroupAssignmentForm
-from ..models import Assignment, Question, Student, StudentAssignment, StudentGroup, StudentGroupAssignment
+from ..models import (
+    Assignment,
+    Question,
+    Student,
+    StudentAssignment,
+    StudentGroup,
+    StudentGroupAssignment,
+)
 from ..students import authenticate_student, verify_student_token
 from ..util import get_object_or_none
 
@@ -35,7 +42,7 @@ def signup_through_link(request, group_hash):
     if group is None:
         raise Http404()
     else:
-        if request.method == 'POST':
+        if request.method == "POST":
             form = EmailForm(request.POST)
             if form.is_valid():
                 student = Student.get_or_create(form.cleaned_data['email'])
@@ -55,7 +62,11 @@ def signup_through_link(request, group_hash):
         else:
             form = EmailForm()
 
-        return TemplateResponse(request, 'registration/sign_up_student.html', context={'form' : form, 'group': group})
+        return TemplateResponse(
+            request,
+            "registration/sign_up_student.html",
+            context={"form": form, "group": group},
+        )
 
 
 @require_safe
@@ -65,14 +76,16 @@ def confirm_signup_through_link(request, token):
     logout(request)
 
     # Validate token and activate account
-    email, error = verify_student_token(token)
+    email, err = verify_student_token(token)
 
     if email is not None:
         student = get_object_or_404(Student, student__email=email)
         student.student.is_active = True
         student.save()
 
-        return TemplateResponse(request, 'registration/sign_up_student_confirmation.html')
+        return TemplateResponse(
+            request, "registration/sign_up_student_confirmation.html"
+        )
     else:
         raise PermissionDenied
 
@@ -90,9 +103,8 @@ def live(request, token, assignment_hash):
     # Get assignment for this token and current question
     group_assignment = StudentGroupAssignment.get(assignment_hash)
     student_assignment = StudentAssignment.get(
-        student=user.student,
-        group_assignment=group_assignment
-        )
+        student=user.student, group_assignment=group_assignment
+    )
 
     # Redirect to view
     return HttpResponseRedirect(

@@ -185,6 +185,40 @@ def new_student_group_assignments(n, groups, assignments, due_date=None):
     return [next(gen) for _ in range(n)]
 
 
+def new_users(n):
+    def generator():
+        chars = string.ascii_letters + string.digits + "_-."
+        gen = _extra_chars_gen()
+        while True:
+            yield {
+                "username": "{}{}".format(
+                    "".join(
+                        random.choice(chars)
+                        for _ in range(random.randint(1, 12))
+                    ),
+                    next(gen),
+                ),
+                "email": "{}@{}.{}".format(
+                    "".join(
+                        random.choice(chars)
+                        for _ in range(random.randint(1, 32))
+                    ),
+                    "".join(
+                        random.choice(chars)
+                        for _ in range(random.randint(1, 10))
+                    ),
+                    "".join(
+                        random.choice(chars)
+                        for _ in range(random.randint(2, 3))
+                    ),
+                ),
+                "password": "test",
+            }
+
+    gen = generator()
+    return [next(gen) for _ in range(n)]
+
+
 def add_answers(answers):
     return [Answer.objects.create(**a) for a in answers]
 
@@ -210,7 +244,7 @@ def add_questions(questions):
 
 
 def add_students(students):
-    return [Student.create(**s) for s in students]
+    return [Student.get_or_create(**s) for s in students]
 
 
 def add_student_assignments(student_assignments):
@@ -221,6 +255,10 @@ def add_student_group_assignments(group_assignments):
     return [
         StudentGroupAssignment.objects.create(**g) for g in group_assignments
     ]
+
+
+def add_users(users):
+    return [User.objects.create_user(**u) for u in users]
 
 
 def add_second_choice_to_answers(answers, n_second_choices=None):
