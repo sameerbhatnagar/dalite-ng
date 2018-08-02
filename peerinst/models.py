@@ -544,7 +544,7 @@ class Student(models.Model):
         verbose_name_plural = _("students")
 
     @staticmethod
-    def create(email):
+    def get_or_create(email):
         """
         Adds the student by using hashes of the email for the username and
         password.
@@ -554,12 +554,13 @@ class Student(models.Model):
 
         student = None
 
-        if (
-            not User.objects.filter(email=email).exists()
-            and not Student.objects.filter(student__email=email).exists()
-        ):
+        username, password = get_student_username_and_password(email)
 
-            username, password = get_student_username_and_password(email)
+        try:
+            student = Student.objects.get(
+                student__username=username, student__email=email
+            )
+        except Student.DoesNotExist:
 
             user = User.objects.create_user(
                 username=username, email=email, password=password
@@ -571,11 +572,8 @@ class Student(models.Model):
             student = Student.objects.create(student=user)
 
         output = student
-        assert output is None or isinstance(
-            output, Student
-        ), "Postcondition failed"
+        assert isinstance(output, Student), "Postcondition failed"
         return output
-
 
     def send_confirmation_email(self):
         """Sends e-mail with link for confirmation of account."""
@@ -583,14 +581,15 @@ class Student(models.Model):
 
         user_email = self.student.email
         token = create_student_token(user_email)
-        link = reverse('confirm-signup-through-link', kwargs={'token' : token})
+        link = reverse("confirm-signup-through-link", kwargs={"token": token})
 
         subject = "Confirm myDALITE account"
         message = (
-            "Please confirm myDALITE account by going to: https://mydalite.org/"+link
+            "Please confirm myDALITE account by going to: https://mydalite.org/"
+            + link
         )
         template = "students/email_confirmation.html"
-        context = {"token" : token, "link" : link}
+        context = {"token": token, "link": link}
 
         try:
             send_mail(
@@ -867,18 +866,14 @@ class StudentAssignment(models.Model):
             if mail_type == "login":
 
                 subject = "Login to myDALITE"
-                message = (
-                    "Click link below to login to your account."
-                )
+                message = "Click link below to login to your account."
 
                 template = "students/email_login.html"
 
             elif mail_type == "new_assignment":
 
                 subject = "Access assignment"
-                message = (
-                    "Click link below to access your assignment."
-                )
+                message = "Click link below to access your assignment."
 
                 template = "students/email_new_assignment.html"
 
@@ -889,7 +884,7 @@ class StudentAssignment(models.Model):
                 )
 
             context = {
-                "token": create_token(self.student.user.username),
+                "token": create_student_token(self.student.user.username),
                 "link": "",
             }
 
