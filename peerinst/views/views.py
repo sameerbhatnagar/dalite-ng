@@ -2671,7 +2671,7 @@ def report(request, teacher_id="", assignment_id="", group_id=""):
 
     elif len(group_id) == 0:
         assignment_list = [urllib.unquote(assignment_id)]
-        student_groups = teacher.groups.all().values_list("pk")
+        student_groups = teacher.current_groups.all().values_list("pk")
 
     elif len(assignment_id) == 0:
         student_groups = [
