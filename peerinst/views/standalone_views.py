@@ -18,6 +18,7 @@ from django.shortcuts import get_object_or_404, render
 from django.template.response import TemplateResponse
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_POST, require_safe
+from django.views.generic import ListView
 from django.views.generic.edit import CreateView
 
 from ..forms import EmailForm, StudentGroupAssignmentForm
@@ -181,17 +182,48 @@ class StudentGroupAssignmentCreateView(
     model = StudentGroupAssignment
     form_class = StudentGroupAssignmentForm
 
+    def get_form(self):
+        form = super(StudentGroupAssignmentCreateView, self).get_form()
+        teacher = get_object_or_404(Teacher, user=self.request.user)
+        form.fields["group"].queryset = teacher.studentgroup_set.all()
+
+        return form
+
     def form_valid(self, form):
-        # Create instance
+        # Attach assignment and save
+        form.instance.assignment = get_object_or_404(Assignment, pk=self.kwargs["assignment_id"])
+        self.object = form.save()
 
         # Dispatch e-mails
+        #self.object.send_assignment_emails()
 
-        # Return to account
-        pass
+        return super(StudentGroupAssignmentCreateView, self).form_valid(form)
+
+    def get_success_url(self):
+        teacher = get_object_or_404(Teacher, user=self.request.user)
+        return reverse("group-assignments", kwargs={"teacher_id": teacher.pk})
 
     def get_context_data(self, **kwargs):
         context = super(StudentGroupAssignmentCreateView, self).get_context_data(**kwargs)
         teacher = get_object_or_404(Teacher, user=self.request.user)
         context["assignment"] = get_object_or_404(Assignment, pk=self.kwargs["assignment_id"])
+        context["teacher"] = teacher
+        return context
+
+
+class StudentGroupAssignmentListView(
+    LoginRequiredMixin, NoStudentsMixin, ListView
+):
+    model = StudentGroupAssignment
+    template_name = "peerinst/teacher_studentgroup_assignments.html"
+
+    def get_queryset(self):
+        teacher = get_object_or_404(Teacher, user=self.request.user)
+        queryset = StudentGroupAssignment.objects.filter(group__teacher=teacher)
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super(StudentGroupAssignmentListView, self).get_context_data(**kwargs)
+        teacher = get_object_or_404(Teacher, user=self.request.user)
         context["teacher"] = teacher
         return context

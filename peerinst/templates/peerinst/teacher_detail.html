@@ -94,6 +94,7 @@
 
 <div class="admin-link">
   <a href="{% url 'teacher-groups' teacher.id %}">{% trans 'Manage groups' %}</a>
+  <span style="padding-left:0.3em;padding-right:0.5em;">|</span><a href="{% url 'group-assignments' teacher.id %}">{% trans 'Manage homework' %}</a>
 </div>
 {% if not object.current_groups.all %}
 <p class='mdc-typography--body1'>{% blocktrans %}You have no active student groups.{% endblocktrans %}</p>
