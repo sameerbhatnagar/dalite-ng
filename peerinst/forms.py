@@ -329,7 +329,7 @@ class ReportSelectForm(forms.Form):
         ).assignments.all()
         self.base_fields["student_groups"].queryset = Teacher.objects.get(
             user__username=teacher_username
-        ).groups.all()
+        ).current_groups.all()
         forms.Form.__init__(self, *args, **kwargs)
 
 
@@ -354,4 +354,7 @@ class StudentGroupCreateForm(forms.ModelForm):
 class StudentGroupAssignmentForm(ModelForm):
      class Meta:
          model = StudentGroupAssignment
-         fields = '__all__'
+         fields = ('group', 'due_date')
+         widgets = {
+            'due_date' : forms.SplitDateTimeWidget,
+         }

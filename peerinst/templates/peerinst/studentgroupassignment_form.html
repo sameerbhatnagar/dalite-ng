@@ -1,0 +1,41 @@
+{% extends 'peerinst/base.html' %}
+
+{% load compress staticfiles add_class i18n %}
+
+{% block body %}
+<main>
+<section>
+  <div class="meta-container">
+    <div class="container">
+      <h1 class="mdc-typography--display3" style="position:sticky;">{% trans 'Distribute Assignment' %}
+        <svg class="underline" width=150 height=4></svg>
+      </h1>
+
+      <div class="admin-link">
+        <a href="{% url 'teacher' teacher.id %}">{% trans 'Back to My Account' %}</a>
+        <span style="padding-left:0.3em;padding-right:0.5em;">|</span><a href="{% url 'teacher-assignments' teacher.id %}">{% trans 'Back to My Assignments' %}</a>
+      </div>
+
+      <h2 class="mdc-typography--display1 mdc-theme--secondary">{{ assignment.title }}</h2>
+
+      <div class='field-container'>
+        <div class='number-box'><span class='number'>?</span></div>
+        <div class='field'>
+          <p><small>
+            {% blocktrans %}
+            Select which of your groups you would like to complete this assignment and specify a due date.  The due date can be changed later.  Upon clicking submit, your students will receive an e-mail with a link to the assignment.
+            {% endblocktrans %}
+          </small></p>
+        </div>
+      </div>
+
+      {{form.errors}}
+      <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <input class="mdc-button mdc-button--raised padded-top" type="submit" value="{% trans 'Assign' %}" />
+      </form>
+
+</main>
+</section>
+{% endblock %}

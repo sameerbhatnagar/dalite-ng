@@ -87,7 +87,7 @@ class ApplicationHookManager(AbstractApplicationHookManager):
                 'admin:peerinst_question_change', args=(question_id,)
             )
 
-        redirect_url =  reverse('question', 
+        redirect_url =  reverse('question',
             kwargs=dict(assignment_id=assignment_id, question_id=question_id))
         if show_results_view == 'true':
             redirect_url += '?show_results_view=true'

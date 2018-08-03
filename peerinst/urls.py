@@ -103,17 +103,17 @@ urlpatterns = [
     url(r"^heartbeat/$", views.HeartBeatUrl.as_view(), name="heartbeat"),
     # Standalone
     url(
-        r"^live/(?P<token>[0-9A-Za-z=_-]+)/(?P<assignment_hash>[0-9A-Za-z]+)$",
+        r"^live/access/(?P<token>[0-9A-Za-z=_-]+)/(?P<assignment_hash>[0-9A-Za-z]+)$",
         views.live,
         name="live",
     ),
     url(
-        r"^live/(?P<assignment_id>[^/]+)/(?P<question_id>\d+)/(?P<direction>(next|prev))$",
+        r"^live/navigate/(?P<assignment_id>[^/]+)/(?P<question_id>\d+)/(?P<direction>(next|prev))$",
         views.navigate_assignment,
         name="navigate-assignment",
     ),
     url(
-        r"^live/signup/(?P<group_hash>[0-9A-Za-z=_-]+)$",
+        r"^live/signup/form/(?P<group_hash>[0-9A-Za-z=_-]+)$",
         views.signup_through_link,
         name="signup-through-link",
     ),
@@ -121,6 +121,11 @@ urlpatterns = [
         r"^live/signup/confirm/(?P<group_hash>[0-9A-Za-z=_-]+)/(?P<token>[0-9A-Za-z=_-]+)$",
         views.confirm_signup_through_link,
         name="confirm-signup-through-link",
+    ),
+    url(
+        r"^live/studentgroupassignment/create/(?P<assignment_id>[^/]+)$",
+        views.StudentGroupAssignmentCreateView.as_view(),
+        name="student-group-assignment-create",
     ),
     # Admin
     url(r"^dashboard/$", views.dashboard, name="dashboard"),

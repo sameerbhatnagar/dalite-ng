@@ -18,8 +18,13 @@ from django.shortcuts import get_object_or_404, render
 from django.template.response import TemplateResponse
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_POST, require_safe
+from django.views.generic.edit import CreateView
 
 from ..forms import EmailForm, StudentGroupAssignmentForm
+from ..mixins import (
+    LoginRequiredMixin,
+    NoStudentsMixin,
+)
 from ..models import (
     Assignment,
     Question,
@@ -27,6 +32,7 @@ from ..models import (
     StudentAssignment,
     StudentGroup,
     StudentGroupAssignment,
+    Teacher,
 )
 from ..students import authenticate_student, verify_student_token
 from ..util import get_object_or_none
@@ -165,3 +171,22 @@ def create_group_assignment(request, assignment_id):
         # Bad request
         response = TemplateResponse(request, "400.html")
         return HttpResponseBadRequest(response.render())
+
+
+class StudentGroupAssignmentCreateView(
+    LoginRequiredMixin, NoStudentsMixin, CreateView
+):
+    """View to distribute an assignment to a group."""
+
+    model = StudentGroupAssignment
+    form_class = StudentGroupAssignmentForm
+
+    def form_valid(self, form):
+        pass
+
+    def get_context_data(self, **kwargs):
+        context = super(StudentGroupAssignmentCreateView, self).get_context_data(**kwargs)
+        teacher = get_object_or_404(Teacher, user=self.request.user)
+        context["assignment"] = get_object_or_404(Assignment, pk=self.kwargs["assignment_id"])
+        context["teacher"] = teacher
+        return context

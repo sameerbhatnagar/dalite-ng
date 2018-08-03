@@ -260,3 +260,6 @@ except ImportError:
     warnings.warn(
         "File local_settings.py not found.  You probably want to add it -- see README.md."
     )
+    pass
+
+
