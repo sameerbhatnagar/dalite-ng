@@ -185,6 +185,11 @@ class StudentGroupAssignmentCreateView(
     form_class = StudentGroupAssignmentForm
 
     def form_valid(self, form):
+        # Create instance
+
+        # Dispatch e-mails
+
+        # Return to account
         pass
 
     def get_context_data(self, **kwargs):

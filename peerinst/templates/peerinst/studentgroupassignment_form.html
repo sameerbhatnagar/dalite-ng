@@ -2,6 +2,11 @@
 
 {% load compress staticfiles add_class i18n %}
 
+{% block stylesheets %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+{% endblock %}
+
 {% block body %}
 <main>
 <section>
@@ -29,7 +34,8 @@
         </div>
       </div>
 
-      {{form.errors}}
+      {{ form.errors }}
+      {{ form.media }}
       <form method="post">
         {% csrf_token %}
         {{ form.as_p }}
@@ -38,4 +44,13 @@
 
 </main>
 </section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+flatpickr("#id_due_date", {
+    enableTime: true,
+    dateFormat: "Y-m-d H:i",
+});
+</script>
 {% endblock %}

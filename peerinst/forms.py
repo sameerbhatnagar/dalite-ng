@@ -355,6 +355,3 @@ class StudentGroupAssignmentForm(ModelForm):
      class Meta:
          model = StudentGroupAssignment
          fields = ('group', 'due_date')
-         widgets = {
-            'due_date' : forms.SplitDateTimeWidget,
-         }
