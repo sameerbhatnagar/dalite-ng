@@ -988,7 +988,7 @@ class QuestionFormView(QuestionMixin, FormView):
         if created_group:
             group.save()
 
-        teacher_hash = self.lti_data.get('custom_teacher_id')
+        teacher_hash = self.lti_data.edx_lti_parameters.get('custom_teacher_id')
         if teacher_hash is not None:
             teacher = Teacher.get(teacher_hash)
             if teacher not in group.teacher.all():
