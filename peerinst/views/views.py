@@ -1801,7 +1801,7 @@ class TeacherGroups(TeacherBase, ListView):
 
     def get_queryset(self):
         self.teacher = get_object_or_404(Teacher, user=self.request.user)
-        return StudentGroup.objects.all()
+        return self.teacher.studentgroup_set.all()
 
     def get_context_data(self, **kwargs):
         context = super(TeacherGroups, self).get_context_data(**kwargs)
@@ -1816,17 +1816,17 @@ class TeacherGroups(TeacherBase, ListView):
         form = forms.TeacherGroupsForm(request.POST)
         if form.is_valid():
             group = form.cleaned_data["group"]
-            if group in self.teacher.groups.all():
-                self.teacher.groups.remove(group)
+            if group in self.teacher.current_groups.all():
+                self.teacher.current_groups.remove(group)
             else:
-                self.teacher.groups.add(group)
+                self.teacher.current_groups.add(group)
             self.teacher.save()
         else:
             form = forms.StudentGroupCreateForm(request.POST)
             if form.is_valid():
                 form.save()
-                # Add created_by field!
-                self.teacher.groups.add(form.instance)
+                form.instance.teacher.add(self.teacher)
+                self.teacher.current_groups.add(form.instance)
             else:
                 return render(
                     request,
@@ -1835,7 +1835,7 @@ class TeacherGroups(TeacherBase, ListView):
                         "teacher": self.teacher,
                         "form": forms.TeacherGroupsForm(),
                         "create_form": form,
-                        "object_list": StudentGroup.objects.all(),
+                        "object_list": self.teacher.studentgroup_set.all(),
                     },
                 )
 

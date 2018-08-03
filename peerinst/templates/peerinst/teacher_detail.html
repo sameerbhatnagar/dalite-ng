@@ -95,11 +95,11 @@
 <div class="admin-link">
   <a href="{% url 'teacher-groups' teacher.id %}">{% trans 'Manage groups' %}</a>
 </div>
-{% if not object.groups.all %}
-<p class='mdc-typography--body1'>{% blocktrans %}You are not currently following any student groups.{% endblocktrans %}</p>
+{% if not object.current_groups.all %}
+<p class='mdc-typography--body1'>{% blocktrans %}You have no active student groups.{% endblocktrans %}</p>
 {% endif %}
 <ul class="mdc-list mdc-list--two-line mdc-list--non-interactive">
-  {% for g in object.groups.all %}
+  {% for g in object.current_groups.all %}
   <li role="separator" class="mdc-list-divider"></li>
   <li class="mdc-list-item">
     <span class="mdc-list-item__graphic mdc-theme--primary">

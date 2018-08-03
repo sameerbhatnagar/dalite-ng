@@ -48,14 +48,13 @@
     <input class="mdc-button mdc-button--raised padded-top" type="submit" value="{% trans 'Create' %}" />
   </form>
 
-
-  <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'My LTI groups' %}</h2>
-  {% if not teacher.groups.all %}
-  <p>{% blocktrans %}You are not currently following any student LTI groups.  You can select LTI groups to follow from the lists below.{% endblocktrans %}</p>
+  <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'My current groups' %}</h2>
+  {% if not teacher.current_groups.all %}
+  <p>{% blocktrans %}You have no current student groups.{% endblocktrans %}</p>
   {% endif %}
 
   <ul class="mdc-list mdc-list--two-line mdc-list--non-interactive">
-    {% for g in teacher.groups.all %}
+    {% for g in teacher.current_groups.all %}
     <li role="separator" class="mdc-list-divider"></li>
     <li class="mdc-list-item" onclick="edit_groups()">
       <span class="mdc-list-item__graphic mdc-theme--primary">
@@ -84,24 +83,16 @@
     <li role="separator" class="mdc-list-divider"></li>
   </ul>
 
-  <!-- Not implemented yet
-  <h2 class="mdc-typography--display1 mdc-theme--secondary">Suggested</h2>
-  <p> Logic to come to suggest groups based on assignments. </p>
-  -->
-
-  <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'All LTI groups' %}</h2>
+  {% if teacher.current_groups.count < teacher.studentgroup_set.count %}
+  <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'My other groups' %}</h2>
 
   <ul class="mdc-list mdc-list--two-line mdc-list--non-interactive">
     {% for g in object_list.all %}
-    {% if g not in teacher.groups.all %}
+    {% if g not in teacher.current_groups.all %}
     <li role="separator" class="mdc-list-divider"></li>
-    <li class="mdc-list-item">
+    <li class="mdc-list-item" onclick="edit_groups()">
       <span class="mdc-list-item__graphic mdc-theme--primary">
-        <form action="" method="post">
-          {% csrf_token %}
-          <input type="hidden" id="id_group" name="group" value="{{g.pk}}"/>
-          <input class="material-icons small-button mdc-button mdc-button--raised" type="submit" value="add"/>
-        </form>
+        <i class="mdc-theme--primary material-icons md-48">group</i>
       </span>
       <span class="mdc-list-item__text mdc-theme--secondary bold">
         {{ g }}
@@ -112,11 +103,21 @@
           {% trans "Students: " %} {{ g.student_set.count  }}
         </span>
       </span>
+      <span class="mdc-list-item__meta">
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" id="id_group" name="group" value="{{g.pk}}"/>
+            <div class="mdc-ripple-surface input-ripple-wrapper">
+              <input class="material-icons md-24 mdc-button small-button" style="padding:0pt;margin:0pt;" type="submit" value="add_circle"/>
+            </div>
+        </form>
+      </span>
     </li>
     {% endif %}
     {% endfor %}
     <li role="separator" class="mdc-list-divider"></li>
   </ul>
+  {% endif %}
 
   </section>
 </main>

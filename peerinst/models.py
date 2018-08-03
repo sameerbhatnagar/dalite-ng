@@ -650,6 +650,7 @@ class Teacher(models.Model):
     disciplines = models.ManyToManyField(Discipline, blank=True)
     assignments = models.ManyToManyField(Assignment, blank=True)
     deleted_questions = models.ManyToManyField(Question, blank=True)
+    current_groups = models.ManyToManyField(StudentGroup, blank=True, related_name="current_groups")
 
     def get_absolute_url(self):
         return reverse("teacher", kwargs={"pk": self.pk})
