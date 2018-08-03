@@ -56,7 +56,7 @@
   <ul class="mdc-list mdc-list--two-line mdc-list--non-interactive">
     {% for g in teacher.current_groups.all %}
     <li role="separator" class="mdc-list-divider"></li>
-    <li class="mdc-list-item" onclick="edit_groups()">
+    <li class="mdc-list-item">
       <span class="mdc-list-item__graphic mdc-theme--primary">
         <i class="mdc-theme--primary material-icons md-48">group</i>
       </span>
@@ -90,7 +90,7 @@
     {% for g in object_list.all %}
     {% if g not in teacher.current_groups.all %}
     <li role="separator" class="mdc-list-divider"></li>
-    <li class="mdc-list-item" onclick="edit_groups()">
+    <li class="mdc-list-item">
       <span class="mdc-list-item__graphic mdc-theme--primary">
         <i class="mdc-theme--primary material-icons md-48">group</i>
       </span>
