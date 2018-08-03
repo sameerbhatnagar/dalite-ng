@@ -226,7 +226,7 @@ class TestStudentAssignment(TestCase):
         self.assertEqual(correct, question)
 
     def test_get_current_question_only_first_answer_choices(self):
-        n_assignments = 3
+        n_assignments = 5
         assignments = add_student_assignments(
             new_student_assignments(n_assignments, self.groups, self.students)
         )
@@ -253,6 +253,7 @@ class TestStudentAssignment(TestCase):
                     len(answers[i])
                 ],
             )
+        self.assertTrue(False)
 
     def test_get_current_question_all_first_answer_choices(self):
         n_assignments = 1
@@ -278,13 +279,16 @@ class TestStudentAssignment(TestCase):
             new_student_assignments(n_assignments, self.groups, self.students)
         )
         answers_ = [
-            add_answers(
-                new_answers(
-                    len(
-                        assignment.group_assignment.assignment.questions.all()
-                    ),
-                    [assignment],
-                )
+            (
+                add_answers(
+                    new_answers(
+                        len(
+                            assignment.group_assignment.assignment.questions.all()
+                        ),
+                        [assignment],
+                    )
+                ),
+                assignment,
             )
             for assignment in assignments
         ]
@@ -292,7 +296,7 @@ class TestStudentAssignment(TestCase):
         answers = [
             [
                 aa
-                for aa in add_second_choice_to_answers(a)
+                for aa in add_second_choice_to_answers(a[0], a[1])
                 if aa.chosen_rationale is not None
             ]
             for a in answers_

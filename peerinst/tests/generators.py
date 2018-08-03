@@ -114,7 +114,7 @@ def new_questions(n):
                 "title": "{}{}".format(
                     "".join(
                         random.choice(chars)
-                        for _ in range(random.randint(1, 10))
+                        for _ in range(random.randint(1, 4))
                     ),
                     next(gen),
                 ),
@@ -261,16 +261,20 @@ def add_users(users):
     return [User.objects.create_user(**u) for u in users]
 
 
-def add_second_choice_to_answers(answers, n_second_choices=None):
+def add_second_choice_to_answers(answers, assignment, n_second_choices=None):
     assignments = set((a.assignment for a in answers))
-    for assignment in assignments:
-        answers_ = [a for a in answers if a.assignment == assignment]
-        for i in range(n_second_choices or random.randrange(1, len(answers_))):
-            answers_[i].chosen_rationale = random.choice(answers_)
-            answers_[i].second_answer_choice = answers_[
-                i
-            ].chosen_rationale.first_answer_choice
-            answers_[i].save()
+    answers_ = [
+        a
+        for a in answers
+        if a.assignment == assignment.group_assignment.assignment
+        and a.user_token == assignment.student.student.username
+    ]
+    for i in range(n_second_choices or random.randrange(1, len(answers_))):
+        answers_[i].chosen_rationale = random.choice(answers_)
+        answers_[i].second_answer_choice = answers_[
+            i
+        ].chosen_rationale.first_answer_choice
+        answers_[i].save()
     return answers
 
 

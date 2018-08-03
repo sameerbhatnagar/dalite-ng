@@ -583,11 +583,16 @@ class Student(models.Model):
 
         user_email = self.student.email
         token = create_student_token(user_email)
-        hash = group.hash
+        hash_ = group.hash
         link = reverse(
             "confirm-signup-through-link",
-            kwargs={"group_hash": hash, "token": token},
+            kwargs={"group_hash": hash_, "token": token},
         )
+
+        if host == "localhost" or host == "127.0.0.1":
+            protocol = "http"
+        else:
+            protocol = "https"
 
         subject = "Confirm myDALITE account"
         message = "Please confirm myDALITE account by going to: " + host + link
@@ -872,6 +877,7 @@ class StudentAssignment(models.Model):
     )
     first_access = models.DateTimeField(editable=False, auto_now=True)
     last_access = models.DateTimeField(editable=False, auto_now=True)
+    order = models.TextField(blank=True)
 
     class Meta:
         unique_together = ("student", "group_assignment")
@@ -879,7 +885,23 @@ class StudentAssignment(models.Model):
     def __unicode__(self):
         return "{} for {}".format(self.group_assignment, self.student)
 
-    def send_email(self, mail_type="login"):
+    def _verify_order(self):
+        pass
+
+    def save(self, *args, **kwargs):
+        if self.order is None:
+            order = ",".join(
+                map(
+                    str,
+                    range(
+                        len(self.group_assignment.assignment.questions.all())
+                    ),
+                )
+            )
+
+    def send_email(self, link, host, mail_type="login"):
+        assert isinstance(link, basestring), "Precondition failed for `link`"
+        assert isinstance(host, basestring), "Precondition failed for `host`"
         assert isinstance(mail_type, basestring) and mail_type in (
             "login",
             "new_assignment",
@@ -911,9 +933,16 @@ class StudentAssignment(models.Model):
                     "mail types."
                 )
 
+            if host == "localhost" or host == "127.0.0.1":
+                protocol = "http"
+            else:
+                protocol = "https"
+
             context = {
                 "token": create_student_token(self.student.user.username),
-                "link": "",
+                "link": link,
+                "host": host,
+                "protocol": protocol,
             }
 
             try:
@@ -954,11 +983,6 @@ class StudentAssignment(models.Model):
         has_first_answer = [
             a.first_answer_choice is not None if a else False for a in answers
         ]
-        #  print(questions)
-        print(self.group_assignment)
-        print(answers)
-        #  print(has_first_answer)
-        #  print([a.first_answer_choice for a in answers if a])
         # if a question has at least one missing answer (no first choice or no
         # answer), returns the first question with no answer or no first answer
         # choice
@@ -968,8 +992,6 @@ class StudentAssignment(models.Model):
             has_second_answer = [
                 a.second_answer_choice is not None for a in answers
             ]
-            #  print(has_second_answer)
-            #  print([a.second_answer_choice for a in answers])
             # if there is a question missing the second answer, returns it or
             # returns None if all questions have been answered twice
             if not all(has_second_answer):
@@ -981,3 +1003,26 @@ class StudentAssignment(models.Model):
             output, Question
         ), "Postcondition failed"
         return output
+
+    def modify_order(self, order):
+        assert isinstance(order, basestring), "Precondition failed for `order`"
+
+        n = len(self.group_assignment.assignment.questions.all())
+
+        err = None
+
+        split = order.split(",")
+
+        try:
+            numeric = list(map(int, split))
+        except ValueError:
+            err = "Given `order` isn't a comma separated list of integers."
+
+        if err is None and any(x < 0 for x in numeric):
+            err = "Given `order` has negative values."
+
+        if err is None and any(x >= n for x in numeric):
+            err = (
+                "Given `order` has at least one value bigger than "
+                "the number of questions"
+            )

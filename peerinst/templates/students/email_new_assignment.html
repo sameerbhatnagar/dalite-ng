@@ -1,0 +1,23 @@
+
+{% extends 'students/email_base.html' %}
+
+{% load i18n %}
+
+{% block body %}
+
+<h3>{% trans "A new assignment was created by your teacher" %}</h3>
+
+<p>{% trans "Clicking the link below will take you directly to the new assignment and log you in." %}</p>
+
+<p style="text-align: center; margin: 50px 0;">
+  <a class="email-btn" href="{{ protocol }}://{{ host }}{{ link }}" target="_blank">Confirm</a>
+</p>
+
+<p>
+  {% trans "If the button above doesn't work, paste this link into your web browser:" %}
+</p>
+<p>
+  <a href="{{ protocol }}://{{ host }}{{ link }}" target="_blank">{{ protocol }}://{{ host }}{{ link }}</a>
+</p>
+
+{% endblock %}
