@@ -497,7 +497,7 @@ class StudentGroup(models.Model):
     name = models.CharField(max_length=100, unique=True)
     title = models.CharField(max_length=100, null=True, blank=True)
     creation_date = models.DateField(blank=True, null=True, auto_now=True)
-    #created_by = models.ForeignKey('Teacher', blank=True, null=True, on_delete=models.SET_NULL)
+    #teacher = models.ManyToManyField('Teacher', blank=True, null=True)
 
     def __unicode__(self):
         if not self.title:
@@ -654,6 +654,27 @@ class Teacher(models.Model):
 
     def get_absolute_url(self):
         return reverse("teacher", kwargs={"pk": self.pk})
+
+    @staticmethod
+    def get(hash_):
+        assert isinstance(hash_, basestring), "Precondition failed for `hash_`"
+        username = str(base64.urlsafe_b64decode(hash_.encode()).decode())
+        try:
+            teacher = Teacher.objects.get(user__username=username)
+        except Teacher.DoesNotExist:
+            teacher = None
+
+        output = teacher
+        assert output is None or isinstance(
+            output, StudentGroupAssignment
+        ), "Postcondition failed"
+        return output
+
+    @property
+    def hash(self):
+        output = base64.urlsafe_b64encode(str(self.user.username).encode()).decode()
+        assert isinstance(output, basestring), "Postcondition failed"
+        return output
 
     def __unicode__(self):
         return self.user.username

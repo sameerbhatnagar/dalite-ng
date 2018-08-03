@@ -987,6 +987,13 @@ class QuestionFormView(QuestionMixin, FormView):
 
         if created_group:
             group.save()
+
+        if group.created_by is None:
+            teacher_hash = self.lti_data.get('custom_teacher_id')
+            if teacher_hash is not None:
+                group.created_by = Teacher.get(teacher_hash)
+                group.save()
+
         student.groups.add(group)
         student.save()
 

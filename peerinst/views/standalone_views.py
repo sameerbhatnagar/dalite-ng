@@ -18,8 +18,13 @@ from django.shortcuts import get_object_or_404, render
 from django.template.response import TemplateResponse
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_POST, require_safe
+from django.views.generic.edit import CreateView
 
 from ..forms import EmailForm, StudentGroupAssignmentForm
+from ..mixins import (
+    LoginRequiredMixin,
+    NoStudentsMixin,
+)
 from ..models import (
     Assignment,
     Question,
@@ -165,3 +170,12 @@ def create_group_assignment(request, assignment_id):
         # Bad request
         response = TemplateResponse(request, "400.html")
         return HttpResponseBadRequest(response.render())
+
+
+class StudentGroupAssignmentCreateView(
+    LoginRequiredMixin, NoStudentsMixin, CreateView
+):
+    """View to distribute an assignment to a group."""
+
+    model = StudentGroupAssignment
+    fields = "__all__"

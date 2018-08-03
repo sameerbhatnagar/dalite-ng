@@ -194,10 +194,10 @@
       </span>
     </span>
     <span class="mdc-list-item__meta">
+      <i id="activate-dialog-{{a.pk|slugify}}" class="material-icons md-24 mdc-ripple-surface icon-list">info</i>
       <a href="{% url 'report-all-groups' teacher_id=teacher.id assignment_id=a.identifier|urlencode:"" %}">
         <i class="material-icons md-24 mdc-ripple-surface icon-list">bar_chart</i>
       </a>
-      <i id="activate-dialog-{{a.pk|slugify}}" class="material-icons md-24 mdc-ripple-surface icon-list">info</i>
       {% if object.user in a.owner.all and a.answer_set.count == 0 %}
         <a  id="edit-assignment-{{ a.pk|slugify }}" href="{% url 'assignment-update' a.pk %}">
           <i class="material-icons md-24 mdc-ripple-surface icon-list">mode_edit</i>
@@ -207,6 +207,9 @@
           <i class="material-icons md-24 mdc-ripple-surface icon-list">file_copy</i>
         </a>
       {% endif %}
+      <a href="">
+        <i class="material-icons md-24 mdc-ripple-surface icon-list">send</i>
+      </a>
     </span>
   </li>
 
@@ -233,8 +236,9 @@
         {% for q in a.questions.all %}
           <li><span class="bold">{{ q.title }}:</span>
             <ul>
-              <li>{% trans 'assignment_id' %}={{ a.identifier }}</li>
-              <li>{% trans 'question id' %}={{ q.id }}</li>
+              <li>assignment_id={{ a.identifier }}</li>
+              <li>question_id={{ q.id }}</li>
+              <li>teacher_id={{ teacher.hash }}</li>
             </ul>
         {% endfor %}
         </ul>
