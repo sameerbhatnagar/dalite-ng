@@ -497,7 +497,7 @@ class StudentGroup(models.Model):
     name = models.CharField(max_length=100, unique=True)
     title = models.CharField(max_length=100, null=True, blank=True)
     creation_date = models.DateField(blank=True, null=True, auto_now=True)
-    #created_by = models.ForeignKey('Teacher', blank=True, null=True, on_delete=models.SET_NULL)
+    # created_by = models.ForeignKey('Teacher', blank=True, null=True, on_delete=models.SET_NULL)
 
     def __unicode__(self):
         if not self.title:
@@ -584,14 +584,13 @@ class Student(models.Model):
         user_email = self.student.email
         token = create_student_token(user_email)
         hash = group.hash
-        link = reverse("confirm-signup-through-link", kwargs={"group_hash": hash, "token": token})
+        link = reverse(
+            "confirm-signup-through-link",
+            kwargs={"group_hash": hash, "token": token},
+        )
 
         subject = "Confirm myDALITE account"
-        message = (
-            "Please confirm myDALITE account by going to: "
-            + host
-            + link
-        )
+        message = "Please confirm myDALITE account by going to: " + host + link
         template = "students/email_confirmation.html"
         context = {"link": link, "host": host}
 
@@ -930,7 +929,11 @@ class StudentAssignment(models.Model):
         has_first_answer = [
             a.first_answer_choice is not None if a else False for a in answers
         ]
-        print(has_first_answer)
+        #  print(questions)
+        print(self.group_assignment)
+        print(answers)
+        #  print(has_first_answer)
+        #  print([a.first_answer_choice for a in answers if a])
         # if a question has at least one missing answer (no first choice or no
         # answer), returns the first question with no answer or no first answer
         # choice
@@ -940,8 +943,8 @@ class StudentAssignment(models.Model):
             has_second_answer = [
                 a.second_answer_choice is not None for a in answers
             ]
-            print(questions)
-            print(has_second_answer)
+            #  print(has_second_answer)
+            #  print([a.second_answer_choice for a in answers])
             # if there is a question missing the second answer, returns it or
             # returns None if all questions have been answered twice
             if not all(has_second_answer):

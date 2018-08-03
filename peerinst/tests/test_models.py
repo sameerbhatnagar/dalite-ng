@@ -298,17 +298,10 @@ class TestStudentAssignment(TestCase):
             for a in answers_
         ]
 
+        print(assignments)
+
         for i in range(len(assignments)):
             current = assignments[i].get_current_question()
-            print(assignments[i].group_assignment.assignment.questions.all())
-            print([a.first_answer_choice for a in answers_[i]])
-            print([a.second_answer_choice for a in answers_[i]])
-            print(current)
-            print(
-                assignments[i].group_assignment.assignment.questions.all()[
-                    len(answers[i])
-                ]
-            )
             self.assertEqual(
                 current,
                 assignments[i].group_assignment.assignment.questions.all()[
