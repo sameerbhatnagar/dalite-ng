@@ -23,6 +23,7 @@ from django.core.urlresolvers import reverse, reverse_lazy
 from django.db.models import Q
 from django.forms import inlineformset_factory, Textarea
 from django.http import (
+    Http404,
     HttpResponseBadRequest,
     HttpResponseForbidden,
     HttpResponseRedirect,
@@ -51,25 +52,25 @@ from django_lti_tool_provider.models import LtiUserData
 from opaque_keys import InvalidKeyError
 from opaque_keys.edx.keys import CourseKey
 
-from . import heartbeat_checks
-from . import admin
-from . import forms
-from . import models
-from . import rationale_choice
-from .util import (
+from .. import heartbeat_checks
+from .. import admin
+from .. import forms
+from .. import models
+from .. import rationale_choice
+from ..util import (
     SessionStageData,
     get_object_or_none,
     int_or_none,
     roundrobin,
     student_list_from_student_groups,
 )
-from .admin_views import (
+from ..admin_views import (
     get_question_rationale_aggregates,
     get_assignment_aggregates,
     AssignmentResultsViewBase,
 )
 
-from .mixins import (
+from ..mixins import (
     LoginRequiredMixin,
     NoStudentsMixin,
     ObjectPermissionMixin,
@@ -78,7 +79,7 @@ from .mixins import (
     teacher_tos_accepted_check,
 )
 
-from .models import (
+from ..models import (
     Student,
     StudentGroup,
     Teacher,
@@ -111,10 +112,8 @@ from django.db.models import Count, Value, Case, Q, When, CharField
 # tos
 from tos.models import Consent, Tos
 
-
 LOGGER = logging.getLogger(__name__)
 LOGGER_teacher_activity = logging.getLogger("teacher_activity")
-
 
 # Views related to Auth
 @require_safe
@@ -988,6 +987,13 @@ class QuestionFormView(QuestionMixin, FormView):
 
         if created_group:
             group.save()
+
+        teacher_hash = self.lti_data.get('custom_teacher_id')
+        if teacher_hash is not None:
+            teacher = Teacher.get(teacher_hash)
+            if teacher not in group.teacher.all():
+                group.teacher.add(teacher)
+
         student.groups.add(group)
         student.save()
 
@@ -1019,6 +1025,17 @@ class QuestionFormView(QuestionMixin, FormView):
         if msg is not None:
             messages.error(self.request, msg)
         raise QuestionReload()
+
+    def get_context_data(self, **kwargs):
+        context = super(QuestionFormView, self).get_context_data(
+            **kwargs
+        )
+        # Pass hint so that template knows context
+        if self.lti_data:
+            context.update(lti=True,)
+        else:
+            context.update(lti=False,)
+        return context
 
 
 class QuestionStartView(QuestionFormView):
@@ -1633,6 +1650,36 @@ class TeacherBase(LoginRequiredMixin, NoStudentsMixin, View):
             raise PermissionDenied
 
 
+class TeacherGroupDetail(TeacherBase, DetailView):
+    """Share link for a group"""
+
+    model = Teacher
+    template_name = "peerinst/teacher_group_detail.html"
+
+    def get_object(self):
+        self.teacher = get_object_or_404(Teacher, user=self.request.user)
+        hash = self.kwargs.get('group_hash', None)
+
+        if hash is not None:
+            obj = StudentGroup.get(hash)
+
+            if obj is None:
+                raise Http404()
+
+            return obj
+
+        else:
+            # Bad request
+            response = TemplateResponse(self.request, "400.html")
+            return HttpResponseBadRequest(response.render())
+
+    def get_context_data(self, **kwargs):
+        context = super(TeacherGroupDetail, self).get_context_data(**kwargs)
+        context["teacher"] = self.teacher
+
+        return context
+
+
 class TeacherDetailView(TeacherBase, DetailView):
     """Teacher account"""
 
@@ -1754,12 +1801,13 @@ class TeacherGroups(TeacherBase, ListView):
 
     def get_queryset(self):
         self.teacher = get_object_or_404(Teacher, user=self.request.user)
-        return StudentGroup.objects.all()
+        return self.teacher.studentgroup_set.all()
 
     def get_context_data(self, **kwargs):
         context = super(TeacherGroups, self).get_context_data(**kwargs)
         context["teacher"] = self.teacher
         context["form"] = forms.TeacherGroupsForm()
+        context["create_form"] = forms.StudentGroupCreateForm()
 
         return context
 
@@ -1768,11 +1816,28 @@ class TeacherGroups(TeacherBase, ListView):
         form = forms.TeacherGroupsForm(request.POST)
         if form.is_valid():
             group = form.cleaned_data["group"]
-            if group in self.teacher.groups.all():
-                self.teacher.groups.remove(group)
+            if group in self.teacher.current_groups.all():
+                self.teacher.current_groups.remove(group)
             else:
-                self.teacher.groups.add(group)
+                self.teacher.current_groups.add(group)
             self.teacher.save()
+        else:
+            form = forms.StudentGroupCreateForm(request.POST)
+            if form.is_valid():
+                form.save()
+                form.instance.teacher.add(self.teacher)
+                self.teacher.current_groups.add(form.instance)
+            else:
+                return render(
+                    request,
+                    self.template_name,
+                    {
+                        "teacher": self.teacher,
+                        "form": forms.TeacherGroupsForm(),
+                        "create_form": form,
+                        "object_list": self.teacher.studentgroup_set.all(),
+                    },
+                )
 
         return HttpResponseRedirect(
             reverse("teacher-groups", kwargs={"pk": self.teacher.pk})
@@ -2606,7 +2671,7 @@ def report(request, teacher_id="", assignment_id="", group_id=""):
 
     elif len(group_id) == 0:
         assignment_list = [urllib.unquote(assignment_id)]
-        student_groups = teacher.groups.all().values_list("pk")
+        student_groups = teacher.current_groups.all().values_list("pk")
 
     elif len(assignment_id) == 0:
         student_groups = [

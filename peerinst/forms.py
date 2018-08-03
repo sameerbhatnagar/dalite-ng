@@ -8,6 +8,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from .models import (
     StudentGroup,
+    StudentGroupAssignment,
     Assignment,
     BlinkAssignmentQuestion,
     BlinkQuestion,
@@ -279,6 +280,11 @@ class ActivateForm(forms.Form):
     )
 
 
+class EmailForm(forms.Form):
+    """Form for user email address"""
+    email = forms.EmailField()
+
+
 class AddRemoveQuestionForm(forms.Form):
     q = forms.ModelChoiceField(queryset=Question.objects.all())
 
@@ -323,7 +329,7 @@ class ReportSelectForm(forms.Form):
         ).assignments.all()
         self.base_fields["student_groups"].queryset = Teacher.objects.get(
             user__username=teacher_username
-        ).groups.all()
+        ).current_groups.all()
         forms.Form.__init__(self, *args, **kwargs)
 
 
@@ -335,3 +341,20 @@ class AnswerChoiceForm(forms.ModelForm):
             )
         else:
             return self.cleaned_data["text"]
+
+
+class StudentGroupCreateForm(forms.ModelForm):
+    """Simple form to create a new group"""
+
+    class Meta:
+        model = StudentGroup
+        fields = ["title", "name"]
+
+
+class StudentGroupAssignmentForm(ModelForm):
+     class Meta:
+         model = StudentGroupAssignment
+         fields = ('group', 'due_date')
+         widgets = {
+            'due_date' : forms.SplitDateTimeWidget,
+         }

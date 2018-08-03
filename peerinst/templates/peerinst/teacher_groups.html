@@ -1,6 +1,6 @@
 {% extends 'peerinst/base.html' %}
 
-{% load i18n %}
+{% load i18n add_class %}
 
 {% block body %}
 
@@ -13,15 +13,50 @@
     <a href="{% url 'teacher' teacher.id %}">{% trans 'Back to My Account' %}</a>
   </div>
 
-  <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Current' %}</h2>
-  {% if not teacher.groups.all %}
-  <p>{% blocktrans %}You are not currently following any student groups.  You can select groups to follow from the lists below.{% endblocktrans %}</p>
+  <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Create a new group' %}</h2>
+
+  <div class='field-container'>
+    <div class='number-box'><span class='number'>?</span></div>
+    <div class='field'>
+      <p><small>
+        {% blocktrans %}
+        The group title may be displayed and should be informative. The group name is used as the keyword for access.  It must be unique but does not need to be informative.
+        {% endblocktrans %}
+      </small></p>
+    </div>
+  </div>
+
+  {{create_form.errors}}
+  <form method="post">
+    {% csrf_token %}
+    {% for field in create_form %}
+      <div class="mdc-text-field mdc-text-field--outlined mdc-text-field--dense" data-mdc-auto-init="MDCTextField">
+        {{ field|add_class:"mdc-text-field__input" }}
+        {{ field.label_tag|add_class:"mdc-floating-label"|cut:":" }}
+        <div class="mdc-notched-outline">
+          <svg>
+            <path class="mdc-notched-outline__path"/>
+          </svg>
+        </div>
+        <div class="mdc-notched-outline__idle"></div>
+      </div>
+      <p class="mdc-text-field-helper-text mdc-text-field-helper-text--persistent" aria-hidden="true">
+        {{ field.help_text|safe }}
+      </p>
+      {{ field.errors }}
+    {% endfor %}
+    <input class="mdc-button mdc-button--raised padded-top" type="submit" value="{% trans 'Create' %}" />
+  </form>
+
+  <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'My current groups' %}</h2>
+  {% if not teacher.current_groups.all %}
+  <p>{% blocktrans %}You have no current student groups.{% endblocktrans %}</p>
   {% endif %}
 
   <ul class="mdc-list mdc-list--two-line mdc-list--non-interactive">
-    {% for g in teacher.groups.all %}
+    {% for g in teacher.current_groups.all %}
     <li role="separator" class="mdc-list-divider"></li>
-    <li class="mdc-list-item" onclick="edit_groups()">
+    <li class="mdc-list-item">
       <span class="mdc-list-item__graphic mdc-theme--primary">
         <i class="mdc-theme--primary material-icons md-48">group</i>
       </span>
@@ -48,24 +83,16 @@
     <li role="separator" class="mdc-list-divider"></li>
   </ul>
 
-  <!-- Not implemented yet
-  <h2 class="mdc-typography--display1 mdc-theme--secondary">Suggested</h2>
-  <p> Logic to come to suggest groups based on assignments. </p>
-  -->
-
-  <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'All' %}</h2>
+  {% if teacher.current_groups.count < teacher.studentgroup_set.count %}
+  <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'My other groups' %}</h2>
 
   <ul class="mdc-list mdc-list--two-line mdc-list--non-interactive">
     {% for g in object_list.all %}
-    {% if g not in teacher.groups.all %}
+    {% if g not in teacher.current_groups.all %}
     <li role="separator" class="mdc-list-divider"></li>
     <li class="mdc-list-item">
       <span class="mdc-list-item__graphic mdc-theme--primary">
-        <form action="" method="post">
-          {% csrf_token %}
-          <input type="hidden" id="id_group" name="group" value="{{g.pk}}"/>
-          <input class="material-icons small-button mdc-button mdc-button--raised" type="submit" value="add"/>
-        </form>
+        <i class="mdc-theme--primary material-icons md-48">group</i>
       </span>
       <span class="mdc-list-item__text mdc-theme--secondary bold">
         {{ g }}
@@ -76,11 +103,21 @@
           {% trans "Students: " %} {{ g.student_set.count  }}
         </span>
       </span>
+      <span class="mdc-list-item__meta">
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" id="id_group" name="group" value="{{g.pk}}"/>
+            <div class="mdc-ripple-surface input-ripple-wrapper">
+              <input class="material-icons md-24 mdc-button small-button" style="padding:0pt;margin:0pt;" type="submit" value="add_circle"/>
+            </div>
+        </form>
+      </span>
     </li>
     {% endif %}
     {% endfor %}
     <li role="separator" class="mdc-list-divider"></li>
   </ul>
+  {% endif %}
 
   </section>
 </main>

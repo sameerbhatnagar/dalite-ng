@@ -30,7 +30,7 @@ urlpatterns += i18n_patterns(
             # Question reset (for testing purposes) - Enforce sameorigin to prevent access from LMS
             url(r'^reset/$', peerinst_views.reset_question, name='reset-question'),
         ])),
-        url(r'^update/$',peerinst_views.AssignmentUpdateView.as_view(),name='assignment-update')
+        url(r'^update/$', peerinst_views.AssignmentUpdateView.as_view(), name='assignment-update')
     ])),
     url(r'^grappelli/', include('grappelli.urls')),
     url(

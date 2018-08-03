@@ -433,6 +433,25 @@ div.input-ripple-wrapper input {
   transform: rotate(-45deg);
 }
 
+
+.nav-question {
+  position: relative;
+  height: 100px;
+}
+.prev-question {
+  position: absolute;
+  bottom: 0%;
+  left:0%;
+}
+.next-question {
+  position: absolute;
+  bottom: 0%;
+  right:0%;
+}
+
+
+
+
 /* Authorship */
 
 .field-container {

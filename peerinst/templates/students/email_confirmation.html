@@ -1,0 +1,22 @@
+{% extends 'students/email_base.html' %}
+
+{% load i18n %}
+
+{% block body %}
+
+<h1>{% trans "Confirm email for you myDALITE account" %}</h1>
+
+<p>{% trans "Please confirm your myDALITE account by clicking the link below." %}</p>
+
+<p style="text-align: center; margin: 50px 0;">
+  <a class="email-btn" href="http://{{ host }}{{ link }}" target="_blank">Confirm</a>
+</p>
+
+<p>
+  {% trans "If the button above doesn't work, paste this link into your web browser:" %}
+</p>
+<p>
+  <a href="http://{{ host }}{{ link }}" target="_blank">http://{{ host }}{{ link }}</a>
+</p>
+
+{% endblock %}

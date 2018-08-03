@@ -23,7 +23,6 @@ from ..models import Consent, Tos, Role
 @login_required
 @require_http_methods(["GET"])
 def tos_consent(req, role, version=None):
-    print("TEST")
     username = req.user.username
     _consent, context = _consent_view(req, username, role, version)
     if isinstance(_consent, HttpResponse):
@@ -114,7 +113,6 @@ def _consent_view(req, username, role, version):
             "400.html",
             context={"message": _('"{}" isn\'t a valid role.'.format(role))},
         )
-        print(1)
         return HttpResponseBadRequest(resp.render()), None
     if not User.objects.filter(username=username).exists():
         resp = TemplateResponse(
@@ -124,7 +122,6 @@ def _consent_view(req, username, role, version):
                 "message": _('The user "{}" doesn\'t exist.'.format(username))
             },
         )
-        print(2)
         return HttpResponseBadRequest(resp.render()), None
 
     version = int(version) if version is not None else version
@@ -135,14 +132,12 @@ def _consent_view(req, username, role, version):
             "500.html",
             context={"message": _("There is no terms of service yet.")},
         )
-        print(3)
         return HttpResponseServerError(resp.render()), None
 
     tos, err = Tos.get(role=role, version=version)
 
     if tos is None:
         resp = TemplateResponse(req, "400.html", context={"message": _(err)})
-        print(4)
         return HttpResponseBadRequest(resp.render()), None
 
     consent_ = Consent.get(username=username, role=role, version=version)

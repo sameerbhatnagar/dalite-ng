@@ -166,7 +166,7 @@ class QuestionViewTestCase(TestCase):
 class QuestionViewTest(QuestionViewTestCase):
     def assert_grade_signal(self, grade=Grade.INCORRECT):
         send = mock.call(
-            "peerinst.views",
+            "peerinst.views.views",
             user=self.user,
             custom_key=self.custom_key,
             grade=grade,
@@ -482,17 +482,17 @@ class EventLogTest(QuestionViewTestCase):
             self.assertEqual(event["event"]["max_grade"], Grade.CORRECT)
 
     @ddt.data(Grade.CORRECT, Grade.INCORRECT, Grade.PARTIAL)
-    @mock.patch("peerinst.views.LOGGER")
+    @mock.patch("peerinst.views.views.LOGGER")
     def test_events_scoring_enabled(self, grade, logger):
         self.mock_get_grade.return_value = grade
         self._test_events(logger, grade=grade)
 
-    @mock.patch("peerinst.views.LOGGER")
+    @mock.patch("peerinst.views.views.LOGGER")
     def test_events_scoring_disabled(self, logger):
         self.log_in_with_scoring_disabled()
         self._test_events(logger, scoring_disabled=True)
 
-    @mock.patch("peerinst.views.LOGGER")
+    @mock.patch("peerinst.views.views.LOGGER")
     def test_events_arbitrary_course_id(self, logger):
         # Try using a non-edX compatible number as the course_id (just like Moodle does).
         self.COURSE_ID = "504"
