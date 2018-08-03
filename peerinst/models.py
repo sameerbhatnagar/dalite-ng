@@ -666,7 +666,7 @@ class Teacher(models.Model):
 
         output = teacher
         assert output is None or isinstance(
-            output, StudentGroupAssignment
+            output, Teacher
         ), "Postcondition failed"
         return output
 
