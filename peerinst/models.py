@@ -497,7 +497,7 @@ class StudentGroup(models.Model):
     name = models.CharField(max_length=100, unique=True)
     title = models.CharField(max_length=100, null=True, blank=True)
     creation_date = models.DateField(blank=True, null=True, auto_now=True)
-    #teacher = models.ManyToManyField('Teacher', blank=True, null=True)
+    teacher = models.ManyToManyField('Teacher', blank=True)
 
     def __unicode__(self):
         if not self.title:
@@ -650,7 +650,6 @@ class Teacher(models.Model):
     disciplines = models.ManyToManyField(Discipline, blank=True)
     assignments = models.ManyToManyField(Assignment, blank=True)
     deleted_questions = models.ManyToManyField(Question, blank=True)
-    groups = models.ManyToManyField(StudentGroup, blank=True)
 
     def get_absolute_url(self):
         return reverse("teacher", kwargs={"pk": self.pk})
