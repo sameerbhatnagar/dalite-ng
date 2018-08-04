@@ -206,6 +206,11 @@ urlpatterns = [
         name="group-detail",
     ),
     url(
+        r"^teacher/(?P<teacher_id>[0-9]+)/group_assignments/$",
+        views.StudentGroupAssignmentListView.as_view(),
+        name="group-assignments",
+    ),
+    url(
         r"^teacher/(?P<teacher_id>[0-9]+)/report/(?P<assignment_id>[^/]+)/all_groups/$",
         views.report,
         name="report-all-groups",
