@@ -34,7 +34,6 @@ export {
   toolbar,
 };
 
-
 // D3
 import * as d3 from 'd3';
 
@@ -62,74 +61,79 @@ export {
   values,
 } from 'd3';
 
+// Custom functions (works with utils.scss)
+import {toggleFoldable} from './utils';
+
+Array.from(document.getElementsByClassName('foldable--title')).map(x =>
+  x.addEventListener('click', e => toggleFoldable(e)),
+);
 
 // Ajax
 /** Define csrf safe HTTP methods
-*   https://docs.djangoproject.com/en/1.8/ref/csrf/
-* @function
-* @param {String} method
-* @return {Boolean}
-*/
+ *   https://docs.djangoproject.com/en/1.8/ref/csrf/
+ * @function
+ * @param {String} method
+ * @return {Boolean}
+ */
 export function csrfSafeMethod(method) {
-    // these HTTP methods do not require CSRF protection
-    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+  // these HTTP methods do not require CSRF protection
+  return /^(GET|HEAD|OPTIONS|TRACE)$/.test(method);
 }
 
 /** Get csrf token using jQuery
-*   https://docs.djangoproject.com/en/1.8/ref/csrf/
-* @function
-* @param {String} name
-* @return {String}
-*/
+ *   https://docs.djangoproject.com/en/1.8/ref/csrf/
+ * @function
+ * @param {String} name
+ * @return {String}
+ */
 export function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie != '') {
-        let cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            let cookie = jQuery.trim(cookies[i]);
-            // Does this cookie string begin with the name we want?
-            if (cookie.substring(0, name.length + 1) == (name + '=')) {
-                cookieValue=decodeURIComponent(cookie.substring(name.length+1));
-                break;
-            }
-        }
+  let cookieValue = null;
+  if (document.cookie && document.cookie != '') {
+    let cookies = document.cookie.split(';');
+    for (let i = 0; i < cookies.length; i++) {
+      let cookie = jQuery.trim(cookies[i]);
+      // Does this cookie string begin with the name we want?
+      if (cookie.substring(0, name.length + 1) == name + '=') {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
     }
-    return cookieValue;
+  }
+  return cookieValue;
 }
 
 /** Replace element with text input form using Ajax
-* @function
-* @param {String} idToBind
-* @param {String} formToReplace
-* @param {String} url
-*/
+ * @function
+ * @param {String} idToBind
+ * @param {String} formToReplace
+ * @param {String} url
+ */
 export function bindAjaxTextInputForm(idToBind, formToReplace, url) {
   let d = document.getElementById(idToBind);
   if (d) {
     d.onclick = function() {
       /** The callback
-      * @function
-      * @this Callback
-      */
+       * @function
+       * @this Callback
+       */
       function callback() {
         bundle.autoInit();
         let input = this.querySelector('.mdc-text-field__input');
         input.focus();
       }
-      $('#'+formToReplace).load(url, callback);
+      $('#' + formToReplace).load(url, callback);
     };
   }
 }
 
-
 // Custom functions
 /** Corner language switcher
-* @function
-* @param {String} svgSelector
-* @param {String} formID
-* @param {String} lang
-* @param {String} className
-*/
+ * @function
+ * @param {String} svgSelector
+ * @param {String} formID
+ * @param {String} lang
+ * @param {String} className
+ */
 export function cornerGraphic(svgSelector, formID, lang, className) {
   let svg = d3.select(svgSelector);
   let w = +svg.attr('width');
@@ -137,76 +141,88 @@ export function cornerGraphic(svgSelector, formID, lang, className) {
 
   const g = svg.append('g');
   g.append('path')
-  .attr('class', className)
-  .attr('d', () => {
-    let path = d3.path();
-    path.moveTo(0, h);
-    path.lineTo(w, 0);
-    path.lineTo(w, h);
-    path.closePath();
-    return path;
-  });
+    .attr('class', className)
+    .attr('d', () => {
+      let path = d3.path();
+      path.moveTo(0, h);
+      path.lineTo(w, 0);
+      path.lineTo(w, h);
+      path.closePath();
+      return path;
+    });
 
   g.append('text')
-  .attr('x', w-w/3)
-  .attr('y', h-h/3+h/6)
-  .attr('text-anchor', 'middle')
-  .style('fill', 'white')
-  .style('font-size', h/3+'px')
-  .text(lang);
+    .attr('x', w - w / 3)
+    .attr('y', h - h / 3 + h / 6)
+    .attr('text-anchor', 'middle')
+    .style('fill', 'white')
+    .style('font-size', h / 3 + 'px')
+    .text(lang);
 
   g.on('click', () => {
     document.getElementById(formID).submit();
   });
 }
 
-
 /** Mike Bostock's svg line wrap function
-*   https://bl.ocks.org/mbostock/7555321
-*   (only slightly modified)
-* @function
-* @param {String} text
-* @param {Int} width
-* @this Wrap
-*/
+ *   https://bl.ocks.org/mbostock/7555321
+ *   (only slightly modified)
+ * @function
+ * @param {String} text
+ * @param {Int} width
+ * @this Wrap
+ */
 export function wrap(text, width) {
-  text.each(/* @this */function() {
-    let text = bundle.select(this);
-    let words = text.text().split(/\s+/).reverse();
-    let word;
-    let line = [];
-    let lineNumber = 0;
-    let lineHeight = 16; // px
-    let x = text.attr('x');
-    let dx = text.attr('dx');
-    let y = text.attr('y');
-    let dy = parseFloat(text.attr('dy'));
-    let tspan = text.text(null).append('tspan')
-      .attr('x', x).attr('y', y).attr('dx', dx).attr('dy', dy + 'px');
-    while (word = words.pop()) {
-      line.push(word);
-      tspan.text(line.join(' '));
-      if (tspan.node().getComputedTextLength() > width) {
-        line.pop();
+  text.each(
+    /* @this */ function() {
+      let text = bundle.select(this);
+      let words = text
+        .text()
+        .split(/\s+/)
+        .reverse();
+      let word;
+      let line = [];
+      let lineNumber = 0;
+      let lineHeight = 16; // px
+      let x = text.attr('x');
+      let dx = text.attr('dx');
+      let y = text.attr('y');
+      let dy = parseFloat(text.attr('dy'));
+      let tspan = text
+        .text(null)
+        .append('tspan')
+        .attr('x', x)
+        .attr('y', y)
+        .attr('dx', dx)
+        .attr('dy', dy + 'px');
+      while ((word = words.pop())) {
+        line.push(word);
         tspan.text(line.join(' '));
-        line = [word];
-        tspan = text.append('tspan')
-          .attr('x', x)
-          .attr('y', y)
-          .attr('dx', dx)
-          .attr('dy', ++lineNumber * lineHeight + dy + 'px').text(word);
+        if (tspan.node().getComputedTextLength() > width) {
+          line.pop();
+          tspan.text(line.join(' '));
+          line = [word];
+          tspan = text
+            .append('tspan')
+            .attr('x', x)
+            .attr('y', y)
+            .attr('dx', dx)
+            .attr('dy', ++lineNumber * lineHeight + dy + 'px')
+            .text(word);
+        }
       }
-    }
-  });
+    },
+  );
 }
 
 /** Reveal elements and rotate icon
-* @function
-* @param {String} elementSelector
-* @param {String} groupSelector
-*/
+ * @function
+ * @param {String} elementSelector
+ * @param {String} groupSelector
+ */
 export function revealOnClick(elementSelector, groupSelector) {
-  let d = d3.select(elementSelector)
+  let d = d3
+    .select(elementSelector)
     .style('cursor', 'pointer')
     .style('transform', 'rotate(0deg)');
 
@@ -222,16 +238,20 @@ export function revealOnClick(elementSelector, groupSelector) {
         .style('transform', 'rotate(0deg)')
         .attr('show', 'false');
 
-      group.transition()
+      group
+        .transition()
         .ease(d3.easeCubicIn)
         .duration(800)
         .delay((d, i) => {
-          return 800/count*(count-i-1);
+          return (800 / count) * (count - i - 1);
         })
         .style('opacity', 0)
-        .on('end', /* @this */ function() {
-          d3.select(this).style('display', 'none');
-        });
+        .on(
+          'end',
+          /* @this */ function() {
+            d3.select(this).style('display', 'none');
+          },
+        );
     } else {
       d.transition()
         .ease(d3.easeCubicOut)
@@ -239,23 +259,27 @@ export function revealOnClick(elementSelector, groupSelector) {
         .style('transform', 'rotate(90deg)')
         .attr('show', 'true');
 
-      group.transition()
+      group
+        .transition()
         .ease(d3.easeCubicOut)
         .duration(800)
         .delay((d, i) => {
-          return 800/count*i;
+          return (800 / count) * i;
         })
         .style('opacity', 1)
-        .on('start', /* @this */ function() {
-          d3.select(this).style('display', 'block');
-        });
+        .on(
+          'start',
+          /* @this */ function() {
+            d3.select(this).style('display', 'block');
+          },
+        );
     }
   });
 }
 
 /** Underline h1 with svg
-*  @function
-*/
+ *  @function
+ */
 function underlines() {
   'use strict';
 
@@ -264,64 +288,70 @@ function underlines() {
   lines.selectAll('g').remove();
   let w = document.querySelector('main').offsetWidth;
 
-  let gradientX = lines.append('linearGradient')
-  .attr('id', 'underlineGradientX')
-  .attr('x1', 0)
-  .attr('x2', 1)
-  .attr('y1', 0)
-  .attr('y2', 0);
+  let gradientX = lines
+    .append('linearGradient')
+    .attr('id', 'underlineGradientX')
+    .attr('x1', 0)
+    .attr('x2', 1)
+    .attr('y1', 0)
+    .attr('y2', 0);
 
-  gradientX.append('stop')
-  .attr('offset', '0%')
-  .attr('stop-color', '#54c0db');
+  gradientX
+    .append('stop')
+    .attr('offset', '0%')
+    .attr('stop-color', '#54c0db');
 
-  gradientX.append('stop')
-  .attr('offset', '100%')
-  .attr('stop-color', '#004266');
+  gradientX
+    .append('stop')
+    .attr('offset', '100%')
+    .attr('stop-color', '#004266');
 
-  let gradientY = lines.append('linearGradient')
-  .attr('id', 'underlineGradientY')
-  .attr('x1', 0)
-  .attr('x2', 0)
-  .attr('y1', 0)
-  .attr('y2', 1);
+  let gradientY = lines
+    .append('linearGradient')
+    .attr('id', 'underlineGradientY')
+    .attr('x1', 0)
+    .attr('x2', 0)
+    .attr('y1', 0)
+    .attr('y2', 1);
 
-  gradientY.append('stop')
-  .attr('offset', '0%')
-  .attr('stop-color', '#004266');
+  gradientY
+    .append('stop')
+    .attr('offset', '0%')
+    .attr('stop-color', '#004266');
 
-  gradientY.append('stop')
-  .attr('offset', '100%')
-  .attr('stop-color', '#54c0db');
+  gradientY
+    .append('stop')
+    .attr('offset', '100%')
+    .attr('stop-color', '#54c0db');
 
   let g = lines.append('g');
   g.append('rect')
-  .attr('x', -10)
-  .attr('y', 0)
-  .attr('width', w+10)
-  .attr('height', 1)
-  .attr('fill', 'url(#underlineGradientX)');
+    .attr('x', -10)
+    .attr('y', 0)
+    .attr('width', w + 10)
+    .attr('height', 1)
+    .attr('fill', 'url(#underlineGradientX)');
 
   g.append('rect')
-  .attr('x', w)
-  .attr('y', 0)
-  .attr('width', 1)
-  .attr('height', 120)
-  .attr('fill', 'url(#underlineGradientY)');
+    .attr('x', w)
+    .attr('y', 0)
+    .attr('width', 1)
+    .attr('height', 120)
+    .attr('fill', 'url(#underlineGradientY)');
 }
 
 /** Question analytics
-*  @function
-*  @param {Object} matrix
-*  @param {Object} freq
-*  @param {string} id
-*/
+ *  @function
+ *  @param {Object} matrix
+ *  @param {Object} freq
+ *  @param {string} id
+ */
 export function plot(matrix, freq, id) {
   const colour = {
-    'easy': 'rgb(30, 142, 62)',
-    'hard': 'rgb(237, 69, 40)',
-    'tricky': 'rgb(237, 170, 30)',
-    'peer': 'rgb(25, 118, 188)',
+    easy: 'rgb(30, 142, 62)',
+    hard: 'rgb(237, 69, 40)',
+    tricky: 'rgb(237, 170, 30)',
+    peer: 'rgb(25, 118, 188)',
   };
   let max = -0;
   let label = '';
@@ -335,87 +365,87 @@ export function plot(matrix, freq, id) {
     }
   }
   if (max > 0) {
-    const rating = document.getElementById('rating-'+id);
-    rating.innerHTML=label.substring(0, 1).toUpperCase()+label.substring(1, );
+    const rating = document.getElementById('rating-' + id);
+    rating.innerHTML = label.substring(0, 1).toUpperCase() + label.substring(1);
 
-    const stats = document.getElementById('stats-'+id);
+    const stats = document.getElementById('stats-' + id);
     stats.style.color = colour[label];
   }
 
-  const matrixSvg = bundle.select('#matrix-'+id);
+  const matrixSvg = bundle.select('#matrix-' + id);
   let size = matrixSvg.attr('width');
   const g = matrixSvg.append('g');
 
   g.append('rect')
-  .attr('x', 0)
-  .attr('y', 0)
-  .attr('width', size/2)
-  .attr('height', size/2)
-  .attr('fill', colour['easy'])
-  .style('opacity', 0.5+0.5*matrix['easy']);
+    .attr('x', 0)
+    .attr('y', 0)
+    .attr('width', size / 2)
+    .attr('height', size / 2)
+    .attr('fill', colour['easy'])
+    .style('opacity', 0.5 + 0.5 * matrix['easy']);
 
   g.append('text')
-  .attr('x', size/4)
-  .attr('y', size/4)
-  .attr('dy', 4)
-  .style('font-size', '8pt')
-  .style('fill', 'white')
-  .style('text-anchor', 'middle')
-  .text(parseInt(100*matrix['easy'])+'%');
+    .attr('x', size / 4)
+    .attr('y', size / 4)
+    .attr('dy', 4)
+    .style('font-size', '8pt')
+    .style('fill', 'white')
+    .style('text-anchor', 'middle')
+    .text(parseInt(100 * matrix['easy']) + '%');
 
   g.append('rect')
-  .attr('x', size/2)
-  .attr('y', size/2)
-  .attr('width', size/2)
-  .attr('height', size/2)
-  .attr('fill', colour['hard'])
-  .style('opacity', 0.5+0.5*matrix['hard']);
+    .attr('x', size / 2)
+    .attr('y', size / 2)
+    .attr('width', size / 2)
+    .attr('height', size / 2)
+    .attr('fill', colour['hard'])
+    .style('opacity', 0.5 + 0.5 * matrix['hard']);
 
   g.append('text')
-  .attr('x', 3*size/4)
-  .attr('y', 3*size/4)
-  .attr('dy', 4)
-  .style('font-size', '8pt')
-  .style('fill', 'white')
-  .style('text-anchor', 'middle')
-  .text(parseInt(100*matrix['hard'])+'%');
+    .attr('x', (3 * size) / 4)
+    .attr('y', (3 * size) / 4)
+    .attr('dy', 4)
+    .style('font-size', '8pt')
+    .style('fill', 'white')
+    .style('text-anchor', 'middle')
+    .text(parseInt(100 * matrix['hard']) + '%');
 
   g.append('rect')
-  .attr('x', 0)
-  .attr('y', size/2)
-  .attr('width', size/2)
-  .attr('height', size/2)
-  .attr('fill', colour['peer'])
-  .style('opacity', 0.5+0.5*matrix['peer']);
+    .attr('x', 0)
+    .attr('y', size / 2)
+    .attr('width', size / 2)
+    .attr('height', size / 2)
+    .attr('fill', colour['peer'])
+    .style('opacity', 0.5 + 0.5 * matrix['peer']);
 
   g.append('text')
-  .attr('x', size/4)
-  .attr('y', 3*size/4)
-  .attr('dy', 4)
-  .style('font-size', '8pt')
-  .style('fill', 'white')
-  .style('text-anchor', 'middle')
-  .text(parseInt(100*matrix['peer'])+'%');
+    .attr('x', size / 4)
+    .attr('y', (3 * size) / 4)
+    .attr('dy', 4)
+    .style('font-size', '8pt')
+    .style('fill', 'white')
+    .style('text-anchor', 'middle')
+    .text(parseInt(100 * matrix['peer']) + '%');
 
   g.append('rect')
-  .attr('x', size/2)
-  .attr('y', 0)
-  .attr('width', size/2)
-  .attr('height', size/2)
-  .attr('fill', colour['tricky'])
-  .style('opacity', 0.5+0.5*matrix['tricky']);
+    .attr('x', size / 2)
+    .attr('y', 0)
+    .attr('width', size / 2)
+    .attr('height', size / 2)
+    .attr('fill', colour['tricky'])
+    .style('opacity', 0.5 + 0.5 * matrix['tricky']);
 
   g.append('text')
-  .attr('x', 3*size/4)
-  .attr('y', size/4)
-  .attr('dy', 4)
-  .style('font-size', '8pt')
-  .style('fill', 'white')
-  .style('text-anchor', 'middle')
-  .text(parseInt(100*matrix['tricky'])+'%');
+    .attr('x', (3 * size) / 4)
+    .attr('y', size / 4)
+    .attr('dy', 4)
+    .style('font-size', '8pt')
+    .style('fill', 'white')
+    .style('text-anchor', 'middle')
+    .text(parseInt(100 * matrix['tricky']) + '%');
 
-  let firstFreqSvg = bundle.select('#first-frequency-'+id);
-  let secondFreqSvg = bundle.select('#second-frequency-'+id);
+  let firstFreqSvg = bundle.select('#first-frequency-' + id);
+  let secondFreqSvg = bundle.select('#second-frequency-' + id);
   let margin = {left: 30, right: 30};
 
   let sum = 0;
@@ -431,135 +461,153 @@ export function plot(matrix, freq, id) {
     }
   }
 
-  size = (secondFreqSvg.attr('width')-margin.left);
+  size = secondFreqSvg.attr('width') - margin.left;
 
-  let x = bundle.scaleLinear().domain([0, 1]).rangeRound([0, size]);
-  let y = bundle.scaleBand()
-  .domain(bundle.keys(freq['first_choice'])
-  .sort()).rangeRound([0, firstFreqSvg.attr('height')]);
+  let x = bundle
+    .scaleLinear()
+    .domain([0, 1])
+    .rangeRound([0, size]);
+  let y = bundle
+    .scaleBand()
+    .domain(bundle.keys(freq['first_choice']).sort())
+    .rangeRound([0, firstFreqSvg.attr('height')]);
 
-  let gg = secondFreqSvg.append('g')
-  .attr('transform', 'translate('+margin.left+',0)');
+  let gg = secondFreqSvg
+    .append('g')
+    .attr('transform', 'translate(' + margin.left + ',0)');
 
   let ggg = firstFreqSvg.append('g');
 
   gg.append('g')
-  .attr('class', 'axis axis--x')
-  .style('opacity', 0)
-  .call(bundle.axisBottom(x));
+    .attr('class', 'axis axis--x')
+    .style('opacity', 0)
+    .call(bundle.axisBottom(x));
 
-  ggg.append('g')
-  .attr('class', 'axis axis--x')
-  .style('opacity', 0)
-  .call(bundle.axisBottom(x));
-
-  gg.append('g')
-  .attr('class', 'axis axis--y')
-  .style('opacity', 0)
-  .call(bundle.axisLeft(y).ticks);
+  ggg
+    .append('g')
+    .attr('class', 'axis axis--x')
+    .style('opacity', 0)
+    .call(bundle.axisBottom(x));
 
   gg.append('g')
-  .selectAll('rect')
-  .data(bundle.entries(freq['second_choice']))
-  .enter().append('rect')
-  .attr('id', 'second_choice-'+id)
-  .attr('finalwidth', function(d) {
-return x(d.value);
-})
-  .attr('x', x(0))
-  .attr('y', function(d) {
-return y(d.key);
-})
-  .attr('width', 0)
-  .attr('height',
-    firstFreqSvg.attr('height')/bundle.values(freq['second_choice']).length)
-  .attr('fill', 'gray')
-  .style('stroke', 'white')
-  .style('opacity', 0.2);
-
-  ggg.append('g')
-  .selectAll('rect')
-  .data(bundle.entries(freq['first_choice']))
-  .enter().append('rect')
-  .attr('id', 'first_choice-'+id)
-  .attr('finalwidth', function(d) {
-return x(d.value);
-})
-  .attr('finalx', function(d) {
-return x(1-d.value);
-})
-  .attr('x', x(1))
-  .attr('y', function(d) {
-return y(d.key);
-})
-  .attr('width', 0)
-  .attr('height',
-    firstFreqSvg.attr('height')/bundle.values(freq['first_choice']).length)
-  .attr('fill', 'gray')
-  .style('stroke', 'white')
-  .style('opacity', 0.2);
+    .attr('class', 'axis axis--y')
+    .style('opacity', 0)
+    .call(bundle.axisLeft(y).ticks);
 
   gg.append('g')
-  .selectAll('text')
-  .data(bundle.entries(freq['second_choice']))
-  .enter().append('text')
-  .attr('x', x(0))
-  .attr('dx', -2)
-  .attr('y', function(d) {
-return y(d.key);
-})
-  .attr('dy', y.bandwidth()/2+4)
-  .style('font-size', '8pt')
-  .style('text-anchor', 'end')
-  .text(function(d) {
-return parseInt(100*d.value)+'%';
-});
+    .selectAll('rect')
+    .data(bundle.entries(freq['second_choice']))
+    .enter()
+    .append('rect')
+    .attr('id', 'second_choice-' + id)
+    .attr('finalwidth', function(d) {
+      return x(d.value);
+    })
+    .attr('x', x(0))
+    .attr('y', function(d) {
+      return y(d.key);
+    })
+    .attr('width', 0)
+    .attr(
+      'height',
+      firstFreqSvg.attr('height') / bundle.values(freq['second_choice']).length,
+    )
+    .attr('fill', 'gray')
+    .style('stroke', 'white')
+    .style('opacity', 0.2);
 
-  ggg.append('g')
-  .selectAll('text')
-  .data(bundle.entries(freq['first_choice']))
-  .enter().append('text')
-  .attr('x', x(1))
-  .attr('dx', 2)
-  .attr('y', function(d) {
-return y(d.key);
-})
-  .attr('dy', y.bandwidth()/2+4)
-  .style('font-size', '8pt')
-  .style('text-anchor', 'start')
-  .text(function(d) {
-return parseInt(100*d.value)+'%';
-});
+  ggg
+    .append('g')
+    .selectAll('rect')
+    .data(bundle.entries(freq['first_choice']))
+    .enter()
+    .append('rect')
+    .attr('id', 'first_choice-' + id)
+    .attr('finalwidth', function(d) {
+      return x(d.value);
+    })
+    .attr('finalx', function(d) {
+      return x(1 - d.value);
+    })
+    .attr('x', x(1))
+    .attr('y', function(d) {
+      return y(d.key);
+    })
+    .attr('width', 0)
+    .attr(
+      'height',
+      firstFreqSvg.attr('height') / bundle.values(freq['first_choice']).length,
+    )
+    .attr('fill', 'gray')
+    .style('stroke', 'white')
+    .style('opacity', 0.2);
 
   gg.append('g')
-  .selectAll('text')
-  .data(bundle.entries(freq['second_choice']))
-  .enter().append('text')
-  .attr('x', x(0))
-  .attr('dx', 2)
-  .attr('y', function(d) {
-return y(d.key);
-})
-  .attr('dy', y.bandwidth()/2+4)
-  .style('font-size', '8pt')
-  .text(function(d) {
-return d.key;
-});
+    .selectAll('text')
+    .data(bundle.entries(freq['second_choice']))
+    .enter()
+    .append('text')
+    .attr('x', x(0))
+    .attr('dx', -2)
+    .attr('y', function(d) {
+      return y(d.key);
+    })
+    .attr('dy', y.bandwidth() / 2 + 4)
+    .style('font-size', '8pt')
+    .style('text-anchor', 'end')
+    .text(function(d) {
+      return parseInt(100 * d.value) + '%';
+    });
+
+  ggg
+    .append('g')
+    .selectAll('text')
+    .data(bundle.entries(freq['first_choice']))
+    .enter()
+    .append('text')
+    .attr('x', x(1))
+    .attr('dx', 2)
+    .attr('y', function(d) {
+      return y(d.key);
+    })
+    .attr('dy', y.bandwidth() / 2 + 4)
+    .style('font-size', '8pt')
+    .style('text-anchor', 'start')
+    .text(function(d) {
+      return parseInt(100 * d.value) + '%';
+    });
+
+  gg.append('g')
+    .selectAll('text')
+    .data(bundle.entries(freq['second_choice']))
+    .enter()
+    .append('text')
+    .attr('x', x(0))
+    .attr('dx', 2)
+    .attr('y', function(d) {
+      return y(d.key);
+    })
+    .attr('dy', y.bandwidth() / 2 + 4)
+    .style('font-size', '8pt')
+    .text(function(d) {
+      return d.key;
+    });
 
   return;
 }
 
-
 /** Search function
-*  @param {String} className
-*  @param {Object} searchBar
-*  @function
-*/
+ *  @param {String} className
+ *  @param {Object} searchBar
+ *  @function
+ */
 export function search(className, searchBar) {
   let items = document.querySelectorAll(className);
-  for (let i=0; i<items.length; i++) {
-    if (items[i].innerText.toLowerCase().indexOf(searchBar.value.toLowerCase())
-      < 0) {
+  for (let i = 0; i < items.length; i++) {
+    if (
+      items[i].innerText.toLowerCase().indexOf(searchBar.value.toLowerCase()) <
+      0
+    ) {
       items[i].style.display = 'none';
     } else {
       items[i].style.display = 'block';
@@ -568,140 +616,121 @@ export function search(className, searchBar) {
   return;
 }
 
-
 /** Add dialog box to ids containing string dialog using #activate-id
-*  @function
-*/
+ *  @function
+ */
 export function addDialog() {
-  [].forEach.call(document.querySelectorAll('[id^=dialog]'),
-    (el) => {
-      const dialog = bundle.dialog.MDCDialog.attachTo(el);
-      document.querySelector('#activate-'+el.id).onclick = () => {
-        dialog.show();
-      };
-    }
-  );
+  [].forEach.call(document.querySelectorAll('[id^=dialog]'), el => {
+    const dialog = bundle.dialog.MDCDialog.attachTo(el);
+    document.querySelector('#activate-' + el.id).onclick = () => {
+      dialog.show();
+    };
+  });
 }
 
-
 /** Handle question delete/undelete for teacher account view
-*  @function
-*  @param {String} url
-*/
+ *  @function
+ *  @param {String} url
+ */
 export function handleQuestionDelete(url) {
   // Toggle questions
-  $('.toggle-deleted-questions').click( () => {
-      $('.deleted').slideToggle();
-      $('#hide-deleted-questions').toggle();
-      $('#show-deleted-questions').toggle();
-      deletedQuestionsHidden = !deletedQuestionsHidden;
+  $('.toggle-deleted-questions').click(() => {
+    $('.deleted').slideToggle();
+    $('#hide-deleted-questions').toggle();
+    $('#show-deleted-questions').toggle();
+    deletedQuestionsHidden = !deletedQuestionsHidden;
   });
 
   // Delete/undelete
-  $('[class*=delete-question]').click( (event) => {
-      let el = event.target;
-      let pk = $(el).attr('question');
-      let posting = $.post(url, {pk: pk});
-      posting.done( (data) => {
-        if (data['action'] == 'restore' ) {
-          $('.list-item-question-'+pk).removeClass('deleted');
-        } else {
-          $('.list-item-question-'+pk).addClass('deleted');
-        }
-        $('.undelete-question-'+pk).toggle();
-        $('.delete-question-'+pk).toggle();
-        if (deletedQuestionsHidden == true) {
-          $('.list-item-question-'+pk).slideToggle('deleted');
-        }
-      });
-    }
-  );
+  $('[class*=delete-question]').click(event => {
+    let el = event.target;
+    let pk = $(el).attr('question');
+    let posting = $.post(url, {pk: pk});
+    posting.done(data => {
+      if (data['action'] == 'restore') {
+        $('.list-item-question-' + pk).removeClass('deleted');
+      } else {
+        $('.list-item-question-' + pk).addClass('deleted');
+      }
+      $('.undelete-question-' + pk).toggle();
+      $('.delete-question-' + pk).toggle();
+      if (deletedQuestionsHidden == true) {
+        $('.list-item-question-' + pk).slideToggle('deleted');
+      }
+    });
+  });
 }
 
 /** Toggle image visibility
-*  @function
-*/
+ *  @function
+ */
 export function toggleImages() {
-  [].forEach.call(document.querySelectorAll('.toggle-images'),
-    (el) => {
-      console.info(sessionStorage.images);
-      const toggle = bundle.iconToggle.MDCIconToggle.attachTo(el);
-      if (sessionStorage.images !== undefined) {
-        if (sessionStorage.images == 'block') {
-          toggle.on = true;
-        } else {
-          toggle.on = false;
-        }
-        [].forEach.call(document.querySelectorAll('.question-image'),
-          (el) => {
-            if (sessionStorage.images == 'block') {
-              el.style.display = 'block';
-            } else {
-              el.style.display = 'none';
-            }
-          }
-        );
+  [].forEach.call(document.querySelectorAll('.toggle-images'), el => {
+    console.info(sessionStorage.images);
+    const toggle = bundle.iconToggle.MDCIconToggle.attachTo(el);
+    if (sessionStorage.images !== undefined) {
+      if (sessionStorage.images == 'block') {
+        toggle.on = true;
+      } else {
+        toggle.on = false;
       }
-      el.addEventListener('MDCIconToggle:change', ({detail}) => {
-        [].forEach.call(document.querySelectorAll('.question-image'),
-          (el) => {
-            if (detail.isOn) {
-              el.style.display = 'block';
-            } else {
-              el.style.display = 'none';
-            }
-            sessionStorage.images = el.style.display;
-          }
-        );
+      [].forEach.call(document.querySelectorAll('.question-image'), el => {
+        if (sessionStorage.images == 'block') {
+          el.style.display = 'block';
+        } else {
+          el.style.display = 'none';
+        }
       });
     }
-  );
+    el.addEventListener('MDCIconToggle:change', ({detail}) => {
+      [].forEach.call(document.querySelectorAll('.question-image'), el => {
+        if (detail.isOn) {
+          el.style.display = 'block';
+        } else {
+          el.style.display = 'none';
+        }
+        sessionStorage.images = el.style.display;
+      });
+    });
+  });
 }
 
 /** Toggle answer visibility
-*  @function
-*/
+ *  @function
+ */
 export function toggleAnswers() {
-  [].forEach.call(document.querySelectorAll('.toggle-answers'),
-    (el) => {
-      const toggle = bundle.iconToggle.MDCIconToggle.attachTo(el);
-      if (sessionStorage.answers) {
-        if (sessionStorage.answers == 'block') {
-          toggle.on = true;
-        } else {
-          toggle.on = false;
-        }
-        [].forEach.call(document.querySelectorAll('.question-answers'),
-          (el) => {
-            el.style.display = sessionStorage.answers;
-          }
-        );
+  [].forEach.call(document.querySelectorAll('.toggle-answers'), el => {
+    const toggle = bundle.iconToggle.MDCIconToggle.attachTo(el);
+    if (sessionStorage.answers) {
+      if (sessionStorage.answers == 'block') {
+        toggle.on = true;
+      } else {
+        toggle.on = false;
       }
-      el.addEventListener('MDCIconToggle:change', ({detail}) => {
-        [].forEach.call(document.querySelectorAll('.question-answers'),
-          (el) => {
-            if (detail.isOn) {
-              el.style.display = 'block';
-            } else {
-              el.style.display = 'none';
-            }
-            sessionStorage.answers = el.style.display;
-          }
-        );
+      [].forEach.call(document.querySelectorAll('.question-answers'), el => {
+        el.style.display = sessionStorage.answers;
       });
     }
-  );
+    el.addEventListener('MDCIconToggle:change', ({detail}) => {
+      [].forEach.call(document.querySelectorAll('.question-answers'), el => {
+        if (detail.isOn) {
+          el.style.display = 'block';
+        } else {
+          el.style.display = 'none';
+        }
+        sessionStorage.answers = el.style.display;
+      });
+    });
+  });
 }
 
 /** Bind mdc-checkbox
-*  @function
-*/
+ *  @function
+ */
 export function bindCheckbox() {
-  [].forEach.call(document.querySelectorAll('.mdc-checkbox'),
-    (el) => {
-      bundle.checkbox.MDCCheckbox.attachTo(el);
-    }
-  );
+  [].forEach.call(document.querySelectorAll('.mdc-checkbox'), el => {
+    bundle.checkbox.MDCCheckbox.attachTo(el);
+  });
 }
 
 // Commands

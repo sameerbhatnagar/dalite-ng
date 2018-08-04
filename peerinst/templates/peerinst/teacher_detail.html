@@ -17,312 +17,329 @@
   <svg class="underline" width=150 height=4></svg>
 </h1>
 
-<h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Identity' %}</h2>
-<ul class="mdc-list mdc-list--two-line">
-  <li role="separator" class="mdc-list-divider"></li>
-  <li class="mdc-list-item" onclick="edit_user()" style="cursor:pointer;">
-    <span class="mdc-list-item__graphic mdc-theme--primary"><i class="material-icons md-48">account_circle</i></span>
-    <span class="mdc-list-item__text mdc-theme--secondary bold">
-      {{ object.user.username }}
-      <span class="mdc-list-item__secondary-text">
-        {% trans "Email: " %} {{ object.user.email }}
-      </span>
-      <span class="mdc-list-item__secondary-text">
-        {% trans "Member since: " %} {{ user.date_joined|date:"M d Y"  }}
-      </span>
-    </span>
-    <span class="mdc-list-item__meta"><i class="material-icons md-24">lock</i></span>
-  </li>
-  <li role="separator" class="mdc-list-divider"></li>
-  <li class="mdc-list-item" onclick="edit_identity()" style="cursor:pointer;">
-    <span class="mdc-list-item__graphic mdc-theme--primary"><i class="material-icons md-48">book</i></span>
-    <span class="mdc-list-item__text mdc-theme--secondary bold">
-      {% for d in object.disciplines.all %}
-        {{ d.title }}{% if not forloop.last %}, {% endif %}
-      {% endfor %}
-      <span class="mdc-list-item__secondary-text">
-        {% trans "Discipline" %}
-      </span>
-    </span>
-    <span class="mdc-list-item__meta"><i class="material-icons md-24">settings</i></span>
-  </li>
-  <li role="separator" class="mdc-list-divider"></li>
-  <li class="mdc-list-item" onclick="edit_identity()" style="cursor:pointer;">
-    <span class="mdc-list-item__graphic mdc-theme--primary"><i class="material-icons md-48">school</i></span>
-    <span class="mdc-list-item__text mdc-theme--secondary bold">
-      {% for i in object.institutions.all %}
-        {{ i.name }}{% if not forloop.last %}, {% endif %}
-      {% endfor %}
-      <span class="mdc-list-item__secondary-text">
-        {% trans "Institution" %}
-      </span>
-    </span>
-    <span class="mdc-list-item__meta"><i class="material-icons md-24">settings</i></span>
-  </li>
-  <li role="separator" class="mdc-list-divider"></li>
-  <li class="mdc-list-item" onclick="window.location.href='{% url 'tos:tos_modify' 'teacher' %}?next={{ request.path }}'" style="cursor:pointer;">
-    {% if tos_accepted %}
-      <span class="mdc-list-item__graphic mdc-theme--primary"><i class="material-icons md-48">check</i></span>
-      <span class="mdc-list-item__text mdc-theme--secondary bold">
-      {% trans 'Terms of service: Sharing' %}
-    {% else %}
-      <span class="mdc-list-item__graphic mdc-theme--primary"><i class="material-icons md-48" style="color:red;">clear</i></span>
-      <span class="mdc-list-item__text mdc-theme--secondary bold">
-      {% trans 'Terms of service: Not sharing' %}
-      {% endif %}
-      <span class="mdc-list-item__secondary-text">
-        {% trans 'Signed: ' %}{{ tos_timestamp }}
-      </span>
-    </span>
-    <span class="mdc-list-item__meta"><i class="material-icons md-24">settings</i></span>
-  </li>
-  <li role="separator" class="mdc-list-divider"></li>
-  <li class="mdc-list-item" onclick="window.location.href='{% url 'tos:email_modify' 'teacher' %}?next={{ request.path }}'" style="cursor:pointer;">
-    <span class="mdc-list-item__graphic mdc-theme--primary"><i class="material-icons md-48">email</i></span>
-    <span class="mdc-list-item__text mdc-theme--secondary bold">
-      <span class="mdc-list-item__secondary-text">
-        {% trans "Email settings" %}
-      </span>
-    </span>
-    <span class="mdc-list-item__meta"><i class="material-icons md-24">settings</i></span>
-  </li>
-  <li role="separator" class="mdc-list-divider"></li>
-</ul>
-
-
-<h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Groups' %}</h2>
-
-<div class="admin-link">
-  <a href="{% url 'teacher-groups' teacher.id %}">{% trans 'Manage groups' %}</a>
-  <span style="padding-left:0.3em;padding-right:0.5em;">|</span><a href="{% url 'group-assignments' teacher.id %}">{% trans 'Manage homework' %}</a>
+<div class="foldable">
+  <h2 class="foldable--title mdc-typography--display1 mdc-theme--secondary">{% trans 'Identity' %}</h2>
+  <div class="foldable--body">
+    <ul class="mdc-list mdc-list--two-line">
+      <li role="separator" class="mdc-list-divider"></li>
+      <li class="mdc-list-item" onclick="edit_user()" style="cursor:pointer;">
+        <span class="mdc-list-item__graphic mdc-theme--primary"><i class="material-icons md-48">account_circle</i></span>
+        <span class="mdc-list-item__text mdc-theme--secondary bold">
+          {{ object.user.username }}
+          <span class="mdc-list-item__secondary-text">
+            {% trans "Email: " %} {{ object.user.email }}
+          </span>
+          <span class="mdc-list-item__secondary-text">
+            {% trans "Member since: " %} {{ user.date_joined|date:"M d Y"  }}
+          </span>
+        </span>
+        <span class="mdc-list-item__meta"><i class="material-icons md-24">lock</i></span>
+      </li>
+      <li role="separator" class="mdc-list-divider"></li>
+      <li class="mdc-list-item" onclick="edit_identity()" style="cursor:pointer;">
+        <span class="mdc-list-item__graphic mdc-theme--primary"><i class="material-icons md-48">book</i></span>
+        <span class="mdc-list-item__text mdc-theme--secondary bold">
+          {% for d in object.disciplines.all %}
+            {{ d.title }}{% if not forloop.last %}, {% endif %}
+          {% endfor %}
+          <span class="mdc-list-item__secondary-text">
+            {% trans "Discipline" %}
+          </span>
+        </span>
+        <span class="mdc-list-item__meta"><i class="material-icons md-24">settings</i></span>
+      </li>
+      <li role="separator" class="mdc-list-divider"></li>
+      <li class="mdc-list-item" onclick="edit_identity()" style="cursor:pointer;">
+        <span class="mdc-list-item__graphic mdc-theme--primary"><i class="material-icons md-48">school</i></span>
+        <span class="mdc-list-item__text mdc-theme--secondary bold">
+          {% for i in object.institutions.all %}
+            {{ i.name }}{% if not forloop.last %}, {% endif %}
+          {% endfor %}
+          <span class="mdc-list-item__secondary-text">
+            {% trans "Institution" %}
+          </span>
+        </span>
+        <span class="mdc-list-item__meta"><i class="material-icons md-24">settings</i></span>
+      </li>
+      <li role="separator" class="mdc-list-divider"></li>
+      <li class="mdc-list-item" onclick="window.location.href='{% url 'tos:tos_modify' 'teacher' %}?next={{ request.path }}'" style="cursor:pointer;">
+        {% if tos_accepted %}
+          <span class="mdc-list-item__graphic mdc-theme--primary"><i class="material-icons md-48">check</i></span>
+          <span class="mdc-list-item__text mdc-theme--secondary bold">
+          {% trans 'Terms of service: Sharing' %}
+        {% else %}
+          <span class="mdc-list-item__graphic mdc-theme--primary"><i class="material-icons md-48" style="color:red;">clear</i></span>
+          <span class="mdc-list-item__text mdc-theme--secondary bold">
+          {% trans 'Terms of service: Not sharing' %}
+          {% endif %}
+          <span class="mdc-list-item__secondary-text">
+            {% trans 'Signed: ' %}{{ tos_timestamp }}
+          </span>
+        </span>
+        <span class="mdc-list-item__meta"><i class="material-icons md-24">settings</i></span>
+      </li>
+      <li role="separator" class="mdc-list-divider"></li>
+      <li class="mdc-list-item" onclick="window.location.href='{% url 'tos:email_modify' 'teacher' %}?next={{ request.path }}'" style="cursor:pointer;">
+        <span class="mdc-list-item__graphic mdc-theme--primary"><i class="material-icons md-48">email</i></span>
+        <span class="mdc-list-item__text mdc-theme--secondary bold">
+          <span class="mdc-list-item__secondary-text">
+            {% trans "Email settings" %}
+          </span>
+        </span>
+        <span class="mdc-list-item__meta"><i class="material-icons md-24">settings</i></span>
+      </li>
+      <li role="separator" class="mdc-list-divider"></li>
+    </ul>
+  </div>
 </div>
-{% if not object.current_groups.all %}
-<p class='mdc-typography--body1'>{% blocktrans %}You have no active student groups.{% endblocktrans %}</p>
-{% endif %}
-<ul class="mdc-list mdc-list--two-line mdc-list--non-interactive">
-  {% for g in object.current_groups.all %}
-  <li role="separator" class="mdc-list-divider"></li>
-  <li class="mdc-list-item">
-    <span class="mdc-list-item__graphic mdc-theme--primary">
-      <i class="mdc-theme--primary material-icons md-48">group</i>
-    </span>
-    <span class="mdc-list-item__text mdc-theme--secondary bold">
-      {% if not g.title %} {{ g.name }} {% else %} {{ g.title }} {% endif %}
-      <span class="mdc-list-item__secondary-text">
-        {% trans "Created: " %} {{ g.creation_date }}
-      </span>
-      <span class="mdc-list-item__secondary-text">
-        {% trans "Students: " %} {{ g.student_set.count  }}
-      </span>
-    </span>
-    <span class="mdc-list-item__meta">
-      <a href="{% url 'report-all-assignments' teacher_id=teacher.id group_id=g.name|urlencode:"" %}">
-        <i class="material-icons md-24 mdc-ripple-surface icon-list">bar_chart</i>
-      </a>
-      <a href="{% url 'group-detail' pk=teacher.id group_hash=g.hash %}">
-      <i class="material-icons md-24 mdc-ripple-surface icon-list">share</i>
-      </a>
-    </span>
-  </li>
-  {% endfor %}
-  <li role="separator" class="mdc-list-divider"></li>
-</ul>
 
 
-<h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Blink scripts' %}</h2>
-<div class="admin-link">
-  <a href="{% url 'blinkAssignment-create' %}">{% trans 'Add script' %}</a>
-</div>
-<p style="margin-bottom:10pt;">{% trans 'Student link' %}: <span class="bold">{{ request.get_host}}{% url 'blink-get-current' object.user.username %}</span></p>
-
-{% if not object.blinkassignment_set.all %}
-<p class='mdc-typography--body1'>{% blocktrans %}A blink script is a series of blink questions strung together into one activity.  You do not have any blink scripts.{% endblocktrans %}</p>
-{% endif %}
-
-<ul class="mdc-list mdc-list--two-line mdc-list--non-interactive">
-  {% for a in object.blinkassignment_set.all %}
-  <li role="separator" class="mdc-list-divider"></li>
-  <li class="mdc-list-item blink" id="edit-blink-{{a.pk}}">
-    <span class="mdc-list-item__graphic mdc-theme--primary">
-      {% if a.blinkassignmentquestion_set.all|length > 0 %}
-      <a href="{% url 'blink-waiting' username=object.user.username assignment=a.key %}" style="transform:translateY(4pt);">
-        <i class="mdc-theme--primary material-icons md-48">play_circle_filled</i>
-      </a>
-      {% endif %}
-    </span>
-    <span class="mdc-list-item__text mdc-theme--secondary bold">
-      {{a.title|safe|striptags}}
-      <span class="mdc-list-item__secondary-text">
-        {{a.blinkassignmentquestion_set.count}} {% trans 'question(s)' %}
-      </span>
-    </span>
-    <span class="mdc-list-item__meta">
-      <a href="{% url 'blinkAssignment-delete' a.key %}">
-        <i class="material-icons md-24 mdc-ripple-surface icon-list">delete</i>
-      </a>
-      <a href="{% url 'blinkAssignment-update' a.pk %}">
-        <i class="material-icons md-24 mdc-ripple-surface icon-list">mode_edit</i>
-      </a>
-    </span>
-  </li>
-  {% endfor %}
-  <li role="separator" class="mdc-list-divider"></li>
-</ul>
-
-
-<h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Assignments' %}</h2>
-<div class="admin-link">
-    <a href="{% url 'teacher-assignments' teacher.id %}">{% trans 'Manage assignments' %}</a>
-    <span style="padding-left:0.3em;padding-right:0.5em;">|</span><a href="{% url 'report_selector' teacher_id=teacher.id%}">{% trans 'Custom reports' %}</a>
-  </span>
-</div>
-{% if not object.assignments.all %}
-<p class='mdc-typography--body1'>{% blocktrans %}You do not have any assignments.{% endblocktrans %}</p>
-{% endif %}
-<ul class="mdc-list mdc-list--two-line mdc-list--non-interactive">
-  {% for a in object.assignments.all %}
-  <li role="separator" class="mdc-list-divider"></li>
-  <li class="mdc-list-item">
-    <span class="mdc-list-item__graphic mdc-theme--primary">
-        <a href="{% url 'question-list' a.pk %}" style="transform:translateY(4pt);">
-          <i class="mdc-theme--primary material-icons md-48">assignment</i>
-        </a>
-    </span>
-    <span class="mdc-list-item__text mdc-theme--secondary bold">
-      {{ a.identifier }}
-      <span class="mdc-list-item__secondary-text">
-        {{ a.questions.count }} {% trans "questions" %}, {{ a.answer_set.count }} {% trans "answers" %}
-      </span>
-    </span>
-    <span class="mdc-list-item__meta">
-      <i id="activate-dialog-{{a.pk|slugify}}" class="material-icons md-24 mdc-ripple-surface icon-list">info</i>
-      <a href="{% url 'report-all-groups' teacher_id=teacher.id assignment_id=a.identifier|urlencode:"" %}">
-        <i class="material-icons md-24 mdc-ripple-surface icon-list">bar_chart</i>
-      </a>
-      {% if object.user in a.owner.all and a.answer_set.count == 0 %}
-        <a  id="edit-assignment-{{ a.pk|slugify }}" href="{% url 'assignment-update' a.pk %}">
-          <i class="material-icons md-24 mdc-ripple-surface icon-list">mode_edit</i>
-        </a>
-      {% else %}
-        <a  id="copy-assignment-{{ a.pk|slugify }}" href="{% url 'assignment-copy' a.pk %}">
-          <i class="material-icons md-24 mdc-ripple-surface icon-list">file_copy</i>
-        </a>
-      {% endif %}
-      <a href="{% url 'student-group-assignment-create' a.pk %}">
-        <i class="material-icons md-24 mdc-ripple-surface icon-list">share</i>
-      </a>
-    </span>
-  </li>
-
-  <aside id="dialog-{{a.pk|slugify}}"
-    class="mdc-dialog"
-    role="alertdialog"
-    aria-labelledby="assignment-parameters-label"
-    aria-describedby="assignment-parameters-description">
-    <div class="mdc-dialog__surface">
-      <header class="mdc-dialog__header">
-        <h2 id="assignment-parameters-label" class="mdc-dialog__header__title">
-          {% trans 'How to use in your course through LTI' %}
-        </h2>
-      </header>
-      <section id="assignment-parameters-description" class="mdc-dialog__body mdc-dialog__body--scrollable">
-        <p class="mdc-typography--body1">{% blocktrans %}Use the following to configure the LTI tool in your Learning Management System (e.g. Moodle, OpenEdx){% endblocktrans %}:</p>
-        <ul>
-            <li>{% trans 'LTI Launch URL' %} : {{ LTI_launch_url }}</li>
-            <li>{% trans 'LTI Consumer Key' %} : {{ LTI_key }}</li>
-            <li>{% trans 'LTI Shared Secret' %} : {{ LTI_secret }}</li>
-        </ul>
-        <p class="mdc-typography--body1">{% blocktrans %}To import any of the questions below, copy and paste the text below the question title into the <em>Custom Paramaters</em> box of your LTI tool{% endblocktrans %}:</p>
-        <ul>
-        {% for q in a.questions.all %}
-          <li><span class="bold">{{ q.title }}:</span>
-            <ul>
-              <li>assignment_id={{ a.identifier }}</li>
-              <li>question_id={{ q.id }}</li>
-              <li>teacher_id={{ teacher.hash }}</li>
-            </ul>
-        {% endfor %}
-        </ul>
-      </section>
-      <footer class="mdc-dialog__footer">
-        <button type="button" class="mdc-button mdc-dialog__footer__button mdc-dialog__footer__button--accept">Ok</button>
-      </footer>
+<div class="foldable">
+  <h2 class="foldable--title mdc-typography--display1 mdc-theme--secondary">{% trans 'Groups' %}</h2>
+  <div class="foldable--body">
+    <div class="admin-link">
+      <a href="{% url 'teacher-groups' teacher.id %}">{% trans 'Manage groups' %}</a>
+      <span style="padding-left:0.3em;padding-right:0.5em;">|</span><a href="{% url 'group-assignments' teacher.id %}">{% trans 'Manage homework' %}</a>
     </div>
-    <div class="mdc-dialog__backdrop"></div>
-  </aside>
-
-  {% endfor %}
-  <li role="separator" class="mdc-list-divider"></li>
-</ul>
-
-
-<h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Questions' %}</h2>
-<div class="admin-link">
-  <a href="{% url 'question-create' %}">{% trans 'Create new' %}</a>
-  <span style="padding-left:0.3em;padding-right:0.5em;">|</span><span id='show-deleted-questions' class='toggle-deleted-questions fake-link clickable'>{% trans 'Show deleted' %}</span><span id='hide-deleted-questions' class='toggle-deleted-questions fake-link clickable'>{% trans 'Hide deleted' %}</span>
+    {% if not object.current_groups.all %}
+    <p class='mdc-typography--body1'>{% blocktrans %}You have no active student groups.{% endblocktrans %}</p>
+    {% endif %}
+    <ul class="mdc-list mdc-list--two-line mdc-list--non-interactive">
+      {% for g in object.current_groups.all %}
+      <li role="separator" class="mdc-list-divider"></li>
+      <li class="mdc-list-item">
+        <span class="mdc-list-item__graphic mdc-theme--primary">
+          <i class="mdc-theme--primary material-icons md-48">group</i>
+        </span>
+        <span class="mdc-list-item__text mdc-theme--secondary bold">
+          {% if not g.title %} {{ g.name }} {% else %} {{ g.title }} {% endif %}
+          <span class="mdc-list-item__secondary-text">
+            {% trans "Created: " %} {{ g.creation_date }}
+          </span>
+          <span class="mdc-list-item__secondary-text">
+            {% trans "Students: " %} {{ g.student_set.count  }}
+          </span>
+        </span>
+        <span class="mdc-list-item__meta">
+          <a href="{% url 'report-all-assignments' teacher_id=teacher.id group_id=g.name|urlencode:"" %}">
+            <i class="material-icons md-24 mdc-ripple-surface icon-list">bar_chart</i>
+          </a>
+          <a href="{% url 'group-detail' pk=teacher.id group_hash=g.hash %}">
+          <i class="material-icons md-24 mdc-ripple-surface icon-list">share</i>
+          </a>
+        </span>
+      </li>
+      {% endfor %}
+      <li role="separator" class="mdc-list-divider"></li>
+    </ul>
+  </div>
 </div>
 
-<h3>{% trans 'My questions' %}</h3>
-{% if not object.user.question_set.all %}
-<p class='mdc-typography--body1'>{% blocktrans %}You do not have any questions.  Create one using the link above!{% endblocktrans %}</p>
-{% else %}
-<ul class="mdc-list mdc-list--two-line mdc-list--non-interactive">
-  {% for q in object.user.question_set.all|dictsortreversed:'created_on' %}
-    <li role="separator" class="mdc-list-divider list-item-question-{{ q.pk }}"></li>
-    <li class="mdc-list-item list-item-question-{{ q.pk }}">
-      <span class="mdc-list-item__graphic">
-        <div class="iconify">
-          <span class="text-on-div-icon bold">{{q.pk}}</span>
-        </div>
-      </span>
-      <span class="mdc-list-item__text mdc-theme--secondary bold">
-        {{q.title|safe|striptags}}
-        <span class="mdc-list-item__secondary-text">
-          {% trans 'Last modified: ' %}{{q.last_modified}}
-        </span>
-      </span>
-      <span class="mdc-list-item__meta">
-        <i question="{{ q.pk }}" class="undelete-question-{{ q.pk }} material-icons md-24 mdc-ripple-surface icon-list">restore_from_trash</i>
-        <i question="{{ q.pk }}" class="delete-question-{{ q.pk }} material-icons md-24 mdc-ripple-surface icon-list">delete</i>
-        <a id="edit-question-{{ q.pk }}" href="{% url 'question-update' q.pk %}">
-          <i class="material-icons md-24 mdc-ripple-surface icon-list">mode_edit</i>
-        </a>
-      </span>
-    </li>
-  {% endfor %}
-  <li role="separator" class="mdc-list-divider"></li>
-</ul>
-{% endif %}
+<div class="foldable">
+  <h2 class="foldable--title mdc-typography--display1 mdc-theme--secondary">{% trans 'Blink scripts' %}</h2>
+  <div class="foldable--body">
+    <div class="admin-link">
+      <a href="{% url 'blinkAssignment-create' %}">{% trans 'Add script' %}</a>
+    </div>
+    <p style="margin-bottom:10pt;">{% trans 'Student link' %}: <span class="bold">{{ request.get_host}}{% url 'blink-get-current' object.user.username %}</span></p>
 
-{% if object.user.collaborators.all %}
-<h3>{% trans 'Collaborations' %}</h3>
-<ul class="mdc-list mdc-list--two-line mdc-list--non-interactive">
-  {% for q in object.user.collaborators.all %}
-    <li role="separator" class="mdc-list-divider list-item-question-{{ q.pk }}"></li>
-    <li class="mdc-list-item list-item-question-{{ q.pk }}">
-      <span class="mdc-list-item__graphic">
-        <div class="iconify">
-          <span class="text-on-div-icon bold">{{q.pk}}</span>
-        </div>
-      </span>
-      <span class="mdc-list-item__text mdc-theme--secondary bold">
-        {{q.title|safe|striptags}}
-        <span class="mdc-list-item__secondary-text">
-          {% trans 'Last modified: ' %}{{q.last_modified}}
+    {% if not object.blinkassignment_set.all %}
+    <p class='mdc-typography--body1'>{% blocktrans %}A blink script is a series of blink questions strung together into one activity.  You do not have any blink scripts.{% endblocktrans %}</p>
+    {% endif %}
+
+    <ul class="mdc-list mdc-list--two-line mdc-list--non-interactive">
+      {% for a in object.blinkassignment_set.all %}
+      <li role="separator" class="mdc-list-divider"></li>
+      <li class="mdc-list-item blink" id="edit-blink-{{a.pk}}">
+        <span class="mdc-list-item__graphic mdc-theme--primary">
+          {% if a.blinkassignmentquestion_set.all|length > 0 %}
+          <a href="{% url 'blink-waiting' username=object.user.username assignment=a.key %}" style="transform:translateY(4pt);">
+            <i class="mdc-theme--primary material-icons md-48">play_circle_filled</i>
+          </a>
+          {% endif %}
         </span>
+        <span class="mdc-list-item__text mdc-theme--secondary bold">
+          {{a.title|safe|striptags}}
+          <span class="mdc-list-item__secondary-text">
+            {{a.blinkassignmentquestion_set.count}} {% trans 'question(s)' %}
+          </span>
+        </span>
+        <span class="mdc-list-item__meta">
+          <a href="{% url 'blinkAssignment-delete' a.key %}">
+            <i class="material-icons md-24 mdc-ripple-surface icon-list">delete</i>
+          </a>
+          <a href="{% url 'blinkAssignment-update' a.pk %}">
+            <i class="material-icons md-24 mdc-ripple-surface icon-list">mode_edit</i>
+          </a>
+        </span>
+      </li>
+      {% endfor %}
+      <li role="separator" class="mdc-list-divider"></li>
+    </ul>
+  </div>
+</div>
+
+
+<div class="foldable">
+  <h2 class="foldable--title mdc-typography--display1 mdc-theme--secondary">{% trans 'Assignments' %}</h2>
+  <div class="foldable--body">
+    <div class="admin-link">
+        <a href="{% url 'teacher-assignments' teacher.id %}">{% trans 'Manage assignments' %}</a>
+        <span style="padding-left:0.3em;padding-right:0.5em;">|</span><a href="{% url 'report_selector' teacher_id=teacher.id%}">{% trans 'Custom reports' %}</a>
       </span>
-      <span class="mdc-list-item__meta">
-        <i question="{{ q.pk }}" class="undelete-question-{{ q.pk }} material-icons md-24 mdc-ripple-surface icon-list">restore_from_trash</i>
-        <i question="{{ q.pk }}" class="delete-question-{{ q.pk }} material-icons md-24 mdc-ripple-surface icon-list">delete</i>
-        <a id="edit-question-{{ q.pk }}" href="{% url 'question-update' q.pk %}">
-          <i class="material-icons md-24 mdc-ripple-surface icon-list">mode_edit</i>
-        </a>
-      </span>
-    </li>
-  {% endfor %}
-  <li role="separator" class="mdc-list-divider"></li>
-</ul>
-{% endif %}
+    </div>
+    {% if not object.assignments.all %}
+    <p class='mdc-typography--body1'>{% blocktrans %}You do not have any assignments.{% endblocktrans %}</p>
+    {% endif %}
+    <ul class="mdc-list mdc-list--two-line mdc-list--non-interactive">
+      {% for a in object.assignments.all %}
+      <li role="separator" class="mdc-list-divider"></li>
+      <li class="mdc-list-item">
+        <span class="mdc-list-item__graphic mdc-theme--primary">
+            <a href="{% url 'question-list' a.pk %}" style="transform:translateY(4pt);">
+              <i class="mdc-theme--primary material-icons md-48">assignment</i>
+            </a>
+        </span>
+        <span class="mdc-list-item__text mdc-theme--secondary bold">
+          {{ a.identifier }}
+          <span class="mdc-list-item__secondary-text">
+            {{ a.questions.count }} {% trans "questions" %}, {{ a.answer_set.count }} {% trans "answers" %}
+          </span>
+        </span>
+        <span class="mdc-list-item__meta">
+          <i id="activate-dialog-{{a.pk|slugify}}" class="material-icons md-24 mdc-ripple-surface icon-list">info</i>
+          <a href="{% url 'report-all-groups' teacher_id=teacher.id assignment_id=a.identifier|urlencode:"" %}">
+            <i class="material-icons md-24 mdc-ripple-surface icon-list">bar_chart</i>
+          </a>
+          {% if object.user in a.owner.all and a.answer_set.count == 0 %}
+            <a  id="edit-assignment-{{ a.pk|slugify }}" href="{% url 'assignment-update' a.pk %}">
+              <i class="material-icons md-24 mdc-ripple-surface icon-list">mode_edit</i>
+            </a>
+          {% else %}
+            <a  id="copy-assignment-{{ a.pk|slugify }}" href="{% url 'assignment-copy' a.pk %}">
+              <i class="material-icons md-24 mdc-ripple-surface icon-list">file_copy</i>
+            </a>
+          {% endif %}
+          <a href="{% url 'student-group-assignment-create' a.pk %}">
+            <i class="material-icons md-24 mdc-ripple-surface icon-list">share</i>
+          </a>
+        </span>
+      </li>
+
+      <aside id="dialog-{{a.pk|slugify}}"
+        class="mdc-dialog"
+        role="alertdialog"
+        aria-labelledby="assignment-parameters-label"
+        aria-describedby="assignment-parameters-description">
+        <div class="mdc-dialog__surface">
+          <header class="mdc-dialog__header">
+            <h2 id="assignment-parameters-label" class="mdc-dialog__header__title">
+              {% trans 'How to use in your course through LTI' %}
+            </h2>
+          </header>
+          <section id="assignment-parameters-description" class="mdc-dialog__body mdc-dialog__body--scrollable">
+            <p class="mdc-typography--body1">{% blocktrans %}Use the following to configure the LTI tool in your Learning Management System (e.g. Moodle, OpenEdx){% endblocktrans %}:</p>
+            <ul>
+                <li>{% trans 'LTI Launch URL' %} : {{ LTI_launch_url }}</li>
+                <li>{% trans 'LTI Consumer Key' %} : {{ LTI_key }}</li>
+                <li>{% trans 'LTI Shared Secret' %} : {{ LTI_secret }}</li>
+            </ul>
+            <p class="mdc-typography--body1">{% blocktrans %}To import any of the questions below, copy and paste the text below the question title into the <em>Custom Paramaters</em> box of your LTI tool{% endblocktrans %}:</p>
+            <ul>
+            {% for q in a.questions.all %}
+              <li><span class="bold">{{ q.title }}:</span>
+                <ul>
+                  <li>assignment_id={{ a.identifier }}</li>
+                  <li>question_id={{ q.id }}</li>
+                  <li>teacher_id={{ teacher.hash }}</li>
+                </ul>
+            {% endfor %}
+            </ul>
+          </section>
+          <footer class="mdc-dialog__footer">
+            <button type="button" class="mdc-button mdc-dialog__footer__button mdc-dialog__footer__button--accept">Ok</button>
+          </footer>
+        </div>
+        <div class="mdc-dialog__backdrop"></div>
+      </aside>
+
+      {% endfor %}
+      <li role="separator" class="mdc-list-divider"></li>
+    </ul>
+  </div>
+</div>
+
+<div class="foldable">
+  <h2 class="foldable--title mdc-typography--display1 mdc-theme--secondary">{% trans 'Questions' %}</h2>
+  <div class="foldable--body">
+    <div class="admin-link">
+      <a href="{% url 'question-create' %}">{% trans 'Create new' %}</a>
+      <span style="padding-left:0.3em;padding-right:0.5em;">|</span><span id='show-deleted-questions' class='toggle-deleted-questions fake-link clickable'>{% trans 'Show deleted' %}</span><span id='hide-deleted-questions' class='toggle-deleted-questions fake-link clickable'>{% trans 'Hide deleted' %}</span>
+    </div>
+
+    <h3>{% trans 'My questions' %}</h3>
+    {% if not object.user.question_set.all %}
+    <p class='mdc-typography--body1'>{% blocktrans %}You do not have any questions.  Create one using the link above!{% endblocktrans %}</p>
+    {% else %}
+    <ul class="mdc-list mdc-list--two-line mdc-list--non-interactive">
+      {% for q in object.user.question_set.all|dictsortreversed:'created_on' %}
+        <li role="separator" class="mdc-list-divider list-item-question-{{ q.pk }}"></li>
+        <li class="mdc-list-item list-item-question-{{ q.pk }}">
+          <span class="mdc-list-item__graphic">
+            <div class="iconify">
+              <span class="text-on-div-icon bold">{{q.pk}}</span>
+            </div>
+          </span>
+          <span class="mdc-list-item__text mdc-theme--secondary bold">
+            {{q.title|safe|striptags}}
+            <span class="mdc-list-item__secondary-text">
+              {% trans 'Last modified: ' %}{{q.last_modified}}
+            </span>
+          </span>
+          <span class="mdc-list-item__meta">
+            <i question="{{ q.pk }}" class="undelete-question-{{ q.pk }} material-icons md-24 mdc-ripple-surface icon-list">restore_from_trash</i>
+            <i question="{{ q.pk }}" class="delete-question-{{ q.pk }} material-icons md-24 mdc-ripple-surface icon-list">delete</i>
+            <a id="edit-question-{{ q.pk }}" href="{% url 'question-update' q.pk %}">
+              <i class="material-icons md-24 mdc-ripple-surface icon-list">mode_edit</i>
+            </a>
+          </span>
+        </li>
+      {% endfor %}
+      <li role="separator" class="mdc-list-divider"></li>
+    </ul>
+    {% endif %}
+
+    {% if object.user.collaborators.all %}
+    <h3>{% trans 'Collaborations' %}</h3>
+    <ul class="mdc-list mdc-list--two-line mdc-list--non-interactive">
+      {% for q in object.user.collaborators.all %}
+        <li role="separator" class="mdc-list-divider list-item-question-{{ q.pk }}"></li>
+        <li class="mdc-list-item list-item-question-{{ q.pk }}">
+          <span class="mdc-list-item__graphic">
+            <div class="iconify">
+              <span class="text-on-div-icon bold">{{q.pk}}</span>
+            </div>
+          </span>
+          <span class="mdc-list-item__text mdc-theme--secondary bold">
+            {{q.title|safe|striptags}}
+            <span class="mdc-list-item__secondary-text">
+              {% trans 'Last modified: ' %}{{q.last_modified}}
+            </span>
+          </span>
+          <span class="mdc-list-item__meta">
+            <i question="{{ q.pk }}" class="undelete-question-{{ q.pk }} material-icons md-24 mdc-ripple-surface icon-list">restore_from_trash</i>
+            <i question="{{ q.pk }}" class="delete-question-{{ q.pk }} material-icons md-24 mdc-ripple-surface icon-list">delete</i>
+            <a id="edit-question-{{ q.pk }}" href="{% url 'question-update' q.pk %}">
+              <i class="material-icons md-24 mdc-ripple-surface icon-list">mode_edit</i>
+            </a>
+          </span>
+        </li>
+      {% endfor %}
+      <li role="separator" class="mdc-list-divider"></li>
+    </ul>
+    {% endif %}
+  </div>
+</div>
 
 </section>
 </main>

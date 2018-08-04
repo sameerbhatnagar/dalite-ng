@@ -5,21 +5,37 @@ from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.core.urlresolvers import reverse
-from django.http import (Http404, HttpResponse, HttpResponseBadRequest,
-                         HttpResponseForbidden, HttpResponseRedirect,
-                         HttpResponseServerError, JsonResponse,)
+from django.http import (
+    Http404,
+    HttpResponse,
+    HttpResponseBadRequest,
+    HttpResponseForbidden,
+    HttpResponseRedirect,
+    HttpResponseServerError,
+    JsonResponse,
+)
 from django.shortcuts import get_object_or_404, render
 from django.template.response import TemplateResponse
 from django.utils.translation import ugettext_lazy as _
-from django.views.decorators.http import (require_http_methods, require_POST,
-                                          require_safe,)
+from django.views.decorators.http import (
+    require_http_methods,
+    require_POST,
+    require_safe,
+)
 from django.views.generic import ListView
 from django.views.generic.edit import CreateView
 
 from ..forms import EmailForm, StudentGroupAssignmentForm
 from ..mixins import LoginRequiredMixin, NoStudentsMixin
-from ..models import (Assignment, Question, Student, StudentAssignment,
-                      StudentGroup, StudentGroupAssignment, Teacher,)
+from ..models import (
+    Assignment,
+    Question,
+    Student,
+    StudentAssignment,
+    StudentGroup,
+    StudentGroupAssignment,
+    Teacher,
+)
 from ..students import authenticate_student, verify_student_token
 from ..util import get_object_or_none
 
@@ -178,11 +194,13 @@ class StudentGroupAssignmentCreateView(
 
     def form_valid(self, form):
         # Attach assignment and save
-        form.instance.assignment = get_object_or_404(Assignment, pk=self.kwargs["assignment_id"])
+        form.instance.assignment = get_object_or_404(
+            Assignment, pk=self.kwargs["assignment_id"]
+        )
         self.object = form.save()
 
         # Dispatch e-mails
-        #self.object.send_assignment_emails()
+        # self.object.send_assignment_emails()
 
         return super(StudentGroupAssignmentCreateView, self).form_valid(form)
 
@@ -202,37 +220,6 @@ class StudentGroupAssignmentCreateView(
         return context
 
 
-<<<<<<< HEAD
-@login_required
-@require_http_methods(["POST"])
-def distribute_assignment(req):
-
-    if not req.is_ajax():
-        resp = TemplateResponse(req, "400.html")
-        return HttpResponseBadRequest(resp)
-
-    try:
-        assignment_hash = req.POST["assignment_hash"]
-    except KeyError:
-        resp = TemplateResponse(
-            req,
-            "400.html",
-            context={"message": _("There are missing parameters.")},
-        )
-        return HttpResponseBadRequest(resp.render())
-
-    username = req.user.username
-
-    if not User.objects.filter(username=username).exists():
-        resp = TemplateResponse(
-            req,
-            "400.html",
-            context={
-                "message": _('The user "{}" doesn\'t exist.'.format(username))
-            },
-        )
-        return HttpResponseBadRequest(resp.render())
-=======
 class StudentGroupAssignmentListView(
     LoginRequiredMixin, NoStudentsMixin, ListView
 ):
@@ -241,12 +228,15 @@ class StudentGroupAssignmentListView(
 
     def get_queryset(self):
         teacher = get_object_or_404(Teacher, user=self.request.user)
-        queryset = StudentGroupAssignment.objects.filter(group__teacher=teacher)
+        queryset = StudentGroupAssignment.objects.filter(
+            group__teacher=teacher
+        )
         return queryset
 
     def get_context_data(self, **kwargs):
-        context = super(StudentGroupAssignmentListView, self).get_context_data(**kwargs)
+        context = super(StudentGroupAssignmentListView, self).get_context_data(
+            **kwargs
+        )
         teacher = get_object_or_404(Teacher, user=self.request.user)
         context["teacher"] = teacher
         return context
->>>>>>> 614da966c3f6ae20083cde3bfa86ce786b231d3c

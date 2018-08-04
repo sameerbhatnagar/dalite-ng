@@ -261,7 +261,7 @@ class TestStudentAssignment(TestCase):
         )
 
     def test_new_student_assignment(self):
-        n = 30
+        n = len(self.groups) * len(self.students)
         data = new_student_assignments(n, self.groups, self.students)
 
         for d in data:
