@@ -112,11 +112,7 @@ def new_questions(n):
         while True:
             yield {
                 "title": "{}{}".format(
-                    "".join(
-                        random.choice(chars)
-                        for _ in range(random.randint(1, 4))
-                    ),
-                    next(gen),
+                    "".join(random.choice(chars) for _ in range(4)), next(gen)
                 ),
                 "text": "".join(
                     random.choice(chars) for _ in range(random.randint(1, 100))

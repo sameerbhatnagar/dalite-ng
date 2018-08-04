@@ -16,7 +16,7 @@ from django.core import exceptions
 from django.core.exceptions import ValidationError
 from django.core.mail import send_mail
 from django.core.urlresolvers import reverse
-from django.db import models, IntegrityError
+from django.db import IntegrityError, models
 from django.db.models import Q
 from django.template import loader
 from django.utils.encoding import smart_bytes
@@ -839,14 +839,67 @@ class StudentGroupAssignment(models.Model):
     group = models.ForeignKey(StudentGroup, on_delete=models.CASCADE)
     assignment = models.ForeignKey(Assignment, on_delete=models.CASCADE)
     due_date = models.DateTimeField(blank=True, null=True)
+    order = models.TextField(blank=True, editable=False)
 
     def __unicode__(self):
         return "{} for {}".format(self.assignment, self.group)
+
+    def _verify_order(self, order):
+        assert isinstance(order, basestring), "Precondition failed for `order`"
+
+        n = len(self.assignment.questions.all())
+
+        err = None
+
+        try:
+            order_ = list(map(int, order.split(",")))
+        except ValueError:
+            err = "Given `order` isn't a comma separated list of integers."
+
+        if err is None and any(x < 0 for x in order_):
+            err = "Given `order` has negative values."
+
+        if err is None and any(x >= n for x in order_):
+            err = (
+                "Given `order` has at least one value bigger than "
+                "the number of questions."
+            )
+
+        if err is None and len(set(order_)) != len(order_):
+            err = "There are duplicate values in `order`."
+
+        output = err
+        assert (output is None) or isinstance(
+            output, basestring
+        ), "Postcondition failed"
+        return output
 
     def is_expired(self):
         output = datetime.now(pytz.utc) > self.due_date
         assert isinstance(output, bool), "Postcondition failed"
         return output
+
+    def modify_order(self, order):
+        err = self._verify_order(order)
+        if err is None:
+            self.order = order
+            self.save()
+
+        output = err
+        assert (err is None) or isinstance(
+            err, basestring
+        ), "Postcondition failed"
+        return output
+
+    def send_assignment_emails(self, host):
+        assert isinstance(host, basestring), "Precondition failed for `host`"
+
+    def save(self, *args, **kwargs):
+        if not self.order:
+            self.order = ",".join(
+                map(str, range(len(self.assignment.questions.all())))
+            )
+        super(StudentGroupAssignment, self).save(*args, **kwargs)
 
     @staticmethod
     def get(hash_):
@@ -877,27 +930,12 @@ class StudentAssignment(models.Model):
     )
     first_access = models.DateTimeField(editable=False, auto_now=True)
     last_access = models.DateTimeField(editable=False, auto_now=True)
-    order = models.TextField(blank=True)
 
     class Meta:
         unique_together = ("student", "group_assignment")
 
     def __unicode__(self):
         return "{} for {}".format(self.group_assignment, self.student)
-
-    def _verify_order(self):
-        pass
-
-    def save(self, *args, **kwargs):
-        if self.order is None:
-            order = ",".join(
-                map(
-                    str,
-                    range(
-                        len(self.group_assignment.assignment.questions.all())
-                    ),
-                )
-            )
 
     def send_email(self, link, host, mail_type="login"):
         assert isinstance(link, basestring), "Precondition failed for `link`"
@@ -1003,26 +1041,3 @@ class StudentAssignment(models.Model):
             output, Question
         ), "Postcondition failed"
         return output
-
-    def modify_order(self, order):
-        assert isinstance(order, basestring), "Precondition failed for `order`"
-
-        n = len(self.group_assignment.assignment.questions.all())
-
-        err = None
-
-        split = order.split(",")
-
-        try:
-            numeric = list(map(int, split))
-        except ValueError:
-            err = "Given `order` isn't a comma separated list of integers."
-
-        if err is None and any(x < 0 for x in numeric):
-            err = "Given `order` has negative values."
-
-        if err is None and any(x >= n for x in numeric):
-            err = (
-                "Given `order` has at least one value bigger than "
-                "the number of questions"
-            )

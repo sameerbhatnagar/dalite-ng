@@ -142,9 +142,11 @@ class TestStudentGroupAssignment(TestCase):
 
         for d in data:
             group = StudentGroupAssignment.objects.create(**d)
+            n = len(group.assignment.questions.all())
             self.assertIsInstance(group, StudentGroupAssignment)
             self.assertEqual(group.group, d["group"])
             self.assertEqual(group.assignment, d["assignment"])
+            self.assertEqual(group.order, ",".join(map(str, range(n))))
 
     def test_is_expired(self):
         due_dates = [
@@ -176,6 +178,63 @@ class TestStudentGroupAssignment(TestCase):
             self.assertEqual(
                 assignment, StudentGroupAssignment.get(assignment.hash)
             )
+
+    def test_modify_order(self):
+        n = 2
+        assignments = add_student_group_assignments(
+            new_student_group_assignments(n, self.groups, self.assignments)
+        )
+
+        for assignment in assignments:
+            k = len(assignment.assignment.questions.all())
+            new_order = ",".join(map(str, random.sample(range(k), k=k)))
+            err = assignment.modify_order(new_order)
+            self.assertIs(err, None)
+            self.assertEqual(new_order, assignment.order)
+
+    def test_modify_order_wrong_type(self):
+        n = 1
+        assignment = add_student_group_assignments(
+            new_student_group_assignments(n, self.groups, self.assignments)
+        )[0]
+
+        new_order = [1, 2, 3]
+        self.assertRaises(AssertionError, assignment.modify_order, new_order)
+
+        new_order = "abc"
+        err = assignment.modify_order(new_order)
+        self.assertEqual(
+            err, "Given `order` isn't a comma separated list of integers."
+        )
+
+        new_order = "a,b,c"
+        err = assignment.modify_order(new_order)
+        self.assertEqual(
+            err, "Given `order` isn't a comma separated list of integers."
+        )
+
+    def test_modify_order_wrong_values(self):
+        n = 1
+        assignment = add_student_group_assignments(
+            new_student_group_assignments(n, self.groups, self.assignments)
+        )[0]
+
+        n = len(assignment.assignment.questions.all())
+
+        data = ("-1,2,3", "1,2,{}".format(n), "1,1,2")
+
+        errors = (
+            "Given `order` has negative values.",
+            (
+                "Given `order` has at least one value bigger than the number "
+                "of questions."
+            ),
+            "There are duplicate values in `order`.",
+        )
+
+        for d, e in zip(data, errors):
+            err = assignment.modify_order(d)
+            self.assertEqual(err, e)
 
 
 class TestStudentAssignment(TestCase):
