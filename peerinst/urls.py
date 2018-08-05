@@ -1,19 +1,17 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+# Backport of django 1.9 password validation
+import password_validation.views as password_views
 from django.conf.urls import include, url
+from django.contrib.auth import views as auth_views
+from django.contrib.auth.decorators import user_passes_test
+from django.views.decorators.cache import cache_page
 
 # testing
 from django.views.decorators.clickjacking import xframe_options_sameorigin
-from django.contrib.auth.decorators import user_passes_test
-from django.views.decorators.cache import cache_page
-from django.contrib.auth import views as auth_views
 
-# Backport of django 1.9 password validation
-import password_validation.views as password_views
-
-from . import admin_views
-from . import views
+from . import admin_views, views
 
 
 def not_authenticated(user):
@@ -201,9 +199,14 @@ urlpatterns = [
         name="teacher-groups",
     ),
     url(
-        r"^teacher/(?P<pk>[0-9]+)/group/(?P<group_hash>[0-9A-Za-z=_-]+)$",
-        views.TeacherGroupDetail.as_view(),
-        name="group-detail",
+        r"^teacher/(?P<pk>[0-9]+)/group/(?P<group_hash>[0-9A-Za-z=_-]+)/share$",
+        views.TeacherGroupShare.as_view(),
+        name="group-share",
+    ),
+    url(
+        r"^teacher/(?P<teacher_id>[0-9]+)/group/(?P<group_hash>[0-9A-Za-z=_-]+)/$",
+        views.group_details_page,
+        name="group-details",
     ),
     url(
         r"^teacher/(?P<teacher_id>[0-9]+)/group_assignments/$",

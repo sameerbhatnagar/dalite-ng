@@ -597,7 +597,7 @@ class Student(models.Model):
         subject = "Confirm myDALITE account"
         message = "Please confirm myDALITE account by going to: " + host + link
         template = "students/email_confirmation.html"
-        context = {"link": link, "host": host}
+        context = {"link": link, "host": host, "protocol": protocol}
 
         try:
             send_mail(
@@ -894,6 +894,14 @@ class StudentGroupAssignment(models.Model):
     def send_assignment_emails(self, host):
         assert isinstance(host, basestring), "Precondition failed for `host`"
 
+        for student in Student.objects.filter(groups=self.group):
+            assignment = StudentAssignment.objects.get(
+                student=student, group_assignment=self
+            )
+            assignment.send_email(
+                host, mail_type="new_assignment", assignment_hash=self.hash
+            )
+
     def save(self, *args, **kwargs):
         if not self.order:
             self.order = ",".join(
@@ -937,19 +945,29 @@ class StudentAssignment(models.Model):
     def __unicode__(self):
         return "{} for {}".format(self.group_assignment, self.student)
 
-    def send_email(self, link, host, mail_type="login"):
-        assert isinstance(link, basestring), "Precondition failed for `link`"
+    def send_email(self, link, host, mail_type="login", assignment_hash=None):
+        assert (
+            isinstance(link, basestring) and "{}" in link
+        ), "Precondition failed for `link`"
         assert isinstance(host, basestring), "Precondition failed for `host`"
         assert isinstance(mail_type, basestring) and mail_type in (
             "login",
             "new_assignment",
         ), "Precondition failed for `mail_type`"
+        assert assignment_hash is None or isinstance(
+            assignment_hash, basestring
+        ), "Precondition failed for `assignment_hash`"
 
         err = None
 
+        if mail_type == "new_assignment" and assignment_hash is None:
+            err = 'An `assignment_hash` is needed to send a "new_assignment" email.'
+
         user_email = self.student.user.email
 
-        if user_email:
+        if err is None and user_email:
+
+            token = create_student_token(user_email)
 
             if mail_type == "login":
 
@@ -959,6 +977,14 @@ class StudentAssignment(models.Model):
                 template = "students/email_login.html"
 
             elif mail_type == "new_assignment":
+
+                link = reverse(
+                    "live",
+                    kwargs={
+                        "assignment_hash": assignment_hash,
+                        "token": token,
+                    },
+                )
 
                 subject = "Access assignment"
                 message = "Click link below to access your assignment."
@@ -976,12 +1002,7 @@ class StudentAssignment(models.Model):
             else:
                 protocol = "https"
 
-            context = {
-                "token": create_student_token(self.student.user.username),
-                "link": link,
-                "host": host,
-                "protocol": protocol,
-            }
+            context = {"link": link, "host": host, "protocol": protocol}
 
             try:
                 send_mail(
@@ -997,9 +1018,10 @@ class StudentAssignment(models.Model):
             except smtplib.SMTPException:
                 err = "There was an error sending the email."
         else:
-            err = "There is no email associated with user {}".format(
-                self.student.user.username
-            )
+            if err is None:
+                err = "There is no email associated with user {}".format(
+                    self.student.user.username
+                )
 
         output = err
         assert err is None or isinstance(

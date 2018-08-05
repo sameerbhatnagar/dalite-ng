@@ -159,6 +159,6 @@ gulp.task('watch', function() {
   gulp.watch('./tos/static/tos/css/*.scss', ['tos-styles']);
   gulp.watch('./tos/static/tos/js/tos.js', ['tos-scripts-tos']);
   gulp.watch('./tos/static/tos/js/email.js', ['tos-scripts-email']);
-  gulp.watch('./peerinst/static/peerinst/css/*.scss', ['peerinst-styles']);
+  gulp.watch('./peerinst/static/peerinst/css/**/*.scss', ['peerinst-styles']);
   gulp.watch('./peerinst/static/peerinst/js/{index,utils}.js', ['rollup']);
 });

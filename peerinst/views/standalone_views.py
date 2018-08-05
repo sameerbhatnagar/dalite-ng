@@ -200,7 +200,7 @@ class StudentGroupAssignmentCreateView(
         self.object = form.save()
 
         # Dispatch e-mails
-        # self.object.send_assignment_emails()
+        self.object.send_assignment_emails(self.request.get_host())
 
         return super(StudentGroupAssignmentCreateView, self).form_valid(form)
 
