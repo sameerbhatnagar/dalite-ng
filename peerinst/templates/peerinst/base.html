@@ -2,6 +2,10 @@
 
 {% get_current_language as LANGUAGE_CODE %}
 
+{% load tz %}
+
+{% timezone "Canada/Eastern" %}
+
 <!DOCTYPE html>
 <html lang="{{LANGUAGE_CODE}}">
 
@@ -137,3 +141,5 @@
 
 </body>
 </html>
+
+{% endtimezone %}
