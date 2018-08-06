@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 from operator import itemgetter
 
+from django import forms
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.http import (
@@ -20,8 +21,12 @@ from django.views.decorators.http import require_http_methods
 from ..models import EmailConsent, EmailType, Role
 
 
+class EmailChangeForm(forms.Form):
+    """Form for user email address"""
+    email = forms.EmailField()
+
+
 @login_required
-@require_http_methods(["GET"])
 def email_consent_modify(req, role):
     username = req.user.username
 
@@ -64,7 +69,19 @@ def email_consent_modify(req, role):
         )
     ]
 
+    # Handle e-mail address change form
+    if req.method == "POST":
+        form = EmailChangeForm(req.POST)
+        if form.is_valid():
+            req.user.email = form.cleaned_data["email"]
+            req.user.save()
+            redirect_to = req.GET.get('next')
+            return HttpResponseRedirect(redirect_to)
+    else:
+        form = EmailChangeForm()
+
     context = {
+        "form": form,
         "username": username,
         "role": role,
         "email_types": email_types,

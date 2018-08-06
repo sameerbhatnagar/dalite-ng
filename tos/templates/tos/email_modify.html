@@ -1,6 +1,6 @@
 {% extends 'peerinst/base.html' %}
 
-{% load staticfiles i18n compress %}
+{% load add_class staticfiles i18n compress %}
 
 {% block stylesheets %}
   {% compress css %}
@@ -20,6 +20,42 @@
         <a href="{% url 'teacher' user.teacher.id %}">{% trans 'Back to My Account' %}</a>
       </div>
       {% endif %}
+
+      <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Email address' %}</h2>
+
+      <div class='field-container'>
+        <div class='number-box'><span class='number'>?</span></div>
+        <div class='field'>
+          <p><small>
+            {% blocktrans %}
+            You can change the email address associated with your account below.  Your current email address is:
+            {% endblocktrans %}<span class="bold">{{ request.user.email }}</span>
+          </small></p>
+        </div>
+      </div>
+
+      <form method="post">
+        {% csrf_token %}
+
+        {% for field in form %}
+          <div class="mdc-text-field mdc-text-field--outlined mdc-text-field--dense" data-mdc-auto-init="MDCTextField">
+            {{ field|add_class:"mdc-text-field__input" }}
+            {{ field.label_tag|add_class:"mdc-floating-label"|cut:":" }}
+            <div class="mdc-notched-outline">
+              <svg>
+                <path class="mdc-notched-outline__path"/>
+              </svg>
+            </div>
+            <div class="mdc-notched-outline__idle"></div>
+          </div>
+          <p class="mdc-text-field-helper-text mdc-text-field-helper-text--persistent" aria-hidden="true">
+            {{ field.help_text|safe }}
+          </p>
+          {{ field.errors }}
+        {% endfor %}
+
+        <input class="mdc-button mdc-button--raised padded-top" type="submit" value="{% trans 'Save' %}" />
+      </form>
 
       <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Notifications' %}</h2>
 
