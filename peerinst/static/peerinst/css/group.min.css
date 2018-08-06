@@ -1,0 +1,5 @@
+#group-details{display:grid;grid-template-columns:minmax(-webkit-max-content, 150px) -webkit-max-content;grid-template-columns:minmax(max-content, 150px) max-content;border-top:1px solid rgba(0,0,0,0.12);width:-webkit-max-content;width:-moz-max-content;width:max-content;margin-top:10px}#group-details>div{padding:20px 15px;border-bottom:1px solid rgba(0,0,0,0.12)}#group-details>div:nth-child(2n+1){font-weight:bold}#group-details ul{margin:0;list-style-type:square}
+
+/*# sourceMappingURL=group.min.css.map */
+
+/*# sourceMappingURL=group.min.css.map */

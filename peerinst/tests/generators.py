@@ -112,11 +112,7 @@ def new_questions(n):
         while True:
             yield {
                 "title": "{}{}".format(
-                    "".join(
-                        random.choice(chars)
-                        for _ in range(random.randint(1, 10))
-                    ),
-                    next(gen),
+                    "".join(random.choice(chars) for _ in range(4)), next(gen)
                 ),
                 "text": "".join(
                     random.choice(chars) for _ in range(random.randint(1, 100))
@@ -133,11 +129,12 @@ def new_students(n):
         gen = _extra_chars_gen()
         while True:
             yield {
-                "email": "{}@{}.{}".format(
+                "email": "{}{}@{}.{}".format(
                     "".join(
                         random.choice(chars)
                         for _ in range(random.randint(1, 32))
                     ),
+                    next(gen),
                     "".join(
                         random.choice(chars)
                         for _ in range(random.randint(1, 10))
@@ -154,14 +151,19 @@ def new_students(n):
 
 
 def new_student_assignments(n, group_assignments, students):
-    def generator(group_assignments, students):
+    def generator(combinations):
+        choice = random.choice(list(combinations))
+        combinations = combinations - set(choice)
         while True:
-            yield {
-                "student": random.choice(students),
-                "group_assignment": random.choice(group_assignments),
-            }
+            yield {"student": choice[0], "group_assignment": choice[1]}
 
-    gen = generator(group_assignments, students)
+    combinations = [
+        (student, group) for group in group_assignments for student in students
+    ]
+    if n > len(combinations):
+        raise ValueError("There aren't enough students and assignments")
+
+    gen = generator(set(combinations))
     return [next(gen) for _ in range(n)]
 
 
@@ -261,16 +263,20 @@ def add_users(users):
     return [User.objects.create_user(**u) for u in users]
 
 
-def add_second_choice_to_answers(answers, n_second_choices=None):
+def add_second_choice_to_answers(answers, assignment, n_second_choices=None):
     assignments = set((a.assignment for a in answers))
-    for assignment in assignments:
-        answers_ = [a for a in answers if a.assignment == assignment]
-        for i in range(n_second_choices or random.randrange(1, len(answers_))):
-            answers_[i].chosen_rationale = random.choice(answers_)
-            answers_[i].second_answer_choice = answers_[
-                i
-            ].chosen_rationale.first_answer_choice
-            answers_[i].save()
+    answers_ = [
+        a
+        for a in answers
+        if a.assignment == assignment.group_assignment.assignment
+        and a.user_token == assignment.student.student.username
+    ]
+    for i in range(n_second_choices or random.randrange(1, len(answers_))):
+        answers_[i].chosen_rationale = random.choice(answers_)
+        answers_[i].second_answer_choice = answers_[
+            i
+        ].chosen_rationale.first_answer_choice
+        answers_[i].save()
     return answers
 
 

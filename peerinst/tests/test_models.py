@@ -142,9 +142,11 @@ class TestStudentGroupAssignment(TestCase):
 
         for d in data:
             group = StudentGroupAssignment.objects.create(**d)
+            n = len(group.assignment.questions.all())
             self.assertIsInstance(group, StudentGroupAssignment)
             self.assertEqual(group.group, d["group"])
             self.assertEqual(group.assignment, d["assignment"])
+            self.assertEqual(group.order, ",".join(map(str, range(n))))
 
     def test_is_expired(self):
         due_dates = [
@@ -177,6 +179,63 @@ class TestStudentGroupAssignment(TestCase):
                 assignment, StudentGroupAssignment.get(assignment.hash)
             )
 
+    def test_modify_order(self):
+        n = 2
+        assignments = add_student_group_assignments(
+            new_student_group_assignments(n, self.groups, self.assignments)
+        )
+
+        for assignment in assignments:
+            k = len(assignment.assignment.questions.all())
+            new_order = ",".join(map(str, random.sample(range(k), k=k)))
+            err = assignment.modify_order(new_order)
+            self.assertIs(err, None)
+            self.assertEqual(new_order, assignment.order)
+
+    def test_modify_order_wrong_type(self):
+        n = 1
+        assignment = add_student_group_assignments(
+            new_student_group_assignments(n, self.groups, self.assignments)
+        )[0]
+
+        new_order = [1, 2, 3]
+        self.assertRaises(AssertionError, assignment.modify_order, new_order)
+
+        new_order = "abc"
+        err = assignment.modify_order(new_order)
+        self.assertEqual(
+            err, "Given `order` isn't a comma separated list of integers."
+        )
+
+        new_order = "a,b,c"
+        err = assignment.modify_order(new_order)
+        self.assertEqual(
+            err, "Given `order` isn't a comma separated list of integers."
+        )
+
+    def test_modify_order_wrong_values(self):
+        n = 1
+        assignment = add_student_group_assignments(
+            new_student_group_assignments(n, self.groups, self.assignments)
+        )[0]
+
+        n = len(assignment.assignment.questions.all())
+
+        data = ("-1,2,3", "1,2,{}".format(n), "1,1,2")
+
+        errors = (
+            "Given `order` has negative values.",
+            (
+                "Given `order` has at least one value bigger than the number "
+                "of questions."
+            ),
+            "There are duplicate values in `order`.",
+        )
+
+        for d, e in zip(data, errors):
+            err = assignment.modify_order(d)
+            self.assertEqual(err, e)
+
 
 class TestStudentAssignment(TestCase):
     def setUp(self):
@@ -202,7 +261,7 @@ class TestStudentAssignment(TestCase):
         )
 
     def test_new_student_assignment(self):
-        n = 30
+        n = len(self.groups) * len(self.students)
         data = new_student_assignments(n, self.groups, self.students)
 
         for d in data:
@@ -226,7 +285,7 @@ class TestStudentAssignment(TestCase):
         self.assertEqual(correct, question)
 
     def test_get_current_question_only_first_answer_choices(self):
-        n_assignments = 3
+        n_assignments = 5
         assignments = add_student_assignments(
             new_student_assignments(n_assignments, self.groups, self.students)
         )
@@ -253,6 +312,7 @@ class TestStudentAssignment(TestCase):
                     len(answers[i])
                 ],
             )
+        self.assertTrue(False)
 
     def test_get_current_question_all_first_answer_choices(self):
         n_assignments = 1
@@ -278,13 +338,16 @@ class TestStudentAssignment(TestCase):
             new_student_assignments(n_assignments, self.groups, self.students)
         )
         answers_ = [
-            add_answers(
-                new_answers(
-                    len(
-                        assignment.group_assignment.assignment.questions.all()
-                    ),
-                    [assignment],
-                )
+            (
+                add_answers(
+                    new_answers(
+                        len(
+                            assignment.group_assignment.assignment.questions.all()
+                        ),
+                        [assignment],
+                    )
+                ),
+                assignment,
             )
             for assignment in assignments
         ]
@@ -292,23 +355,16 @@ class TestStudentAssignment(TestCase):
         answers = [
             [
                 aa
-                for aa in add_second_choice_to_answers(a)
+                for aa in add_second_choice_to_answers(a[0], a[1])
                 if aa.chosen_rationale is not None
             ]
             for a in answers_
         ]
 
+        print(assignments)
+
         for i in range(len(assignments)):
             current = assignments[i].get_current_question()
-            print(assignments[i].group_assignment.assignment.questions.all())
-            print([a.first_answer_choice for a in answers_[i]])
-            print([a.second_answer_choice for a in answers_[i]])
-            print(current)
-            print(
-                assignments[i].group_assignment.assignment.questions.all()[
-                    len(answers[i])
-                ]
-            )
             self.assertEqual(
                 current,
                 assignments[i].group_assignment.assignment.questions.all()[

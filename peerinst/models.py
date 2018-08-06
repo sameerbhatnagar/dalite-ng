@@ -16,7 +16,7 @@ from django.core import exceptions
 from django.core.exceptions import ValidationError
 from django.core.mail import send_mail
 from django.core.urlresolvers import reverse
-from django.db import models, IntegrityError
+from django.db import IntegrityError, models
 from django.db.models import Q
 from django.template import loader
 from django.utils.encoding import smart_bytes
@@ -497,7 +497,7 @@ class StudentGroup(models.Model):
     name = models.CharField(max_length=100, unique=True)
     title = models.CharField(max_length=100, null=True, blank=True)
     creation_date = models.DateField(blank=True, null=True, auto_now=True)
-    teacher = models.ManyToManyField('Teacher', blank=True)
+    teacher = models.ManyToManyField("Teacher", blank=True)
 
     def __unicode__(self):
         if not self.title:
@@ -583,17 +583,21 @@ class Student(models.Model):
 
         user_email = self.student.email
         token = create_student_token(user_email)
-        hash = group.hash
-        link = reverse("confirm-signup-through-link", kwargs={"group_hash": hash, "token": token})
+        hash_ = group.hash
+        link = reverse(
+            "confirm-signup-through-link",
+            kwargs={"group_hash": hash_, "token": token},
+        )
+
+        if host == "localhost" or host == "127.0.0.1":
+            protocol = "http"
+        else:
+            protocol = "https"
 
         subject = "Confirm myDALITE account"
-        message = (
-            "Please confirm myDALITE account by going to: "
-            + host
-            + link
-        )
+        message = "Please confirm myDALITE account by going to: " + host + link
         template = "students/email_confirmation.html"
-        context = {"link": link, "host": host}
+        context = {"link": link, "host": host, "protocol": protocol}
 
         try:
             send_mail(
@@ -650,7 +654,9 @@ class Teacher(models.Model):
     disciplines = models.ManyToManyField(Discipline, blank=True)
     assignments = models.ManyToManyField(Assignment, blank=True)
     deleted_questions = models.ManyToManyField(Question, blank=True)
-    current_groups = models.ManyToManyField(StudentGroup, blank=True, related_name="current_groups")
+    current_groups = models.ManyToManyField(
+        StudentGroup, blank=True, related_name="current_groups"
+    )
 
     def get_absolute_url(self):
         return reverse("teacher", kwargs={"pk": self.pk})
@@ -672,7 +678,9 @@ class Teacher(models.Model):
 
     @property
     def hash(self):
-        output = base64.urlsafe_b64encode(str(self.user.username).encode()).decode()
+        output = base64.urlsafe_b64encode(
+            str(self.user.username).encode()
+        ).decode()
         assert isinstance(output, basestring), "Postcondition failed"
         return output
 
@@ -831,14 +839,75 @@ class StudentGroupAssignment(models.Model):
     group = models.ForeignKey(StudentGroup, on_delete=models.CASCADE)
     assignment = models.ForeignKey(Assignment, on_delete=models.CASCADE)
     due_date = models.DateTimeField(blank=True, null=True)
+    order = models.TextField(blank=True, editable=False)
 
     def __unicode__(self):
         return "{} for {}".format(self.assignment, self.group)
+
+    def _verify_order(self, order):
+        assert isinstance(order, basestring), "Precondition failed for `order`"
+
+        n = len(self.assignment.questions.all())
+
+        err = None
+
+        try:
+            order_ = list(map(int, order.split(",")))
+        except ValueError:
+            err = "Given `order` isn't a comma separated list of integers."
+
+        if err is None and any(x < 0 for x in order_):
+            err = "Given `order` has negative values."
+
+        if err is None and any(x >= n for x in order_):
+            err = (
+                "Given `order` has at least one value bigger than "
+                "the number of questions."
+            )
+
+        if err is None and len(set(order_)) != len(order_):
+            err = "There are duplicate values in `order`."
+
+        output = err
+        assert (output is None) or isinstance(
+            output, basestring
+        ), "Postcondition failed"
+        return output
 
     def is_expired(self):
         output = datetime.now(pytz.utc) > self.due_date
         assert isinstance(output, bool), "Postcondition failed"
         return output
+
+    def modify_order(self, order):
+        err = self._verify_order(order)
+        if err is None:
+            self.order = order
+            self.save()
+
+        output = err
+        assert (err is None) or isinstance(
+            err, basestring
+        ), "Postcondition failed"
+        return output
+
+    def send_assignment_emails(self, host):
+        assert isinstance(host, basestring), "Precondition failed for `host`"
+
+        for student in Student.objects.filter(groups=self.group):
+            assignment = StudentAssignment.objects.get(
+                student=student, group_assignment=self
+            )
+            assignment.send_email(
+                host, mail_type="new_assignment", assignment_hash=self.hash
+            )
+
+    def save(self, *args, **kwargs):
+        if not self.order:
+            self.order = ",".join(
+                map(str, range(len(self.assignment.questions.all())))
+            )
+        super(StudentGroupAssignment, self).save(*args, **kwargs)
 
     @staticmethod
     def get(hash_):
@@ -876,17 +945,29 @@ class StudentAssignment(models.Model):
     def __unicode__(self):
         return "{} for {}".format(self.group_assignment, self.student)
 
-    def send_email(self, mail_type="login"):
+    def send_email(self, link, host, mail_type="login", assignment_hash=None):
+        assert (
+            isinstance(link, basestring) and "{}" in link
+        ), "Precondition failed for `link`"
+        assert isinstance(host, basestring), "Precondition failed for `host`"
         assert isinstance(mail_type, basestring) and mail_type in (
             "login",
             "new_assignment",
         ), "Precondition failed for `mail_type`"
+        assert assignment_hash is None or isinstance(
+            assignment_hash, basestring
+        ), "Precondition failed for `assignment_hash`"
 
         err = None
 
+        if mail_type == "new_assignment" and assignment_hash is None:
+            err = 'An `assignment_hash` is needed to send a "new_assignment" email.'
+
         user_email = self.student.user.email
 
-        if user_email:
+        if err is None and user_email:
+
+            token = create_student_token(user_email)
 
             if mail_type == "login":
 
@@ -896,6 +977,14 @@ class StudentAssignment(models.Model):
                 template = "students/email_login.html"
 
             elif mail_type == "new_assignment":
+
+                link = reverse(
+                    "live",
+                    kwargs={
+                        "assignment_hash": assignment_hash,
+                        "token": token,
+                    },
+                )
 
                 subject = "Access assignment"
                 message = "Click link below to access your assignment."
@@ -908,10 +997,12 @@ class StudentAssignment(models.Model):
                     "mail types."
                 )
 
-            context = {
-                "token": create_student_token(self.student.user.username),
-                "link": "",
-            }
+            if host == "localhost" or host == "127.0.0.1":
+                protocol = "http"
+            else:
+                protocol = "https"
+
+            context = {"link": link, "host": host, "protocol": protocol}
 
             try:
                 send_mail(
@@ -927,9 +1018,10 @@ class StudentAssignment(models.Model):
             except smtplib.SMTPException:
                 err = "There was an error sending the email."
         else:
-            err = "There is no email associated with user {}".format(
-                self.student.user.username
-            )
+            if err is None:
+                err = "There is no email associated with user {}".format(
+                    self.student.user.username
+                )
 
         output = err
         assert err is None or isinstance(
@@ -951,7 +1043,6 @@ class StudentAssignment(models.Model):
         has_first_answer = [
             a.first_answer_choice is not None if a else False for a in answers
         ]
-        print(has_first_answer)
         # if a question has at least one missing answer (no first choice or no
         # answer), returns the first question with no answer or no first answer
         # choice
@@ -961,8 +1052,6 @@ class StudentAssignment(models.Model):
             has_second_answer = [
                 a.second_answer_choice is not None for a in answers
             ]
-            print(questions)
-            print(has_second_answer)
             # if there is a question missing the second answer, returns it or
             # returns None if all questions have been answered twice
             if not all(has_second_answer):

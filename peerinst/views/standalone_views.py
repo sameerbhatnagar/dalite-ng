@@ -8,24 +8,25 @@ from django.core.urlresolvers import reverse
 from django.http import (
     Http404,
     HttpResponse,
-    JsonResponse,
     HttpResponseBadRequest,
-    HttpResponseRedirect,
     HttpResponseForbidden,
+    HttpResponseRedirect,
     HttpResponseServerError,
+    JsonResponse,
 )
 from django.shortcuts import get_object_or_404, render
 from django.template.response import TemplateResponse
 from django.utils.translation import ugettext_lazy as _
-from django.views.decorators.http import require_POST, require_safe
+from django.views.decorators.http import (
+    require_http_methods,
+    require_POST,
+    require_safe,
+)
 from django.views.generic import ListView
 from django.views.generic.edit import CreateView
 
 from ..forms import EmailForm, StudentGroupAssignmentForm
-from ..mixins import (
-    LoginRequiredMixin,
-    NoStudentsMixin,
-)
+from ..mixins import LoginRequiredMixin, NoStudentsMixin
 from ..models import (
     Assignment,
     Question,
@@ -95,7 +96,9 @@ def confirm_signup_through_link(request, group_hash, token):
         student.save()
 
         return TemplateResponse(
-            request, "registration/sign_up_student_confirmation.html", context={'group' : group}
+            request,
+            "registration/sign_up_student_confirmation.html",
+            context={"group": group},
         )
     else:
         raise PermissionDenied
@@ -191,11 +194,13 @@ class StudentGroupAssignmentCreateView(
 
     def form_valid(self, form):
         # Attach assignment and save
-        form.instance.assignment = get_object_or_404(Assignment, pk=self.kwargs["assignment_id"])
+        form.instance.assignment = get_object_or_404(
+            Assignment, pk=self.kwargs["assignment_id"]
+        )
         self.object = form.save()
 
         # Dispatch e-mails
-        #self.object.send_assignment_emails()
+        self.object.send_assignment_emails(self.request.get_host())
 
         return super(StudentGroupAssignmentCreateView, self).form_valid(form)
 
@@ -204,9 +209,13 @@ class StudentGroupAssignmentCreateView(
         return reverse("group-assignments", kwargs={"teacher_id": teacher.pk})
 
     def get_context_data(self, **kwargs):
-        context = super(StudentGroupAssignmentCreateView, self).get_context_data(**kwargs)
+        context = super(
+            StudentGroupAssignmentCreateView, self
+        ).get_context_data(**kwargs)
         teacher = get_object_or_404(Teacher, user=self.request.user)
-        context["assignment"] = get_object_or_404(Assignment, pk=self.kwargs["assignment_id"])
+        context["assignment"] = get_object_or_404(
+            Assignment, pk=self.kwargs["assignment_id"]
+        )
         context["teacher"] = teacher
         return context
 
@@ -219,11 +228,15 @@ class StudentGroupAssignmentListView(
 
     def get_queryset(self):
         teacher = get_object_or_404(Teacher, user=self.request.user)
-        queryset = StudentGroupAssignment.objects.filter(group__teacher=teacher)
+        queryset = StudentGroupAssignment.objects.filter(
+            group__teacher=teacher
+        )
         return queryset
 
     def get_context_data(self, **kwargs):
-        context = super(StudentGroupAssignmentListView, self).get_context_data(**kwargs)
+        context = super(StudentGroupAssignmentListView, self).get_context_data(
+            **kwargs
+        )
         teacher = get_object_or_404(Teacher, user=self.request.user)
         context["teacher"] = teacher
         return context

@@ -646,10 +646,10 @@ def question_delete(request):
         teacher = get_object_or_404(Teacher, user=request.user)
         if question not in teacher.deleted_questions.all():
             teacher.deleted_questions.add(question)
-            return JsonResponse({ 'action' : 'delete' })
+            return JsonResponse({"action": "delete"})
         else:
             teacher.deleted_questions.remove(question)
-            return JsonResponse({ 'action' : 'restore' })
+            return JsonResponse({"action": "restore"})
     else:
         # Bad request
         response = TemplateResponse(request, "400.html")
@@ -777,9 +777,7 @@ def discipline_select_form(request, pk):
     )
 
 
-class DisciplinesCreateView(
-    LoginRequiredMixin, NoStudentsMixin, CreateView
-):
+class DisciplinesCreateView(LoginRequiredMixin, NoStudentsMixin, CreateView):
     """View to create a new discipline outside of admin."""
 
     model = models.Discipline
@@ -799,10 +797,9 @@ def disciplines_select_form(request):
         request,
         "peerinst/disciplines_select_form.html",
         context={
-            "form":
-                forms.DisciplinesSelectForm(
-                    initial={"disciplines": request.user.teacher.disciplines.all()}
-                )
+            "form": forms.DisciplinesSelectForm(
+                initial={"disciplines": request.user.teacher.disciplines.all()}
+            )
         },
     )
 
@@ -878,7 +875,8 @@ class QuestionFormView(QuestionMixin, FormView):
         else:
             latest_student_consent = (
                 Consent.objects.filter(
-                    user__username=self.request.user.username, tos__role="student"
+                    user__username=self.request.user.username,
+                    tos__role="student",
                 )
                 .order_by("-datetime")
                 .first()
@@ -988,7 +986,9 @@ class QuestionFormView(QuestionMixin, FormView):
         if created_group:
             group.save()
 
-        teacher_hash = self.lti_data.edx_lti_parameters.get('custom_teacher_id')
+        teacher_hash = self.lti_data.edx_lti_parameters.get(
+            "custom_teacher_id"
+        )
         if teacher_hash is not None:
             teacher = Teacher.get(teacher_hash)
             if teacher not in group.teacher.all():
@@ -1027,14 +1027,12 @@ class QuestionFormView(QuestionMixin, FormView):
         raise QuestionReload()
 
     def get_context_data(self, **kwargs):
-        context = super(QuestionFormView, self).get_context_data(
-            **kwargs
-        )
+        context = super(QuestionFormView, self).get_context_data(**kwargs)
         # Pass hint so that template knows context
         if self.lti_data:
-            context.update(lti=True,)
+            context.update(lti=True)
         else:
-            context.update(lti=False,)
+            context.update(lti=False)
         return context
 
 
@@ -1650,7 +1648,7 @@ class TeacherBase(LoginRequiredMixin, NoStudentsMixin, View):
             raise PermissionDenied
 
 
-class TeacherGroupDetail(TeacherBase, DetailView):
+class TeacherGroupShare(TeacherBase, DetailView):
     """Share link for a group"""
 
     model = Teacher
@@ -1658,7 +1656,7 @@ class TeacherGroupDetail(TeacherBase, DetailView):
 
     def get_object(self):
         self.teacher = get_object_or_404(Teacher, user=self.request.user)
-        hash = self.kwargs.get('group_hash', None)
+        hash = self.kwargs.get("group_hash", None)
 
         if hash is not None:
             obj = StudentGroup.get(hash)
@@ -1674,7 +1672,7 @@ class TeacherGroupDetail(TeacherBase, DetailView):
             return HttpResponseBadRequest(response.render())
 
     def get_context_data(self, **kwargs):
-        context = super(TeacherGroupDetail, self).get_context_data(**kwargs)
+        context = super(TeacherGroupShare, self).get_context_data(**kwargs)
         context["teacher"] = self.teacher
 
         return context
@@ -1699,7 +1697,8 @@ class TeacherDetailView(TeacherBase, DetailView):
         #### To revisit!
         latest_teacher_consent = (
             Consent.objects.filter(
-                user__username=self.get_object().user.username, tos__role="teacher"
+                user__username=self.get_object().user.username,
+                tos__role="teacher",
             )
             .order_by("-datetime")
             .first()
