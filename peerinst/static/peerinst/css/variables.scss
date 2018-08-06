@@ -2,6 +2,25 @@ $mdc-typography-font-family: 'Montserrat';
 $mdc-theme-primary: #54c0db;
 $mdc-theme-secondary: #004266;
 $mdc-theme-background: #f4f4f4;
+$hint: DarkGray;
+
+$mdc-theme-text-colors: (
+  dark: (
+    primary: rgba(black, .87),
+    secondary: rgba(black, .54),
+    hint: $hint,
+    disabled: rgba(black, .38),
+    icon: rgba(black, .38)
+  ),
+  light: (
+    primary: white,
+    secondary: rgba(white, .7),
+    hint: rgba(white, .5),
+    disabled: rgba(white, .5),
+    icon: rgba(white, .5)
+  )
+) !default;
+
 $radius: 10px;
 
 /* Preset for mobile */
