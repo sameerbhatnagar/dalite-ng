@@ -326,12 +326,12 @@ urlpatterns = [
         name="blink-status",
     ),
     url(
-        r"^blink/(?P<username>\w+)/$",
+        r"^blink/(?P<username>[\w.@+-]+)/$",
         views.blink_get_current,
         name="blink-get-current",
     ),
     url(
-        r"^blink/(?P<username>\w+)/url/$",
+        r"^blink/(?P<username>[\w.@+-]+)/url/$",
         cache_page(1)(views.blink_get_current_url),
         name="blink-get-current-url",
     ),
@@ -341,12 +341,12 @@ urlpatterns = [
         name="blink-get-next",
     ),
     url(
-        r"^blink/waiting/(?P<username>\w+)/$",
+        r"^blink/waiting/(?P<username>[\w.@+-]+)/$",
         views.blink_waiting,
         name="blink-waiting",
     ),
     url(
-        r"^blink/waiting/(?P<username>\w+)/(?P<assignment>[0-9]+)/$",
+        r"^blink/waiting/(?P<username>[\w.@+-]+)/(?P<assignment>[0-9]+)/$",
         views.blink_waiting,
         name="blink-waiting",
     ),
