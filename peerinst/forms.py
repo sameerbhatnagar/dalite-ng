@@ -194,6 +194,10 @@ class BlinkSetTimeForm(forms.Form):
     time_limit = forms.IntegerField(
         max_value=120,
         min_value=15,
+        initial=45,
+        help_text=_(
+            "Set the time limit to be used for each question."
+        ),
     )
 
 
