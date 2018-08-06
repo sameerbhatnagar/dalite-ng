@@ -125,7 +125,7 @@ p {
   margin: 0.25em 0;
 }
 a {
-  color: grey;
+  color: DarkGray;
   text-decoration: none;
 }
 img {
@@ -258,7 +258,6 @@ input[type='submit'].thumbs-down {
   margin-top: 10pt;
   margin-bottom: 12pt;
   font-size: 9pt;
-  opacity: 0.8;
 }
 .helptext {
   font-size: 9pt;
@@ -344,7 +343,7 @@ input[type='submit'].thumbs-down {
   overflow: visible;
 }
 .fake-link {
-  color: gray;
+  color: DarkGray;
   cursor: default;
 }
 .clickable {
@@ -365,6 +364,7 @@ input[type='submit'].thumbs-down {
 }
 .mdc-list-item__meta i {
   vertical-align: middle;
+  color: DarkGray;
 }
 .mdc-list {
   max-width: 600px;
@@ -436,6 +436,7 @@ input[type='submit'].thumbs-down {
 }
 .mdc-button {
   color: white !important;
+  font-weight: bold; 
 }
 
 div.input-ripple-wrapper input {
