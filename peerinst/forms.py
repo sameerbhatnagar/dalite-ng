@@ -188,6 +188,15 @@ class CreateBlinkForm(forms.Form):
     new_blink = forms.ModelChoiceField(queryset=Question.objects.all())
 
 
+class BlinkSetTimeForm(forms.Form):
+    """Simple form to set time limit for blink questions"""
+
+    time_limit = forms.IntegerField(
+        max_value=120,
+        min_value=15,
+    )
+
+
 class BlinkAnswerForm(forms.Form):
     """Form to select one of the answer choices."""
 

@@ -361,6 +361,11 @@ urlpatterns = [
         name="blinkAssignment-delete",
     ),
     url(
+        r"^blinkAssignment/(?P<pk>[0-9]+)/set_time/$",
+        views.blink_assignment_set_time,
+        name="blinkAssignment-set-time",
+    ),
+    url(
         r"^blinkAssignment/(?P<pk>[0-9]+)/start/$",
         views.blink_assignment_start,
         name="blinkAssignment-start",

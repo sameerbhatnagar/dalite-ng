@@ -2088,6 +2088,20 @@ class BlinkQuestionDetailView(DetailView):
 
 
 @login_required
+@require_POST
+def blink_assignment_set_time(request, pk):
+
+    form = forms.BlinkSetTimeForm(request.POST)
+    blink_assignment = get_object_or_404(models.BlinkAssignment, key=pk)
+    if form.is_valid():
+        for blink_question in blink_assignment.blinkquestions.all():
+            blink_question.time_limit = form.cleaned_data['time_limit']
+            blink_question.save()
+
+    return HttpResponseRedirect(reverse('blinkAssignment-start', kwargs={'pk' : pk}))
+
+
+@login_required
 def blink_assignment_start(request, pk):
     """View to start a blink script"""
 
@@ -2274,10 +2288,18 @@ def blink_waiting(request, username, assignment=""):
     except:
         return HttpResponse("Error")
 
+    # Only teacher that owns this script can access page while logged in
+    if request.user != Teacher.objects.get(user__username=username).user:
+        logout(request)
+
     return TemplateResponse(
         request,
         "peerinst/blink_waiting.html",
-        context={"assignment": assignment, "teacher": teacher},
+        context={
+            "assignment": assignment,
+            "teacher": teacher,
+            "form": forms.BlinkSetTimeForm(),
+        },
     )
 
 
