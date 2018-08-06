@@ -895,9 +895,10 @@ class StudentGroupAssignment(models.Model):
         assert isinstance(host, basestring), "Precondition failed for `host`"
 
         for student in Student.objects.filter(groups=self.group):
-            assignment = StudentAssignment.objects.get(
+            assignment = StudentAssignment(
                 student=student, group_assignment=self
             )
+            assignment.save()
             assignment.send_email(
                 host, mail_type="new_assignment", assignment_hash=self.hash
             )
@@ -945,9 +946,9 @@ class StudentAssignment(models.Model):
     def __unicode__(self):
         return "{} for {}".format(self.group_assignment, self.student)
 
-    def send_email(self, link, host, mail_type="login", assignment_hash=None):
+    def send_email(self, host, mail_type="login", link=None, assignment_hash=None):
         assert (
-            isinstance(link, basestring) and "{}" in link
+            isinstance(link, basestring) and "{}" in link or link is None
         ), "Precondition failed for `link`"
         assert isinstance(host, basestring), "Precondition failed for `host`"
         assert isinstance(mail_type, basestring) and mail_type in (
@@ -963,7 +964,7 @@ class StudentAssignment(models.Model):
         if mail_type == "new_assignment" and assignment_hash is None:
             err = 'An `assignment_hash` is needed to send a "new_assignment" email.'
 
-        user_email = self.student.user.email
+        user_email = self.student.student.email
 
         if err is None and user_email:
 
