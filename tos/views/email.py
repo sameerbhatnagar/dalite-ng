@@ -75,7 +75,7 @@ def email_consent_modify(req, role):
         if form.is_valid():
             req.user.email = form.cleaned_data["email"]
             req.user.save()
-            redirect_to = req.GET.get('next')
+            redirect_to = req.GET.get("next", "/welcome/")
             return HttpResponseRedirect(redirect_to)
     else:
         form = EmailChangeForm()
@@ -87,7 +87,6 @@ def email_consent_modify(req, role):
         "email_types": email_types,
         "all_accepted": "all" not in list(map(itemgetter("type"), email_types))
         or next(e["accepted"] for e in email_types if e["type"] == "all"),
-        "redirect_to": req.GET.get("next", "/welcome/"),
     }
     return render(req, "tos/email_modify.html", context)
 
@@ -136,6 +135,6 @@ def email_consent_update(req, role):
     for consent in consents:
         EmailConsent.objects.create(**consent)
 
-    redirect_to = req.POST.get("redirect_to", "/welcome/")
+    redirect_to = req.POST.get("next", "/welcome/")
 
     return HttpResponseRedirect(redirect_to)
