@@ -198,6 +198,9 @@ class EmailConsent(models.Model):
     accepted = models.BooleanField()
     datetime = models.DateTimeField(editable=False, auto_now=True)
 
+    class Meta:
+        get_latest_by = "datetime"
+
     @staticmethod
     def get(username, role, email_type, default=None, ignore_all=False):
         assert isinstance(

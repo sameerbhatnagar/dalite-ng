@@ -82,8 +82,9 @@
           <li class="mdc-list-item" onclick="window.location.href='{% url 'tos:email_modify' 'teacher' %}?next={{ request.path }}'" style="cursor:pointer;">
             <span class="mdc-list-item__graphic mdc-theme--primary"><i class="material-icons md-48">email</i></span>
             <span class="mdc-list-item__text mdc-theme--secondary bold">
+              {% trans "Email settings" %}
               <span class="mdc-list-item__secondary-text">
-                {% trans "Email settings" %}
+                {% trans 'Saved: ' %}{{ user.emailconsent_set.latest.datetime }}
               </span>
             </span>
             <span class="mdc-list-item__meta"><i class="material-icons md-24">settings</i></span>
