@@ -22,26 +22,15 @@ from peerinst.models import StudentGroup, StudentGroupAssignment, Teacher
 
 @login_required
 @require_http_methods(["GET"])
-def group_details_page(req, teacher_id, group_hash):
+def group_details_page(req, group_hash):
+    user = req.user
     try:
-        teacher = Teacher.objects.get(id=teacher_id)
+        teacher = Teacher.objects.get(user=user)
     except Teacher.DoesNotExist:
         resp = TemplateResponse(
             req,
-            "400.html",
-            context={
-                "message": _(
-                    'There is no teacher with id "{}".'.format(teacher_id)
-                )
-            },
-        )
-        return HttpResponseBadRequest(resp.render())
-
-    if req.user != teacher.user:
-        resp = TemplateResponse(
-            req,
             "403.html",
-            context={"message": _("You do not have access to this page.")},
+            context={"message": _("You don't have access to this resource.")},
         )
         return HttpResponseForbidden(resp.render())
 
@@ -58,9 +47,76 @@ def group_details_page(req, teacher_id, group_hash):
         )
         return HttpResponseBadRequest(resp.render())
 
+    if teacher not in group.teacher.all():
+        resp = TemplateResponse(
+            req,
+            "403.html",
+            context={
+                "message": _(
+                    "You don't have access to this resource. You must be "
+                    "registered as a teacher for the group {}.".format(
+                        group.name
+                    )
+                )
+            },
+        )
+        return HttpResponseForbidden(resp.render())
+
     assignments = StudentGroupAssignment.objects.filter(group=group)
 
-    print(group.teacher.all())
     context = {"group": group, "assignments": assignments, "teacher": teacher}
 
     return render(req, "peerinst/group/details.html", context)
+
+
+@login_required
+@require_http_methods(["GET"])
+def group_assignment_page(req, assignment_hash):
+    user = req.user
+    try:
+        teacher = Teacher.objects.get(user=user)
+    except Teacher.DoesNotExist:
+        resp = TemplateResponse(
+            req,
+            "403.html",
+            context={"message": _("You don't have access to this resource.")},
+        )
+        return HttpResponseForbidden(resp.render())
+
+    assignment = StudentGroupAssignment.get(assignment_hash)
+    if assignment is None:
+        resp = TemplateResponse(
+            req,
+            "400.html",
+            context={
+                "message": _(
+                    'There is no assignment with hash "{}".'.format(
+                        assignment_hash
+                    )
+                )
+            },
+        )
+        return HttpResponseBadRequest(resp.render())
+
+    if teacher not in assignment.group.teacher.all():
+        resp = TemplateResponse(
+            req,
+            "403.html",
+            context={
+                "message": _(
+                    "You don't have access to this resource. You must be "
+                    "registered as a teacher for the group {}.".format(
+                        assignment.group.name
+                    )
+                )
+            },
+        )
+        return HttpResponseForbidden(resp.render())
+
+    context = {
+        "teacher_id": teacher.id,
+        "group_hash": assignment.group.hash,
+        "assignment": assignment,
+    }
+
+    return render(req, "peerinst/group/assignment.html", context)

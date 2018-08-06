@@ -1,0 +1,191 @@
+function editField(event, type) {
+  let container = event.currentTarget.parentNode.parentNode;
+
+  let field = event.currentTarget.parentNode.previousSibling;
+  let newField;
+
+  if (type == 'text') {
+    newField = editTextField(field);
+  } else if (type == 'datetime') {
+    newField = editDatetimeField(field);
+  } else if (type == 'textList') {
+    newField = editTextListField(field);
+  } else {
+    console.log(
+      "The `editField` function isn 't implemented for type " + type + '.',
+    );
+    return;
+  }
+
+  container.replaceChild(newField, field);
+
+  let iconsDiv = event.currentTarget.parentNode;
+  let newIconsDiv = iconsDiv.cloneNode(false);
+
+  newIconsDiv = toggleIcons(newIconsDiv, type, false);
+
+  container.replaceChild(newIconsDiv, iconsDiv);
+}
+
+function saveField(event, type, save) {
+  let container = event.currentTarget.parentNode.parentNode;
+
+  let field = event.currentTarget.parentNode.previousSibling;
+  let newField;
+
+  if (type == 'text') {
+    newField = saveTextDateTimeField(field, save);
+  } else if (type == 'datetime') {
+    newField = saveTextDateTimeField(field, save);
+  } else if (type == 'textList') {
+    newField = saveTextListField(field, save);
+  } else {
+    console.log(
+      "The `saveField` function isn't implemented for type " + type + '.',
+    );
+    return;
+  }
+
+  container.replaceChild(newField, field);
+
+  let iconsDiv = event.currentTarget.parentNode;
+  let newIconsDiv = iconsDiv.cloneNode(false);
+
+  newIconsDiv = toggleIcons(newIconsDiv, type, true);
+
+  container.replaceChild(newIconsDiv, iconsDiv);
+}
+
+function editTextField(field) {
+  let newField = document.createElement('div');
+  let input = document.createElement('input');
+  input.type = 'text';
+  input.value = field.textContent;
+  input.setAttribute('data-old-content', field.textContent);
+  newField.append(input);
+  return newField;
+}
+
+function editDatetimeField(field) {
+  let newField = document.createElement('div');
+  let input = document.createElement('input');
+  input.type = 'text';
+  input.classList.add('flatpickr-input', 'active');
+  input.readonly = 'readonly';
+  input.value = field.textContent;
+  input.setAttribute('data-old-content', field.textContent);
+  newField.append(input);
+  return newField;
+}
+
+function saveTextDateTimeField(field, save) {
+  let newField = document.createElement('div');
+  if (save) {
+    let newValue = field.childNodes[0].value;
+    newField.textContent = newValue;
+  } else {
+    newField.textContent = field.childNodes[0].getAttribute('data-old-content');
+  }
+  return newField;
+}
+
+function editTextListField(field) {
+  let newField = document.createElement('div');
+  let ul = field.childNodes[0].cloneNode(true);
+  let li = ul.childNodes;
+  for (let i = 0; i < li.length; i++) {
+    let li_ = document.createElement('li');
+    let input = document.createElement('input');
+    input.type = 'text';
+    input.value = li[0].textContent;
+    input.setAttribute('data-old-content', li[0].textContent);
+    li_.append(input);
+    ul.replaceChild(li_, li[i]);
+  }
+  let li_ = document.createElement('li');
+  let input = document.createElement('input');
+  input.type = 'text';
+  input.value = '';
+  input.setAttribute('data-old-content', '');
+  li_.append(input);
+  ul.append(li_);
+
+  newField.append(ul);
+  return newField;
+}
+
+function saveTextListField(field, save) {
+  let newField = document.createElement('div');
+  let ul = field.firstChild.cloneNode(false);
+  let li = field.firstChild.childNodes;
+  if (save) {
+    let newValue = [];
+    for (let i = 0; i < li.length; i++) {
+      if (li[i].firstChild.value) {
+        newValue.push(li[i].firstChild.value);
+        let li_ = document.createElement('li');
+        li_.textContent = li[i].firstChild.value;
+        ul.append(li_);
+      }
+    }
+  } else {
+    for (let i = 0; i < li.length; i++) {
+      let li_ = document.createElement('li');
+      li_.textContent = li[i].firstChild.getAttribute('data-old-content');
+      if (li_.textContent) {
+        ul.append(li_);
+      }
+    }
+  }
+  newField.append(ul);
+  return newField;
+}
+
+function toggleIcons(newIconsDiv, type, toEdit) {
+  if (toEdit) {
+    let editIcon = document.createElement('i');
+    editIcon.classList.add(
+      'material-icons',
+      'md-24',
+      'mdc-ripple-surface',
+      'icon-list',
+    );
+    editIcon.textContent = 'edit';
+    editIcon.title = 'Edit';
+    editIcon.setAttribute('onclick', 'bundle.editField(event, "' + type + '")');
+    newIconsDiv.append(editIcon);
+  } else {
+    let saveIcon = document.createElement('i');
+    saveIcon.classList.add(
+      'material-icons',
+      'md-24',
+      'mdc-ripple-surface',
+      'icon-list',
+    );
+    saveIcon.textContent = 'check';
+    saveIcon.title = 'Save';
+    saveIcon.setAttribute(
+      'onclick',
+      'bundle.saveField(event, "' + type + '", true)',
+    );
+    let cancelIcon = document.createElement('i');
+    cancelIcon.classList.add(
+      'material-icons',
+      'md-24',
+      'mdc-ripple-surface',
+      'icon-list',
+    );
+    cancelIcon.textContent = 'close';
+    cancelIcon.title = 'Cancel';
+    cancelIcon.setAttribute(
+      'onclick',
+      'bundle.saveField(event, "' + type + '", false)',
+    );
+    newIconsDiv.append(saveIcon);
+    newIconsDiv.append(cancelIcon);
+  }
+
+  return newIconsDiv;
+}
+
+export {editField, saveField};

@@ -1,0 +1,29 @@
+{% extends 'peerinst/base.html' %}
+
+{% load compress i18n %}
+
+{% block stylesheets %}
+{% endblock %}
+
+{% block body %}
+<main>
+  <section>
+    <h1 class="mdc-typography--display2">
+      {% trans 'Assignment' %}
+      <i>{{ assignment.assignment.title }}</i>
+      <br/>
+      {% trans 'for group' %}
+      <i>{{ assignment.group.name }}</i>
+      <svg class="underline" width=150 height=4></svg>
+    </h1>
+    <div class="admin-link">
+      <a href="{% url 'group-details' group_hash %}">{% trans 'Back to group' %}</a>
+    </div>
+  </section>
+</main>
+{% endblock %}
+
+{% block scripts %}
+{% compress js inline %}
+{% endcompress %}
+{% endblock %}

@@ -76,23 +76,26 @@ gulp.task('rollup', function() {
 });*/
 
 // Run rollup to bundle js
-gulp.task('rollup', function() {
+gulp.task('peerinst-scripts', function() {
   const runCommand = require('child_process').execSync;
-  runCommand('./node_modules/.bin/rollup -c', function(err, stdout, stderr) {
-    console.log('Output: ' + stdout);
-    console.log('Error: ' + stderr);
-    if (err) {
-      console.log('Error: ' + err);
-    }
-  });
-});
-
-gulp.task('build', function(callback) {
-  runSequence('sass', 'css', 'autoprefixer', 'rollup', callback);
+  runCommand(
+    './node_modules/.bin/rollup -c ./rollup/peerinst/index-rollup.config.js',
+    function(err, stdout, stderr) {
+      console.log('Output: ' + stdout);
+      console.log('Error: ' + stderr);
+      if (err) {
+        console.log('Error: ' + err);
+      }
+    },
+  );
 });
 
 gulp.task('peerinst-styles', function(callback) {
   runSequence('sass', 'css', 'autoprefixer', callback);
+});
+
+gulp.task('peerinst-build', function(callback) {
+  runSequence('peerinst-styles', 'peerinst-scripts', callback);
 });
 
 gulp.task('tos-styles', function() {
@@ -155,10 +158,20 @@ gulp.task('tos-build', function(callback) {
   runSequence('tos-styles', 'tos-scripts-tos', 'tos-scripts-email', callback);
 });
 
+gulp.task('build', function(callback) {
+  runSequence('peerinst-build', 'tos-build', callback);
+});
+
 gulp.task('watch', function() {
   gulp.watch('./tos/static/tos/css/*.scss', ['tos-styles']);
   gulp.watch('./tos/static/tos/js/tos.js', ['tos-scripts-tos']);
   gulp.watch('./tos/static/tos/js/email.js', ['tos-scripts-email']);
   gulp.watch('./peerinst/static/peerinst/css/**/*.scss', ['peerinst-styles']);
-  gulp.watch('./peerinst/static/peerinst/js/{index,utils}.js', ['rollup']);
+  gulp.watch(
+    [
+      './peerinst/static/peerinst/js/**/*.js',
+      '!./peerinst/static/peerinst/js/**/*.min.js',
+    ],
+    ['peerinst-scripts'],
+  );
 });
