@@ -11,10 +11,13 @@ from django.http import HttpResponse
 from .utils import create_token, verify_token
 
 
-def create_student_token(email, exp=timedelta(weeks=16)):
+def create_student_token(username, email, exp=timedelta(weeks=16)):
+    assert isinstance(
+        username, basestring
+    ), "Precondition failed for `username`"
     assert isinstance(email, basestring), "Precondition failed for `email`"
 
-    payload = {"email": email}
+    payload = {"username": username, "email": email}
     output = create_token(payload, exp=exp)
 
     assert isinstance(output, basestring), "Postcondition failed"
@@ -26,18 +29,22 @@ def verify_student_token(token):
 
     payload, err = verify_token(token)
     try:
+        username = payload["username"]
         email = payload["email"]
     except KeyError:
+        username = None
         email = None
         err = "This wasn't a student token"
 
-    output = (email, err)
+    output = (username, email, err)
     assert (
         isinstance(output, tuple)
-        and len(output) == 2
-        and ((output[0] is None) != (output[1] is None))
-        and (email is None or isinstance(email, basestring))
-        and (err is None or isinstance(err, basestring))
+        and len(output) == 3
+        and ((output[0] is None) == (output[1] is None))
+        and ((output[0] is None) != (output[2] is None))
+        and (output[0] is None or isinstance(output[0], basestring))
+        and (output[1] is None or isinstance(output[1], basestring))
+        and (output[2] is None or isinstance(output[2], basestring))
     ), "Postcondition failed"
     return output
 
@@ -47,7 +54,7 @@ def authenticate_student(token):
 
     resp = None
 
-    email, err = verify_student_token(token)
+    username, email, err = verify_student_token(token)
 
     if err is not None:
         resp = TemplateResponse(
@@ -64,12 +71,16 @@ def authenticate_student(token):
 
     else:
 
-        username, password = get_student_username_and_password(email)
+        username_, password = get_student_username_and_password(email)
 
-        user = authenticate(
-            username=username,
-            password=password,
-        )
+        if username == username_:
+            user = authenticate(username=username, password=password)
+        else:
+            passwords = get_lti_passwords(username)
+            users_ = [
+                authenticate(username=username, password=p) for p in passwords
+            ]
+            user = [u for u in users_ if u is not None][0]
 
         if user is None:
             resp = TemplateResponse(
@@ -106,5 +117,35 @@ def get_student_username_and_password(email, max_username_length=30):
         and len(output) == 2
         and isinstance(output[0], basestring)
         and isinstance(output[1], basestring)
+    ), "Postcondition failed"
+    return output
+
+
+def get_lti_passwords(hashed_username):
+    assert isinstance(
+        hashed_username, basestring
+    ), "Precondition failed for `hashed_username`"
+
+    key = settings.PASSWORD_GENERATOR_NONCE
+
+    if hashed_username.endsWith("++"):
+        usernames = [
+            base64.urlsafe_b64decode(hashed_username[:-2] + i + j).encode()
+            for i in ("+", "=")
+            for j in ("+", "=")
+        ]
+    elif hashed_username.endsWith("+"):
+        usernames = [
+            base64.urlsafe_b64decode(hashed_username[:-1] + i).encode()
+            for i in ("+", "=")
+        ]
+    else:
+        usernames = [base64.urlsafe_b64decode(hashed_username).encode()]
+
+    passwords = [hashlib.md5(u + key).digest() for u in usernames]
+
+    output = passwords
+    assert isinstance(output, list) and all(
+        isinstance(o, basestring) for o in output
     ), "Postcondition failed"
     return output
