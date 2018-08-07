@@ -393,6 +393,11 @@ def group_patterns():
             name="group-details",
         ),
         url(
+            r"^group/(?P<group_hash>[0-9A-Za-z=_-]+)/update/$",
+            views.group_details_update,
+            name="group-details-update",
+        ),
+        url(
             r"^group-assignment/(?P<assignment_hash>[0-9A-Za-z=_-]+)/$",
             views.group_assignment_page,
             name="group-assignment",

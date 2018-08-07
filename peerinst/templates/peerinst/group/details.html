@@ -21,7 +21,7 @@
         {% trans 'Details' %}
       </h2>
       <div class="foldable--body">
-        <div id="group-details">
+        <div id="group-details" data-group-update-url="{% url 'group-details-update' group.hash %}">
           <div>{% trans 'Name' %} :</div>
           <div>{{ group.name }}</div>
           <div>
@@ -37,6 +37,7 @@
           <div>
               <i onclick="bundle.editField(event, 'datetime')" title="Edit" class="material-icons md-24 mdc-ripple-surface icon-list">edit</i>
           </div>
+          <!-- TODO Only add teachers -->
           <div>{% trans 'Teachers with access' %} :</div>
           <div>
             <ul>

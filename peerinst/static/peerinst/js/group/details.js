@@ -58,6 +58,8 @@ function saveField(event, type, save) {
 
 function editTextField(field) {
   let newField = document.createElement('div');
+  let name = field.name;
+  newField.name = name;
   let input = document.createElement('input');
   input.type = 'text';
   input.value = field.textContent;
@@ -68,6 +70,8 @@ function editTextField(field) {
 
 function editDatetimeField(field) {
   let newField = document.createElement('div');
+  let name = field.name;
+  newField.name = name;
   let input = document.createElement('input');
   input.type = 'text';
   input.classList.add('flatpickr-input', 'active');
@@ -80,9 +84,18 @@ function editDatetimeField(field) {
 
 function saveTextDateTimeField(field, save) {
   let newField = document.createElement('div');
+  let name = field.name;
+  newField.name = name;
   if (save) {
     let newValue = field.childNodes[0].value;
-    newField.textContent = newValue;
+    err = updateDetails(name, newValue);
+    if (err) {
+      newField.textContent = field.childNodes[0].getAttribute(
+        'data-old-content',
+      );
+    } else {
+      newField.textContent = newValue;
+    }
   } else {
     newField.textContent = field.childNodes[0].getAttribute('data-old-content');
   }
@@ -91,6 +104,8 @@ function saveTextDateTimeField(field, save) {
 
 function editTextListField(field) {
   let newField = document.createElement('div');
+  let name = field.name;
+  newField.name = name;
   let ul = field.childNodes[0].cloneNode(true);
   let li = ul.childNodes;
   for (let i = 0; i < li.length; i++) {
@@ -116,6 +131,8 @@ function editTextListField(field) {
 
 function saveTextListField(field, save) {
   let newField = document.createElement('div');
+  let name = field.name;
+  newField.name = name;
   let ul = field.firstChild.cloneNode(false);
   let li = field.firstChild.childNodes;
   if (save) {
@@ -125,6 +142,22 @@ function saveTextListField(field, save) {
         newValue.push(li[i].firstChild.value);
         let li_ = document.createElement('li');
         li_.textContent = li[i].firstChild.value;
+        ul.append(li_);
+      }
+    }
+    let err = updateDetails(name, newValue);
+    if (err) {
+      for (let i = 0; i < li.length; i++) {
+        let li_ = document.createElement('li');
+        li_.textContent = li[i].firstChild.getAttribute('data-old-content');
+        if (li_.textContent) {
+          ul.append(li_);
+        }
+      }
+    } else {
+      for (let i = 0; i < newValue.length; i++) {
+        let li_ = document.createElement('li');
+        li_.textContent = newValue[i];
         ul.append(li_);
       }
     }
@@ -186,6 +219,27 @@ function toggleIcons(newIconsDiv, type, toEdit) {
   }
 
   return newIconsDiv;
+}
+
+function updateDetails(name, value) {
+  let data = {name: name, value: value};
+  let req = {
+    method: 'POST',
+    body: JSON.stringify(data),
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  };
+  let url = document
+    .getElementById('group-details')
+    .getAttribute('data-group-update-url');
+  fetch(url, req).then(function(resp) {
+    if (resp.ok) {
+      return;
+    } else {
+      return text;
+    }
+  });
 }
 
 export {editField, saveField};
