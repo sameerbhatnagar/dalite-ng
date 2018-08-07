@@ -12,6 +12,12 @@
     ]
   ],
   "plugins": [
-    "external-helpers"
-  ]
+    "external-helpers",
+    ["transform-runtime", {
+      "helpers": false,
+      "polyfill": false,
+      "regenerator": true,
+      "moduleName": "babel-runtime"
+    }]
+  ],
 }
