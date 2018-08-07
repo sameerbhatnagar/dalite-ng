@@ -1,7 +1,8 @@
-function editField(event, type) {
-  let container = event.currentTarget.parentNode.parentNode;
+function editField(event, type, className) {
+  let iconContainer = event.currentTarget.parentNode.parentNode;
+  let container = event.currentTarget.parentNode.previousElementSibling;
+  let field = event.currentTarget.parentNode.previousElementSibling.firstElementChild;
 
-  let field = event.currentTarget.parentNode.previousSibling;
   let newField;
 
   if (type == 'text') {
@@ -20,22 +21,22 @@ function editField(event, type) {
   let iconsDiv = event.currentTarget.parentNode;
   let newIconsDiv = iconsDiv.cloneNode(false);
 
-  newIconsDiv = toggleIcons(newIconsDiv, type, false);
+  newIconsDiv = toggleIcons(newIconsDiv, type, false, className);
 
-  container.replaceChild(newIconsDiv, iconsDiv);
+  iconContainer.replaceChild(newIconsDiv, iconsDiv);
 }
 
-function saveField(event, type, save) {
-  let container = event.currentTarget.parentNode.parentNode;
-
-  let field = event.currentTarget.parentNode.previousSibling;
+function saveField(event, type, save, className) {
+  let iconContainer = event.currentTarget.parentNode.parentNode;
+  let container = event.currentTarget.parentNode.previousElementSibling;
+  let field = event.currentTarget.parentNode.previousElementSibling.firstElementChild;
 
   if (type == 'text') {
-    saveTextField(field, save).then(function(newField) {
+    saveTextField(field, save, className).then(function(newField) {
       container.replaceChild(newField, field);
     });
   } else if (type == 'textList') {
-    saveTextListField(field, save).then(function(newField) {
+    saveTextListField(field, save, className).then(function(newField) {
       container.replaceChild(newField, field);
     });
   } else {
@@ -48,9 +49,9 @@ function saveField(event, type, save) {
   let iconsDiv = event.currentTarget.parentNode;
   let newIconsDiv = iconsDiv.cloneNode(false);
 
-  newIconsDiv = toggleIcons(newIconsDiv, type, true);
+  newIconsDiv = toggleIcons(newIconsDiv, type, true, className);
 
-  container.replaceChild(newIconsDiv, iconsDiv);
+  iconContainer.replaceChild(newIconsDiv, iconsDiv);
 }
 
 function editTextField(field) {
@@ -82,7 +83,7 @@ function editTextListField(field) {
   return newField;
 }
 
-function toggleIcons(newIconsDiv, type, toEdit) {
+function toggleIcons(newIconsDiv, type, toEdit, className) {
   if (toEdit) {
     let editIcon = document.createElement('i');
     editIcon.classList.add(
@@ -91,9 +92,14 @@ function toggleIcons(newIconsDiv, type, toEdit) {
       'mdc-ripple-surface',
       'icon-list',
     );
-    editIcon.textContent = 'edit';
-    editIcon.title = 'Edit';
-    editIcon.setAttribute('onclick', 'bundle.editField(event, "' + type + '")');
+    if (type=='text') {
+      editIcon.textContent = 'edit';
+      editIcon.title = 'Edit';
+    } else {
+      editIcon.textContent = 'add';
+      editIcon.title = 'Add';
+    }
+    editIcon.setAttribute('onclick', 'bundle.editField(event, "' + type + '", "' + className + '")');
     newIconsDiv.append(editIcon);
   } else {
     let saveIcon = document.createElement('i');
@@ -107,7 +113,7 @@ function toggleIcons(newIconsDiv, type, toEdit) {
     saveIcon.title = 'Save';
     saveIcon.setAttribute(
       'onclick',
-      'bundle.saveField(event, "' + type + '", true)',
+      'bundle.saveField(event, "' + type + '", true, "' + className + '")',
     );
     let cancelIcon = document.createElement('i');
     cancelIcon.classList.add(
@@ -120,7 +126,7 @@ function toggleIcons(newIconsDiv, type, toEdit) {
     cancelIcon.title = 'Cancel';
     cancelIcon.setAttribute(
       'onclick',
-      'bundle.saveField(event, "' + type + '", false)',
+      'bundle.saveField(event, "' + type + '", false, "' + className + '")',
     );
     newIconsDiv.append(saveIcon);
     newIconsDiv.append(cancelIcon);
@@ -129,10 +135,11 @@ function toggleIcons(newIconsDiv, type, toEdit) {
   return newIconsDiv;
 }
 
-async function saveTextField(field, save) {
-  let newField = document.createElement('div');
+async function saveTextField(field, save, className) {
+  let newField = document.createElement('span');
   let name = field.getAttribute('name');
   newField.setAttribute('name', name);
+  newField.setAttribute('class', className);
   if (save) {
     let newValue = field.childNodes[0].value;
     let err = await updateDetails(name, newValue);
@@ -149,8 +156,8 @@ async function saveTextField(field, save) {
   return newField;
 }
 
-async function saveTextListField(field, save) {
-  let newField = document.createElement('div');
+async function saveTextListField(field, save, className) {
+  let newField = document.createElement('span');
   let name = field.getAttribute('name');
   newField.setAttribute('name', name);
   let ul = field.firstChild.cloneNode(true);
@@ -162,6 +169,7 @@ async function saveTextListField(field, save) {
     if (!err) {
       let li_ = document.createElement('li');
       li_.textContent = newValue;
+      li_.setAttribute('class', className);
       ul.append(li_);
     }
   }

@@ -206,7 +206,6 @@ class EmailConsent(models.Model):
         assert isinstance(
             username, basestring
         ), "Precondition failed for `username`"
-        print(role)
         assert isinstance(role, basestring), "Precondition failed for `role`"
         assert isinstance(
             email_type, basestring
