@@ -12,6 +12,8 @@ from django.views.decorators.cache import cache_page
 from django.views.decorators.clickjacking import xframe_options_sameorigin
 
 from . import admin_views, views
+from .forms import NonStudentPasswordResetForm
+from .mixins import student_check
 
 
 def not_authenticated(user):
@@ -251,9 +253,10 @@ urlpatterns = [
     ),
     url(r"^logout/$", views.logout_view, name="logout"),
     url(r"^welcome/$", views.welcome, name="welcome"),
+    # Only non-students can change their password
     url(
         r"^password_change/$",
-        password_views.password_change,
+        user_passes_test(student_check)(password_views.password_change),
         name="password_change",
     ),
     url(
@@ -265,7 +268,8 @@ urlpatterns = [
         r"^password_reset/$",
         auth_views.password_reset,
         {
-            "html_email_template_name": "registration/password_reset_email_html.html"
+            "html_email_template_name": "registration/password_reset_email_html.html",
+            "password_reset_form": NonStudentPasswordResetForm,
         },
         name="password_reset",
     ),
