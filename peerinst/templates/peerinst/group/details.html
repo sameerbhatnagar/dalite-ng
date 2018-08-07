@@ -24,23 +24,21 @@
         <div id="group-details" data-group-update-url="{% url 'group-details-update' group.hash %}">
           {% csrf_token %}
           <div>{% trans 'Name' %} :</div>
-          <div>{{ group.name }}</div>
+          <div name="name">{{ group.name }}</div>
           <div>
               <i onclick="bundle.editField(event, 'text')" title="Edit" class="material-icons md-24 mdc-ripple-surface icon-list">edit</i>
           </div>
           <div>{% trans 'Title' %} :</div>
-          <div>{{ group.title }}</div>
+          <div name="title">{{ group.title }}</div>
           <div>
               <i onclick="bundle.editField(event, 'text')" title="Edit" class="material-icons md-24 mdc-ripple-surface icon-list">edit</i>
           </div>
           <div>{% trans 'Created on' %} :</div>
           <div>{{ group.creation_date }}</div>
           <div>
-              <i onclick="bundle.editField(event, 'datetime')" title="Edit" class="material-icons md-24 mdc-ripple-surface icon-list">edit</i>
           </div>
-          <!-- TODO Only add teachers -->
           <div>{% trans 'Teachers with access' %} :</div>
-          <div>
+          <div name="teacher">
             <ul>
               {% for t in group.teacher.all %}
               <li>{{ t.user.username }}</li>

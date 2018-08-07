@@ -153,32 +153,37 @@ def group_details_update(req, group_hash):
             )
             return HttpResponseBadRequest(resp.render())
         group.name = value
+        group.save()
 
     elif name == "title":
         group.title = value
+        group.save()
 
     elif name == "teacher":
-        teachers = []
-        for teacher in value:
-            try:
-                teachers.append(
-                    Teacher.objects.get(teacher__user__username=teacher)
-                )
-            except Teacher.DoesNotExist:
-                resp = TemplateResponse(
-                    req,
-                    "400.html",
-                    context={
-                        "message": _(
-                            "There is no teacher with username {}.".format(
-                                teacher
-                            )
-                        )
-                    },
-                )
-                return HttpResponseBadRequest(resp.render())
+        try:
+            teacher = Teacher.objects.get(user__username=value)
+        except Teacher.DoesNotExist:
+            resp = TemplateResponse(
+                req,
+                "400.html",
+                context={
+                    "message": _(
+                        "There is no teacher with username {}.".format(teacher)
+                    )
+                },
+            )
+            return HttpResponseBadRequest(resp.render())
+        group.teacher.add(teacher)
+        group.save()
+    else:
+        resp = TemplateResponse(
+            req,
+            "400.html",
+            context={"message": _("Wrong data type was sent.")},
+        )
+        return HttpResponseBadRequest(resp.render())
 
-    return HttpResponse()
+    return HttpResponse(content_type="text/plain")
 
 
 @login_required
