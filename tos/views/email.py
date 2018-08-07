@@ -130,7 +130,7 @@ def _get_username_and_role(req, role):
 
 
 def _get_email_types(username, role):
-    email_types = [
+    return [
         {
             "type": email_type.type,
             "title": email_type.title,
@@ -143,4 +143,3 @@ def _get_email_types(username, role):
             "show_order"
         )
     ]
-    return email_types

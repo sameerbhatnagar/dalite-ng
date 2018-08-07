@@ -976,7 +976,9 @@ class QuestionFormView(QuestionMixin, FormView):
                 student = Student(student=user)
                 student.save()
 
-            course_title = self.lti_data.edx_lti_parameters.get("context_title")
+            course_title = self.lti_data.edx_lti_parameters.get(
+                "context_title"
+            )
             if course_title:
                 group, created_group = StudentGroup.objects.get_or_create(
                     name=course_id, title=course_title
@@ -2098,10 +2100,12 @@ def blink_assignment_set_time(request, pk):
     blink_assignment = get_object_or_404(models.BlinkAssignment, key=pk)
     if form.is_valid():
         for blink_question in blink_assignment.blinkquestions.all():
-            blink_question.time_limit = form.cleaned_data['time_limit']
+            blink_question.time_limit = form.cleaned_data["time_limit"]
             blink_question.save()
 
-    return HttpResponseRedirect(reverse('blinkAssignment-start', kwargs={'pk' : pk}))
+    return HttpResponseRedirect(
+        reverse("blinkAssignment-start", kwargs={"pk": pk})
+    )
 
 
 @login_required
