@@ -116,7 +116,7 @@ def live(request, token, assignment_hash):
 
     # Get assignment for this token and current question
     group_assignment = StudentGroupAssignment.get(assignment_hash)
-    student_assignment = StudentAssignment.get(
+    student_assignment = StudentAssignment.objects.get(
         student=user.student, group_assignment=group_assignment
     )
 
@@ -188,7 +188,7 @@ class StudentGroupAssignmentCreateView(
     def get_form(self):
         form = super(StudentGroupAssignmentCreateView, self).get_form()
         teacher = get_object_or_404(Teacher, user=self.request.user)
-        form.fields["group"].queryset = teacher.studentgroup_set.all()
+        form.fields["group"].queryset = teacher.current_groups.all()
 
         return form
 

@@ -3,10 +3,12 @@ from __future__ import unicode_literals
 import re
 
 from django import forms
+from django.contrib.auth.forms import PasswordResetForm
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
 from .models import (
+    Student,
     StudentGroup,
     StudentGroupAssignment,
     Assignment,
@@ -23,6 +25,15 @@ from django.db.models import Count, Q
 from django.forms import ModelForm
 
 import password_validation
+
+
+class NonStudentPasswordResetForm(PasswordResetForm):
+
+    def get_users(self, email):
+        active_users = User.objects.filter(
+            email__iexact=email, is_active=True)
+
+        return (u for u in active_users if u.has_usable_password() and not hasattr(u, 'student'))
 
 
 class FirstAnswerForm(forms.Form):
@@ -186,6 +197,19 @@ class CreateBlinkForm(forms.Form):
     """Simple form to help create blink for teacher"""
 
     new_blink = forms.ModelChoiceField(queryset=Question.objects.all())
+
+
+class BlinkSetTimeForm(forms.Form):
+    """Simple form to set time limit for blink questions"""
+
+    time_limit = forms.IntegerField(
+        max_value=120,
+        min_value=15,
+        initial=45,
+        help_text=_(
+            "Set the time limit to be used for each question."
+        ),
+    )
 
 
 class BlinkAnswerForm(forms.Form):

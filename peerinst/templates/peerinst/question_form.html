@@ -42,7 +42,7 @@
         <form id="question-create-form" enctype="multipart/form-data" method="post">
           {% csrf_token %}
 
-          <h3>Content</h3>
+          <h3>{% trans 'Content' %}</h3>
 
           <div class='field-container'>
             <div class='number-box flush-to-textbox'><span class='number'>1</span></div>
@@ -152,7 +152,7 @@
           </div>
 
 
-          <h3>Indexing</h3>
+          <h3>{% trans 'Indexing' %}</h3>
 
           <div class='field-container'>
             <div class='number-box'><span class='number'>6</span></div>
@@ -180,13 +180,13 @@
             </div>
           </div>
 
-          <h3>Options</h3>
+          <h3>{% trans 'Options' %}</h3>
 
           <div class='field-container'>
             <div class='number-box'><span class='number'>8</span></div>
             <div class='field'>
               <div class='mdc-form-field'>
-                <label for="id_sequential_review">{{ form.fake_attributions.label }}?</label>
+                <label for="id_fake_attributions">{{ form.fake_attributions.label }}?</label>
                 <div class="mdc-checkbox">
                   {{ form.fake_attributions|add_class:'mdc-checkbox__native-control'}}
                   <div class="mdc-checkbox__background">

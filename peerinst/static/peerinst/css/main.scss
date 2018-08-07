@@ -125,7 +125,7 @@ p {
   margin: 0.25em 0;
 }
 a {
-  color: grey;
+  color: $hint;
   text-decoration: none;
 }
 img {
@@ -258,7 +258,6 @@ input[type='submit'].thumbs-down {
   margin-top: 10pt;
   margin-bottom: 12pt;
   font-size: 9pt;
-  opacity: 0.8;
 }
 .helptext {
   font-size: 9pt;
@@ -344,7 +343,7 @@ input[type='submit'].thumbs-down {
   overflow: visible;
 }
 .fake-link {
-  color: gray;
+  color: $hint;
   cursor: default;
 }
 .clickable {
@@ -361,9 +360,11 @@ input[type='submit'].thumbs-down {
 .mdc-typography--display3 {
   position: relative;
   position: sticky;
+  margin-bottom: 0px;
 }
 .mdc-list-item__meta i {
   vertical-align: middle;
+  color: $hint;
 }
 .mdc-list {
   max-width: 600px;
@@ -435,6 +436,7 @@ input[type='submit'].thumbs-down {
 }
 .mdc-button {
   color: white !important;
+  font-weight: bold;
 }
 
 div.input-ripple-wrapper input {
@@ -541,7 +543,7 @@ div.input-ripple-wrapper input {
 .form-helper-text {
   margin-left: 16px;
   margin-right: 16px;
-  color: rgba(0, 0, 0, 0.38);
+  color: $hint;
   font-size: 0.75rem;
 }
 .mdc-select__native-control {

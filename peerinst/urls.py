@@ -12,6 +12,8 @@ from django.views.decorators.cache import cache_page
 from django.views.decorators.clickjacking import xframe_options_sameorigin
 
 from . import admin_views, views
+from .forms import NonStudentPasswordResetForm
+from .mixins import student_check
 
 
 def not_authenticated(user):
@@ -108,7 +110,7 @@ def old_patterns():
         url(r"^heartbeat/$", views.HeartBeatUrl.as_view(), name="heartbeat"),
         # Standalone
         url(
-            r"^live/access/(?P<token>[0-9A-Za-z=_-]+)/(?P<assignment_hash>[0-9A-Za-z]+)$",
+            r"^live/access/(?P<token>[0-9A-Za-z=_-]+)/(?P<assignment_hash>[0-9A-Za-z=_-]+)$",
             views.live,
             name="live",
         ),
@@ -215,6 +217,11 @@ def old_patterns():
             name="group-share",
         ),
         url(
+            r"^teacher/(?P<teacher_id>[0-9]+)/group/(?P<group_hash>[0-9A-Za-z=_-]+)/$",
+            views.group_details_page,
+            name="group-details",
+        ),
+        url(
             r"^teacher/(?P<teacher_id>[0-9]+)/group_assignments/$",
             views.StudentGroupAssignmentListView.as_view(),
             name="group-assignments",
@@ -257,9 +264,10 @@ def old_patterns():
         ),
         url(r"^logout/$", views.logout_view, name="logout"),
         url(r"^welcome/$", views.welcome, name="welcome"),
+        # Only non-students can change their password
         url(
             r"^password_change/$",
-            password_views.password_change,
+            user_passes_test(student_check)(password_views.password_change),
             name="password_change",
         ),
         url(
@@ -271,7 +279,8 @@ def old_patterns():
             r"^password_reset/$",
             auth_views.password_reset,
             {
-                "html_email_template_name": "registration/password_reset_email_html.html"
+                "html_email_template_name": "registration/password_reset_email_html.html",
+                "password_reset_form": NonStudentPasswordResetForm,
             },
             name="password_reset",
         ),
@@ -338,12 +347,12 @@ def old_patterns():
             name="blink-status",
         ),
         url(
-            r"^blink/(?P<username>\w+)/$",
+            r"^blink/(?P<username>[\w.@+-]+)/$",
             views.blink_get_current,
             name="blink-get-current",
         ),
         url(
-            r"^blink/(?P<username>\w+)/url/$",
+            r"^blink/(?P<username>[\w.@+-]+)/url/$",
             cache_page(1)(views.blink_get_current_url),
             name="blink-get-current-url",
         ),
@@ -353,12 +362,12 @@ def old_patterns():
             name="blink-get-next",
         ),
         url(
-            r"^blink/waiting/(?P<username>\w+)/$",
+            r"^blink/waiting/(?P<username>[\w.@+-]+)/$",
             views.blink_waiting,
             name="blink-waiting",
         ),
         url(
-            r"^blink/waiting/(?P<username>\w+)/(?P<assignment>[0-9]+)/$",
+            r"^blink/waiting/(?P<username>[\w.@+-]+)/(?P<assignment>[0-9]+)/$",
             views.blink_waiting,
             name="blink-waiting",
         ),
@@ -371,6 +380,11 @@ def old_patterns():
             r"^blinkAssignment/(?P<pk>[0-9]+)/delete/$",
             views.blink_assignment_delete,
             name="blinkAssignment-delete",
+        ),
+        url(
+            r"^blinkAssignment/(?P<pk>[0-9]+)/set_time/$",
+            views.blink_assignment_set_time,
+            name="blinkAssignment-set-time",
         ),
         url(
             r"^blinkAssignment/(?P<pk>[0-9]+)/start/$",

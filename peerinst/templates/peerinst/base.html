@@ -1,6 +1,8 @@
-{% load staticfiles i18n compress admin_urls %}
+{% load staticfiles i18n compress admin_urls tz %}
 
 {% get_current_language as LANGUAGE_CODE %}
+
+{% timezone "Canada/Eastern" %}
 
 <!DOCTYPE html>
 <html lang="{{LANGUAGE_CODE}}">
@@ -137,3 +139,5 @@
 
 </body>
 </html>
+
+{% endtimezone %}

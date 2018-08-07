@@ -5,52 +5,85 @@
 {% block stylesheets %}
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<style>
+.flatpickr-input {
+  width: 150px;
+}
+</style>
 {% endblock %}
 
 {% block body %}
 <main>
-<section>
-  <div class="meta-container">
-    <div class="container">
-      <h1 class="mdc-typography--display3" style="position:sticky;">{% trans 'Distribute Assignment' %}
-        <svg class="underline" width=150 height=4></svg>
-      </h1>
+  <section>
+    <div class="meta-container">
+      <div class="container">
+        <h1 class="mdc-typography--display3" style="position:sticky;">{% trans 'Distribute Assignment' %}
+          <svg class="underline" width=150 height=4></svg>
+        </h1>
 
-      <div class="admin-link">
-        <a href="{% url 'teacher' teacher.id %}">{% trans 'Back to My Account' %}</a>
-        <span style="padding-left:0.3em;padding-right:0.5em;">|</span><a href="{% url 'teacher-assignments' teacher.id %}">{% trans 'Back to My Assignments' %}</a>
-      </div>
-
-      <h2 class="mdc-typography--display1 mdc-theme--secondary">{{ assignment.title }}</h2>
-
-      <div class='field-container'>
-        <div class='number-box'><span class='number'>?</span></div>
-        <div class='field'>
-          <p><small>
-            {% blocktrans %}
-            Select which of your groups you would like to complete this assignment and specify a due date.  The due date can be changed later.  Upon clicking submit, your students will receive an e-mail with a link to the assignment.
-            {% endblocktrans %}
-          </small></p>
+        <div class="admin-link">
+          <a href="{% url 'teacher' teacher.id %}">{% trans 'Back to My Account' %}</a>
+          <span style="padding-left:0.3em;padding-right:0.5em;">|</span><a href="{% url 'teacher-assignments' teacher.id %}">{% trans 'Back to My Assignments' %}</a>
         </div>
+
+        <h2 class="mdc-typography--display1 mdc-theme--secondary">{{ assignment.title }}</h2>
+
+        <div class='field-container'>
+          <div class='number-box'><span class='number'>?</span></div>
+          <div class='field'>
+            <p><small>
+              {% blocktrans %}
+              Select which of your current groups you would like to complete this assignment and specify a due date.  The due date can be changed later.  Upon clicking submit, your students will receive an e-mail with a link to the assignment.
+              {% endblocktrans %}
+            </small></p>
+          </div>
+        </div>
+
+        <form method="post">
+          {% csrf_token %}
+          {{ form.non_field_errors }}
+          <div class='field-container'>
+            <div class='field'>
+              <div class='mdc-form-field'>
+                <label for='id_group'>{{ form.group.label }}:</label>
+                <div class='mdc-select' style='margin-right:20px;'>
+                  {{ form.group|add_class:"mdc-select__native-control" }}
+                  <div class="mdc-select__bottom-line"></div>
+                </div>
+              </div>
+
+              <div class="mdc-text-field mdc-text-field--dense" data-mdc-auto-init="MDCTextField">
+                {{ form.due_date|add_class:"mdc-text-field__input" }}
+                {{ form.due_date.label_tag|add_class:"mdc-floating-label"|cut:":" }}
+              </div>
+              {{ form.group.errors }}
+              {{ form.due_date.errors }}
+
+              <div>
+                <input class="mdc-button mdc-button--raised padded-top" type="submit" value="{% trans 'Assign' %}" />
+              </div>
+
+            </div>
+          </div>
+        </form>
       </div>
-
-      {{ form.errors }}
-      {{ form.media }}
-      <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <input class="mdc-button mdc-button--raised padded-top" type="submit" value="{% trans 'Assign' %}" />
-      </form>
-
+    </div>
+  </section>
 </main>
-</section>
 {% endblock %}
 
 {% block scripts %}
 <script>
-flatpickr("#id_due_date", {
+var datetimePicker = flatpickr("#id_due_date", {
     enableTime: true,
     dateFormat: "Y-m-d H:i",
+});
+window.addEventListener('resize', function() {
+  datetimePicker.destroy();
+  datetimePicker = flatpickr("#id_due_date", {
+    enableTime: true,
+    dateFormat: "Y-m-d H:i",
+  });
 });
 </script>
 {% endblock %}

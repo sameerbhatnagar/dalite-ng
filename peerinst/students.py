@@ -6,6 +6,7 @@ import pytz
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 from django.conf import settings
+from django.http import HttpResponse
 
 from .utils import create_token, verify_token
 
@@ -66,8 +67,8 @@ def authenticate_student(token):
         username, password = get_student_username_and_password(email)
 
         user = authenticate(
-            username=student_info["username"],
-            password=student_info["password"],
+            username=username,
+            password=password,
         )
 
         if user is None:
