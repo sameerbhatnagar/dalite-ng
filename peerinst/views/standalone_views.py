@@ -54,17 +54,30 @@ def signup_through_link(request, group_hash):
             form = EmailForm(request.POST)
             if form.is_valid():
 
-                # Get or create student
                 student = Student.get_or_create(form.cleaned_data["email"])
 
-                # Send confirmation e-mail
-                student.send_confirmation_email(group, request.get_host())
+                if student is None:
+                    resp = TemplateResponse(
+                        req,
+                        "400.html",
+                        context={
+                            "message": _(
+                                "There already exists a user with this "
+                                "username. Try a different email address."
+                            )
+                        },
+                    )
+                    return HttpResponseBadRequest(resp.render())
 
-                return TemplateResponse(
-                    request,
-                    "registration/sign_up_student_done.html",
-                    context={"student": student, "group": group},
-                )
+                else:
+
+                    student.send_confirmation_email(group, request.get_host())
+
+                    return TemplateResponse(
+                        request,
+                        "registration/sign_up_student_done.html",
+                        context={"student": student, "group": group},
+                    )
 
         else:
             form = EmailForm()

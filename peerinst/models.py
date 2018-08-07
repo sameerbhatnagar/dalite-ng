@@ -563,17 +563,22 @@ class Student(models.Model):
             )
         except Student.DoesNotExist:
 
-            user = User.objects.create_user(
-                username=username, email=email, password=password
-            )
+            try:
+                user = User.objects.create_user(
+                    username=username, email=email, password=password
+                )
 
-            # Set inactive until confirmed by user
-            user.is_active = False
-            user.save()
-            student = Student.objects.create(student=user)
+                # Set inactive until confirmed by user
+                user.is_active = False
+                user.save()
+                student = Student.objects.create(student=user)
+            except IntegrityError:
+                student = None
 
         output = student
-        assert isinstance(output, Student), "Postcondition failed"
+        assert output is None or isinstance(
+            output, Student
+        ), "Postcondition failed"
         return output
 
     def send_confirmation_email(self, group, host):
