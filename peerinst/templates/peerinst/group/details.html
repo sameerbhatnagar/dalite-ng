@@ -9,7 +9,8 @@
 <main>
   <section>
     <h1 class="mdc-typography--display2">
-      {% trans 'Group' %} {{ group.name }}
+      {% trans 'Group' %} 
+      <i>{{ group.name }}</i>
       <svg class="underline" width=150 height=4></svg>
     </h1>
     <div class="admin-link">
@@ -20,13 +21,24 @@
         {% trans 'Details' %}
       </h2>
       <div class="foldable--body">
-        <div id="group-details">
+        <div id="group-details" data-group-update-url="{% url 'group-details-update' group.hash %}">
+          {% csrf_token %}
           <div>{% trans 'Name' %} :</div>
           <div>{{ group.name }}</div>
+          <div>
+              <i onclick="bundle.editField(event, 'text')" title="Edit" class="material-icons md-24 mdc-ripple-surface icon-list">edit</i>
+          </div>
           <div>{% trans 'Title' %} :</div>
           <div>{{ group.title }}</div>
+          <div>
+              <i onclick="bundle.editField(event, 'text')" title="Edit" class="material-icons md-24 mdc-ripple-surface icon-list">edit</i>
+          </div>
           <div>{% trans 'Created on' %} :</div>
           <div>{{ group.creation_date }}</div>
+          <div>
+              <i onclick="bundle.editField(event, 'datetime')" title="Edit" class="material-icons md-24 mdc-ripple-surface icon-list">edit</i>
+          </div>
+          <!-- TODO Only add teachers -->
           <div>{% trans 'Teachers with access' %} :</div>
           <div>
             <ul>
@@ -34,6 +46,9 @@
               <li>{{ t.user.username }}</li>
               {% endfor %}
             </ul>
+          </div>
+          <div>
+              <i onclick="bundle.editField(event, 'textList')" title="Edit" class="material-icons md-24 mdc-ripple-surface icon-list">edit</i>
           </div>
         </div>
       </div>
@@ -48,20 +63,20 @@
           {% if assignments %}
           {% for a in assignments %}
           <li class="mdc-list-item">
-            <span class="mdc-list-item__graphic mdc-theme--primary">
+            <a href="{% url 'group-assignment' a.hash %}" class="mdc-list-item__graphic mdc-theme--primary" style="cursor: pointer;">
               <i class="mdc-theme--primary material-icons md-48">work</i>
-            </span>
-            <span class="mdc-list-item__text mdc-theme--secondary bold">
+            </a>
+            <a href="{% url 'group-assignment' a.hash %}" class="mdc-list-item__text mdc-theme--secondary bold" style="cursor: pointer;">
               {{ a.assignment.title }}
               <span class="mdc-list-item__secondary-text">
                 {% trans "Due date: " %}{{ a.due_date }}
               </span>
-            </span>
+            </a>
             <span class="mdc-list-item__meta">
               <a href="">
               <i class="material-icons md-24 mdc-ripple-surface icon-list">delete</i>
               </a>
-              <a href="">
+              <a href="{% url 'group-assignment' a.hash %}">
               <i class="material-icons md-24 mdc-ripple-surface icon-list">edit</i>
               </a>
             </span>
@@ -69,7 +84,7 @@
           <li class="mdc-list-divider" role="separator"></li>
           {% endfor %}
           {% else %}
-          <div>{% trans "There aren't any assignments for this group yet" %}</div>
+          <div>{% trans "There aren't any assignments for event group yet" %}</div>
           <li class="mdc-list-divider" role="separator"></li>
           {% endif %}
         </ul>
@@ -81,7 +96,5 @@
 
 {% block scripts %}
 {% compress js inline %}
-<script>
-</script>
 {% endcompress %}
 {% endblock %}

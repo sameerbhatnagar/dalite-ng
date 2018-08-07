@@ -895,7 +895,8 @@ class StudentGroupAssignment(models.Model):
         assert isinstance(host, basestring), "Precondition failed for `host`"
 
         for student in Student.objects.filter(groups=self.group):
-            assignment = StudentAssignment(
+            # TODO Add try execept
+            assignment = StudentAssignment.objects.create(
                 student=student, group_assignment=self
             )
             assignment.save()
@@ -946,7 +947,9 @@ class StudentAssignment(models.Model):
     def __unicode__(self):
         return "{} for {}".format(self.group_assignment, self.student)
 
-    def send_email(self, host, mail_type="login", link=None, assignment_hash=None):
+    def send_email(
+        self, host, mail_type="login", link=None, assignment_hash=None
+    ):
         assert (
             isinstance(link, basestring) and "{}" in link or link is None
         ), "Precondition failed for `link`"

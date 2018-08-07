@@ -6,6 +6,9 @@ function toggleFoldable(event) {
     foldable.classList.remove('foldable__unfolded');
   } else {
     foldable.classList.add('foldable__unfolded');
+    setTimeout(function() {
+      foldable.childNodes[1].style.overflow = 'auto';
+    }, 300);
   }
 }
 
