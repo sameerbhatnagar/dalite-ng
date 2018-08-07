@@ -894,38 +894,38 @@ class QuestionFormView(QuestionMixin, FormView):
     def emit_event(self, name, **data):
         """Log an event in a JSON format similar to the edx-platform tracking logs.
         """
-        if not self.lti_data:
-            # Only log when running within an LTI context.
-            return
+        if self.lti_data:
+            # Extract information from LTI parameters.
+            course_id = self.lti_data.edx_lti_parameters.get("context_id")
 
-        # Extract information from LTI parameters.
-        course_id = self.lti_data.edx_lti_parameters.get("context_id")
+            try:
+                edx_org = CourseKey.from_string(course_id).org
+            except InvalidKeyError:
+                # The course_id is not from edX. Don't place the org in the logs.
+                edx_org = None
 
-        try:
-            edx_org = CourseKey.from_string(course_id).org
-        except InvalidKeyError:
-            # The course_id is not from edX. Don't place the org in the logs.
-            edx_org = None
-
-        grade_handler_re = re.compile(
-            "https?://[^/]+/courses/{course_id}/xblock/(?P<usage_key>[^/]+)/".format(
-                course_id=re.escape(course_id)
+            grade_handler_re = re.compile(
+                "https?://[^/]+/courses/{course_id}/xblock/(?P<usage_key>[^/]+)/".format(
+                    course_id=re.escape(course_id)
+                )
             )
-        )
-        usage_key = None
-        outcome_service_url = self.lti_data.edx_lti_parameters.get(
-            "lis_outcome_service_url"
-        )
-        if outcome_service_url:
-            usage_key = grade_handler_re.match(outcome_service_url)
-            if usage_key:
-                usage_key = usage_key.group("usage_key")
-            # Grading is enabled, so include information about max grade in event data
-            data["max_grade"] = 1.0
+            usage_key = None
+            outcome_service_url = self.lti_data.edx_lti_parameters.get(
+                "lis_outcome_service_url"
+            )
+            if outcome_service_url:
+                usage_key = grade_handler_re.match(outcome_service_url)
+                if usage_key:
+                    usage_key = usage_key.group("usage_key")
+                # Grading is enabled, so include information about max grade in event data
+                data["max_grade"] = 1.0
+            else:
+                # Grading is not enabled, so remove information about grade from event data
+                if "grade" in data:
+                    del data["grade"]
         else:
-            # Grading is not enabled, so remove information about grade from event data
-            if "grade" in data:
-                del data["grade"]
+            course_id = "standalone"
+            usage_key = None
 
         # Add common fields to event data
         data.update(
@@ -936,7 +936,7 @@ class QuestionFormView(QuestionMixin, FormView):
             question_text=self.question.text,
         )
 
-        # Build event dictionary.
+        # Build event dictionary
         META = self.request.META
         event = dict(
             accept_language=META.get("HTTP_ACCEPT_LANGUAGE"),
@@ -965,37 +965,38 @@ class QuestionFormView(QuestionMixin, FormView):
         lti_event = LtiEvent(event_type=name, event_log=json.dumps(event))
         lti_event.save()
 
-        # Automatically keep track of student, student groups and their relationships based on lti data
-        user = User.objects.get(username=self.user_token)
-        try:
-            student = Student.objects.get(student=user)
-        except:
-            student = Student(student=user)
+        if self.lti_data:
+            # Automatically keep track of student, student groups and their relationships based on lti data
+            user = User.objects.get(username=self.user_token)
+            try:
+                student = Student.objects.get(student=user)
+            except:
+                student = Student(student=user)
+                student.save()
+
+            course_title = self.lti_data.edx_lti_parameters.get("context_title")
+            if course_title:
+                group, created_group = StudentGroup.objects.get_or_create(
+                    name=course_id, title=course_title
+                )
+            else:
+                group, created_group = StudentGroup.objects.get_or_create(
+                    name=course_id, title=""
+                )
+
+            if created_group:
+                group.save()
+
+            teacher_hash = self.lti_data.edx_lti_parameters.get(
+                "custom_teacher_id"
+            )
+            if teacher_hash is not None:
+                teacher = Teacher.get(teacher_hash)
+                if teacher not in group.teacher.all():
+                    group.teacher.add(teacher)
+
+            student.groups.add(group)
             student.save()
-
-        course_title = self.lti_data.edx_lti_parameters.get("context_title")
-        if course_title:
-            group, created_group = StudentGroup.objects.get_or_create(
-                name=course_id, title=course_title
-            )
-        else:
-            group, created_group = StudentGroup.objects.get_or_create(
-                name=course_id, title=""
-            )
-
-        if created_group:
-            group.save()
-
-        teacher_hash = self.lti_data.edx_lti_parameters.get(
-            "custom_teacher_id"
-        )
-        if teacher_hash is not None:
-            teacher = Teacher.get(teacher_hash)
-            if teacher not in group.teacher.all():
-                group.teacher.add(teacher)
-
-        student.groups.add(group)
-        student.save()
 
     def submission_error(self):
         messages.error(
