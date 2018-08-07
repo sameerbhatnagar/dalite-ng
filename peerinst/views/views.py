@@ -924,6 +924,7 @@ class QuestionFormView(QuestionMixin, FormView):
                 if "grade" in data:
                     del data["grade"]
         else:
+            edx_org = None
             course_id = "standalone"
             usage_key = None
 
@@ -968,6 +969,7 @@ class QuestionFormView(QuestionMixin, FormView):
         if self.lti_data:
             # Automatically keep track of student, student groups and their relationships based on lti data
             user = User.objects.get(username=self.user_token)
+
             try:
                 student = Student.objects.get(student=user)
             except:

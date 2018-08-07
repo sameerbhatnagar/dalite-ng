@@ -29,7 +29,7 @@ def email_consent_modify(req, role):
     if isinstance(username, HttpResponse):
         return username
 
-    email_types = _get_email_types(role_)
+    email_types = _get_email_types(username, role_.role)
 
     form = EmailChangeForm()
 
@@ -84,7 +84,7 @@ def change_user_email(req, role):
         redirect_to = req.GET.get("next", "/welcome/")
         return HttpResponseRedirect(redirect_to)
 
-    email_types = _get_email_types(role_)
+    email_types = _get_email_types(username, role_.role)
 
     context = {
         "form": form,
@@ -129,7 +129,7 @@ def _get_username_and_role(req, role):
     return username, role_
 
 
-def _get_email_types(role):
+def _get_email_types(username, role):
     email_types = [
         {
             "type": email_type.type,
@@ -143,3 +143,4 @@ def _get_email_types(role):
             "show_order"
         )
     ]
+    return email_types
