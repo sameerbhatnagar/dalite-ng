@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from django.conf.urls import url
 from . import views
 
@@ -38,5 +39,10 @@ urlpatterns = [
         r"^email/(?P<role>[a-z]{1,})/update$",
         views.email.email_consent_update,
         name="email_update",
+    ),
+    url(
+        r"^email/(?P<role>[a-z]{1,})/change$",
+        views.email.change_user_email,
+        name="email_change",
     ),
 ]

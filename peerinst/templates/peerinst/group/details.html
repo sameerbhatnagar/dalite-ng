@@ -22,6 +22,7 @@
       </h2>
       <div class="foldable--body">
         <div id="group-details" data-group-update-url="{% url 'group-details-update' group.hash %}">
+          {% csrf_token %}
           <div>{% trans 'Name' %} :</div>
           <div>{{ group.name }}</div>
           <div>

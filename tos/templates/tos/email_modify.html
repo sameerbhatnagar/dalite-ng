@@ -34,7 +34,7 @@
         </div>
       </div>
 
-      <form method="post">
+      <form action="{% url 'tos:email_change' role %}" method="post">
         {% csrf_token %}
 
         {% for field in form %}

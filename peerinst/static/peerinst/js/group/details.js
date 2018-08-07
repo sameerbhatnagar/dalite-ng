@@ -107,16 +107,6 @@ function editTextListField(field) {
   let name = field.name;
   newField.name = name;
   let ul = field.childNodes[0].cloneNode(true);
-  let li = ul.childNodes;
-  for (let i = 0; i < li.length; i++) {
-    let li_ = document.createElement('li');
-    let input = document.createElement('input');
-    input.type = 'text';
-    input.value = li[0].textContent;
-    input.setAttribute('data-old-content', li[0].textContent);
-    li_.append(input);
-    ul.replaceChild(li_, li[i]);
-  }
   let li_ = document.createElement('li');
   let input = document.createElement('input');
   input.type = 'text';
@@ -138,14 +128,14 @@ function saveTextListField(field, save) {
   if (save) {
     let newValue = [];
     for (let i = 0; i < li.length; i++) {
-      if (li[i].firstChild.value) {
+      if (i < li.length - 1) {
+        newValue.push(li[i].textContent);
+      } else if (li[i].firstChild.value) {
         newValue.push(li[i].firstChild.value);
-        let li_ = document.createElement('li');
-        li_.textContent = li[i].firstChild.value;
-        ul.append(li_);
       }
     }
     let err = updateDetails(name, newValue);
+    console.log(err);
     if (err) {
       for (let i = 0; i < li.length; i++) {
         let li_ = document.createElement('li');
@@ -162,12 +152,9 @@ function saveTextListField(field, save) {
       }
     }
   } else {
-    for (let i = 0; i < li.length; i++) {
-      let li_ = document.createElement('li');
-      li_.textContent = li[i].firstChild.getAttribute('data-old-content');
-      if (li_.textContent) {
-        ul.append(li_);
-      }
+    for (let i = 0; i < li.length - 1; i++) {
+      let li_ = li[i].cloneNode(true);
+      ul.append(li_);
     }
   }
   newField.append(ul);
@@ -223,23 +210,28 @@ function toggleIcons(newIconsDiv, type, toEdit) {
 
 function updateDetails(name, value) {
   let data = {name: name, value: value};
+  let token = document.getElementsByName('csrfmiddlewaretoken')[0].value;
   let req = {
     method: 'POST',
     body: JSON.stringify(data),
     headers: {
       'Content-Type': 'application/json',
+      'X-CSRFToken': token,
     },
   };
   let url = document
     .getElementById('group-details')
     .getAttribute('data-group-update-url');
-  fetch(url, req).then(function(resp) {
-    if (resp.ok) {
-      return;
-    } else {
-      return text;
-    }
-  });
+  fetch(url, req)
+    .then(resp => resp.text())
+    .then(function(err) {
+      console.log(err);
+      return err;
+    })
+    .catch(function(err) {
+      console.log(err);
+      return err;
+    });
 }
 
 export {editField, saveField};
