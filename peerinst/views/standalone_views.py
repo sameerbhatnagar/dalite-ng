@@ -96,14 +96,14 @@ def confirm_signup_through_link(request, group_hash, token):
     logout(request)
 
     # Validate token and activate account
-    email, err = verify_student_token(token)
+    username, email, err = verify_student_token(token)
     group = StudentGroup.get(group_hash)
 
     if group is None:
         raise Http404()
 
-    if email is not None:
-        student = get_object_or_404(Student, student__email=email)
+    if username is not None:
+        student = get_object_or_404(Student, student__username=username)
         student.student.is_active = True
         student.groups.add(group)
         student.save()
