@@ -1,8 +1,11 @@
 {% extends 'peerinst/base.html' %}
 
-{% load compress i18n %}
+{% load static compress i18n %}
 
 {% block stylesheets %}
+  {% compress css %}
+  <link href="{% static 'peerinst/css/group/details.min.css' %}" rel="stylesheet">
+  {% endcompress %}
 {% endblock %}
 
 {% block body %}
@@ -22,10 +25,9 @@
       </h2>
       <div class="foldable--body">
 
-        <div id="group-details" data-group-update-url="{% url 'group-details-update' group.hash %}">
+        <div data-group-update-url="{% url 'group-details-update' group.hash %}">
 
           {% csrf_token %}
-
           <ul class="mdc-list mdc-list--two-line mdc-list--non-interactive">
             <li class="mdc-list-divider" role="separator"></li>
 
@@ -40,7 +42,7 @@
                 </span>
               </span>
               <span class="mdc-list-item__meta">
-                <i onclick="bundle.editField(event, 'text', 'mdc-list-item__secondary-text')" title="Edit" class="material-icons md-24 mdc-ripple-surface icon-list">edit</i>
+                <i onclick="bundle.editGroupDetailsField(event, 'text', 'mdc-list-item__secondary-text')" title="Edit" class="material-icons md-24 mdc-ripple-surface icon-list">edit</i>
               </span>
             </li>
             <li class="mdc-list-divider" role="separator"></li>
@@ -56,7 +58,7 @@
                 </span>
               </span>
               <span class="mdc-list-item__meta">
-                <i onclick="bundle.editField(event, 'text', 'mdc-list-item__secondary-text')" title="Edit" class="material-icons md-24 mdc-ripple-surface icon-list">edit</i>
+                <i onclick="bundle.editGroupDetailsField(event, 'text', 'mdc-list-item__secondary-text')" title="Edit" class="material-icons md-24 mdc-ripple-surface icon-list">edit</i>
               </span>
             </li>
             <li class="mdc-list-divider" role="separator"></li>
@@ -105,7 +107,7 @@
               </div>
               </span>
               <span class="mdc-list-item__meta">
-                <i onclick="bundle.editField(event, 'textList', 'mdc-list-item__secondary-text')" title="Add" class="material-icons md-24 mdc-ripple-surface icon-list">add</i>
+                <i onclick="bundle.editGroupDetailsField(event, 'textList', 'mdc-list-item__secondary-text')" title="Add" class="material-icons md-24 mdc-ripple-surface icon-list">add</i>
               </span>
             </li>
             <li class="mdc-list-divider" role="separator"></li>
@@ -157,5 +159,6 @@
 
 {% block scripts %}
 {% compress js inline %}
+  <script src="{% static 'peerinst/js/group.min.js' %}"></script>
 {% endcompress %}
 {% endblock %}

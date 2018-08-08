@@ -75,8 +75,44 @@ gulp.task('rollup', function() {
     .pipe(gulp.dest('./peerinst/static/peerinst/js/'));
 });*/
 
-// Run rollup to bundle js
-gulp.task('peerinst-scripts', function() {
+gulp.task('peerinst-styles', function(callback) {
+  runSequence('sass', 'css', 'autoprefixer', callback);
+});
+
+gulp.task('peerinst-styles-group', function() {
+  return gulp
+    .src('./peerinst/static/peerinst/css/group/*.scss')
+    .pipe(sourcemaps.init())
+    .pipe(
+      sass({
+        outputStyle: 'compressed',
+        includePaths: './node_modules',
+      }),
+    )
+    .pipe(
+      postcss([
+        autoprefixer({
+          browsers: [
+            'last 3 versions',
+            'iOS>=8',
+            'ie 11',
+            'Safari 9.1',
+            'not dead',
+          ],
+        }),
+      ]),
+    )
+    .pipe(
+      rename(function(path) {
+        path.dirname += '/group';
+        path.extname = '.min.css';
+      }),
+    )
+    .pipe(sourcemaps.write('.'))
+    .pipe(gulp.dest('peerinst/static/peerinst/css'));
+});
+
+gulp.task('peerinst-scripts-index', function() {
   const runCommand = require('child_process').execSync;
   runCommand(
     './node_modules/.bin/rollup -c ./rollup/peerinst/index-rollup.config.js',
@@ -90,8 +126,22 @@ gulp.task('peerinst-scripts', function() {
   );
 });
 
-gulp.task('peerinst-styles', function(callback) {
-  runSequence('sass', 'css', 'autoprefixer', callback);
+gulp.task('peerinst-scripts-group', function() {
+  const runCommand = require('child_process').execSync;
+  runCommand(
+    './node_modules/.bin/rollup -c ./rollup/peerinst/group-rollup.config.js',
+    function(err, stdout, stderr) {
+      console.log('Output: ' + stdout);
+      console.log('Error: ' + stderr);
+      if (err) {
+        console.log('Error: ' + err);
+      }
+    },
+  );
+});
+
+gulp.task('peerinst-scripts', function(callback) {
+  runSequence('peerinst-scripts-index', 'peerinst-scripts-group', callback);
 });
 
 gulp.task('peerinst-build', function(callback) {
@@ -154,8 +204,12 @@ gulp.task('tos-scripts-email', function() {
   );
 });
 
+gulp.task('tos-scripts', function(callback) {
+  runSequence('tos-scripts-tos', 'tos-scripts-email', callback);
+});
+
 gulp.task('tos-build', function(callback) {
-  runSequence('tos-styles', 'tos-scripts-tos', 'tos-scripts-email', callback);
+  runSequence('tos-styles', 'tos-scripts', callback);
 });
 
 gulp.task('build', function(callback) {
@@ -166,12 +220,15 @@ gulp.task('watch', function() {
   gulp.watch('./tos/static/tos/css/*.scss', ['tos-styles']);
   gulp.watch('./tos/static/tos/js/tos.js', ['tos-scripts-tos']);
   gulp.watch('./tos/static/tos/js/email.js', ['tos-scripts-email']);
-  gulp.watch('./peerinst/static/peerinst/css/**/*.scss', ['peerinst-styles']);
+  // gulp.watch('./peerinst/static/peerinst/css/**/*.scss', ['peerinst-styles']);
+  gulp.watch('./peerinst/static/peerinst/css/group/*.scss', [
+    'peerinst-styles-group',
+  ]);
   gulp.watch(
     [
-      './peerinst/static/peerinst/js/**/*.js',
-      '!./peerinst/static/peerinst/js/**/*.min.js',
+      './peerinst/static/peerinst/js/_group/*.js',
+      './peerinst/static/peerinst/js/group.js',
     ],
-    ['peerinst-scripts'],
+    ['tos-scripts-group'],
   );
 });
