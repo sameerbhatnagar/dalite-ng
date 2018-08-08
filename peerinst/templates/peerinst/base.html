@@ -124,7 +124,7 @@
   {% compress js %}
   <script src="{% static 'peerinst/js/index.min.js' %}"></script>
   <script>
-  bundle.cornerGraphic('#corner', 'switchLanguage', {% if LANGUAGE_CODE == 'en' %}'FR'{% else %}'EN'{% endif %}, 'mdc-theme--secondary');
+  bundle.cornerGraphic('#corner', 'switchLanguage', {% if LANGUAGE_CODE == 'en' %}'FR'{% else %}'EN'{% endif %}, 'fill-primary');
   </script>
   {% endcompress %}
 

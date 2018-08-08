@@ -24,7 +24,7 @@ if (desktop) {
 <header class="mdc-toolbar mdc-toolbar--fixed mdc-toolbar--flexible mdc-toolbar--waterfall">
   <div class="mdc-toolbar__row">
     <svg id="animation" width=800 height=80></svg>
-    <i id="scrollprompt" class="icon ion-arrow-down-b"></i>
+    <i id="scrollprompt" class="icon ion-ios-arrow-dropdown"></i>
     <span class="navtopright">
       {% if user.is_authenticated %}
         <a id='link-to-login-or-welcome' href="{% url 'welcome' %}">{% trans 'Welcome back ' %}<span class='bold'>{{ user.username }}</span></a>
