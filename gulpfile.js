@@ -141,7 +141,7 @@ gulp.task('peerinst-scripts-group', function() {
 });
 
 gulp.task('peerinst-scripts', function(callback) {
-  runSequence('peerinst-scripts-index', 'peerinst-scripts-index', callback);
+  runSequence('peerinst-scripts-index', 'peerinst-scripts-group', callback);
 });
 
 gulp.task('peerinst-build', function(callback) {
