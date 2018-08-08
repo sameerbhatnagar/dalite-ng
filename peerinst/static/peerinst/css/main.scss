@@ -73,6 +73,13 @@
   fill: $mdc-theme-primary;
 }
 
+.corner {
+  position: fixed;
+  bottom: 0%;
+  right: 0%;
+  cursor: pointer;
+}
+
 body {
   background-color: $mdc-theme-background;
   color: $mdc-theme-secondary;

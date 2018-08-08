@@ -586,8 +586,9 @@ class Student(models.Model):
         assert isinstance(host, basestring), "Precondition failed for `host`"
         err = None
 
+        username = self.student.username
         user_email = self.student.email
-        token = create_student_token(user_email)
+        token = create_student_token(username, user_email)
         hash_ = group.hash
         link = reverse(
             "confirm-signup-through-link",
@@ -972,11 +973,12 @@ class StudentAssignment(models.Model):
         if mail_type == "new_assignment" and assignment_hash is None:
             err = 'An `assignment_hash` is needed to send a "new_assignment" email.'
 
+        username = self.student.student.username
         user_email = self.student.student.email
 
         if err is None and user_email:
 
-            token = create_student_token(user_email)
+            token = create_student_token(username, user_email)
 
             if mail_type == "login":
 

@@ -127,6 +127,9 @@ def live(request, token, assignment_hash):
     user = authenticate_student(token)
     login(request, user)
 
+    # Register access type
+    request.session["nonLTI"] = True
+
     # Get assignment for this token and current question
     group_assignment = StudentGroupAssignment.get(assignment_hash)
     student_assignment = StudentAssignment.objects.get(
