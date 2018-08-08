@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+from datetime import datetime
 
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
@@ -17,6 +18,7 @@ from django.template.response import TemplateResponse
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_http_methods
 import json
+import pytz
 
 from peerinst.models import StudentGroup, StudentGroupAssignment, Teacher
 
@@ -115,6 +117,31 @@ def group_access_required(fct):
     return wrapper
 
 
+def validate_update_data(req):
+    try:
+        data = json.loads(req.body)
+    except ValueError:
+        resp = TemplateResponse(
+            req,
+            "400.html",
+            context={"message": _("Wrong data type was sent.")},
+        )
+        return HttpResponseBadRequest(resp.render()), None
+
+    try:
+        name = data["name"]
+        value = data["value"]
+    except KeyError:
+        resp = TemplateResponse(
+            req,
+            "400.html",
+            context={"message": _("There are missing parameters.")},
+        )
+        return HttpResponseBadRequest(resp.render()), None
+
+    return name, value
+
+
 @login_required
 @require_http_methods(["GET"])
 @group_access_required
@@ -132,26 +159,9 @@ def group_details_page(req, group_hash, teacher, group):
 @group_access_required
 def group_details_update(req, group_hash, teacher, group):
 
-    try:
-        data = json.loads(req.body)
-    except ValueError:
-        resp = TemplateResponse(
-            req,
-            "400.html",
-            context={"message": _("Wrong data type was sent.")},
-        )
-        return HttpResponseBadRequest(resp.render())
-
-    try:
-        name = data["name"]
-        value = data["value"]
-    except KeyError:
-        resp = TemplateResponse(
-            req,
-            "400.html",
-            context={"message": _("There are missing parameters.")},
-        )
-        return HttpResponseBadRequest(resp.render())
+    name, value = validate_update_data(req)
+    if isinstance(name, HttpResponse):
+        return name
 
     if name == "name":
         if (
@@ -199,14 +209,6 @@ def group_details_update(req, group_hash, teacher, group):
 
 
 @login_required
-@require_http_methods(["POST"])
-@group_access_required
-def group_assignment_remove(req, assignment_hash, teacher, group, assignment):
-    assignment.delete()
-    return HttpResponse()
-
-
-@login_required
 @require_http_methods(["GET"])
 @group_access_required
 def group_assignment_page(req, assignment_hash, teacher, group, assignment):
@@ -218,3 +220,39 @@ def group_assignment_page(req, assignment_hash, teacher, group, assignment):
     }
 
     return render(req, "peerinst/group/assignment.html", context)
+
+
+@login_required
+@require_http_methods(["POST"])
+@group_access_required
+def group_assignment_remove(req, assignment_hash, teacher, group, assignment):
+    assignment.delete()
+    return HttpResponse()
+
+
+@login_required
+@require_http_methods(["POST"])
+@group_access_required
+def group_assignment_update(req, assignment_hash, teacher, group, assignment):
+
+    name, value = validate_update_data(req)
+    if isinstance(name, HttpResponse):
+        return name
+
+    print(name)
+
+    if name == "due_date":
+        assignment.due_date = datetime.strptime(
+            value[:-5], "%Y-%m-%dT%H:%M:%S"
+        ).replace(tzinfo=pytz.utc)
+        assignment.save()
+
+    else:
+        resp = TemplateResponse(
+            req,
+            "400.html",
+            context={"message": _("Wrong data type was sent.")},
+        )
+        return HttpResponseBadRequest(resp.render())
+
+    return HttpResponse(content_type="text/plain")

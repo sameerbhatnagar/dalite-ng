@@ -3,6 +3,8 @@
 {% load static compress i18n %}
 
 {% block stylesheets %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 {% endblock %}
 
 {% block body %}
@@ -18,15 +20,50 @@
     <div class="admin-link">
       <a href="{% url 'group-details' group_hash %}">{% trans 'Back to group' %}</a>
     </div>
-    <div id="assignment-due-date">
-      <div>{% trans 'Due date' %}:</div>
-      <div>{{ assignment.due_date }}</div>
-      <div>
-          <i onclick="scripts.editDueDateField()" title="Edit" class="material-icons md-24 mdc-ripple-surface icon-list">edit</i>
+    <div class="foldable foldable__unfolded">
+      <h2 class="foldable--title mdc-typography--display1 mdc-theme--secondary">
+        {% trans 'Details' %}
+      </h2>
+      <div class="foldable--body">
+        <div data-update-url="{% url 'group-assignment-update' assignment.hash %}">
+          {% csrf_token %}
+          <ul class="mdc-list mdc-list--two-line mdc-list--non-interactive">
+            <li class="mdc-list-divider" role="separator"></li>
+
+            <li class="mdc-list-item">
+              <span class="mdc-list-item__graphic mdc-theme--primary">
+                <i class="mdc-theme--primary material-icons md-48">calendar_today</i>
+              </span>
+              <span class="mdc-list-item__text mdc-theme--secondary bold">
+                {% trans 'Due date' %}
+                <span name="due_date" class="mdc-list-item__secondary-text">
+                  {{ assignment.due_date|date:"Y-m-d H:i" }}
+                </span>
+              </span>
+              <span class="mdc-list-item__meta">
+                <i onclick="bundle.editField(event, 'datetime', 'mdc-list-item__secondary-text')" title="Edit" class="material-icons md-24 mdc-ripple-surface icon-list">edit</i>
+              </span>
+            </li>
+            <li class="mdc-list-divider" role="separator"></li>
+          </ul>
+        </div>
       </div>
     </div>
-    <div id="question-list">
-      
+    <div class="foldable">
+      <h2 class="foldable--title mdc-typography--display1 mdc-theme--secondary">
+        {% trans 'Questions' %}
+      </h2>
+      <div class="foldable--body">
+        
+      </div>
+    </div>
+    <div class="foldable">
+      <h2 class="foldable--title mdc-typography--display1 mdc-theme--secondary">
+        {% trans 'Student progress' %}
+      </h2>
+      <div class="foldable--body">
+        
+      </div>
     </div>
   </section>
 </main>
@@ -34,6 +71,6 @@
 
 {% block scripts %}
 {% compress js inline %}
-  <script src="{% static 'peerinst/js/group.min.js' %}"></script>
+<script src="{% static 'peerinst/js/group.min.js' %}"></script>
 {% endcompress %}
 {% endblock %}

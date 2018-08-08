@@ -11,6 +11,9 @@ export default {
     name: 'bundle',
     format: 'iife',
     sourceMap: 'inline',
+    globals: {
+      flatpickr: 'flatpickr',
+    },
   },
   plugins: [
     resolve({
@@ -27,4 +30,5 @@ export default {
     }),
     uglify(),
   ],
+  external: ['flatpickr'],
 };
