@@ -19,6 +19,7 @@ from django.core.urlresolvers import reverse
 from django.db import IntegrityError, models
 from django.db.models import Q
 from django.template import loader
+from django.utils import timezone
 from django.utils.encoding import smart_bytes
 from django.utils.translation import ugettext_lazy as _
 from jsonfield import JSONField
@@ -844,7 +845,7 @@ class LtiEvent(models.Model):
 class StudentGroupAssignment(models.Model):
     group = models.ForeignKey(StudentGroup, on_delete=models.CASCADE)
     assignment = models.ForeignKey(Assignment, on_delete=models.CASCADE)
-    due_date = models.DateTimeField(blank=True, null=True)
+    due_date = models.DateTimeField(blank=False, default=timezone.now)
     order = models.TextField(blank=True, editable=False)
 
     def __unicode__(self):
@@ -901,7 +902,7 @@ class StudentGroupAssignment(models.Model):
         assert isinstance(host, basestring), "Precondition failed for `host`"
 
         for student in Student.objects.filter(groups=self.group):
-            # TODO Add try execept
+            # TODO Add try except
             assignment = StudentAssignment.objects.create(
                 student=student, group_assignment=self
             )
@@ -997,7 +998,7 @@ class StudentAssignment(models.Model):
                     },
                 )
 
-                subject = "Access assignment"
+                subject = "New assignment in "+self.group_assignment.group.title+" (due "+self.group_assignment.due_date.strftime('%Y-%m-%d %H:%M')+")"
                 message = "Click link below to access your assignment."
 
                 template = "students/email_new_assignment.html"

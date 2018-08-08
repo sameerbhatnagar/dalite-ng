@@ -4,12 +4,12 @@
 
 {% block body %}
 
-<h3>{% trans "Confirm email for you myDALITE account" %}</h3>
+<h1>{% trans 'Confirm Registration' %}</h1>
 
-<p>{% trans "Please confirm your myDALITE account by clicking the link below." %}</p>
+<p>{% trans "Please confirm your myDALITE account by clicking the button below." %}</p>
 
 <p style="text-align: center; margin: 50px 0;">
-  <a class="email-btn" href="{{ protocol }}://{{ host }}{{ link }}" target="_blank">Confirm</a>
+  <a class="email-btn" href="{{ protocol }}://{{ host }}{{ link }}" target="_blank">{% trans 'Confirm' %}</a>
 </p>
 
 <p>
