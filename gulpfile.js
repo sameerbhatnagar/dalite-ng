@@ -229,6 +229,6 @@ gulp.task('watch', function() {
       './peerinst/static/peerinst/js/_group/*.js',
       './peerinst/static/peerinst/js/group.js',
     ],
-    ['tos-scripts-group'],
+    ['peerinst-scripts-group'],
   );
 });
