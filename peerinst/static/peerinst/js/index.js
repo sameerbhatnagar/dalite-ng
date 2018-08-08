@@ -68,9 +68,6 @@ Array.from(document.getElementsByClassName('foldable--title')).map(x =>
   x.addEventListener('click', e => toggleFoldable(e)),
 );
 
-// Other files
-export {editField, saveField} from './group/details.js';
-
 // Ajax
 /** Define csrf safe HTTP methods
  *   https://docs.djangoproject.com/en/1.8/ref/csrf/

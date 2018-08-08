@@ -1,8 +1,11 @@
 {% extends 'peerinst/base.html' %}
 
-{% load compress i18n %}
+{% load static compress i18n %}
 
 {% block stylesheets %}
+  {% compress css %}
+  <link href="{% static 'peerinst/css/group/details.min.css' %}" rel="stylesheet">
+  {% endcompress %}
 {% endblock %}
 
 {% block body %}
@@ -26,12 +29,12 @@
           <div>{% trans 'Name' %} :</div>
           <div name="name">{{ group.name }}</div>
           <div>
-              <i onclick="bundle.editField(event, 'text')" title="Edit" class="material-icons md-24 mdc-ripple-surface icon-list">edit</i>
+              <i onclick="scripts.editField(event, 'text')" title="Edit" class="material-icons md-24 mdc-ripple-surface icon-list">edit</i>
           </div>
           <div>{% trans 'Title' %} :</div>
           <div name="title">{{ group.title }}</div>
           <div>
-              <i onclick="bundle.editField(event, 'text')" title="Edit" class="material-icons md-24 mdc-ripple-surface icon-list">edit</i>
+              <i onclick="scripts.editField(event, 'text')" title="Edit" class="material-icons md-24 mdc-ripple-surface icon-list">edit</i>
           </div>
           <div>{% trans 'Created on' %} :</div>
           <div>{{ group.creation_date }}</div>
@@ -46,7 +49,7 @@
             </ul>
           </div>
           <div>
-              <i onclick="bundle.editField(event, 'textList')" title="Edit" class="material-icons md-24 mdc-ripple-surface icon-list">edit</i>
+              <i onclick="scripts.editField(event, 'textList')" title="Edit" class="material-icons md-24 mdc-ripple-surface icon-list">edit</i>
           </div>
         </div>
       </div>
@@ -94,5 +97,6 @@
 
 {% block scripts %}
 {% compress js inline %}
+  <script src="{% static 'peerinst/js/group.min.js' %}"></script>
 {% endcompress %}
 {% endblock %}

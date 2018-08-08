@@ -1,4 +1,4 @@
-function editField(event, type) {
+function editGroupDetailsField(event, type) {
   let container = event.currentTarget.parentNode.parentNode;
 
   let field = event.currentTarget.parentNode.previousSibling;
@@ -10,7 +10,9 @@ function editField(event, type) {
     newField = editTextListField(field);
   } else {
     console.log(
-      "The `editField` function isn 't implemented for type " + type + '.',
+      "The `editGroupDetailsField` function isn 't implemented for type " +
+        type +
+        '.',
     );
     return;
   }
@@ -25,7 +27,7 @@ function editField(event, type) {
   container.replaceChild(newIconsDiv, iconsDiv);
 }
 
-function saveField(event, type, save) {
+function saveGroupDetailsField(event, type, save) {
   let container = event.currentTarget.parentNode.parentNode;
 
   let field = event.currentTarget.parentNode.previousSibling;
@@ -40,7 +42,9 @@ function saveField(event, type, save) {
     });
   } else {
     console.log(
-      "The `saveField` function isn't implemented for type " + type + '.',
+      "The `saveGroupDetailsField` function isn't implemented for type " +
+        type +
+        '.',
     );
     return;
   }
@@ -93,7 +97,10 @@ function toggleIcons(newIconsDiv, type, toEdit) {
     );
     editIcon.textContent = 'edit';
     editIcon.title = 'Edit';
-    editIcon.setAttribute('onclick', 'bundle.editField(event, "' + type + '")');
+    editIcon.setAttribute(
+      'onclick',
+      'bundle.editGroupDetailsField(event, "' + type + '")',
+    );
     newIconsDiv.append(editIcon);
   } else {
     let saveIcon = document.createElement('i');
@@ -107,7 +114,7 @@ function toggleIcons(newIconsDiv, type, toEdit) {
     saveIcon.title = 'Save';
     saveIcon.setAttribute(
       'onclick',
-      'bundle.saveField(event, "' + type + '", true)',
+      'bundle.saveGroupDetailsField(event, "' + type + '", true)',
     );
     let cancelIcon = document.createElement('i');
     cancelIcon.classList.add(
@@ -120,7 +127,7 @@ function toggleIcons(newIconsDiv, type, toEdit) {
     cancelIcon.title = 'Cancel';
     cancelIcon.setAttribute(
       'onclick',
-      'bundle.saveField(event, "' + type + '", false)',
+      'bundle.saveGroupDetailsField(event, "' + type + '", false)',
     );
     newIconsDiv.append(saveIcon);
     newIconsDiv.append(cancelIcon);
@@ -190,4 +197,4 @@ async function updateDetails(name, value) {
   return err;
 }
 
-export {editField, saveField};
+export {editGroupDetailsField, saveGroupDetailsField};
