@@ -27,15 +27,6 @@
   <link href="{% static 'peerinst/css/main.min.css' %}" rel="stylesheet">
   {% endcompress %}
 
-  <style>
-    .corner {
-      position: fixed;
-      bottom: 0%;
-      right: 0%;
-      cursor: pointer;
-    }
-  </style>
-
   <!-- External resources -->
   <link href="https://unpkg.com/ionicons@4.2.4/dist/css/ionicons.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -48,6 +39,7 @@
 
 <body>
 
+  <!-- Language selection -->
   <form id="switchLanguage" action="{% url 'set_language' %}" method="post">
     {% csrf_token %}
     <input name="next" type="hidden" value={{ request.path|slice:"3:"|urlencode }} />
@@ -55,7 +47,6 @@
   </form>
 
   <svg id="corner" class="corner" width=35 height=35></svg>
-
 
   <!-- Custom header for local instance -->
   <header>
@@ -70,15 +61,17 @@
       </div>
       <div class="header-right">
         {% if user.is_authenticated %}
-        {% if user.teacher %}
-        {% trans 'Teacher' %}: <a class="bold" href="{% url 'teacher' pk=user.teacher.pk %}">{{ request.user.username }}</a>
-        {% else %}
-        {% trans 'User' %}: <a class="bold" href="{% url 'tos:tos_modify' 'student' %}?next={{ request.path }}">{{ request.user.username }}</a>
-        {% endif %}
-        <br>
-        {% if not user.student %}
-        <a class="bold" href="{% url 'logout' %}">{% trans 'Logout' %}</a>
-        {% endif %}
+          {% if user.teacher %}
+            {% trans 'Teacher' %}: <a class="bold" href="{% url 'teacher' pk=user.teacher.pk %}">{{ request.user.username }}</a>
+            <br>
+            <a class="bold" href="{% url 'logout' %}">{% trans 'Logout' %}</a>
+          {% else %}
+            <a class="bold" href="{% url 'tos:tos_modify' 'student' %}?next={{ request.path }}">{% trans 'Terms of Service' %}</a>
+            {% if request.session.nonLTI %}
+            <br>
+            <a class="bold" href="{% url 'logout' %}">{% trans 'Logout' %}</a>
+            {% endif %}
+          {% endif %}
         {% endif %}
       </div>
     </div>
@@ -131,7 +124,7 @@
   {% compress js %}
   <script src="{% static 'peerinst/js/index.min.js' %}"></script>
   <script>
-  bundle.cornerGraphic('#corner', 'switchLanguage', {% if LANGUAGE_CODE == 'en' %}'FR'{% else %}'EN'{% endif %}, 'mdc-theme--secondary');
+  bundle.cornerGraphic('#corner', 'switchLanguage', {% if LANGUAGE_CODE == 'en' %}'FR'{% else %}'EN'{% endif %}, 'fill-primary');
   </script>
   {% endcompress %}
 

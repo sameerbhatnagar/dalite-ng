@@ -104,14 +104,14 @@
         {% if not object.current_groups.all %}
         <p class='mdc-typography--body1'>{% blocktrans %}You have no active student groups.{% endblocktrans %}</p>
         {% endif %}
-        <ul class="mdc-list mdc-list--two-line mdc-list--non-interactive">
+        <ul class="mdc-list mdc-list--two-line">
           {% for g in object.current_groups.all %}
           <li role="separator" class="mdc-list-divider"></li>
-          <li class="mdc-list-item">
-            <a href="{% url 'group-details' g.hash %}" class="mdc-list-item__graphic mdc-theme--primary">
+          <li class="mdc-list-item" onclick="window.location.href='{% url 'group-details' g.hash %}'" style="cursor:pointer;">
+            <span class="mdc-list-item__graphic mdc-theme--primary">
               <i class="mdc-theme--primary material-icons md-48">group</i>
-            </a>
-            <a href="{% url 'group-details' g.hash %}" class="mdc-list-item__text mdc-theme--secondary bold">
+            </span>
+            <span class="mdc-list-item__text mdc-theme--secondary bold">
               {% if not g.title %} {{ g.name }} {% else %} {{ g.title }} {% endif %}
               <span class="mdc-list-item__secondary-text">
                 {% trans "Created: " %} {{ g.creation_date }}
@@ -119,7 +119,7 @@
               <span class="mdc-list-item__secondary-text">
                 {% trans "Students: " %} {{ g.student_set.count  }}
               </span>
-            </a>
+            </span>
             <span class="mdc-list-item__meta">
               <a href="{% url 'report-all-assignments' teacher_id=teacher.id group_id=g.name|urlencode:"" %}">
                 <i class="material-icons md-24 mdc-ripple-surface icon-list">bar_chart</i>

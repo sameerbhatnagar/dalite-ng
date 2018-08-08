@@ -73,6 +73,17 @@
   fill: $mdc-theme-primary;
 }
 
+.fill-secondary {
+  fill: $mdc-theme-secondary;
+}
+
+.corner {
+  position: fixed;
+  bottom: 0%;
+  right: 0%;
+  cursor: pointer;
+}
+
 body {
   background-color: $mdc-theme-background;
   color: $mdc-theme-secondary;
@@ -423,6 +434,9 @@ input[type='submit'].thumbs-down {
 }
 .mdc-list-item__text {
   max-width: 300px;
+}
+.mdc-list-item__text.no-icon {
+  max-width: 100%;
 }
 #check {
   color: $mdc-theme-primary;

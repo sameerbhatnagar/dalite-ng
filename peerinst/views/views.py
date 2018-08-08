@@ -249,7 +249,6 @@ def dashboard(request):
 
 
 def sign_up(request):
-
     template = "registration/sign_up.html"
     html_email_template_name = "registration/sign_up_admin_email_html.html"
     context = {}

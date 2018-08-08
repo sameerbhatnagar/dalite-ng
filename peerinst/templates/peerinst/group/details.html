@@ -11,49 +11,111 @@
 {% block body %}
 <main>
   <section>
-    <h1 class="mdc-typography--display2">
-      {% trans 'Group' %} 
-      <i>{{ group.name }}</i>
+    <h1 class="mdc-typography--display3">{% trans 'Group Details' %}
       <svg class="underline" width=150 height=4></svg>
     </h1>
+
     <div class="admin-link">
       <a href="{% url 'teacher' teacher.id %}">{% trans 'Back to My Account' %}</a>
     </div>
-    <div class="foldable">
+
+    <div class="foldable foldable__unfolded">
       <h2 class="foldable--title mdc-typography--display1 mdc-theme--secondary">
-        {% trans 'Details' %}
+        {% trans 'Characteristics' %}
       </h2>
       <div class="foldable--body">
+
         <div id="group-details" data-group-update-url="{% url 'group-details-update' group.hash %}">
+
           {% csrf_token %}
-          <div>{% trans 'Name' %} :</div>
-          <div name="name">{{ group.name }}</div>
-          <div>
-              <i onclick="scripts.editField(event, 'text')" title="Edit" class="material-icons md-24 mdc-ripple-surface icon-list">edit</i>
-          </div>
-          <div>{% trans 'Title' %} :</div>
-          <div name="title">{{ group.title }}</div>
-          <div>
-              <i onclick="scripts.editField(event, 'text')" title="Edit" class="material-icons md-24 mdc-ripple-surface icon-list">edit</i>
-          </div>
-          <div>{% trans 'Created on' %} :</div>
-          <div>{{ group.creation_date }}</div>
-          <div>
-          </div>
-          <div>{% trans 'Teachers with access' %} :</div>
-          <div name="teacher">
-            <ul>
-              {% for t in group.teacher.all %}
-              <li>{{ t.user.username }}</li>
-              {% endfor %}
-            </ul>
-          </div>
-          <div>
-              <i onclick="scripts.editField(event, 'textList')" title="Edit" class="material-icons md-24 mdc-ripple-surface icon-list">edit</i>
-          </div>
+          <ul class="mdc-list mdc-list--two-line mdc-list--non-interactive">
+            <li class="mdc-list-divider" role="separator"></li>
+
+            <li class="mdc-list-item">
+              <span class="mdc-list-item__graphic mdc-theme--primary">
+                <i class="mdc-theme--primary material-icons md-48">info</i>
+              </span>
+              <span class="mdc-list-item__text mdc-theme--secondary bold">
+                {% trans 'Name' %}
+                <span name="name" class="mdc-list-item__secondary-text">
+                  {{ group.name }}
+                </span>
+              </span>
+              <span class="mdc-list-item__meta">
+                <i onclick="bundle.editField(event, 'text', 'mdc-list-item__secondary-text')" title="Edit" class="material-icons md-24 mdc-ripple-surface icon-list">edit</i>
+              </span>
+            </li>
+            <li class="mdc-list-divider" role="separator"></li>
+
+            <li class="mdc-list-item">
+              <span class="mdc-list-item__graphic mdc-theme--primary">
+                <i class="mdc-theme--primary material-icons md-48">title</i>
+              </span>
+              <span class="mdc-list-item__text mdc-theme--secondary bold">
+                {% trans 'Title' %}
+                <span name="title" class="mdc-list-item__secondary-text">
+                  {{ group.title }}
+                </span>
+              </span>
+              <span class="mdc-list-item__meta">
+                <i onclick="bundle.editField(event, 'text', 'mdc-list-item__secondary-text')" title="Edit" class="material-icons md-24 mdc-ripple-surface icon-list">edit</i>
+              </span>
+            </li>
+            <li class="mdc-list-divider" role="separator"></li>
+
+            <li class="mdc-list-item">
+              <span class="mdc-list-item__graphic mdc-theme--primary">
+                <i class="mdc-theme--primary material-icons md-48">calendar_today</i>
+              </span>
+              <span class="mdc-list-item__text mdc-theme--secondary bold">
+                {% trans 'Created on' %}
+                <span class="mdc-list-item__secondary-text">
+                  {{ group.creation_date }}
+                </span>
+              </span>
+            </li>
+            <li class="mdc-list-divider" role="separator"></li>
+
+            <li class="mdc-list-item">
+              <span class="mdc-list-item__graphic mdc-theme--primary">
+                <i class="mdc-theme--primary material-icons md-48">share</i>
+              </span>
+              <span class="mdc-list-item__text mdc-theme--secondary bold no-icon">
+                {% trans 'Signup link' %}
+                <span class="mdc-list-item__secondary-text no-icon">
+                {{ request.get_host }}{% url 'signup-through-link' group_hash=group.hash %}
+                </span>
+                <span class="mdc-list-item__secondary-text no-icon">
+                {{ group.student_set.count }} {% trans 'students registered' %}
+                </span>
+              </span>
+            </li>
+            <li class="mdc-list-divider" role="separator"></li>
+
+            <li class="mdc-list-item" style="height:auto;padding: 12px 12px;">
+              <span class="mdc-list-item__graphic mdc-theme--primary">
+                <i class="mdc-theme--primary material-icons md-48">verified_user</i>
+              </span>
+              <span class="mdc-list-item__text mdc-theme--secondary bold">
+                {% trans 'Teachers with access' %}
+                <div name="teacher" class="mdc-list-item__secondary-text">
+                  <ul style="padding-left:0px;">
+                  {% for t in group.teacher.all %}
+                  <li class="mdc-list-item__secondary-text">{{ t.user.username }}</li>
+                  {% endfor %}
+                </ul>
+              </div>
+              </span>
+              <span class="mdc-list-item__meta">
+                <i onclick="bundle.editField(event, 'textList', 'mdc-list-item__secondary-text')" title="Add" class="material-icons md-24 mdc-ripple-surface icon-list">add</i>
+              </span>
+            </li>
+            <li class="mdc-list-divider" role="separator"></li>
+          </ul>
         </div>
       </div>
     </div>
+
     <div class="foldable">
       <h2 class="foldable--title mdc-typography--display1 mdc-theme--secondary">
         {% trans 'Assignments' %}

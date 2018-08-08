@@ -8,7 +8,7 @@ export default {
   input: 'peerinst/static/peerinst/js/group.js',
   output: {
     file: 'peerinst/static/peerinst/js/group.min.js',
-    name: 'scripts',
+    name: 'bundle',
     format: 'iife',
     sourceMap: 'inline',
   },
