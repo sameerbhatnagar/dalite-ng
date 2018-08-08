@@ -431,6 +431,9 @@ input[type='submit'].thumbs-down {
 .mdc-list-item__text {
   max-width: 300px;
 }
+.mdc-list-item__text.no-icon {
+  max-width: 100%;
+}
 #check {
   color: $mdc-theme-primary;
 }

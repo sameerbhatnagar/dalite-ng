@@ -78,15 +78,18 @@
               <span class="mdc-list-item__graphic mdc-theme--primary">
                 <i class="mdc-theme--primary material-icons md-48">share</i>
               </span>
-              <span class="mdc-list-item__text mdc-theme--secondary bold">
-                {% trans 'Registration link' %}
-                <span class="mdc-list-item__secondary-text">
-                  {{ request.get_host }}{% url 'signup-through-link' group_hash=group.hash %}
+              <span class="mdc-list-item__text mdc-theme--secondary bold no-icon">
+                {% trans 'Signup link' %}
+                <span class="mdc-list-item__secondary-text no-icon">
+                {{ request.get_host }}{% url 'signup-through-link' group_hash=group.hash %}
+                </span>
+                <span class="mdc-list-item__secondary-text no-icon">
+                {{ group.student_set.count }} {% trans 'students registered' %}
                 </span>
               </span>
             </li>
             <li class="mdc-list-divider" role="separator"></li>
-            
+
             <li class="mdc-list-item" style="height:auto;padding: 12px 12px;">
               <span class="mdc-list-item__graphic mdc-theme--primary">
                 <i class="mdc-theme--primary material-icons md-48">verified_user</i>
