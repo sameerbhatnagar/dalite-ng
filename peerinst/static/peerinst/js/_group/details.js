@@ -1,7 +1,8 @@
-function editField(event, type, className) {
+function editGroupDetailsField(event, type, className) {
   let iconContainer = event.currentTarget.parentNode.parentNode;
   let container = event.currentTarget.parentNode.previousElementSibling;
-  let field = event.currentTarget.parentNode.previousElementSibling.firstElementChild;
+  let field =
+    event.currentTarget.parentNode.previousElementSibling.firstElementChild;
 
   let newField;
 
@@ -11,7 +12,9 @@ function editField(event, type, className) {
     newField = editTextListField(field);
   } else {
     console.log(
-      "The `editField` function isn 't implemented for type " + type + '.',
+      "The `editGroupDetailsField` function isn 't implemented for type " +
+        type +
+        '.',
     );
     return;
   }
@@ -26,10 +29,11 @@ function editField(event, type, className) {
   iconContainer.replaceChild(newIconsDiv, iconsDiv);
 }
 
-function saveField(event, type, save, className) {
+function saveGroupDetailsField(event, type, save, className) {
   let iconContainer = event.currentTarget.parentNode.parentNode;
   let container = event.currentTarget.parentNode.previousElementSibling;
-  let field = event.currentTarget.parentNode.previousElementSibling.firstElementChild;
+  let field =
+    event.currentTarget.parentNode.previousElementSibling.firstElementChild;
 
   if (type == 'text') {
     saveTextField(field, save, className).then(function(newField) {
@@ -41,7 +45,9 @@ function saveField(event, type, save, className) {
     });
   } else {
     console.log(
-      "The `saveField` function isn't implemented for type " + type + '.',
+      "The `saveGroupDetailsField` function isn't implemented for type " +
+        type +
+        '.',
     );
     return;
   }
@@ -92,14 +98,21 @@ function toggleIcons(newIconsDiv, type, toEdit, className) {
       'mdc-ripple-surface',
       'icon-list',
     );
-    if (type=='text') {
+    if (type == 'text') {
       editIcon.textContent = 'edit';
       editIcon.title = 'Edit';
     } else {
       editIcon.textContent = 'add';
       editIcon.title = 'Add';
     }
-    editIcon.setAttribute('onclick', 'bundle.editField(event, "' + type + '", "' + className + '")');
+    editIcon.setAttribute(
+      'onclick',
+      'bundle.editGroupDetailsField(event, "' +
+        type +
+        '", "' +
+        className +
+        '")',
+    );
     newIconsDiv.append(editIcon);
   } else {
     let saveIcon = document.createElement('i');
@@ -113,7 +126,11 @@ function toggleIcons(newIconsDiv, type, toEdit, className) {
     saveIcon.title = 'Save';
     saveIcon.setAttribute(
       'onclick',
-      'bundle.saveField(event, "' + type + '", true, "' + className + '")',
+      'bundle.saveGroupDetailsField(event, "' +
+        type +
+        '", true, "' +
+        className +
+        '")',
     );
     let cancelIcon = document.createElement('i');
     cancelIcon.classList.add(
@@ -126,7 +143,11 @@ function toggleIcons(newIconsDiv, type, toEdit, className) {
     cancelIcon.title = 'Cancel';
     cancelIcon.setAttribute(
       'onclick',
-      'bundle.saveField(event, "' + type + '", false, "' + className + '")',
+      'bundle.saveGroupDetailsField(event, "' +
+        type +
+        '", false, "' +
+        className +
+        '")',
     );
     newIconsDiv.append(saveIcon);
     newIconsDiv.append(cancelIcon);
@@ -198,4 +219,4 @@ async function updateDetails(name, value) {
   return err;
 }
 
-export {editField, saveField};
+export {editGroupDetailsField, saveGroupDetailsField};
