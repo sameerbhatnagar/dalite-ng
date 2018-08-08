@@ -25,7 +25,7 @@
       </h2>
       <div class="foldable--body">
 
-        <div data-group-update-url="{% url 'group-details-update' group.hash %}">
+        <div id="group-details" data-group-update-url="{% url 'group-details-update' group.hash %}">
 
           {% csrf_token %}
           <ul class="mdc-list mdc-list--two-line mdc-list--non-interactive">
@@ -121,7 +121,7 @@
         {% trans 'Assignments' %}
       </h2>
       <div class="foldable--body">
-        <ul class="mdc-list mdc-list--two-line mdc-list--non-interactive">
+        <ul id="assignment-list" class="mdc-list mdc-list--two-line mdc-list--non-interactive">
           <li class="mdc-list-divider" role="separator"></li>
           {% if assignments %}
           {% for a in assignments %}
@@ -136,9 +136,7 @@
               </span>
             </a>
             <span class="mdc-list-item__meta">
-              <a href="">
-              <i class="material-icons md-24 mdc-ripple-surface icon-list">delete</i>
-              </a>
+              <i onclick="bundle.removeAssignment(event)" class="material-icons md-24 mdc-ripple-surface icon-list">delete</i>
               <a href="{% url 'group-assignment' a.hash %}">
               <i class="material-icons md-24 mdc-ripple-surface icon-list">edit</i>
               </a>
@@ -147,7 +145,7 @@
           <li class="mdc-list-divider" role="separator"></li>
           {% endfor %}
           {% else %}
-          <div>{% trans "There aren't any assignments for event group yet" %}</div>
+          <div>{% trans "There aren't any assignments for this group yet." %}</div>
           <li class="mdc-list-divider" role="separator"></li>
           {% endif %}
         </ul>

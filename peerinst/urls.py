@@ -416,6 +416,11 @@ def group_patterns():
             views.group_assignment_page,
             name="group-assignment",
         ),
+        url(
+            r"^group-assignment/(?P<assignment_hash>[0-9A-Za-z=_-]+)/remove/$",
+            views.group_assignment_remove,
+            name="group-assignment-remove",
+        ),
     ]
 
 

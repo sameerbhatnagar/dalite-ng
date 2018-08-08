@@ -21,20 +21,104 @@ import json
 from peerinst.models import StudentGroup, StudentGroupAssignment, Teacher
 
 
+def group_access_required(fct):
+    def wrapper(req, *args, **kwargs):
+        group_hash = kwargs.get("group_hash", None)
+        assignment_hash = kwargs.get("assignment_hash", None)
+        return_assignment = assignment_hash is not None
+
+        if group_hash is not None or assignment_hash is not None:
+
+            user = req.user
+            try:
+                teacher = Teacher.objects.get(user=user)
+            except Teacher.DoesNotExist:
+                resp = TemplateResponse(
+                    req,
+                    "403.html",
+                    context={
+                        "message": _("You don't have access to this resource.")
+                    },
+                )
+                return HttpResponseForbidden(resp.render())
+
+            if group_hash is not None:
+                group = StudentGroup.get(group_hash)
+                if group is None:
+                    resp = TemplateResponse(
+                        req,
+                        "400.html",
+                        context={
+                            "message": _(
+                                'There is no group with hash "{}".'.format(
+                                    group_hash
+                                )
+                            )
+                        },
+                    )
+                    return HttpResponseBadRequest(resp.render())
+
+            else:
+                assignment = StudentGroupAssignment.get(assignment_hash)
+                if assignment is None:
+                    resp = TemplateResponse(
+                        req,
+                        "400.html",
+                        context={
+                            "message": _(
+                                'There is no assignment with hash "{}".'.format(
+                                    assignment_hash
+                                )
+                            )
+                        },
+                    )
+                    return HttpResponseBadRequest(resp.render())
+                group = assignment.group
+
+            if teacher not in group.teacher.all():
+                resp = TemplateResponse(
+                    req,
+                    "403.html",
+                    context={
+                        "message": _(
+                            "You don't have access to this resource. You must be "
+                            "registered as a teacher for the group {}.".format(
+                                group.name
+                            )
+                        )
+                    },
+                )
+                return HttpResponseForbidden(resp.render())
+
+            if return_assignment:
+                return fct(
+                    req,
+                    *args,
+                    teacher=teacher,
+                    group=group,
+                    assignment=assignment,
+                    **kwargs
+                )
+            else:
+                return fct(req, *args, teacher=teacher, group=group, **kwargs)
+
+        else:
+            resp = TemplateResponse(
+                req,
+                "403.html",
+                context={
+                    "message": _("You don't have access to this resource.")
+                },
+            )
+            return HttpResponseForbidden(resp.render())
+
+    return wrapper
+
+
 @login_required
 @require_http_methods(["GET"])
-def group_details_page(req, group_hash):
-    teacher = _get_teacher(req)
-    if isinstance(teacher, HttpResponse):
-        return teacher
-
-    group = _get_group(group_hash)
-    if isinstance(group, HttpResponse):
-        return group
-
-    resp = _verify_group_access(teacher, group)
-    if isinstance(resp, HttpResponse):
-        return resp
+@group_access_required
+def group_details_page(req, group_hash, teacher, group):
 
     assignments = StudentGroupAssignment.objects.filter(group=group)
 
@@ -45,26 +129,8 @@ def group_details_page(req, group_hash):
 
 @login_required
 @require_http_methods(["POST"])
-def group_details_update(req, group_hash):
-    teacher = _get_teacher(req)
-    if isinstance(teacher, HttpResponse):
-        return teacher
-
-    group = _get_group(group_hash)
-    if isinstance(group, HttpResponse):
-        return group
-
-    resp = _verify_group_access(teacher, group)
-    if isinstance(resp, HttpResponse):
-        return resp
-
-    if req.META["CONTENT_TYPE"] != "application/json":
-        resp = TemplateResponse(
-            req,
-            "400.html",
-            context={"message": _("Wrong data type was sent.")},
-        )
-        return HttpResponseBadRequest(resp.render())
+@group_access_required
+def group_details_update(req, group_hash, teacher, group):
 
     try:
         data = json.loads(req.body)
@@ -133,90 +199,22 @@ def group_details_update(req, group_hash):
 
 
 @login_required
+@require_http_methods(["POST"])
+@group_access_required
+def group_assignment_remove(req, assignment_hash, teacher, group, assignment):
+    assignment.delete()
+    return HttpResponse()
+
+
+@login_required
 @require_http_methods(["GET"])
-def group_assignment_page(req, assignment_hash):
-    teacher = _get_teacher(req)
-    if isinstance(teacher, HttpResponse):
-        return teacher
-
-    assignment = _get_assignment(assignment_hash)
-    if isinstance(assignment, HttpResponse):
-        return assignment
-
-    resp = _verify_group_access(teacher, assignment.group)
-    if isinstance(resp, HttpResponse):
-        return resp
+@group_access_required
+def group_assignment_page(req, assignment_hash, teacher, group, assignment):
 
     context = {
         "teacher_id": teacher.id,
-        "group_hash": assignment.group.hash,
+        "group_hash": group.hash,
         "assignment": assignment,
     }
 
     return render(req, "peerinst/group/assignment.html", context)
-
-
-def _get_teacher(req):
-    user = req.user
-    try:
-        teacher = Teacher.objects.get(user=user)
-    except Teacher.DoesNotExist:
-        resp = TemplateResponse(
-            req,
-            "403.html",
-            context={"message": _("You don't have access to this resource.")},
-        )
-        return HttpResponseForbidden(resp.render())
-    return teacher
-
-
-def _get_group(group_hash):
-    group = StudentGroup.get(group_hash)
-    if group is None:
-        resp = TemplateResponse(
-            req,
-            "400.html",
-            context={
-                "message": _(
-                    'There is no group with hash "{}".'.format(group_hash)
-                )
-            },
-        )
-        return HttpResponseBadRequest(resp.render())
-    return group
-
-
-def _get_assignment(assignment_hash):
-    assignment = StudentGroupAssignment.get(assignment_hash)
-    if assignment is None:
-        resp = TemplateResponse(
-            req,
-            "400.html",
-            context={
-                "message": _(
-                    'There is no assignment with hash "{}".'.format(
-                        assignment_hash
-                    )
-                )
-            },
-        )
-        return HttpResponseBadRequest(resp.render())
-    return assignment
-
-
-def _verify_group_access(teacher, group):
-    if teacher not in group.teacher.all():
-        resp = TemplateResponse(
-            req,
-            "403.html",
-            context={
-                "message": _(
-                    "You don't have access to this resource. You must be "
-                    "registered as a teacher for the group {}.".format(
-                        group.name
-                    )
-                )
-            },
-        )
-        return HttpResponseForbidden(resp.render())
-    return None

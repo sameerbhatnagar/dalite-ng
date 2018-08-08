@@ -162,17 +162,15 @@ async function saveTextField(field, save, className) {
   newField.setAttribute('name', name);
   newField.setAttribute('class', className);
   if (save) {
-    let newValue = field.childNodes[0].value;
+    let newValue = field.firstChild.value;
     let err = await updateDetails(name, newValue);
     if (err) {
-      newField.textContent = field.childNodes[0].getAttribute(
-        'data-old-content',
-      );
+      newField.textContent = field.firstChild.getAttribute('data-old-content');
     } else {
       newField.textContent = newValue;
     }
   } else {
-    newField.textContent = field.childNodes[0].getAttribute('data-old-content');
+    newField.textContent = field.firstChild.getAttribute('data-old-content');
   }
   return newField;
 }
@@ -219,4 +217,29 @@ async function updateDetails(name, value) {
   return err;
 }
 
-export {editGroupDetailsField, saveGroupDetailsField};
+function removeAssignment(event) {
+  let li = event.currentTarget.parentNode.parentNode;
+  let container = li.parentNode;
+
+  let token = document.getElementsByName('csrfmiddlewaretoken')[0].value;
+  let req = {
+    method: 'POST',
+    headers: {
+      'X-CSRFToken': token,
+    },
+  };
+  let url = li.firstChild.href + 'remove/';
+
+  fetch(url, req).then(function(resp) {
+    if (resp.ok) {
+      container.removeChild(li.nextSibling);
+      container.removeChild(li);
+
+      if (container.childNodes.length == 1) {
+        location.reload();
+      }
+    }
+  });
+}
+
+export {editGroupDetailsField, saveGroupDetailsField, removeAssignment};
