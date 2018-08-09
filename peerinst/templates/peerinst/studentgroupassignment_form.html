@@ -39,7 +39,7 @@
           </div>
         </div>
 
-        <form method="post">
+        <form id="create-group-assignment" method="post">
           {% csrf_token %}
           {{ form.non_field_errors }}
           <div class='field-container'>
@@ -74,15 +74,30 @@
 
 {% block scripts %}
 <script>
+$("#create-group-assignment").submit(function(event) {
+  event.preventDefault();
+  var $form = $(this);
+  var datetimeField = $form.find( "input[name='due_date']" );
+  var dueDate = datetimeField.val();
+  dueDate = dueDate.slice(0,-8).replace(/T/g, " ");
+  datetimeField.val(dueDate);
+  this.submit();
+});
 var datetimePicker = flatpickr("#id_due_date", {
     enableTime: true,
-    dateFormat: "Y-m-d H:M",
+    dateFormat: "Z",
+    altInput: true,
+    altFormat: "Y-m-d H:i",
+    minDate: "today",
 });
 window.addEventListener('resize', function() {
   datetimePicker.destroy();
   datetimePicker = flatpickr("#id_due_date", {
     enableTime: true,
-    dateFormat: "Y-m-d H:i",
+    dateFormat: "Z",
+    altInput: true,
+    altFormat: "Y-m-d H:i",
+    minDate: "today",
   });
 });
 </script>

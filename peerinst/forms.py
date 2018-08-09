@@ -376,6 +376,8 @@ class StudentGroupCreateForm(forms.ModelForm):
 
 
 class StudentGroupAssignmentForm(ModelForm):
-     class Meta:
-         model = StudentGroupAssignment
-         fields = ('group', 'due_date')
+    group = forms.ModelChoiceField(queryset=StudentGroup.objects.all(), empty_label=None)
+
+    class Meta:
+        model = StudentGroupAssignment
+        fields = ('group', 'due_date')

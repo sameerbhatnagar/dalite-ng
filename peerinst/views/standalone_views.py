@@ -177,22 +177,6 @@ def navigate_assignment(request, assignment_id, question_id, direction):
         raise Http404()
 
 
-@login_required
-@require_POST
-def create_group_assignment(request, assignment_id):
-
-    if request.is_ajax():
-        form = StudentGroupAssignmentForm(request.POST)
-        if form.is_valid():
-            form.save()
-        else:
-            return JsonResponse()
-    else:
-        # Bad request
-        response = TemplateResponse(request, "400.html")
-        return HttpResponseBadRequest(response.render())
-
-
 class StudentGroupAssignmentCreateView(
     LoginRequiredMixin, NoStudentsMixin, CreateView
 ):
