@@ -6,6 +6,8 @@
   {% compress css %}
   <link href="{% static 'peerinst/css/group/details.min.css' %}" rel="stylesheet">
   {% endcompress %}
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 {% endblock %}
 
 {% block body %}
@@ -157,6 +159,6 @@
 
 {% block scripts %}
 {% compress js inline %}
-  <script src="{% static 'peerinst/js/group.min.js' %}"></script>
+<script src="{% static 'peerinst/js/group.min.js' %}"></script>
 {% endcompress %}
 {% endblock %}
