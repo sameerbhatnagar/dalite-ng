@@ -18,7 +18,8 @@ function handleDragStart(event) {
   elem.classList.add('draggable--dragging');
 
   event.dataTransfer.effectAllowed = 'move';
-  event.dataTransfer.setData('text/plain', elem.textContent);
+  event.dataTransfer.setData('title', elem.getAttribute('data-draggable-name'));
+  window.currentDraggedName = elem.getAttribute('data-draggable-name');
 }
 
 function handleDragEnd(event) {
@@ -32,22 +33,16 @@ function handleDragEnd(event) {
 function handleDragEnter(event) {
   let elem = event.currentTarget;
   let container = elem.parentNode;
-  let title = event.dataTransfer.getData('text/plain');
+  let title = event.dataTransfer.getData('title') || window.currentDraggedName;
   let oldElem = Array.from(container.childNodes).filter(
-    x => x.textContent == title,
+    x => x.getAttribute('data-draggable-name') == title,
   )[0];
   let oldIdx = Array.from(container.childNodes).indexOf(oldElem);
   let idx = Array.from(container.childNodes).indexOf(elem);
-
   if (idx > oldIdx) {
     container.insertBefore(oldElem, elem.nextSibling);
-    container.insertBefore(oldElem.previousSibling.previousSibling, oldElem);
   } else if (idx < oldIdx) {
     container.insertBefore(oldElem, elem);
-    container.insertBefore(
-      oldElem.nextSibling.nextSibling,
-      oldElem.nextSibling,
-    );
   }
 }
 
