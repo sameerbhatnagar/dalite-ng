@@ -220,7 +220,7 @@ gulp.task('watch', function() {
   gulp.watch('./tos/static/tos/css/*.scss', ['tos-styles']);
   gulp.watch('./tos/static/tos/js/tos.js', ['tos-scripts-tos']);
   gulp.watch('./tos/static/tos/js/email.js', ['tos-scripts-email']);
-  // gulp.watch('./peerinst/static/peerinst/css/**/*.scss', ['peerinst-styles']);
+  gulp.watch('./peerinst/static/peerinst/css/*.scss', ['peerinst-styles']);
   gulp.watch('./peerinst/static/peerinst/css/group/*.scss', [
     'peerinst-styles-group',
   ]);
@@ -230,5 +230,13 @@ gulp.task('watch', function() {
       './peerinst/static/peerinst/js/group.js',
     ],
     ['peerinst-scripts-group'],
+  );
+  gulp.watch(
+    [
+      './peerinst/static/peerinst/js/*.js',
+      '!./peerinst/static/peerinst/js/group.js',
+      '!./peerinst/static/peerinst/js/*.min.js',
+    ],
+    ['peerinst-scripts-index'],
   );
 });

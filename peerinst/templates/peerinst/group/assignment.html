@@ -5,6 +5,9 @@
 {% block stylesheets %}
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  {% compress css %}
+  <link href="{% static 'peerinst/css/group/assignment.min.css' %}" rel="stylesheet">
+  {% endcompress %}
 {% endblock %}
 
 {% block body %}
@@ -65,7 +68,7 @@
         {% trans 'Questions' %}
       </h2>
       <div class="foldable--body">
-        <ul class="mdc-list">
+        <ul class="mdc-list mdc-list--non-interactive">
           {% for q in questions|dictsortreversed:'created_on' %}
             <li role="separator" class="mdc-list-divider list-item-question-{{ q.pk }}"></li>
             <li class="draggable mdc-list-item" draggable="true">
@@ -83,6 +86,9 @@
           {% endfor %}
           <li role="separator" class="mdc-list-divider"></li>
         </ul>
+        <div class="mdc-button mdc-button--unelevated">
+          Save
+        </div>
       </div>
     </div>
 
