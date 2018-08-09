@@ -3,6 +3,8 @@
 {% load static compress i18n %}
 
 {% block stylesheets %}
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   {% compress css %}
   <link href="{% static 'peerinst/css/group/details.min.css' %}" rel="stylesheet">
   {% endcompress %}
