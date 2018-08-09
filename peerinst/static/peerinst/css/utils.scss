@@ -28,3 +28,8 @@
     transition: max-height 300ms ease-out;
   }
 }
+
+.draggable {
+  cursor: grabbing;
+  user-select: none;
+}

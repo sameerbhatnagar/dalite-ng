@@ -62,11 +62,9 @@ export {
 } from 'd3';
 
 // Custom functions (works with utils.scss)
-import {toggleFoldable} from './utils';
+import {addEventListeners} from './utils';
 
-Array.from(document.getElementsByClassName('foldable--title')).map(x =>
-  x.addEventListener('click', e => toggleFoldable(e)),
-);
+addEventListeners();
 
 // Ajax
 /** Define csrf safe HTTP methods
