@@ -128,7 +128,7 @@ function toggleIcons(newIconsDiv, type, toEdit, className) {
       'mdc-ripple-surface',
       'icon-list',
     );
-    if (type == 'text') {
+    if (type == 'text' | type == 'datetime') {
       editIcon.textContent = 'edit';
       editIcon.title = 'Edit';
     } else {
