@@ -845,6 +845,7 @@ class LtiEvent(models.Model):
 class StudentGroupAssignment(models.Model):
     group = models.ForeignKey(StudentGroup, on_delete=models.CASCADE)
     assignment = models.ForeignKey(Assignment, on_delete=models.CASCADE)
+    distribution_date = models.DateTimeField(editable=False, auto_now_add=True)
     due_date = models.DateTimeField(blank=False, default=timezone.now)
     order = models.TextField(blank=True, editable=False)
 
