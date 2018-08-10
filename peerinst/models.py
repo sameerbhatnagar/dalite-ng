@@ -1091,7 +1091,7 @@ class StudentAssignment(models.Model):
         ), "Postcondition failed"
 
     def get_current_question(self):
-        questions = self.group_assignment.assignment.questions.all()
+        questions = self.group_assignment.get_questions()
 
         # get the answer or None for each question of the assignment
         answers = [
