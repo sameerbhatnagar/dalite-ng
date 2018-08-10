@@ -13,13 +13,16 @@
 {% block body %}
 <main>
   <section>
+
     <h1 class="mdc-typography--display3">
       {{ assignment.assignment.title }} ({{ assignment.group.name }})
       <svg class="underline" width=150 height=4></svg>
     </h1>
+
     <div class="admin-link">
       <a href="{% url 'group-details' group_hash %}">{% trans 'Back to group' %}</a>
     </div>
+
     <div class="foldable foldable__unfolded">
       <h2 class="foldable--title mdc-typography--display1 mdc-theme--secondary">
         {% trans 'Details' %}
@@ -69,7 +72,7 @@
       </h2>
       <div class="foldable--body">
         <ul id="question-list" class="mdc-list mdc-list--two-line mdc-list--non-interactive">
-          {% for q in questions|dictsortreversed:'created_on' %}
+          {% for q in questions %}
           <li class="draggable mdc-list-item" data-draggable-name="{{ q.title }}" draggable="true">
               <span class="mdc-list-item__graphic mdc-theme--primary">
                 <i class="mdc-theme--primary material-icons md-48">question_answer</i>
@@ -87,9 +90,9 @@
 
           {% endfor %}
         </ul>
-        <div class="mdc-button mdc-button--unelevated">
+        <button onclick="bundle.saveQuestionList('{% url 'group-assignment-update' assignment.hash %}')" id="question-list-save" disabled class="mdc-button mdc-button--unelevated">
           Save
-        </div>
+        </button>
       </div>
     </div>
 

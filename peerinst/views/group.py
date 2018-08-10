@@ -217,7 +217,7 @@ def group_assignment_page(req, assignment_hash, teacher, group, assignment):
         "teacher_id": teacher.id,
         "group_hash": group.hash,
         "assignment": assignment,
-        "questions": assignment.assignment.questions.all(),
+        "questions": assignment.get_questions(),
     }
 
     return render(req, "peerinst/group/assignment.html", context)
@@ -240,13 +240,16 @@ def group_assignment_update(req, assignment_hash, teacher, group, assignment):
     if isinstance(name, HttpResponse):
         return name
 
-    print(name)
-
     if name == "due_date":
         assignment.due_date = datetime.strptime(
             value[:-5], "%Y-%m-%dT%H:%M:%S"
         ).replace(tzinfo=pytz.utc)
         assignment.save()
+
+    elif name == "question_list":
+        questions = [q.title for q in assignment.assignment.questions.all()]
+        order = ",".join(str(questions.index(v)) for v in value)
+        err = assignment.modify_order(order)
 
     else:
         resp = TemplateResponse(

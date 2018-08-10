@@ -1,4 +1,5 @@
 @import '../utils';
+@import '../variables';
 
 #question-list {
   & > li {
@@ -8,4 +9,12 @@
   & > li:last-child {
     border-bottom: 1px solid rgba(0, 0, 0, 0.12);
   }
+}
+
+#question-list-save:disabled {
+  background-color: $mdc-theme-primary;
+  opacity: 0.6;
+}
+
+#question-list-save {
 }
