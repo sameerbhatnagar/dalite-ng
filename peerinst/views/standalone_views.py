@@ -135,6 +135,7 @@ def live(request, token, assignment_hash):
     student_assignment = StudentAssignment.objects.get(
         student=user.student, group_assignment=group_assignment
     )
+    request.session["assignment"] = group_assignment
 
     # Redirect to view
     return HttpResponseRedirect(
@@ -152,29 +153,26 @@ def live(request, token, assignment_hash):
 @require_safe
 def navigate_assignment(request, assignment_id, question_id, direction):
 
-    assignment = get_object_or_404(Assignment, identifier=assignment_id)
+    assignment = request.session["assignment"]
     question = get_object_or_404(Question, id=question_id)
 
-    if question in assignment.questions.all():
-        if direction == "next":
-            # Get next question, wrap around if need be
-            new_question = assignment.questions.order_by("?")[0]
-        else:
-            # Get previous question, wrap around if need be
-            new_question = assignment.questions.order_by("?")[0]
+    new_question = assignment.get_question(
+        current_question=question, after=direction == "next"
+    )
 
-        # Redirect
-        return HttpResponseRedirect(
-            reverse(
-                "question",
-                kwargs={
-                    "assignment_id": assignment.pk,
-                    "question_id": new_question.id,
-                },
-            )
-        )
-    else:
+    if new_question is None:
         raise Http404()
+
+    # Redirect
+    return HttpResponseRedirect(
+        reverse(
+            "question",
+            kwargs={
+                "assignment_id": assignment.pk,
+                "question_id": new_question.id,
+            },
+        )
+    )
 
 
 class StudentGroupAssignmentCreateView(
