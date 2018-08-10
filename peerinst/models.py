@@ -905,16 +905,17 @@ class StudentGroupAssignment(models.Model):
         return questions
 
     def get_question(self, idx=None, current_question=None, after=True):
+        print(idx)
         assert idx is None or isinstance(
             idx, int
         ), "Precondition failed for `idx`"
-        assert idx is None or isinstance(
-            idx, Question
-        ), "Precondition failed for `current_question`"
+        #assert idx is None or isinstance(
+        #    idx, Question
+        #), "Precondition failed for `current_question`"
         assert isinstance(after, bool), "Precondition failed for `after`"
-        assert (idx is None) != (
-            current_question is None
-        ), "Either the `idx` or the `current_question` must be given"
+        #assert (idx is None) == (
+        #    current_question is None
+        #), "Either the `idx` or the `current_question` must be given"
 
         question = None
 
@@ -923,7 +924,10 @@ class StudentGroupAssignment(models.Model):
             idx = questions.index(current_question)
             try:
                 if after:
-                    question = questions[idx + 1]
+                    if idx < len(questions) - 1:
+                        question = questions[idx + 1]
+                    else:
+                        question = questions[0]
                 else:
                     question = questions[idx - 1]
             except IndexError:

@@ -158,8 +158,13 @@ def navigate_assignment(request, assignment_id, question_id, direction, index):
     assignment = StudentGroupAssignment.get(request.session["assignment"])
     question = get_object_or_404(Question, id=question_id)
 
+    if index != 'x':
+        idx = int(index)
+    else:
+        idx = None
+
     new_question = assignment.get_question(
-        current_question=question, after=direction == "next"
+        current_question=question, after=direction == "next", idx=idx
     )
 
     if new_question is None:

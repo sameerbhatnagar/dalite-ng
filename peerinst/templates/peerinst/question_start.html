@@ -99,23 +99,27 @@
   {% if not lti and assignment %}
   <div class='nav-question'>
 
-    <a class='prev-question' href="{% url 'navigate-assignment' assignment_id=assignment.pk question_id=question.id direction='prev' index='_' %}">
+    <a class='prev-question' href="{% url 'navigate-assignment' assignment_id=assignment.pk question_id=question.id direction='prev' index='x' %}">
       <i class="inline material-icons md-32 mdc-theme--primary">
         keyboard_arrow_left
       </i>
     </a>
 
     <div style='position:absolute;bottom:0%;left:50%;transform:translateX(-50%);'>
-      {% for question in group_assignment.get_questions %}
-      <a href="{% url 'navigate-assignment' assignment_id=assignment.pk question_id=question.id direction='_' index=forloop.counter %}">
+      {% for q in group_assignment.get_questions %}
+      <a href="{% url 'navigate-assignment' assignment_id=assignment.pk question_id=q.id direction='goto' index=forloop.counter0 %}">
         <svg height="20" width="30">
+          {% if q.id == question.id %}
+          <circle cx="15" cy="8" r="7" fill="#54c0db" stroke="#54c0db" style="cursor:pointer;"></circle>
+          {% else %}
           <circle cx="15" cy="8" r="7" fill="white" stroke="#54c0db" style="cursor:pointer;"></circle>
+          {% endif %}
         </svg>
       </a>
       {% endfor %}
     </div>
 
-    <a class='next-question' href="{% url 'navigate-assignment' assignment_id=assignment.pk question_id=question.id direction='next' index='_' %}">
+    <a class='next-question' href="{% url 'navigate-assignment' assignment_id=assignment.pk question_id=question.id direction='next' index='x' %}">
       <i class="inline material-icons md-32 mdc-theme--primary">
         keyboard_arrow_right
       </i>
