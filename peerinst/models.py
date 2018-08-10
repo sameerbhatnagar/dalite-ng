@@ -913,7 +913,6 @@ class StudentGroupAssignment(models.Model):
         return questions
 
     def get_question(self, idx=None, current_question=None, after=True):
-        print(idx)
         assert idx is None or isinstance(
             idx, int
         ), "Precondition failed for `idx`"
@@ -928,7 +927,7 @@ class StudentGroupAssignment(models.Model):
         question = None
 
         if idx is None:
-            questions = self.get_questions()
+            questions = self.questions
             idx = questions.index(current_question)
             try:
                 if after:
@@ -994,6 +993,12 @@ class StudentGroupAssignment(models.Model):
         output = base64.urlsafe_b64encode(str(self.id).encode()).decode()
         assert isinstance(output, basestring), "Postcondition failed"
         return output
+
+    @property
+    def questions(self):
+        questions_ = self.assignment.questions.all()
+        questions = [questions_[i] for i in map(int, self.order.split(","))]
+        return questions
 
 
 class StudentAssignment(models.Model):

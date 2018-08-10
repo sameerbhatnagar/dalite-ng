@@ -3,11 +3,12 @@ import hashlib
 from datetime import datetime, timedelta
 
 import pytz
-from django.contrib.auth.models import User
-from django.contrib.auth import authenticate
 from django.conf import settings
+from django.contrib.auth import authenticate
+from django.contrib.auth.models import User
 from django.http import HttpResponse
 
+from .models import StudentGroupAssignment
 from .utils import create_token, verify_token
 
 
@@ -148,4 +149,78 @@ def get_lti_passwords(hashed_username):
     assert isinstance(output, list) and all(
         isinstance(o, basestring) for o in output
     ), "Postcondition failed"
+    return output
+
+
+def get_student_progress(assignment_hash):
+    assignment = StudentGroupAssignment.get(assignment_hash)
+    if assignment is None:
+        progress = None
+
+    else:
+        students = assignment.group.students
+        questions = assignment.assignment.questions
+        progress = [
+            {
+                "question": question,
+                "n_choices": len(question.get_choices()),
+                "correct": next(
+                    i for i in question.get_choices() if question.is_correct(i)
+                ),
+                "students": [
+                    {
+                        "student": student,
+                        "answer": Answer.objects.filter(
+                            user_token=student.student.username,
+                            question=question,
+                            assignment=assignment.assignment,
+                            time__gte=assignment.distribution_date,
+                        ).first(),
+                    }
+                    for student in students
+                ],
+            }
+            for question in questions
+        ]
+        progress = []
+        for question in questions:
+            progress.append(
+                {
+                    "question": question,
+                    "n_choices": len(question.get_choices()),
+                    "correct": next(
+                        i
+                        for i in question.get_choices()
+                        if question.is_correct(i)
+                    ),
+                    "students": [],
+                }
+            )
+            for student in students:
+                answer = Answer.objects.filter(
+                    user_token=student.student.username,
+                    question=question,
+                    assignment=assignment.assignment,
+                    time__gte=assignment.distribution_date,
+                ).first()
+                progress[-1]["students"].append(
+                    {
+                        "student": student,
+                        "answer": answer,
+                        "answered_first": answer is not None,
+                        "answered_second": (answer is not None)
+                        and (answer.second_answer_choice is not None),
+                        "correct_first": None
+                        if answer is None
+                        else answer["first_answer_choice"]
+                        == progress[-1]["correct"],
+                        "correct_second": None
+                        if (answer is None)
+                        or (answer.second_answer_choice is None)
+                        else answer["second_answer_choice"]
+                        == progress[-1]["correct"],
+                    }
+                )
+
+    output = progress
     return output
