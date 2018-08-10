@@ -136,6 +136,9 @@
             <a href="{% url 'group-assignment' a.hash %}" class="mdc-list-item__text mdc-theme--secondary bold" style="cursor: pointer;">
               {{ a.assignment.title }}
               <span class="mdc-list-item__secondary-text">
+                {% trans "Distributed: " %}{{ a.distribution_date }}
+              </span>
+              <span class="mdc-list-item__secondary-text">
                 {% trans "Due date: " %}{{ a.due_date }}
               </span>
             </a>
