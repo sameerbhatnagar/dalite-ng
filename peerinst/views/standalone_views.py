@@ -170,7 +170,7 @@ def navigate_assignment(request, assignment_id, question_id, direction):
         reverse(
             "question",
             kwargs={
-                "assignment_id": assignment.pk,
+                "assignment_id": assignment_id,
                 "question_id": new_question.id,
             },
         )
