@@ -899,6 +899,49 @@ class StudentGroupAssignment(models.Model):
         ), "Postcondition failed"
         return output
 
+    def get_questions(self):
+        questions_ = self.assignment.questions.all()
+        questions = [questions_[i] for i in map(int, self.order.split(","))]
+        return questions
+
+    def get_question(self, idx=None, current_question=None, after=True):
+        assert idx is None or isinstance(
+            idx, int
+        ), "Precondition failed for `idx`"
+        assert idx is None or isinstance(
+            idx, Question
+        ), "Precondition failed for `current_question`"
+        assert isinstance(after, bool), "Precondition failed for `after`"
+        assert (idx is None) != (
+            current_question is None
+        ), "Either the `idx` or the `current_question` must be given"
+
+        question = None
+
+        if idx is None:
+            questions = self.get_questions()
+            idx = questions.index(current_question)
+            try:
+                if after:
+                    question = questions[idx + 1]
+                else:
+                    question = questions[idx - 1]
+            except IndexError:
+                question = None
+
+        else:
+            questions = self.get_questions()
+            if 0 <= idx < len(questions):
+                question = questions[idx]
+            else:
+                question = None
+
+        output = question
+        assert (output is None) or isinstance(
+            output, Question
+        ), "Postcondition failed"
+        return output
+
     def send_assignment_emails(self, host):
         assert isinstance(host, basestring), "Precondition failed for `host`"
 
@@ -999,7 +1042,13 @@ class StudentAssignment(models.Model):
                     },
                 )
 
-                subject = "New assignment in "+self.group_assignment.group.title+" (due "+self.group_assignment.due_date.strftime('%Y-%m-%d %H:%M')+")"
+                subject = (
+                    "New assignment in "
+                    + self.group_assignment.group.title
+                    + " (due "
+                    + self.group_assignment.due_date.strftime("%Y-%m-%d %H:%M")
+                    + ")"
+                )
                 message = "Click link below to access your assignment."
 
                 template = "students/email_new_assignment.html"
@@ -1042,7 +1091,7 @@ class StudentAssignment(models.Model):
         ), "Postcondition failed"
 
     def get_current_question(self):
-        questions = self.group_assignment.assignment.questions.all()
+        questions = self.group_assignment.get_questions()
 
         # get the answer or None for each question of the assignment
         answers = [

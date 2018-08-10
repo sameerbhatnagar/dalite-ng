@@ -101,10 +101,9 @@ function editDateTimeField(field) {
   let name = field.getAttribute('name');
   newField.setAttribute('name', name);
   let input = document.createElement('input');
-  input.classList.add('flatpickr-input', 'active');
   input.type = 'text';
-  input.setAttribute('readonly', 'readonly');
   input.setAttribute('data-old-content', field.textContent);
+  newField.append(input);
   let datetime = field.textContent
     .match(/(\d{4})-(\d{2})-(\d{2})\s+(\d{2}):(\d{2})/)
     .slice(1)
@@ -112,10 +111,12 @@ function editDateTimeField(field) {
   datetime[1] -= 1;
   flatpickr(input, {
     enableTime: true,
-    dateFormat: 'Y-m-d H:i',
     defaultDate: new Date(...datetime),
+    dateFormat: 'Z',
+    altInput: true,
+    altFormat: 'Y-m-d H:i',
+    minDate: 'today',
   });
-  newField.append(input);
   return newField;
 }
 
@@ -128,7 +129,7 @@ function toggleIcons(newIconsDiv, type, toEdit, className) {
       'mdc-ripple-surface',
       'icon-list',
     );
-    if (type == 'text' | type == 'datetime') {
+    if ((type == 'text') | (type == 'datetime')) {
       editIcon.textContent = 'edit';
       editIcon.title = 'Edit';
     } else {
@@ -220,11 +221,9 @@ async function saveDateTimeField(field, save, className, url) {
   newField.setAttribute('name', name);
   newField.setAttribute('class', className);
   if (save) {
-    let newValue = field.firstChild.value;
-    let formattedNewValue = new Date(
-      new Date(newValue).toUTCString(),
-    ).toISOString();
-    let err = await updateDetails(name, formattedNewValue, url);
+    let sentValue = field.firstChild.value;
+    let newValue = flatpickr.formatDate(new Date(sentValue), 'Y-m-d H:i');
+    let err = await updateDetails(name, sentValue, url);
     if (err) {
       newField.textContent = field.firstChild.getAttribute('data-old-content');
     } else {
