@@ -153,7 +153,7 @@ def live(request, token, assignment_hash):
 
 @login_required
 @require_safe
-def navigate_assignment(request, assignment_id, question_id, direction):
+def navigate_assignment(request, assignment_id, question_id, direction, index):
 
     assignment = StudentGroupAssignment.get(request.session["assignment"])
     question = get_object_or_404(Question, id=question_id)

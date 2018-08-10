@@ -82,6 +82,7 @@ from ..mixins import (
 from ..models import (
     Student,
     StudentGroup,
+    StudentGroupAssignment,
     Teacher,
     Assignment,
     BlinkQuestion,
@@ -1037,6 +1038,8 @@ class QuestionFormView(QuestionMixin, FormView):
             context.update(lti=True)
         else:
             context.update(lti=False)
+            group_assignment = StudentGroupAssignment.get(self.request.session["assignment"])
+            context.update(group_assignment=group_assignment)
         return context
 
 

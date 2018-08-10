@@ -99,29 +99,24 @@
   {% if not lti and assignment %}
   <div class='nav-question'>
 
-    <a class='prev-question' href="{% url 'navigate-assignment' assignment_id=assignment.pk question_id=question.id direction='prev' %}">
-      <i class="inline material-icons md-24">
+    <a class='prev-question' href="{% url 'navigate-assignment' assignment_id=assignment.pk question_id=question.id direction='prev' index='_' %}">
+      <i class="inline material-icons md-32 mdc-theme--primary">
         keyboard_arrow_left
       </i>
-      <span class='admin-link'>
-        {% trans 'Previous question' %}
-        <span>
     </a>
 
-    <div>
-      {{ request.session.assignment }}
-    {% for question in request.session.assignment.get_questions %}
-    <svg height="10" width="5">
-      <circle cx="5" cy="5" r="5" fill="red"></circle> 
-    </svg>
-    {% endfor %}
+    <div style='position:absolute;bottom:0%;left:50%;transform:translateX(-50%);'>
+      {% for question in group_assignment.get_questions %}
+      <a href="{% url 'navigate-assignment' assignment_id=assignment.pk question_id=question.id direction='_' index=forloop.counter %}">
+        <svg height="20" width="30">
+          <circle cx="15" cy="8" r="7" fill="white" stroke="#54c0db" style="cursor:pointer;"></circle>
+        </svg>
+      </a>
+      {% endfor %}
     </div>
 
-    <a class='next-question' href="{% url 'navigate-assignment' assignment_id=assignment.pk question_id=question.id direction='next' %}">
-      <span class='admin-link'>
-        {% trans 'Next question' %}
-      </span>
-      <i class="inline material-icons md-24">
+    <a class='next-question' href="{% url 'navigate-assignment' assignment_id=assignment.pk question_id=question.id direction='next' index='_' %}">
+      <i class="inline material-icons md-32 mdc-theme--primary">
         keyboard_arrow_right
       </i>
     </a>

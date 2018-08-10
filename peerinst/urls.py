@@ -115,7 +115,7 @@ def old_patterns():
             name="live",
         ),
         url(
-            r"^live/navigate/(?P<assignment_id>[^/]+)/(?P<question_id>\d+)/(?P<direction>(next|prev))$",
+            r"^live/navigate/(?P<assignment_id>[^/]+)/(?P<question_id>\d+)/(?P<direction>(next|prev|_))/(?P<index>([0-9]|_)+)$",
             views.navigate_assignment,
             name="navigate-assignment",
         ),
