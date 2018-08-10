@@ -135,7 +135,9 @@ def live(request, token, assignment_hash):
     student_assignment = StudentAssignment.objects.get(
         student=user.student, group_assignment=group_assignment
     )
-    request.session["assignment"] = group_assignment
+
+    # Register assignment
+    request.session["assignment"] = assignment_hash
 
     # Redirect to view
     return HttpResponseRedirect(
@@ -153,7 +155,7 @@ def live(request, token, assignment_hash):
 @require_safe
 def navigate_assignment(request, assignment_id, question_id, direction):
 
-    assignment = request.session["assignment"]
+    assignment = StudentGroupAssignment.get(request.session["assignment"])
     question = get_object_or_404(Question, id=question_id)
 
     new_question = assignment.get_question(
