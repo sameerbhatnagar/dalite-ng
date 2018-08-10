@@ -35,4 +35,40 @@ function addAssignmentEventListeners() {
   );
 }
 
-export {addAssignmentEventListeners, saveQuestionList};
+function sendAssignmentEmail(event, url) {
+  let icon = event.currentTarget;
+  let email = icon.parentNode.parentNode.firstChild.textContent;
+  let data = {email: email};
+  let token = document.getElementsByName('csrfmiddlewaretoken')[0].value;
+  let req = {
+    method: 'POST',
+    body: JSON.stringify(data),
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': token,
+    },
+  };
+  fetch(url, req).then(function(resp) {
+    if (resp.ok) {
+      icon.style.color = '#00cc66';
+      setTimeout(function() {
+        icon.style['transition-duration'] = '3s';
+      }, 300);
+      setTimeout(function() {
+        icon.style.color = '#a9a9a9';
+        icon.style['transition-duration'] = 'none';
+      }, 700);
+    } else {
+      icon.style.color = '#b30000';
+      setTimeout(function() {
+        icon.style['transition-duration'] = '3s';
+      }, 300);
+      setTimeout(function() {
+        icon.style.color = '#a9a9a9';
+        icon.style['transition-duration'] = 'none';
+      }, 700);
+    }
+  });
+}
+
+export {addAssignmentEventListeners, saveQuestionList, sendAssignmentEmail};

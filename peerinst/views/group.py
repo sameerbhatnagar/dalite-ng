@@ -20,7 +20,13 @@ from django.views.decorators.http import require_http_methods
 import json
 import pytz
 
-from peerinst.models import StudentGroup, StudentGroupAssignment, Teacher
+from peerinst.models import (
+    Student,
+    StudentAssignment,
+    StudentGroup,
+    StudentGroupAssignment,
+    Teacher,
+)
 
 
 def group_access_required(fct):
@@ -215,7 +221,7 @@ def group_assignment_page(req, assignment_hash, teacher, group, assignment):
 
     context = {
         "teacher_id": teacher.id,
-        "group_hash": group.hash,
+        "group": group,
         "assignment": assignment,
         "questions": assignment.get_questions(),
     }
@@ -260,3 +266,55 @@ def group_assignment_update(req, assignment_hash, teacher, group, assignment):
         return HttpResponseBadRequest(resp.render())
 
     return HttpResponse(content_type="text/plain")
+
+
+@login_required
+@require_http_methods(["POST"])
+@group_access_required
+def send_student_assignment(req, assignment_hash, teacher, group, assignment):
+
+    try:
+        data = json.loads(req.body)
+    except ValueError:
+        resp = TemplateResponse(
+            req,
+            "400.html",
+            context={"message": _("Wrong data type was sent.")},
+        )
+        return HttpResponseBadRequest(resp.render()), None
+
+    try:
+        email = data["email"]
+    except KeyError:
+        resp = TemplateResponse(
+            req,
+            "400.html",
+            context={"message": _("There are missing parameters.")},
+        )
+        return HttpResponseBadRequest(resp.render()), None
+
+    try:
+        student = Student.objects.get(student__email=email)
+    except Student.DoesNotExist:
+        resp = TemplateResponse(
+            req,
+            "400.html",
+            context={
+                "message": _(
+                    'There is no student with email "{}".'.format(email)
+                )
+            },
+        )
+        return HttpResponseBadRequest(resp.render())
+
+    student_assignment, _ = StudentAssignment.objects.get_or_create(
+        group_assignment=assignment, student=student
+    )
+
+    err = student_assignment.send_email(req.get_host(), "new_assignment")
+
+    if err is not None:
+        resp = TemplateResponse(req, "500.html", context={"message": _(err)})
+        return HttpResponseServerError(resp.render())
+
+    return HttpResponse()

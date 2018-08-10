@@ -533,6 +533,14 @@ class StudentGroup(models.Model):
         assert isinstance(output, basestring), "Postcondition failed"
         return output
 
+    @property
+    def students(self):
+        return Student.objects.filter(groups=self)
+
+    @property
+    def has_emails(self):
+        return all(s.student.email for s in self.students)
+
 
 class Student(models.Model):
     student = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -909,13 +917,13 @@ class StudentGroupAssignment(models.Model):
         assert idx is None or isinstance(
             idx, int
         ), "Precondition failed for `idx`"
-        #assert idx is None or isinstance(
+        # assert idx is None or isinstance(
         #    idx, Question
-        #), "Precondition failed for `current_question`"
+        # ), "Precondition failed for `current_question`"
         assert isinstance(after, bool), "Precondition failed for `after`"
-        #assert (idx is None) == (
+        # assert (idx is None) == (
         #    current_question is None
-        #), "Either the `idx` or the `current_question` must be given"
+        # ), "Either the `idx` or the `current_question` must be given"
 
         question = None
 
@@ -1013,19 +1021,14 @@ class StudentAssignment(models.Model):
             "login",
             "new_assignment",
         ), "Precondition failed for `mail_type`"
-        assert assignment_hash is None or isinstance(
-            assignment_hash, basestring
-        ), "Precondition failed for `assignment_hash`"
 
         err = None
-
-        if mail_type == "new_assignment" and assignment_hash is None:
-            err = 'An `assignment_hash` is needed to send a "new_assignment" email.'
 
         username = self.student.student.username
         user_email = self.student.student.email
 
         if err is None and user_email:
+            print(mail_type.upper())
 
             token = create_student_token(username, user_email)
 
@@ -1041,7 +1044,7 @@ class StudentAssignment(models.Model):
                 link = reverse(
                     "live",
                     kwargs={
-                        "assignment_hash": assignment_hash,
+                        "assignment_hash": self.group_assignment.hash,
                         "token": token,
                     },
                 )
