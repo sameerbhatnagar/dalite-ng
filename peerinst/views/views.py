@@ -2367,21 +2367,14 @@ def question_search(request):
                 .distinct()
             )
 
-        if query.count() > 50:
-            return TemplateResponse(
-                request,
-                "peerinst/question_search_error.html",
-                context={"count": query.count()},
-            )
-        else:
-            return TemplateResponse(
-                request,
-                "peerinst/question_search_results.html",
-                context={
-                    "search_results": query,
-                    "form_field_name": form_field_name,
-                },
-            )
+        return TemplateResponse(
+            request,
+            "peerinst/question_search_results.html",
+            context={
+                "search_results": query[:50],
+                "form_field_name": form_field_name,
+            },
+        )
     else:
         return HttpResponseRedirect(reverse("access_denied_and_logout"))
 
