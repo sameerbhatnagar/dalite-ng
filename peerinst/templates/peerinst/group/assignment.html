@@ -90,8 +90,8 @@
 
           {% endfor %}
         </ul>
-        <button onclick="bundle.saveQuestionList('{% url 'group-assignment-update' assignment.hash %}')" id="question-list-save" disabled class="mdc-button mdc-button--unelevated">
-          Save
+        <button onclick="bundle.saveQuestionList('{% url 'group-assignment-update' assignment.hash %}')" id="question-list-save" disabled class="mdc-button mdc-button--unelevated padded-top">
+          {% trans 'Save' %}
         </button>
       </div>
     </div>
