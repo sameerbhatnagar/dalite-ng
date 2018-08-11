@@ -840,6 +840,15 @@ class QuestionMixin(object):
             correct=self.question.answerchoice_set.filter(correct=True),
             experts=self.question.answer_set.filter(expert=True),
         )
+
+        # Pass hints so that template knows context
+        if self.lti_data:
+            context.update(lti=True)
+        else:
+            context.update(lti=False)
+            group_assignment = StudentGroupAssignment.get(self.request.session["assignment"])
+            context.update(group_assignment=group_assignment)
+
         return context
 
     def send_grade(self):
@@ -1031,17 +1040,6 @@ class QuestionFormView(QuestionMixin, FormView):
         if msg is not None:
             messages.error(self.request, msg)
         raise QuestionReload()
-
-    def get_context_data(self, **kwargs):
-        context = super(QuestionFormView, self).get_context_data(**kwargs)
-        # Pass hint so that template knows context
-        if self.lti_data:
-            context.update(lti=True)
-        else:
-            context.update(lti=False)
-            group_assignment = StudentGroupAssignment.get(self.request.session["assignment"])
-            context.update(group_assignment=group_assignment)
-        return context
 
 
 class QuestionStartView(QuestionFormView):
@@ -2349,20 +2347,20 @@ def question_search(request):
         search_terms = [search_string]
         if len(search_string_split_list)>1:
             search_terms.extend(search_string_split_list)
-        
+
         query = []
         query_all = []
-        # by searching first for full string, and then for constituent parts, 
-        # and preserving order, the results should rank the items higher to the top 
+        # by searching first for full string, and then for constituent parts,
+        # and preserving order, the results should rank the items higher to the top
         # that have the entire search_string included
         for term in search_terms:
             query_dict = {}
 
             query_term = question_search_function(term)
-            
+
             if limit_search == "true":
                 query_term = query_term.filter(discipline__in=request.user.teacher.disciplines.all())
-            
+
             query_term = query_term.exclude(id__in=q_qs).distinct()
 
             query_term = [q for q in query_term if q not in query_all]
@@ -2370,7 +2368,7 @@ def question_search(request):
             if  (len(query_term) + len(query_all)) < n_search_limit:
                 query_dict['term'] = term
                 query_dict['questions'] = query_term
-                query_dict['count'] = str(len(query_term)) + ' results.' 
+                query_dict['count'] = str(len(query_term)) + ' results.'
             else:
                 query_dict['term'] = term
                 query_dict['questions'] = query_term[:(n_search_limit-len(query_all))]

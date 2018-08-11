@@ -97,22 +97,22 @@
   </div>
 
   {% if not lti and assignment %}
-  <div class='nav-question'>
+  <div class='nav-question' style='border-top:solid;border-width:1px;border-color:LightGray;'>
 
     <a class='prev-question' href="{% url 'navigate-assignment' assignment_id=assignment.pk question_id=question.id direction='prev' index='x' %}">
-      <i class="inline material-icons md-32 mdc-theme--primary">
+      <i class="inline material-icons md-60 mdc-theme--primary">
         keyboard_arrow_left
       </i>
     </a>
 
-    <div style='position:absolute;bottom:0%;left:50%;transform:translateX(-50%);'>
+    <div style='position:absolute;bottom:50%;left:50%;transform:translate(-50%,50%);'>
       {% for q in group_assignment.get_questions %}
       <a href="{% url 'navigate-assignment' assignment_id=assignment.pk question_id=q.id direction='goto' index=forloop.counter0 %}">
-        <svg height="20" width="30">
+        <svg height="12" width="20">
           {% if q.id == question.id %}
-          <circle cx="15" cy="8" r="7" fill="#54c0db" stroke="#54c0db" style="cursor:pointer;"></circle>
+            <circle cx="10" cy="6" r="5" fill="#54c0db" stroke="#54c0db" style="cursor:pointer;"></circle>
           {% else %}
-          <circle cx="15" cy="8" r="7" fill="white" stroke="#54c0db" style="cursor:pointer;"></circle>
+            <circle cx="10" cy="6" r="5" fill="white" stroke="#54c0db" style="cursor:pointer;"></circle>
           {% endif %}
         </svg>
       </a>
@@ -120,7 +120,7 @@
     </div>
 
     <a class='next-question' href="{% url 'navigate-assignment' assignment_id=assignment.pk question_id=question.id direction='next' index='x' %}">
-      <i class="inline material-icons md-32 mdc-theme--primary">
+      <i class="inline material-icons md-60  mdc-theme--primary">
         keyboard_arrow_right
       </i>
     </a>
