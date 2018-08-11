@@ -63,6 +63,7 @@ from ..util import (
     int_or_none,
     roundrobin,
     student_list_from_student_groups,
+    question_search_function
 )
 from ..admin_views import (
     get_question_rationale_aggregates,
@@ -2319,7 +2320,7 @@ def blink_waiting(request, username, assignment=""):
 # AJAX functions
 @login_required
 def question_search(request):
-
+    n_search_limit = 50
     if request.method == "GET" and request.user.teacher:
         type = request.GET.get("type", default=None)
         id = request.GET.get("id", default=None)
@@ -2344,35 +2345,48 @@ def question_search(request):
             return HttpResponseBadRequest(response.render())
 
         # All matching questions
-        # TODO: add search on categories
-        if limit_search == "true":
-            query = (
-                Question.objects.filter(
-                    Q(text__icontains=search_string)
-                    | Q(title__icontains=search_string)
-                    | Q(category__title__icontains=search_string)
-                )
-                .filter(discipline__in=request.user.teacher.disciplines.all())
-                .exclude(id__in=q_qs)
-                .distinct()
-            )
-        else:
-            query = (
-                Question.objects.filter(
-                    Q(text__icontains=search_string)
-                    | Q(title__icontains=search_string)
-                    | Q(category__title__icontains=search_string)
-                )
-                .exclude(id__in=q_qs)
-                .distinct()
-            )
+        search_string_split_list = search_string.split()
+        search_terms = [search_string]
+        if len(search_string_split_list)>1:
+            search_terms.extend(search_string_split_list)
+        
+        query = []
+        query_all = []
+        # by searching first for full string, and then for constituent parts, 
+        # and preserving order, the results should rank the items higher to the top 
+        # that have the entire search_string included
+        for term in search_terms:
+            query_dict = {}
+
+            query_term = question_search_function(term)
+            
+            if limit_search == "true":
+                query_term = query_term.filter(discipline__in=request.user.teacher.disciplines.all())
+            
+            query_term = query_term.exclude(id__in=q_qs).distinct()
+
+            query_term = [q for q in query_term if q not in query_all]
+
+            if  (len(query_term) + len(query_all)) < n_search_limit:
+                query_dict['term'] = term
+                query_dict['questions'] = query_term
+                query_dict['count'] = str(len(query_term)) + ' results.' 
+            else:
+                query_dict['term'] = term
+                query_dict['questions'] = query_term[:(n_search_limit-len(query_all))]
+                query_dict['count'] = 'only '+ str(n_search_limit-len(query_all)) +' results shown. Search limit exceeded.'
+            query_all.extend(query_term)
+            query.append(query_dict)
 
         return TemplateResponse(
             request,
             "peerinst/question_search_results.html",
             context={
-                "search_results": query[:50],
+                "search_results": query,#[:50],
                 "form_field_name": form_field_name,
+                "count": len(query_all),
+                "previous_search_string":search_terms,
+                "n_search_limit":n_search_limit,
             },
         )
     else:

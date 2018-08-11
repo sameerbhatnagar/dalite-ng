@@ -4,7 +4,8 @@ from __future__ import division, unicode_literals
 import itertools
 
 from django.utils.safestring import mark_safe
-
+from django.db.models import Q
+from peerinst.models import Question
 
 def get_object_or_none(model_class, *args, **kwargs):
     try:
@@ -269,3 +270,16 @@ def student_list_from_student_groups(group_list):
     for group in StudentGroup.objects.filter(pk__in=group_list):
         student_ids.extend([s.student.username for s in group.student_set.all() if s.student.username not in ['student']])
     return student_ids
+
+def question_search_function(search_string):
+    """
+    given a search_string, return query_set of question objects that have that string in either
+     question text, title, or categories
+    """
+    query_term = Question.objects.filter(
+        Q(text__icontains=search_string)
+        | Q(title__icontains=search_string)
+        | Q(category__title__icontains=search_string)
+        )
+    
+    return query_term

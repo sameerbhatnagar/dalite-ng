@@ -1,59 +1,71 @@
 {% load i18n %}
+<!-- <ul>
+<li class='mdc-typography--caption'>{{ count }} {% trans 'unique results for' %}
+<ul>
+  {% for s in previous_search_string %}
+    <li>- {{ s|safe }}</li>
+  {% endfor %}
+</ul>
+{% trans '. Showing first ' %}{{ n_search_limit }}.</li>
 
-{% for g in search_results %}
-<div class="mdc-card" id={{g.id|slugify}}>
-  <div class="mdc-typography--title bold" style="margin-bottom:5px;">
-    {{g.title|safe}}
-  </div>
+</ul> -->
+{% for search_results_term in search_results %}
+  <p>Searching: {{search_results_term.term}}: {{ search_results_term.count }}.</p>
+  {% for g in search_results_term.questions %}
+  <div class="mdc-card" id={{g.id|slugify}}>
+    <div class="mdc-typography--title bold" style="margin-bottom:5px;">
+      {{g.title|safe}}
+    </div>
 
-  <div class="mdc-typography--body1">
-    {{g.text|safe}}
-  </div>
+    <div class="mdc-typography--body1">
+      {{g.text|safe}}
+    </div>
 
-  {% if g.image %}
-    <img class="question-image" src="{{ g.image.url }}" alt="g.image_alt_text">
-  {% endif %}
+    {% if g.image %}
+      <img class="question-image" src="{{ g.image.url }}" alt="g.image_alt_text">
+    {% endif %}
 
-  <div class="question-answers" style="display:none;">
-    <ul>
-      {% for label, choice in g.get_choices %}
-      <li class="mdc-typography--body1">{{ label }}. {{ choice|safe }}</li>
-      {% endfor %}
-    <ul>
-  </div>
-
-  <div class="mdc-card__actions">
-
-    <div class="mdc-card__action-buttons" style="color:grey;">
-      <div class="mdc-typography--caption">
-        <div>
-          {% trans 'Discipline' %}: {{g.discipline}}
-        </div>
-        <div>
-        {% trans 'Categories' %}:
-        {% for c in g.category.all %}
-        {{ c.title|safe }}{% if not forloop.last %}, {% endif %}
-        {% empty %}
-        {% trans 'Uncategorized' %}
+    <div class="question-answers" style="display:none;">
+      <ul>
+        {% for label, choice in g.get_choices %}
+        <li class="mdc-typography--body1">{{ label }}. {{ choice|safe }}</li>
         {% endfor %}
-        </div>
-        <div>
-        {% trans 'Difficulty' %}:
+      <ul>
+    </div>
+
+    <div class="mdc-card__actions">
+
+      <div class="mdc-card__action-buttons" style="color:grey;">
+        <div class="mdc-typography--caption">
+          <div>
+            {% trans 'Discipline' %}: {{g.discipline}}
+          </div>
+          <div>
+          {% trans 'Categories' %}:
+          {% for c in g.category.all %}
+          {{ c.title|safe }}{% if not forloop.last %}, {% endif %}
+          {% empty %}
+          {% trans 'Uncategorized' %}
+          {% endfor %}
+          </div>
+          <div>
+          {% trans 'Difficulty' %}:
+          </div>
         </div>
       </div>
-    </div>
 
-    <div class="mdc-card__action-icons">
-      <form style="display:inline" method="post" action="#{{g.id|slugify}}">
-        {% csrf_token %}
-        <input type="hidden" name="{{form_field_name}}" value="{{g.pk}}" />
-        <input class="material-icons small-button mdc-button mdc-card__action mdc-card__action--button mdc-button--raised" type="submit" value="add" />
-      </form>
+      <div class="mdc-card__action-icons">
+        <form style="display:inline" method="post" action="#{{g.id|slugify}}">
+          {% csrf_token %}
+          <input type="hidden" name="{{form_field_name}}" value="{{g.pk}}" />
+          <input class="material-icons small-button mdc-button mdc-card__action mdc-card__action--button mdc-button--raised" type="submit" value="add" />
+        </form>
+      </div>
     </div>
   </div>
-</div>
-{% empty %}
-<ul>
-  <li><strong>Note:</strong> {% blocktrans %}No search results{% endblocktrans %}.</li>
-</ul>
+  {% empty %}
+  <ul>
+    <li><strong>Note:</strong> {% blocktrans %}No search results{% endblocktrans %}.</li>
+  </ul>
+  {% endfor %}
 {% endfor %}
