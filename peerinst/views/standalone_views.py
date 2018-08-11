@@ -155,7 +155,35 @@ def live(request, token, assignment_hash):
 @require_safe
 def navigate_assignment(request, assignment_id, question_id, direction, index):
 
-    assignment = StudentGroupAssignment.get(request.session["assignment"])
+    hash = request.session.get("assignment")
+    if hash is None:
+        assignment = get_object_or_404(Assignment, pk=assignment_id)
+        questions = list(assignment.questions.all())
+        current_question = get_object_or_404(Question, pk=question_id)
+        idx = questions.index(current_question)
+
+        if direction == 'next':
+            if idx < len(questions) - 1:
+                new_question = questions[idx + 1]
+            else:
+                new_question = questions[0]
+        else:
+            if idx > 0:
+                new_question = questions[idx - 1]
+            else:
+                new_question = questions[-1]
+        # Redirect
+        return HttpResponseRedirect(
+            reverse(
+                "question",
+                kwargs={
+                    "assignment_id": assignment_id,
+                    "question_id": new_question.id,
+                },
+            )
+        )
+
+    assignment = StudentGroupAssignment.get(hash)
     question = get_object_or_404(Question, id=question_id)
 
     if index != 'x':

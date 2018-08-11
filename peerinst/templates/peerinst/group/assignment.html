@@ -20,7 +20,8 @@
     </h1>
 
     <div class="admin-link">
-      <a href="{% url 'group-details' group.hash %}">{% trans 'Back to group' %}</a>
+      <a href="{% url 'teacher' request.user.teacher.id %}">{% trans 'Back to My Account' %}</a>
+      <span style="padding-left:0.3em;padding-right:0.5em;">|</span><a href="{% url 'group-details' group.hash %}">{% trans 'Back to group' %}</a>
     </div>
 
     <div class="foldable foldable__unfolded">

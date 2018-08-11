@@ -846,8 +846,10 @@ class QuestionMixin(object):
             context.update(lti=True)
         else:
             context.update(lti=False)
-            group_assignment = StudentGroupAssignment.get(self.request.session["assignment"])
-            context.update(group_assignment=group_assignment)
+            hash = self.request.session.get("assignment")
+            if hash is not None:
+                group_assignment = StudentGroupAssignment.get(hash)
+                context.update(group_assignment=group_assignment)
 
         return context
 
