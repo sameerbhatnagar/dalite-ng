@@ -3,6 +3,7 @@ export {removeAssignment} from './_group/details.js';
 import {
   addAssignmentEventListeners,
   saveQuestionList,
+  sendAssignmentEmail,
 } from './_group/assignment.js';
 addAssignmentEventListeners();
-export {saveQuestionList};
+export {saveQuestionList, sendAssignmentEmail};

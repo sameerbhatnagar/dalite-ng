@@ -426,6 +426,11 @@ def group_patterns():
             views.group_assignment_update,
             name="group-assignment-update",
         ),
+        url(
+            r"^group-assignment/(?P<assignment_hash>[0-9A-Za-z=_-]+)/send/$",
+            views.send_student_assignment,
+            name="send-student-assignment",
+        ),
     ]
 
 
