@@ -2263,6 +2263,10 @@ def blink_get_current(request, username):
     except:
         return HttpResponse("Teacher does not exist")
 
+    # Only teacher that owns this script can access page while logged in
+    if request.user != teacher.user:
+        logout(request)
+
     try:
         # Redirect to current active blinkquestion, if any, if this user has not voted yet in this round
         blinkquestion = teacher.blinkquestion_set.get(active=True)
@@ -2298,7 +2302,7 @@ def blink_waiting(request, username, assignment=""):
         return HttpResponse("Error")
 
     # Only teacher that owns this script can access page while logged in
-    if request.user != Teacher.objects.get(user__username=username).user:
+    if request.user != teacher.user:
         logout(request)
 
     return TemplateResponse(
