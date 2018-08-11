@@ -8,7 +8,6 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from django.http import HttpResponse
 
-from .models import StudentGroupAssignment
 from .utils import create_token, verify_token
 
 
@@ -152,8 +151,8 @@ def get_lti_passwords(hashed_username):
     return output
 
 
-def get_student_progress(assignment_hash):
-    assignment = StudentGroupAssignment.get(assignment_hash)
+def get_student_progress(assignment):
+
     if assignment is None:
         progress = None
 
