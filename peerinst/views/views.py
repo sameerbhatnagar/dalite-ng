@@ -2688,6 +2688,8 @@ def network_data(request, assignment_id):
     return JsonResponse(links_array, safe=False)
 
 
+@login_required
+@user_passes_test(student_check, login_url="/access_denied_and_logout/")
 def report_selector(request, teacher_id):
     return TemplateResponse(
         request,
@@ -2701,6 +2703,8 @@ def report_selector(request, teacher_id):
     )
 
 
+@login_required
+@user_passes_test(student_check, login_url="/access_denied_and_logout/")
 def report(request, teacher_id="", assignment_id="", group_id=""):
     template_name = "peerinst/report_all_rationales.html"
     teacher = Teacher.objects.get(pk=teacher_id)
@@ -2721,6 +2725,7 @@ def report(request, teacher_id="", assignment_id="", group_id=""):
         assignment_list = teacher.assignments.all().values_list(
             "identifier", flat=True
         )
+
 
     student_id_list = student_list_from_student_groups(student_groups)
     answer_qs = Answer.objects.filter(
