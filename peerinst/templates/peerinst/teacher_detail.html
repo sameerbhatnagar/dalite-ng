@@ -121,7 +121,7 @@
               </span>
             </span>
             <span class="mdc-list-item__meta">
-              <a href="{% url 'report-all-assignments' teacher_id=teacher.id group_id=g.name|urlencode:"" %}">
+              <a href="{% url 'report-all-assignments' group_id=g.name|urlencode:"" %}">
                 <i class="material-icons md-24 mdc-ripple-surface icon-list">bar_chart</i>
               </a>
               <a href="{% url 'group-share' pk=teacher.id group_hash=g.hash %}">
@@ -208,7 +208,7 @@
             </span>
             <span class="mdc-list-item__meta">
               <i id="activate-dialog-{{a.pk|slugify}}" class="material-icons md-24 mdc-ripple-surface icon-list">info</i>
-              <a href="{% url 'report-all-groups' teacher_id=teacher.id assignment_id=a.identifier|urlencode:"" %}">
+              <a href="{% url 'report-all-groups' assignment_id=a.identifier|urlencode:"" %}">
                 <i class="material-icons md-24 mdc-ripple-surface icon-list">bar_chart</i>
               </a>
               {% if object.user in a.owner.all and a.answer_set.count == 0 %}

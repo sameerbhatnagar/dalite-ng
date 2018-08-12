@@ -56,6 +56,11 @@ h2 ~.admin-link {
   margin-bottom: 12pt;
   font-size: 9pt;
 }
+h4 ~.admin-link {
+  margin-top: -20px;
+  margin-bottom: 12pt;
+  font-size: 9pt;
+}
 .foldable--body > .admin-link {
   margin-top: 0px;
   margin-left: 50px;

@@ -227,12 +227,12 @@ def old_patterns():
             name="group-assignments",
         ),
         url(
-            r"^teacher/(?P<teacher_id>[0-9]+)/report/(?P<assignment_id>[^/]+)/all_groups/$",
+            r"^teacher/report/all_groups/(?P<assignment_id>[^/]+)/$",
             views.report,
             name="report-all-groups",
         ),
         url(
-            r"^teacher/(?P<teacher_id>[0-9]+)/report/(?P<group_id>[^/]+)/all_assignments/$",
+            r"^teacher/report/all_assignments/(?P<group_id>[^/]+)/$",
             views.report,
             name="report-all-assignments",
         ),
