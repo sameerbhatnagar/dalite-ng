@@ -380,4 +380,4 @@ class StudentGroupAssignmentForm(ModelForm):
 
     class Meta:
         model = StudentGroupAssignment
-        fields = ('group', 'due_date')
+        fields = ('group', 'due_date', 'show_correct_answers')

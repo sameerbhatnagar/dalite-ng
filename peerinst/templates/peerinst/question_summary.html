@@ -24,13 +24,16 @@
   {% endif %}
 </p>
 
+{% if not group_assignment or group_assignment.show_correct_answers %}
 <p class='mdc-typography--body1'>
   Correct answer(s):
     {% for answer in correct %}
       <blockquote>{{ answer.text|safe }}</blockquote>
     {% endfor %}
 </p>
+{% endif %}
 
+<!--
 {% if experts %}
 <p class='mdc-typography--body1'>
   Expert rationale(s):
@@ -43,5 +46,6 @@
     {% endfor %}
 </p>
 {% endif %}
+-->
 
 {% endblock %}

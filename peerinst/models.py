@@ -855,6 +855,14 @@ class StudentGroupAssignment(models.Model):
     assignment = models.ForeignKey(Assignment, on_delete=models.CASCADE)
     distribution_date = models.DateTimeField(editable=False, auto_now_add=True)
     due_date = models.DateTimeField(blank=False, default=timezone.now)
+    show_correct_answers = models.BooleanField(
+        _("Show correct answers"),
+        default=True,
+        help_text=_(
+            "Check if students should be shown correct answer after completing "
+            "the question."
+        ),
+    )
     order = models.TextField(blank=True, editable=False)
 
     def __unicode__(self):

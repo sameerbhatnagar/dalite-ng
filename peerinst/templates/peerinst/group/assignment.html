@@ -62,6 +62,35 @@
               </span>
             </li>
             <li class="mdc-list-divider" role="separator"></li>
+
+
+            <li class="mdc-list-item">
+              {% if assignment.show_correct_answers %}
+              <span class="mdc-list-item__graphic mdc-theme--primary">
+                <i class="mdc-theme--primary material-icons md-48">check</i>
+              </span>
+              <span class="mdc-list-item__text mdc-theme--secondary bold">
+                {% trans 'Show correct answers' %}
+                <span name="due_date" class="mdc-list-item__secondary-text">
+                  {% trans 'Grade answer and show correct' %}
+                </span>
+              </span>
+              {% else %}
+              <span class="mdc-list-item__graphic mdc-theme--primary">
+                <i class="mdc-theme--primary material-icons md-48">clear</i>
+              </span>
+              <span class="mdc-list-item__text mdc-theme--secondary bold">
+                {% trans 'Hide correct answers' %}
+                <span name="due_date" class="mdc-list-item__secondary-text">
+                  {% trans 'Do not grade or show correct' %}
+                </span>
+              </span>
+              {% endif %}
+              <span class="mdc-list-item__meta">
+                <i onclick="" title="Edit" class="material-icons md-24 mdc-ripple-surface icon-list">edit</i>
+              </span>
+            </li>
+            <li class="mdc-list-divider" role="separator"></li>
           </ul>
         </div>
       </div>

@@ -33,7 +33,7 @@
           <div class='field'>
             <p><small>
               {% blocktrans %}
-              Select which of your current groups you would like to complete this assignment and specify a due date.  The due date can be changed later.  Upon clicking submit, your students will receive an e-mail with a link to the assignment.
+              Select which of your current groups you would like to complete this assignment and specify a due date (the due date can be changed later).  Also indicate whether or not the correct answers should be shown after each question is completed.  Upon clicking submit, your students will receive an e-mail with a link to the assignment.
               {% endblocktrans %}
             </small></p>
           </div>
@@ -43,6 +43,7 @@
           {% csrf_token %}
           {{ form.non_field_errors }}
           <div class='field-container'>
+            <div class='number-box'><span class='number'>1</span></div>
             <div class='field'>
               <div class='mdc-form-field'>
                 <label for='id_group'>{{ form.group.label }}:</label>
@@ -51,22 +52,50 @@
                   <div class="mdc-select__bottom-line"></div>
                 </div>
               </div>
+              {{ form.group.errors }}
+            </div>
+          </div>
 
+          <div class='field-container'>
+            <div class='number-box flush-to-textbox'><span class='number'>2</span></div>
+            <div class='field'>
               <div class="mdc-text-field mdc-text-field--dense" data-mdc-auto-init="MDCTextField">
                 {{ form.due_date|add_class:"mdc-text-field__input" }}
                 {{ form.due_date.label_tag|add_class:"mdc-floating-label"|cut:":" }}
               </div>
-              {{ form.group.errors }}
               {{ form.due_date.errors }}
-
-              <div>
-                <input class="mdc-button mdc-button--raised padded-top" type="submit" value="{% trans 'Assign' %}" />
-              </div>
-
             </div>
           </div>
+
+          <div class='field-container'>
+            <div class='number-box'><span class='number'>3</span></div>
+            <div class='field'>
+              <div class='mdc-form-field'>
+                <label for="id_show_correct_answers">{{ form.show_correct_answers.label }}?</label>
+                <div class="mdc-checkbox">
+                  {{ form.show_correct_answers|add_class:'mdc-checkbox__native-control'}}
+                  <div class="mdc-checkbox__background">
+                    <svg class="mdc-checkbox__checkmark"
+                         viewBox="0 0 24 24">
+                      <path class="mdc-checkbox__checkmark-path"
+                            fill="none"
+                            stroke="white"
+                            d="M1.73,12.91 8.1,19.28 22.79,4.59"/>
+                    </svg>
+                    <div class="mdc-checkbox__mixedmark"></div>
+                  </div>
+                </div>
+              </div>
+              {{ form.show_correct_answers.errors }}
+            </div>
+          </div>
+
+          <div>
+            <input class="mdc-button mdc-button--raised padded-top" type="submit" value="{% trans 'Assign' %}" />
+          </div>
+
         </form>
-      </div>
+
     </div>
   </section>
 </main>
