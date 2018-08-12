@@ -334,14 +334,14 @@ class CategorySelectForm(forms.Form):
 class ReportSelectForm(forms.Form):
 
     student_groups = forms.ModelMultipleChoiceField(
-        label=_("Choose which groups you would like your report to include:"),
+        label=_("Choose which groups to include in report:"),
         widget=forms.CheckboxSelectMultiple,
         queryset=StudentGroup.objects.none(),
     )
 
     assignments = forms.ModelMultipleChoiceField(
         label=_(
-            "Choose which assignments you would like your report to include:"
+            "Choose which assignments to include in report:"
         ),
         widget=forms.CheckboxSelectMultiple,
         queryset=Assignment.objects.none(),

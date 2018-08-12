@@ -2692,6 +2692,9 @@ def network_data(request, assignment_id):
 @user_passes_test(student_check, login_url="/access_denied_and_logout/")
 def report_selector(request):
     teacher = get_object_or_404(Teacher, user=request.user)
+    print(forms.ReportSelectForm(
+        teacher_username=teacher.user.username
+    ))
     return TemplateResponse(
         request,
         "peerinst/report_selector.html",
@@ -2722,8 +2725,6 @@ def report(request, assignment_id="", group_id=""):
     else:
         student_groups = teacher.current_groups.all().values_list("pk")
 
-    student_id_list = student_list_from_student_groups(student_groups)
-
     if request.GET.getlist("assignments"):
         assignment_list = request.GET.getlist("assignments")
     elif assignment_id:
@@ -2732,9 +2733,6 @@ def report(request, assignment_id="", group_id=""):
         assignment_list = teacher.assignments.all().values_list(
             "identifier", flat=True
         )
-
-    print(student_groups)
-    print(assignment_list)
 
     student_id_list = student_list_from_student_groups(student_groups)
     answer_qs = Answer.objects.filter(
