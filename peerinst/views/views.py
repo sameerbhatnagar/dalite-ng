@@ -2690,42 +2690,51 @@ def network_data(request, assignment_id):
 
 @login_required
 @user_passes_test(student_check, login_url="/access_denied_and_logout/")
-def report_selector(request, teacher_id):
+def report_selector(request):
+    teacher = get_object_or_404(Teacher, user=request.user)
     return TemplateResponse(
         request,
         "peerinst/report_selector.html",
         {
             "report_select_form": forms.ReportSelectForm(
-                teacher_username=request.user
+                teacher_username=teacher.user.username
             ),
-            "teacher_id": teacher_id,
+            "teacher_id": teacher.id,
         },
     )
 
 
 @login_required
 @user_passes_test(student_check, login_url="/access_denied_and_logout/")
-def report(request, teacher_id="", assignment_id="", group_id=""):
+def report(request, assignment_id="", group_id=""):
     template_name = "peerinst/report_all_rationales.html"
-    teacher = Teacher.objects.get(pk=teacher_id)
+    teacher = get_object_or_404(Teacher, user=request.user)
 
-    if request.GET:
+    if not request.GET:
+        return HttpResponseRedirect(reverse('report_selector'))
+
+    if request.GET.getlist("student_groups"):
         student_groups = request.GET.getlist("student_groups")
-        student_id_list = student_list_from_student_groups(student_groups)
-        assignment_list = request.GET.getlist("assignments")
-
-    elif len(group_id) == 0:
-        assignment_list = [urllib.unquote(assignment_id)]
-        student_groups = teacher.current_groups.all().values_list("pk")
-
-    elif len(assignment_id) == 0:
+    elif group_id:
         student_groups = [
             StudentGroup.objects.get(name=urllib.unquote(group_id)).pk
         ]
+    else:
+        student_groups = teacher.current_groups.all().values_list("pk")
+
+    student_id_list = student_list_from_student_groups(student_groups)
+
+    if request.GET.getlist("assignments"):
+        assignment_list = request.GET.getlist("assignments")
+    elif assignment_id:
+        assignment_list = [urllib.unquote(assignment_id)]
+    else:
         assignment_list = teacher.assignments.all().values_list(
             "identifier", flat=True
         )
 
+    print(student_groups)
+    print(assignment_list)
 
     student_id_list = student_list_from_student_groups(student_groups)
     answer_qs = Answer.objects.filter(

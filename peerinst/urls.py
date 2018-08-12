@@ -237,12 +237,12 @@ def old_patterns():
             name="report-all-assignments",
         ),
         url(
-            r"^teacher/(?P<teacher_id>[0-9]+)/report_selector$",
+            r"^teacher/report_selector$",
             views.report_selector,
             name="report_selector",
         ),
         url(
-            r"^teacher/(?P<teacher_id>[0-9]+)/custom_report/$",
+            r"^teacher/custom_report/$",
             views.report,
             name="report-custom",
         ),
