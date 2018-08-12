@@ -4,6 +4,11 @@
 
 {% block stylesheets %}
 <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css">
+<style>
+ul {
+  padding-left:0px;
+}
+</style>
 {% endblock %}
 
 {% block body %}
@@ -82,7 +87,7 @@
     {% for assignment in data %}
       <li>
         <span>
-        <h3 class="mdc-typography--display1 mdc-theme--secondary">{{ assignment.assignment }}</h3>
+        <h3>{{ forloop.counter }}. {{ assignment.assignment }}</h3>
 
         <span>
             <h4>Overall Student Transitions</h4>
