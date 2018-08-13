@@ -62,7 +62,6 @@ from ..util import (
     get_object_or_none,
     int_or_none,
     roundrobin,
-    student_list_from_student_groups,
     question_search_function
 )
 from ..admin_views import (
@@ -2736,10 +2735,21 @@ def report(request, assignment_id="", group_id=""):
 
     print(assignment_list)
 
-    student_id_list = student_list_from_student_groups(student_groups)
+    student_obj_qs = Student.objects.filter(
+        groups__pk__in=student_groups
+        ).exclude(
+        student__username__in=['student','']
+        )
+
+    student_id_list = student_obj_qs.values_list(
+        'student__username',
+        flat=True
+        )
     answer_qs = Answer.objects.filter(
         assignment_id__in=assignment_list
-    ).filter(user_token__in=student_id_list)
+    ).filter(
+        user_token__in=student_id_list
+        )
 
     # all data
     assignment_data = []
@@ -2912,7 +2922,8 @@ def report(request, assignment_id="", group_id=""):
             d_q["student_responses"] = []
             for student_response in answer_qs_question:
                 d_q_a = {}
-                d_q_a["student"] = student_response.user_token
+                # d_q_a["student"] = student_response.user_token
+                d_q_a["student"] = student_obj_qs.get(student__username=student_response.user_token).student.email
                 d_q_a["first_answer_choice"] = list(string.ascii_uppercase)[
                     student_response.first_answer_choice - 1
                 ]
