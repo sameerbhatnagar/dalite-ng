@@ -9,12 +9,6 @@ from django.contrib.auth.models import User
 from django.http import HttpResponse
 
 from .utils import create_token, verify_token
-from .models import (
-    Student,
-    StudentAssignment,
-    StudentGroup,
-    StudentGroupAssignment,
-)
 
 
 def create_student_token(username, email, exp=timedelta(weeks=16)):
@@ -155,94 +149,3 @@ def get_lti_passwords(hashed_username):
         isinstance(o, basestring) for o in output
     ), "Postcondition failed"
     return output
-
-
-def get_student_progress(assignment):
-
-    if assignment is None:
-        progress = None
-
-    else:
-        students = assignment.group.students
-        questions = assignment.assignment.questions
-        progress = [
-            {
-                "question": question,
-                "n_choices": len(question.get_choices()),
-                "correct": next(
-                    i for i in question.get_choices() if question.is_correct(i)
-                ),
-                "students": [
-                    {
-                        "student": student,
-                        "answer": Answer.objects.filter(
-                            user_token=student.student.username,
-                            question=question,
-                            assignment=assignment.assignment,
-                            time__gte=assignment.distribution_date,
-                        ).first(),
-                    }
-                    for student in students
-                ],
-            }
-            for question in questions
-        ]
-        progress = []
-        for question in questions:
-            progress.append(
-                {
-                    "question": question,
-                    "n_choices": len(question.get_choices()),
-                    "correct": next(
-                        i
-                        for i in question.get_choices()
-                        if question.is_correct(i)
-                    ),
-                    "students": [],
-                }
-            )
-            for student in students:
-                answer = Answer.objects.filter(
-                    user_token=student.student.username,
-                    question=question,
-                    assignment=assignment.assignment,
-                    time__gte=assignment.distribution_date,
-                ).first()
-                progress[-1]["students"].append(
-                    {
-                        "student": student,
-                        "answer": answer,
-                        "answered_first": answer is not None,
-                        "answered_second": (answer is not None)
-                        and (answer.second_answer_choice is not None),
-                        "correct_first": None
-                        if answer is None
-                        else answer["first_answer_choice"]
-                        == progress[-1]["correct"],
-                        "correct_second": None
-                        if (answer is None)
-                        or (answer.second_answer_choice is None)
-                        else answer["second_answer_choice"]
-                        == progress[-1]["correct"],
-                    }
-                )
-
-    output = progress
-    return output
-
-
-def send_missing_assignments(student, group, host):
-    assert isinstance(student, Student), "Precondition failed for `student`"
-    assert isinstance(group, StudentGroup), "Precondition failed for `group`"
-
-    assignments = StudentGroupAssignment.objects.filter(group=group)
-
-    for assignment in assignments:
-        if not assignment.is_expired():
-            if not StudentAssignment.objects.filter(
-                student=student, group_assignment=assignment
-            ).exists():
-                assignment_ = StudentAssignment.objects.create(
-                    student=student, group_assignment=assignment
-                )
-                assignment_.send_email(host, "new_assignment")
