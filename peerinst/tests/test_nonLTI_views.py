@@ -3,6 +3,7 @@ from django.core import mail
 from django.core.urlresolvers import reverse
 from django.http import HttpRequest
 from django.test import TestCase, TransactionTestCase
+from django.test.utils import override_settings
 
 from ..models import Discipline, Question, Assignment, Teacher, Student
 from tos.models import Consent, Role, Tos
@@ -86,22 +87,22 @@ class SignUpTest(TestCase):
             "The two password fields didn't match", response.content.decode()
         )
 
+    @override_settings(EMAIL_BACKEND="")
     def test_email_error(self):
 
-        with self.settings(EMAIL_BACKEND=""):
-            response = self.client.post(
-                reverse("sign_up"),
-                data={
-                    "username": "abc",
-                    "password1": "jdefngath4",
-                    "password2": "jdefngath4",
-                    "email": "abc@def.com",
-                    "url": "http://abc.com",
-                },
-                follow=True,
-            )
-            self.assertEqual(response.status_code, 500)
-            self.assertTemplateUsed(response, "500.html")
+        response = self.client.post(
+            reverse("sign_up"),
+            data={
+                "username": "abc",
+                "password1": "jdefngath4",
+                "password2": "jdefngath4",
+                "email": "abc@def.com",
+                "url": "http://abc.com",
+            },
+            follow=True,
+        )
+        self.assertEqual(response.status_code, 500)
+        self.assertTemplateUsed(response, "500.html")
 
 
 class AdminTest(TestCase):
@@ -897,12 +898,8 @@ class StudentTest(TestCase):
 
 
 class CustomMiddlewareTest(TestCase):
-
     def test_405_response(self):
-        response = self.client.post(
-            reverse("landing_page"),
-            follow=True,
-        )
+        response = self.client.post(reverse("landing_page"), follow=True)
         print(response)
 
         self.assertEqual(response.status_code, 405)
