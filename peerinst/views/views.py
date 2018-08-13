@@ -2950,102 +2950,102 @@ def report(request, assignment_id="", group_id=""):
 
         assignment_data.append(d_a)
 
-        context = {}
-        context["data"] = assignment_data
+    context = {}
+    context["data"] = assignment_data
 
-        ######
-        # for aggregate gradebook over all assignments
-        ## student level gradebook
-        num_responses_by_student = (
-            answer_qs.values("user_token")
-            .order_by("user_token")
-            .annotate(num_responses=Count("user_token"))
-        )
+    ######
+    # for aggregate gradebook over all assignments
+    ## student level gradebook
+    num_responses_by_student = (
+        answer_qs.values("user_token")
+        .order_by("user_token")
+        .annotate(num_responses=Count("user_token"))
+    )
 
-        # serialize num_responses_by_student
-        student_gradebook_dict = defaultdict(Counter)
-        student_gradebook_dict_by_q = defaultdict(defaultdict)
-        for student_entry in num_responses_by_student:
+    # serialize num_responses_by_student
+    student_gradebook_dict = defaultdict(Counter)
+    student_gradebook_dict_by_q = defaultdict(defaultdict)
+    for student_entry in num_responses_by_student:
+        student_gradebook_dict[student_entry["user_token"]][
+            "num_responses"
+        ] += student_entry["num_responses"]
+
+    # aggregate results for each student
+    for question, student_entries in student_transitions_by_q.items():
+        for student_entry in student_entries:
             student_gradebook_dict[student_entry["user_token"]][
-                "num_responses"
-            ] += student_entry["num_responses"]
+                student_entry["transition"]
+            ] += 1
+            student_gradebook_dict_by_q[student_entry["user_token"]][
+                question
+            ] = student_entry["transition"]
 
-        # aggregate results for each student
-        for question, student_entries in student_transitions_by_q.items():
-            for student_entry in student_entries:
-                student_gradebook_dict[student_entry["user_token"]][
-                    student_entry["transition"]
-                ] += 1
-                student_gradebook_dict_by_q[student_entry["user_token"]][
-                    question
-                ] = student_entry["transition"]
+    # array for template
+    gradebook_student = []
+    for student, grades_dict in student_gradebook_dict.items():
+        d_g = {}
+        d_g["student"] = student
 
-        # array for template
-        gradebook_student = []
-        for student, grades_dict in student_gradebook_dict.items():
-            d_g = {}
-            d_g["student"] = student
+        for metric, metric_label in zip(metric_list, metric_labels):
+            if metric in grades_dict:
+                d_g[metric_label] = grades_dict[metric]
+            else:
+                d_g[metric_label] = 0
+        for question in question_list:
 
-            for metric, metric_label in zip(metric_list, metric_labels):
-                if metric in grades_dict:
-                    d_g[metric_label] = grades_dict[metric]
-                else:
-                    d_g[metric_label] = 0
-            for question in question_list:
+            try:
+                d_g[question] = student_gradebook_dict_by_q[student][
+                    question.title
+                ]
 
-                try:
-                    d_g[question] = student_gradebook_dict_by_q[student][
-                        question.title
-                    ]
+            except KeyError as e:
+                d_g[question] = "-"
 
-                except KeyError as e:
-                    d_g[question] = "-"
+        gradebook_student.append(d_g)
 
-            gradebook_student.append(d_g)
+    ######
+    # for aggregate gradebook over all assignments
+    ## question level gradebook
+    num_responses_by_question = (
+        answer_qs.values("question_id")
+        .order_by("question_id")
+        .annotate(num_responses=Count("user_token"))
+    )
 
-        ######
-        # for aggregate gradebook over all assignments
-        ## question level gradebook
-        num_responses_by_question = (
-            answer_qs.values("question_id")
-            .order_by("question_id")
-            .annotate(num_responses=Count("user_token"))
-        )
+    # serialize num_responses_by_question
+    question_gradebook_dict = defaultdict(Counter)
+    for question_entry in num_responses_by_question:
+        question = Question.objects.get(id=question_entry["question_id"])
+        question_gradebook_dict[question][
+            "num_responses"
+        ] += question_entry["num_responses"]
 
-        # serialize num_responses_by_question
-        question_gradebook_dict = defaultdict(Counter)
-        for question_entry in num_responses_by_question:
-            question = Question.objects.get(id=question_entry["question_id"])
+    # aggregate results for each question
+    for q, student_entries in student_transitions_by_q.items():
+        question = Question.objects.get(title=q)
+        for student_entry in student_entries:
             question_gradebook_dict[question][
-                "num_responses"
-            ] += question_entry["num_responses"]
+                student_entry["transition"]
+            ] += 1
 
-        # aggregate results for each question
-        for q, student_entries in student_transitions_by_q.items():
-            question = Question.objects.get(title=q)
-            for student_entry in student_entries:
-                question_gradebook_dict[question][
-                    student_entry["transition"]
-                ] += 1
+    # array for template
+    gradebook_question = []
+    for question, grades_dict in question_gradebook_dict.items():
+        d_g = {}
+        d_g["question"] = question
+        for metric, metric_label in zip(metric_list, metric_labels):
+            if metric in grades_dict:
+                d_g[metric_label] = grades_dict[metric]
+            else:
+                d_g[metric_label] = 0
+        gradebook_question.append(d_g)
 
-        # array for template
-        gradebook_question = []
-        for question, grades_dict in question_gradebook_dict.items():
-            d_g = {}
-            d_g["question"] = question
-            for metric, metric_label in zip(metric_list, metric_labels):
-                if metric in grades_dict:
-                    d_g[metric_label] = grades_dict[metric]
-                else:
-                    d_g[metric_label] = 0
-            gradebook_question.append(d_g)
-
-        context["gradebook_student"] = gradebook_student
-        context["gradebook_question"] = gradebook_question
-        context["gradebook_keys"] = metric_labels
-        context["question_list"] = question_list
-        context["teacher"] = teacher
-        context["json"] = json.dumps(d3_data)
+    context["gradebook_student"] = gradebook_student
+    context["gradebook_question"] = gradebook_question
+    context["gradebook_keys"] = metric_labels
+    context["question_list"] = question_list
+    context["teacher"] = teacher
+    context["json"] = json.dumps(d3_data)
 
     return render(request, template_name, context)
 
