@@ -285,10 +285,12 @@ def sign_up(request):
                         request=request,
                     ),
                 )
+                mail_admins("", "")
             except:
                 response = TemplateResponse(request, "500.html")
                 return HttpResponseServerError(response.render())
 
+            print(4)
             return TemplateResponse(request, "registration/sign_up_done.html")
         else:
             context["form"] = form
