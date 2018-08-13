@@ -87,20 +87,20 @@ class SignUpTest(TestCase):
             "The two password fields didn't match", response.content.decode()
         )
 
-    @override_settings(EMAIL_BACKEND="")
     def test_email_error(self):
 
-        response = self.client.post(
-            reverse("sign_up"),
-            data={
-                "username": "abc",
-                "password1": "jdefngath4",
-                "password2": "jdefngath4",
-                "email": "abc@def.com",
-                "url": "http://abc.com",
-            },
-            follow=True,
-        )
+        with self.settings(EMAIL_BACKEND=""):
+            response = self.client.post(
+                reverse("sign_up"),
+                data={
+                    "username": "abc",
+                    "password1": "jdefngath4",
+                    "password2": "jdefngath4",
+                    "email": "abc@def.com",
+                    "url": "http://abc.com",
+                },
+                follow=True,
+            )
         self.assertEqual(response.status_code, 500)
         self.assertTemplateUsed(response, "500.html")
 
