@@ -1,5 +1,13 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+import warnings
+
+warnings.filterwarnings(
+    "error",
+    r"DateTimeField .* received a naive datetime",
+    RuntimeWarning,
+    r"django\.db\.models\.fields",
+)
 
 import json
 import random
