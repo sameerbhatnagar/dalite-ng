@@ -591,17 +591,21 @@ def report_data_by_student(assignment_list,student_groups):
     answer_qs = subset_answers_by_studentgroup_and_assignment(assignment_list,student_groups)
 
     ## student level gradebook
-    num_responses_by_student = (
-        answer_qs.values("user_token")
-        .order_by("user_token")
-        .annotate(num_responses=Count("user_token"))
-    )
+    num_responses_by_student = answer_qs.values(
+        "user_token"
+        ).order_by(
+        "user_token"
+        ).annotate(
+        num_responses=Count(
+            "user_token"
+            )
+        )
 
     # serialize num_responses_by_student
     student_gradebook_dict = defaultdict(Counter)
     student_gradebook_dict_by_q = defaultdict(defaultdict)
     for student_entry in num_responses_by_student:
-        student_gradebook_dict[student_entry["user_token"]][
+        student_gradebook_dict[Student.objects.get(student__username=student_entry["user_token"])][
             "num_responses"
         ] += student_entry["num_responses"]
 
@@ -613,7 +617,7 @@ def report_data_by_student(assignment_list,student_groups):
     # aggregate results for each student
     for question, student_entries in student_transitions_by_q.items():
         for student_entry in student_entries:
-            student_gradebook_dict[student_entry["user_token"]][
+            student_gradebook_dict[Student.objects.get(student__username=student_entry["user_token"])][
                 student_entry["transition"]
             ] += 1
             student_gradebook_dict_by_q[student_entry["user_token"]][
@@ -624,7 +628,7 @@ def report_data_by_student(assignment_list,student_groups):
     gradebook_student = []
     for student, grades_dict in student_gradebook_dict.items():
         d_g = {}
-        d_g["student"] = student
+        d_g["student"] = student.student.email
 
         for metric, metric_label in zip(metric_list, metric_labels):
             if metric in grades_dict:
