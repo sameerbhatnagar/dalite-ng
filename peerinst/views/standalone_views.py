@@ -38,7 +38,6 @@ from ..models import (
 )
 from ..students import (
     authenticate_student,
-    send_missing_assignments,
     verify_student_token,
 )
 from ..util import get_object_or_none
@@ -111,7 +110,7 @@ def confirm_signup_through_link(request, group_hash, token):
         student.student.is_active = True
         student.groups.add(group)
         student.save()
-        send_missing_assignments(student, group, request.get_host())
+        StudentGroup.send_missing_assignments(student, group, request.get_host())
 
         return TemplateResponse(
             request,

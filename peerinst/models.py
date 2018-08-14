@@ -526,6 +526,23 @@ class StudentGroup(models.Model):
         ), "Postcondition failed"
         return output
 
+    @staticmethod
+    def send_missing_assignments(student, group, host):
+        assert isinstance(student, Student), "Precondition failed for `student`"
+        assert isinstance(group, StudentGroup), "Precondition failed for `group`"
+
+        assignments = StudentGroupAssignment.objects.filter(group=group)
+
+        for assignment in assignments:
+            if not assignment.is_expired():
+                if not StudentAssignment.objects.filter(
+                    student=student, group_assignment=assignment
+                ).exists():
+                    assignment_ = StudentAssignment.objects.create(
+                        student=student, group_assignment=assignment
+                    )
+                    assignment_.send_email(host, "new_assignment")
+
     @property
     def hash(self):
         payload = {"group_name": self.name}
