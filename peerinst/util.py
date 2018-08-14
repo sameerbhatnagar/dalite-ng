@@ -317,11 +317,58 @@ def subset_answers_by_studentgroup_and_assignment(assignment_list,student_groups
     return answer_qs
 
 
-def report_data_student_transitions_by_q():
+def report_data_transitions(question,correct_answer_choices,assignment,student_groups):
+    """
+    given question assignment, and list of student groups,
+    return answer-queryset annotated by type of transition
+    """
+
+    answer_qs = subset_answers_by_studentgroup_and_assignment(
+        assignment_list=[assignment],
+        student_groups=student_groups
+        )
+
+    answer_qs_question = answer_qs.filter(question_id=question.id)
 
 
+    transitions = answer_qs_question.annotate(
+        transition=Case(
+            When(
+                Q(first_answer_choice__in=correct_answer_choices)
+                & Q(second_answer_choice__in=correct_answer_choices),
+                then=Value("rr"),
+            ),
+            When(
+                Q(first_answer_choice__in=correct_answer_choices)
+                & ~Q(second_answer_choice__in=correct_answer_choices),
+                then=Value("rw"),
+            ),
+            When(
+                ~Q(first_answer_choice__in=correct_answer_choices)
+                & Q(second_answer_choice__in=correct_answer_choices),
+                then=Value("wr"),
+            ),
+            When(
+                ~Q(first_answer_choice__in=correct_answer_choices)
+                & ~Q(second_answer_choice__in=correct_answer_choices),
+                then=Value("ww"),
+            ),
+            output_field=CharField(),
+        )
+    )
 
-    return student_transitions_by_q
+    return transitions
+
+def get_correct_answer_choices(question):
+    answer_choices_correct = question.answerchoice_set.values_list(
+        "correct", flat=True
+    )  # e.g. [False, False, True, True]
+    
+    correct_answer_choices = list(
+        itertools.compress(itertools.count(1), answer_choices_correct)
+    )  # e.g. [3,4]
+    return correct_answer_choices
+
 
 def report_data_by_assignment(assignment_list,student_groups):
     """
@@ -341,72 +388,44 @@ def report_data_by_assignment(assignment_list,student_groups):
         metric_list = ["num_responses", "rr", "rw", "wr", "ww"]
         metric_labels = ["N", "RR", "RW", "WR", "WW"]
 
-        student_transitions_by_q = {}
         student_gradebook_transitions = {}
         question_list = []
         d3_data = []
         for q in a.questions.all():
+
+            answer_qs_question = answer_qs.filter(question_id=q.id)
+
             d_q = {}
             d_q["text"] = q.text
             d_q["title"] = q.title
             question_list.append(q)
+            
             try:
                 d_q["question_image"] = q.image
             except ValueError as e:
                 pass
-            d_q["num_responses"] = answer_qs.filter(question_id=q.id).count()
+            
+            d_q["num_responses"] = answer_qs.filter(
+                question_id=q.id
+                ).count()
+
             if d_q["num_responses"] > 0:
                 d_q["show"] = True
 
-            answer_qs_question = answer_qs.filter(question_id=q.id)
             answer_choices_texts = q.answerchoice_set.values_list(
                 "text", flat=True
             )
-            answer_choices_correct = q.answerchoice_set.values_list(
-                "correct", flat=True
-            )  # e.g. [False, False, True, True]
+
             answer_style = q.answer_style
+            
+            correct_answer_choices = get_correct_answer_choices(q)
 
-            correct_answer_choices = list(
-                itertools.compress(itertools.count(1), answer_choices_correct)
-            )  # e.g. [3,4]
-
-            transitions = answer_qs_question.annotate(
-                transition=Case(
-                    When(
-                        Q(first_answer_choice__in=correct_answer_choices)
-                        & Q(second_answer_choice__in=correct_answer_choices),
-                        then=Value("rr"),
-                    ),
-                    When(
-                        Q(first_answer_choice__in=correct_answer_choices)
-                        & ~Q(second_answer_choice__in=correct_answer_choices),
-                        then=Value("rw"),
-                    ),
-                    When(
-                        ~Q(first_answer_choice__in=correct_answer_choices)
-                        & Q(second_answer_choice__in=correct_answer_choices),
-                        then=Value("wr"),
-                    ),
-                    When(
-                        ~Q(first_answer_choice__in=correct_answer_choices)
-                        & ~Q(second_answer_choice__in=correct_answer_choices),
-                        then=Value("ww"),
-                    ),
-                    output_field=CharField(),
+            transitions = report_data_transitions(
+                question = q,
+                correct_answer_choices = correct_answer_choices,
+                assignment = a,
+                student_groups = student_groups
                 )
-            )  # efault_value=Value('none'),\
-
-            # for aggregate gradebook over all assignments
-            ##############
-            student_transitions_by_q[q.title] = transitions.values(
-                "user_token",
-                "transition",
-                "rationale",
-                "first_answer_choice",
-                "second_answer_choice",
-            )
-            ###############
 
             # aggregates for this question in this assignment
             field_names = [
@@ -433,9 +452,11 @@ def report_data_by_assignment(assignment_list,student_groups):
                     d_q_a_c["answer_choice"] = list(string.ascii_uppercase)[
                         c[0] - 1
                     ]
-                    d_q_a_c["answer_choice_correct"] = answer_choices_correct[
+                    d_q_a_c["answer_choice_correct"] = q.answerchoice_set.values_list(
+                        "correct", flat=True
+                        )[
                         c[0] - 1
-                    ]
+                        ]
                     d_q_a_c["count"] = c[1]
                     d_q_a_d["data"].append(d_q_a_c)
                 d_q["answer_distributions"].append(d_q_a_d)
@@ -531,7 +552,41 @@ def report_data_by_assignment(assignment_list,student_groups):
 
     return assignment_data
 
+
+def report_data_transitions_dict(assignment,student_groups):
+
+    student_transitions_by_q = {}
+    for q in assignment.questions.all():
+
+        correct_answer_choices = get_correct_answer_choices(q)
+        
+        transitions = report_data_transitions(
+            question = q,
+            correct_answer_choices = correct_answer_choices,
+            assignment = assignment,
+            student_groups = student_groups
+            ) 
+        student_transitions_by_q[q.title] = transitions.values(
+            "user_token",
+            "transition",
+            "rationale",
+            "first_answer_choice",
+            "second_answer_choice",
+        )
+    return student_transitions_by_q
+
 def report_data_by_student(assignment_list,student_groups):
+
+    # needs DRY
+    metric_list = ["num_responses", "rr", "rw", "wr", "ww"]
+    metric_labels = ["N", "RR", "RW", "WR", "WW"]   
+
+    question_list = Question.objects.filter(
+        assignment__identifier__in=assignment_list
+        ).values_list(
+        'title',
+        flat=True
+        )
 
     answer_qs = subset_answers_by_studentgroup_and_assignment(assignment_list,student_groups)
 
@@ -550,6 +605,11 @@ def report_data_by_student(assignment_list,student_groups):
             "num_responses"
         ] += student_entry["num_responses"]
 
+    student_transitions_by_q = report_data_transitions_dict(
+        assignment=Assignment.objects.get(identifier=assignment_list[0]), # to fix
+        student_groups=student_groups
+        )
+
     # aggregate results for each student
     for question, student_entries in student_transitions_by_q.items():
         for student_entry in student_entries:
@@ -559,7 +619,7 @@ def report_data_by_student(assignment_list,student_groups):
             student_gradebook_dict_by_q[student_entry["user_token"]][
                 question
             ] = student_entry["transition"]
-
+ 
     # array for template
     gradebook_student = []
     for student, grades_dict in student_gradebook_dict.items():
@@ -584,3 +644,56 @@ def report_data_by_student(assignment_list,student_groups):
         gradebook_student.append(d_g)
     return gradebook_student
 
+def report_data_by_question(assignment_list,student_groups):
+    """ 
+    for aggregate gradebook over all assignments
+    question level gradebook
+    """
+    # needs DRY
+    metric_list = ["num_responses", "rr", "rw", "wr", "ww"]
+    metric_labels = ["N", "RR", "RW", "WR", "WW"]
+
+    answer_qs = subset_answers_by_studentgroup_and_assignment(assignment_list,student_groups)
+
+    num_responses_by_question = (
+        answer_qs.values("question_id")
+        .order_by("question_id")
+        .annotate(num_responses=Count("user_token"))
+    )
+
+    # serialize num_responses_by_question
+    question_gradebook_dict = defaultdict(Counter)
+    for question_entry in num_responses_by_question:
+        question = Question.objects.get(id=question_entry["question_id"])
+        question_gradebook_dict[question][
+            "num_responses"
+        ] += question_entry["num_responses"]
+
+    student_transitions_by_q = report_data_transitions_dict(
+        assignment=Assignment.objects.get(
+            identifier=assignment_list[0]
+            ), # to fix
+        student_groups=student_groups
+        )
+
+    # aggregate results for each question
+    for q, student_entries in student_transitions_by_q.items():
+        question = Question.objects.get(title=q)
+        for student_entry in student_entries:
+            question_gradebook_dict[question][
+                student_entry["transition"]
+            ] += 1
+
+    # array for template
+    gradebook_question = []
+    for question, grades_dict in question_gradebook_dict.items():
+        d_g = {}
+        d_g["question"] = question
+        for metric, metric_label in zip(metric_list, metric_labels):
+            if metric in grades_dict:
+                d_g[metric_label] = grades_dict[metric]
+            else:
+                d_g[metric_label] = 0
+        gradebook_question.append(d_g)
+
+    return gradebook_question

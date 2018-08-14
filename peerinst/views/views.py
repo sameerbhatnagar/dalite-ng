@@ -64,6 +64,7 @@ from ..util import (
     question_search_function,
     report_data_by_assignment,
     report_data_by_student,
+    report_data_by_question
 )
 from ..admin_views import (
     get_question_rationale_aggregates,
@@ -2746,50 +2747,24 @@ def report(request, assignment_id="", group_id=""):
     # for aggregate gradebook over all assignments
 
     gradebook_student = report_data_by_student(assignment_list,student_groups)
+    gradebook_question = report_data_by_question(assignment_list,student_groups)
 
-    ######
-    # for aggregate gradebook over all assignments
-    ## question level gradebook
-    num_responses_by_question = (
-        answer_qs.values("question_id")
-        .order_by("question_id")
-        .annotate(num_responses=Count("user_token"))
+    # needs DRY
+    metric_list = ["num_responses", "rr", "rw", "wr", "ww"]
+    metric_labels = ["N", "RR", "RW", "WR", "WW"]
+    question_list = Question.objects.filter(
+    assignment__identifier__in=assignment_list
+    ).values_list(
+    'title',
+    flat=True
     )
-
-    # serialize num_responses_by_question
-    question_gradebook_dict = defaultdict(Counter)
-    for question_entry in num_responses_by_question:
-        question = Question.objects.get(id=question_entry["question_id"])
-        question_gradebook_dict[question][
-            "num_responses"
-        ] += question_entry["num_responses"]
-
-    # aggregate results for each question
-    for q, student_entries in student_transitions_by_q.items():
-        question = Question.objects.get(title=q)
-        for student_entry in student_entries:
-            question_gradebook_dict[question][
-                student_entry["transition"]
-            ] += 1
-
-    # array for template
-    gradebook_question = []
-    for question, grades_dict in question_gradebook_dict.items():
-        d_g = {}
-        d_g["question"] = question
-        for metric, metric_label in zip(metric_list, metric_labels):
-            if metric in grades_dict:
-                d_g[metric_label] = grades_dict[metric]
-            else:
-                d_g[metric_label] = 0
-        gradebook_question.append(d_g)
 
     context["gradebook_student"] = gradebook_student
     context["gradebook_question"] = gradebook_question
     context["gradebook_keys"] = metric_labels
     context["question_list"] = question_list
     context["teacher"] = teacher
-    context["json"] = json.dumps(d3_data)
+    # context["json"] = json.dumps(d3_data)
 
     return render(request, template_name, context)
 
