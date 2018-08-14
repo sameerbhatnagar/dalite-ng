@@ -1000,35 +1000,11 @@ class StudentGroupAssignment(models.Model):
 
         students = self.group.students
         questions = self.questions
-        progress = [
-            {
-                "question": question,
-                "n_choices": len(question.get_choices()),
-                "correct": next(
-                    i
-                    for i, _ in enumerate(question.get_choices())
-                    if question.is_correct(i + 1)
-                ),
-                "students": [
-                    {
-                        "student": student,
-                        "answer": Answer.objects.filter(
-                            user_token=student.student.username,
-                            question=question,
-                            assignment=self.assignment,
-                            time__gte=self.distribution_date,
-                        ).first(),
-                    }
-                    for student in students
-                ],
-            }
-            for question in questions
-        ]
         progress = []
         for question in questions:
             progress.append(
                 {
-                    "question": question,
+                    "question_title": question.title,
                     "n_choices": len(question.get_choices()),
                     "correct": next(
                         i
@@ -1047,37 +1023,47 @@ class StudentGroupAssignment(models.Model):
                 ).first()
                 progress[-1]["students"].append(
                     {
-                        "student": student,
-                        "answer": answer,
-                        "answered_first": answer is not None,
-                        "answered_second": (answer is not None)
-                        and (answer.second_answer_choice is not None),
-                        "correct_first": None
-                        if answer is None
-                        else answer.first_answer_choice
-                        == progress[-1]["correct"],
-                        "correct_second": None
-                        if (answer is None)
-                        or (answer.second_answer_choice is None)
-                        else answer.second_answer_choice
-                        == progress[-1]["correct"],
+                        "student": {
+                            "username": student.student.username,
+                            "email": student.student.email,
+                        },
+                        "answer": {
+                            "first": answer.first_answer_choice
+                            if answer is not None
+                            else None,
+                            "second": answer.second_answer_choice
+                            if (answer is not None)
+                            and (answer.second_answer_choice is not None)
+                            else None,
+                            "first_correct": None
+                            if answer is None
+                            else answer.first_answer_choice
+                            == progress[-1]["correct"],
+                            "second_correct": None
+                            if (answer is None)
+                            or (answer.second_answer_choice is None)
+                            else answer.second_answer_choice
+                            == progress[-1]["correct"],
+                        },
                     }
                 )
-            progress[-1]["answered_first"] = sum(
-                s["answered_first"] for s in progress[-1]["students"]
-            )
-            progress[-1]["correct_first"] = sum(
-                s["correct_first"]
+            progress[-1]["first"] = sum(
+                s["answer"]["first"] is not None
                 for s in progress[-1]["students"]
-                if s["correct_first"] is not None
             )
-            progress[-1]["answered_second"] = sum(
-                s["answered_second"] for s in progress[-1]["students"]
-            )
-            progress[-1]["correct_second"] = sum(
-                s["correct_second"]
+            progress[-1]["first_correct"] = sum(
+                s["answer"]["first_correct"]
                 for s in progress[-1]["students"]
-                if s["correct_second"] is not None
+                if s["answer"]["first_correct"] is not None
+            )
+            progress[-1]["second"] = sum(
+                s["answer"]["second"] is not None
+                for s in progress[-1]["students"]
+            )
+            progress[-1]["second_correct"] = sum(
+                s["answer"]["second_correct"]
+                for s in progress[-1]["students"]
+                if s["answer"]["second_correct"] is not None
             )
 
         output = progress

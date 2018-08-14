@@ -1,6 +1,7 @@
 'use strict';
 
-function removeAssignment(event) {
+function removeAssignment(event, url) {
+  event.stopPropagation();
   let li = event.currentTarget.parentNode.parentNode;
   let container = li.parentNode;
 
@@ -11,7 +12,7 @@ function removeAssignment(event) {
       'X-CSRFToken': token,
     },
   };
-  let url = li.firstChild.href + 'remove/';
+  url = url + 'remove/';
 
   fetch(url, req).then(function(resp) {
     if (resp.ok) {

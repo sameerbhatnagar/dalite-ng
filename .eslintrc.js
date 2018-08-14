@@ -6,6 +6,7 @@ module.exports = {
     'no-unused-vars': ['error', {varsIgnorePattern: 'MDC'}],
     'arrow-parens': 'off',
     'require-jsdoc': 'off',
+    'guard-for-in': 'off',
     quotes: 'off',
   },
 };

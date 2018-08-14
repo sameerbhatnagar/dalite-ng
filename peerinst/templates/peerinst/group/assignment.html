@@ -127,9 +127,9 @@
       <h2 class="foldable--title mdc-typography--display1 mdc-theme--secondary">
         {% trans 'Student progress' %}
       </h2>
-      <div class="foldable--body">
-        <div id="student-progress" data-url="{% url 'get-assignment-student-progress' assignment.hash %}">
-        </div>
+      <div onclick="bundle.toggleStudentProgressView()" class="foldable--body">
+        <ul id="student-progress" data-url="{% url 'get-assignment-student-progress' assignment.hash %}" data-showing="false" class="mdc-list mdc-list--two-line mdc-list--non-interactive">
+        </ul>
       </div>
     </div>
 
@@ -186,5 +186,8 @@
 {% block scripts %}
 {% compress js inline %}
 <script src="{% static 'peerinst/js/group.min.js' %}"></script>
+<script>
+  bundle.setUpAssignmentPage();
+</script>
 {% endcompress %}
 {% endblock %}

@@ -125,15 +125,15 @@
         {% trans 'Assignments' %}
       </h2>
       <div class="foldable--body">
-        <ul id="assignment-list" class="mdc-list mdc-list--two-line mdc-list--non-interactive">
+        <ul id="assignment-list" class="mdc-list mdc-list--two-line">
           <li class="mdc-list-divider" role="separator"></li>
           {% if assignments %}
           {% for a in assignments %}
-          <li class="mdc-list-item">
-            <a href="{% url 'group-assignment' a.hash %}" class="mdc-list-item__graphic mdc-theme--primary" style="cursor: pointer;">
+          <li onclick="window.location.href='{% url 'group-assignment' a.hash %}'" class="mdc-list-item" style="cursor: pointer;">
+            <span class="mdc-list-item__graphic mdc-theme--primary">
               <i class="mdc-theme--primary material-icons md-48">work</i>
-            </a>
-            <a href="{% url 'group-assignment' a.hash %}" class="mdc-list-item__text mdc-theme--secondary bold" style="cursor: pointer;">
+            </span>
+            <span class="mdc-list-item__text mdc-theme--secondary bold">
               {{ a.assignment.title }}
               <span class="mdc-list-item__secondary-text">
                 {% trans "Distributed: " %}{{ a.distribution_date }}
@@ -141,9 +141,9 @@
               <span class="mdc-list-item__secondary-text">
                 {% trans "Due date: " %}{{ a.due_date }}
               </span>
-            </a>
+            </span>
             <span class="mdc-list-item__meta">
-              <i onclick="bundle.removeAssignment(event)" class="material-icons md-24 mdc-ripple-surface icon-list">delete</i>
+              <i onclick="bundle.removeAssignment(event, '{% url 'group-assignment' a.hash %}')" class="material-icons md-24 mdc-ripple-surface icon-list">delete</i>
               <a href="{% url 'group-assignment' a.hash %}">
               <i class="material-icons md-24 mdc-ripple-surface icon-list">edit</i>
               </a>
