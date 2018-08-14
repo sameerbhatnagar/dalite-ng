@@ -1,5 +1,7 @@
 'use strict';
 
+import {addStudentProgressView} from './student_progress.js';
+
 function onQuestionListModified() {
   let btn = document.querySelector('#question-list-save');
   btn.disabled = false;
@@ -71,4 +73,9 @@ function sendAssignmentEmail(event, url) {
   });
 }
 
-export {addAssignmentEventListeners, saveQuestionList, sendAssignmentEmail};
+function setUpAssignmentPage() {
+  addAssignmentEventListeners();
+  addStudentProgressView();
+}
+
+export {setUpAssignmentPage, saveQuestionList, sendAssignmentEmail};

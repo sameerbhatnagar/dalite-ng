@@ -31,4 +31,8 @@ export default {
     uglify(),
   ],
   external: ['flatpickr'],
+  onwarn(warning, warn) {
+    if (warning.code === 'CIRCULAR_DEPENDENCY') return;
+    warn(warning);
+  },
 };

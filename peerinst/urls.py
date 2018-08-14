@@ -241,11 +241,7 @@ def old_patterns():
             views.report_selector,
             name="report_selector",
         ),
-        url(
-            r"^teacher/custom_report/$",
-            views.report,
-            name="report-custom",
-        ),
+        url(r"^teacher/custom_report/$", views.report, name="report-custom"),
         url(
             r"^report_rationales_chosen$",
             views.report_assignment_aggregates,
@@ -430,6 +426,11 @@ def group_patterns():
             r"^group-assignment/(?P<assignment_hash>[0-9A-Za-z=_-]+)/send/$",
             views.send_student_assignment,
             name="send-student-assignment",
+        ),
+        url(
+            r"^group-assignment/(?P<assignment_hash>[0-9A-Za-z=_-]+)/student-progress/$",
+            views.get_assignment_student_progress,
+            name="get-assignment-student-progress",
         ),
     ]
 

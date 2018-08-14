@@ -224,7 +224,6 @@ def group_assignment_page(req, assignment_hash, teacher, group, assignment):
         "group": group,
         "assignment": assignment,
         "questions": assignment.get_questions(),
-        "student_progress": assignment.get_student_progress(),
     }
 
     return render(req, "peerinst/group/assignment.html", context)
@@ -319,3 +318,13 @@ def send_student_assignment(req, assignment_hash, teacher, group, assignment):
         return HttpResponseServerError(resp.render())
 
     return HttpResponse()
+
+
+@login_required
+@require_http_methods(["GET"])
+@group_access_required
+def get_assignment_student_progress(
+    req, assignment_hash, teacher, group, assignment
+):
+    data = assignment.get_student_progress()
+    return JsonResponse(data)
