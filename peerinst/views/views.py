@@ -19,7 +19,6 @@ from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.core.mail import mail_admins, send_mail
 from django.core.urlresolvers import reverse, reverse_lazy
-from django.db.models import Q
 from django.forms import inlineformset_factory, Textarea
 from django.http import (
     Http404,
@@ -63,6 +62,9 @@ from ..util import (
     roundrobin,
     student_list_from_student_groups,
     question_search_function,
+    report_data_by_assignment,
+    report_data_by_student,
+    report_data_by_question
 )
 from ..admin_views import (
     get_question_rationale_aggregates,
@@ -109,6 +111,7 @@ from django.contrib.sessions.models import Session
 # reports
 from django.db.models.expressions import Func
 from django.db.models import Count, Value, Case, Q, When, CharField
+
 
 # tos
 from tos.models import Consent, Tos
@@ -2739,305 +2742,36 @@ def report(request, assignment_id="", group_id=""):
             "identifier", flat=True
         )
 
-    student_id_list = student_list_from_student_groups(student_groups)
-    answer_qs = Answer.objects.filter(
-        assignment_id__in=assignment_list
-    ).filter(user_token__in=student_id_list)
 
-    # all data
-    assignment_data = []
-    for a_str in assignment_list:
-        a = Assignment.objects.get(identifier=a_str)
-        d_a = {}
-        d_a["assignment"] = a.title
-        d_a["questions"] = []
+    print(assignment_list)
 
-        metric_list = ["num_responses", "rr", "rw", "wr", "ww"]
-        metric_labels = ["N", "RR", "RW", "WR", "WW"]
+    assignment_data = report_data_by_assignment(assignment_list,student_groups)
 
-        student_transitions_by_q = {}
-        student_gradebook_transitions = {}
-        question_list = []
-        d3_data = []
-        for q in a.questions.all():
-            d_q = {}
-            d_q["text"] = q.text
-            d_q["title"] = q.title
-            question_list.append(q)
-            try:
-                d_q["question_image"] = q.image
-            except ValueError as e:
-                pass
-            d_q["num_responses"] = answer_qs.filter(question_id=q.id).count()
-            if d_q["num_responses"] > 0:
-                d_q["show"] = True
+    context = {}
+    context["data"] = assignment_data
 
-            answer_qs_question = answer_qs.filter(question_id=q.id)
-            answer_choices_texts = q.answerchoice_set.values_list(
-                "text", flat=True
-            )
-            answer_choices_correct = q.answerchoice_set.values_list(
-                "correct", flat=True
-            )  # e.g. [False, False, True, True]
-            answer_style = q.answer_style
+    ######
+    # for aggregate gradebook over all assignments
 
-            correct_answer_choices = list(
-                itertools.compress(itertools.count(1), answer_choices_correct)
-            )  # e.g. [3,4]
+    gradebook_student = report_data_by_student(assignment_list,student_groups)
+    gradebook_question = report_data_by_question(assignment_list,student_groups)
 
-            transitions = answer_qs_question.annotate(
-                transition=Case(
-                    When(
-                        Q(first_answer_choice__in=correct_answer_choices)
-                        & Q(second_answer_choice__in=correct_answer_choices),
-                        then=Value("rr"),
-                    ),
-                    When(
-                        Q(first_answer_choice__in=correct_answer_choices)
-                        & ~Q(second_answer_choice__in=correct_answer_choices),
-                        then=Value("rw"),
-                    ),
-                    When(
-                        ~Q(first_answer_choice__in=correct_answer_choices)
-                        & Q(second_answer_choice__in=correct_answer_choices),
-                        then=Value("wr"),
-                    ),
-                    When(
-                        ~Q(first_answer_choice__in=correct_answer_choices)
-                        & ~Q(second_answer_choice__in=correct_answer_choices),
-                        then=Value("ww"),
-                    ),
-                    output_field=CharField(),
-                )
-            )  # efault_value=Value('none'),\
+    # needs DRY
+    metric_list = ["num_responses", "rr", "rw", "wr", "ww"]
+    metric_labels = ["N", "RR", "RW", "WR", "WW"]
+    question_list = Question.objects.filter(
+    assignment__identifier__in=assignment_list
+    ).values_list(
+    'title',
+    flat=True
+    )
 
-            # for aggregate gradebook over all assignments
-            ##############
-            student_transitions_by_q[q.title] = transitions.values(
-                "user_token",
-                "transition",
-                "rationale",
-                "first_answer_choice",
-                "second_answer_choice",
-            )
-            ###############
-
-            # aggregates for this question in this assignment
-            field_names = [
-                "first_answer_choice",
-                "second_answer_choice",
-            ]  # ,'transition']
-            field_labels = [
-                "First Answer Choice",
-                "Second Answer Choice",
-            ]  # ,'Transition']
-            d_q["answer_distributions"] = []
-            for field_name, field_label in zip(field_names, field_labels):
-                counts = (
-                    answer_qs_question.values_list(field_name)
-                    .order_by(field_name)
-                    .annotate(count=Count(field_name))
-                )
-
-                d_q_a_d = {}
-                d_q_a_d["label"] = field_label
-                d_q_a_d["data"] = []
-                for c in counts:
-                    d_q_a_c = {}
-                    d_q_a_c["answer_choice"] = list(string.ascii_uppercase)[
-                        c[0] - 1
-                    ]
-                    d_q_a_c["answer_choice_correct"] = answer_choices_correct[
-                        c[0] - 1
-                    ]
-                    d_q_a_c["count"] = c[1]
-                    d_q_a_d["data"].append(d_q_a_c)
-                d_q["answer_distributions"].append(d_q_a_d)
-
-            field_names = ["transition"]
-            field_labels = ["Transition"]
-            d_q["transitions"] = []
-            for field_name, field_label in zip(field_names, field_labels):
-                counts = (
-                    transitions.values_list(field_name)
-                    .order_by(field_name)
-                    .annotate(count=Count(field_name))
-                )
-
-                d_q_a_d = {}
-                d_q_a_d["label"] = field_label
-                d_q_a_d["data"] = []
-                for c in counts:
-                    d_q_a_c = {}
-                    d_q_a_c["transition_type"] = c[0]
-                    d_q_a_c["count"] = c[1]
-                    d_q_a_d["data"].append(d_q_a_c)
-
-                    # counter for assignment level aggregate
-                    if c[0] in student_gradebook_transitions:
-                        student_gradebook_transitions[c[0]] += c[1]
-                    else:
-                        student_gradebook_transitions[c[0]] = c[1]
-
-                d_q["transitions"].append(d_q_a_d)
-
-                d3_data_dict = {}
-                d3_data_dict["question"] = q.title
-                d3_data_dict["distribution"] = d_q_a_d
-                d3_data.append(d3_data_dict)
-
-            # confusion matrix
-            d_q["confusion_matrix"] = []
-            for first_choice_index in range(1, q.answerchoice_set.count() + 1):
-                d_q_cf = {}
-                first_answer_qs = (
-                    q.answer_set.filter(first_answer_choice=first_choice_index)
-                    .exclude(user_token="")
-                    .filter(assignment_id=a.identifier)
-                )
-                d_q_cf["first_answer_choice"] = first_choice_index
-                d_q_cf["second_answer_choice"] = []
-                for second_choice_index in range(
-                    1, q.answerchoice_set.count() + 1
-                ):
-                    d_q_cf_a2 = {}
-                    d_q_cf_a2["value"] = second_choice_index
-                    count = first_answer_qs.filter(
-                        second_answer_choice=second_choice_index
-                    ).count()
-                    if count:
-                        d_q_cf_a2["N"] = count
-                    else:
-                        d_q_cf_a2["N"] = 0
-                    d_q_cf["second_answer_choice"].append(d_q_cf_a2)
-                d_q["confusion_matrix"].append(d_q_cf)
-
-            d_q["student_responses"] = []
-            for student_response in answer_qs_question:
-                d_q_a = {}
-                d_q_a["student"] = student_response.user_token
-                d_q_a["first_answer_choice"] = list(string.ascii_uppercase)[
-                    student_response.first_answer_choice - 1
-                ]
-                d_q_a["rationale"] = student_response.rationale
-                d_q_a["second_answer_choice"] = list(string.ascii_uppercase)[
-                    student_response.second_answer_choice - 1
-                ]
-                if student_response.chosen_rationale_id:
-                    d_q_a["chosen_rationale"] = Answer.objects.get(
-                        pk=student_response.chosen_rationale_id
-                    ).rationale
-                else:
-                    d_q_a["chosen_rationale"] = "Stick to my own rationale"
-                d_q_a["submitted"] = student_response.time
-                d_q["student_responses"].append(d_q_a)
-
-            d_a["questions"].append(d_q)
-            d_a["transitions"] = []
-            for name, count in student_gradebook_transitions.items():
-                d_t = {}
-                d_t["transition_type"] = name
-                d_t["count"] = count
-                d_a["transitions"].append(d_t)
-
-        assignment_data.append(d_a)
-
-        context = {}
-        context["data"] = assignment_data
-
-        ######
-        # for aggregate gradebook over all assignments
-        ## student level gradebook
-        num_responses_by_student = (
-            answer_qs.values("user_token")
-            .order_by("user_token")
-            .annotate(num_responses=Count("user_token"))
-        )
-
-        # serialize num_responses_by_student
-        student_gradebook_dict = defaultdict(Counter)
-        student_gradebook_dict_by_q = defaultdict(defaultdict)
-        for student_entry in num_responses_by_student:
-            student_gradebook_dict[student_entry["user_token"]][
-                "num_responses"
-            ] += student_entry["num_responses"]
-
-        # aggregate results for each student
-        for question, student_entries in student_transitions_by_q.items():
-            for student_entry in student_entries:
-                student_gradebook_dict[student_entry["user_token"]][
-                    student_entry["transition"]
-                ] += 1
-                student_gradebook_dict_by_q[student_entry["user_token"]][
-                    question
-                ] = student_entry["transition"]
-
-        # array for template
-        gradebook_student = []
-        for student, grades_dict in student_gradebook_dict.items():
-            d_g = {}
-            d_g["student"] = student
-
-            for metric, metric_label in zip(metric_list, metric_labels):
-                if metric in grades_dict:
-                    d_g[metric_label] = grades_dict[metric]
-                else:
-                    d_g[metric_label] = 0
-            for question in question_list:
-
-                try:
-                    d_g[question] = student_gradebook_dict_by_q[student][
-                        question.title
-                    ]
-
-                except KeyError as e:
-                    d_g[question] = "-"
-
-            gradebook_student.append(d_g)
-
-        ######
-        # for aggregate gradebook over all assignments
-        ## question level gradebook
-        num_responses_by_question = (
-            answer_qs.values("question_id")
-            .order_by("question_id")
-            .annotate(num_responses=Count("user_token"))
-        )
-
-        # serialize num_responses_by_question
-        question_gradebook_dict = defaultdict(Counter)
-        for question_entry in num_responses_by_question:
-            question = Question.objects.get(id=question_entry["question_id"])
-            question_gradebook_dict[question][
-                "num_responses"
-            ] += question_entry["num_responses"]
-
-        # aggregate results for each question
-        for q, student_entries in student_transitions_by_q.items():
-            question = Question.objects.get(title=q)
-            for student_entry in student_entries:
-                question_gradebook_dict[question][
-                    student_entry["transition"]
-                ] += 1
-
-        # array for template
-        gradebook_question = []
-        for question, grades_dict in question_gradebook_dict.items():
-            d_g = {}
-            d_g["question"] = question
-            for metric, metric_label in zip(metric_list, metric_labels):
-                if metric in grades_dict:
-                    d_g[metric_label] = grades_dict[metric]
-                else:
-                    d_g[metric_label] = 0
-            gradebook_question.append(d_g)
-
-        context["gradebook_student"] = gradebook_student
-        context["gradebook_question"] = gradebook_question
-        context["gradebook_keys"] = metric_labels
-        context["question_list"] = question_list
-        context["teacher"] = teacher
-        context["json"] = json.dumps(d3_data)
+    context["gradebook_student"] = gradebook_student
+    context["gradebook_question"] = gradebook_question
+    context["gradebook_keys"] = metric_labels
+    context["question_list"] = question_list
+    context["teacher"] = teacher
+    # context["json"] = json.dumps(d3_data)
 
     return render(request, template_name, context)
 
