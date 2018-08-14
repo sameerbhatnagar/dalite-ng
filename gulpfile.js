@@ -7,8 +7,6 @@ const cssnano = require('cssnano');
 const autoprefixer = require('autoprefixer');
 const runSequence = require('run-sequence');
 const concat = require('gulp-concat');
-// const rollup = require('rollup-stream');
-// const source = require('vinyl-source-stream');
 
 // Run sass and minify
 gulp.task('sass', function() {
@@ -67,13 +65,6 @@ gulp.task('autoprefixer', function() {
     .pipe(sourcemaps.write('.'))
     .pipe(gulp.dest('./peerinst/static/peerinst/css/'));
 });
-
-/* Not working; error thrown
-gulp.task('rollup', function() {
-  return rollup('rollup.config.js')
-    .pipe(source('index.min.js'))
-    .pipe(gulp.dest('./peerinst/static/peerinst/js/'));
-});*/
 
 gulp.task('peerinst-styles', function(callback) {
   runSequence('sass', 'css', 'autoprefixer', callback);
@@ -140,8 +131,27 @@ gulp.task('peerinst-scripts-group', function() {
   );
 });
 
+gulp.task('peerinst-scripts-ajax', function() {
+  const runCommand = require('child_process').execSync;
+  runCommand(
+    './node_modules/.bin/rollup -c ./rollup/peerinst/ajax-rollup.config.js',
+    function(err, stdout, stderr) {
+      console.log('Output: ' + stdout);
+      console.log('Error: ' + stderr);
+      if (err) {
+        console.log('Error: ' + err);
+      }
+    },
+  );
+});
+
 gulp.task('peerinst-scripts', function(callback) {
-  runSequence('peerinst-scripts-index', 'peerinst-scripts-group', callback);
+  runSequence(
+    'peerinst-scripts-index',
+    'peerinst-scripts-group',
+    'peerinst-scripts-ajax',
+    callback,
+  );
 });
 
 gulp.task('peerinst-build', function(callback) {
@@ -226,6 +236,14 @@ gulp.task('watch', function() {
   ]);
   gulp.watch(
     [
+      './peerinst/static/peerinst/js/*.js',
+      '!./peerinst/static/peerinst/js/group.js',
+      '!./peerinst/static/peerinst/js/*.min.js',
+    ],
+    ['peerinst-scripts-index'],
+  );
+  gulp.watch(
+    [
       './peerinst/static/peerinst/js/_group/*.js',
       './peerinst/static/peerinst/js/group.js',
     ],
@@ -233,10 +251,9 @@ gulp.task('watch', function() {
   );
   gulp.watch(
     [
-      './peerinst/static/peerinst/js/*.js',
-      '!./peerinst/static/peerinst/js/group.js',
-      '!./peerinst/static/peerinst/js/*.min.js',
+      './peerinst/static/peerinst/js/_ajax/*.js',
+      './peerinst/static/peerinst/js/ajax.js',
     ],
-    ['peerinst-scripts-index'],
+    ['peerinst-scripts-ajax'],
   );
 });
