@@ -7,16 +7,9 @@ from datetime import datetime, timedelta
 import pytz
 from django.contrib.auth.models import User
 
-from peerinst.models import (
-    Answer,
-    Assignment,
-    Question,
-    Student,
-    StudentAssignment,
-    StudentGroup,
-    StudentGroupAssignment,
-    Teacher,
-)
+from peerinst.models import (Answer, AnswerChoice, Assignment, Question,
+                             Student, StudentAssignment, StudentGroup,
+                             StudentGroupAssignment, Teacher,)
 from tos.models import Consent as TosConsent
 
 
@@ -275,6 +268,17 @@ def add_second_choice_to_answers(answers, assignment, n_second_choices=None):
         ].chosen_rationale.first_answer_choice
         answers_[i].save()
     return answers
+
+def add_answer_choices(n_each, questions):
+    for question in questions:
+        for i in range(n_each):
+            AnswerChoice.objects.create(question=question,text=str(i),correct=i==0)
+
+
+
+def add_to_group(students, groups):
+    for student in students:
+        student.groups.add(*groups)
 
 
 def _extra_chars_gen():

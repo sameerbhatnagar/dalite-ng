@@ -128,7 +128,24 @@
         {% trans 'Student progress' %}
       </h2>
       <div class="foldable--body">
+        <ul id="student-progress-list" class="mdc-list mdc-list--two-line mdc-list--non-interactive">
 
+        {% for question in student_progress %}
+
+        <li class="mdc-list-item">
+
+          <span class="mdc-list-item__text mdc-theme--secondary bold">
+            {{ question.question.title|safe|striptags }}
+            <span class="mdc-list-item__secondary-text">
+              {{ question.answered_first }}
+            </span>
+          </span>
+          
+        </li>
+
+        {% endfor %}
+          
+        </ul>
       </div>
     </div>
 
@@ -138,7 +155,7 @@
       </h2>
       <div class="foldable--body">
         <ul id="student-list" class="mdc-list mdc-list--two-line mdc-list--non-interactive">
-
+          {% if group.students %}
           {% for student in group.students %}
 
           <li class="mdc-list-item">
@@ -157,6 +174,14 @@
           </li>
 
           {% endfor %}
+
+          {% else %}
+
+              <span class="mdc-list-item__text mdc-theme--secondary">
+                {% trans 'No student has signed up yet' %}
+              </span>
+
+          {% endif %}
 
       </div>
     </div>

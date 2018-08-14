@@ -104,6 +104,32 @@ class TestStudent(TestCase):
             self.assertEqual(student.student.email, s["email"])
             self.assertEqual(student.student.username, username)
 
+    def test_send_missing_assignments(self):
+        students = add_students(new_students(1))
+        groups = add_groups(new_groups(1))
+        questions = add_questions(new_questions(10))
+        assignments = add_assignments(new_assignments(2, questions))
+        group_assignments = add_student_group_assignments(
+            new_student_group_assignments(2, groups, assignments)
+        )
+        student_assignment = add_student_assignments(
+            new_student_assignments(1, group_assignments[:-1], students)
+        )
+
+        tests = [{"group": groups[0], "host": "localhost"}]
+        for test in tests:
+            self.assertFalse(
+                StudentAssignment.objects.filter(
+                    student=students[0], group_assignment=group_assignments[-1]
+                ).exists()
+            )
+            students[0].send_missing_assignments(**test)
+            self.assertTrue(
+                StudentAssignment.objects.filter(
+                    student=students[0], group_assignment=group_assignments[-1]
+                ).exists()
+            )
+
 
 class TestStudentGroup(TestCase):
     def test_new_student_group(self):
@@ -122,119 +148,6 @@ class TestStudentGroup(TestCase):
 
         for group in groups:
             self.assertEqual(group, StudentGroup.get(group.hash))
-
-
-class TestStudentGroupAssignment(TestCase):
-    def setUp(self):
-        n_assignments = 20
-        n_groups = 2
-        n_questions = 100
-
-        questions = add_questions(new_questions(n_questions))
-        self.groups = add_groups(new_groups(n_groups))
-        self.assignments = add_assignments(
-            new_assignments(n_assignments, questions)
-        )
-
-    def test_new_student_group_assignment(self):
-        n = 10
-        data = new_student_group_assignments(n, self.groups, self.assignments)
-
-        for d in data:
-            group = StudentGroupAssignment.objects.create(**d)
-            n = len(group.assignment.questions.all())
-            self.assertIsInstance(group, StudentGroupAssignment)
-            self.assertEqual(group.group, d["group"])
-            self.assertEqual(group.assignment, d["assignment"])
-            self.assertEqual(group.order, ",".join(map(str, range(n))))
-
-    def test_is_expired(self):
-        due_dates = [
-            datetime.now(pytz.utc),
-            datetime.now(pytz.utc) + timedelta(days=1),
-        ]
-        assignments = add_student_group_assignments(
-            reduce(
-                add,
-                (
-                    new_student_group_assignments(
-                        1, self.groups, self.assignments, due_date=due_date
-                    )
-                    for due_date in due_dates
-                ),
-            )
-        )
-
-        self.assertEqual(assignments[0].is_expired(), True)
-        self.assertEqual(assignments[1].is_expired(), False)
-
-    def test_hashing(self):
-        n = 10
-        assignments = add_student_group_assignments(
-            new_student_group_assignments(n, self.groups, self.assignments)
-        )
-
-        for assignment in assignments:
-            self.assertEqual(
-                assignment, StudentGroupAssignment.get(assignment.hash)
-            )
-
-    def test_modify_order(self):
-        n = 2
-        assignments = add_student_group_assignments(
-            new_student_group_assignments(n, self.groups, self.assignments)
-        )
-
-        for assignment in assignments:
-            k = len(assignment.assignment.questions.all())
-            new_order = ",".join(map(str, random.sample(range(k), k=k)))
-            err = assignment.modify_order(new_order)
-            self.assertIs(err, None)
-            self.assertEqual(new_order, assignment.order)
-
-    def test_modify_order_wrong_type(self):
-        n = 1
-        assignment = add_student_group_assignments(
-            new_student_group_assignments(n, self.groups, self.assignments)
-        )[0]
-
-        new_order = [1, 2, 3]
-        self.assertRaises(AssertionError, assignment.modify_order, new_order)
-
-        new_order = "abc"
-        err = assignment.modify_order(new_order)
-        self.assertEqual(
-            err, "Given `order` isn't a comma separated list of integers."
-        )
-
-        new_order = "a,b,c"
-        err = assignment.modify_order(new_order)
-        self.assertEqual(
-            err, "Given `order` isn't a comma separated list of integers."
-        )
-
-    def test_modify_order_wrong_values(self):
-        n = 1
-        assignment = add_student_group_assignments(
-            new_student_group_assignments(n, self.groups, self.assignments)
-        )[0]
-
-        n = len(assignment.assignment.questions.all())
-
-        data = ("-1,2,3", "1,2,{}".format(n), "1,1,2")
-
-        errors = (
-            "Given `order` has negative values.",
-            (
-                "Given `order` has at least one value bigger than the number "
-                "of questions."
-            ),
-            "There are duplicate values in `order`.",
-        )
-
-        for d, e in zip(data, errors):
-            err = assignment.modify_order(d)
-            self.assertEqual(err, e)
 
 
 class TestStudentAssignment(TestCase):
