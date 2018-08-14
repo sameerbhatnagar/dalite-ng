@@ -224,6 +224,7 @@ def group_assignment_page(req, assignment_hash, teacher, group, assignment):
         "group": group,
         "assignment": assignment,
         "questions": assignment.get_questions(),
+        "student_progress": assignment.get_student_progress(),
     }
 
     return render(req, "peerinst/group/assignment.html", context)
