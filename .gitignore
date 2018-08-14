@@ -18,3 +18,5 @@ tags
 *.mypy_cache/
 /htmlcov
 /media
+pytest-logs.txt
+
