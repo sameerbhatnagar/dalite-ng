@@ -58,8 +58,8 @@ function questionView(data) {
   progress.classList.add('mdc-list-item__meta');
   li.append(progress);
 
-  let width = 72;
-  let height = 72;
+  let width = 48;
+  let height = 48;
 
   progressView(
     progress,
@@ -123,11 +123,10 @@ function progressView(
   // .value(d => d)
   // .sort(null);
 
-  let colours = ['--mdc-theme-primary', '#ffffff'];
-
   let svg = d3
     .select(container)
     .append('svg')
+    .attr('class', 'icon-list')
     .attr('width', width)
     .attr('height', height)
     .append('g')
@@ -135,36 +134,39 @@ function progressView(
 
   let arc = d3
     .arc()
-    .innerRadius(radius - 10)
+    .innerRadius(radius - 5)
     .outerRadius(radius)
     .startAngle(startAngle)
     .endAngle(endAngle);
 
   let arcLine = d3
     .arc()
-    .innerRadius(radius - 10)
+    .innerRadius(radius - 5)
     .outerRadius(radius)
     .startAngle(startAngle);
 
   svg
     .append('path')
     .attr('d', arc)
-    .style('fill', colours[1]);
+    .attr('stroke', 'none')
+    .attr('class', 'fill-secondary');
 
   let pathChart = svg
     .append('path')
     .datum({endAngle: endAngle})
     .attr('d', arcLine)
-    .style('fill', colours[0]);
+    .attr('stroke', 'none')
+    .attr('class', 'fill-primary');
+
+  console.info(data);
 
   let count = svg
     .append('text')
-    .text(d => d)
+    .text(data)
     .attr('text-anchor', 'middle')
-    // .attr('dy', 30)
-    // .attr('dx', -15)
-    .style('fill', colours[0])
-    .attr('font-size', '90px');
+    .attr('dy', 8)
+    .attr('class', 'fill-primary')
+    .attr('font-size', '24px');
 
   let arcTween = function(transition, newAngle_) {
     transition.attrTween('d', function(d) {

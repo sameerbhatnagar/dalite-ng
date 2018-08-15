@@ -1066,6 +1066,8 @@ class StudentGroupAssignment(models.Model):
                 if s["answer"]["second_correct"] is not None
             )
 
+        print(progress)
+
         output = progress
         return output
 

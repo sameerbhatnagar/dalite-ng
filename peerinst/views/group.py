@@ -130,6 +130,7 @@ def group_assignment_page(req, assignment_hash, teacher, group, assignment):
         "group": group,
         "assignment": assignment,
         "questions": assignment.get_questions(),
+        "students_with_answers": assignment.assignment.answer_set.values_list('user_token', flat=True),
     }
 
     return render(req, "peerinst/group/assignment.html", context)
