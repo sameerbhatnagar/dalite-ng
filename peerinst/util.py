@@ -317,14 +317,14 @@ def subset_answers_by_studentgroup_and_assignment(assignment_list,student_groups
     return answer_qs
 
 
-def report_data_transitions(question,correct_answer_choices,assignment,student_groups):
+def report_data_transitions(question,correct_answer_choices,assignment_list,student_groups):
     """
     given question assignment, and list of student groups,
     return answer-queryset annotated by type of transition
     """
 
     answer_qs = subset_answers_by_studentgroup_and_assignment(
-        assignment_list=[assignment],
+        assignment_list=assignment_list,
         student_groups=student_groups
         )
 
@@ -423,7 +423,7 @@ def report_data_by_assignment(assignment_list,student_groups):
             transitions = report_data_transitions(
                 question = q,
                 correct_answer_choices = correct_answer_choices,
-                assignment = a,
+                assignment_list = assignment_list,
                 student_groups = student_groups
                 )
 
@@ -528,7 +528,7 @@ def report_data_by_assignment(assignment_list,student_groups):
                     ).student.email.split(
                     "@"
                     )[0]
-                    
+
                 d_q_a["first_answer_choice"] = list(string.ascii_uppercase)[
                     student_response.first_answer_choice - 1
                 ]
@@ -558,17 +558,17 @@ def report_data_by_assignment(assignment_list,student_groups):
     return assignment_data
 
 
-def report_data_transitions_dict(assignment,student_groups):
+def report_data_transitions_dict(assignment_list,student_groups):
 
     student_transitions_by_q = {}
-    for q in assignment.questions.all():
+    for q in Question.objects.filter(assignment__identifier__in=assignment_list):
 
         correct_answer_choices = get_correct_answer_choices(q)
         
         transitions = report_data_transitions(
             question = q,
             correct_answer_choices = correct_answer_choices,
-            assignment = assignment,
+            assignment_list = assignment_list,
             student_groups = student_groups
             ) 
         student_transitions_by_q[q.title] = transitions.values(
@@ -615,7 +615,7 @@ def report_data_by_student(assignment_list,student_groups):
         ] += student_entry["num_responses"]
 
     student_transitions_by_q = report_data_transitions_dict(
-        assignment=Assignment.objects.get(identifier=assignment_list[0]), # to fix
+        assignment_list=assignment_list,
         student_groups=student_groups
         )
 
@@ -686,9 +686,7 @@ def report_data_by_question(assignment_list,student_groups):
         ] += question_entry["num_responses"]
 
     student_transitions_by_q = report_data_transitions_dict(
-        assignment=Assignment.objects.get(
-            identifier=assignment_list[0]
-            ), # to fix
+        assignment_list=assignment_list,
         student_groups=student_groups
         )
 
