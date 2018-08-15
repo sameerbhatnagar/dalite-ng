@@ -1007,7 +1007,7 @@ class StudentGroupAssignment(models.Model):
                     "question_title": question.title,
                     "n_choices": len(question.get_choices()),
                     "correct": next(
-                        i
+                        i + 1
                         for i, _ in enumerate(question.get_choices())
                         if question.is_correct(i + 1)
                     ),
@@ -1065,8 +1065,6 @@ class StudentGroupAssignment(models.Model):
                 for s in progress[-1]["students"]
                 if s["answer"]["second_correct"] is not None
             )
-
-        print(progress)
 
         output = progress
         return output
