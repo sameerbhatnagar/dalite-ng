@@ -127,8 +127,9 @@
       <h2 class="foldable--title mdc-typography--display1 mdc-theme--secondary">
         {% trans 'Student progress' %}
       </h2>
-      <div class="foldable--body">
-
+      <div onclick="bundle.toggleStudentProgressView()" class="foldable--body">
+        <ul id="student-progress" data-url="{% url 'get-assignment-student-progress' assignment.hash %}" data-showing="false" class="mdc-list mdc-list--two-line mdc-list--non-interactive">
+        </ul>
       </div>
     </div>
 
@@ -138,25 +139,38 @@
       </h2>
       <div class="foldable--body">
         <ul id="student-list" class="mdc-list mdc-list--two-line mdc-list--non-interactive">
-
+          {% if group.students %}
           {% for student in group.students %}
 
           <li class="mdc-list-item">
-              <span class="mdc-list-item__text mdc-theme--secondary">
-                {% if group.has_emails %}
-                {{ student.student.email }}
-                {% else %}
-                {{ student.student.username }}
-                {% endif %}
-              </span>
+            <span class="mdc-list-item__graphic mdc-theme--primary">
+              <i class="mdc-theme--primary material-icons md-48">person</i>
+            </span>
+            <span class="student-list--email mdc-list-item__text mdc-theme--secondary">
               {% if group.has_emails %}
-              <span class="mdc-list-item__meta">
-                <i onclick="bundle.sendAssignmentEmail(event, '{% url 'send-student-assignment' assignment.hash %}')" class="material-icons md-24 icon-list mdc-ripple-surface">email</i>
-              </span>
+              {{ student.student.email }}
+              {% else %}
+              {{ student.student.username }}
               {% endif %}
+            </span>
+            {% if group.has_emails %}
+            <span class="mdc-list-item__meta">
+              <i onclick="bundle.sendAssignmentEmail(event, '{% url 'send-student-assignment' assignment.hash %}')" class="material-icons md-24 icon-list mdc-ripple-surface">email</i>
+            </span>
+            {% endif %}
           </li>
 
           {% endfor %}
+
+          {% else %}
+
+          <li class="mdc-list-item">
+            <span class="mdc-list-item__text mdc-theme--secondary">
+              {% trans 'No student has signed up yet' %}
+            </span>
+          </li>
+
+          {% endif %}
 
       </div>
     </div>
@@ -168,5 +182,8 @@
 {% block scripts %}
 {% compress js inline %}
 <script src="{% static 'peerinst/js/group.min.js' %}"></script>
+<script>
+  bundle.setUpAssignmentPage();
+</script>
 {% endcompress %}
 {% endblock %}

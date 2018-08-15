@@ -5,15 +5,12 @@ import commonjs from 'rollup-plugin-commonjs';
 import uglify from 'rollup-plugin-uglify';
 
 export default {
-  input: 'peerinst/static/peerinst/js/group.js',
+  input: 'peerinst/static/peerinst/js/ajax.js',
   output: {
-    file: 'peerinst/static/peerinst/js/group.min.js',
-    name: 'bundle',
+    file: 'peerinst/static/peerinst/js/ajax.min.js',
+    name: 'ajax',
     format: 'iife',
     sourceMap: 'inline',
-    globals: {
-      flatpickr: 'flatpickr',
-    },
   },
   plugins: [
     resolve({
@@ -30,9 +27,4 @@ export default {
     }),
     uglify(),
   ],
-  external: ['flatpickr'],
-  onwarn(warning, warn) {
-    if (warning.code === 'CIRCULAR_DEPENDENCY') return;
-    warn(warning);
-  },
 };

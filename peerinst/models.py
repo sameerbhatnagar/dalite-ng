@@ -526,23 +526,6 @@ class StudentGroup(models.Model):
         ), "Postcondition failed"
         return output
 
-    @staticmethod
-    def send_missing_assignments(student, group, host):
-        assert isinstance(student, Student), "Precondition failed for `student`"
-        assert isinstance(group, StudentGroup), "Precondition failed for `group`"
-
-        assignments = StudentGroupAssignment.objects.filter(group=group)
-
-        for assignment in assignments:
-            if not assignment.is_expired():
-                if not StudentAssignment.objects.filter(
-                    student=student, group_assignment=assignment
-                ).exists():
-                    assignment_ = StudentAssignment.objects.create(
-                        student=student, group_assignment=assignment
-                    )
-                    assignment_.send_email(host, "new_assignment")
-
     @property
     def hash(self):
         payload = {"group_name": self.name}
@@ -649,6 +632,23 @@ class Student(models.Model):
         assert err is None or isinstance(
             output, basestring
         ), "Postcondition failed"
+
+    def send_missing_assignments(self, group, host):
+        assert isinstance(
+            group, StudentGroup
+        ), "Precondition failed for `group`"
+
+        assignments = StudentGroupAssignment.objects.filter(group=group)
+
+        for assignment in assignments:
+            if not assignment.is_expired():
+                if not StudentAssignment.objects.filter(
+                    student=self, group_assignment=assignment
+                ).exists():
+                    assignment_ = StudentAssignment.objects.create(
+                        student=self, group_assignment=assignment
+                    )
+                    assignment_.send_email(host, "new_assignment")
 
 
 class Institution(models.Model):
@@ -995,6 +995,79 @@ class StudentGroupAssignment(models.Model):
                 map(str, range(len(self.assignment.questions.all())))
             )
         super(StudentGroupAssignment, self).save(*args, **kwargs)
+
+    def get_student_progress(self):
+
+        students = self.group.students
+        questions = self.questions
+        progress = []
+        for question in questions:
+            progress.append(
+                {
+                    "question_title": question.title,
+                    "n_choices": len(question.get_choices()),
+                    "correct": next(
+                        i
+                        for i, _ in enumerate(question.get_choices())
+                        if question.is_correct(i + 1)
+                    ),
+                    "students": [],
+                }
+            )
+            for student in students:
+                answer = Answer.objects.filter(
+                    user_token=student.student.username,
+                    question=question,
+                    assignment=self.assignment,
+                    #  time__gte=self.distribution_date,
+                ).first()
+                progress[-1]["students"].append(
+                    {
+                        "student": {
+                            "username": student.student.username,
+                            "email": student.student.email,
+                        },
+                        "answer": {
+                            "first": answer.first_answer_choice
+                            if answer is not None
+                            else None,
+                            "second": answer.second_answer_choice
+                            if (answer is not None)
+                            and (answer.second_answer_choice is not None)
+                            else None,
+                            "first_correct": None
+                            if answer is None
+                            else answer.first_answer_choice
+                            == progress[-1]["correct"],
+                            "second_correct": None
+                            if (answer is None)
+                            or (answer.second_answer_choice is None)
+                            else answer.second_answer_choice
+                            == progress[-1]["correct"],
+                        },
+                    }
+                )
+            progress[-1]["first"] = sum(
+                s["answer"]["first"] is not None
+                for s in progress[-1]["students"]
+            )
+            progress[-1]["first_correct"] = sum(
+                s["answer"]["first_correct"]
+                for s in progress[-1]["students"]
+                if s["answer"]["first_correct"] is not None
+            )
+            progress[-1]["second"] = sum(
+                s["answer"]["second"] is not None
+                for s in progress[-1]["students"]
+            )
+            progress[-1]["second_correct"] = sum(
+                s["answer"]["second_correct"]
+                for s in progress[-1]["students"]
+                if s["answer"]["second_correct"] is not None
+            )
+
+        output = progress
+        return output
 
     @staticmethod
     def get(hash_):

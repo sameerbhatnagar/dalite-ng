@@ -3,9 +3,7 @@ from __future__ import unicode_literals
 from datetime import datetime
 
 from django.contrib.auth.decorators import login_required
-from django.core.urlresolvers import reverse
 from django.http import (
-    Http404,
     HttpResponse,
     HttpResponseBadRequest,
     HttpResponseForbidden,
@@ -28,99 +26,7 @@ from peerinst.models import (
     Teacher,
 )
 
-
-def group_access_required(fct):
-    def wrapper(req, *args, **kwargs):
-        group_hash = kwargs.get("group_hash", None)
-        assignment_hash = kwargs.get("assignment_hash", None)
-        return_assignment = assignment_hash is not None
-
-        if group_hash is not None or assignment_hash is not None:
-
-            user = req.user
-            try:
-                teacher = Teacher.objects.get(user=user)
-            except Teacher.DoesNotExist:
-                resp = TemplateResponse(
-                    req,
-                    "403.html",
-                    context={
-                        "message": _("You don't have access to this resource.")
-                    },
-                )
-                return HttpResponseForbidden(resp.render())
-
-            if group_hash is not None:
-                group = StudentGroup.get(group_hash)
-                if group is None:
-                    resp = TemplateResponse(
-                        req,
-                        "400.html",
-                        context={
-                            "message": _(
-                                'There is no group with hash "{}".'.format(
-                                    group_hash
-                                )
-                            )
-                        },
-                    )
-                    return HttpResponseBadRequest(resp.render())
-
-            else:
-                assignment = StudentGroupAssignment.get(assignment_hash)
-                if assignment is None:
-                    resp = TemplateResponse(
-                        req,
-                        "400.html",
-                        context={
-                            "message": _(
-                                'There is no assignment with hash "{}".'.format(
-                                    assignment_hash
-                                )
-                            )
-                        },
-                    )
-                    return HttpResponseBadRequest(resp.render())
-                group = assignment.group
-
-            if teacher not in group.teacher.all():
-                resp = TemplateResponse(
-                    req,
-                    "403.html",
-                    context={
-                        "message": _(
-                            "You don't have access to this resource. You must be "
-                            "registered as a teacher for the group {}.".format(
-                                group.name
-                            )
-                        )
-                    },
-                )
-                return HttpResponseForbidden(resp.render())
-
-            if return_assignment:
-                return fct(
-                    req,
-                    *args,
-                    teacher=teacher,
-                    group=group,
-                    assignment=assignment,
-                    **kwargs
-                )
-            else:
-                return fct(req, *args, teacher=teacher, group=group, **kwargs)
-
-        else:
-            resp = TemplateResponse(
-                req,
-                "403.html",
-                context={
-                    "message": _("You don't have access to this resource.")
-                },
-            )
-            return HttpResponseForbidden(resp.render())
-
-    return wrapper
+from .decorators import group_access_required
 
 
 def validate_update_data(req):
@@ -276,6 +182,7 @@ def send_student_assignment(req, assignment_hash, teacher, group, assignment):
     try:
         data = json.loads(req.body)
     except ValueError:
+        print(1)
         resp = TemplateResponse(
             req,
             "400.html",
@@ -286,6 +193,7 @@ def send_student_assignment(req, assignment_hash, teacher, group, assignment):
     try:
         email = data["email"]
     except KeyError:
+        print(2)
         resp = TemplateResponse(
             req,
             "400.html",
@@ -307,7 +215,7 @@ def send_student_assignment(req, assignment_hash, teacher, group, assignment):
         )
         return HttpResponseBadRequest(resp.render())
 
-    student_assignment, _ = StudentAssignment.objects.get_or_create(
+    student_assignment, __ = StudentAssignment.objects.get_or_create(
         group_assignment=assignment, student=student
     )
 
@@ -318,3 +226,13 @@ def send_student_assignment(req, assignment_hash, teacher, group, assignment):
         return HttpResponseServerError(resp.render())
 
     return HttpResponse()
+
+
+@login_required
+@require_http_methods(["GET"])
+@group_access_required
+def get_assignment_student_progress(
+    req, assignment_hash, teacher, group, assignment
+):
+    data = assignment.get_student_progress()
+    return JsonResponse(data, safe=False)
