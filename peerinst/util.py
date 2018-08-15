@@ -617,18 +617,25 @@ def report_data_by_student(assignment_list,student_groups):
     # aggregate results for each student
     for question, student_entries in student_transitions_by_q.items():
         for student_entry in student_entries:
-            student_gradebook_dict[Student.objects.get(student__username=student_entry["user_token"])][
+
+            student_obj = Student.objects.get(
+                student__username=student_entry["user_token"]
+                )
+            
+            # build student_gradebook_dict: keys are student_objects, and values are counters 
+            # keeping track of how often that student made each transition type
+            student_gradebook_dict[student_obj][
                 student_entry["transition"]
             ] += 1
-            student_gradebook_dict_by_q[student_entry["user_token"]][
+            student_gradebook_dict_by_q[student_obj][
                 question
             ] = student_entry["transition"]
  
-    # array for template
+    # dict from just above that serializes into array for template
     gradebook_student = []
-    for student, grades_dict in student_gradebook_dict.items():
+    for student_obj, grades_dict in student_gradebook_dict.items():
         d_g = {}
-        d_g["student"] = student.student.email
+        d_g["student"] = student_obj.student.email
 
         for metric, metric_label in zip(metric_list, metric_labels):
             if metric in grades_dict:
@@ -638,8 +645,8 @@ def report_data_by_student(assignment_list,student_groups):
         for question in question_list:
 
             try:
-                d_g[question] = student_gradebook_dict_by_q[student][
-                    question.title
+                d_g[question] = student_gradebook_dict_by_q[student_obj][
+                    question
                 ]
 
             except KeyError as e:
