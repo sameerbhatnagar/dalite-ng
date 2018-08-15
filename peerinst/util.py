@@ -523,7 +523,12 @@ def report_data_by_assignment(assignment_list,student_groups):
             for student_response in answer_qs_question:
                 d_q_a = {}
                 # d_q_a["student"] = student_response.user_token
-                d_q_a["student"] = student_obj_qs.get(student__username=student_response.user_token).student.email
+                d_q_a["student"] = student_obj_qs.get(
+                    student__username=student_response.user_token
+                    ).student.email.split(
+                    "@"
+                    )[0]
+                    
                 d_q_a["first_answer_choice"] = list(string.ascii_uppercase)[
                     student_response.first_answer_choice - 1
                 ]
@@ -635,7 +640,7 @@ def report_data_by_student(assignment_list,student_groups):
     gradebook_student = []
     for student_obj, grades_dict in student_gradebook_dict.items():
         d_g = {}
-        d_g["student"] = student_obj.student.email
+        d_g["student"] = student_obj.student.email.split("@")[0]
 
         for metric, metric_label in zip(metric_list, metric_labels):
             if metric in grades_dict:
