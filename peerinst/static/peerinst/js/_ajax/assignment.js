@@ -1,5 +1,9 @@
-async function getStudentProgressData(url) {
-  let token = document.getElementsByName('csrfmiddlewaretoken')[0].value;
+'use strict';
+
+import {getCsrfToken} from './utils.js';
+
+export async function getStudentProgressData(url) {
+  let token = getCsrfToken();
   let req = {
     method: 'GET',
     headers: {
@@ -10,5 +14,3 @@ async function getStudentProgressData(url) {
   let data = await resp.json();
   return data;
 }
-
-export {getStudentProgressData};

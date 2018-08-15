@@ -1,1 +1,13 @@
 @import '../utils';
+
+#student-list {
+  user-select: none;
+  & > li {
+    border-top: 1px solid rgba(0, 0, 0, 0.12);
+    height: 50px;
+  }
+
+  & > li:last-child {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+  }
+}
