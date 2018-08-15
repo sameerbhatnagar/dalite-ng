@@ -39,7 +39,8 @@ function addAssignmentEventListeners() {
 
 function sendAssignmentEmail(event, url) {
   let icon = event.currentTarget;
-  let email = icon.parentNode.parentNode.firstChild.textContent;
+  let email = icon.parentNode.parentNode.querySelector('.student-list--email')
+    .textContent;
   let data = {email: email};
   let token = document.getElementsByName('csrfmiddlewaretoken')[0].value;
   let req = {

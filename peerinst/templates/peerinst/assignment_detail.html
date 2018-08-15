@@ -233,7 +233,7 @@ function processResponse(text, status, obj) {
 
 search.onchange = function() {
   console.info("Searching: "+search.value);
-  $('#search_results').load("{% url 'question-search' %}", "search_string="+search.value+"&type=assignment&id={{object.pk|urlencode}}&limit_search="+limitSearch.checked, processResponse);
+  $('#search_results').load("{% url 'question-search' %}", "search_string="+search.value+"&type=assignment&id={{object.pk|urlencode}}&limit_search="+limitSearch.checked+"&assignment_identifier="+object.identifier, processResponse);
 }
 </script>
 {% endblock %}

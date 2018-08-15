@@ -64,7 +64,7 @@ from ..util import (
     question_search_function,
     report_data_by_assignment,
     report_data_by_student,
-    report_data_by_question
+    report_data_by_question,
 )
 from ..admin_views import (
     get_question_rationale_aggregates,
@@ -2324,6 +2324,9 @@ def blink_waiting(request, username, assignment=""):
 def question_search(request):
     n_search_limit = 50
     if request.method == "GET" and request.user.teacher:
+        assignment = Assignment.objects.get(
+            identifier=request.GET["assignment_identifier"]
+        )
         type = request.GET.get("type", default=None)
         id = request.GET.get("id", default=None)
         search_string = request.GET.get("search_string", default="")
@@ -2397,6 +2400,7 @@ def question_search(request):
                 "count": len(query_all),
                 "previous_search_string": search_terms,
                 "n_search_limit": n_search_limit,
+                "assignment": assignment,
             },
         )
     else:
@@ -2742,10 +2746,11 @@ def report(request, assignment_id="", group_id=""):
             "identifier", flat=True
         )
 
-
     print(assignment_list)
 
-    assignment_data = report_data_by_assignment(assignment_list,student_groups)
+    assignment_data = report_data_by_assignment(
+        assignment_list, student_groups
+    )
 
     context = {}
     context["data"] = assignment_data
@@ -2753,18 +2758,17 @@ def report(request, assignment_id="", group_id=""):
     ######
     # for aggregate gradebook over all assignments
 
-    gradebook_student = report_data_by_student(assignment_list,student_groups)
-    gradebook_question = report_data_by_question(assignment_list,student_groups)
+    gradebook_student = report_data_by_student(assignment_list, student_groups)
+    gradebook_question = report_data_by_question(
+        assignment_list, student_groups
+    )
 
     # needs DRY
     metric_list = ["num_responses", "rr", "rw", "wr", "ww"]
     metric_labels = ["N", "RR", "RW", "WR", "WW"]
     question_list = Question.objects.filter(
-    assignment__identifier__in=assignment_list
-    ).values_list(
-    'title',
-    flat=True
-    )
+        assignment__identifier__in=assignment_list
+    ).values_list("title", flat=True)
 
     context["gradebook_student"] = gradebook_student
     context["gradebook_question"] = gradebook_question
