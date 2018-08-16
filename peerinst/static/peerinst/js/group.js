@@ -4,4 +4,5 @@ export {
   setUpAssignmentPage,
   saveQuestionList,
   sendAssignmentEmail,
+  toggleStudentProgressView,
 } from './_group/assignment.js';

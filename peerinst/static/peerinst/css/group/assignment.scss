@@ -33,11 +33,28 @@
     border-top: 1px solid rgba(0, 0, 0, 0.12);
   }
 
+  & > li:first-child {
+    border-top: none;
+  }
+
   & > li:last-child {
     border-bottom: 1px solid rgba(0, 0, 0, 0.12);
   }
 
   & .mdc-list-item__meta {
     display: flex;
+    justify-content: space-evenly;
+
+    & > * {
+      margin-left: 20px;
+    }
+  }
+
+  & #student-progress-legend span {
+    width: 75px;
+    height: 48px;
+    text-align: center;
+    font-size: 12px;
+    line-height: 16px;
   }
 }

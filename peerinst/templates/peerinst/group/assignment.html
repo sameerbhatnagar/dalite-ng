@@ -124,11 +124,21 @@
     </div>
 
     <div class="foldable">
-      <h2 class="foldable--title mdc-typography--display1 mdc-theme--secondary">
+      <h2 onclick="bundle.toggleStudentProgressView()" class="foldable--title mdc-typography--display1 mdc-theme--secondary">
         {% trans 'Student progress' %}
       </h2>
-      <div onclick="bundle.toggleStudentProgressView()" class="foldable--body">
+      <div class="foldable--body">
         <ul id="student-progress" data-url="{% url 'get-assignment-student-progress' assignment.hash %}" data-showing="false" class="mdc-list mdc-list--two-line mdc-list--non-interactive">
+          <li class="mdc-list-item">
+            <span></span>
+            <span></span>
+            <span id="student-progress-legend" class="mdc-list-item__meta">
+              <span>First answer done</span>
+              <span>Second answer done</span>
+              <span>First answer correct</span>
+              <span>Second answer correct</span>
+            </span>
+          </li>
         </ul>
       </div>
     </div>
@@ -146,7 +156,7 @@
             <span class="mdc-list-item__graphic mdc-theme--primary">
               <i class="mdc-theme--primary material-icons md-48">person</i>
             </span>
-            <span class="student-list--email mdc-list-item__text mdc-theme--secondary">
+            <span data-email="{{ student.student.email }}" class="student-list--email mdc-list-item__text mdc-theme--secondary">
               {% if group.has_emails %}
               {{ student.student.email }}
               {% else %}
