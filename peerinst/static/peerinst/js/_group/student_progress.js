@@ -66,7 +66,7 @@ function questionView(data) {
   progress.classList.add('mdc-list-item__meta');
   li.append(progress);
 
-  let width = 75;
+  let width = 62;
   let height = 48;
   let total = data['students'].length;
 
@@ -123,7 +123,7 @@ function completeView(container, data, total, height, width) {
     .attr('text-anchor', 'middle')
     .attr('dy', 8)
     .attr('class', 'fill-primary student-progress__count')
-    .attr('font-size', '24px');
+    .attr('font-size', '20px');
 
   return svg;
 }
@@ -213,7 +213,6 @@ function animateComplete(svg, reverse = false) {
 
   let path = d3
     .select(path_)
-    .datum({endAngle: start})
     .attr('d', arcData);
 
   let count = d3.select(count_);
@@ -233,8 +232,9 @@ function animateComplete(svg, reverse = false) {
   function animate() {
     path
       .transition()
-      .duration(750)
-      .ease(d3.easeCubic)
+      .delay(500*Math.random())
+      .duration(2000)
+      .ease(d3.easeCubicInOut)
       .call(animation, (2 * Math.PI * end) / total);
   }
 
@@ -244,7 +244,6 @@ function animateComplete(svg, reverse = false) {
 function animateCorrect(svg, reverse = false) {
   let path_ = svg.querySelector('.student-progress__path');
   let count_ = svg.querySelector('.student-progress__count');
-
   let data = count_.getAttribute('data-count');
   let total = count_.getAttribute('data-total');
 
@@ -275,7 +274,6 @@ function animateCorrect(svg, reverse = false) {
 
   let path = d3
     .select(path_)
-    .datum({endAngle: start})
     .attr('d', arcData);
 
   let count = d3.select(count_);
@@ -298,9 +296,10 @@ function animateCorrect(svg, reverse = false) {
   function animate() {
     path
       .transition()
-      .duration(750)
-      .ease(d3.easeCubic)
-      .call(animation, (2 * Math.PI * data) / total);
+      .delay(500*Math.random())
+      .duration(2000)
+      .ease(d3.easeCubicInOut)
+      .call(animation, (2 * Math.PI * end) / total);
   }
 
   setTimeout(animate, 0);

@@ -155,7 +155,7 @@ gulp.task('peerinst-scripts', function(callback) {
 });
 
 gulp.task('peerinst-build', function(callback) {
-  runSequence('peerinst-styles', 'peerinst-scripts', callback);
+  runSequence('peerinst-styles', 'peerinst-styles-group', 'peerinst-scripts', callback);
 });
 
 gulp.task('tos-styles', function() {

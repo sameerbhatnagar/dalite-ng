@@ -147,16 +147,17 @@
         <p class='mdc-typography--body1'>{% blocktrans %}A blink script is a series of blink questions strung together into one activity.  You do not have any blink scripts.{% endblocktrans %}</p>
         {% endif %}
 
-        <ul class="mdc-list mdc-list--two-line mdc-list--non-interactive">
+
+        <ul class="mdc-list mdc-list--two-line mdc-list--interactive" >
           {% for a in object.blinkassignment_set.all %}
           <li role="separator" class="mdc-list-divider"></li>
+          {% if a.blinkassignmentquestion_set.all|length > 0 %}
+          <li class="mdc-list-item blink" id="edit-blink-{{a.pk}}" onclick="window.location.href='{% url 'blink-waiting' username=object.user.username assignment=a.key %}'" style="cursor:pointer;">
+          {% else %}
           <li class="mdc-list-item blink" id="edit-blink-{{a.pk}}">
+          {% endif %}
             <span class="mdc-list-item__graphic mdc-theme--primary">
-              {% if a.blinkassignmentquestion_set.all|length > 0 %}
-              <a href="{% url 'blink-waiting' username=object.user.username assignment=a.key %}" style="transform:translateY(4pt);">
                 <i class="mdc-theme--primary material-icons md-48">play_circle_filled</i>
-              </a>
-              {% endif %}
             </span>
             <span class="mdc-list-item__text mdc-theme--secondary bold">
               {{a.title|safe|striptags}}
@@ -191,14 +192,12 @@
         {% if not object.assignments.all %}
         <p class='mdc-typography--body1'>{% blocktrans %}You do not have any assignments.{% endblocktrans %}</p>
         {% endif %}
-        <ul class="mdc-list mdc-list--two-line mdc-list--non-interactive">
+        <ul class="mdc-list mdc-list--two-line mdc-list--interactive">
           {% for a in object.assignments.all %}
           <li role="separator" class="mdc-list-divider"></li>
-          <li class="mdc-list-item">
+          <li class="mdc-list-item" onclick="window.location.href='{% url 'question-list' a.pk %}'" style="cursor:pointer;">
             <span class="mdc-list-item__graphic mdc-theme--primary">
-                <a href="{% url 'question-list' a.pk %}" style="transform:translateY(4pt);">
-                  <i class="mdc-theme--primary material-icons md-48">assignment</i>
-                </a>
+              <i class="mdc-theme--primary material-icons md-48">assignment</i>
             </span>
             <span class="mdc-list-item__text mdc-theme--secondary bold">
               {{ a.identifier }}
