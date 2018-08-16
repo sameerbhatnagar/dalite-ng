@@ -1,0 +1,15 @@
+@import '../../peerinst/css/variables';
+
+#student-login-confirmation {
+  & h1 {
+    position: sticky;
+  }
+
+  & p {
+    margin-top: 44px;
+  }
+
+  & a {
+    margin-top: 20px;
+  }
+}

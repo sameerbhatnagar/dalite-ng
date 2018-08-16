@@ -57,6 +57,9 @@
     <div class='padded-top'>
       <input type="hidden" name="next" value="{{ next }}"/>
       <input class="mdc-button mdc-button--raised" type="submit" value="{% trans 'Submit' %}"/>
+      <a href="{% url 'student-login' %}" style="padding-left: 20px; color: var(--mdc-theme-primary);">
+        {% trans 'Student login' %}
+      </a>
     </div>
   </form>
 </section>

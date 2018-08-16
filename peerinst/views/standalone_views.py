@@ -108,6 +108,9 @@ def confirm_signup_through_link(request, group_hash, token):
         student.groups.add(group)
         student.save()
         student.send_missing_assignments(group, request.get_host())
+        print(student)
+        print(student.student)
+        print(student.student.is_active)
 
         return TemplateResponse(
             request,
