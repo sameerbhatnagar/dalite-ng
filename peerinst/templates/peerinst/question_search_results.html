@@ -1,4 +1,5 @@
 {% load i18n %}
+
 <!-- <ul>
 <li class='mdc-typography--caption'>{{ count }} {% trans 'unique results for' %}
 <ul>
@@ -12,7 +13,7 @@
 {% for search_results_term in search_results %}
   <p>Searching: {{search_results_term.term}}: {{ search_results_term.count }}.</p>
   {% for g in search_results_term.questions %}
-  <div class="mdc-card" id={{g.id|slugify}}>
+  <div class="mdc-card" id="{{g.id}}">
     <div class="mdc-typography--title bold" style="margin-bottom:5px;">
       {{g.title|safe}}
     </div>
@@ -55,8 +56,7 @@
       </div>
 
       <div class="mdc-card__action-icons">
-        <button onclick="ajax.updateAssignmentQuestionList('{{ g.id }}', '{{ assignment.identifier }}')" class="material-icons small-button mdc-button mdc-card__action mdc-card__action--button mdc-button--raised">
-        </button>
+        <button onclick="ajax.updateAssignmentQuestionList('{% url 'assignment-edit-ajax' %}', '{{ g.id }}', '{{ assignment.identifier }}')" class="material-icons small-button mdc-button mdc-card__action mdc-card__action--button mdc-button--raised">add</button>
         <!-- <form style="display:inline" method="post" action="#{{g.id|slugify}}"> -->
           <!-- {% csrf_token %} -->
           <!-- <input type="hidden" name="{{form_field_name}}" value="{{g.pk}}" /> -->

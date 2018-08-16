@@ -24,18 +24,22 @@ from .decorators import teacher_required
 
 @login_required
 @require_http_methods(["POST"])
-@group_access_required
+@teacher_required
 def update_assignment_question_list(req):
+
+    post_data = json.loads(req.body)
+
     try:
-        question_id = req.POST["question_id"]
-        assignment_identifier = req.POST["assignment_identifier"]
+        question_id = post_data["question_id"]
+        assignment_identifier = post_data["assignment_identifier"]
     except KeyError:
         resp = TemplateResponse(
             req,
             "400.html",
             context={"message": _("There are missing parameters.")},
         )
-        return HttpResponseBadRequest(resp.render()), None
+        return HttpResponseBadRequest(resp.render())
+
     try:
         assignment = Assignment.objects.get(identifier=assignment_identifier)
     except Assignment.DoesNotExist:
@@ -44,7 +48,23 @@ def update_assignment_question_list(req):
             "400.html",
             context={"message": _("Some parameters are wrong.")},
         )
-        return HttpResponseBadRequest(resp.render()), None
+        return HttpResponseBadRequest(resp.render())
+
+    # Check object permissions (to be refactored using mixin)
+    if (
+        req.user in assignment.owner.all()
+        or req.user.is_staff
+    ):
+        # Check for student answers
+        if (
+            assignment
+            .answer_set.exclude(user_token__exact="")
+            .count()
+            > 0
+        ):
+            raise PermissionDenied
+    else:
+        raise PermissionDenied
 
     try:
         question = Question.objects.get(id=question_id)
@@ -54,7 +74,7 @@ def update_assignment_question_list(req):
             "400.html",
             context={"message": _("Some parameters are wrong.")},
         )
-        return HttpResponseBadRequest(resp.render()), None
+        return HttpResponseBadRequest(resp.render())
 
     if question in assignment.questions.all():
         assignment.questions.remove(question)
@@ -62,4 +82,4 @@ def update_assignment_question_list(req):
         assignment.questions.add(question)
     assignment.save()
 
-    return HttpResponse()
+    return HttpResponse('Success')

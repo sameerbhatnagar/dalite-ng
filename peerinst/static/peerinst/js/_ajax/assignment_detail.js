@@ -2,7 +2,7 @@
 
 import {getCsrfToken} from './utils.js';
 
-export function updateAssignmentQuestionList(questionId, assignmentIdentifier) {
+export function updateAssignmentQuestionList(url, questionId, assignmentIdentifier) {
   let token = getCsrfToken();
   let data = {
     question_id: questionId,
@@ -20,6 +20,17 @@ export function updateAssignmentQuestionList(questionId, assignmentIdentifier) {
     .then(function(resp) {
       if (!resp.ok) {
         console.log(resp);
+      } else {
+        // Manipulate DOM
+        let list = document.getElementById('question-list');
+        let card = document.getElementById(questionId);
+        if ($.contains(list, card)) {
+          $('#'+questionId).remove();
+        } else {
+          $('#'+questionId).find($( "button" )).html('clear');
+          $('#'+questionId).appendTo($('#question-list'));
+          $('#empty-assignment-list').remove();
+        }
       }
     })
     .catch(function(err) {
