@@ -1308,9 +1308,6 @@ class StudentAssignment(models.Model):
             else:
                 output = None
 
-        if output is None:
-            output = questions[0]
-
         assert output is None or isinstance(
             output, Question
         ), "Postcondition failed"

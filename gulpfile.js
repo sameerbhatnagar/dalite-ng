@@ -103,6 +103,39 @@ gulp.task('peerinst-styles-group', function() {
     .pipe(gulp.dest('peerinst/static/peerinst/css'));
 });
 
+gulp.task('peerinst-styles-student', function() {
+  return gulp
+    .src('./peerinst/static/peerinst/css/student/*.scss')
+    .pipe(sourcemaps.init())
+    .pipe(
+      sass({
+        outputStyle: 'compressed',
+        includePaths: './node_modules',
+      }),
+    )
+    .pipe(
+      postcss([
+        autoprefixer({
+          browsers: [
+            'last 3 versions',
+            'iOS>=8',
+            'ie 11',
+            'Safari 9.1',
+            'not dead',
+          ],
+        }),
+      ]),
+    )
+    .pipe(
+      rename(function(path) {
+        path.dirname += '/student';
+        path.extname = '.min.css';
+      }),
+    )
+    .pipe(sourcemaps.write('.'))
+    .pipe(gulp.dest('peerinst/static/peerinst/css'));
+});
+
 gulp.task('peerinst-styles-auth', function() {
   return gulp
     .src('./peerinst/static/auth/css/*.scss')
@@ -190,6 +223,7 @@ gulp.task('peerinst-build', function(callback) {
   runSequence(
     'peerinst-styles',
     'peerinst-styles-group',
+    'peerinst-styles-student',
     'peerinst-styles-auth',
     'peerinst-scripts',
     callback,
@@ -271,6 +305,9 @@ gulp.task('watch', function() {
   gulp.watch('./peerinst/static/peerinst/css/*.scss', ['peerinst-styles']);
   gulp.watch('./peerinst/static/peerinst/css/group/*.scss', [
     'peerinst-styles-group',
+  ]);
+  gulp.watch('./peerinst/static/peerinst/css/student/*.scss', [
+    'peerinst-styles-student',
   ]);
   gulp.watch('./peerinst/static/auth/css/*.scss', ['peerinst-styles-auth']);
   gulp.watch(

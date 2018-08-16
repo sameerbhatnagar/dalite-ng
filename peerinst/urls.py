@@ -445,4 +445,17 @@ def auth_patterns():
     ]
 
 
-urlpatterns = reduce(add, [old_patterns(), group_patterns(), auth_patterns()])
+def student_patterns():
+    return [
+        url(
+            r"^assignment-complete/$",
+            views.finish_assignment,
+            name="finish-assignment",
+        )
+    ]
+
+
+urlpatterns = reduce(
+    add,
+    [old_patterns(), group_patterns(), auth_patterns(), student_patterns()],
+)
