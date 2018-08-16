@@ -98,6 +98,11 @@ def old_patterns():
             name="assignment-copy",
         ),
         url(
+            r"^assignment/edit$",
+            views.update_assignment_question_list,
+            name="assignment-edit-ajax",
+        ),
+        url(
             r"^assignment/edit/(?P<assignment_id>[^/]+)$",
             views.AssignmentEditView.as_view(),
             name="assignment-edit",

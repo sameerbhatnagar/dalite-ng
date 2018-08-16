@@ -1,6 +1,12 @@
 {% extends 'peerinst/base.html' %}
 
-{% load compress i18n %}
+{% load staticfiles compress i18n %}
+
+{% block stylesheets %}
+{% compress js %}
+<script src="{% static 'peerinst/js/ajax.min.js' %}"></script>
+{% endcompress %}
+{% endblock %}
 
 {% block body %}
 <main>
@@ -39,6 +45,7 @@
       </i>
     </div>
 
+    <div id="question-list">
     {% for g in object.questions.all %}
     <div class="mdc-card" id={{g.id|slugify}}>
       <div class="mdc-typography--title bold" style="margin-bottom:5px;">
@@ -96,74 +103,78 @@
       </div>
     </div>
     {% empty %}
-    <ul>
+    <ul id="empty-assigment-list">
       <li><strong>Note:</strong> There are currently no questions in this assignment.  You can add them from the list below.</li>
     </ul>
     {% endfor %}
+    </div>
 
-    <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'My questions' %}<i id='reveal-on-click' class='material-icons md-48 mdc-theme--primary inline'>keyboard_arrow_right</i></h2>
+    <div class="foldable">
+      <h2 class="foldable--title mdc-typography--display1 mdc-theme--secondary">{% trans 'My questions' %}</h2>
+      <div class="foldable--body">
+      {% for g in all_questions %}
+      {% if g not in object.questions.all %}
+      {% if g not in teacher.deleted_questions.all %}
+      <div class="all-my-questions mdc-card" id={{g.id|slugify}}>
+        <div class="mdc-typography--title bold" style="margin-bottom:5px;">
+          {{g.title|safe}}
+        </div>
 
-    {% for g in all_questions %}
-    {% if g not in object.questions.all %}
-    {% if g not in teacher.deleted_questions.all %}
-    <div class="all-my-questions mdc-card" id={{g.id|slugify}} style="display: none;">
-      <div class="mdc-typography--title bold" style="margin-bottom:5px;">
-        {{g.title|safe}}
-      </div>
+        <div class="mdc-typography--body1">
+          {{g.text|safe}}
+        </div>
 
-      <div class="mdc-typography--body1">
-        {{g.text|safe}}
-      </div>
+        {% if g.image %}
+        <img class="question-image" src="{{ g.image.url }}" alt="g.image_alt_text" style="display:none;">
+        {% endif %}
 
-      {% if g.image %}
-      <img class="question-image" src="{{ g.image.url }}" alt="g.image_alt_text" style="display:none;">
-      {% endif %}
+        <div class="question-answers" style="display:none;">
+          <ul>
+            {% for label, choice in g.get_choices %}
+            <li class="mdc-typography--body1">{{ label }}. {{ choice|safe }}</li>
+            {% endfor %}
+          </ul>
+        </div>
 
-      <div class="question-answers" style="display:none;">
-        <ul>
-          {% for label, choice in g.get_choices %}
-          <li class="mdc-typography--body1">{{ label }}. {{ choice|safe }}</li>
-          {% endfor %}
-        </ul>
-      </div>
-
-      <div class="mdc-card__actions">
-        <div class="mdc-card__action-buttons" style="color:grey;">
-          <div class="mdc-typography--caption">
-            <div>
-              {% trans 'Discipline' %}: {{g.discipline}}
-            </div>
-            <div>
-              {% trans 'Categories' %}:
-              {% for c in g.category.all %}
-              {{ c.title|safe }}{% if not forloop.last %}, {% endif %}
-              {% empty %}
-              {% trans 'Uncategorized' %}
-              {% endfor %}
-            </div>
-            <div>
-              {% trans 'Difficulty' %}:
+        <div class="mdc-card__actions">
+          <div class="mdc-card__action-buttons" style="color:grey;">
+            <div class="mdc-typography--caption">
+              <div>
+                {% trans 'Discipline' %}: {{g.discipline}}
+              </div>
+              <div>
+                {% trans 'Categories' %}:
+                {% for c in g.category.all %}
+                {{ c.title|safe }}{% if not forloop.last %}, {% endif %}
+                {% empty %}
+                {% trans 'Uncategorized' %}
+                {% endfor %}
+              </div>
+              <div>
+                {% trans 'Difficulty' %}:
+              </div>
             </div>
           </div>
-        </div>
 
-        <div class="mdc-card__action-icons">
-          <form style="display:inline" method="post" action="#{{g.id|slugify}}">
-            {% csrf_token %}
-            <input type="hidden" name="q" value="{{g.pk}}" />
-            {% if user in g.collaborators or user == g.user %}
-            <button class="material-icons small-button mdc-button mdc-card__action mdc-card__action--button mdc-button--raised" type="button" onclick="window.location.href='{% url 'question-update' pk=g.id %}'"><i class="material-icons">settings</i></button>
-            {% else %}
-            <button class="material-icons small-button mdc-button mdc-card__action mdc-card__action--button mdc-button--raised" type="button" onclick="window.location.href='{% url 'question-clone' pk=g.id %}'"><i class="material-icons">settings</i></button>
-            {% endif %}
-            <input class="material-icons small-button mdc-button mdc-card__action mdc-card__action--button mdc-button--raised" type="submit" value="add" />
-          </form>
+          <div class="mdc-card__action-icons">
+            <form style="display:inline" method="post" action="#{{g.id|slugify}}">
+              {% csrf_token %}
+              <input type="hidden" name="q" value="{{g.pk}}" />
+              {% if user in g.collaborators or user == g.user %}
+              <button class="material-icons small-button mdc-button mdc-card__action mdc-card__action--button mdc-button--raised" type="button" onclick="window.location.href='{% url 'question-update' pk=g.id %}'"><i class="material-icons">settings</i></button>
+              {% else %}
+              <button class="material-icons small-button mdc-button mdc-card__action mdc-card__action--button mdc-button--raised" type="button" onclick="window.location.href='{% url 'question-clone' pk=g.id %}'"><i class="material-icons">settings</i></button>
+              {% endif %}
+              <input class="material-icons small-button mdc-button mdc-card__action mdc-card__action--button mdc-button--raised" type="submit" value="add" />
+            </form>
+          </div>
         </div>
       </div>
+      {% endif %}
+      {% endif %}
+      {% endfor %}
     </div>
-    {% endif %}
-    {% endif %}
-    {% endfor %}
+  </div>
 
     <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Search database' %}</h2>
 
@@ -217,7 +228,6 @@
 <script>
 bundle.toggleImages();
 bundle.toggleAnswers();
-bundle.revealOnClick('#reveal-on-click', '.all-my-questions');
 
 var limitSearch = document.querySelector('#limit-search');
 bundle.iconToggle.MDCIconToggle.attachTo(limitSearch);
@@ -233,7 +243,7 @@ function processResponse(text, status, obj) {
 
 search.onchange = function() {
   console.info("Searching: "+search.value);
-  $('#search_results').load("{% url 'question-search' %}", "search_string="+search.value+"&type=assignment&id={{object.pk|urlencode}}&limit_search="+limitSearch.checked+"&assignment_identifier="+object.identifier, processResponse);
+  $('#search_results').load("{% url 'question-search' %}", "search_string="+search.value+"&type=assignment&id={{object.pk|urlencode}}&limit_search="+limitSearch.checked+"&assignment_identifier={{object.identifier}}", processResponse);
 }
 </script>
 {% endblock %}
