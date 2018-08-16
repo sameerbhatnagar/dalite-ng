@@ -219,11 +219,6 @@ def old_patterns():
             name="group-share",
         ),
         url(
-            r"^teacher/(?P<teacher_id>[0-9]+)/group/(?P<group_hash>[0-9A-Za-z=_-]+)/$",
-            views.group_details_page,
-            name="group-details",
-        ),
-        url(
             r"^teacher/(?P<teacher_id>[0-9]+)/group_assignments/$",
             views.StudentGroupAssignmentListView.as_view(),
             name="group-assignments",

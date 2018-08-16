@@ -2,6 +2,11 @@
 
 {% load compress staticfiles add_class i18n %}
 
+{% block stylesheets %}
+<!-- Self-hosted tinyMCE -->
+<script src="{% static 'peerinst/js/tinymce/js/tinymce/tinymce.min.js' %}"></script>
+{% endblock %}
+
 {% block extra_title %}
 <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Step 2: Answer choices' %}</h2>
 {% endblock %}
@@ -130,9 +135,9 @@
     selector: 'textArea',
     elementpath: false,
     branding: false,
-    plugins: ['autosave', 'charmap', 'textcolor', 'link'],
+    plugins: ['autosave', 'charmap', 'textcolor', 'link', 'code'],
     menubar: false,
-    toolbar: 'undo redo | bold italic  underline superscript subscript forecolor | link | charmap',
+    toolbar: 'undo redo | bold italic  underline superscript subscript forecolor | link | charmap | code',
     content_css: "{% static 'peerinst/css/tiny.min.css' %}",
     link_assume_external_targets: true,
     default_link_target: '_blank',
