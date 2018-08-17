@@ -23,6 +23,7 @@
     <h2 id="assignment" class="mdc-typography--display1  mdc-theme--secondary">{{object.title}}</h2>
     <div class="admin-link">
       <a href="{% url 'assignment-edit' object.pk %}">{% trans 'Edit title' %}</a>
+      <span style="padding-left:0.3em;padding-right:0.5em;">|</span><a href="{% url 'question-list' object.pk %}">{% trans 'Preview' %}</a>
     </div>
 
     <div class="mdc-form-field">

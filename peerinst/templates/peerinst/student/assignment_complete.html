@@ -29,20 +29,20 @@
     {% else %}
 
     <h1 class="mdc-typography--display3">
-      {% trans 'Assignment finished' %}
+      {% trans 'Assignment Complete' %}
       <svg class="underline" width=150 height=4></svg>
     </h1>
 
     <p>
       {% blocktrans %}
-      You've finished this assignment. You may go back and look at your 
+      You've finished this assignment. You may go back and look at your
       answers.
       {% endblocktrans %}
     </p>
 
     {% endif %}
 
-    <a href="{% url 'question' assignment_id question_id %}" class="mdc-button mdc-button--unelevated">
+    <a href="{% url 'question' assignment_id question_id %}" class="mdc-button mdc-button--raised">
       Go back to assignment
     </a>
 
