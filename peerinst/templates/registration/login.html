@@ -2,6 +2,14 @@
 
 {% load add_class i18n %}
 
+{% block stylesheets %}
+<style>
+  h2 {
+    margin-bottom:0px;
+  }
+</style>
+{% endblock %}
+
 {% block body %}
 <main>
 <section>
@@ -12,6 +20,16 @@
   <div class="admin-link">
     <a href="{% url 'password_reset' %}">{% trans 'Forgot password' %}</a> | <a href="{% url 'sign_up' %}">{% trans 'Sign up' %}</a>
   </div>
+
+
+  <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Student access' %}</h2>
+  <a href="{% url 'student-login' %}">
+  <button class="mdc-button mdc-button--raised padded-top">
+    {% trans 'Login' %}
+  </button>
+  </a>
+
+  <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Teacher and guest access' %}</h2>
 
   {% if form.errors %}
     <p>
@@ -57,9 +75,6 @@
     <div class='padded-top'>
       <input type="hidden" name="next" value="{{ next }}"/>
       <input class="mdc-button mdc-button--raised" type="submit" value="{% trans 'Submit' %}"/>
-      <a href="{% url 'student-login' %}" style="padding-left: 20px; color: var(--mdc-theme-primary);">
-        {% trans 'Student login' %}
-      </a>
     </div>
   </form>
 </section>

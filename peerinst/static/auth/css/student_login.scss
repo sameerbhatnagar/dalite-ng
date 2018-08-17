@@ -6,7 +6,6 @@
   }
 
   & form {
-    margin-top: 44px;
     display: flex;
     flex-direction: column;
     width: 275px;
@@ -14,9 +13,5 @@
     & > * {
       margin-bottom: 30px;
     }
-  }
-
-  & a {
-    color: $mdc-theme-primary !important;
   }
 }
