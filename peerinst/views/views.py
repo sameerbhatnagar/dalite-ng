@@ -1798,6 +1798,7 @@ class TeacherAssignments(TeacherBase, ListView):
                 assignment.save()
                 self.teacher.assignments.add(assignment)
                 self.teacher.save()
+                return HttpResponseRedirect(reverse('assignment-update', kwargs={'assignment_id':assignment.pk}))
             else:
                 return render(
                     request,
