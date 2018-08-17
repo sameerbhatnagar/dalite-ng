@@ -1,0 +1,8 @@
+[run]
+source =
+  dalite/
+  peerinst/
+  tos/
+omit =
+  */tests/*
+  */migrations/*
