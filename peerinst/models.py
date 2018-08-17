@@ -633,6 +633,85 @@ class Student(models.Model):
             output, basestring
         ), "Postcondition failed"
 
+    def send_signin_email(self, host):
+        assert isinstance(host, basestring), "Precondition failed for `host`"
+        err = None
+
+        username = self.student.username
+        user_email = self.student.email
+        token = create_student_token(username, user_email)
+        groups = self.groups.all()
+        assignments = [
+            StudentGroupAssignment.objects.filter(group=group)
+            for group in groups
+        ]
+        links = [
+            [
+                reverse(
+                    "live",
+                    kwargs={
+                        "assignment_hash": assignment.hash,
+                        "token": token,
+                    },
+                )
+                for assignment in group
+            ]
+            for group in assignments
+        ]
+
+        if host.startswith("localhost") or host.startswith("127.0.0.1"):
+            protocol = "http"
+        else:
+            protocol = "https"
+
+        subject = "Sign in to your myDALITE account"
+        message = (
+            "Go to any of your assignments by clicking the links below:\n"
+            "\n".join(
+                "\n".join(
+                    ["Group: {}".format(group.title)]
+                    + [
+                        "{}: {}{}{}".format(
+                            a.assignment.title, protocol, host, l
+                        )
+                        for a, l in zip(assignment, link)
+                    ]
+                )
+                for group, assignment, link in zip(groups, assignments, links)
+            )
+        )
+        groups = [
+            {
+                "title": group.title,
+                "assignments": [
+                    {"title": a.assignment.title, "link": l}
+                    for a, l in zip(assignment, link)
+                ],
+            }
+            for group, assignment, link in zip(groups, assignments, links)
+        ]
+        template = "students/email_signin.html"
+        context = {"groups": groups, "host": host, "protocol": protocol}
+
+        try:
+            send_mail(
+                subject,
+                message,
+                "noreply@myDALITE.org",
+                [user_email],
+                fail_silently=False,
+                html_message=loader.render_to_string(
+                    template, context=context
+                ),
+            )
+        except smtplib.SMTPException:
+            err = "There was an error sending the email."
+
+        output = err
+        assert err is None or isinstance(
+            output, basestring
+        ), "Postcondition failed"
+
     def send_missing_assignments(self, group, host):
         assert isinstance(
             group, StudentGroup
@@ -982,7 +1061,7 @@ class StudentGroupAssignment(models.Model):
         assert isinstance(host, basestring), "Precondition failed for `host`"
 
         for student in Student.objects.filter(groups=self.group):
-            assignment = StudentAssignment.objects.get_or_create(
+            assignment, _ = StudentAssignment.objects.get_or_create(
                 student=student, group_assignment=self
             )
             assignment.send_email(
@@ -1228,9 +1307,6 @@ class StudentAssignment(models.Model):
                 output = questions[has_second_answer.index(False)]
             else:
                 output = None
-
-        if output is None:
-            output = questions[0]
 
         assert output is None or isinstance(
             output, Question

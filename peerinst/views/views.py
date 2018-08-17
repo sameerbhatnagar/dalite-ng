@@ -854,6 +854,17 @@ class QuestionMixin(object):
             if hash is not None:
                 group_assignment = StudentGroupAssignment.get(hash)
                 context.update(group_assignment=group_assignment)
+            context.update(
+                assignment_first=self.request.session.get("assignment_first")
+            )
+            context.update(
+                assignment_last=self.request.session.get("assignment_last")
+            )
+            context.update(
+                assignment_expired=self.request.session.get(
+                    "assignment_expired"
+                )
+            )
 
         return context
 

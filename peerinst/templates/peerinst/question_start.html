@@ -85,9 +85,11 @@
           <label for="id_rationale" class="mdc-floating-label"> {{ form.rationale.label }}</label>
         </div>
         {% endblock %}
+        {% if lti or not assignment_expired %}
         <div style="margin-top:20px;">
           <input class="mdc-button mdc-button--raised" type="submit" value="{% block submit_button %}{% trans 'Next' %}{% endblock %}" />
         </div>
+        {% endif %}
       </form>
       {% endblock %}
       {% endif %}
@@ -99,11 +101,13 @@
   {% if not lti and assignment %}
   <div class='nav-question' style='border-top:solid;border-width:1px;border-color:LightGray;'>
 
+    {% if not assignment_first %}
     <a class='prev-question' href="{% url 'navigate-assignment' assignment_id=assignment.pk question_id=question.id direction='prev' index='x' %}">
       <i class="inline material-icons md-60 mdc-theme--primary">
         keyboard_arrow_left
       </i>
     </a>
+    {% endif %}
 
     <div style='position:absolute;bottom:50%;left:50%;transform:translate(-50%,50%);'>
       {% for q in group_assignment.get_questions %}
@@ -119,11 +123,19 @@
       {% endfor %}
     </div>
 
+    {% if assignment_last %}
+    {% if not assignment_expired %}
+    <a class='next-question mdc-button mdc-button--unelevated' href="{% url 'finish-assignment' %}">
+      Finish
+    </a>
+    {% endif %}
+    {% else %}
     <a class='next-question' href="{% url 'navigate-assignment' assignment_id=assignment.pk question_id=question.id direction='next' index='x' %}">
       <i class="inline material-icons md-60  mdc-theme--primary">
         keyboard_arrow_right
       </i>
     </a>
+    {% endif %}
 
   </div>
   {% endif %}

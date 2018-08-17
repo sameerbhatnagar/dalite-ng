@@ -80,7 +80,10 @@ def authenticate_student(token):
             users_ = [
                 authenticate(username=username, password=p) for p in passwords
             ]
-            user = [u for u in users_ if u is not None][0]
+            try:
+                user = [u for u in users_ if u is not None][0]
+            except IndexError:
+                user = None
 
         if user is None:
             resp = TemplateResponse(

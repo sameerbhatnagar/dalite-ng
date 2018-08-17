@@ -108,6 +108,9 @@ def confirm_signup_through_link(request, group_hash, token):
         student.groups.add(group)
         student.save()
         student.send_missing_assignments(group, request.get_host())
+        print(student)
+        print(student.student)
+        print(student.student.is_active)
 
         return TemplateResponse(
             request,
@@ -140,13 +143,27 @@ def live(request, token, assignment_hash):
     # Register assignment
     request.session["assignment"] = assignment_hash
 
+    assignment = student_assignment.group_assignment
+    current_question = student_assignment.get_current_question()
+    has_expired = student_assignment.group_assignment.is_expired()
+
+    if has_expired or current_question is None:
+        return HttpResponseRedirect(reverse("finish-assignment"))
+
+    questions = assignment.questions
+    idx = questions.index(current_question)
+
+    request.session["assignment_first"] = idx == 0
+    request.session["assignment_last"] = idx == len(questions) - 1
+    request.session["assignment_expired"] = idx == len(questions) - 1
+
     # Redirect to view
     return HttpResponseRedirect(
         reverse(
             "question",
             kwargs={
-                "assignment_id": student_assignment.group_assignment.assignment.pk,
-                "question_id": student_assignment.get_current_question().id,
+                "assignment_id": assignment.assignment.pk,
+                "question_id": current_question.id,
             },
         )
     )
@@ -173,31 +190,29 @@ def navigate_assignment(request, assignment_id, question_id, direction, index):
                 new_question = questions[idx - 1]
             else:
                 new_question = questions[-1]
-        # Redirect
-        return HttpResponseRedirect(
-            reverse(
-                "question",
-                kwargs={
-                    "assignment_id": assignment_id,
-                    "question_id": new_question.id,
-                },
-            )
+
+    else:
+
+        assignment = StudentGroupAssignment.get(hash)
+        question = get_object_or_404(Question, id=question_id)
+
+        if index != "x":
+            idx = int(index)
+        else:
+            idx = None
+
+        new_question = assignment.get_question(
+            current_question=question, after=direction == "next", idx=idx
         )
 
-    assignment = StudentGroupAssignment.get(hash)
-    question = get_object_or_404(Question, id=question_id)
+        if new_question is None:
+            raise Http404()
 
-    if index != "x":
-        idx = int(index)
-    else:
-        idx = None
+        questions = assignment.questions
+        idx = questions.index(new_question)
 
-    new_question = assignment.get_question(
-        current_question=question, after=direction == "next", idx=idx
-    )
-
-    if new_question is None:
-        raise Http404()
+        request.session["assignment_first"] = idx == 0
+        request.session["assignment_last"] = idx == len(questions) - 1
 
     # Redirect
     return HttpResponseRedirect(
@@ -209,6 +224,23 @@ def navigate_assignment(request, assignment_id, question_id, direction, index):
             },
         )
     )
+
+
+@login_required
+@require_safe
+@require_http_methods(["GET"])
+def finish_assignment(req):
+    hash_ = req.session["assignment"]
+    assignment = StudentGroupAssignment.get(hash_)
+    req.session["assignment_first"] = True
+    req.session["assignment_last"] = len(assignment.questions) == 1
+    req.session["assignment_expired"] = True
+    context = {
+        "assignment_id": assignment.assignment.pk,
+        "question_id": assignment.questions[0].id,
+        "has_expired": assignment.is_expired,
+    }
+    return render(req, "peerinst/student/assignment_complete.html", context)
 
 
 class StudentGroupAssignmentCreateView(

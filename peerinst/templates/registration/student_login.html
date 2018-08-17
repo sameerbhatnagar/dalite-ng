@@ -1,0 +1,55 @@
+{% extends "peerinst/base.html" %}
+
+{% load static compress i18n %}
+
+{% block stylesheets %}
+{% compress css %}
+  <link href="{% static 'auth/css/student_login.min.css' %}" rel="stylesheet">
+{% endcompress %}
+{% endblock %}
+
+{% block body %}
+<main>
+  <section id="student-login">
+
+    <h1 class="mdc-typography--display3">
+      {% trans 'Login' %}
+      <svg class="underline" width=150 height=4></svg>
+    </h1>
+
+    <form action="{% url 'student-send-signin-link' %}" method="POST">
+      {% csrf_token %}
+
+      <div class="mdc-text-field mdc-text-field--outlined" data-mdc-auto-init="MDCTextField">
+        <input type="email" id="form_email" name="email" class="mdc-text-field__input" required></input>
+        <label class="mdc-floating-label" for="form_email">
+          {% trans 'Email' %}
+        </label>
+        <div class="mdc-notched-outline">
+            <svg>
+              <path class="mdc-notched-outline__path"/>
+            </svg>
+          </div>
+          <div class="mdc-notched-outline__idle"></div>
+      </div>
+
+      <input class="mdc-button mdc-button--raised" type="submit" value="{% trans 'Send sign in link' %}"></input>
+
+      <a href="{% url 'login' %}" class="mdc-button">
+        Teacher login
+      </a>
+
+    </form>
+
+  </section>
+</main>
+{% endblock %}
+
+{% block scripts %}
+{% compress js %}
+<script>
+  import {MDCRipple} from '@material/ripple';
+  new MDCRipple(document.querySelector('.mdc-button'));
+</script>
+{% endcompress %}
+{% endblock %}

@@ -1,0 +1,60 @@
+{% extends "peerinst/base.html" %}
+
+{% load static compress i18n %}
+
+{% block stylesheets %}
+{% compress css %}
+  <link href="{% static 'auth/css/student_login_confirmation.min.css' %}" rel="stylesheet">
+{% endcompress %}
+{% endblock %}
+
+{% block body %}
+<main>
+  <section id="student-login-confirmation">
+
+    {% if missing_student %}
+
+    <h1 class="mdc-typography--display3">
+      {% trans 'There was an error with your email' %}
+      <svg class="underline" width=150 height=4></svg>
+    </h1>
+
+    <p>
+      {% blocktrans %}
+      Your email doesn't seem to be associated with any group. Make sure that
+      it is correct and that you followed any signup link provided by your 
+      teacher.
+      {% endblocktrans %}
+    </p>
+
+    {% else %}
+
+    <h1 class="mdc-typography--display3">
+      {% trans 'Email sent' %}
+      <svg class="underline" width=150 height=4></svg>
+    </h1>
+
+    <p>
+      {% blocktrans %}
+      We just sent you a confirmation email with links to your assignments for
+      all groups to which you are signed up. If any assignment or group are 
+      missing, make sure you signed up or verify with your teacher.
+      {% endblocktrans %}
+    </p>
+
+    {% endif %}
+
+    <a href="{% url 'landing_page' %}" class="mdc-button mdc-button--unelevated">Ok</a>
+
+  </section>
+</main>
+{% endblock %}
+
+{% block scripts %}
+{% compress js %}
+<script>
+  import {MDCRipple} from '@material/ripple';
+  new MDCRipple(document.querySelector('.mdc-button'));
+</script>
+{% endcompress %}
+{% endblock %}
