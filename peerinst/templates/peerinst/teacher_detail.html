@@ -195,9 +195,9 @@
         <ul class="mdc-list mdc-list--two-line mdc-list--interactive">
           {% for a in object.assignments.all %}
           <li role="separator" class="mdc-list-divider"></li>
-          <li class="mdc-list-item" onclick="window.location.href='{% url 'question-list' a.pk %}'" style="cursor:pointer;">
+          <li class="mdc-list-item">
             <span class="mdc-list-item__graphic mdc-theme--primary">
-              <i class="mdc-theme--primary material-icons md-48">assignment</i>
+              <i class="mdc-theme--primary material-icons md-48" onclick="window.location.href='{% url 'question-list' a.pk %}'" style="cursor:pointer;">assignment</i>
             </span>
             <span class="mdc-list-item__text mdc-theme--secondary bold">
               {{ a.identifier }}
