@@ -1971,6 +1971,7 @@ class BlinkQuestionFormView(SingleObjectMixin, FormView):
                 },
             )
         else:
+            print(self.object)
             if self.object.active:
                 try:
                     models.BlinkAnswer(
