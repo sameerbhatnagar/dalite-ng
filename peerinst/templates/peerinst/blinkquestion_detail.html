@@ -106,6 +106,7 @@ var counterID = window.setInterval(get,1000,"{% url 'blink-count' pk=object.pk %
 
 // Countdown
 var startTime = parseInt({{ time_left }});
+console.info({{ time_left }});
 
 var svg = bundle.select("#timer"),
 width = +svg.attr("width"),

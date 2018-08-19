@@ -1971,7 +1971,6 @@ class BlinkQuestionFormView(SingleObjectMixin, FormView):
                 },
             )
         else:
-            print(self.object)
             if self.object.active:
                 try:
                     models.BlinkAnswer(
@@ -2036,6 +2035,22 @@ class BlinkQuestionFormView(SingleObjectMixin, FormView):
 class BlinkQuestionDetailView(DetailView):
 
     model = BlinkQuestion
+
+    def get(self, request, *args, **kwargs):
+        # Check for an answer... teacher might have refreshed their page and started a new round
+        if not request.user.is_authenticated():
+            try:
+                r = BlinkRound.objects.get(
+                    question=self.get_object(), deactivate_time__isnull=True
+                    )
+                if not request.session.get("BQid_" + self.get_object().key + "_R_" + str(r.id), False):
+                    return HttpResponseRedirect(
+                    reverse("blink-question", kwargs={"pk": self.get_object().pk})
+                    )
+            except:
+                pass
+
+        return super(BlinkQuestionDetailView, self).get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super(BlinkQuestionDetailView, self).get_context_data(
