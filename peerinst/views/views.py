@@ -2336,9 +2336,6 @@ def blink_waiting(request, username, assignment=""):
 def question_search(request):
     n_search_limit = 50
     if request.method == "GET" and request.user.teacher:
-        assignment = Assignment.objects.get(
-            identifier=request.GET["assignment_identifier"]
-        )
         type = request.GET.get("type", default=None)
         id = request.GET.get("id", default=None)
         search_string = request.GET.get("search_string", default="")
@@ -2347,11 +2344,15 @@ def question_search(request):
         # Exclusions based on type of search
         q_qs = []
         if type == "blink":
+            assignment=None
             bq_qs = request.user.teacher.blinkquestion_set.all()
             q_qs = [bq.question.id for bq in bq_qs]
             form_field_name = "new_blink"
 
         if type == "assignment":
+            assignment = Assignment.objects.get(
+                identifier=request.GET["assignment_identifier"]
+            )
             a_qs = Assignment.objects.get(identifier=id).questions.all()
             q_qs = [q.id for q in a_qs]
             form_field_name = "q"

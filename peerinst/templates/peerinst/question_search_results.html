@@ -56,12 +56,15 @@
       </div>
 
       <div class="mdc-card__action-icons">
+        {% if assignment %}
         <button onclick="ajax.updateAssignmentQuestionList('{% url 'assignment-edit-ajax' %}', '{{ g.id }}', '{{ assignment.identifier }}')" class="material-icons small-button mdc-button mdc-card__action mdc-card__action--button mdc-button--raised">add</button>
-        <!-- <form style="display:inline" method="post" action="#{{g.id|slugify}}"> -->
-          <!-- {% csrf_token %} -->
-          <!-- <input type="hidden" name="{{form_field_name}}" value="{{g.pk}}" /> -->
-          <!-- <input class="material-icons small-button mdc-button mdc-card__action mdc-card__action--button mdc-button--raised" type="submit" value="add" /> -->
-        <!-- </form> -->
+        {% else %}
+        <form style="display:inline" method="post" action="#{{g.id|slugify}}">
+          {% csrf_token %}
+          <input type="hidden" name="{{form_field_name}}" value="{{g.pk}}" />
+          <input class="material-icons small-button mdc-button mdc-card__action mdc-card__action--button mdc-button--raised" type="submit" value="add" />
+        </form>
+        {% endif %}
       </div>
     </div>
   </div>
