@@ -595,38 +595,42 @@ class Student(models.Model):
         assert isinstance(host, basestring), "Precondition failed for `host`"
         err = None
 
-        username = self.student.username
-        user_email = self.student.email
-        token = create_student_token(username, user_email)
-        hash_ = group.hash
-        link = reverse(
-            "confirm-signup-through-link",
-            kwargs={"group_hash": hash_, "token": token},
-        )
+        if not self.student.email.endswith("localhost"):
 
-        if host == "localhost" or host == "127.0.0.1":
-            protocol = "http"
-        else:
-            protocol = "https"
-
-        subject = "Confirm myDALITE account"
-        message = "Please confirm myDALITE account by going to: " + host + link
-        template = "students/email_confirmation.html"
-        context = {"link": link, "host": host, "protocol": protocol}
-
-        try:
-            send_mail(
-                subject,
-                message,
-                "noreply@myDALITE.org",
-                [user_email],
-                fail_silently=False,
-                html_message=loader.render_to_string(
-                    template, context=context
-                ),
+            username = self.student.username
+            user_email = self.student.email
+            token = create_student_token(username, user_email)
+            hash_ = group.hash
+            link = reverse(
+                "confirm-signup-through-link",
+                kwargs={"group_hash": hash_, "token": token},
             )
-        except smtplib.SMTPException:
-            err = "There was an error sending the email."
+
+            if host == "localhost" or host == "127.0.0.1":
+                protocol = "http"
+            else:
+                protocol = "https"
+
+            subject = "Confirm myDALITE account"
+            message = (
+                "Please confirm myDALITE account by going to: " + host + link
+            )
+            template = "students/email_confirmation.html"
+            context = {"link": link, "host": host, "protocol": protocol}
+
+            try:
+                send_mail(
+                    subject,
+                    message,
+                    "noreply@myDALITE.org",
+                    [user_email],
+                    fail_silently=False,
+                    html_message=loader.render_to_string(
+                        template, context=context
+                    ),
+                )
+            except smtplib.SMTPException:
+                err = "There was an error sending the email."
 
         output = err
         assert err is None or isinstance(
@@ -637,75 +641,79 @@ class Student(models.Model):
         assert isinstance(host, basestring), "Precondition failed for `host`"
         err = None
 
-        username = self.student.username
-        user_email = self.student.email
-        token = create_student_token(username, user_email)
-        groups = self.groups.all()
-        assignments = [
-            StudentGroupAssignment.objects.filter(group=group)
-            for group in groups
-        ]
-        links = [
-            [
-                reverse(
-                    "live",
-                    kwargs={
-                        "assignment_hash": assignment.hash,
-                        "token": token,
-                    },
-                )
-                for assignment in group
+        if not self.student.email.endswith("localhost"):
+
+            username = self.student.username
+            user_email = self.student.email
+            token = create_student_token(username, user_email)
+            groups = self.groups.all()
+            assignments = [
+                StudentGroupAssignment.objects.filter(group=group)
+                for group in groups
             ]
-            for group in assignments
-        ]
+            links = [
+                [
+                    reverse(
+                        "live",
+                        kwargs={
+                            "assignment_hash": assignment.hash,
+                            "token": token,
+                        },
+                    )
+                    for assignment in group
+                ]
+                for group in assignments
+            ]
 
-        if host.startswith("localhost") or host.startswith("127.0.0.1"):
-            protocol = "http"
-        else:
-            protocol = "https"
+            if host.startswith("localhost") or host.startswith("127.0.0.1"):
+                protocol = "http"
+            else:
+                protocol = "https"
 
-        subject = "Sign in to your myDALITE account"
-        message = (
-            "Go to any of your assignments by clicking the links below:\n"
-            "\n".join(
+            subject = "Sign in to your myDALITE account"
+            message = (
+                "Go to any of your assignments by clicking the links below:\n"
                 "\n".join(
-                    ["Group: {}".format(group.title)]
-                    + [
-                        "{}: {}{}{}".format(
-                            a.assignment.title, protocol, host, l
-                        )
-                        for a, l in zip(assignment, link)
-                    ]
+                    "\n".join(
+                        ["Group: {}".format(group.title)]
+                        + [
+                            "{}: {}{}{}".format(
+                                a.assignment.title, protocol, host, l
+                            )
+                            for a, l in zip(assignment, link)
+                        ]
+                    )
+                    for group, assignment, link in zip(
+                        groups, assignments, links
+                    )
                 )
+            )
+            groups = [
+                {
+                    "title": group.title,
+                    "assignments": [
+                        {"title": a.assignment.title, "link": l}
+                        for a, l in zip(assignment, link)
+                    ],
+                }
                 for group, assignment, link in zip(groups, assignments, links)
-            )
-        )
-        groups = [
-            {
-                "title": group.title,
-                "assignments": [
-                    {"title": a.assignment.title, "link": l}
-                    for a, l in zip(assignment, link)
-                ],
-            }
-            for group, assignment, link in zip(groups, assignments, links)
-        ]
-        template = "students/email_signin.html"
-        context = {"groups": groups, "host": host, "protocol": protocol}
+            ]
+            template = "students/email_signin.html"
+            context = {"groups": groups, "host": host, "protocol": protocol}
 
-        try:
-            send_mail(
-                subject,
-                message,
-                "noreply@myDALITE.org",
-                [user_email],
-                fail_silently=False,
-                html_message=loader.render_to_string(
-                    template, context=context
-                ),
-            )
-        except smtplib.SMTPException:
-            err = "There was an error sending the email."
+            try:
+                send_mail(
+                    subject,
+                    message,
+                    "noreply@myDALITE.org",
+                    [user_email],
+                    fail_silently=False,
+                    html_message=loader.render_to_string(
+                        template, context=context
+                    ),
+                )
+            except smtplib.SMTPException:
+                err = "There was an error sending the email."
 
         output = err
         assert err is None or isinstance(
@@ -717,17 +725,19 @@ class Student(models.Model):
             group, StudentGroup
         ), "Precondition failed for `group`"
 
-        assignments = StudentGroupAssignment.objects.filter(group=group)
+        if not self.student.email.endswith("localhost"):
 
-        for assignment in assignments:
-            if not assignment.is_expired():
-                if not StudentAssignment.objects.filter(
-                    student=self, group_assignment=assignment
-                ).exists():
-                    assignment_ = StudentAssignment.objects.create(
+            assignments = StudentGroupAssignment.objects.filter(group=group)
+
+            for assignment in assignments:
+                if not assignment.is_expired():
+                    if not StudentAssignment.objects.filter(
                         student=self, group_assignment=assignment
-                    )
-                    assignment_.send_email(host, "new_assignment")
+                    ).exists():
+                        assignment_ = StudentAssignment.objects.create(
+                            student=self, group_assignment=assignment
+                        )
+                        assignment_.send_email(host, "new_assignment")
 
 
 class Institution(models.Model):
@@ -1011,22 +1021,22 @@ class StudentGroupAssignment(models.Model):
         ), "Postcondition failed"
         return output
 
-    def get_questions(self):
-        questions_ = self.assignment.questions.all()
-        questions = [questions_[i] for i in map(int, self.order.split(","))]
-        return questions
+    #  def get_questions(self):
+    #  questions_ = self.assignment.questions.all()
+    #  questions = [questions_[i] for i in map(int, self.order.split(","))]
+    #  return questions
 
     def get_question(self, idx=None, current_question=None, after=True):
         assert idx is None or isinstance(
             idx, int
         ), "Precondition failed for `idx`"
-        # assert idx is None or isinstance(
-        #    idx, Question
-        # ), "Precondition failed for `current_question`"
+        assert current_question is None or isinstance(
+            current_question, Question
+        ), "Precondition failed for `current_question`"
         assert isinstance(after, bool), "Precondition failed for `after`"
-        # assert (idx is None) == (
-        #    current_question is None
-        # ), "Either the `idx` or the `current_question` must be given"
+        assert (idx is None) != (
+            current_question is None
+        ), "Either the `idx` or the `current_question` must be given"
 
         question = None
 
@@ -1038,14 +1048,17 @@ class StudentGroupAssignment(models.Model):
                     if idx < len(questions) - 1:
                         question = questions[idx + 1]
                     else:
-                        question = questions[0]
+                        question = None
                 else:
-                    question = questions[idx - 1]
+                    if idx > 0:
+                        question = questions[idx - 1]
+                    else:
+                        question = None
             except IndexError:
                 question = None
 
         else:
-            questions = self.get_questions()
+            questions = self.questions
             if 0 <= idx < len(questions):
                 question = questions[idx]
             else:
@@ -1204,73 +1217,77 @@ class StudentAssignment(models.Model):
 
         err = None
 
-        username = self.student.student.username
-        user_email = self.student.student.email
+        if not self.student.student.email.endswith("localhost"):
 
-        if err is None and user_email:
-            print(mail_type.upper())
+            username = self.student.student.username
+            user_email = self.student.student.email
 
-            token = create_student_token(username, user_email)
+            if err is None and user_email:
+                print(mail_type.upper())
 
-            if mail_type == "login":
+                token = create_student_token(username, user_email)
 
-                subject = "Login to myDALITE"
-                message = "Click link below to login to your account."
+                if mail_type == "login":
 
-                template = "students/email_login.html"
+                    subject = "Login to myDALITE"
+                    message = "Click link below to login to your account."
 
-            elif mail_type == "new_assignment":
+                    template = "students/email_login.html"
 
-                link = reverse(
-                    "live",
-                    kwargs={
-                        "assignment_hash": self.group_assignment.hash,
-                        "token": token,
-                    },
-                )
+                elif mail_type == "new_assignment":
 
-                subject = (
-                    "New assignment in "
-                    + self.group_assignment.group.title
-                    + " (due "
-                    + self.group_assignment.due_date.strftime("%Y-%m-%d %H:%M")
-                    + ")"
-                )
-                message = "Click link below to access your assignment."
+                    link = reverse(
+                        "live",
+                        kwargs={
+                            "assignment_hash": self.group_assignment.hash,
+                            "token": token,
+                        },
+                    )
 
-                template = "students/email_new_assignment.html"
+                    subject = (
+                        "New assignment in "
+                        + self.group_assignment.group.title
+                        + " (due "
+                        + self.group_assignment.due_date.strftime(
+                            "%Y-%m-%d %H:%M"
+                        )
+                        + ")"
+                    )
+                    message = "Click link below to access your assignment."
 
+                    template = "students/email_new_assignment.html"
+
+                else:
+                    raise RuntimeError(
+                        "This error should not be possible. Check asserts and "
+                        "mail types."
+                    )
+
+                if host == "localhost" or host == "127.0.0.1":
+                    protocol = "http"
+                else:
+                    protocol = "https"
+
+                context = {"link": link, "host": host, "protocol": protocol}
+
+                try:
+                    send_mail(
+                        subject,
+                        message,
+                        "noreply@myDALITE.org",
+                        [user_email],
+                        fail_silently=False,
+                        html_message=loader.render_to_string(
+                            template, context=context
+                        ),
+                    )
+                except smtplib.SMTPException:
+                    err = "There was an error sending the email."
             else:
-                raise RuntimeError(
-                    "This error should not be possible. Check asserts and "
-                    "mail types."
-                )
-
-            if host == "localhost" or host == "127.0.0.1":
-                protocol = "http"
-            else:
-                protocol = "https"
-
-            context = {"link": link, "host": host, "protocol": protocol}
-
-            try:
-                send_mail(
-                    subject,
-                    message,
-                    "noreply@myDALITE.org",
-                    [user_email],
-                    fail_silently=False,
-                    html_message=loader.render_to_string(
-                        template, context=context
-                    ),
-                )
-            except smtplib.SMTPException:
-                err = "There was an error sending the email."
-        else:
-            if err is None:
-                err = "There is no email associated with user {}".format(
-                    self.student.user.username
-                )
+                if err is None:
+                    err = "There is no email associated with user {}".format(
+                        self.student.user.username
+                    )
 
         output = err
         assert err is None or isinstance(
@@ -1278,7 +1295,7 @@ class StudentAssignment(models.Model):
         ), "Postcondition failed"
 
     def get_current_question(self):
-        questions = self.group_assignment.get_questions()
+        questions = self.group_assignment.questions
 
         # get the answer or None for each question of the assignment
         answers = [

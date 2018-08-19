@@ -76,6 +76,9 @@ class StandaloneTest(TransactionTestCase):
         )
 
         self.assertEqual(response.status_code, 200)
+        print(response)
+        print(StudentGroupAssignment.objects.all())
+        print(StudentGroupAssignment.objects.count())
         self.assertTrue(StudentGroupAssignment.objects.count(), 1)
         self.assertEqual(len(mail.outbox), self.group.student_set.count())
         self.assertEqual(
