@@ -251,7 +251,7 @@ def old_patterns():
         ),
         # url(r'^assignment_results/(?P<assignment_id>[^/]+)/(?P<student_group_id>[^/]+)/', views.AssignmentByGroupResultsView.as_view(), name='assignment-group-results'),
         # Auth
-        url(r"^$", cache_page(3600)(views.landing_page), name="landing_page"),
+        url(r"^$", views.landing_page, name="landing_page"),
         url(r"^signup/$", views.sign_up, name="sign_up"),
         url(
             r"^login/$",
