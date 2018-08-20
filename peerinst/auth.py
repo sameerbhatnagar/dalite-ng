@@ -19,12 +19,8 @@ def authenticate_student(email):
 
     username, password = get_student_username_and_password(email)
 
-
     if User.objects.filter(username=username).exists():
         user = authenticate(username=username, password=password)
-        print("new scheme")
-        print(username)
-        print(password)
         if (
             user
             and not Teacher.objects.filter(user__email=email)
@@ -38,9 +34,6 @@ def authenticate_student(email):
         old_username, old_password = get_old_lti_student_username_and_password(
             user_id
         )
-        print("old scheme")
-        print(old_username)
-        print(old_password)
 
         if User.objects.filter(username=old_username).exists():
             user = authenticate(username=old_username, password=old_password)

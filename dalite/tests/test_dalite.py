@@ -8,12 +8,13 @@ from django.test import SimpleTestCase, TestCase
 from dalite import ApplicationHookManager, LTIRoles
 from dalite.views import admin_index_wrapper
 from peerinst.auth import get_student_username_and_password
-
+from peerinst.models import Student
 from peerinst.students import get_student_username_and_password
 
 
 @ddt.ddt
-@mock.patch("dalite.User.objects")
+@mock.patch("peerinst.auth.User.objects")
+@mock.patch("peerinst.auth.Student.objects")
 class TestApplicationHookManager(SimpleTestCase):
     def setUp(self):
         self.manager = ApplicationHookManager()
@@ -42,53 +43,69 @@ class TestApplicationHookManager(SimpleTestCase):
 
     @ddt.unpack
     @ddt.data(
-        ("FN-2187", "fn-2187@first_order.com", True), ("Kylo Ren", None, False)
+        (
+            "FN-2187",
+            "fn-2187@first_order.com",
+            User(username="FN-2187", email="fn-2187@first_order.com"),
+        ),
+        ("Kylo Ren", None, None),
     )
     def test_authentication_hook_user_exists(
-        self, user_id, email, auth_result, user_objects_manager
+        self,
+        user_id,
+        email,
+        auth_result,
+        user_objects_manager,
+        student_objects_manager,
     ):
         user_objects_manager.get.return_value = User()
+        student_objects_manager.get.return_value = Student()
         request = mock.Mock()
         expected_uname, expected_password = self._get_uname_and_password(
             user_id, email
         )
 
         with mock.patch(
-            "dalite.authenticate"
+            "peerinst.auth.authenticate"
         ) as authenticate_mock, mock.patch("dalite.login") as login_mock:
             authenticate_mock.return_value = auth_result
             self.manager.authentication_hook(
                 request, user_id, "irrelevant", email
             )
 
-            print("expected uname & pwd")
-            print(expected_uname)
-            print(expected_password)
-
             authenticate_mock.assert_called_once_with(
                 username=expected_uname, password=expected_password
             )
-            login_mock.assert_called_once_with(request, auth_result)
+            if auth_result:
+                login_mock.assert_called_once_with(request, auth_result)
 
     @ddt.unpack
     @ddt.data(
-        ("Luke Skywalker", "luke27@tatooine.com", True),
-        ("Ben Solo", None, False),
+        (
+            "Luke Skywalker",
+            "luke27@tatooine.com",
+            User(username="Luke Skywalker", email="luke27@tatooine.com"),
+        ),
+        ("Ben Solo", None, None),
     )
-    def test_authentication_hook_user_missing(
-        self, user_id, email, auth_result, user_objects_manager
+    def test_authentication_hook_user_doesnt_exist(
+        self,
+        user_id,
+        email,
+        auth_result,
+        user_objects_manager,
+        student_objects_manager,
     ):
-        user_objects_manager.get.side_effect = (
-            self.user_does_not_exist_side_effect
-        )
+        user_objects_manager.get.return_value = User()
+        student_objects_manager.get.return_value = Student()
         request = mock.Mock()
         expected_uname, expected_password = self._get_uname_and_password(
-            user_id
+            user_id, email
         )
         expected_email = email = email if email else user_id + "@localhost"
 
         with mock.patch(
-            "dalite.authenticate"
+            "peerinst.auth.authenticate"
         ) as authenticate_mock, mock.patch("dalite.login") as login_mock:
             authenticate_mock.return_value = auth_result
             self.manager.authentication_hook(
@@ -103,6 +120,7 @@ class TestApplicationHookManager(SimpleTestCase):
             authenticate_mock.assert_called_once_with(
                 username=expected_uname, password=expected_password
             )
+        if auth_result:
             login_mock.assert_called_once_with(request, auth_result)
 
     @ddt.unpack
