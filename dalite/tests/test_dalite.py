@@ -9,6 +9,8 @@ from dalite import ApplicationHookManager, LTIRoles
 from dalite.views import admin_index_wrapper
 from peerinst.auth import get_student_username_and_password
 
+from peerinst.students import get_student_username_and_password
+
 
 @ddt.ddt
 @mock.patch("dalite.User.objects")
@@ -16,14 +18,18 @@ class TestApplicationHookManager(SimpleTestCase):
     def setUp(self):
         self.manager = ApplicationHookManager()
 
-    def _get_uname_and_password(self, user_id):
-        #  uname = self.manager._compress_user_name(user_id)
-        #  password = self.manager._generate_password(
-        #  user_id, settings.PASSWORD_GENERATOR_NONCE
-        #  )
-        uname, password = get_student_username_and_password(
-            "{}@localhost".format(user_id)
+    def _get_uname_and_password(self, user_id, email=None):
+        uname = self.manager._compress_user_name(user_id)
+        password = self.manager._generate_password(
+            user_id, settings.PASSWORD_GENERATOR_NONCE
         )
+
+        # Update for new schemes
+        if not email:
+            email = "{}@localhost".format(user_id)
+
+        uname, password = get_student_username_and_password(email)
+
         return uname, password
 
     @staticmethod
@@ -44,7 +50,7 @@ class TestApplicationHookManager(SimpleTestCase):
         user_objects_manager.get.return_value = User()
         request = mock.Mock()
         expected_uname, expected_password = self._get_uname_and_password(
-            user_id
+            user_id, email
         )
 
         with mock.patch(
@@ -54,6 +60,10 @@ class TestApplicationHookManager(SimpleTestCase):
             self.manager.authentication_hook(
                 request, user_id, "irrelevant", email
             )
+
+            print("expected uname & pwd")
+            print(expected_uname)
+            print(expected_password)
 
             authenticate_mock.assert_called_once_with(
                 username=expected_uname, password=expected_password
@@ -158,7 +168,8 @@ class TestApplicationHookManager(SimpleTestCase):
                 request, "irrelevant", "irrelevant", "irrelevant"
             )
 
-            self.assertEqual(update_staff_user.called, is_admin)
+            # SALTISE/S4 version has no admin access over LTI (always false)
+            self.assertEqual(update_staff_user.called, False)
 
     @ddt.unpack
     @ddt.data(
@@ -271,5 +282,5 @@ class TestViews(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(
             response,
-            "This component cannot be shown because your browser does not seem to accept third-party cookies.",
+            "This component cannot be shown either because your browser does not seem to accept third-party cookies or your session has expired",
         )
