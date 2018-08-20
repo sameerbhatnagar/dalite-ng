@@ -124,6 +124,22 @@ def get_student_username_and_password(email, max_username_length=30):
     return output
 
 
+def get_old_lti_student_username_and_password(user_id):
+    """Copied from `dalite/__init__.py`"""
+    try:
+        binary_username = user_id.decode("hex")
+    except TypeError:
+        username = user_id
+    else:
+        username = base64.urlsafe_b64encode(binary_username).replace("=", "+")
+
+    password = hashlib.md5(
+        user_id + settings.PASSWORD_GENERATOR_NONCE
+    ).digest()
+
+    return username, password
+
+
 def get_lti_passwords(hashed_username):
     assert isinstance(
         hashed_username, basestring

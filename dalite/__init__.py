@@ -13,6 +13,7 @@ from django_lti_tool_provider.views import LTIView
 
 from peerinst.students import get_student_username_and_password
 from peerinst.models import Student
+from peerinst.auth import authenticate_student
 
 
 logger = logging.getLogger(__name__)
@@ -121,46 +122,10 @@ class ApplicationHookManager(AbstractApplicationHookManager):
 
         email = email if email else user_id + "@localhost"
 
-        username, password = get_student_username_and_password(email)
+        err = authenticate_student(email)
 
-        if User.objects.filter(username=username).exists():
-            user = authenticate(username=username, password=password)
-            if not Student.objects.filter(student=user):
-                Student.objects.create(student=user)
-
-        else:
-            # old way of generating student login
-            uname = self._compress_user_name(user_id)
-
-            if User.objects.filter(username=uname).exists():
-                password = self._generate_password(
-                    user_id, settings.PASSWORD_GENERATOR_NONCE
-                )
-                user = authenticate(username=uname, password=password)
-                if not Student.objects.filter(student=user):
-                    Student.objects.create(student=user)
-
-            else:
-                try:
-                    user = User.objects.create_user(
-                        username=username, password=password
-                    )
-                    Student.objects.create(student=user)
-                except IntegrityError as e:
-                    logger.info(
-                        "IntegrityError creating user - assuming result of "
-                        "race condition: %s",
-                        e.message,
-                    )
-
-        if user is None:
-            logger.error("The user couldn't be authenticated.")
-            return
-
-        if not Student.objects.filter(student=user):
-            Student.objects.create(student=user)
-
-        login(request, user)
+        if not err:
+            login(request, user)
 
         # LTI sessions are created implicitly, and are not terminated when
         # user logs out of Studio/LMS, which may lead to granting access to

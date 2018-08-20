@@ -31,24 +31,24 @@ def student_send_signin_link(req):
             "400.html",
             context={"message": _("There are missing parameters.")},
         )
-        return HttpResponseBadRequest(resp.render()), None
+        return HttpResponseBadRequest(resp.render())
 
     student = Student.objects.filter(student__email=email)
     if student:
         if len(student) == 1:
             student = student[0]
         else:
-            username, _ = get_student_username_and_password(email)
+            username, __ = get_student_username_and_password(email)
             student = student.filter(student__username=username).first()
-            if student:
-                student.student.is_active = True
-                err = student.send_signin_email(req.get_host())
-                if err is None:
-                    context = {}
-                else:
-                    context = {"missing_student": True}
+        if student:
+            student.student.is_active = True
+            err = student.send_signin_email(req.get_host())
+            if err is None:
+                context = {}
             else:
                 context = {"missing_student": True}
+        else:
+            context = {"missing_student": True}
     else:
         context = {"missing_student": True}
 
