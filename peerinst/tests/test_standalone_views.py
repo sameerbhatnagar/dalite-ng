@@ -66,13 +66,15 @@ class StandaloneTest(TransactionTestCase):
         )
         self.assertTrue(logged_in)
 
+        print(StudentGroupAssignment.objects.count())
+
         response = self.client.post(
             reverse(
                 "student-group-assignment-create",
                 kwargs={ 'assignment_id':self.assignments[0].identifier,},
             ),
             {
-                "group": 1,
+                "group": self.group.id,
                 "due_date": datetime.now(),
                 "show_correct_answers": True,
             },
@@ -80,6 +82,9 @@ class StandaloneTest(TransactionTestCase):
         )
 
         self.assertEqual(response.status_code, 200)
+        print(response)
+        print(StudentGroupAssignment.objects.all())
+        print(StudentGroupAssignment.objects.count())
         self.assertTrue(StudentGroupAssignment.objects.count(), 1)
         self.assertEqual(len(mail.outbox), self.group.student_set.count())
         self.assertIn("New assignment", mail.outbox[0].subject)
