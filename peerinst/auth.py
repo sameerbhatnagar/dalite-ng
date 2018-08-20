@@ -22,7 +22,7 @@ def authenticate_student(email):
     if User.objects.filter(username=username).exists():
         user = authenticate(username=username, password=password)
         if (
-            not Teacher.objects.filter(user=user)
+            not Teacher.objects.filter(user__email=email)
             and not Student.objects.filter(student=user).exists()
         ):
             Student.objects.create(student=user)
@@ -37,7 +37,7 @@ def authenticate_student(email):
         if User.objects.filter(username=old_username).exists():
             user = authenticate(username=old_username, password=old_password)
         if (
-            not Teacher.objects.filter(user=user)
+            not Teacher.objects.filter(user__email=email)
             and not Student.objects.filter(student=user).exists()
         ):
             Student.objects.create(student=user)
@@ -47,7 +47,8 @@ def authenticate_student(email):
                 user = User.objects.create_user(
                     username=username, email=email, password=password
                 )
-                Student.objects.create(student=user)
+                if not Teacher.objects.filter(user__email=email):
+                    Student.objects.create(student=user)
             except IntegrityError as e:
                 logger.info(
                     "IntegrityError creating user - assuming result of "
