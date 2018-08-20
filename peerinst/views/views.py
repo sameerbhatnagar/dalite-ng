@@ -293,7 +293,6 @@ def sign_up(request):
                 response = TemplateResponse(request, "500.html")
                 return HttpResponseServerError(response.render())
 
-            print(4)
             return TemplateResponse(request, "registration/sign_up_done.html")
         else:
             context["form"] = form
@@ -1791,7 +1790,12 @@ class TeacherAssignments(TeacherBase, ListView):
                 assignment.save()
                 self.teacher.assignments.add(assignment)
                 self.teacher.save()
-                return HttpResponseRedirect(reverse('assignment-update', kwargs={'assignment_id':assignment.pk}))
+                return HttpResponseRedirect(
+                    reverse(
+                        "assignment-update",
+                        kwargs={"assignment_id": assignment.pk},
+                    )
+                )
             else:
                 return render(
                     request,
@@ -2035,15 +2039,22 @@ class BlinkQuestionDetailView(DetailView):
             try:
                 r = BlinkRound.objects.get(
                     question=self.get_object(), deactivate_time__isnull=True
-                    )
-                if not request.session.get("BQid_" + self.get_object().key + "_R_" + str(r.id), False):
+                )
+                if not request.session.get(
+                    "BQid_" + self.get_object().key + "_R_" + str(r.id), False
+                ):
                     return HttpResponseRedirect(
-                    reverse("blink-question", kwargs={"pk": self.get_object().pk})
+                        reverse(
+                            "blink-question",
+                            kwargs={"pk": self.get_object().pk},
+                        )
                     )
             except:
                 pass
 
-        return super(BlinkQuestionDetailView, self).get(request, *args, **kwargs)
+        return super(BlinkQuestionDetailView, self).get(
+            request, *args, **kwargs
+        )
 
     def get_context_data(self, **kwargs):
         context = super(BlinkQuestionDetailView, self).get_context_data(
@@ -2353,7 +2364,7 @@ def question_search(request):
         # Exclusions based on type of search
         q_qs = []
         if type == "blink":
-            assignment=None
+            assignment = None
             bq_qs = request.user.teacher.blinkquestion_set.all()
             q_qs = [bq.question.id for bq in bq_qs]
             form_field_name = "new_blink"
@@ -2767,8 +2778,6 @@ def report(request, assignment_id="", group_id=""):
         assignment_list = teacher.assignments.all().values_list(
             "identifier", flat=True
         )
-
-    print(assignment_list)
 
     assignment_data = report_data_by_assignment(
         assignment_list, student_groups
