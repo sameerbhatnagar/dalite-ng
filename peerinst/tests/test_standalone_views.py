@@ -53,7 +53,11 @@ class StandaloneTest(TransactionTestCase):
         for student in students:
             student.groups.add(self.group)
 
+        self.group.teacher.add(self.validated_teacher.teacher)
+        self.validated_teacher.teacher.current_groups.add(self.group)
+
         self.assertEqual(self.group.student_set.count(), n_students)
+        self.assertIn(self.group, self.validated_teacher.teacher.current_groups.all())
 
     def test_create_group_assignment(self):
         logged_in = self.client.login(
@@ -62,17 +66,19 @@ class StandaloneTest(TransactionTestCase):
         )
         self.assertTrue(logged_in)
 
+        print(StudentGroupAssignment.objects.count())
+
         response = self.client.post(
             reverse(
                 "student-group-assignment-create",
-                args=(self.assignments[0].identifier,),
+                kwargs={ 'assignment_id':self.assignments[0].identifier,},
             ),
             {
-                "assignment_id": self.assignments[0].identifier,
-                "group_id": self.group,
-                "due_date": datetime.now,
+                "group": self.group.id,
+                "due_date": datetime.now(),
+                "show_correct_answers": True,
             },
-            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+            follow=True
         )
 
         self.assertEqual(response.status_code, 200)
@@ -81,9 +87,4 @@ class StandaloneTest(TransactionTestCase):
         print(StudentGroupAssignment.objects.count())
         self.assertTrue(StudentGroupAssignment.objects.count(), 1)
         self.assertEqual(len(mail.outbox), self.group.student_set.count())
-        self.assertEqual(
-            mail.outbox[0].subject, "A new assignment is available"
-        )
-
-    def test_access_to_share_group(self):
-        pass
+        self.assertIn("New assignment", mail.outbox[0].subject)
