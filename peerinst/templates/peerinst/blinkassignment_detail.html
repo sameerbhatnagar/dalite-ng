@@ -245,6 +245,7 @@
 <script>
 bundle.toggleImages();
 bundle.toggleAnswers();
+
 var limitSearch = document.querySelector('#limit-search');
 bundle.iconToggle.MDCIconToggle.attachTo(limitSearch);
 var search = document.getElementById('search-bar');
@@ -255,9 +256,6 @@ filterBar.oninput = function() {
 }
 
 function processResponse(text, status, obj) {
-  console.info(text);
-  console.info(status);
-  console.info(obj);
   location.href = "#limit-search";
   bundle.toggleImages();
   bundle.toggleAnswers();
@@ -267,7 +265,7 @@ function processResponse(text, status, obj) {
 
 search.onchange = function() {
   console.info("Searching: "+search.value);
-  $('#search_results').load("{% url 'question-search' %}", "search_string="+search.value+"&type=blink&id={{ object.id }}&limit_search="+limitSearch.checked, processResponse);
+  $('#search_results').load("{% url 'question-search' %}", "search_string="+search.value+"&type=blink&id={{ object.id|urlencode }}&limit_search="+limitSearch.checked, processResponse);
 }
 </script>
 {% endblock %}

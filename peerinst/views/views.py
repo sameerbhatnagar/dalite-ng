@@ -2036,6 +2036,22 @@ class BlinkQuestionDetailView(DetailView):
 
     model = BlinkQuestion
 
+    def get(self, request, *args, **kwargs):
+        # Check for an answer... teacher might have refreshed their page and started a new round
+        if not request.user.is_authenticated():
+            try:
+                r = BlinkRound.objects.get(
+                    question=self.get_object(), deactivate_time__isnull=True
+                    )
+                if not request.session.get("BQid_" + self.get_object().key + "_R_" + str(r.id), False):
+                    return HttpResponseRedirect(
+                    reverse("blink-question", kwargs={"pk": self.get_object().pk})
+                    )
+            except:
+                pass
+
+        return super(BlinkQuestionDetailView, self).get(request, *args, **kwargs)
+
     def get_context_data(self, **kwargs):
         context = super(BlinkQuestionDetailView, self).get_context_data(
             **kwargs
@@ -2336,9 +2352,6 @@ def blink_waiting(request, username, assignment=""):
 def question_search(request):
     n_search_limit = 50
     if request.method == "GET" and request.user.teacher:
-        assignment = Assignment.objects.get(
-            identifier=request.GET["assignment_identifier"]
-        )
         type = request.GET.get("type", default=None)
         id = request.GET.get("id", default=None)
         search_string = request.GET.get("search_string", default="")
@@ -2347,11 +2360,15 @@ def question_search(request):
         # Exclusions based on type of search
         q_qs = []
         if type == "blink":
+            assignment=None
             bq_qs = request.user.teacher.blinkquestion_set.all()
             q_qs = [bq.question.id for bq in bq_qs]
             form_field_name = "new_blink"
 
         if type == "assignment":
+            assignment = Assignment.objects.get(
+                identifier=request.GET["assignment_identifier"]
+            )
             a_qs = Assignment.objects.get(identifier=id).questions.all()
             q_qs = [q.id for q in a_qs]
             form_field_name = "q"

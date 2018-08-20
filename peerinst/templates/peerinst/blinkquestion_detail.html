@@ -106,6 +106,7 @@ var counterID = window.setInterval(get,1000,"{% url 'blink-count' pk=object.pk %
 
 // Countdown
 var startTime = parseInt({{ time_left }});
+console.info({{ time_left }});
 
 var svg = bundle.select("#timer"),
 width = +svg.attr("width"),
@@ -215,7 +216,7 @@ function update_time(){
         }
         // Check round is closed
         var checkID = window.setInterval(blinkStatus,1000);
-        window.setTimeout(clearInterval,5000,checkID);
+        //window.setTimeout(clearInterval,5000,checkID);
       }
       return 0;
     }
