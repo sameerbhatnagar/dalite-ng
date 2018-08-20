@@ -4,7 +4,7 @@ import re
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 
-from .models import Student
+from .models import Student, Teacher
 from .students import (
     get_old_lti_student_username_and_password,
     get_student_username_and_password,
@@ -21,7 +21,11 @@ def authenticate_student(email):
 
     if User.objects.filter(username=username).exists():
         user = authenticate(username=username, password=password)
-        if not Student.objects.filter(student=user).exists():
+        if (
+            user
+            and not Teacher.objects.filter(user__email=email)
+            and not Student.objects.filter(student=user).exists()
+        ):
             Student.objects.create(student=user)
 
     else:
@@ -33,29 +37,29 @@ def authenticate_student(email):
 
         if User.objects.filter(username=old_username).exists():
             user = authenticate(username=old_username, password=old_password)
-            if not Student.objects.filter(student=user).exists():
-                Student.objects.create(student=user)
+        if (
+            user
+            and not Teacher.objects.filter(user__email=email)
+            and not Student.objects.filter(student=user).exists()
+        ):
+            Student.objects.create(student=user)
 
         else:
             try:
                 user = User.objects.create_user(
                     username=username, email=email, password=password
                 )
-                Student.objects.create(student=user)
+                if user and not Teacher.objects.filter(user__email=email):
+                    Student.objects.create(student=user)
             except IntegrityError as e:
                 logger.info(
                     "IntegrityError creating user - assuming result of "
                     "race condition: %s",
                     e.message,
                 )
-                err = (
-                    "IntegrityError creating user - assuming result of "
-                    "race condition: {}".format(e.message)
-                )
                 user = None
 
     if user is None:
         logger.error("The user couldn't be authenticated.")
-        err = "The user couldn't be authenticated."
 
-    return user, err
+    return user
