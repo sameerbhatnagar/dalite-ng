@@ -122,13 +122,7 @@ class ApplicationHookManager(AbstractApplicationHookManager):
 
         email = email if email else user_id + "@localhost"
 
-        if self.is_user_staff(extra_params):
-            user = authenticate_student(email, create_student=False)
-        else:
-            user = authenticate_student(email)
-
-        if user and self.is_user_staff(extra_params):
-            self.update_staff_user(user)
+        user = authenticate_student(email)
 
         if user:
             login(request, user)
