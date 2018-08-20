@@ -7,6 +7,7 @@ from django.test import SimpleTestCase, TestCase
 
 from dalite import ApplicationHookManager, LTIRoles
 from dalite.views import admin_index_wrapper
+from peerinst.auth import get_student_username_and_password
 
 
 @ddt.ddt
@@ -16,9 +17,12 @@ class TestApplicationHookManager(SimpleTestCase):
         self.manager = ApplicationHookManager()
 
     def _get_uname_and_password(self, user_id):
-        uname = self.manager._compress_user_name(user_id)
-        password = self.manager._generate_password(
-            user_id, settings.PASSWORD_GENERATOR_NONCE
+        #  uname = self.manager._compress_user_name(user_id)
+        #  password = self.manager._generate_password(
+        #  user_id, settings.PASSWORD_GENERATOR_NONCE
+        #  )
+        uname, password = get_student_username_and_password(
+            "{}@localhost".format(user_id)
         )
         return uname, password
 
