@@ -182,7 +182,7 @@
 
 
     <div class="foldable">
-      <h2 class="foldable--title mdc-typography--display1 mdc-theme--secondary">{% trans 'Assignments' %}</h2>
+      <h2 id="assignment-section" class="foldable--title mdc-typography--display1 mdc-theme--secondary">{% trans 'Assignments' %}</h2>
       <div class="foldable--body">
         <div class="admin-link">
             <a href="{% url 'teacher-assignments' teacher.id %}">{% trans 'Manage assignments' %}</a>
@@ -269,7 +269,7 @@
     </div>
 
     <div class="foldable">
-      <h2 class="foldable--title mdc-typography--display1 mdc-theme--secondary">{% trans 'Questions' %}</h2>
+      <h2 id="question-section" class="foldable--title mdc-typography--display1 mdc-theme--secondary">{% trans 'Questions' %}</h2>
       <div class="foldable--body">
         <div class="admin-link">
           <a href="{% url 'question-create' %}">{% trans 'Create new' %}</a>

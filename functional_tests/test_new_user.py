@@ -191,6 +191,13 @@ class NewUserTests(StaticLiveServerTestCase):
         assert "My Account" in self.browser.page_source
         assert "Terms of service: Sharing" in self.browser.page_source
 
+        # Welcome authenticated user on landing pages
+        self.browser.get(self.live_server_url)
+        welcome = self.browser.find_element_by_id("link-to-login-or-welcome")
+        assert (
+            "Welcome back " + self.validated_teacher.username in welcome.text
+        )
+
         # Logout and log back in -> skip tos
         self.browser.get(self.live_server_url + "/logout")
         self.browser.get(self.live_server_url + "/login")
@@ -222,6 +229,7 @@ class NewUserTests(StaticLiveServerTestCase):
         assert "My Account" in self.browser.page_source
 
         # Teacher can create a question
+        self.browser.find_element_by_id("question-section").click()
         self.browser.find_element_by_link_text("Create new").click()
 
         time.sleep(1)
@@ -277,6 +285,8 @@ class NewUserTests(StaticLiveServerTestCase):
         assert "Test title" in self.browser.page_source
 
         # Teacher can edit their questions
+        self.browser.find_element_by_id("question-section").click()
+        time.sleep(1)
         question = Question.objects.get(title="Test title")
         self.browser.find_element_by_id(
             "edit-question-" + str(question.id)
@@ -309,6 +319,7 @@ class NewUserTests(StaticLiveServerTestCase):
         self.browser.get(
             self.live_server_url + reverse("teacher", kwargs={"pk": 1})
         )
+        self.browser.find_element_by_id("assignment-section").click()
         self.browser.find_element_by_link_text("Manage assignments").click()
         assert "Create a new assignment" in self.browser.page_source
 
@@ -337,13 +348,6 @@ class NewUserTests(StaticLiveServerTestCase):
         # Teacher can edit a blink assignment
 
         # Access account from link in top right corner
-
-        # Welcome authenticated user on landing pages
-        self.browser.get(self.live_server_url)
-        welcome = self.browser.find_element_by_id("link-to-login-or-welcome")
-        assert (
-            "Welcome back " + self.validated_teacher.username in welcome.text
-        )
 
         # Teacher cannot access other teacher accounts
         self.browser.get(
