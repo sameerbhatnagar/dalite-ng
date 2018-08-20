@@ -1027,16 +1027,16 @@ class StudentGroupAssignment(models.Model):
     #  return questions
 
     def get_question(self, idx=None, current_question=None, after=True):
-        assert idx is None or isinstance(
-            idx, int
-        ), "Precondition failed for `idx`"
-        assert current_question is None or isinstance(
-            current_question, Question
-        ), "Precondition failed for `current_question`"
-        assert isinstance(after, bool), "Precondition failed for `after`"
-        assert (idx is None) != (
-            current_question is None
-        ), "Either the `idx` or the `current_question` must be given"
+        # assert idx is None or isinstance(
+        #     idx, int
+        # ), "Precondition failed for `idx`"
+        # assert current_question is None or isinstance(
+        #     current_question, Question
+        # ), "Precondition failed for `current_question`"
+        # assert isinstance(after, bool), "Precondition failed for `after`"
+        # assert (idx is None) != (
+        #     current_question is None
+        # ), "Either the `idx` or the `current_question` must be given"
 
         question = None
 
