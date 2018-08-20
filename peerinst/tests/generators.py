@@ -7,9 +7,17 @@ from datetime import datetime, timedelta
 import pytz
 from django.contrib.auth.models import User
 
-from peerinst.models import (Answer, AnswerChoice, Assignment, Question,
-                             Student, StudentAssignment, StudentGroup,
-                             StudentGroupAssignment, Teacher,)
+from peerinst.models import (
+    Answer,
+    AnswerChoice,
+    Assignment,
+    Question,
+    Student,
+    StudentAssignment,
+    StudentGroup,
+    StudentGroupAssignment,
+    Teacher,
+)
 from tos.models import Consent as TosConsent
 
 
@@ -177,6 +185,40 @@ def new_student_group_assignments(n, groups, assignments, due_date=None):
     return [next(gen) for _ in range(n)]
 
 
+def new_teachers(n):
+    def generator():
+        chars = string.ascii_letters + string.digits + "_-."
+        gen = _extra_chars_gen()
+        while True:
+            yield {
+                "username": "{}{}".format(
+                    "".join(
+                        random.choice(chars)
+                        for _ in range(random.randint(1, 12))
+                    ),
+                    next(gen),
+                ),
+                "email": "{}@{}.{}".format(
+                    "".join(
+                        random.choice(chars)
+                        for _ in range(random.randint(1, 32))
+                    ),
+                    "".join(
+                        random.choice(chars)
+                        for _ in range(random.randint(1, 10))
+                    ),
+                    "".join(
+                        random.choice(chars)
+                        for _ in range(random.randint(2, 3))
+                    ),
+                ),
+                "password": "test",
+            }
+
+    gen = generator()
+    return [next(gen) for _ in range(n)]
+
+
 def new_users(n):
     def generator():
         chars = string.ascii_letters + string.digits + "_-."
@@ -249,6 +291,13 @@ def add_student_group_assignments(group_assignments):
     ]
 
 
+def add_teachers(teachers):
+    return [
+        Teacher.objects.create(user=User.objects.create_user(**t))
+        for t in teachers
+    ]
+
+
 def add_users(users):
     return [User.objects.create_user(**u) for u in users]
 
@@ -269,11 +318,13 @@ def add_second_choice_to_answers(answers, assignment, n_second_choices=None):
         answers_[i].save()
     return answers
 
+
 def add_answer_choices(n_each, questions):
     for question in questions:
         for i in range(n_each):
-            AnswerChoice.objects.create(question=question,text=str(i),correct=i==0)
-
+            AnswerChoice.objects.create(
+                question=question, text=str(i), correct=i == 0
+            )
 
 
 def add_to_group(students, groups):
