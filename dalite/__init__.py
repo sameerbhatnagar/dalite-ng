@@ -122,7 +122,7 @@ class ApplicationHookManager(AbstractApplicationHookManager):
 
         email = email if email else user_id + "@localhost"
 
-        err = authenticate_student(email)
+        user, err = authenticate_student(email)
 
         if not err:
             login(request, user)

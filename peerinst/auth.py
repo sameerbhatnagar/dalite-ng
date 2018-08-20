@@ -58,4 +58,4 @@ def authenticate_student(email):
         logger.error("The user couldn't be authenticated.")
         err = "The user couldn't be authenticated."
 
-    return err
+    return user, err
