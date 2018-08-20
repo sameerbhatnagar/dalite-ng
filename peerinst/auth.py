@@ -13,7 +13,7 @@ from .students import (
 logger = logging.getLogger(__name__)
 
 
-def authenticate_student(email):
+def authenticate_student(email, create_student=True):
 
     err = None
 
@@ -21,7 +21,10 @@ def authenticate_student(email):
 
     if User.objects.filter(username=username).exists():
         user = authenticate(username=username, password=password)
-        if not Student.objects.filter(student=user).exists():
+        if (
+            create_student
+            and not Student.objects.filter(student=user).exists()
+        ):
             Student.objects.create(student=user)
 
     else:
@@ -33,7 +36,10 @@ def authenticate_student(email):
 
         if User.objects.filter(username=old_username).exists():
             user = authenticate(username=old_username, password=old_password)
-            if not Student.objects.filter(student=user).exists():
+            if (
+                create_student
+                and not Student.objects.filter(student=user).exists()
+            ):
                 Student.objects.create(student=user)
 
         else:
@@ -41,7 +47,8 @@ def authenticate_student(email):
                 user = User.objects.create_user(
                     username=username, email=email, password=password
                 )
-                Student.objects.create(student=user)
+                if create_student:
+                    Student.objects.create(student=user)
             except IntegrityError as e:
                 logger.info(
                     "IntegrityError creating user - assuming result of "
