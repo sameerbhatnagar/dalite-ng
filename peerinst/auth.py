@@ -37,12 +37,12 @@ def authenticate_student(email):
 
         if User.objects.filter(username=old_username).exists():
             user = authenticate(username=old_username, password=old_password)
-        if (
-            user
-            and not Teacher.objects.filter(user__email=email)
-            and not Student.objects.filter(student=user).exists()
-        ):
-            Student.objects.create(student=user)
+            if (
+                user
+                and not Teacher.objects.filter(user__email=email)
+                and not Student.objects.filter(student=user).exists()
+            ):
+                Student.objects.create(student=user)
 
         else:
             try:
