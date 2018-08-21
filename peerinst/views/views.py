@@ -1018,8 +1018,8 @@ class QuestionFormView(QuestionMixin, FormView):
                 if teacher not in group.teacher.all():
                     group.teacher.add(teacher)
 
-            student.groups.add(group)
-            student.save()
+            if hasattr(user, 'student'):
+                user.student.groups.add(group)
 
     def submission_error(self):
         messages.error(

@@ -1021,12 +1021,8 @@ class StudentGroupAssignment(models.Model):
         ), "Postcondition failed"
         return output
 
-    #  def get_questions(self):
-    #  questions_ = self.assignment.questions.all()
-    #  questions = [questions_[i] for i in map(int, self.order.split(","))]
-    #  return questions
-
     def get_question(self, idx=None, current_question=None, after=True):
+        # Assertions to be revised based on updated template logic
         # assert idx is None or isinstance(
         #     idx, int
         # ), "Precondition failed for `idx`"
