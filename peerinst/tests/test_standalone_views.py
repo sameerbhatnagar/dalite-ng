@@ -16,6 +16,7 @@ from ..models import StudentGroup
 
 from .generators import *
 from ..students import create_student_token, get_student_username_and_password
+from ..utils import create_token
 
 
 def ready_user(pk):
@@ -61,56 +62,57 @@ class StandaloneTest(TransactionTestCase):
         self.validated_teacher.teacher.current_groups.add(self.group)
 
         self.assertEqual(self.group.student_set.count(), n_students)
-        self.assertIn(self.group, self.validated_teacher.teacher.current_groups.all())
+        self.assertIn(
+            self.group, self.validated_teacher.teacher.current_groups.all()
+        )
 
     def test_signup_through_link(self):
         # GET: Hash doesn't exist -> 404
         response = self.client.get(
             reverse(
-                'signup-through-link',
-                kwargs={'group_hash':base64.urlsafe_b64encode(str(1000000).encode()).decode()}
-                )
+                "signup-through-link",
+                kwargs={
+                    "group_hash": base64.urlsafe_b64encode(
+                        str(1000000).encode()
+                    ).decode()
+                },
             )
+        )
 
         self.assertEqual(response.status_code, 404)
-        self.assertTemplateUsed('404.html')
+        self.assertTemplateUsed("404.html")
 
         # GET: Hash exists -> 200, sign_up_student.html
         response = self.client.get(
             reverse(
-                'signup-through-link',
-                kwargs={'group_hash':self.group.hash}
-                )
+                "signup-through-link", kwargs={"group_hash": self.group.hash}
             )
+        )
 
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed('registration/sign_up_student.html')
+        self.assertTemplateUsed("registration/sign_up_student.html")
 
         # POST: Email does not exist -> Create student, send email, sign_up_student_done.html
         response = self.client.post(
             reverse(
-                'signup-through-link',
-                kwargs={'group_hash':self.group.hash}
-                ),
-                {
-                    'email':'test@test.com'
-                },
-                follow=True
-            )
+                "signup-through-link", kwargs={"group_hash": self.group.hash}
+            ),
+            {"email": "test@test.com"},
+            follow=True,
+        )
 
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed('registration/sign_up_student_done.html')
+        self.assertTemplateUsed("registration/sign_up_student_done.html")
         self.assertEqual(len(mail.outbox), 1)
-        self.assertEqual(
-            mail.outbox[0].subject, "Confirm myDALITE account"
-        )
-        self.assertFalse(Student.objects.get(student__email='test@test.com').student.is_active)
+        self.assertEqual(mail.outbox[0].subject, "Confirm myDALITE account")
+        student = Student.objects.get(student__email="test@test.com")
+        self.assertFalse(student.student.is_active)
 
         # Confirm registration
-        username, password = get_student_username_and_password('test@test.com')
-        token = create_student_token(username, 'test@test.com')
+        username, password = get_student_username_and_password("test@test.com")
+        token = create_student_token(username, "test@test.com")
         hash_ = self.group.hash
-        self.client.get(
+        response = self.client.get(
             reverse(
                 "confirm-signup-through-link",
                 kwargs={"group_hash": hash_, "token": token},
@@ -118,9 +120,40 @@ class StandaloneTest(TransactionTestCase):
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed('registration/sign_up_student_confirmation.html')
-        self.assertTrue(Student.objects.get(student__email='test@test.com').student.is_active)
+        self.assertTemplateUsed(
+            "registration/sign_up_student_confirmation.html"
+        )
+        student = Student.objects.get(student__email="test@test.com")
+        self.assertTrue(student.student.is_active)
+        self.assertIn(StudentGroup.get(self.group.hash), student.groups.all())
 
+        # Confirm registration, bad hash
+        username, password = get_student_username_and_password("test@test.com")
+        token = create_student_token(username, "test@test.com")
+        hash_ = base64.urlsafe_b64encode(str(1000000).encode()).decode()
+        response = self.client.get(
+            reverse(
+                "confirm-signup-through-link",
+                kwargs={"group_hash": hash_, "token": token},
+            )
+        )
+
+        self.assertEqual(response.status_code, 404)
+        self.assertTemplateUsed("404.html")
+
+        # Confirm registration, bad token (invalid)
+        username, password = get_student_username_and_password("test@test.com")
+        token = create_token(payload={"name": "test", "mail": "not_email"})
+        hash_ = self.group.hash
+        response = self.client.get(
+            reverse(
+                "confirm-signup-through-link",
+                kwargs={"group_hash": hash_, "token": token},
+            )
+        )
+
+        self.assertEqual(response.status_code, 403)
+        self.assertTemplateUsed("403.html")
 
     def test_create_group_assignment(self):
         logged_in = self.client.login(
@@ -132,14 +165,14 @@ class StandaloneTest(TransactionTestCase):
         response = self.client.post(
             reverse(
                 "student-group-assignment-create",
-                kwargs={ 'assignment_id':self.assignments[0].identifier,},
+                kwargs={"assignment_id": self.assignments[0].identifier},
             ),
             {
                 "group": self.group.id,
                 "due_date": datetime.now(),
                 "show_correct_answers": True,
             },
-            follow=True
+            follow=True,
         )
 
         self.assertEqual(response.status_code, 200)
