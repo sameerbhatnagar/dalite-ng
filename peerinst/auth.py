@@ -46,7 +46,7 @@ def authenticate_student(email):
 
         else:
             try:
-                user = User.objects.create_user(
+                User.objects.create_user(
                     username=username, email=email, password=password
                 )
                 user = authenticate(username=username, password=password)
