@@ -52,7 +52,7 @@ def authenticate_student(email):
                 if user and not Teacher.objects.filter(user__email=email).exists():
                     Student.objects.create(student=user)
             except IntegrityError as e:
-                logger.info(
+                logger.error(
                     "IntegrityError creating user - assuming result of "
                     "race condition: %s",
                     e.message,
