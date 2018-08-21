@@ -1006,7 +1006,7 @@ class QuestionFormView(QuestionMixin, FormView):
                     group = StudentGroup(name=course_id)
                 group.save()
 
-
+            # If teacher_id specified, add teacher to group
             teacher_hash = self.lti_data.edx_lti_parameters.get(
                 "custom_teacher_id"
             )
@@ -1015,6 +1015,7 @@ class QuestionFormView(QuestionMixin, FormView):
                 if teacher not in group.teacher.all():
                     group.teacher.add(teacher)
 
+            # If this user is a student, add group to student
             if hasattr(self.request.user, 'student'):
                 self.request.user.student.groups.add(group)
 
