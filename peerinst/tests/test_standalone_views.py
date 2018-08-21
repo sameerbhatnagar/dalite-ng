@@ -66,7 +66,7 @@ class StandaloneTest(TransactionTestCase):
             self.group, self.validated_teacher.teacher.current_groups.all()
         )
 
-    def test_signup_through_link(self):
+    def test_standalone_workflow(self):
         # GET: Hash doesn't exist -> 404
         response = self.client.get(
             reverse(
@@ -155,7 +155,10 @@ class StandaloneTest(TransactionTestCase):
         self.assertEqual(response.status_code, 403)
         self.assertTemplateUsed("403.html")
 
-    def test_create_group_assignment(self):
+        # Empty the test outbox
+        mail.outbox = []
+
+        # Create group assignment as teacher
         logged_in = self.client.login(
             username=self.validated_teacher.username,
             password=self.validated_teacher.text_pwd,
@@ -179,3 +182,19 @@ class StandaloneTest(TransactionTestCase):
         self.assertTrue(StudentGroupAssignment.objects.count(), 1)
         self.assertEqual(len(mail.outbox), self.group.student_set.count())
         self.assertIn("New assignment", mail.outbox[0].subject)
+
+        # Access as newly created student
+        assignment = StudentGroupAssignment.objects.first()
+        response = self.client.get(
+            reverse(
+                "live",
+                kwargs={
+                    "token": create_student_token(username, "test@test.com"),
+                    "assignment_hash": assignment.hash,
+                },
+            ),
+            follow=True,
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed("peerinst/question_start.html")
