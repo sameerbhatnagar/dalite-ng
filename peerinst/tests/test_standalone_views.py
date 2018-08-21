@@ -183,7 +183,7 @@ class StandaloneTest(TransactionTestCase):
         self.assertEqual(len(mail.outbox), self.group.student_set.count())
         self.assertIn("New assignment", mail.outbox[0].subject)
 
-        # Access as newly created student
+        # Access as newly created student, expired
         assignment = StudentGroupAssignment.objects.first()
         response = self.client.get(
             reverse(
