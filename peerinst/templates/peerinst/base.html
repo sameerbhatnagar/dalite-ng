@@ -65,7 +65,7 @@
             <a class="bold" href="{% url 'logout' %}">{% trans 'Logout' %}</a>
           {% else %}
             <a class="bold" href="{% url 'tos:tos_modify' 'student' %}?next={{ request.path }}">{% trans 'Terms of Service' %}</a>
-            {% if request.session.nonLTI %}
+            {% if not request.session.LTI %}
             <br>
             <a class="bold" href="{% url 'logout' %}">{% trans 'Logout' %}</a>
             {% endif %}

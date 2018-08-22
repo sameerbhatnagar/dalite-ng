@@ -845,7 +845,7 @@ class QuestionMixin(object):
         )
 
         # Pass hints so that template knows context
-        if self.lti_data:
+        if self.request.session.get("LTI"):
             context.update(lti=True)
         else:
             context.update(lti=False)
