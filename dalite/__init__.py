@@ -122,7 +122,7 @@ class ApplicationHookManager(AbstractApplicationHookManager):
 
         email = email if email else user_id + "@localhost"
 
-        user = authenticate_student(email)
+        user = authenticate_student(email, user_id)
 
         if user:
             login(request, user)
