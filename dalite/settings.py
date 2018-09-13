@@ -246,9 +246,6 @@ HEARTBEAT_REQUIRED_FREE_SPACE_PERCENTAGE = 20
 # This group and its permissions need to be set through admin site
 TEACHER_GROUP = "Teacher"
 
-# matomo
-PIWIK_DOMAIN_PATH = 'matomo.mydalite.org'
-PIWIK_SITE_ID = '1'
 
 try:
     from .local_settings import *
