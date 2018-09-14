@@ -220,6 +220,11 @@ function processResponse(text, status, obj) {
   [].forEach.call(document.querySelectorAll('.mdc-chip'), el => {
     bundle.chips.MDCChip.attachTo(el);
   });
+
+  [].forEach.call(document.querySelectorAll('.mdc-icon-toggle'), el => {
+    bundle.iconToggle.MDCIconToggle.attachTo(el);
+  });
+  
 }
 
 var search = document.getElementById('search-bar');

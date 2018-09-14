@@ -2444,6 +2444,7 @@ def question_search(request):
                 "previous_search_string": search_terms,
                 "n_search_limit": n_search_limit,
                 "assignment": assignment,
+                "type": type,
             },
         )
     else:

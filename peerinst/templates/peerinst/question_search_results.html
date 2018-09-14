@@ -50,7 +50,7 @@
           {% endfor %}
           </div>
           <div>
-          {% trans 'Student answers' %}: {{g.answer_count}}, {{g.answer_set.all.count}}
+          {% trans 'Student answers' %}: {{g.answer_set.all.count}}
           </div>
         </div>
       </div>
@@ -58,6 +58,13 @@
       <div class="mdc-card__action-icons">
         {% if assignment %}
         <button onclick="ajax.updateAssignmentQuestionList('{% url 'assignment-edit-ajax' %}', '{{ g.id }}', '{{ assignment.identifier }}')" class="material-icons small-button mdc-button mdc-card__action mdc-card__action--button mdc-button--raised">add</button>
+        {% elif type = None %}
+        <i class="mdc-icon-toggle material-icons mdc-theme--primary" role="button" aria-pressed="false"
+            aria-label="Add to favorites" tabindex="0"
+            data-toggle-on='{"label": "Remove from favorites", "content": "favorite"}'
+            data-toggle-off='{"label": "Add to favorites", "content": "favorite_border"}'>
+            favorite_border
+        </i>
         {% else %}
         <form style="display:inline" method="post" action="#{{g.id|slugify}}">
           {% csrf_token %}
