@@ -27,6 +27,11 @@ def old_patterns():
         # DALITE
         # Assignment table of contents - Enforce sameorigin to prevent access from LMS
         url(
+            r"^browse/$",
+            xframe_options_sameorigin(views.browse_database),
+            name="browse-database",
+        ),
+        url(
             r"^assignment-list/$",
             xframe_options_sameorigin(views.AssignmentListView.as_view()),
             name="assignment-list",

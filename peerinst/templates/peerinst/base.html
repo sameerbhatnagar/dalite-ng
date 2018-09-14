@@ -54,7 +54,7 @@
       <div>
         <a href="{% url 'landing_page' %}"><img src="{% static 'peerinst/img/SALTISE-favicon.gif' %}" alt="site-logo" id="logo"></a>
         {% if not user.student and not lti %}
-        <a href="{% url 'assignment-list' %}">{% include 'peerinst/custom-instance-header.html' %}</a>
+        <a href="{% url 'browse-database' %}">{% include 'peerinst/custom-instance-header.html' %}</a>
         {% else %}
         {% include 'peerinst/custom-instance-header.html' %}
         {% endif %}

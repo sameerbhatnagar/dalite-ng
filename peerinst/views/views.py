@@ -339,6 +339,13 @@ def access_denied_and_logout(request):
     raise PermissionDenied
 
 
+def browse_database(request):
+
+    return TemplateResponse(
+        request, "peerinst/browse_database.html", context={}
+    )
+
+
 class AssignmentListView(LoginRequiredMixin, NoStudentsMixin, ListView):
     """List of assignments used for debugging purposes."""
 
@@ -2380,9 +2387,9 @@ def question_search(request):
             form_field_name = "q"
 
         if type == None:
-            # Bad request
-            response = TemplateResponse(request, "400.html")
-            return HttpResponseBadRequest(response.render())
+            assignment = None
+            q_qs = []
+            form_field_name = None
 
         # All matching questions
         search_string_split_list = search_string.split()
@@ -2412,16 +2419,16 @@ def question_search(request):
             if (len(query_term) + len(query_all)) < n_search_limit:
                 query_dict["term"] = term
                 query_dict["questions"] = query_term
-                query_dict["count"] = str(len(query_term)) + " results."
+                query_dict["count"] = str(len(query_term)) + " results"
             else:
                 query_dict["term"] = term
                 query_dict["questions"] = query_term[
                     : (n_search_limit - len(query_all))
                 ]
                 query_dict["count"] = (
-                    "only "
+                    "top "
                     + str(n_search_limit - len(query_all))
-                    + " results shown. Search limit exceeded."
+                    + " results shown"
                 )
             query_all.extend(query_term)
             query.append(query_dict)

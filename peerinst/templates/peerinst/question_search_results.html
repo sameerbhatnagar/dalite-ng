@@ -10,15 +10,22 @@
 {% trans '. Showing first ' %}{{ n_search_limit }}.</li>
 
 </ul> -->
+<h2 class="mdc-typography--display1  mdc-theme--secondary">{% trans 'Results' %}</h2>
+
 {% for search_results_term in search_results %}
-  <p>Searching: {{search_results_term.term}}: {{ search_results_term.count }}.</p>
-  {% for g in search_results_term.questions %}
+  <h3>"{{search_results_term.term}}" ({{ search_results_term.count }})</h3>
+  {% for g in search_results_term.questions|dictsortreversed:"answer_count"  %}
   <div class="mdc-card" id="{{g.id}}">
-    <div class="mdc-typography--title bold" style="margin-bottom:5px;">
+    <div class="mdc-typography--title bold">
       {{g.title|safe}}
     </div>
+    {% if g.user %}
+    <div class="mdc-typography--caption">
+      {% trans 'By: '%}{{ g.user.username }}
+    </div>
+    {% endif %}
 
-    <div class="mdc-typography--body1">
+    <div class="mdc-typography--body1" style="margin-top:5px;">
       {{g.text|safe}}
     </div>
 
@@ -50,7 +57,7 @@
           {% endfor %}
           </div>
           <div>
-          {% trans 'Difficulty' %}:
+          {% trans 'Student answers' %}: {{g.answer_count}}, {{g.answer_set.count}}
           </div>
         </div>
       </div>
