@@ -339,6 +339,7 @@ def access_denied_and_logout(request):
     raise PermissionDenied
 
 
+@login_required
 def browse_database(request):
 
     return TemplateResponse(

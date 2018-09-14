@@ -12,6 +12,17 @@
 .filtered {
   font-weight: bolder;
 }
+.mdc-chip-set {
+  width: fit-content;
+  width: -moz-fit-content;
+  width: -webkit-fit-content;
+  margin-right:0pt;
+  margin-left: auto;
+  display: inline;
+}
+.mdc-chip__text {
+  font-size: 10pt;
+}
 </style>
 {% endblock %}
 
@@ -82,7 +93,7 @@
 
     <div id="filters" style="display:none;">
       <h2 class='mdc-typography--display1  mdc-theme--secondary'>{% trans 'Available filters' %}</h2>
-      <div class='field-container'>
+      <!--<div class='field-container'>
         <div class='number-box'><span class='number'>?</span></div>
         <div class='field'>
           <p><small>
@@ -91,10 +102,11 @@
             {% endblocktrans %}
           </small></p>
         </div>
-      </div>
-      <div id="select-filters" style="margin-top:40px;">
-        <div id="discipline-filters" style="display:none;">{% trans 'Disciplines: ' %}<span id="filter-on-discipline"></span></div>
-        <div id="category-filters" style="display:none;">{% trans 'Categories: ' %}<span id="filter-on-category"></span></div>
+      </div>-->
+      <div id="select-filters">
+        <div id="discipline-filters" style="display:none;"><div style="margin-bottom:5px;">{% trans 'Disciplines: ' %}</div><span id="filter-on-discipline"></span></div>
+
+        <div id="category-filters" style="margin-top:10px;display:none;"><div style="margin-bottom:5px;">{% trans 'Categories: ' %}</div><span id="filter-on-category"></span></div>
         <button id="reset-filters" type="button" class='mdc-button mdc-button--raised padded-top' disabled=true onclick='reset()'>{% trans 'Reset' %}</button>
       </div>
     </div>
@@ -133,8 +145,11 @@ function filterCategory(el) {
 function reset() {
   $('.mdc-card').each(function(index) {
     $(this).css('display', 'block');
-    $('.filter_keyword').removeClass('filtered');
+    $('.mdc-chip').removeClass('filtered');
     $('#reset-filters').attr('disabled', true);
+    $('.mdc-chip').each(function(){
+      this.selected = false;
+    })
   });
 }
 
@@ -153,7 +168,17 @@ function processResponse(text, status, obj) {
     if (!disciplineList.includes(d)) {
       disciplineList.push(d);
       if (d != 'None') {
-        $('#filter-on-discipline').append("<span class='filter_keyword' onclick='filterDiscipline(this)' d="+d+">"+d+"</span>");
+        $('#filter-on-discipline').append("<div class='mdc-chip-set mdc-chip-set--filter'  data-mdc-auto-init='MDCChipSet'>\
+          <div d="+d+" class='mdc-chip' onclick='filterDiscipline(this)' tabindex='0' data-mdc-auto-init='MDCChip'>\
+          <div class='mdc-chip__checkmark' >\
+            <svg class='mdc-chip__checkmark-svg' viewBox='-2 -3 30 30'>\
+              <path class='mdc-chip__checkmark-path' fill='none' stroke='black'\
+                d='M1.73,12.91 8.1,19.28 22.79,4.59'/>\
+            </svg>\
+          </div>\
+          <div class='mdc-chip__text'>"+d+"</div>\
+          </div>\
+        </div>");
       }
     }
   });
@@ -166,7 +191,17 @@ function processResponse(text, status, obj) {
       if (!categoryList.includes(list[i])) {
         if (list[i] != "") {
           categoryList.push(list[i]);
-          $('#filter-on-category').append("<span class='filter_keyword' onclick='filterCategory(this)' c="+list[i]+">"+list[i]+"</span>");
+          $('#filter-on-category').append("<div class='mdc-chip-set mdc-chip-set--filter'  data-mdc-auto-init='MDCChipSet'>\
+            <div c="+list[i]+" class='mdc-chip' onclick='filterCategory(this)' tabindex='0' data-mdc-auto-init='MDCChip'>\
+            <div class='mdc-chip__checkmark' >\
+              <svg class='mdc-chip__checkmark-svg' viewBox='-2 -3 30 30'>\
+                <path class='mdc-chip__checkmark-path' fill='none' stroke='black'\
+                  d='M1.73,12.91 8.1,19.28 22.79,4.59'/>\
+              </svg>\
+            </div>\
+            <div class='mdc-chip__text'>"+list[i]+"</div>\
+            </div>\
+          </div>");
         }
       }
     })
@@ -182,6 +217,9 @@ function processResponse(text, status, obj) {
     $('#category-filters').css('display', 'block');
   }
 
+  [].forEach.call(document.querySelectorAll('.mdc-chip'), el => {
+    bundle.chips.MDCChip.attachTo(el);
+  });
 }
 
 var search = document.getElementById('search-bar');
