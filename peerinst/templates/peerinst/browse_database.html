@@ -2,6 +2,18 @@
 
 {% load i18n %}
 
+{% block stylesheets %}
+<style>
+.filter {
+  cursor: pointer;
+  margin-right: 10px;
+}
+.filtered {
+  font-weight: bolder;
+}
+</style>
+{% endblock %}
+
 {% block body %}
 <main>
   <section>
@@ -43,7 +55,7 @@
         <div class="mdc-notched-outline__idle"></div>
       </div>
       <p class="mdc-text-field-helper-text mdc-text-field-helper-text--persistent" aria-hidden="true">
-        {% trans 'The search engine checks question texts for each keyword as well as the complete phrase' %}
+        {% trans 'The search engine checks question texts for each keyword as well as the complete phrase.  You can also search on username to find all content from a certain contributor.' %}
       </p>
     </div>
 
@@ -67,7 +79,21 @@
       </i>
     </div>
 
-    <div id="filters"></div>
+    <div id="filters" style="display:none;">
+      <h2 class='mdc-typography--display1  mdc-theme--secondary'>{% trans 'Available filters' %}</h2>
+      <div class='field-container'>
+        <div class='number-box'><span class='number'>?</span></div>
+        <div class='field'>
+          <p><small>
+            {% blocktrans %}
+            Only search results that match all filters will be displayed.  You can reset filters by clicking 'Reset'.
+            {% endblocktrans %}
+          </small></p>
+        </div>
+      </div>
+      <div id="select-filters" style="margin-top:40px;">
+      </div>
+    </div>
 
     <div id="search_results"></div>
 
@@ -82,20 +108,49 @@ bundle.toggleAnswers();
 
 var search = document.getElementById('search-bar');
 
+function filter(el) {
+  $('.mdc-card').each(function(index) {
+    if (this.getAttribute('discipline').toLowerCase() != el.getAttribute('d').toLowerCase()) {
+      $(this).css('display', 'none');
+      $(el).addClass('filtered');
+    }
+  });
+}
+
+function reset() {
+  $('.mdc-card').each(function(index) {
+    $(this).css('display', 'block');
+    $('.filter').removeClass('filtered');
+  });
+}
+
 function processResponse(text, status, obj) {
-  location.href = "#limit-search";
   bundle.toggleImages();
   bundle.toggleAnswers();
   search.value = "";
-  search.focus();
 
   // Add filters based on search results
-  $('#filters').empty().append(
-    "<h2 class='mdc-typography--display1  mdc-theme--secondary'>{% trans 'Filters' %}</h2>TBD"
-  );
+  let disciplineList = [];
+  $('#select-filters').empty();
+  $('.mdc-card').each(function(index) {
+    let d = this.getAttribute('discipline');
+    if (!disciplineList.includes(d)) {
+      disciplineList.push(d);
+      if (d != 'None') {
+        $('#select-filters').append("<span class='filter' onclick='filter(this)' d="+d+">"+d+"</span>");
+      }
+    }
+  });
+
+  $('#select-filters').append("<span class='filter' onclick='reset()'>Reset</span>");
+
+  if (disciplineList.length > 2) {
+    $('#filters').css('display','block');
+  }
 }
 
 search.onchange = function() {
+  $('#filters').css('display','none');
   console.info("Searching: "+search.value);
   $('#search_results').load("{% url 'question-search' %}", "search_string="+search.value, processResponse);
 }
