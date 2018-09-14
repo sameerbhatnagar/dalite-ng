@@ -15,7 +15,10 @@
 {% for search_results_term in search_results %}
   <h3>"{{search_results_term.term}}" ({{ search_results_term.count }})</h3>
   {% for g in search_results_term.questions|dictsortreversed:"answer_count"  %}
-  <div class="mdc-card" id="{{g.id}}" discipline="{{g.discipline}}">
+  <div class="mdc-card"
+       id="{{g.id}}"
+       discipline="{{g.discipline}}"
+       category="{% for c in g.category.all %}{{ c.title|safe }} {% endfor %}">
     <div class="mdc-typography--title bold">
       {{g.title|safe}}
     </div>
@@ -57,7 +60,7 @@
           {% endfor %}
           </div>
           <div>
-          {% trans 'Student answers' %}: {{g.answer_count}}
+          {% trans 'Student answers' %}: {{g.answer_count}}, {{g.answer_set.all.count}}
           </div>
         </div>
       </div>

@@ -4,9 +4,10 @@
 
 {% block stylesheets %}
 <style>
-.filter {
+.filter_keyword {
   cursor: pointer;
   margin-right: 10px;
+  text-decoration: underline;
 }
 .filtered {
   font-weight: bolder;
@@ -92,6 +93,9 @@
         </div>
       </div>
       <div id="select-filters" style="margin-top:40px;">
+        <div id="discipline-filters" style="display:none;">{% trans 'Disciplines: ' %}<span id="filter-on-discipline"></span></div>
+        <div id="category-filters" style="display:none;">{% trans 'Categories: ' %}<span id="filter-on-category"></span></div>
+        <button id="reset-filters" type="button" class='mdc-button mdc-button--raised padded-top' disabled=true onclick='reset()'>{% trans 'Reset' %}</button>
       </div>
     </div>
 
@@ -106,13 +110,22 @@
 bundle.toggleImages();
 bundle.toggleAnswers();
 
-var search = document.getElementById('search-bar');
-
-function filter(el) {
+function filterDiscipline(el) {
   $('.mdc-card').each(function(index) {
     if (this.getAttribute('discipline').toLowerCase() != el.getAttribute('d').toLowerCase()) {
       $(this).css('display', 'none');
       $(el).addClass('filtered');
+      $('#reset-filters').attr('disabled', false);
+    }
+  });
+}
+
+function filterCategory(el) {
+  $('.mdc-card').each(function(index) {
+    if (this.getAttribute('category').toLowerCase().indexOf(el.getAttribute('c').toLowerCase()) < 0 ) {
+      $(this).css('display', 'none');
+      $(el).addClass('filtered');
+      $('#reset-filters').attr('disabled', false);
     }
   });
 }
@@ -120,7 +133,8 @@ function filter(el) {
 function reset() {
   $('.mdc-card').each(function(index) {
     $(this).css('display', 'block');
-    $('.filter').removeClass('filtered');
+    $('.filter_keyword').removeClass('filtered');
+    $('#reset-filters').attr('disabled', true);
   });
 }
 
@@ -130,27 +144,51 @@ function processResponse(text, status, obj) {
   search.value = "";
 
   // Add filters based on search results
+  $('#filter-on-discipline').empty();
+  $('#filter-on-category').empty();
+
   let disciplineList = [];
-  $('#select-filters').empty();
   $('.mdc-card').each(function(index) {
     let d = this.getAttribute('discipline');
     if (!disciplineList.includes(d)) {
       disciplineList.push(d);
       if (d != 'None') {
-        $('#select-filters').append("<span class='filter' onclick='filter(this)' d="+d+">"+d+"</span>");
+        $('#filter-on-discipline').append("<span class='filter_keyword' onclick='filterDiscipline(this)' d="+d+">"+d+"</span>");
       }
     }
   });
 
-  $('#select-filters').append("<span class='filter' onclick='reset()'>Reset</span>");
+  let categoryList = [];
+  $('.mdc-card').each(function() {
+    let c = this.getAttribute('category');
+    let list = c.split(' ');
+    $(list).each(function(i) {
+      if (!categoryList.includes(list[i])) {
+        if (list[i] != "") {
+          categoryList.push(list[i]);
+          $('#filter-on-category').append("<span class='filter_keyword' onclick='filterCategory(this)' c="+list[i]+">"+list[i]+"</span>");
+        }
+      }
+    })
+  });
 
-  if (disciplineList.length > 2) {
-    $('#filters').css('display','block');
+  if (disciplineList.length > 2 || categoryList.length > 2) {
+    $('#filters').css('display', 'block');
   }
+  if (disciplineList.length > 2) {
+    $('#discipline-filters').css('display', 'block');
+  }
+  if (categoryList.length > 2) {
+    $('#category-filters').css('display', 'block');
+  }
+
 }
 
+var search = document.getElementById('search-bar');
 search.onchange = function() {
   $('#filters').css('display','none');
+  $('#show-discipline-filters').css('display','none');
+  $('#show-category-filters').css('display','none');
   console.info("Searching: "+search.value);
   $('#search_results').load("{% url 'question-search' %}", "search_string="+search.value, processResponse);
 }
