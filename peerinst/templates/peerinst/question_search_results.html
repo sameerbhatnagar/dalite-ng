@@ -3,7 +3,7 @@
 <h2 class="mdc-typography--display1  mdc-theme--secondary">{% trans 'Results' %}</h2>
 
 {% for search_results_term in search_results %}
-  <h3>"{{search_results_term.term}}" ({{ search_results_term.count }})</h3>
+  <h3 class="mdc-theme--secondary-bg" style="border-radius:3px;color:white;padding:2px;padding-left:10px;font-weight:100;">"{{search_results_term.term}}" <i class="icon ion-ios-arrow-forward"></i> {{ search_results_term.count }}</h3>
   {% for g in search_results_term.questions|dictsortreversed:"answer_count"  %}
   <div class="mdc-card"
        id="{{g.id}}"
