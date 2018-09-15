@@ -56,6 +56,8 @@ header {
   font-weight: 700;
 }
 .mdc-typography--display3 {
+  position: relative;
+  position: sticky;
   padding-top:50px;
   padding-bottom:10px;
   top:70px;

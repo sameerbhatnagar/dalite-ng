@@ -104,19 +104,6 @@
       }
     });
   });
-
-  // IE11 sticky patch
-  // Assumes style reverts to position:relative if sticky is unsupported
-  var h = document.querySelector('h1');
-  var hStyles = window.getComputedStyle(h, null);
-  if (hStyles['position'] == 'relative') {
-    [].forEach.call(document.querySelectorAll('h1'), function(el) {
-      el.style.top = 'auto';
-      return;
-    });
-    h = document.querySelector('#Features');
-    h.style.marginTop = '200px';
-  }
   </script>
 
   <!-- JS bundle -->
