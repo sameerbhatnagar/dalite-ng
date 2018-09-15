@@ -312,8 +312,11 @@ def question_search_function(search_string):
      question text, title, or categories
     """
     query_term = Question.objects.filter(
-        Q(text__icontains=search_string)
+        Q(id__icontains=search_string)
+        | Q(text__icontains=search_string)
         | Q(title__icontains=search_string)
+        | Q(parent__title__icontains=search_string)
+        | Q(parent__text__icontains=search_string)
         | Q(category__title__icontains=search_string)
         | Q(discipline__title__icontains=search_string)
         | Q(answerchoice__text__icontains=search_string)

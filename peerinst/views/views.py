@@ -2384,7 +2384,7 @@ def blink_waiting(request, username, assignment=""):
 # AJAX functions
 @login_required
 def question_search(request):
-    n_search_limit = 50
+    n_search_limit = 100
     if request.method == "GET" and request.user.teacher:
         type = request.GET.get("type", default=None)
         id = request.GET.get("id", default=None)
