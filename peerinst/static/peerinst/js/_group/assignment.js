@@ -22,6 +22,7 @@ function saveQuestionList(url) {
   let req = {
     method: 'POST',
     body: JSON.stringify(data),
+    credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
       'X-CSRFToken': token,
@@ -50,6 +51,7 @@ function sendAssignmentEmail(event, url) {
   let req = {
     method: 'POST',
     body: JSON.stringify(data),
+    credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
       'X-CSRFToken': token,

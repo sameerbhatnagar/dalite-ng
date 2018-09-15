@@ -8,6 +8,7 @@ function removeAssignment(event, url) {
   let token = document.getElementsByName('csrfmiddlewaretoken')[0].value;
   let req = {
     method: 'POST',
+    credentials: 'include',
     headers: {
       'X-CSRFToken': token,
     },

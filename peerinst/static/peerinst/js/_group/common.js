@@ -241,6 +241,7 @@ async function updateDetails(name, value, url) {
   let req = {
     method: 'POST',
     body: JSON.stringify(data),
+    credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
       'X-CSRFToken': token,
