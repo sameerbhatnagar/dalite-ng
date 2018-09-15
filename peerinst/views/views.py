@@ -1873,6 +1873,26 @@ class TeacherGroups(TeacherBase, ListView):
         )
 
 
+@login_required
+@user_passes_test(student_check, login_url="/access_denied_and_logout/")
+def teacher_toggle_favourite(request):
+
+    if request.is_ajax():
+        # Ajax only
+        question = get_object_or_404(Question, pk=request.POST.get("pk"))
+        teacher = get_object_or_404(Teacher, user=request.user)
+        if question not in teacher.favourite_questions.all():
+            teacher.favourite_questions.add(question)
+            return JsonResponse({"action": "added"})
+        else:
+            teacher.favourite_questions.remove(question)
+            return JsonResponse({"action": "removed"})
+    else:
+        # Bad request
+        response = TemplateResponse(request, "400.html")
+        return HttpResponseBadRequest(response.render())
+
+
 class TeacherBlinks(TeacherBase, ListView):
     """OBSOLETE??"""
 

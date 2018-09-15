@@ -36,6 +36,7 @@
     {% if request.user.teacher %}
     <div class="admin-link">
       <a href="{% url 'teacher' request.user.teacher.id %}">{% trans 'Go to My Account' %}</a>
+      <span style="padding-left:0.3em;padding-right:0.5em;">|</span><a href="{% url 'teacher-assignments' request.user.teacher.id %}">{% trans 'Create an assignment' %}</a>
     {% if user.is_staff %}
       <span style="padding-left:0.3em;padding-right:0.5em;">|</span><a href="{% url 'admin_index_wrapper' %}">Click here to access admin</a>
     {% endif %}
@@ -224,7 +225,7 @@ function processResponse(text, status, obj) {
   [].forEach.call(document.querySelectorAll('.mdc-icon-toggle'), el => {
     bundle.iconToggle.MDCIconToggle.attachTo(el);
   });
-  
+
 }
 
 var search = document.getElementById('search-bar');
@@ -235,5 +236,21 @@ search.onchange = function() {
   console.info("Searching: "+search.value);
   $('#search_results').load("{% url 'question-search' %}", "search_string="+search.value, processResponse);
 }
+
+$.ajaxSetup({
+    beforeSend: function(xhr, settings) {
+        if (!bundle.csrfSafeMethod(settings.type) && !this.crossDomain) {
+            xhr.setRequestHeader("X-CSRFToken", bundle.getCookie('csrftoken'));
+        }
+    }
+});
+
+function toggleFavourite(pk) {
+  var posting = $.post("{% url 'teacher-toggle-favourite' %}", {pk: pk});
+  posting.done(data => {
+    console.info(data);
+  })
+}
+
 </script>
 {% endblock %}

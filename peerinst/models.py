@@ -775,6 +775,7 @@ class Teacher(models.Model):
     disciplines = models.ManyToManyField(Discipline, blank=True)
     assignments = models.ManyToManyField(Assignment, blank=True)
     deleted_questions = models.ManyToManyField(Question, blank=True)
+    favourite_questions = models.ManyToManyField(Question, blank=True, related_name="favourite_questions")
     current_groups = models.ManyToManyField(
         StudentGroup, blank=True, related_name="current_groups"
     )

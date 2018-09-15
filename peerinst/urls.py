@@ -219,6 +219,10 @@ def old_patterns():
             name="teacher-blinks",
         ),
         url(
+            r"^teacher/favourite", views.teacher_toggle_favourite,
+            name="teacher-toggle-favourite",
+        ),
+        url(
             r"^teacher/(?P<pk>[0-9]+)/groups/$",
             views.TeacherGroups.as_view(),
             name="teacher-groups",
