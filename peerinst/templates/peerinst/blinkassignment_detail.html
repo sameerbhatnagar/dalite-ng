@@ -72,7 +72,7 @@
               {% endfor %}
             </div>
             <div>
-              {% trans 'Difficulty' %}:
+              {% trans 'Student answers' %}: {{g.blinkquestion.question.answer_set.all.count}}
             </div>
           </div>
         </div>
@@ -172,7 +172,7 @@
               {% endfor %}
             </div>
             <div>
-              {% trans 'Difficulty' %}:
+              {% trans 'Student answers' %}: {{g.question.answer_set.all.count}}
             </div>
           </div>
         </div>
@@ -231,7 +231,7 @@
         <div class="mdc-notched-outline__idle"></div>
       </div>
       <p class="mdc-text-field-helper-text mdc-text-field-helper-text--persistent" aria-hidden="true">
-        {% trans 'Search database for questions containing above string.' %}'
+        {% trans 'The search engine checks question texts for each keyword as well as the complete phrase.  You can also search on username to find all content from a certain contributor.' %}
       </p>
     </div>
 

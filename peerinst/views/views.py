@@ -2404,7 +2404,9 @@ def question_search(request):
                 identifier=request.GET["assignment_identifier"]
             )
             a_qs = Assignment.objects.get(identifier=id).questions.all()
+            t_qs = request.user.teacher.favourite_questions.all()
             q_qs = [q.id for q in a_qs]
+            q_qs.extend([q.id for q in t_qs])
             form_field_name = "q"
 
         if type == None:

@@ -11,7 +11,7 @@
 {% block body %}
 <main>
   <section>
-    <h1 class="mdc-typography--display3">Update Assignment
+    <h1 class="mdc-typography--display3">{% trans 'Update Assignment' %}
       <svg class="underline" width=150 height=4></svg>
     </h1>
 
@@ -84,7 +84,7 @@
               {% endfor %}
             </div>
             <div>
-              {% trans 'Difficulty' %}:
+              {% trans 'Student answers' %}: {{g.answer_set.all.count}}
             </div>
           </div>
         </div>
@@ -93,27 +93,22 @@
           <form style="display:inline;" method="post" action="#">
             {% csrf_token %}
             <input type="hidden" name="q" value="{{g.pk}}" />
-            {% if user in g.collaborators or user == g.user %}
-            <button class="material-icons small-button mdc-button mdc-card__action mdc-card__action--button mdc-button--raised" type="button" onclick="window.location.href='{% url 'question-update' pk=g.id %}'"><i class="material-icons">settings</i></button>
-            {% else %}
-            <button class="material-icons small-button mdc-button mdc-card__action mdc-card__action--button mdc-button--raised" type="button" onclick="window.location.href='{% url 'question-clone' pk=g.id %}'"><i class="material-icons">settings</i></button>
-            {% endif %}
             <input class="material-icons small-button mdc-button mdc-card__action mdc-card__action--button mdc-button--raised" type="submit" value="clear"/>
           </form>
         </div>
       </div>
     </div>
     {% empty %}
-    <ul id="empty-assigment-list">
+    <ul id="empty-assignment-list">
       <li><strong>Note:</strong> There are currently no questions in this assignment.  You can add them from the list below.</li>
     </ul>
     {% endfor %}
     </div>
 
     <div class="foldable">
-      <h2 class="foldable--title mdc-typography--display1 mdc-theme--secondary">{% trans 'My questions' %}</h2>
+      <h2 class="foldable--title mdc-typography--display1 mdc-theme--secondary">{% trans 'My favourite questions' %}</h2>
       <div class="foldable--body">
-      {% for g in all_questions %}
+      {% for g in teacher.favourite_questions.all %}
       {% if g not in object.questions.all %}
       {% if g not in teacher.deleted_questions.all %}
       <div class="all-my-questions mdc-card" id={{g.id|slugify}}>
@@ -152,7 +147,7 @@
                 {% endfor %}
               </div>
               <div>
-                {% trans 'Difficulty' %}:
+                {% trans 'Student answers' %}: {{g.answer_set.all.count}}
               </div>
             </div>
           </div>
@@ -161,11 +156,6 @@
             <form style="display:inline" method="post" action="#{{g.id|slugify}}">
               {% csrf_token %}
               <input type="hidden" name="q" value="{{g.pk}}" />
-              {% if user in g.collaborators or user == g.user %}
-              <button class="material-icons small-button mdc-button mdc-card__action mdc-card__action--button mdc-button--raised" type="button" onclick="window.location.href='{% url 'question-update' pk=g.id %}'"><i class="material-icons">settings</i></button>
-              {% else %}
-              <button class="material-icons small-button mdc-button mdc-card__action mdc-card__action--button mdc-button--raised" type="button" onclick="window.location.href='{% url 'question-clone' pk=g.id %}'"><i class="material-icons">settings</i></button>
-              {% endif %}
               <input class="material-icons small-button mdc-button mdc-card__action mdc-card__action--button mdc-button--raised" type="submit" value="add" />
             </form>
           </div>
@@ -215,7 +205,7 @@
         <div class="mdc-notched-outline__idle"></div>
       </div>
       <p class="mdc-text-field-helper-text mdc-text-field-helper-text--persistent" aria-hidden="true">
-        {% trans 'Search database for questions containing above string.' %}'
+        {% trans 'The search engine checks question texts for each keyword as well as the complete phrase.  You can also search on username to find all content from a certain contributor.  Search results are filtered to remove questions in your list of favourites and questions already part of this assignment.' %}
       </p>
     </div>
 
