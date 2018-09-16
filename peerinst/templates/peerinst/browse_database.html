@@ -94,20 +94,11 @@
 
     <div id="filters" style="display:none;">
       <h2 class='mdc-typography--display1  mdc-theme--secondary'>{% trans 'Filters' %}</h2>
-      <!--<div class='field-container'>
-        <div class='number-box'><span class='number'>?</span></div>
-        <div class='field'>
-          <p><small>
-            {% blocktrans %}
-            Only search results that match all filters will be displayed.  You can reset filters by clicking 'Reset'.
-            {% endblocktrans %}
-          </small></p>
-        </div>
-      </div>-->
+
       <div id="select-filters">
         <div id="discipline-filters" style="display:none;"><div style="margin-bottom:5px;">{% trans 'Disciplines: ' %}</div><span id="filter-on-discipline"></span></div>
 
-        <div id="category-filters" style="margin-top:10px;display:none;"><div style="margin-bottom:5px;">{% trans 'Categories: ' %}</div><span id="filter-on-category"></span></div>
+        <div id="category-filters" style="margin-top:10px;display:none;"><div style="margin-bottom:5px;">{% trans 'Keywords: ' %}</div><span id="filter-on-category"></span></div>
         <button id="reset-filters" type="button" class='mdc-button mdc-button--raised padded-top' disabled=true onclick='reset()'>{% trans 'Reset' %}</button>
       </div>
     </div>
@@ -125,7 +116,7 @@ bundle.toggleAnswers();
 
 function filterDiscipline(el) {
   $('.mdc-card').each(function(index) {
-    if (this.getAttribute('discipline').toLowerCase() != el.getAttribute('d').toLowerCase()) {
+    if (this.getAttribute('discipline').slice(1,-1).toLowerCase() != el.getAttribute('d').toLowerCase()) {
       $(this).css('display', 'none');
       $(el).addClass('filtered');
       $('#reset-filters').attr('disabled', false);
@@ -168,7 +159,7 @@ function processResponse(text, status, obj) {
     let d = this.getAttribute('discipline');
     if (!disciplineList.includes(d)) {
       disciplineList.push(d);
-      if (d != 'None') {
+      if (d.slice(1,-1) != 'None') {
         $('#filter-on-discipline').append("<div class='mdc-chip-set mdc-chip-set--filter'  data-mdc-auto-init='MDCChipSet'>\
           <div d="+d+" class='mdc-chip' onclick='filterDiscipline(this)' tabindex='0' data-mdc-auto-init='MDCChip'>\
           <div class='mdc-chip__checkmark' >\
@@ -177,7 +168,7 @@ function processResponse(text, status, obj) {
                 d='M1.73,12.91 8.1,19.28 22.79,4.59'/>\
             </svg>\
           </div>\
-          <div class='mdc-chip__text'>"+d+"</div>\
+          <div class='mdc-chip__text'>"+d.slice(1,-1)+"</div>\
           </div>\
         </div>");
       }

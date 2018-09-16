@@ -7,7 +7,7 @@
   {% for g in search_results_term.questions|dictsortreversed:"answer_count"  %}
   <div class="mdc-card"
        id="{{g.id}}"
-       discipline="{{g.discipline}}"
+       discipline="'{{g.discipline}}'"
        category="{% for c in g.category.all %}{{ c.title|safe }} {% endfor %}">
     <div class="mdc-typography--title bold">
       {{g.title|safe}}
