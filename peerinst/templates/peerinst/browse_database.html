@@ -217,6 +217,10 @@ function processResponse(text, status, obj) {
     bundle.iconToggle.MDCIconToggle.attachTo(el);
   });
 
+  [].forEach.call(document.querySelectorAll('.mdc-card'), el => {
+    bundle.difficulty(el.getAttribute('matrix').replace(/'/g, '"'), el.id);
+  });
+  $('.analytics-tags').css('cursor', 'default');
 }
 
 var search = document.getElementById('search-bar');

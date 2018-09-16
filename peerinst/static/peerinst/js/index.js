@@ -277,6 +277,41 @@ function underlines() {
     .attr('fill', 'url(#underlineGradientY)');
 }
 
+
+/** Question difficulty
+ *  @function
+ *  @param {Object} matrix
+ *  @param {string} id
+ */
+export function difficulty(matrix, id) {
+  matrix = JSON.parse(matrix);
+  const colour = {
+    easy: 'rgb(30, 142, 62)',
+    hard: 'rgb(237, 69, 40)',
+    tricky: 'rgb(237, 170, 30)',
+    peer: 'rgb(25, 118, 188)',
+  };
+  let max = -0;
+  let label = '';
+  for (let entry in bundle.entries(matrix)) {
+    if ({}.hasOwnProperty.call(bundle.entries(matrix), entry)) {
+      let item = bundle.entries(matrix)[entry];
+      if (item.value > max) {
+        max = item.value;
+        label = item.key;
+      }
+    }
+  }
+  if (max > 0) {
+    const rating = document.getElementById('rating-' + id);
+    rating.innerHTML = label.substring(0, 1).toUpperCase() + label.substring(1);
+
+    const stats = document.getElementById('stats-' + id);
+    stats.style.color = colour[label];
+  }
+}
+
+
 /** Question analytics
  *  @function
  *  @param {Object} matrix

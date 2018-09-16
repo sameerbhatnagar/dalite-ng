@@ -8,7 +8,8 @@
   <div class="mdc-card"
        id="{{g.id}}"
        discipline="'{{g.discipline}}'"
-       category="{% for c in g.category.all %}{{ c.title|safe }} {% endfor %}">
+       category="{% for c in g.category.all %}{{ c.title|safe }} {% endfor %}"
+       matrix="{{ g.get_matrix|safe }}">
     <div class="mdc-typography--title bold">
       {{g.title|safe}}
     </div>
@@ -56,6 +57,13 @@
       </div>
 
       <div class="mdc-card__action-icons">
+
+        <div id="stats-{{g.id}}" class="stats">
+          <i id="activate-dialog-analytics-{{g.id}}"
+          ref_id="{{g.id}}" class="material-icons md-24 analytics-tags">assessment</i>
+          <span id="rating-{{g.id}}"></span>
+        </div>
+
         {% if assignment %}
         <button onclick="ajax.updateAssignmentQuestionList('{% url 'assignment-edit-ajax' %}', '{{ g.id }}', '{{ assignment.identifier }}')" class="material-icons small-button mdc-button mdc-card__action mdc-card__action--button mdc-button--raised">add</button>
         {% elif type = None %}
@@ -85,6 +93,7 @@
       </div>
     </div>
   </div>
+
   {% empty %}
   <ul>
     <li><strong>Note:</strong> {% blocktrans %}No search results{% endblocktrans %}.</li>
