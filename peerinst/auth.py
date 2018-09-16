@@ -3,6 +3,7 @@ import re
 
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
+from django.db import IntegrityError
 
 from .models import Student, Teacher
 from .students import (
