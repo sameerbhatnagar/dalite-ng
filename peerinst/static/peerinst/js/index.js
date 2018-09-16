@@ -638,7 +638,6 @@ export function handleQuestionDelete(url) {
  */
 export function toggleImages() {
   [].forEach.call(document.querySelectorAll('.toggle-images'), el => {
-    console.info(sessionStorage.images);
     const toggle = bundle.iconToggle.MDCIconToggle.attachTo(el);
     if (sessionStorage.images !== undefined) {
       if (sessionStorage.images == 'block') {
