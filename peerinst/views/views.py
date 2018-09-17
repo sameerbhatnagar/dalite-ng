@@ -2442,7 +2442,7 @@ def question_search(request):
             if (len(query_term) + len(query_all)) < n_search_limit:
                 query_dict["term"] = term
                 query_dict["questions"] = query_term
-                query_dict["count"] = str(len(query_term)) + " results"
+                query_dict["count"] = str(len(query_term))
             else:
                 query_dict["term"] = term
                 query_dict["questions"] = query_term[

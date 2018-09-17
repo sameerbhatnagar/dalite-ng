@@ -108,6 +108,7 @@ class QuestionAdmin(admin.ModelAdmin):
                 "fields": [
                     "title",
                     "user",
+                    "collaborators",
                     "text",
                     "created_on",
                     "last_modified",
@@ -140,7 +141,7 @@ class QuestionAdmin(admin.ModelAdmin):
         "rationale_selection_algorithm": admin.HORIZONTAL,
         "grading_scheme": admin.HORIZONTAL,
     }
-    readonly_fields = ["id", "parent", "user", "created_on", "last_modified"]
+    readonly_fields = ["id", "parent", "created_on", "last_modified"]
     inlines = [AnswerChoiceInline, AnswerInline]
     list_display = ["title", "discipline"]
     list_filter = ["category"]
@@ -298,7 +299,7 @@ class LogEntryAdmin(admin.ModelAdmin):
     object_link.allow_tags = True
     object_link.admin_order_field = 'object_repr'
     object_link.short_description = u'object'
-    
+
     def queryset(self, request):
         return super(LogEntryAdmin, self).queryset(request) \
             .prefetch_related('content_type')

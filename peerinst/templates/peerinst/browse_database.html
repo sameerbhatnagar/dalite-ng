@@ -99,6 +99,7 @@
         <div id="discipline-filters" style="display:none;"><div style="margin-bottom:5px;">{% trans 'Disciplines: ' %}</div><span id="filter-on-discipline"></span></div>
 
         <div id="category-filters" style="margin-top:10px;display:none;"><div style="margin-bottom:5px;">{% trans 'Keywords: ' %}</div><span id="filter-on-category"></span></div>
+
         <button id="reset-filters" type="button" class='mdc-button mdc-button--raised padded-top' disabled=true onclick='reset()'>{% trans 'Reset' %}</button>
       </div>
     </div>
@@ -114,24 +115,48 @@
 bundle.toggleImages();
 bundle.toggleAnswers();
 
-function filterDiscipline(el) {
-  $('.mdc-card').each(function(index) {
-    if (this.getAttribute('discipline').slice(1,-1).toLowerCase() != el.getAttribute('d').toLowerCase()) {
-      $(this).css('display', 'none');
-      $(el).addClass('filtered');
-      $('#reset-filters').attr('disabled', false);
-    }
-  });
+function recountResults() {
+  $('.search-set').each(function() {
+    $(this).find('.filter-count').empty().append($(this).find('.mdc-card:visible').length);
+  })
 }
 
-function filterCategory(el) {
-  $('.mdc-card').each(function(index) {
-    if (this.getAttribute('category').toLowerCase().indexOf(el.getAttribute('c').toLowerCase()) < 0 ) {
-      $(this).css('display', 'none');
-      $(el).addClass('filtered');
-      $('#reset-filters').attr('disabled', false);
-    }
+function filter(el) {
+  if ($(el).hasClass('filtered')) {
+    $(el).removeClass('filtered');
+  }
+  else {
+    $(el).addClass('filtered');
+  }
+
+  if ($('.filtered').length == 0) {
+    $('#reset-filters').attr('disabled', true);
+  }
+
+  let disciplineFilters = [];
+  $('#filter-on-discipline > .filtered').each(function() {
+    disciplineFilters.push(this.getAttribute('d').slice(1,-1).toLowerCase());
   });
+
+  $('.mdc-card').css('display', 'block');
+
+  $('.mdc-card').each(function() {
+    let card = this;
+    $('#filter-on-category').find('.filtered').each(function() {
+      if (card.getAttribute('category').toLowerCase().indexOf(this.getAttribute('c').toLowerCase()) < 0 ) {
+        $(card).css('display', 'none');
+        $('#reset-filters').attr('disabled', false);
+      }
+    });
+
+    $('#filter-on-discipline').find('.filtered').each(function() {
+      if (card.getAttribute('discipline').slice(1,-1).toLowerCase() != this.getAttribute('d').toLowerCase()) {
+        $(card).css('display', 'none');
+        $('#reset-filters').attr('disabled', false);
+      }
+    });
+  });
+  recountResults();
 }
 
 function reset() {
@@ -143,12 +168,12 @@ function reset() {
       this.selected = false;
     })
   });
+  recountResults();
 }
 
 function processResponse(text, status, obj) {
   bundle.toggleImages();
   bundle.toggleAnswers();
-  search.value = "";
 
   // Add filters based on search results
   $('#filter-on-discipline').empty();
@@ -160,7 +185,7 @@ function processResponse(text, status, obj) {
     if (!disciplineList.includes(d) & d.slice(1,-1) != 'None') {
       disciplineList.push(d);
       $('#filter-on-discipline').append("<div class='mdc-chip-set mdc-chip-set--filter'  data-mdc-auto-init='MDCChipSet'>\
-        <div d="+d+" class='mdc-chip' onclick='filterDiscipline(this)' tabindex='0' data-mdc-auto-init='MDCChip'>\
+        <div d="+d+" class='mdc-chip' onclick='filter(this)' tabindex='0' data-mdc-auto-init='MDCChip'>\
         <div class='mdc-chip__checkmark' >\
           <svg class='mdc-chip__checkmark-svg' viewBox='-2 -3 30 30'>\
             <path class='mdc-chip__checkmark-path' fill='none' stroke='black'\
@@ -179,10 +204,10 @@ function processResponse(text, status, obj) {
     let c = this.getAttribute('category');
     let list = c.split(' ');
     $(list).each(function(i) {
-      if (!categoryList.includes(list[i]) & list[i] != "") {
-        categoryList.push(list[i]);
+      if (!categoryList.includes(list[i].toLowerCase()) & list[i] != "") {
+        categoryList.push(list[i].toLowerCase());
         $('#filter-on-category').append("<div class='mdc-chip-set mdc-chip-set--filter'  data-mdc-auto-init='MDCChipSet'>\
-          <div c="+list[i]+" class='mdc-chip' onclick='filterCategory(this)' tabindex='0' data-mdc-auto-init='MDCChip'>\
+          <div c="+list[i]+" class='mdc-chip' onclick='filter(this)' tabindex='0' data-mdc-auto-init='MDCChip'>\
           <div class='mdc-chip__checkmark' >\
             <svg class='mdc-chip__checkmark-svg' viewBox='-2 -3 30 30'>\
               <path class='mdc-chip__checkmark-path' fill='none' stroke='black'\
@@ -223,6 +248,7 @@ function processResponse(text, status, obj) {
 
 var search = document.getElementById('search-bar');
 search.onchange = function() {
+  $('#search_results').empty();
   $('#filters').css('display','none');
   $('#show-discipline-filters').css('display','none');
   $('#show-category-filters').css('display','none');
