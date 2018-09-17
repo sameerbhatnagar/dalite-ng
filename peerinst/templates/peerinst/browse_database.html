@@ -199,7 +199,7 @@ function processResponse(text, status, obj) {
     })
   });
 
-  if (disciplineList.length > 2 || categoryList.length > 2) {
+  if (disciplineList.length > 2 || categoryList.length > 2 & $('mdc-card').length > 1) {
     $('#filters').css('display', 'block');
   }
   if (disciplineList.length > 2) {
