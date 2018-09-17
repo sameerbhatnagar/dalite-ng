@@ -230,6 +230,12 @@ function processResponse(text, status, obj) {
   bundle.toggleAnswers();
   search.value = "";
   search.focus();
+
+  [].forEach.call(document.querySelectorAll('#search_results .mdc-card'), el => {
+    console.info(el);
+    bundle.difficulty(el.getAttribute('matrix').replace(/'/g, '"'), el.id);
+  });
+  $('.analytics-tags').css('cursor', 'default');
 }
 
 search.onchange = function() {

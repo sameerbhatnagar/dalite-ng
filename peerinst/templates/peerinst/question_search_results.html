@@ -65,7 +65,7 @@
         </div>
 
         {% if assignment %}
-        <button onclick="ajax.updateAssignmentQuestionList('{% url 'assignment-edit-ajax' %}', '{{ g.id }}', '{{ assignment.identifier }}')" class="material-icons small-button mdc-button mdc-card__action mdc-card__action--button mdc-button--raised">add</button>
+        <button onclick="ajax.updateAssignmentQuestionList('{% url 'assignment-edit-ajax' %}', '{{ g.id }}', '{{ assignment.identifier }}')" class="material-icons small-button mdc-button mdc-card__action mdc-card__action--button mdc-button--raised" style="margin-left:20px;">add</button>
         {% elif type = None %}
         {% if request.user.teacher %}
         <i class="mdc-icon-toggle material-icons mdc-theme--primary"
