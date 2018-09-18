@@ -297,22 +297,24 @@ class Question(models.Model):
         matrix[str("hard")] = 0
         matrix[str("tricky")] = 0
         matrix[str("peer")] = 0
-        student_answers = self.answer_set.filter(expert=False).filter(
-            second_answer_choice__gt=0
-        )
-        N = len(student_answers)
-        if N > 0:
-            for answer in student_answers:
-                if self.is_correct(answer.first_answer_choice):
-                    if self.is_correct(answer.second_answer_choice):
-                        matrix[str("easy")] += 1.0 / N
+
+        if self.answerchoice_set.count() > 0 :
+            student_answers = self.answer_set.filter(expert=False).filter(
+                second_answer_choice__gt=0
+            )
+            N = len(student_answers)
+            if N > 0:
+                for answer in student_answers:
+                    if self.is_correct(answer.first_answer_choice):
+                        if self.is_correct(answer.second_answer_choice):
+                            matrix[str("easy")] += 1.0 / N
+                        else:
+                            matrix[str("tricky")] += 1.0 / N
                     else:
-                        matrix[str("tricky")] += 1.0 / N
-                else:
-                    if self.is_correct(answer.second_answer_choice):
-                        matrix[str("peer")] += 1.0 / N
-                    else:
-                        matrix[str("hard")] += 1.0 / N
+                        if self.is_correct(answer.second_answer_choice):
+                            matrix[str("peer")] += 1.0 / N
+                        else:
+                            matrix[str("hard")] += 1.0 / N
 
         return matrix
 
