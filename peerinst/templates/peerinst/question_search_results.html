@@ -44,11 +44,10 @@
       <div class="mdc-typography--title bold">
         {{g.title|safe}}
       </div>
-      {% if g.user %}
+
       <div class="mdc-typography--caption">
-        {% trans 'By: '%}{{ g.user.username }}
+        #{{g.id}} {% if g.user %}{% trans 'by' %} {{ g.user.username }}{% endif %}
       </div>
-      {% endif %}
 
       <div class="mdc-typography--body1" style="margin-top:5px;">
         {{g.text|safe}}
