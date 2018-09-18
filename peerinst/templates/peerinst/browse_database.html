@@ -100,7 +100,7 @@
 
         <div id="category-filters" style="margin-top:10px;display:none;"><div style="margin-bottom:5px;">{% trans 'Keywords: ' %}</div><span id="filter-on-category"></span></div>
 
-        <button id="reset-filters" type="button" class='mdc-button mdc-button--raised padded-top' disabled=true onclick='reset()'>{% trans 'Reset' %}</button>
+        <button id="reset-filters" type="button" class='mdc-button mdc-button--raised padded-top' disabled=true onclick='reset()'>{% trans 'Clear' %}</button>
       </div>
     </div>
 
@@ -248,12 +248,14 @@ function processResponse(text, status, obj) {
 
 var search = document.getElementById('search-bar');
 search.onchange = function() {
-  $('#search_results').empty();
-  $('#filters').css('display','none');
-  $('#show-discipline-filters').css('display','none');
-  $('#show-category-filters').css('display','none');
-  console.info("Searching: "+search.value);
-  $('#search_results').load("{% url 'question-search' %}", "search_string="+search.value, processResponse);
+  if (search.value != "") {
+    $('#search_results').empty();
+    $('#filters').css('display','none');
+    $('#show-discipline-filters').css('display','none');
+    $('#show-category-filters').css('display','none');
+    console.info("Searching: "+search.value);
+    $('#search_results').load("{% url 'question-search' %}", "search_string="+search.value, processResponse);
+  }
 }
 
 $.ajaxSetup({

@@ -5,7 +5,7 @@
 {% for search_results_term in search_results %}
   <div class="search-set">
     <h3 class="mdc-theme--secondary-bg" style="border-radius:3px;color:white;padding:2px;padding-left:10px;font-weight:100;">
-      {{search_results_term.term}}"
+      "{{search_results_term.term}}"
       <i class="icon ion-ios-arrow-forward"></i>
       <span class="filter-count">{{ search_results_term.count }}</span>/{{ search_results_term.count }} {% trans 'results' %}
     </h3>
