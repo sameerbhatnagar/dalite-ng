@@ -92,6 +92,17 @@
       </i>
     </div>
 
+    <div id="progressbar" role="progressbar" class="mdc-linear-progress mdc-linear-progress--indeterminate mdc-linear-progress--closed">
+      <div class="mdc-linear-progress__buffering-dots"></div>
+      <div class="mdc-linear-progress__buffer"></div>
+      <div class="mdc-linear-progress__bar mdc-linear-progress__primary-bar">
+        <span class="mdc-linear-progress__bar-inner"></span>
+      </div>
+      <div class="mdc-linear-progress__bar mdc-linear-progress__secondary-bar">
+        <span class="mdc-linear-progress__bar-inner"></span>
+      </div>
+    </div>
+
     <div id="filters" style="display:none;">
       <h2 class='mdc-typography--display1  mdc-theme--secondary'>{% trans 'Filters' %}</h2>
 
@@ -175,6 +186,9 @@ function processResponse(text, status, obj) {
   bundle.toggleImages();
   bundle.toggleAnswers();
 
+  $('#search-bar').attr('disabled', false);
+  $('#progressbar').addClass('mdc-linear-progress--closed');
+
   // Add filters based on search results
   $('#filter-on-discipline').empty();
   $('#filter-on-category').empty();
@@ -224,6 +238,10 @@ function processResponse(text, status, obj) {
 
   if (disciplineList.length > 1 || categoryList.length > 1 & $('.mdc-card').length > 1) {
     $('#filters').css('display', 'block');
+    window.location.href = '#filters';
+  }
+  else {
+    window.location.href = '#search_results';
   }
   if (disciplineList.length > 1) {
     $('#discipline-filters').css('display', 'block');
@@ -246,23 +264,26 @@ function processResponse(text, status, obj) {
   $('.analytics-tags').css('cursor', 'default');
 }
 
+function setupSearch() {
+  $('#search_results').empty();
+  $('#filters').css('display','none');
+  $('#show-discipline-filters').css('display','none');
+  $('#show-category-filters').css('display','none');
+  $('#search-bar').attr('disabled', true);
+  $('#progressbar').removeClass('mdc-linear-progress--closed');
+}
+
 var search = document.getElementById('search-bar');
 search.onchange = function() {
   if (search.value != "") {
-    $('#search_results').empty();
-    $('#filters').css('display','none');
-    $('#show-discipline-filters').css('display','none');
-    $('#show-category-filters').css('display','none');
+    setupSearch();
     console.info("Searching: "+search.value);
     $('#search_results').load("{% url 'question-search' %}", "search_string="+search.value, processResponse);
   }
 }
 
 function pageNav(page) {
-  $('#search_results').empty();
-  $('#filters').css('display','none');
-  $('#show-discipline-filters').css('display','none');
-  $('#show-category-filters').css('display','none');
+  setupSearch();
   console.info("Searching: "+search.value);
   $('#search_results').load("{% url 'question-search' %}?page="+page, "search_string="+search.value, processResponse);
 }
