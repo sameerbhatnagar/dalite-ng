@@ -121,6 +121,8 @@
 </main>
 {% endblock %}
 
+<!-- JS bundle -->
+{% compress js %}
 {% block scripts %}
 <script>
 bundle.toggleImages();
@@ -305,3 +307,4 @@ function toggleFavourite(pk) {
 
 </script>
 {% endblock %}
+{% endcompress %}
