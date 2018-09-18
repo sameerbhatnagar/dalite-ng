@@ -2444,7 +2444,7 @@ def question_search(request):
 
             query_all.extend(query_term)
 
-        paginator = Paginator(query_all, 25)
+        paginator = Paginator(query_all, 50)
         try:
             query_subset = paginator.page(page)
         except PageNotAnInteger:
