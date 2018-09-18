@@ -2384,8 +2384,10 @@ def blink_waiting(request, username, assignment=""):
 # AJAX functions
 @login_required
 def question_search(request):
-    n_search_limit = 50
+    from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+
     if request.method == "GET" and request.user.teacher:
+        page = request.GET.get("page", default=1)
         type = request.GET.get("type", default=None)
         id = request.GET.get("id", default=None)
         search_string = request.GET.get("search_string", default="")
@@ -2425,9 +2427,8 @@ def question_search(request):
         # by searching first for full string, and then for constituent parts,
         # and preserving order, the results should rank the items higher to the top
         # that have the entire search_string included
+        query_meta = {}
         for term in search_terms:
-            query_dict = {}
-
             query_term = question_search_function(term)
 
             if limit_search == "true":
@@ -2439,32 +2440,38 @@ def question_search(request):
 
             query_term = [q for q in query_term if q not in query_all]
 
-            if (len(query_term) + len(query_all)) < n_search_limit:
-                query_dict["term"] = term
-                query_dict["questions"] = query_term
-                query_dict["count"] = str(len(query_term))
-            else:
-                query_dict["term"] = term
-                query_dict["questions"] = query_term[
-                    : (n_search_limit - len(query_all))
-                ]
-                query_dict["count"] = (
-                    "top "
-                    + str(n_search_limit - len(query_all))
-                    + " results shown"
-                )
+            query_meta[term] = query_term
+
             query_all.extend(query_term)
+
+        paginator = Paginator(query_all, 25)
+        try:
+            query_subset = paginator.page(page)
+        except PageNotAnInteger:
+            query_subset = paginator.page(1)
+        except EmptyPage:
+            query_subset = paginator.page(paginator.num_pages)
+
+        query = []
+
+        for term in query_meta.keys():
+            query_dict = {}
+            query_dict["term"] = term
+            query_dict["questions"] = [
+                q for q in query_meta[term] if q in query_subset.object_list
+            ]
+            query_dict["count"] = len(query_dict["questions"])
             query.append(query_dict)
 
         return TemplateResponse(
             request,
             "peerinst/question_search_results.html",
             context={
-                "search_results": query,  # [:50],
+                "paginator": query_subset,
+                "search_results": query,
                 "form_field_name": form_field_name,
                 "count": len(query_all),
                 "previous_search_string": search_terms,
-                "n_search_limit": n_search_limit,
                 "assignment": assignment,
                 "type": type,
             },

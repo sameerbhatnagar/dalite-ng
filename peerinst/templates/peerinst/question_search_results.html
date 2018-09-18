@@ -2,7 +2,24 @@
 
 <h2 class="mdc-typography--display1  mdc-theme--secondary">{% trans 'Results' %}</h2>
 
-{% for search_results_term in search_results %}
+<div class="pagination" style='text-align:center;'>
+    <span class="step-links">
+        {% if paginator.has_previous %}
+            <span style="text-decoration: underline; padding-right:10px; cursor: pointer;" onclick="pageNav({{ paginator.previous_page_number }})">Previous</span>
+        {% endif %}
+
+        <span class="current">
+            Page {{ paginator.number }} of {{ paginator.paginator.num_pages }}
+        </span>
+
+        {% if paginator.has_next %}
+            <span style="text-decoration: underline; padding-left: 10px; cursor: pointer;" onclick="pageNav({{ paginator.next_page_number }})">Next</span>
+        {% endif %}
+    </span>
+</div>
+
+{% for search_results_term in search_results|dictsort:"term" %}
+  {% if search_results_term.count > 0 %}
   <div class="search-set">
     <h3 class="mdc-theme--secondary-bg" style="border-radius:3px;color:white;padding:2px;padding-left:10px;font-weight:100;">
       "{{search_results_term.term}}"
@@ -101,4 +118,5 @@
     </div>
     {% endfor %}
   </div>
+  {% endif %}
 {% endfor %}

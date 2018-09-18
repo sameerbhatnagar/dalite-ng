@@ -258,6 +258,15 @@ search.onchange = function() {
   }
 }
 
+function pageNav(page) {
+  $('#search_results').empty();
+  $('#filters').css('display','none');
+  $('#show-discipline-filters').css('display','none');
+  $('#show-category-filters').css('display','none');
+  console.info("Searching: "+search.value);
+  $('#search_results').load("{% url 'question-search' %}?page="+page, "search_string="+search.value, processResponse);
+}
+
 $.ajaxSetup({
     beforeSend: function(xhr, settings) {
         if (!bundle.csrfSafeMethod(settings.type) && !this.crossDomain) {
