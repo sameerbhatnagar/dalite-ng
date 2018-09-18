@@ -2463,6 +2463,8 @@ def question_search(request):
             query_dict["count"] = len(query_dict["questions"])
             query.append(query_dict)
 
+        print(query_dict)
+
         return TemplateResponse(
             request,
             "peerinst/question_search_results.html",
