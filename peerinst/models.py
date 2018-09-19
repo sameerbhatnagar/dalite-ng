@@ -298,7 +298,7 @@ class Question(models.Model):
         matrix[str("tricky")] = 0
         matrix[str("peer")] = 0
 
-        if self.answerchoice_set.count() > 0 :
+        if self.answerchoice_set.count() > 0:
             student_answers = self.answer_set.filter(expert=False).filter(
                 second_answer_choice__gt=0
             )
@@ -390,6 +390,15 @@ class Assignment(models.Model):
     class Meta:
         verbose_name = _("assignment")
         verbose_name_plural = _("assignments")
+
+    @property
+    def editable(self):
+        return (
+            not self.answer_set.count()
+            and not StudentGroupAssignment.objects.filter(
+                assignment=self
+            ).exists()
+        )
 
 
 class Answer(models.Model):
@@ -777,7 +786,9 @@ class Teacher(models.Model):
     disciplines = models.ManyToManyField(Discipline, blank=True)
     assignments = models.ManyToManyField(Assignment, blank=True)
     deleted_questions = models.ManyToManyField(Question, blank=True)
-    favourite_questions = models.ManyToManyField(Question, blank=True, related_name="favourite_questions")
+    favourite_questions = models.ManyToManyField(
+        Question, blank=True, related_name="favourite_questions"
+    )
     current_groups = models.ManyToManyField(
         StudentGroup, blank=True, related_name="current_groups"
     )

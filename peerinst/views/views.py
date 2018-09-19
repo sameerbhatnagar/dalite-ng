@@ -470,7 +470,6 @@ class AssignmentUpdateView(LoginRequiredMixin, NoStudentsMixin, DetailView):
                 self.object.questions.add(question)
             else:
                 self.object.questions.remove(question)
-
             self.object.save()
             return HttpResponseRedirect(
                 reverse(
@@ -2438,7 +2437,11 @@ def question_search(request):
 
             query_term = query_term.exclude(id__in=q_qs).distinct()
 
-            query_term = [q for q in query_term if q not in query_all and q.answerchoice_set.count() > 0]
+            query_term = [
+                q
+                for q in query_term
+                if q not in query_all and q.answerchoice_set.count() > 0
+            ]
 
             query_meta[term] = query_term
 
