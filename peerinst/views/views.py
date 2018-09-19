@@ -432,7 +432,7 @@ class AssignmentUpdateView(LoginRequiredMixin, NoStudentsMixin, DetailView):
             or self.request.user.is_staff
         ):
             # Check for student answers
-            if self.get_object().editable:
+            if not self.get_object().editable:
                 raise PermissionDenied
             else:
                 return super(AssignmentUpdateView, self).dispatch(
