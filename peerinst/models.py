@@ -394,7 +394,7 @@ class Assignment(models.Model):
     @property
     def editable(self):
         return (
-            not self.answer_set.count()
+            not self.answer_set.exclude(user_token__exact="").count()
             and not StudentGroupAssignment.objects.filter(
                 assignment=self
             ).exists()
