@@ -432,12 +432,7 @@ class AssignmentUpdateView(LoginRequiredMixin, NoStudentsMixin, DetailView):
             or self.request.user.is_staff
         ):
             # Check for student answers
-            if (
-                self.get_object()
-                .answer_set.exclude(user_token__exact="")
-                .count()
-                > 0
-            ):
+            if not self.get_object().editable:
                 raise PermissionDenied
             else:
                 return super(AssignmentUpdateView, self).dispatch(
@@ -470,7 +465,6 @@ class AssignmentUpdateView(LoginRequiredMixin, NoStudentsMixin, DetailView):
                 self.object.questions.add(question)
             else:
                 self.object.questions.remove(question)
-
             self.object.save()
             return HttpResponseRedirect(
                 reverse(
@@ -2438,7 +2432,11 @@ def question_search(request):
 
             query_term = query_term.exclude(id__in=q_qs).distinct()
 
-            query_term = [q for q in query_term if q not in query_all and q.answerchoice_set.count() > 0]
+            query_term = [
+                q
+                for q in query_term
+                if q not in query_all and q.answerchoice_set.count() > 0
+            ]
 
             query_meta[term] = query_term
 

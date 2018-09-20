@@ -80,7 +80,7 @@
                 <input class="material-icons md-24 mdc-button small-button" style="padding:0pt;margin:0pt;" type="submit" value="remove_circle"/>
               </div>
           </form> -->
-          {% if user in a.owner.all and a.answer_set.count == 0 %}
+          {% if user in a.owner.all and a.editable %}
             <a  id="edit-assignment-{{ a.pk|slugify }}" href="{% url 'assignment-update' a.pk %}">
               <i class="material-icons md-24 mdc-ripple-surface icon-list">mode_edit</i>
             </a>
