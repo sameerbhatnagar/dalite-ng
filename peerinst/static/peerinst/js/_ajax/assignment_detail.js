@@ -29,8 +29,16 @@ export function updateAssignmentQuestionList(url, questionId, assignmentIdentifi
           $('#'+questionId).remove();
         } else {
           $('#'+questionId).find($( "button" )).html('clear');
-          $('#'+questionId).appendTo($('#question-list'));
+          $('#'+questionId).find($('.stats').remove());
+          let q = $('#'+questionId).detach();
+          q.appendTo($('#question-list'));
           $('#empty-assignment-list').remove();
+          $('.search-set').each(function() {
+            $(this).find('.filter-count').empty().append($(this).find('.mdc-card:visible').length);
+          });
+          $('.search-set').each(function() {
+            $(this).find('.filter-count-total').empty().append($(this).find('.mdc-card').length);
+          });
         }
       }
     })

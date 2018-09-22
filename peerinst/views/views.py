@@ -324,7 +324,7 @@ def welcome(request):
             if teacher_group not in teacher.user.groups.all():
                 teacher.user.groups.add(teacher_group)
         return HttpResponseRedirect(
-            reverse("teacher", kwargs={"pk": teacher.pk})
+            reverse("browse-database")
         )
     except ObjectDoesNotExist:
         return HttpResponseRedirect(reverse("assignment-list"))

@@ -3,8 +3,10 @@
 {% load staticfiles compress i18n %}
 
 {% block stylesheets %}
+<link href="{% static 'peerinst/css/search.min.css' %}" rel="stylesheet">
 {% compress js %}
 <script src="{% static 'peerinst/js/ajax.min.js' %}"></script>
+<script src="{% static 'peerinst/js/search.min.js' %}"></script>
 {% endcompress %}
 {% endblock %}
 
@@ -17,17 +19,17 @@
 
     <div class="admin-link">
       <a href="{% url 'teacher' teacher.id %}">{% trans 'Back to My Account' %}</a>
-      <span style="padding-left:0.3em;padding-right:0.5em;">|</span><a href="{% url 'teacher-assignments' teacher.id %}">{% trans 'Back to My Assignments' %}</a>
+      <span class="links-divider">|</span><a href="{% url 'teacher-assignments' teacher.id %}">{% trans 'Back to My Assignments' %}</a>
     </div>
 
     <h2 id="assignment" class="mdc-typography--display1  mdc-theme--secondary">{{object.title}}</h2>
     <div class="admin-link">
       <a href="{% url 'assignment-edit' object.pk %}">{% trans 'Edit title' %}</a>
-      <span style="padding-left:0.3em;padding-right:0.5em;">|</span><a href="{% url 'question-list' object.pk %}">{% trans 'Preview' %}</a>
+      <span class="links-divider">|</span><a href="{% url 'question-list' object.pk %}">{% trans 'Preview' %}</a>
     </div>
 
     <div class="mdc-form-field">
-      <span class="mdc-theme--secondary">Show images</span>
+      <span class="mdc-theme--secondary">{% trans 'Show images' %}</span>
       <i class="mdc-icon-toggle material-icons toggle-images mdc-theme--secondary" role="button" aria-pressed="false"
       aria-label="Toggle images" tabindex="0"
       data-toggle-on='{"label": "Hide images", "content": "check_box"}'
@@ -37,7 +39,7 @@
     </div>
 
     <div class="mdc-form-field">
-      <span class="mdc-theme--secondary">Show answers</span>
+      <span class="mdc-theme--secondary">{% trans 'Show answers' %}</span>
       <i class="mdc-icon-toggle material-icons toggle-answers mdc-theme--secondary" role="button" aria-pressed="false"
       aria-label="Toggle answers" tabindex="0"
       data-toggle-on='{"label": "Hide images", "content": "check_box"}'
@@ -49,16 +51,20 @@
     <div id="question-list">
     {% for g in object.questions.all %}
     <div class="mdc-card" id={{g.id|slugify}}>
-      <div class="mdc-typography--title bold" style="margin-bottom:5px;">
+      <div class="mdc-typography--title bold">
         {{g.title|safe}}
       </div>
 
-      <div class="mdc-typography--body1">
+      <div class="mdc-typography--caption">
+        #{{g.id}} {% if g.user %}{% trans 'by' %} {{ g.user.username }}{% endif %}
+      </div>
+
+      <div class="mdc-typography--body1" style="margin-top:5px;">
         {{g.text|safe}}
       </div>
 
       {% if g.image %}
-      <img class="question-image" src="{{ g.image.url }}" alt="g.image_alt_text" style="display:none;">
+      <img class="question-image" style="display:none;" src="{{ g.image.url }}" alt="g.image_alt_text">
       {% endif %}
 
       <div class="question-answers" style="display:none;">
@@ -105,23 +111,27 @@
     {% endfor %}
     </div>
 
-    <div class="foldable">
+    <div id="favourite-questions" class="foldable">
       <h2 class="foldable--title mdc-typography--display1 mdc-theme--secondary">{% trans 'My favourite questions' %}</h2>
       <div class="foldable--body">
       {% for g in teacher.favourite_questions.all %}
       {% if g not in object.questions.all %}
       {% if g not in teacher.deleted_questions.all %}
       <div class="all-my-questions mdc-card" id={{g.id|slugify}}>
-        <div class="mdc-typography--title bold" style="margin-bottom:5px;">
+        <div class="mdc-typography--title bold">
           {{g.title|safe}}
         </div>
 
-        <div class="mdc-typography--body1">
+        <div class="mdc-typography--caption">
+          #{{g.id}} {% if g.user %}{% trans 'by' %} {{ g.user.username }}{% endif %}
+        </div>
+
+        <div class="mdc-typography--body1" style="margin-top:5px;">
           {{g.text|safe}}
         </div>
 
         {% if g.image %}
-        <img class="question-image" src="{{ g.image.url }}" alt="g.image_alt_text" style="display:none;">
+        <img class="question-image" style="display:none;" src="{{ g.image.url }}" alt="g.image_alt_text">
         {% endif %}
 
         <div class="question-answers" style="display:none;">
@@ -153,6 +163,17 @@
           </div>
 
           <div class="mdc-card__action-icons">
+            {% if request.user.teacher %}
+            <i class="mdc-icon-toggle material-icons mdc-theme--primary"
+                role="button"
+                aria-pressed="false"
+                aria-label="Add to favorites" tabindex="0"
+                data-toggle-off='{"label": "Remove from favourites", "content": "favorite"}'
+                data-toggle-on='{"label": "Add to favourites", "content": "favorite_border"}'
+                onclick="toggleFavourite({{g.pk}})">
+                favorite_border
+            </i>
+            {% endif %}
             <form style="display:inline" method="post" action="#{{g.id|slugify}}">
               {% csrf_token %}
               <input type="hidden" name="q" value="{{g.pk}}" />
@@ -209,6 +230,29 @@
       </p>
     </div>
 
+    <div id="progressbar" role="progressbar" class="mdc-linear-progress mdc-linear-progress--indeterminate mdc-linear-progress--closed">
+      <div class="mdc-linear-progress__buffering-dots"></div>
+      <div class="mdc-linear-progress__buffer"></div>
+      <div class="mdc-linear-progress__bar mdc-linear-progress__primary-bar">
+        <span class="mdc-linear-progress__bar-inner"></span>
+      </div>
+      <div class="mdc-linear-progress__bar mdc-linear-progress__secondary-bar">
+        <span class="mdc-linear-progress__bar-inner"></span>
+      </div>
+    </div>
+
+    <div id="filters" style="display:none;">
+      <h2 class='mdc-typography--display1  mdc-theme--secondary'>{% trans 'Filters' %}</h2>
+
+      <div id="select-filters">
+        <div id="discipline-filters" style="display:none;"><div style="margin-bottom:5px;">{% trans 'Disciplines: ' %}</div><span id="filter-on-discipline"></span></div>
+
+        <div id="category-filters" style="margin-top:10px;display:none;"><div style="margin-bottom:5px;">{% trans 'Keywords: ' %}</div><span id="filter-on-category"></span></div>
+
+        <button id="reset-filters" type="button" class='mdc-button mdc-button--raised padded-top' disabled=true onclick='search.reset()'>{% trans 'Clear' %}</button>
+      </div>
+    </div>
+
     <div id="search_results"></div>
 
   </section>
@@ -219,28 +263,41 @@
 <script>
 bundle.toggleImages();
 bundle.toggleAnswers();
+search.initFavourites();
+
+$.ajaxSetup({
+    beforeSend: function(xhr, settings) {
+        if (!bundle.csrfSafeMethod(settings.type) && !this.crossDomain) {
+            xhr.setRequestHeader("X-CSRFToken", bundle.getCookie('csrftoken'));
+        }
+    }
+});
 
 var limitSearch = document.querySelector('#limit-search');
 bundle.iconToggle.MDCIconToggle.attachTo(limitSearch);
-var search = document.getElementById('search-bar');
 
-function processResponse(text, status, obj) {
-  location.href = "#limit-search";
-  bundle.toggleImages();
-  bundle.toggleAnswers();
-  search.value = "";
-  search.focus();
-
-  [].forEach.call(document.querySelectorAll('#search_results .mdc-card'), el => {
-    console.info(el);
-    bundle.difficulty(el.getAttribute('matrix').replace(/'/g, '"'), el.id);
-  });
-  $('.analytics-tags').css('cursor', 'default');
+var input = document.getElementById('search-bar');
+input.onchange = function() {
+  if (input.value != "") {
+    search.setupSearch();
+    console.info("Searching: "+input.value);
+    $('#search_results').load("{% url 'question-search' %}", "search_string="+input.value+"&type=assignment&id={{object.pk|urlencode}}&limit_search="+limitSearch.checked+"&assignment_identifier={{object.identifier}}", search.processResponse);
+  }
 }
 
-search.onchange = function() {
-  console.info("Searching: "+search.value);
-  $('#search_results').load("{% url 'question-search' %}", "search_string="+search.value+"&type=assignment&id={{object.pk|urlencode}}&limit_search="+limitSearch.checked+"&assignment_identifier={{object.identifier}}", processResponse);
+function pageNav(page) {
+  search.setupSearch();
+  console.info("Searching: "+input.value);
+  $('#search_results').load("{% url 'question-search' %}?page="+page, "search_string="+input.value+"&type=assignment&id={{object.pk|urlencode}}&limit_search="+limitSearch.checked+"&assignment_identifier={{object.identifier}}", search.processResponse);
+}
+
+function toggleFavourite(pk) {
+  var posting = $.post("{% url 'teacher-toggle-favourite' %}", {pk: pk});
+  posting.done(function(data) {
+    console.info(data);
+  });
+  $('#favourite-questions').find($('#'+pk).remove());
+
 }
 </script>
 {% endblock %}

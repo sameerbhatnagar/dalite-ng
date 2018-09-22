@@ -53,6 +53,11 @@ p {
   margin-bottom: 12pt;
   font-size: 9pt;
 }
+.links-divider {
+  padding-left:0.3em;
+  padding-right:0.5em;
+  color: $mdc-theme-secondary;
+}
 h2 ~.admin-link {
   margin-top: -25px;
   margin-bottom: 12pt;

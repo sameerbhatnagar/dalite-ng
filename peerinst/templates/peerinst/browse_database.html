@@ -1,29 +1,9 @@
 {% extends 'peerinst/base.html' %}
 
-{% load i18n %}
+{% load staticfiles i18n %}
 
 {% block stylesheets %}
-<style>
-.filter_keyword {
-  cursor: pointer;
-  margin-right: 10px;
-  text-decoration: underline;
-}
-.filtered {
-  font-weight: bolder;
-}
-.mdc-chip-set {
-  width: fit-content;
-  width: -moz-fit-content;
-  width: -webkit-fit-content;
-  margin-right:0pt;
-  margin-left: auto;
-  display: inline;
-}
-.mdc-chip__text {
-  font-size: 10pt;
-}
-</style>
+<link href="{% static 'peerinst/css/search.min.css' %}" rel="stylesheet">
 {% endblock %}
 
 {% block body %}
@@ -36,9 +16,9 @@
     {% if request.user.teacher %}
     <div class="admin-link">
       <a href="{% url 'teacher' request.user.teacher.id %}">{% trans 'Go to My Account' %}</a>
-      <span style="padding-left:0.3em;padding-right:0.5em;">|</span><a href="{% url 'teacher-assignments' request.user.teacher.id %}">{% trans 'Create an assignment' %}</a>
+      <span class="links-divider">|</span><a href="{% url 'teacher-assignments' request.user.teacher.id %}">{% trans 'Create an assignment' %}</a>
     {% if user.is_staff %}
-      <span style="padding-left:0.3em;padding-right:0.5em;">|</span><a href="{% url 'admin_index_wrapper' %}">Click here to access admin</a>
+      <span class="links-divider">|</span><a href="{% url 'admin_index_wrapper' %}">{% trans 'Click here to access admin' %}</a>
     {% endif %}
     </div>
     {% endif %}
@@ -73,7 +53,7 @@
     </div>
 
     <div class="mdc-form-field">
-      <span class="mdc-theme--secondary">Show images</span>
+      <span class="mdc-theme--secondary">{% trans 'Show images' %}</span>
       <i class="mdc-icon-toggle material-icons toggle-images mdc-theme--secondary" role="button" aria-pressed="false"
       aria-label="Toggle images" tabindex="0"
       data-toggle-on='{"label": "Hide images", "content": "check_box"}'
@@ -83,7 +63,7 @@
     </div>
 
     <div class="mdc-form-field">
-      <span class="mdc-theme--secondary">Show answers</span>
+      <span class="mdc-theme--secondary">{% trans 'Show answers' %}</span>
       <i class="mdc-icon-toggle material-icons toggle-answers mdc-theme--secondary" role="button" aria-pressed="false"
       aria-label="Toggle answers" tabindex="0"
       data-toggle-on='{"label": "Hide images", "content": "check_box"}'
@@ -111,7 +91,7 @@
 
         <div id="category-filters" style="margin-top:10px;display:none;"><div style="margin-bottom:5px;">{% trans 'Keywords: ' %}</div><span id="filter-on-category"></span></div>
 
-        <button id="reset-filters" type="button" class='mdc-button mdc-button--raised padded-top' disabled=true onclick='reset()'>{% trans 'Clear' %}</button>
+        <button id="reset-filters" type="button" class='mdc-button mdc-button--raised padded-top' disabled=true onclick='search.reset()'>{% trans 'Clear' %}</button>
       </div>
     </div>
 
@@ -121,174 +101,11 @@
 </main>
 {% endblock %}
 
-<!-- JS bundle -->
-{% compress js %}
 {% block scripts %}
+<script src="{% static 'peerinst/js/search.min.js' %}"></script>
 <script>
 bundle.toggleImages();
 bundle.toggleAnswers();
-
-function recountResults() {
-  $('.search-set').each(function() {
-    $(this).find('.filter-count').empty().append($(this).find('.mdc-card:visible').length);
-  })
-}
-
-function filter(el) {
-  if ($(el).hasClass('filtered')) {
-    $(el).removeClass('filtered');
-  }
-  else {
-    $(el).addClass('filtered');
-  }
-
-  if ($('.filtered').length == 0) {
-    $('#reset-filters').attr('disabled', true);
-  }
-
-  let disciplineFilters = [];
-  $('#filter-on-discipline > .filtered').each(function() {
-    disciplineFilters.push(this.getAttribute('d').slice(1,-1).toLowerCase());
-  });
-
-  $('.mdc-card').css('display', 'block');
-
-  $('.mdc-card').each(function() {
-    let card = this;
-    $('#filter-on-category').find('.filtered').each(function() {
-      if (card.getAttribute('category').toLowerCase().indexOf(this.getAttribute('c').toLowerCase()) < 0 ) {
-        $(card).css('display', 'none');
-        $('#reset-filters').attr('disabled', false);
-      }
-    });
-
-    $('#filter-on-discipline').find('.filtered').each(function() {
-      if (card.getAttribute('discipline').slice(1,-1).toLowerCase() != this.getAttribute('d').toLowerCase()) {
-        $(card).css('display', 'none');
-        $('#reset-filters').attr('disabled', false);
-      }
-    });
-  });
-  recountResults();
-}
-
-function reset() {
-  $('.mdc-card').each(function(index) {
-    $(this).css('display', 'block');
-    $('.mdc-chip').removeClass('filtered');
-    $('#reset-filters').attr('disabled', true);
-    $('.mdc-chip').each(function(){
-      this.selected = false;
-    })
-  });
-  recountResults();
-}
-
-function processResponse(text, status, obj) {
-  bundle.toggleImages();
-  bundle.toggleAnswers();
-
-  $('#search-bar').attr('disabled', false);
-  $('#progressbar').addClass('mdc-linear-progress--closed');
-
-  // Add filters based on search results
-  $('#filter-on-discipline').empty();
-  $('#filter-on-category').empty();
-
-  let disciplineList = [];
-  $('.mdc-card').each(function(index) {
-    let d = this.getAttribute('discipline');
-    if (!disciplineList.includes(d) & d.slice(1,-1) != 'None') {
-      disciplineList.push(d);
-      $('#filter-on-discipline').append("<div class='mdc-chip-set mdc-chip-set--filter'  data-mdc-auto-init='MDCChipSet'>\
-        <div d="+d+" class='mdc-chip' onclick='filter(this)' tabindex='0' data-mdc-auto-init='MDCChip'>\
-        <div class='mdc-chip__checkmark' >\
-          <svg class='mdc-chip__checkmark-svg' viewBox='-2 -3 30 30'>\
-            <path class='mdc-chip__checkmark-path' fill='none' stroke='black'\
-              d='M1.73,12.91 8.1,19.28 22.79,4.59'/>\
-          </svg>\
-        </div>\
-        <div class='mdc-chip__text'>"+d.slice(1,-1)+"</div>\
-        </div>\
-      </div>");
-    }
-  });
-  console.info(disciplineList);
-
-  let categoryList = [];
-  $('.mdc-card').each(function() {
-    let c = this.getAttribute('category');
-    let list = c.split(' ');
-    $(list).each(function(i) {
-      if (!categoryList.includes(list[i].toLowerCase()) & list[i] != "") {
-        categoryList.push(list[i].toLowerCase());
-        $('#filter-on-category').append("<div class='mdc-chip-set mdc-chip-set--filter'  data-mdc-auto-init='MDCChipSet'>\
-          <div c="+list[i]+" class='mdc-chip' onclick='filter(this)' tabindex='0' data-mdc-auto-init='MDCChip'>\
-          <div class='mdc-chip__checkmark' >\
-            <svg class='mdc-chip__checkmark-svg' viewBox='-2 -3 30 30'>\
-              <path class='mdc-chip__checkmark-path' fill='none' stroke='black'\
-                d='M1.73,12.91 8.1,19.28 22.79,4.59'/>\
-            </svg>\
-          </div>\
-          <div class='mdc-chip__text'>"+list[i]+"</div>\
-          </div>\
-        </div>");
-      }
-    })
-  });
-  console.info(categoryList);
-
-  if (disciplineList.length > 1 || categoryList.length > 1 & $('.mdc-card').length > 1) {
-    $('#filters').css('display', 'block');
-    window.location.href = '#filters';
-  }
-  else {
-    window.location.href = '#search_results';
-  }
-  if (disciplineList.length > 1) {
-    $('#discipline-filters').css('display', 'block');
-  }
-  if (categoryList.length > 1) {
-    $('#category-filters').css('display', 'block');
-  }
-
-  [].forEach.call(document.querySelectorAll('.mdc-chip'), el => {
-    bundle.chips.MDCChip.attachTo(el);
-  });
-
-  [].forEach.call(document.querySelectorAll('.mdc-icon-toggle'), el => {
-    bundle.iconToggle.MDCIconToggle.attachTo(el);
-  });
-
-  [].forEach.call(document.querySelectorAll('.mdc-card'), el => {
-    bundle.difficulty(el.getAttribute('matrix').replace(/'/g, '"'), el.id);
-  });
-  $('.analytics-tags').css('cursor', 'default');
-}
-
-function setupSearch() {
-  $('#search_results').empty();
-  $('#filters').css('display','none');
-  $('#show-discipline-filters').css('display','none');
-  $('#show-category-filters').css('display','none');
-  $('#search-bar').attr('disabled', true);
-  $('#progressbar').removeClass('mdc-linear-progress--closed');
-}
-
-var search = document.getElementById('search-bar');
-search.onchange = function() {
-  if (search.value != "") {
-    setupSearch();
-    console.info("Searching: "+search.value);
-    $('#search_results').load("{% url 'question-search' %}", "search_string="+search.value, processResponse);
-  }
-}
-
-function pageNav(page) {
-  setupSearch();
-  console.info("Searching: "+search.value);
-  $('#search_results').load("{% url 'question-search' %}?page="+page, "search_string="+search.value, processResponse);
-}
 
 $.ajaxSetup({
     beforeSend: function(xhr, settings) {
@@ -298,13 +115,26 @@ $.ajaxSetup({
     }
 });
 
+var input = document.getElementById('search-bar');
+input.onchange = function() {
+  if (input.value != "") {
+    search.setupSearch();
+    console.info("Searching: "+input.value);
+    $('#search_results').load("{% url 'question-search' %}", "search_string="+input.value, search.processResponse);
+  }
+}
+
+function pageNav(page) {
+  search.setupSearch();
+  console.info("Searching: "+input.value);
+  $('#search_results').load("{% url 'question-search' %}?page="+page, "search_string="+input.value, search.processResponse);
+}
+
 function toggleFavourite(pk) {
   var posting = $.post("{% url 'teacher-toggle-favourite' %}", {pk: pk});
-  posting.done(data => {
+  posting.done(function(data) {
     console.info(data);
   })
 }
-
 </script>
 {% endblock %}
-{% endcompress %}

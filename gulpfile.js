@@ -210,11 +210,26 @@ gulp.task('peerinst-scripts-ajax', function() {
   );
 });
 
+gulp.task('peerinst-scripts-search', function() {
+  const runCommand = require('child_process').execSync;
+  runCommand(
+    './node_modules/.bin/rollup -c ./rollup/peerinst/search-rollup.config.js',
+    function(err, stdout, stderr) {
+      console.log('Output: ' + stdout);
+      console.log('Error: ' + stderr);
+      if (err) {
+        console.log('Error: ' + err);
+      }
+    },
+  );
+});
+
 gulp.task('peerinst-scripts', function(callback) {
   runSequence(
     'peerinst-scripts-index',
     'peerinst-scripts-group',
     'peerinst-scripts-ajax',
+    'peerinst-scripts-search',
     callback,
   );
 });
