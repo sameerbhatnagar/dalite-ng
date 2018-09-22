@@ -1,6 +1,7 @@
 .foldable {
   & > .foldable--title {
     cursor: pointer;
+    margin-bottom: 0;
   }
   & > .foldable--title:before {
     font-family: 'Material Icons';

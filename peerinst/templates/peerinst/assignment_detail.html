@@ -115,7 +115,7 @@
 
     <div id="favourite-questions" class="foldable">
       <h2 class="foldable--title mdc-typography--display1 mdc-theme--secondary">{% trans 'My favourite questions' %}</h2>
-      <div class="foldable--body">
+      <div class="foldable--body" style="margin-top:20px;">
       {% for g in teacher.favourite_questions.all %}
       {% if g not in object.questions.all %}
       {% if g not in teacher.deleted_questions.all %}
