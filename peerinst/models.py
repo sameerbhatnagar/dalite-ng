@@ -1174,13 +1174,17 @@ class StudentGroupAssignment(models.Model):
     @staticmethod
     def get(hash_):
         assert isinstance(hash_, basestring), "Precondition failed for `hash_`"
-        id_ = int(base64.urlsafe_b64decode(hash_.encode()).decode())
         try:
-            assignment = StudentGroupAssignment.objects.get(id=id_)
-        except StudentGroupAssignment.DoesNotExist:
-            assignment = None
+            id_ = int(base64.urlsafe_b64decode(hash_.encode()).decode())
+        except UnicodeDecodeError:
+            id_ = None
+        if id_:
+            try:
+                group = StudentGroupAssignment.objects.get(id=id_)
+            except StudentGroupAssignment.DoesNotExist:
+                group = None
 
-        output = assignment
+        output = group
         assert output is None or isinstance(
             output, StudentGroupAssignment
         ), "Postcondition failed"

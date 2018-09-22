@@ -10,6 +10,7 @@ from django.http import (
     HttpResponse,
     HttpResponseBadRequest,
     HttpResponseForbidden,
+    HttpResponseNotFound,
     HttpResponseRedirect,
     HttpResponseServerError,
     JsonResponse,
@@ -100,7 +101,17 @@ def confirm_signup_through_link(request, group_hash, token):
     group = StudentGroup.get(group_hash)
 
     if group is None:
-        raise Http404()
+        resp = TemplateResponse(
+            request,
+            "404.html",
+            context={
+                "message": _(
+                    "The group couldn't be bound. Bear in mind that the URL "
+                    "is case-sensitive."
+                )
+            },
+        )
+        return HttpResponseNotFound(resp.render())
 
     if username is not None:
         student = get_object_or_404(Student, student__username=username)
