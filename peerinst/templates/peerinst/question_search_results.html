@@ -1,16 +1,16 @@
 {% load i18n %}
 
-<h2 class="mdc-typography--display1  mdc-theme--secondary">{% trans 'Results' %}</h2>
+<h2 id="results_list" class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Results' %}</h2>
 
 {% for r in search_results|dictsortreversed:"count" %}
   {% if forloop.first %}
     {% if r.count = 0 %}
       <div>{% trans 'No search results' %}</div>
     {% else %}
-      <div class="pagination" style='text-align:center;'>
-          <span class="step-links">
+      <div class="pagination">
+          <span>
               {% if paginator.has_previous %}
-                  <span style="text-decoration: underline; padding-right:10px; cursor: pointer;" onclick="pageNav({{ paginator.previous_page_number }})"><i class="icon ion-ios-arrow-back"></i></span>
+                  <span class="search-nav" onclick="pageNav({{ paginator.previous_page_number }})"><i class="icon ion-ios-arrow-back"></i></span>
               {% endif %}
 
               <span class="current">
@@ -18,7 +18,7 @@
               </span>
 
               {% if paginator.has_next %}
-                  <span style="text-decoration: underline; padding-left: 10px; cursor: pointer;" onclick="pageNav({{ paginator.next_page_number }})"><i class="icon ion-ios-arrow-forward"></i></span>
+                  <span class="search-nav" onclick="pageNav({{ paginator.next_page_number }})"><i class="icon ion-ios-arrow-forward"></i></span>
               {% endif %}
           </span>
       </div>
@@ -29,10 +29,10 @@
 {% for search_results_term in search_results|dictsortreversed:"term" %}
   {% if search_results_term.count > 0 %}
   <div class="search-set">
-    <h3 class="mdc-theme--secondary-bg" style="border-radius:3px;color:white;padding:2px;padding-left:10px;font-weight:100;">
+    <h3 class="mdc-theme--secondary-bg">
       "{{search_results_term.term}}"
       <i class="icon ion-ios-arrow-forward"></i>
-      <span class="filter-count">{{ search_results_term.count }}</span>/{{ search_results_term.count }} {% trans 'results' %}
+      <span class="filter-count">{{ search_results_term.count }}</span>/<span class="filter-count-total">{{ search_results_term.count }} {% trans 'results' %}</span>
     </h3>
 
     {% for g in search_results_term.questions|dictsortreversed:"answer_count"  %}
