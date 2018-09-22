@@ -321,7 +321,7 @@ def question_search_function(search_string):
         | Q(discipline__title__icontains=search_string)
         | Q(answerchoice__text__icontains=search_string)
         | Q(user__username__icontains=search_string)
-    ).annotate(answer_count=Count("answer"))
+    ).annotate(answer_count=Count("answer")).order_by('-answer_count')
 
     return query_term
 
