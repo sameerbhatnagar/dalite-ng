@@ -805,10 +805,16 @@ class Teacher(models.Model):
     @staticmethod
     def get(hash_):
         assert isinstance(hash_, basestring), "Precondition failed for `hash_`"
-        username = str(base64.urlsafe_b64decode(hash_.encode()).decode())
         try:
-            teacher = Teacher.objects.get(user__username=username)
-        except Teacher.DoesNotExist:
+            username = str(base64.urlsafe_b64decode(hash_.encode()).decode())
+        except UnicodeDecodeError:
+            username = None
+        if username:
+            try:
+                teacher = Teacher.objects.get(user__username=username)
+            except Teacher.DoesNotExist:
+                teacher = None
+        else:
             teacher = None
 
         output = teacher
