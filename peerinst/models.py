@@ -94,17 +94,13 @@ class Question(models.Model):
         unique=True,
         max_length=100,
         help_text=_(
-            "A title for the question. Used for lookup when creating "
-            "assignments, but not presented to the student."
+            "A title for the question."
         ),
     )
     text = models.TextField(
         _("Question text"),
         help_text=_(
-            "Enter the question text.  You can use HTML tags for formatting. "
-            'You can use the "Preview" button in the top right corner to '
-            "see what the question will look like for students.  The button "
-            "appears after saving the question for the first time."
+            "Enter the question text."
         ),
     )
     parent = models.ForeignKey(
