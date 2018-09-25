@@ -8,6 +8,7 @@
 @import '@material/checkbox/mdc-checkbox';
 @import '@material/chips/mdc-chips';
 @import '@material/dialog/mdc-dialog';
+@import '@material/drawer/mdc-drawer';
 @import '@material/elevation/mdc-elevation';
 @import '@material/floating-label/mdc-floating-label';
 @import '@material/form-field/mdc-form-field';
@@ -73,6 +74,9 @@ h4 ~.admin-link {
   margin-left: 50px;
   margin-bottom: 12pt;
   font-size: 9pt;
+}
+.ion-md-menu {
+  cursor: pointer;
 }
 
 
