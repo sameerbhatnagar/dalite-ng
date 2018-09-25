@@ -59,13 +59,10 @@ def validate_update_data(req):
 @group_access_required
 def group_details_page(req, group_hash, teacher, group):
 
-    print('1')
     assignments = StudentGroupAssignment.objects.filter(group=group)
 
-    print('2')
     student_list = group.students.all().select_related('student')
 
-    print('3')
     context = {
         "group": group,
         "student_list": student_list,
@@ -73,7 +70,11 @@ def group_details_page(req, group_hash, teacher, group):
         "teacher": teacher,
     }
 
-    return render(req, "peerinst/group/details.html", context)
+    return TemplateResponse(
+        req,
+        "peerinst/group/details.html",
+        context
+    )
 
 
 @login_required
