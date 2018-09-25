@@ -6,11 +6,10 @@ import itertools
 import smtplib
 import string
 
-# testing
-import uuid
 from datetime import datetime
 
 import pytz
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.core import exceptions
 from django.core.exceptions import ValidationError
@@ -93,15 +92,10 @@ class Question(models.Model):
         _("Question title"),
         unique=True,
         max_length=100,
-        help_text=_(
-            "A title for the question."
-        ),
+        help_text=_("A title for the question."),
     )
     text = models.TextField(
-        _("Question text"),
-        help_text=_(
-            "Enter the question text."
-        ),
+        _("Question text"), help_text=_("Enter the question text.")
     )
     parent = models.ForeignKey(
         "Question", blank=True, null=True, on_delete=models.SET_NULL
@@ -1272,9 +1266,9 @@ class StudentAssignment(models.Model):
                         "New assignment in "
                         + self.group_assignment.group.title
                         + " (due "
-                        + self.group_assignment.due_date.strftime(
-                            "%Y-%m-%d %H:%M"
-                        )
+                        + self.group_assignment.due_date.astimezone(
+                            pytz.timezone(settings.DEFAULT_TIMEZONE)
+                        ).strftime("%Y-%m-%d %H:%M %Z")
                         + ")"
                     )
                     message = "Click link below to access your assignment."

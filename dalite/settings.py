@@ -246,6 +246,8 @@ HEARTBEAT_REQUIRED_FREE_SPACE_PERCENTAGE = 20
 # This group and its permissions need to be set through admin site
 TEACHER_GROUP = "Teacher"
 
+DEFAULT_TIMEZONE = "America/Montreal"
+
 
 try:
     from .local_settings import *
