@@ -61,9 +61,9 @@ def group_details_page(req, group_hash, teacher, group):
 
     assignments = StudentGroupAssignment.objects.filter(group=group)
 
-    print(group.students.select_related())
+    print(group.students.all().select_related('student'))
 
-    context = {"group": group, "student_list": group.students.select_related(), "assignments": assignments, "teacher": teacher}
+    context = {"group": group, "student_list": group.students.all().select_related('student'), "assignments": assignments, "teacher": teacher}
 
     return render(req, "peerinst/group/details.html", context)
 
@@ -130,6 +130,7 @@ def group_assignment_page(req, assignment_hash, teacher, group, assignment):
     context = {
         "teacher_id": teacher.id,
         "group": group,
+        "student_list": group.students.all().select_related('student'),
         "assignment": assignment,
         "questions": assignment.questions,
         "students_with_answers": assignment.assignment.answer_set.values_list('user_token', flat=True),
