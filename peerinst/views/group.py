@@ -63,18 +63,9 @@ def group_details_page(req, group_hash, teacher, group):
 
     student_list = group.students.all().select_related('student')
 
-    context = {
-        "group": group,
-        "student_list": student_list,
-        "assignments": assignments,
-        "teacher": teacher,
-    }
+    context = {"group": group, "assignments": assignments, "teacher": teacher}
 
-    return TemplateResponse(
-        req,
-        "peerinst/group/details.html",
-        context
-    )
+    return render(req, "peerinst/group/details.html", context)
 
 
 @login_required
@@ -139,7 +130,6 @@ def group_assignment_page(req, assignment_hash, teacher, group, assignment):
     context = {
         "teacher_id": teacher.id,
         "group": group,
-        "student_list": group.students.all().select_related('student'),
         "assignment": assignment,
         "questions": assignment.questions,
         "students_with_answers": assignment.assignment.answer_set.values_list('user_token', flat=True),

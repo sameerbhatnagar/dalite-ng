@@ -167,14 +167,14 @@
       <div class="foldable--body">
         <ul id="student-list" class="mdc-list mdc-list--two-line mdc-list--non-interactive">
 
-          {% for student in student_list %}
+          {% for student in group.students %}
 
           <li class="mdc-list-item">
             <span class="mdc-list-item__graphic mdc-theme--primary">
               <i class="mdc-theme--primary material-icons md-48">person</i>
             </span>
             <span class="mdc-list-item__text mdc-theme--secondary">
-              {% if group.has_emails %}
+              {% if student.student.email %}
               {{ student.student.email }}
               {% else %}
               {{ student.student.username }}
