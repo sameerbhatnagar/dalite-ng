@@ -17,7 +17,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
 
@@ -245,6 +245,8 @@ HEARTBEAT_REQUIRED_FREE_SPACE_PERCENTAGE = 20
 # TEACHER_GROUP will be automatically added to teachers at login
 # This group and its permissions need to be set through admin site
 TEACHER_GROUP = "Teacher"
+
+DEFAULT_TIMEZONE = "America/Montreal"
 
 
 try:

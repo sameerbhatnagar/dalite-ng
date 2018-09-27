@@ -174,7 +174,7 @@
               <i class="mdc-theme--primary material-icons md-48">person</i>
             </span>
             <span class="mdc-list-item__text mdc-theme--secondary">
-              {% if group.has_emails %}
+              {% if student.student.email %}
               {{ student.student.email }}
               {% else %}
               {{ student.student.username }}
@@ -194,6 +194,8 @@
           <p class='mdc-typography--body1'>{% trans 'No student has signed up yet' %}</p>
 
           {% endfor %}
+
+        </ul>
 
       </div>
     </div>
