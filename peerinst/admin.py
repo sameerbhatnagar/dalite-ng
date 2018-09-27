@@ -25,6 +25,8 @@ from .models import (
     BlinkAssignmentQuestion,
     VerifiedDomain,
     LtiEvent,
+    StudentGroupAssignment,
+    StudentAssignment,
 )
 
 
@@ -229,13 +231,20 @@ class BlinkAssignmentQuestionAdmin(admin.ModelAdmin):
 
 @admin.register(Student)
 class StudentAdmin(admin.ModelAdmin):
-    pass
+    search_fields = ['student__email',]
 
 
 @admin.register(StudentGroup)
 class StudentGroupAdmin(admin.ModelAdmin):
     pass
 
+@admin.register(StudentGroupAssignment)
+class StudentGroupAssignmentAdmin(admin.ModelAdmin):
+    search_fields = ['group__name','group__teacher__user__username',]
+
+@admin.register(StudentAssignment)
+class StudentAssignmentAdmin(admin.ModelAdmin):
+    search_fields = ['student__email','group_assignment__assignment__identifier',]
 
 @admin.register(VerifiedDomain)
 class VerifiedDomainAdmin(admin.ModelAdmin):
