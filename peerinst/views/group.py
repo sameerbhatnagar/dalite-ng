@@ -61,8 +61,6 @@ def group_details_page(req, group_hash, teacher, group):
 
     assignments = StudentGroupAssignment.objects.filter(group=group)
 
-    student_list = group.students.all().select_related('student')
-
     context = {"group": group, "assignments": assignments, "teacher": teacher}
 
     return render(req, "peerinst/group/details.html", context)
