@@ -737,13 +737,15 @@ class Student(models.Model):
             assignments = StudentGroupAssignment.objects.filter(group=group)
 
             for assignment in assignments:
-                if not assignment.is_expired():
-                    if not StudentAssignment.objects.filter(
+                # Create missing instances
+                if not StudentAssignment.objects.filter(
+                    student=self, group_assignment=assignment
+                ).exists():
+                    assignment_ = StudentAssignment.objects.create(
                         student=self, group_assignment=assignment
-                    ).exists():
-                        assignment_ = StudentAssignment.objects.create(
-                            student=self, group_assignment=assignment
-                        )
+                    )
+                    if not assignment.is_expired():
+                        # Just send active assignments
                         assignment_.send_email(host, "new_assignment")
 
 
