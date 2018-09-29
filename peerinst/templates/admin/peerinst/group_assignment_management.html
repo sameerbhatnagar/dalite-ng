@@ -1,0 +1,61 @@
+{% extends "admin/base_site.html" %}
+{% load i18n staticfiles grp_tags %}
+
+{% block title %}{% trans 'Assignment results' %}{% endblock %}
+
+{% block extrastyle %}
+<link href="{% static 'peerinst/css/admin.min.css' %}" rel="stylesheet" type="text/css" />
+{% endblock %}
+
+{% block breadcrumbs %}
+<ul>
+  <li><a href="{% url 'admin-index' %}">{% trans 'Home' %}</a></li>
+  <li>{% trans 'Group assignment distribution' %}</li>
+</ul>
+{% endblock %}
+
+{% block content_title %}
+<h1>{% trans 'Group assignment distribution' %}</h1>
+{% endblock %}
+
+{% block content %}
+<div class="g-d-c-fluid">
+  <form action="" method="get">
+    <fieldset class="grp-module">
+      <div class="grp-row">
+        {{ form.as_p }}
+      </div>
+      <div class="grp-row">
+        <input type="submit" value="{% trans 'Run analysis' %}" />
+      </div>
+    </fieldset>
+  </form>
+</div>
+
+<table>
+    <tr>
+      <th>{% trans 'Students in group:' %} {{ student_list.count }}</th>
+      <th>{% trans 'Student assignments:' %} {{ student_assignment_list.count }}</th>
+    </tr>
+</table>
+<br>
+<table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>{% trans 'Student' %}</th>
+        <th>{% trans 'Assignment' %}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in student_assignment_list %}
+      <tr class="grp-row-{% cycle 'odd' 'even' %}">
+        <td>{{ forloop.counter }}</td>
+        <td>{{ row.student }}</td>
+        <td>{{ row }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

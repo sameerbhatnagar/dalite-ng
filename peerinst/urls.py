@@ -194,6 +194,11 @@ def old_patterns():
                         admin_views.AttributionAnalysis.as_view(),
                         name="attribution-analysis",
                     ),
+                    url(
+                        r"^group_assignment_management/$",
+                        admin_views.StudentGroupAssignmentManagement.as_view(),
+                        name="group-assignment-management",
+                    ),
                 ]
             ),
         ),

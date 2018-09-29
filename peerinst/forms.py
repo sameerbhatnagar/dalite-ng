@@ -28,12 +28,14 @@ import password_validation
 
 
 class NonStudentPasswordResetForm(PasswordResetForm):
-
     def get_users(self, email):
-        active_users = User.objects.filter(
-            email__iexact=email, is_active=True)
+        active_users = User.objects.filter(email__iexact=email, is_active=True)
 
-        return (u for u in active_users if u.has_usable_password() and not hasattr(u, 'student'))
+        return (
+            u
+            for u in active_users
+            if u.has_usable_password() and not hasattr(u, "student")
+        )
 
 
 class FirstAnswerForm(forms.Form):
@@ -206,9 +208,7 @@ class BlinkSetTimeForm(forms.Form):
         max_value=120,
         min_value=15,
         initial=45,
-        help_text=_(
-            "Set the time limit to be used for each question."
-        ),
+        help_text=_("Set the time limit to be used for each question."),
     )
 
 
@@ -235,7 +235,7 @@ class BlinkAnswerForm(forms.Form):
             )
             for pair in answer_choices
         ]
-        #choice_texts = [mark_safe(". ".join(pair)) for pair in answer_choices]
+        # choice_texts = [mark_safe(". ".join(pair)) for pair in answer_choices]
         self.base_fields["first_answer_choice"].choices = enumerate(
             choice_texts, 1
         )
@@ -306,6 +306,7 @@ class ActivateForm(forms.Form):
 
 class EmailForm(forms.Form):
     """Form for user email address"""
+
     email = forms.EmailField()
 
 
@@ -324,7 +325,9 @@ class DisciplineSelectForm(forms.Form):
 
 
 class DisciplinesSelectForm(forms.Form):
-    disciplines = forms.ModelMultipleChoiceField(queryset=Discipline.objects.all())
+    disciplines = forms.ModelMultipleChoiceField(
+        queryset=Discipline.objects.all()
+    )
 
 
 class CategorySelectForm(forms.Form):
@@ -340,9 +343,7 @@ class ReportSelectForm(forms.Form):
     )
 
     assignments = forms.ModelMultipleChoiceField(
-        label=_(
-            "Choose which assignments to include in report:"
-        ),
+        label=_("Choose which assignments to include in report:"),
         widget=forms.CheckboxSelectMultiple,
         queryset=Assignment.objects.none(),
     )
@@ -376,8 +377,16 @@ class StudentGroupCreateForm(forms.ModelForm):
 
 
 class StudentGroupAssignmentForm(ModelForm):
-    group = forms.ModelChoiceField(queryset=StudentGroup.objects.all(), empty_label=None)
+    group = forms.ModelChoiceField(
+        queryset=StudentGroup.objects.all(), empty_label=None
+    )
 
     class Meta:
         model = StudentGroupAssignment
-        fields = ('group', 'due_date', 'show_correct_answers')
+        fields = ("group", "due_date", "show_correct_answers")
+
+
+class StudentGroupAssignmentManagementForm(forms.Form):
+    group_assignment = forms.ModelChoiceField(
+        queryset=StudentGroupAssignment.objects.all()
+    )
