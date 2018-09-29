@@ -29,10 +29,10 @@ class TestNewStudentGroupAssignment(TestCase):
     def setUp(self):
         questions = add_questions(new_questions(100))
         self.groups = add_groups(new_groups(2))
-        self.assignments = add_assignments(new_assignments(20, questions))
+        self.assignments = add_assignments(new_assignments(2, questions))
 
     def test_working(self):
-        n = 10
+        n = 4
         data = new_student_group_assignments(n, self.groups, self.assignments)
 
         for d in data:
@@ -169,7 +169,7 @@ class TestGetStudentProgress(TestCase):
         self.assignment = add_student_group_assignments(
             new_student_group_assignments(1, groups, assignments)
         )[0]
-        student_assignments = add_student_assignments(
+        add_student_assignments(
             new_student_assignments(
                 len(self.students), [self.assignment], self.students
             )
@@ -197,7 +197,7 @@ class TestGetStudentProgress(TestCase):
             q.pk: random.randrange(1, len(self.students))
             for q in self.questions
         }
-        answers = add_answers(
+        add_answers(
             [
                 {
                     "question": question,
@@ -235,7 +235,7 @@ class TestGetStudentProgress(TestCase):
             self.assertEqual(0, question["second_correct"])
 
     def test_all_first_answers_done(self):
-        answers = add_answers(
+        add_answers(
             [
                 {
                     "question": question,
@@ -343,7 +343,7 @@ class TestGetStudentProgress(TestCase):
 
     def test_all_second_answers_done(self):
 
-        answers = add_answers(
+        add_answers(
             [
                 {
                     "question": question,
@@ -414,9 +414,9 @@ class TestGetQuestion(TestCase):
     def test_get_question_by_idx(self):
         questions = self.assignment.questions
 
-        for idx in range(len(questions)):
-            question_ = self.assignment.get_question(idx=idx)
-            self.assertEqual(questions[idx], question_)
+        for i, question in enumerate(questions):
+            question_ = self.assignment.get_question(idx=i)
+            self.assertEqual(question, question_)
 
     def test_get_question_current_question_regular(self):
         questions = self.assignment.questions
@@ -447,8 +447,8 @@ class TestGetQuestion(TestCase):
     def test_get_question_assert_raised(self):
         pass
         # To be revised with assertions in method
-        #self.assertRaises(
+        # self.assertRaises(
         #    AssertionError,
         #    self.assignment.get_question,
         #    (0, self.assignment.questions[0]),
-        #)
+        # )
