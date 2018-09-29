@@ -26,24 +26,38 @@
         {{ form.as_p }}
       </div>
       <div class="grp-row">
-        <input type="submit" value="{% trans 'Run analysis' %}" />
+        <input type="submit" value="{% trans 'Run report' %}" />
       </div>
     </fieldset>
   </form>
 </div>
 
-<table>
-    <tr>
-      <th>{% trans 'Students in group:' %} {{ student_list.count }}</th>
-      <th>{% trans 'Student assignments:' %} {{ student_assignment_list.count }}</th>
-    </tr>
-</table>
-<br>
+<div class="g-d-c-fluid">
+<form action="" method="post">
+  {% csrf_token %}
+  <fieldset class="grp-module">
+    <div class="grp-row">
+      <p>{% trans 'Students in group:' %} {{ student_list.count }}</p>
+      <p>{% trans 'Student assignments:' %} {{ student_assignment_list.count }}</p>
+      {% if assignments_created %}
+      <p>{% trans 'Assignments created:' %} {{assignments_created}}</p>
+      <p>{% trans 'Emails sent:' %} {{emails_sent}}</p>
+      {% endif %}
+    </div>
+    <div class="grp-row">
+      <input type="hidden" name="group_assignment" value="{{ group_assignment.pk }}">
+      <input type="submit" value="{% trans 'Send all missing' %}" {% if student_list.count = student_assignment_list.count %}disabled{% endif %} />
+    </div>
+  </fieldset>
+</form>
+</div>
+
 <table>
     <thead>
       <tr>
         <th>#</th>
         <th>{% trans 'Student' %}</th>
+        <th>{% trans 'Email' %}</th>
         <th>{% trans 'Assignment' %}</th>
       </tr>
     </thead>
@@ -52,6 +66,7 @@
       <tr class="grp-row-{% cycle 'odd' 'even' %}">
         <td>{{ forloop.counter }}</td>
         <td>{{ row.student }}</td>
+        <td>{{ row.student.student.email }}</td>
         <td>{{ row }}</td>
       </tr>
       {% endfor %}

@@ -726,8 +726,53 @@ class AttributionAnalysis(TemplateView):
 class StudentGroupAssignmentManagement(StaffMemberRequiredMixin, TemplateView):
     template_name = "admin/peerinst/group_assignment_management.html"
 
+    def post(self, request, *args, **kwargs):
+        context = self.get_context_data(**kwargs)
+        form = StudentGroupAssignmentManagementForm(self.request.POST)
+        if form.is_valid():
+            group_assignment = form.cleaned_data["group_assignment"]
+            group = group_assignment.group
+            student_list = models.Student.objects.filter(groups=group)
+
+            count_assignments_created = 0
+            count_emails_sent = 0
+            for student in student_list:
+                # Create missing instances
+                if not models.StudentAssignment.objects.filter(
+                    student=student, group_assignment=group_assignment
+                ).exists():
+                    assignment_ = models.StudentAssignment.objects.create(
+                        student=student, group_assignment=group_assignment
+                    )
+                    count_assignments_created += 1
+                    # Send email
+                    if not student.student.email.endswith("localhost") and not group_assignment.is_expired():
+                        assignment_.send_email(host, "new_assignment")
+                        count_emails_sent += 1
+
+            student_assignment_list = models.StudentAssignment.objects.filter(
+                student__in=student_list, group_assignment=group_assignment
+            )
+            context.update(assignments_created=count_assignments_created)
+            context.update(emails_sent=count_emails_sent)
+            context.update(group=group)
+            context.update(group_assignment=group_assignment)
+            context.update(student_list=student_list)
+            context.update(student_assignment_list=student_assignment_list)
+
+        context.update(form=form)
+
+        return self.render_to_response(context)
+
     def get_context_data(self, **kwargs):
         context = TemplateView.get_context_data(self, **kwargs)
+
+        form = StudentGroupAssignmentManagementForm()
+        group = None
+        group_assignment = None
+        student_list = None
+        student_assignment_list = None
+
         if self.request.GET:
             form = StudentGroupAssignmentManagementForm(data=self.request.GET)
             if form.is_valid():
@@ -737,14 +782,10 @@ class StudentGroupAssignmentManagement(StaffMemberRequiredMixin, TemplateView):
                 student_assignment_list = models.StudentAssignment.objects.filter(
                     student__in=student_list, group_assignment=group_assignment
                 )
-        else:
-            form = StudentGroupAssignmentManagementForm()
-            group = None
-            student_list = None
-            student_assignment_list = None
 
         context.update(form=form)
         context.update(group=group)
+        context.update(group_assignment=group_assignment)
         context.update(student_list=student_list)
         context.update(student_assignment_list=student_assignment_list)
 
