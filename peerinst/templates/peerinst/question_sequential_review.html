@@ -4,10 +4,9 @@
 
 {% block answers %}
 {{ block.super }}
-<p>
+<p class="mdc-typography--body1">
   {% blocktrans %}
-  Below is an answer provided by another student.  Please indicate whether you think this answer is
-  correct using the vote buttons below.  You will be able to select your preferred rationale in the
+  Below is an answer provided by another student.  Please indicate whether you agree using the vote buttons below.  You will be able to select your preferred rationale in the
   final review.
   {% endblocktrans %}
 </p>
@@ -16,13 +15,19 @@
 {% block form %}
 <form action="" method="post">
   {% csrf_token %}
-  <div class="votable-rationale">
-    <p>{% trans "Answer " %}<strong>{{ current_rationale.1 }}:</strong></p>
-    <p>{{ current_rationale.2 }}</p>
-  </div>
+
+    <div class="votable-rationale">
+        <blockquote>
+      <p>{% trans "Answer " %}<strong>{{ current_rationale.1 }}:</strong></p>
+      <p>{{ current_rationale.2 }}</p>
+      </blockquote>
+    </div>
+
   <div>
-    <input type="submit" class="thumbs-button thumbs-up" name="upvote" value="Thumbs up" />
-    <input type="submit" class="thumbs-button thumbs-down" name="downvote" value="Thumbs down" />
+    <div style="margin:auto;width:150px">
+      <input type="submit" class="thumbs-button thumbs-up mdc-button--raised" name="upvote" value="Thumbs up" />
+      <input type="submit" class="thumbs-button thumbs-down mdc-button--raised" name="downvote" value="Thumbs down" />
+    </div>
   </div>
 </form>
 {% endblock %}
