@@ -3,12 +3,13 @@
 {% load static compress i18n %}
 
 {% block stylesheets %}
-{% compress css %}
 <link href="{% static 'peerinst/css/student.min.css' %}" rel="stylesheet">
-{% endcompress %}
 {% endblock %}
 
 {% block body %}
+
+{% csrf_token %}
+
 <main>
   <section id="student-page">
 
@@ -33,6 +34,12 @@
     </div>
 
     <div class="foldable foldable__unfolded">
+      <h2 class="foldable--title mdc-typography--display1 mdc-theme--secondary">{% trans 'Notifications' %}</h2>
+      <div class="foldable--body">
+      </div>
+    </div>
+
+    <div class="foldable foldable__unfolded">
       <h2 class="foldable--title mdc-typography--display1 mdc-theme--secondary">
         Groups
       </h2>
@@ -42,9 +49,15 @@
           <div class="student-group--title">
             <h3>{{ group.title }}</h3>
             <div class="student-group--remove">
-              <i class="material-icons md-28">close</i>
-              <div class="student-group--remove-confirmation-box">
-                <div>
+              <i class="material-icons md-28"
+                 onclick="bundle.toggleLeaveGroup(event)">
+                close
+              </i>
+
+              <div class="student-group--remove-confirmation-box" 
+                   style="display: none;"
+                   onclick="event.stopPropagation; bundle.toggleLeaveGroup(event)">
+                <div onclick="event.stopPropagation();">
                   <h3>Leave group {{ group.title }}</h3>
                   <p>
                     This will remove you from the group. All your answers will be
@@ -54,10 +67,22 @@
                   <p>
                     Are you sure?
                   </p>
-                  <button class="mdc-button mdc-button--unelevated">Remove</button>
-                  <button class="mdc-button">Cancel</button>
+                  <button class="mdc-button mdc-button--unelevated"
+                          onclick="bundle.leaveGroup(
+                            event,
+                            '{% url 'student-leave-group' %}',
+                            '{{ student.student.username }}',
+                            '{{ group.name }}'
+                          )">
+                    Remove
+                  </button>
+                  <button class="mdc-button" 
+                          onclick="bundle.toggleLeaveGroup(event)">
+                    Cancel
+                  </button>
                 </div>
               </div>
+
             </div>
           </div>
           <div class="student-group--assignments">
@@ -71,4 +96,9 @@
 
   </section>
 </main>
+
+{% block scripts %}
+<script src="{% static 'peerinst/js/student.min.js' %}"></script>
+{% endblock %}
+
 {% endblock %}

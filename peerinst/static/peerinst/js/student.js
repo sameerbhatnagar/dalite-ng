@@ -1,1 +1,1 @@
-export { leaveGroup } from "./_student/student_page.js";
+export { toggleLeaveGroup, leaveGroup } from "./_student/index.js";

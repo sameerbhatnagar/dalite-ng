@@ -477,6 +477,11 @@ def student_patterns():
             views.student.student_page,
             name="student-page",
         ),
+        url(
+            r"^student/leave-group$",
+            views.student.leave_group,
+            name="student-leave-group",
+        ),
     ]
 
 

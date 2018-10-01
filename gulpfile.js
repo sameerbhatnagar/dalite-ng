@@ -15,14 +15,14 @@ gulp.task("sass", function() {
     .pipe(
       rename(function(path) {
         path.extname = ".min.css";
-      })
+      }),
     )
     .pipe(sourcemaps.init())
     .pipe(
       sass({
         outputStyle: "compressed",
-        includePaths: "./node_modules/"
-      })
+        includePaths: "./node_modules/",
+      }),
     )
     .pipe(sourcemaps.write("."))
     .pipe(gulp.dest("./peerinst/static/peerinst/css/"));
@@ -33,12 +33,12 @@ gulp.task("css", function() {
   return gulp
     .src([
       "./peerinst/static/peerinst/css/*.css",
-      "!./peerinst/static/peerinst/css/*.min.css"
+      "!./peerinst/static/peerinst/css/*.min.css",
     ])
     .pipe(
       rename(function(path) {
         path.extname = ".min.css";
-      })
+      }),
     )
     .pipe(postcss([cssnano()]))
     .pipe(gulp.dest("./peerinst/static/peerinst/css/"));
@@ -57,10 +57,10 @@ gulp.task("autoprefixer", function() {
             "iOS>=8",
             "ie 11",
             "Safari 9.1",
-            "not dead"
-          ]
-        })
-      ])
+            "not dead",
+          ],
+        }),
+      ]),
     )
     .pipe(sourcemaps.write("."))
     .pipe(gulp.dest("./peerinst/static/peerinst/css/"));
@@ -77,8 +77,8 @@ gulp.task("peerinst-styles-group", function() {
     .pipe(
       sass({
         outputStyle: "compressed",
-        includePaths: "./node_modules"
-      })
+        includePaths: "./node_modules",
+      }),
     )
     .pipe(
       postcss([
@@ -88,16 +88,16 @@ gulp.task("peerinst-styles-group", function() {
             "iOS>=8",
             "ie 11",
             "Safari 9.1",
-            "not dead"
-          ]
-        })
-      ])
+            "not dead",
+          ],
+        }),
+      ]),
     )
     .pipe(
       rename(function(path) {
         path.dirname += "/group";
         path.extname = ".min.css";
-      })
+      }),
     )
     .pipe(sourcemaps.write("."))
     .pipe(gulp.dest("peerinst/static/peerinst/css"));
@@ -110,8 +110,8 @@ gulp.task("peerinst-styles-student", function() {
     .pipe(
       sass({
         outputStyle: "compressed",
-        includePaths: "./node_modules"
-      })
+        includePaths: "./node_modules",
+      }),
     )
     .pipe(
       postcss([
@@ -121,10 +121,10 @@ gulp.task("peerinst-styles-student", function() {
             "iOS>=8",
             "ie 11",
             "Safari 9.1",
-            "not dead"
-          ]
-        })
-      ])
+            "not dead",
+          ],
+        }),
+      ]),
     )
     .pipe(rename("student.min.css"))
     .pipe(sourcemaps.write("."))
@@ -138,8 +138,8 @@ gulp.task("peerinst-styles-auth", function() {
     .pipe(
       sass({
         outputStyle: "compressed",
-        includePaths: "./node_modules"
-      })
+        includePaths: "./node_modules",
+      }),
     )
     .pipe(
       postcss([
@@ -149,15 +149,15 @@ gulp.task("peerinst-styles-auth", function() {
             "iOS>=8",
             "ie 11",
             "Safari 9.1",
-            "not dead"
-          ]
-        })
-      ])
+            "not dead",
+          ],
+        }),
+      ]),
     )
     .pipe(
       rename(function(path) {
         path.extname = ".min.css";
-      })
+      }),
     )
     .pipe(sourcemaps.write("."))
     .pipe(gulp.dest("peerinst/static/auth/css"));
@@ -173,7 +173,7 @@ gulp.task("peerinst-scripts-index", function() {
       if (err) {
         console.log("Error: " + err);
       }
-    }
+    },
   );
 });
 
@@ -187,7 +187,20 @@ gulp.task("peerinst-scripts-group", function() {
       if (err) {
         console.log("Error: " + err);
       }
-    }
+    },
+  );
+});
+gulp.task("peerinst-scripts-student", function() {
+  const runCommand = require("child_process").execSync;
+  runCommand(
+    "./node_modules/.bin/rollup -c ./rollup/peerinst/student-rollup.config.js",
+    function(err, stdout, stderr) {
+      console.log("Output: " + stdout);
+      console.log("Error: " + stderr);
+      if (err) {
+        console.log("Error: " + err);
+      }
+    },
   );
 });
 
@@ -201,7 +214,7 @@ gulp.task("peerinst-scripts-ajax", function() {
       if (err) {
         console.log("Error: " + err);
       }
-    }
+    },
   );
 });
 
@@ -215,7 +228,7 @@ gulp.task("peerinst-scripts-search", function() {
       if (err) {
         console.log("Error: " + err);
       }
-    }
+    },
   );
 });
 
@@ -223,9 +236,10 @@ gulp.task("peerinst-scripts", function(callback) {
   runSequence(
     "peerinst-scripts-index",
     "peerinst-scripts-group",
+    "peerinst-scripts-student",
     "peerinst-scripts-ajax",
     "peerinst-scripts-search",
-    callback
+    callback,
   );
 });
 
@@ -236,7 +250,7 @@ gulp.task("peerinst-build", function(callback) {
     "peerinst-styles-student",
     "peerinst-styles-auth",
     "peerinst-scripts",
-    callback
+    callback,
   );
 });
 
@@ -247,8 +261,8 @@ gulp.task("tos-styles", function() {
     .pipe(
       sass({
         outputStyle: "compressed",
-        includePaths: "./node_modules"
-      })
+        includePaths: "./node_modules",
+      }),
     )
     .pipe(
       postcss([
@@ -258,10 +272,10 @@ gulp.task("tos-styles", function() {
             "iOS>=8",
             "ie 11",
             "Safari 9.1",
-            "not dead"
-          ]
-        })
-      ])
+            "not dead",
+          ],
+        }),
+      ]),
     )
     .pipe(concat("styles.min.css"))
     .pipe(sourcemaps.write("."))
@@ -278,7 +292,7 @@ gulp.task("tos-scripts-tos", function() {
       if (err) {
         console.log("Error: " + err);
       }
-    }
+    },
   );
 });
 
@@ -292,7 +306,7 @@ gulp.task("tos-scripts-email", function() {
       if (err) {
         console.log("Error: " + err);
       }
-    }
+    },
   );
 });
 
@@ -314,32 +328,40 @@ gulp.task("watch", function() {
   gulp.watch("./tos/static/tos/js/email.js", ["tos-scripts-email"]);
   gulp.watch("./peerinst/static/peerinst/css/*.scss", ["peerinst-styles"]);
   gulp.watch("./peerinst/static/peerinst/css/group/*.scss", [
-    "peerinst-styles-group"
+    "peerinst-styles-group",
   ]);
   gulp.watch("./peerinst/static/peerinst/css/student/*.scss", [
-    "peerinst-styles-student"
+    "peerinst-styles-student",
   ]);
   gulp.watch("./peerinst/static/auth/css/*.scss", ["peerinst-styles-auth"]);
   gulp.watch(
     [
       "./peerinst/static/peerinst/js/*.js",
       "!./peerinst/static/peerinst/js/group.js",
-      "!./peerinst/static/peerinst/js/*.min.js"
+      "!./peerinst/static/peerinst/js/student.js",
+      "!./peerinst/static/peerinst/js/*.min.js",
     ],
-    ["peerinst-scripts-index"]
+    ["peerinst-scripts-index"],
   );
   gulp.watch(
     [
       "./peerinst/static/peerinst/js/_group/*.js",
-      "./peerinst/static/peerinst/js/group.js"
+      "./peerinst/static/peerinst/js/group.js",
     ],
-    ["peerinst-scripts-group"]
+    ["peerinst-scripts-group"],
+  );
+  gulp.watch(
+    [
+      "./peerinst/static/peerinst/js/_student/*.js",
+      "./peerinst/static/peerinst/js/student.js",
+    ],
+    ["peerinst-scripts-student"],
   );
   gulp.watch(
     [
       "./peerinst/static/peerinst/js/_ajax/*.js",
-      "./peerinst/static/peerinst/js/ajax.js"
+      "./peerinst/static/peerinst/js/ajax.js",
     ],
-    ["peerinst-scripts-ajax"]
+    ["peerinst-scripts-ajax"],
   );
 });

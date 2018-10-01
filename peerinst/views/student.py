@@ -12,8 +12,9 @@ from django.shortcuts import render
 from django.template.response import TemplateResponse
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_http_methods
+import json
 
-from ..models import Student
+from ..models import Student, StudentGroup
 from ..students import authenticate_student
 
 
@@ -77,3 +78,61 @@ def student_page(req, token=None):
     context = {"student": student}
 
     return render(req, "peerinst/student/index.html", context)
+
+
+@require_http_methods(["POST"])
+def leave_group(req):
+    try:
+        data = json.loads(req.body)
+    except ValueError:
+        resp = TemplateResponse(
+            req,
+            "400.html",
+            context={"message": _("Wrong data type was sent.")},
+        )
+        return HttpResponseBadRequest(resp.render()), None
+
+    try:
+        username = data["username"]
+        group_name = data["group_name"]
+    except KeyError:
+        resp = TemplateResponse(
+            req,
+            "400.html",
+            context={"message": _("There are missing parameters.")},
+        )
+        return HttpResponseBadRequest(resp.render()), None
+
+    try:
+        student = Student.objects.get(student__username=username)
+    except Student.DoesNotExist:
+        resp = TemplateResponse(
+            req,
+            "400.html",
+            context={
+                "message": _(
+                    "The student doesn't seem to exist. Refresh the page and "
+                    "try again"
+                )
+            },
+        )
+        return HttpResponseBadRequest(resp.render())
+
+    try:
+        group = StudentGroup.objects.get(name=group_name)
+    except StudentGroup.DoesNotExist:
+        resp = TemplateResponse(
+            req,
+            "400.html",
+            context={
+                "message": _(
+                    "The group doesn't seem to exist. Refresh the page and "
+                    "try again"
+                )
+            },
+        )
+        return HttpResponseBadRequest(resp.render())
+
+    student.groups.remove(group)
+
+    return HttpResponse()
