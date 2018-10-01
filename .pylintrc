@@ -1,5 +1,11 @@
 [MESSAGES CONTROL]
 disable=
+<<<<<<< Updated upstream
   no-member,
   missing-docstring,
   invalid-name
+=======
+  missing-docstring,
+  invalid-name,
+  no-member
+>>>>>>> Stashed changes

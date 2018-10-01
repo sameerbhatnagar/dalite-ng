@@ -653,24 +653,7 @@ class Student(models.Model):
             username = self.student.username
             user_email = self.student.email
             token = create_student_token(username, user_email)
-            groups = self.groups.all()
-            assignments = [
-                StudentGroupAssignment.objects.filter(group=group)
-                for group in groups
-            ]
-            links = [
-                [
-                    reverse(
-                        "live",
-                        kwargs={
-                            "assignment_hash": assignment.hash,
-                            "token": token,
-                        },
-                    )
-                    for assignment in group
-                ]
-                for group in assignments
-            ]
+            link = reverse("student-page", kwargs={"token": token})
 
             if host.startswith("localhost") or host.startswith("127.0.0.1"):
                 protocol = "http"
@@ -679,34 +662,12 @@ class Student(models.Model):
 
             subject = "Sign in to your myDALITE account"
             message = (
-                "Go to any of your assignments by clicking the links below:\n"
-                "\n".join(
-                    "\n".join(
-                        ["Group: {}".format(group.title)]
-                        + [
-                            "{}: {}{}{}".format(
-                                a.assignment.title, protocol, host, l
-                            )
-                            for a, l in zip(assignment, link)
-                        ]
-                    )
-                    for group, assignment, link in zip(
-                        groups, assignments, links
-                    )
-                )
+                " Sign in to your myDALITE accout by clicking the link "
+                "below:\n"
+                "{}://{}{}".format(protocol, host, link)
             )
-            groups = [
-                {
-                    "title": group.title,
-                    "assignments": [
-                        {"title": a.assignment.title, "link": l}
-                        for a, l in zip(assignment, link)
-                    ],
-                }
-                for group, assignment, link in zip(groups, assignments, links)
-            ]
             template = "students/email_signin.html"
-            context = {"groups": groups, "host": host, "protocol": protocol}
+            context = {"host": host, "protocol": protocol, "link": link}
 
             try:
                 send_mail(

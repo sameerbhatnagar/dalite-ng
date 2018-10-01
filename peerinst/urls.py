@@ -224,7 +224,8 @@ def old_patterns():
             name="teacher-blinks",
         ),
         url(
-            r"^teacher/favourite", views.teacher_toggle_favourite,
+            r"^teacher/favourite",
+            views.teacher_toggle_favourite,
             name="teacher-toggle-favourite",
         ),
         url(
@@ -470,7 +471,12 @@ def student_patterns():
             r"^assignment-complete/$",
             views.finish_assignment,
             name="finish-assignment",
-        )
+        ),
+        url(
+            r"^student/(?:(?P<token>[0-9A-Za-z=_-]+)/)?$",
+            views.student.student_page,
+            name="student-page",
+        ),
     ]
 
 
