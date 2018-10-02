@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import json
+
 from django.contrib.auth import login, logout
 from django.contrib.auth.models import User
 from django.http import (
@@ -12,7 +14,6 @@ from django.shortcuts import render
 from django.template.response import TemplateResponse
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_http_methods
-import json
 
 from ..models import Student, StudentGroup
 from ..students import authenticate_student
@@ -90,7 +91,7 @@ def leave_group(req):
             "400.html",
             context={"message": _("Wrong data type was sent.")},
         )
-        return HttpResponseBadRequest(resp.render()), None
+        return HttpResponseBadRequest(resp.render())
 
     try:
         username = data["username"]
@@ -101,7 +102,7 @@ def leave_group(req):
             "400.html",
             context={"message": _("There are missing parameters.")},
         )
-        return HttpResponseBadRequest(resp.render()), None
+        return HttpResponseBadRequest(resp.render())
 
     try:
         student = Student.objects.get(student__username=username)
