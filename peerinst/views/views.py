@@ -2386,7 +2386,7 @@ def question_search(request):
             )
         )
 
-    if request.method == "GET":
+    if request.method == "GET" and request.user.is_authenticated():
         page = request.GET.get("page", default=1)
         type = request.GET.get("type", default=None)
         id = request.GET.get("id", default=None)
