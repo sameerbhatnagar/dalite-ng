@@ -5,11 +5,11 @@ import base64
 import itertools
 import smtplib
 import string
-
 from datetime import datetime
 
 import pytz
 from django.conf import settings
+from django.contrib import admin
 from django.contrib.auth.models import User
 from django.core import exceptions
 from django.core.exceptions import ValidationError
@@ -552,6 +552,12 @@ class StudentGroup(models.Model):
 class Student(models.Model):
     student = models.OneToOneField(User, on_delete=models.CASCADE)
     groups = models.ManyToManyField(StudentGroup, blank=True)
+    student_groups = models.ManyToManyField(
+        StudentGroup,
+        blank=True,
+        through="StudentGroupMembership",
+        related_name="groups_new",
+    )
 
     def __unicode__(self):
         return self.student.username
@@ -708,6 +714,52 @@ class Student(models.Model):
                     if not assignment.is_expired():
                         # Just send active assignments
                         assignment_.send_email(host, "new_assignment")
+
+    def add_group(self, group):
+        try:
+            membership = StudentGroupMembership.objects.get(
+                student=self, group=group
+            )
+            membership.current_member = True
+            membership.save()
+        except StudentGroupMembership.DoesNotExist:
+            StudentGroupMembership.objects.create(
+                student=self, group=group, current_member=True
+            )
+
+    def leave_group(self, group):
+        try:
+            membership = StudentGroupMembership.objects.get(
+                student=self, group=group
+            )
+            membership.current_member = False
+            membership.save()
+        except StudentGroupMembership.DoesNotExist:
+            pass
+
+    @property
+    def current_groups(self):
+        return [
+            g.group
+            for g in StudentGroupMembership.objects.filter(
+                student=self, current_member=True
+            )
+        ]
+
+    @property
+    def old_groups(self):
+        return [
+            g.group
+            for g in StudentGroupMembership.objects.filter(
+                student=self, current_member=False
+            )
+        ]
+
+
+class StudentGroupMembership(models.Model):
+    student = models.ForeignKey(Student)
+    group = models.ForeignKey(StudentGroup)
+    current_member = models.BooleanField(default=True)
 
 
 class Institution(models.Model):

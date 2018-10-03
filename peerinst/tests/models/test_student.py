@@ -24,6 +24,16 @@ from ..generators import (
 MAX_USERNAME_LENGTH = 30
 
 
+@pytest.fixture
+def student():
+    return add_students(new_students(1))[0]
+
+
+@pytest.fixture
+def group():
+    return add_groups(new_groups(1))[0]
+
+
 @pytest.mark.django_db
 def test_get_or_create_new():
     data = new_students(1)[0]
@@ -56,9 +66,7 @@ def test_get_or_create_get():
 
 
 @pytest.mark.django_db
-def test_send_confirmation_email():
-    student = add_students(new_students(1))[0]
-    group = add_groups(new_groups(1))[0]
+def test_send_confirmation_email(student, group):
 
     err = student.send_confirmation_email(group, "localhost")
     assert err is None
@@ -69,10 +77,9 @@ def test_send_confirmation_email():
 
 
 @pytest.mark.django_db
-def test_send_confirmation_email_with_localhost():
-    student_ = new_students(1)
-    student_[0]["email"] = "fake-email@localhost"
-    student = add_students(student_)[0]
+def test_send_confirmation_email_with_localhost(student, group):
+    student.student.email = "fake-email@localhost"
+    student.student.save()
     group = add_groups(new_groups(1))[0]
 
     err = student.send_confirmation_email(group, "localhost")
@@ -82,84 +89,11 @@ def test_send_confirmation_email_with_localhost():
 
 
 @pytest.mark.django_db
-def test_send_signin_email_no_group():
-    student = add_students(new_students(1))[0]
+def test_send_signin_email_with_localhost(student):
+    student.student.email = "fake-email@localhost"
+    student.student.save()
 
     err = student.send_signin_email("localhost")
-    assert err is None
-
-    assert len(mail.outbox) == 1
-
-    assert mail.outbox[0].subject == "Sign in to your myDALITE account"
-    assert not any(
-        line.startswith("Group: ")
-        for line in mail.outbox[0]
-        .message()
-        .get_payload()[0]
-        .as_string()
-        .split("\n")
-    )
-
-
-@pytest.mark.django_db
-def test_send_signin_email_single_group_no_assignment():
-    student = add_students(new_students(1))[0]
-    group = add_groups(new_groups(1))[0]
-    student.groups.add(group)
-
-    err = student.send_signin_email("localhost")
-    assert err is None
-
-    assert len(mail.outbox) == 1
-
-    assert mail.outbox[0].subject == "Sign in to your myDALITE account"
-    assert group.title in mail.outbox[0].message().get_payload()[0].as_string()
-
-
-@pytest.mark.django_db
-def test_send_signin_email_multiple_group_no_assignment():
-    student = add_students(new_students(1))[0]
-    groups = add_groups(new_groups(5))
-    for group in groups:
-        student.groups.add(group)
-
-    err = student.send_signin_email("localhost")
-    assert err is None
-
-    assert len(mail.outbox) == 1
-
-    assert mail.outbox[0].subject == "Sign in to your myDALITE account"
-    for group in groups:
-        assert (
-            group.title
-            in mail.outbox[0].message().get_payload()[0].as_string()
-        )
-
-
-@pytest.mark.django_db
-def test_send_signin_email_single_group_single_assignment():
-    student = add_students(new_students(1))[0]
-    group = add_groups(new_groups(1))[0]
-    student.groups.add(group)
-
-    err = student.send_signin_email("localhost")
-    assert err is None
-
-    assert len(mail.outbox) == 1
-
-    assert mail.outbox[0].subject == "Sign in to your myDALITE account"
-    assert group.title in mail.outbox[0].message().get_payload()[0].as_string()
-
-
-@pytest.mark.django_db
-def test_send_signin_email_with_localhost():
-    student_ = new_students(1)
-    student_[0]["email"] = "random-user@localhost"
-
-    student = add_students(student_)[0]
-
-    err = student.send_signin_email("localhost")
-
     assert err is None
 
     assert not mail.outbox
@@ -187,3 +121,31 @@ def test_send_missing_assignments():
     assert StudentAssignment.objects.filter(
         student=student, group_assignment=group_assignments[-1]
     ).exists()
+
+
+@pytest.mark.django_db
+def test_add_group(student, group):
+    student.add_group(group)
+
+    assert group in student.student_groups.all()
+    assert group in student.current_groups
+    assert group not in student.old_groups
+
+
+@pytest.mark.django_db
+def test_leave_group(student, group):
+    student.add_group(group)
+    student.leave_group(group)
+
+    assert group in student.student_groups.all()
+    assert group not in student.current_groups
+    assert group in student.old_groups
+
+
+@pytest.mark.django_db
+def test_leave_group_doesnt_exist(student, group):
+    student.leave_group(group)
+
+    assert group not in student.student_groups.all()
+    assert group not in student.current_groups
+    assert group not in student.old_groups
