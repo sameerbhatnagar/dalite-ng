@@ -195,21 +195,12 @@ def navigate_assignment(request, assignment_id, question_id, direction, index):
 
     hash = request.session.get("assignment")
     if hash is None:
-        assignment = get_object_or_404(Assignment, pk=assignment_id)
-        questions = list(assignment.questions.all())
-        current_question = get_object_or_404(Question, pk=question_id)
-        idx = questions.index(current_question)
-
-        if direction == "next":
-            if idx < len(questions) - 1:
-                new_question = questions[idx + 1]
-            else:
-                new_question = questions[0]
-        else:
-            if idx > 0:
-                new_question = questions[idx - 1]
-            else:
-                new_question = questions[-1]
+        resp = TemplateResponse(
+            request,
+            "400.html",
+            context={"message": _("Try logging in again using the link to this assignment sent via email.")},
+        )
+        return HttpResponseBadRequest(resp.render())
 
     else:
 
@@ -226,7 +217,12 @@ def navigate_assignment(request, assignment_id, question_id, direction, index):
         )
 
         if new_question is None:
-            raise Http404()
+            resp = TemplateResponse(
+                request,
+                "400.html",
+                context={"message": _("Try logging in again using the link to this assignment sent via email.")},
+            )
+            return HttpResponseBadRequest(resp.render())
 
         questions = assignment.questions
         idx = questions.index(new_question)
@@ -239,7 +235,7 @@ def navigate_assignment(request, assignment_id, question_id, direction, index):
         reverse(
             "question",
             kwargs={
-                "assignment_id": assignment_id,
+                "assignment_id": assignment.assignment.pk,
                 "question_id": new_question.id,
             },
         )

@@ -169,6 +169,7 @@ class InstitutionAdmin(admin.ModelAdmin):
 @admin.register(Assignment)
 class AssignmentAdmin(admin.ModelAdmin):
     filter_horizontal = ["questions"]
+    search_fields = ["identifier"]
 
 
 def publish_answers(modeladmin, request, queryset):
