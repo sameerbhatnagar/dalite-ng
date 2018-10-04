@@ -128,6 +128,9 @@
         {% trans 'Student progress' %}
       </h2>
       <div class="foldable--body">
+        <div class="admin-link">
+          <a href="{% url 'report_selector' %}">{% trans 'Generate report' %}</a>
+        </div>
         <ul id="student-progress" data-url="{% url 'get-assignment-student-progress' assignment.hash %}" data-showing="false" class="mdc-list mdc-list--two-line mdc-list--non-interactive">
           <li class="mdc-list-item">
             <span></span>
