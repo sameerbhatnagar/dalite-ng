@@ -1056,7 +1056,9 @@ class QuestionStartView(QuestionFormView):
     """
 
     template_name = "peerinst/question_start.html"
-    form_class = forms.FirstAnswerForm
+
+    def get_form_class(self):
+        return forms.FirstAnswerForm
 
     def get_form_kwargs(self):
         kwargs = super(QuestionStartView, self).get_form_kwargs()

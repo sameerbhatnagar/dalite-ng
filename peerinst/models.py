@@ -340,6 +340,15 @@ class Question(models.Model):
         verbose_name_plural = _("questions")
 
 
+class OpenTextQuestion(Question):
+
+    def is_correct():
+        return True
+
+    class Meta:
+        proxy = True
+
+
 class AnswerChoice(models.Model):
     question = models.ForeignKey(Question)
     text = models.CharField(_("Text"), max_length=500)
