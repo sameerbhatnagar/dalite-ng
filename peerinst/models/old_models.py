@@ -23,9 +23,9 @@ from django.utils.encoding import smart_bytes
 from django.utils.translation import ugettext_lazy as _
 from jsonfield import JSONField
 
-from . import rationale_choice
-from .students import create_student_token, get_student_username_and_password
-from .utils import create_token, verify_token
+from .. import rationale_choice
+from ..students import create_student_token, get_student_username_and_password
+from ..utils import create_token, verify_token
 
 
 def no_hyphens(value):

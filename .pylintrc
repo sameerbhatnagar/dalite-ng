@@ -1,7 +1,13 @@
 [MESSAGES CONTROL]
 disable=
   arguments-differ,
+  bad-continuation,
   invalid-name,
   missing-docstring,
+  no-else-return,
+  no-init,
   no-member,
-  redefined-outer-name
+  no-method-argument,
+  old-style-class,
+  redefined-outer-name,
+  too-few-public-methods
