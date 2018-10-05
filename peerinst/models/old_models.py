@@ -619,7 +619,7 @@ class Student(models.Model):
                 kwargs={"group_hash": hash_, "token": token},
             )
 
-            if host == "localhost" or host == "127.0.0.1":
+            if host.startswith("localhost") or host.startswith("127.0.0.1"):
                 protocol = "http"
             else:
                 protocol = "https"
