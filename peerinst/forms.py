@@ -51,7 +51,6 @@ class FirstAnswerForm(forms.Form):
     )
 
     def __init__(self, answer_choices, *args, **kwargs):
-        print([pair[1] for pair in answer_choices])
         choice_texts = [
             mark_safe(
                 ". ".join(
@@ -69,6 +68,15 @@ class FirstAnswerForm(forms.Form):
         self.base_fields["first_answer_choice"].choices = enumerate(
             choice_texts, 1
         )
+        forms.Form.__init__(self, *args, **kwargs)
+
+
+class RationaleOnlyForm(forms.Form):
+    rationale = forms.CharField(
+        widget=forms.Textarea(attrs={"cols": 100, "rows": 7})
+    )
+
+    def __init__(self, answer_choices, *args, **kwargs):
         forms.Form.__init__(self, *args, **kwargs)
 
 

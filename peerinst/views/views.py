@@ -1031,6 +1031,7 @@ class QuestionFormView(QuestionMixin, FormView):
 
     def form_invalid(self, form):
         self.submission_error()
+        print(form)
         return super(QuestionFormView, self).form_invalid(form)
 
     def get_success_url(self):
@@ -1058,7 +1059,7 @@ class QuestionStartView(QuestionFormView):
     template_name = "peerinst/question_start.html"
 
     def get_form_class(self):
-        return forms.FirstAnswerForm
+        return self.question.get_start_form_class()
 
     def get_form_kwargs(self):
         kwargs = super(QuestionStartView, self).get_form_kwargs()
@@ -1069,20 +1070,8 @@ class QuestionStartView(QuestionFormView):
         return kwargs
 
     def form_valid(self, form):
-        first_answer_choice = int(form.cleaned_data["first_answer_choice"])
-        correct = self.question.is_correct(first_answer_choice)
-        rationale = form.cleaned_data["rationale"]
-        self.stage_data.update(
-            first_answer_choice=first_answer_choice,
-            rationale=rationale,
-            completed_stage="start",
-        )
-        self.emit_event(
-            "problem_check",
-            first_answer_choice=first_answer_choice,
-            success="correct" if correct else "incorrect",
-            rationale=rationale,
-        )
+        self.question.start_form_valid(self, form)
+
         return super(QuestionStartView, self).form_valid(form)
 
 
@@ -1384,6 +1373,24 @@ class QuestionSummaryView(QuestionMixin, TemplateView):
         return redirect(request.path)
 
 
+class RationaleOnlyQuestionSummaryView(QuestionMixin, TemplateView):
+    """Show a summary of answers to the student and submit the data to the database."""
+
+    template_name = "peerinst/question_summary.html"
+
+    def get_context_data(self, **kwargs):
+        context = super(RationaleOnlyQuestionSummaryView, self).get_context_data(**kwargs)
+        context.update(
+            rationale=self.answer.rationale,
+        )
+        self.send_grade()
+        return context
+
+    # If we get here via POST, it is likely from submitting an answer to a question that has already been answered.  Simply redirect here as GET.
+    def post(self, request, *args, **kwargs):
+        return redirect(request.path)
+
+
 class HeartBeatUrl(View):
     def get(self, request):
 
@@ -1551,6 +1558,11 @@ def question(request, assignment_id, question_id):
     # Collect common objects required for the view
     assignment = get_object_or_404(models.Assignment, pk=assignment_id)
     question = get_object_or_404(models.Question, pk=question_id)
+
+    # Reload question through proxy based on type, if needed
+    if question.type == "RO":
+        question = get_object_or_404(models.RationaleOnlyQuestion, pk=question_id)
+
     custom_key = unicode(assignment.pk) + ":" + unicode(question.pk)
     stage_data = SessionStageData(request.session, custom_key)
     user_token = request.user.username

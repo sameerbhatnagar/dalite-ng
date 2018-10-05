@@ -72,6 +72,12 @@ class Discipline(models.Model):
         verbose_name_plural = _("disciplines")
 
 
+QUESTION_TYPES = (
+    ('PI', 'PeerInst'),
+    ('RO', 'RationaleOnly'),
+)
+
+
 class QuestionManager(models.Manager):
     def get_by_natural_key(self, title):
         return self.get(title=title)
@@ -88,6 +94,7 @@ class Question(models.Model):
             "is available."
         ),
     )
+    type = models.CharField(max_length=2, choices=QUESTION_TYPES, default='PI')
     title = models.CharField(
         _("Question title"),
         unique=True,
@@ -225,6 +232,27 @@ class Question(models.Model):
             return "{} - {}".format(self.discipline, self.title)
         return self.title
 
+    def get_start_form_class(self):
+        from .forms import FirstAnswerForm
+        return FirstAnswerForm
+
+    def start_form_valid(request, view, form):
+        first_answer_choice = int(form.cleaned_data["first_answer_choice"])
+        correct = view.question.is_correct(first_answer_choice)
+        rationale = form.cleaned_data["rationale"]
+        view.stage_data.update(
+            first_answer_choice=first_answer_choice,
+            rationale=rationale,
+            completed_stage="start",
+        )
+        view.emit_event(
+            "problem_check",
+            first_answer_choice=first_answer_choice,
+            success="correct" if correct else "incorrect",
+            rationale=rationale,
+        )
+        return
+
     def clean(self):
         errors = {}
         fields = ["image", "video_url"]
@@ -340,13 +368,49 @@ class Question(models.Model):
         verbose_name_plural = _("questions")
 
 
-class OpenTextQuestion(Question):
+class RationaleOnlyManager(models.Manager):
+    def get_by_natural_key(self, title):
+        return self.get(title=title)
 
-    def is_correct():
-        return True
+    def get_queryset(self):
+        return super(RationaleOnlyManager, self).get_queryset().filter(
+            type='RO')
 
+
+class RationaleOnlyQuestion(Question):
+    objects = RationaleOnlyManager()
     class Meta:
         proxy = True
+
+    def start_form_valid(request, view, form):
+        rationale = form.cleaned_data["rationale"]
+
+        answer = Answer(
+            question=view.question,
+            assignment=view.assignment,
+            first_answer_choice=6,
+            rationale=rationale,
+            user_token=view.user_token,
+            time=timezone.now(),
+        )
+        answer.save()
+
+        view.stage_data.clear()
+        
+        view.emit_event(
+            "problem_check",
+            success=True,
+            rationale=rationale,
+        )
+
+        return
+
+    def is_correct(*args):
+        return True
+
+    def get_start_form_class(self):
+        from .forms import RationaleOnlyForm
+        return RationaleOnlyForm
 
 
 class AnswerChoice(models.Model):

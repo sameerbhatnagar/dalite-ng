@@ -2,6 +2,7 @@
 {% load i18n %}
 
 {% block answers %}
+{% if question.type == "PI" %}
 <ul id="answer-choices">
   {% for label, choice in answer_choices %}
   <li class="dense-list {% if label == first_choice_label %}first-choice{% endif %}{% if label == second_choice_label %} second-choice{% endif %}">{{ label }}. {{ choice|safe }}
@@ -31,4 +32,17 @@
   </p>
   <blockquote id="your-rationale">{{ rationale }}</blockquote>
 </div>
+{% endif %}
+
+{% if question.type == "RO" %}
+<div id="your-answer">
+  <p class="mdc-typography--body1">
+    {% blocktrans %}
+    Your rationale:
+    {% endblocktrans %}
+  </p>
+  <blockquote id="your-rationale">{{ rationale }}</blockquote>
+</div>
+{% endif %}
+
 {% endblock %}
