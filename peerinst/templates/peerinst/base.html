@@ -146,10 +146,12 @@
   {% compress js %}
   <script src="{% static 'peerinst/js/index.min.js' %}"></script>
   <script>
-  var drawer = new bundle.drawer.MDCTemporaryDrawer(document.querySelector('.mdc-drawer--temporary'));
-  document.querySelector('.ion-md-menu').addEventListener('click', function() {
-    drawer.open = true;
-  });
+  if (document.querySelector('.mdc-drawer--temporary')){
+    var drawer = new bundle.drawer.MDCTemporaryDrawer(document.querySelector('.mdc-drawer--temporary'));
+    document.querySelector('.ion-md-menu').addEventListener('click', function() {
+      drawer.open = true;
+    });
+  }
   bundle.cornerGraphic('#corner', 'switchLanguage', {% if LANGUAGE_CODE == 'en' %}'FR'{% else %}'EN'{% endif %}, 'fill-primary');
   </script>
   {% endcompress %}

@@ -323,9 +323,7 @@ def welcome(request):
         if teacher_group:
             if teacher_group not in teacher.user.groups.all():
                 teacher.user.groups.add(teacher_group)
-        return HttpResponseRedirect(
-            reverse("browse-database")
-        )
+        return HttpResponseRedirect(reverse("browse-database"))
     except ObjectDoesNotExist:
         return HttpResponseRedirect(reverse("assignment-list"))
 
@@ -2376,11 +2374,19 @@ def blink_waiting(request, username, assignment=""):
 
 
 # AJAX functions
-@login_required
 def question_search(request):
     from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
-    if request.method == "GET" and request.user.teacher:
+    try:
+        teacher = Teacher.objects.get(user=request.user)
+    except:
+        return HttpResponse(
+            _(
+                "You must be logged in as a teacher to search the database.  Log in again with a teacher account."
+            )
+        )
+
+    if request.method == "GET" and request.user.is_authenticated():
         page = request.GET.get("page", default=1)
         type = request.GET.get("type", default=None)
         id = request.GET.get("id", default=None)
@@ -2461,8 +2467,6 @@ def question_search(request):
             query_dict["count"] = len(query_dict["questions"])
             query.append(query_dict)
 
-        print(query_dict)
-
         return TemplateResponse(
             request,
             "peerinst/question_search_results.html",
@@ -2477,7 +2481,9 @@ def question_search(request):
             },
         )
     else:
-        return HttpResponseRedirect(reverse("access_denied_and_logout"))
+        return HttpResponse(
+            _("An error occurred.  Retry search after logging in again.")
+        )
 
 
 def blink_get_current_url(request, username):

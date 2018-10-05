@@ -1069,19 +1069,24 @@ class StudentGroupAssignment(models.Model):
 
         if idx is None:
             questions = self.questions
-            idx = questions.index(current_question)
             try:
-                if after:
-                    if idx < len(questions) - 1:
-                        question = questions[idx + 1]
+                idx = questions.index(current_question)
+
+                try:
+                    if after:
+                        if idx < len(questions) - 1:
+                            question = questions[idx + 1]
+                        else:
+                            question = None
                     else:
-                        question = None
-                else:
-                    if idx > 0:
-                        question = questions[idx - 1]
-                    else:
-                        question = None
-            except IndexError:
+                        if idx > 0:
+                            question = questions[idx - 1]
+                        else:
+                            question = None
+                except IndexError:
+                    question = None
+
+            except ValueError:
                 question = None
 
         else:
