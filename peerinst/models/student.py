@@ -129,7 +129,7 @@ class Student(models.Model):
             username = self.student.username
             user_email = self.student.email
             token = create_student_token(username, user_email)
-            link = reverse("student-page", kwargs={"token": token})
+            link = "{}?token={}".format(reverse("student-page"), token)
 
             if host.startswith("localhost") or host.startswith("127.0.0.1"):
                 protocol = "http"

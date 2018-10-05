@@ -16,15 +16,17 @@ from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_http_methods
 
 from ..models import Student, StudentGroup
-from ..students import authenticate_student
+from ..students import authenticate_student, get_student_username_and_password
 
 
 @require_http_methods(["GET"])
-def student_page(req, token=None):
+def index_page(req):
     """
     Main student page. Accessed through a link sent by email containing
     a token or without the token for a logged in student.
     """
+
+    token = req.GET.get("token")
 
     # get student from token or from logged in user
     if token is None:
@@ -137,3 +139,41 @@ def leave_group(req):
     student.groups.remove(group)
 
     return HttpResponse()
+
+
+def login_page(req):
+    return render(req, "registration/student_login.html")
+
+
+@require_http_methods(["POST"])
+def send_signin_link(req):
+    try:
+        email = req.POST["email"]
+    except KeyError:
+        resp = TemplateResponse(
+            req,
+            "400.html",
+            context={"message": _("There are missing parameters.")},
+        )
+        return HttpResponseBadRequest(resp.render())
+
+    student = Student.objects.filter(student__email=email)
+    if student:
+        if len(student) == 1:
+            student = student[0]
+        else:
+            username, __ = get_student_username_and_password(email)
+            student = student.filter(student__username=username).first()
+        if student:
+            student.student.is_active = True
+            err = student.send_signin_email(req.get_host())
+            if err is None:
+                context = {}
+            else:
+                context = {"missing_student": True}
+        else:
+            context = {"missing_student": True}
+    else:
+        context = {"missing_student": True}
+
+    return render(req, "registration/student_login_confirmation.html", context)

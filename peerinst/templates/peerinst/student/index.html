@@ -18,12 +18,16 @@
     </h1>
 
     <div class="foldable foldable__unfolded">
-      <h2 class="foldable--title mdc-typography--display1 mdc-theme--secondary">{% trans 'Identity' %}</h2>
+      <h2 class="foldable--title mdc-typography--display1 mdc-theme--secondary">
+        {% trans 'Identity' %}
+      </h2>
       <div class="foldable--body">
         <ul class="mdc-list mdc-list--non-interactive">
           <li role="separator" class="mdc-list-divider"></li>
           <li class="mdc-list-item">
-            <span class="mdc-list-item__graphic mdc-theme--primary"><i class="material-icons md-48">account_circle</i></span>
+            <span class="mdc-list-item__graphic mdc-theme--primary">
+              <i class="material-icons md-48">account_circle</i>
+            </span>
             <span class="mdc-list-item__text">
               {{ student.student.email }}
             </span>
@@ -34,7 +38,9 @@
     </div>
 
     <div class="foldable foldable__unfolded">
-      <h2 class="foldable--title mdc-typography--display1 mdc-theme--secondary">{% trans 'Notifications' %}</h2>
+      <h2 class="foldable--title mdc-typography--display1 mdc-theme--secondary">
+        {% trans 'Notifications' %}
+      </h2>
       <div class="foldable--body">
       </div>
     </div>
@@ -86,6 +92,15 @@
             </div>
           </div>
           <div class="student-group--assignments">
+            {% if group.studentgroupassignment_set.all %}
+            {% else %}
+            No assignments yet
+            {% endif %}
+            <ul>
+              {% for assignment in group.studentgroupassignment_set.all %}
+              <li>{{ assignment.assignment.title }}</li>
+              {% endfor %}
+            </ul>
             
           </div>
         </div>

@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 from operator import add
-from functools import reduce
 
 # Backport of django 1.9 password validation
 import password_validation.views as password_views
@@ -452,19 +451,6 @@ def group_patterns():
     ]
 
 
-def auth_patterns():
-    return [
-        url(
-            r"^student-login/$", views.student_login_page, name="student-login"
-        ),
-        url(
-            r"^student-login-confirm/$",
-            views.student_send_signin_link,
-            name="student-send-signin-link",
-        ),
-    ]
-
-
 def student_patterns():
     return [
         url(
@@ -472,20 +458,23 @@ def student_patterns():
             views.finish_assignment,
             name="finish-assignment",
         ),
+        url(r"^student/$", views.student.index_page, name="student-page"),
         url(
-            r"^student/(?:(?P<token>[0-9A-Za-z=_-]+)/)?$",
-            views.student.student_page,
-            name="student-page",
-        ),
-        url(
-            r"^student/leave-group$",
+            r"^student/leave-group/$",
             views.student.leave_group,
             name="student-leave-group",
+        ),
+        url(
+            r"^student/login/$", views.student.login_page, name="student-login"
+        ),
+        url(
+            r"^student/login-confirm/$",
+            views.student.send_signin_link,
+            name="student-send-signin-link",
         ),
     ]
 
 
 urlpatterns = reduce(
-    add,
-    [old_patterns(), group_patterns(), auth_patterns(), student_patterns()],
+    add, [old_patterns(), group_patterns(), student_patterns()]
 )
