@@ -225,12 +225,7 @@ def navigate_assignment(request, assignment_id, question_id, direction, index):
             )
 
         except:
-            resp = TemplateResponse(
-                request,
-                "400.html",
-                context={"message": _("Try logging in again using the link to this assignment sent via email.")},
-            )
-            return HttpResponseBadRequest(resp.render())
+            raise PermissionDenied
 
     else:
 
