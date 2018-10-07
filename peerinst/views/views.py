@@ -528,9 +528,14 @@ class QuestionCreateView(
         return super(QuestionCreateView, self).form_valid(form)
 
     def get_success_url(self):
-        return reverse(
-            "answer-choice-form", kwargs={"question_id": self.object.pk}
-        )
+        if self.object.type == "RO":
+            return reverse(
+                "sample-answer-form", kwargs={"question_id": self.object.pk}
+            )
+        else:
+            return reverse(
+                "answer-choice-form", kwargs={"question_id": self.object.pk}
+            )
 
 
 class QuestionCloneView(QuestionCreateView):
@@ -637,9 +642,14 @@ class QuestionUpdateView(
         return context
 
     def get_success_url(self):
-        return reverse(
-            "answer-choice-form", kwargs={"question_id": self.object.pk}
-        )
+        if self.object.type == "RO":
+            return reverse(
+                "sample-answer-form", kwargs={"question_id": self.object.pk}
+            )
+        else:
+            return reverse(
+                "answer-choice-form", kwargs={"question_id": self.object.pk}
+            )
 
 
 @login_required
@@ -1381,10 +1391,10 @@ class RationaleOnlyQuestionSummaryView(QuestionMixin, TemplateView):
     template_name = "peerinst/question_summary.html"
 
     def get_context_data(self, **kwargs):
-        context = super(RationaleOnlyQuestionSummaryView, self).get_context_data(**kwargs)
-        context.update(
-            rationale=self.answer.rationale,
-        )
+        context = super(
+            RationaleOnlyQuestionSummaryView, self
+        ).get_context_data(**kwargs)
+        context.update(rationale=self.answer.rationale)
         self.send_grade()
         return context
 
@@ -1563,7 +1573,9 @@ def question(request, assignment_id, question_id):
 
     # Reload question through proxy based on type, if needed
     if question.type == "RO":
-        question = get_object_or_404(models.RationaleOnlyQuestion, pk=question_id)
+        question = get_object_or_404(
+            models.RationaleOnlyQuestion, pk=question_id
+        )
 
     custom_key = unicode(assignment.pk) + ":" + unicode(question.pk)
     stage_data = SessionStageData(request.session, custom_key)

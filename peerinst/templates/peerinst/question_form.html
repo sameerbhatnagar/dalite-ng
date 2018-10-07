@@ -349,12 +349,19 @@
       <div style="margin-top:20px;">
         {% if form %}
           {% if object %}
-          <span class="padded">
-            <form style="display:inline" id="next" action="{% url 'answer-choice-form' question_id=object.pk %}" method="get">
-              <button form="next" type="submit" class="mdc-button mdc-button--raised">Next</button>
-            </form>
-          </span>
-
+            {% if question.type == "PI" %}
+              <span class="padded">
+                <form style="display:inline" id="next" action="{% url 'answer-choice-form' question_id=object.pk %}" method="get">
+                  <button form="next" type="submit" class="mdc-button mdc-button--raised">Next</button>
+                </form>
+              </span>
+            {% else %}
+              <span class="padded">
+                <form style="display:inline" id="next" action="{% url 'sample-answer-form' question_id=question.id %}" method="get">
+                  <button form="next" type="submit" class="mdc-button mdc-button--raised">{% trans 'Next' %}</button>
+                </form>
+              </span>
+            {% endif %}
           <span class="padded">
             <input form="question-create-form" class="mdc-button mdc-button--raised" type="submit" value="Save and next" />
           </span>
@@ -387,6 +394,10 @@
   bundle.bindCheckbox();
   bundle.bindAjaxTextInputForm('show_discipline_form', 'discipline_form', "{% url 'discipline-create' %}");
   bundle.bindAjaxTextInputForm('show_category_form', 'category_form', "{% url 'category-create' %}");
+
+  $('#id_type').change(function(){
+    $('#next').find('button').attr('disabled', 'true');
+  });
 
   function limitFileSize() {
     'use strict';

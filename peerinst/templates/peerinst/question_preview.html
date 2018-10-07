@@ -3,18 +3,30 @@
 {% load staticfiles compress i18n add_class %}
 
 {% block extra_title %}
-<h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Step 3: Example answers' %}</h2>
+<h2 class="mdc-typography--display1 mdc-theme--secondary">
+  {% if question.type == "PI" %}
+    {% trans 'Step 3: Example answers' %}
+  {% else %}
+    {% trans 'Step 2: Preview' %}
+  {% endif %}
+</h2>
 
 <div class='field-container'>
   <div class='number-box'><span class='number'>?</span></div>
   <div class='field'>
     <p class="mdc-typography--body1"><small>
+      {% if question.type == "PI" %}
       {% blocktrans %}
       This is a preview of how the question looks in the student interface.  You can add example
       rationales here that will be shown as choices to students.  You should at least provide a few
       example rationales for the correct choices.  It's best if you provide a few rationales for each
       choice, even the incorrect ones.
       {% endblocktrans %}
+      {% else %}
+      {% blocktrans %}
+      This is a preview of how the question looks in the student interface.
+      {% endblocktrans %}
+      {% endif %}
     </small></p>
   </div>
 </div>
@@ -23,16 +35,19 @@
 {% block submit_button %}{% trans 'Submit example answer' %}{% endblock %}
 
 {% block extra_content %}
-{{ form.errors }}
-<hr class="simple-hr">
-<h3>{% trans 'Existing sample answers' %}</h3>
-<ul class="mdc-list">
-  {% for sample in question.answer_set.all|dictsort:'first_answer_choice' %}
-    {% if not sample.user_token %}
-      <li><span class='mdc-theme--primary bold'>{{ sample.first_answer_choice_label }}</span>: {{ sample.rationale|safe|striptags }}.</li>
-    {% endif %}
-  {% endfor %}
-</ul>
+{% if question.type == "PI" %}
+  {{ form.errors }}
+  <hr class="simple-hr">
+  <h3>{% trans 'Existing sample answers' %}</h3>
+  <ul class="mdc-list">
+    {% for sample in question.answer_set.all|dictsort:'first_answer_choice' %}
+      {% if not sample.user_token %}
+        <li><span class='mdc-theme--primary bold'>{{ sample.first_answer_choice_label }}</span>: {{ sample.rationale|safe|striptags }}.</li>
+      {% endif %}
+    {% endfor %}
+  </ul>
+{% endif %}
+
 <hr class="simple-hr">
 
 {% if user.teacher %}
@@ -57,9 +72,15 @@
 
 <div style="margin-top:20px;">
   <span class="padded">
-    <form style="display:inline" id="back" action="{% url 'answer-choice-form' question_id=question.id %}" method="get">
-      <button form="back" type="submit" class="mdc-button mdc-button--raised">Back</button>
-    </form>
+    {% if question.type == "PI" %}
+      <form style="display:inline" id="back" action="{% url 'answer-choice-form' question_id=question.id %}" method="get">
+        <button form="back" type="submit" class="mdc-button mdc-button--raised">Back</button>
+      </form>
+    {% else %}
+      <form style="display:inline" id="back" action="{% url 'question-update' pk=question.id %}" method="get">
+        <button form="back" type="submit" class="mdc-button mdc-button--raised">Back</button>
+      </form>
+    {% endif %}
   </span>
   <span class="padded">
     {% if user.teacher %}
@@ -73,3 +94,11 @@
 </div>
 
 {% endblock %}
+
+{% if question.type == "RO" %}
+{% block scripts %}
+<script>
+$('#answer-form').remove();
+</script>
+{% endblock %}
+{% endif %}
