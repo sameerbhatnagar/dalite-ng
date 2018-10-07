@@ -1031,7 +1031,6 @@ class QuestionFormView(QuestionMixin, FormView):
 
     def form_invalid(self, form):
         self.submission_error()
-        print(form)
         return super(QuestionFormView, self).form_invalid(form)
 
     def get_success_url(self):
@@ -1051,7 +1050,7 @@ class QuestionFormView(QuestionMixin, FormView):
 
 
 class QuestionStartView(QuestionFormView):
-    """Render a question with answer choices.
+    """Render a question with or without answer choices depending on type.
 
     The user can choose one answer and enter a rationale.
     """

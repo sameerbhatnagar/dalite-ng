@@ -385,23 +385,24 @@ class RationaleOnlyQuestion(Question):
     def start_form_valid(request, view, form):
         rationale = form.cleaned_data["rationale"]
 
+        # Set first_answer_choice to 0 to indicate null
         answer = Answer(
             question=view.question,
             assignment=view.assignment,
-            first_answer_choice=6,
+            first_answer_choice=0,
             rationale=rationale,
             user_token=view.user_token,
             time=timezone.now(),
         )
         answer.save()
 
-        view.stage_data.clear()
-        
         view.emit_event(
-            "problem_check",
-            success=True,
+            "save_problem_success",
+            success="correct",
             rationale=rationale,
+            grade=answer.get_grade(),
         )
+        view.stage_data.clear()
 
         return
 
