@@ -86,6 +86,23 @@
           <div class='field-container'>
             <div class='number-box'><span class='number'>3</span></div>
             <div class='field'>
+              <div class='mdc-form-field'>
+                <label for='id_type'>{{ form.type.label }}:</label>
+                <div class='mdc-select'>
+                  {{ form.type|add_class:"mdc-select__native-control" }}
+                  <div class="mdc-select__bottom-line"></div>
+                </div>
+              </div>
+              <p class="form-helper-text" aria-hidden="true">
+                {{ form.type.help_text|safe }}
+              </p>
+              {{ form.type.errors }}
+            </div>
+          </div>
+
+          <div class='field-container'>
+            <div class='number-box'><span class='number'>4</span></div>
+            <div class='field'>
               <div class='mdc-form-field' style="display:block;">
                 <label for='id_image'>{{ form.image.label }}</label>
               </div>
@@ -118,7 +135,7 @@
           </div>
 
           <div class='field-container'>
-            <div class='number-box flush-to-textbox'><span class='number'>4</span></div>
+            <div class='number-box flush-to-textbox'><span class='number'>5</span></div>
             <div class='field'>
               <div class="mdc-text-field mdc-text-field--outlined mdc-text-field--dense" data-mdc-auto-init="MDCTextField">
                 {{ form.video_url|add_class:"mdc-text-field__input" }}
@@ -138,7 +155,7 @@
           </div>
 
           <div class='field-container'>
-            <div class='number-box'><span class='number'>5</span></div>
+            <div class='number-box'><span class='number'>6</span></div>
             <div class='field'>
               <div class='mdc-form-field'>
                 <label for='id_answer_style'>{{ form.answer_style.label }}:</label>
@@ -158,7 +175,7 @@
           <h3>{% trans 'Indexing' %}</h3>
 
           <div class='field-container'>
-            <div class='number-box'><span class='number'>6</span></div>
+            <div class='number-box'><span class='number'>7</span></div>
             <div class='field'>
               <div id='discipline_form'>
                 {% include 'peerinst/discipline_select_form.html' %}
@@ -171,7 +188,7 @@
           </div>
 
           <div class='field-container'>
-            <div class='number-box'><span class='number'>7</span></div>
+            <div class='number-box'><span class='number'>8</span></div>
             <div class='field'>
               <div id='category_form'>
                 {% include 'peerinst/category_select_form.html' %}
@@ -186,7 +203,7 @@
           <h3>{% trans 'Options' %}</h3>
 
           <div class='field-container'>
-            <div class='number-box'><span class='number'>8</span></div>
+            <div class='number-box'><span class='number'>9</span></div>
             <div class='field'>
               <div class='mdc-form-field'>
                 <label for="id_fake_attributions">{{ form.fake_attributions.label }}?</label>
@@ -212,7 +229,7 @@
           </div>
 
           <div class='field-container'>
-            <div class='number-box'><span class='number'>9</span></div>
+            <div class='number-box'><span class='number'>10</span></div>
             <div class='field'>
               <div class='mdc-form-field'>
                 <label for="id_sequential_review">{{ form.sequential_review.label }}?</label>
@@ -238,7 +255,7 @@
           </div>
 
           <div class='field-container'>
-            <div class='number-box'><span class='number'>10</span></div>
+            <div class='number-box'><span class='number'>11</span></div>
             <div class='field'>
               <div class='mdc-form-field'>
                 <label for='id_discipline'>{{ form.rationale_selection_algorithm.label }}:</label>
@@ -255,7 +272,7 @@
           </div>
 
           <div class='field-container'>
-            <div class='number-box'><span class='number'>11</span></div>
+            <div class='number-box'><span class='number'>12</span></div>
             <div class='field'>
               <div class='mdc-form-field'>
                 <label for='id_discipline'>{{ form.grading_scheme.label }}:</label>
@@ -279,7 +296,7 @@
             <h3>{% trans 'Authorship' %}</h3>
 
             <div class='field-container'>
-              <div class='number-box'><span class='number'>12</span></div>
+              <div class='number-box'><span class='number'>13</span></div>
               <div class='field'>
                 <div class='mdc-form-field'>
                   <label for='id_collaborators'>{{ form.collaborators.label }}:</label>

@@ -508,6 +508,7 @@ class QuestionCreateView(
     fields = [
         "title",
         "text",
+        "type",
         "image",
         "image_alt_text",
         "video_url",
@@ -540,6 +541,7 @@ class QuestionCloneView(QuestionCreateView):
         question = get_object_or_404(models.Question, pk=self.kwargs["pk"])
         initial = {
             "text": question.text,
+            "type": question.type,
             "image": question.image,
             "image_alt_text": question.image_alt_text,
             "video_url": question.video_url,
@@ -586,6 +588,7 @@ class QuestionUpdateView(
     fields = [
         "title",
         "text",
+        "type",
         "image",
         "image_alt_text",
         "video_url",

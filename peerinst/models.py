@@ -73,8 +73,8 @@ class Discipline(models.Model):
 
 
 QUESTION_TYPES = (
-    ('PI', 'PeerInst'),
-    ('RO', 'RationaleOnly'),
+    ('PI', 'Peer instruction'),
+    ('RO', 'Rationale only'),
 )
 
 
@@ -94,7 +94,13 @@ class Question(models.Model):
             "is available."
         ),
     )
-    type = models.CharField(max_length=2, choices=QUESTION_TYPES, default='PI')
+    type = models.CharField(
+        _("Question type"),
+        max_length=2,
+        choices=QUESTION_TYPES,
+        default='PI',
+        help_text=_("Choose 'peer instruction' for two-step multiple choice with rationale or 'rationale only' for a simple text response."),
+        )
     title = models.CharField(
         _("Question title"),
         unique=True,
