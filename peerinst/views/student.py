@@ -5,6 +5,7 @@ import json
 
 from django.contrib.auth import login, logout
 from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
 from django.http import (
     HttpResponse,
     HttpResponseBadRequest,
@@ -16,7 +17,11 @@ from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_http_methods
 
 from ..models import Student, StudentGroup
-from ..students import authenticate_student, get_student_username_and_password
+from ..students import (
+    authenticate_student,
+    create_student_token,
+    get_student_username_and_password,
+)
 
 
 @require_http_methods(["GET"])
@@ -57,6 +62,9 @@ def index_page(req):
                 },
             )
             return HttpResponseForbidden(resp.render())
+        token = create_student_token(
+            student.student.username, student.student.email
+        )
     else:
         user = authenticate_student(req, token)
         if isinstance(user, HttpResponse):
@@ -78,7 +86,39 @@ def index_page(req):
             )
             return HttpResponseForbidden(resp.render())
 
-    context = {"student": student}
+    host = req.get_host()
+    if host.startswith("localhost") or host.startswith("127.0.0.1"):
+        protocol = "http"
+    else:
+        protocol = "https"
+
+    context = {
+        "student": student,
+        "groups": [
+            {
+                "title": group.title,
+                "assignments": [
+                    {
+                        "title": assignment.assignment.title,
+                        "due_date": assignment.due_date,
+                        "link": "{}://{}{}".format(
+                            protocol,
+                            host,
+                            reverse(
+                                "live",
+                                kwargs={
+                                    "assignment_hash": assignment.hash,
+                                    "token": token,
+                                },
+                            ),
+                        ),
+                    }
+                    for assignment in group.studentgroupassignment_set.all()
+                ],
+            }
+            for group in student.groups.all()
+        ],
+    }
 
     return render(req, "peerinst/student/index.html", context)
 
@@ -142,7 +182,7 @@ def leave_group(req):
 
 
 def login_page(req):
-    return render(req, "registration/student_login.html")
+    return render(req, "peerinst/student/login.html")
 
 
 @require_http_methods(["POST"])
@@ -176,4 +216,4 @@ def send_signin_link(req):
     else:
         context = {"missing_student": True}
 
-    return render(req, "registration/student_login_confirmation.html", context)
+    return render(req, "peerinst/student/login_confirmation.html", context)

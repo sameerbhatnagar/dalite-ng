@@ -50,7 +50,7 @@
         Groups
       </h2>
       <div id="student-page-groups" class="foldable--body">
-        {% for group in student.groups.all %}
+        {% for group in groups %}
         <div class="student-group">
           <div class="student-group--title">
             <h3>{{ group.title }}</h3>
@@ -92,13 +92,30 @@
             </div>
           </div>
           <div class="student-group--assignments">
-            {% if group.studentgroupassignment_set.all %}
+            {% if group.assignments %}
             {% else %}
             No assignments yet
             {% endif %}
             <ul>
-              {% for assignment in group.studentgroupassignment_set.all %}
-              <li>{{ assignment.assignment.title }}</li>
+              {% for assignment in group.assignments %}
+              <a href="{{ assignment.link }}">
+                <li class="student-group--assignment">
+                  <span class="student-group--assignment-icon">
+                    <i class="material-icons md-28">check</i>
+                  </span>
+                  <span class="student-group--assignment-questions">
+                    <span>1</span>
+                    <span>/</span>
+                    <span>2</span>
+                  </span>
+                  <span class="student-group--assignment-title">
+                    {{ assignment.title }}
+                  </span>
+                  <span class="student-group--assignment-date">
+                    {{ assignment.due_date|date:"Y-m-d H:i" }}
+                  </span>
+                </li>
+              </a>
               {% endfor %}
             </ul>
             

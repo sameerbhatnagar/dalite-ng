@@ -126,41 +126,9 @@ gulp.task("peerinst-styles-student", function() {
         }),
       ]),
     )
-    .pipe(rename("student.min.css"))
+    .pipe(concat("student.min.css"))
     .pipe(sourcemaps.write("."))
     .pipe(gulp.dest("peerinst/static/peerinst/css"));
-});
-
-gulp.task("peerinst-styles-auth", function() {
-  return gulp
-    .src("./peerinst/static/auth/css/*.scss")
-    .pipe(sourcemaps.init())
-    .pipe(
-      sass({
-        outputStyle: "compressed",
-        includePaths: "./node_modules",
-      }),
-    )
-    .pipe(
-      postcss([
-        autoprefixer({
-          browsers: [
-            "last 3 versions",
-            "iOS>=8",
-            "ie 11",
-            "Safari 9.1",
-            "not dead",
-          ],
-        }),
-      ]),
-    )
-    .pipe(
-      rename(function(path) {
-        path.extname = ".min.css";
-      }),
-    )
-    .pipe(sourcemaps.write("."))
-    .pipe(gulp.dest("peerinst/static/auth/css"));
 });
 
 gulp.task("peerinst-scripts-index", function() {
@@ -190,6 +158,7 @@ gulp.task("peerinst-scripts-group", function() {
     },
   );
 });
+
 gulp.task("peerinst-scripts-student", function() {
   const runCommand = require("child_process").execSync;
   runCommand(
@@ -248,7 +217,6 @@ gulp.task("peerinst-build", function(callback) {
     "peerinst-styles",
     "peerinst-styles-group",
     "peerinst-styles-student",
-    "peerinst-styles-auth",
     "peerinst-scripts",
     callback,
   );
@@ -333,7 +301,6 @@ gulp.task("watch", function() {
   gulp.watch("./peerinst/static/peerinst/css/student/*.scss", [
     "peerinst-styles-student",
   ]);
-  gulp.watch("./peerinst/static/auth/css/*.scss", ["peerinst-styles-auth"]);
   gulp.watch(
     [
       "./peerinst/static/peerinst/js/*.js",

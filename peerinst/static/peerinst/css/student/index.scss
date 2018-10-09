@@ -8,11 +8,15 @@
   margin-left: 50px;
 
   & .student-group {
-    margin-right: 50px;
+    margin-right: 25px;
     margin-bottom: 25px;
     min-width: 300px;
     position: relative;
     font-family: $mdc-typography-font-family;
+
+    & a {
+      color: inherit;
+    }
 
     & .student-group--title {
       background: $mdc-theme-primary;
@@ -29,72 +33,72 @@
         height: 100%;
         line-height: 50px;
       }
-    }
 
-    & .student-group--remove {
-      position: absolute;
-      right: 25px;
-      top: 9px;
-      border-radius: 15px;
-
-      & i {
-        color: #cc0000;
-        padding: 4px;
+      & .student-group--remove {
+        position: absolute;
+        right: 25px;
+        top: 9px;
         border-radius: 15px;
-        transition: background 300ms;
-        cursor: pointer;
 
-        &:hover {
-          background: rgba(255, 255, 255, 0.25);
-        }
+        & i {
+          color: #cc0000;
+          padding: 4px;
+          border-radius: 15px;
+          transition: background 300ms;
+          cursor: pointer;
 
-        &:active {
-          background: rgba(255, 255, 255, 0.5);
-        }
+          &:hover {
+            background: rgba(255, 255, 255, 0.25);
+          }
 
-        & ~ .student-group--remove-confirmation-box {
-          justify-content: center;
-          align-items: center;
-          position: fixed;
-          left: 0;
-          top: 0;
-          width: 100%;
-          height: 100%;
-          background: rgba(0, 0, 0, 0.5);
-          cursor: auto;
-          z-index: 1;
+          &:active {
+            background: rgba(255, 255, 255, 0.5);
+          }
 
-          & div {
-            width: 500px;
-            background: #ffffff;
-            color: #000000;
-            padding: 25px 50px;
-            text-align: center;
-            border-radius: 5px;
-            border: 1px solid $mdc-theme-primary;
-            box-shadow: 0 1px 1px 1px darken($mdc-theme-primary, 30%);
+          & ~ .student-group--remove-confirmation-box {
+            justify-content: center;
+            align-items: center;
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            cursor: auto;
+            z-index: 1;
 
-            & h3 {
-            }
+            & div {
+              width: 500px;
+              background: #ffffff;
+              color: #000000;
+              padding: 25px 50px;
+              text-align: center;
+              border-radius: 5px;
+              border: 1px solid $mdc-theme-primary;
+              box-shadow: 0 1px 1px 1px darken($mdc-theme-primary, 30%);
 
-            & p:first-of-type {
-              text-align: start;
-            }
+              & h3 {
+              }
 
-            & button {
-              margin-top: 25px;
-              width: 100px;
-            }
+              & p:first-of-type {
+                text-align: start;
+              }
 
-            & button:first-of-type {
-              margin-right: 50px;
-              --mdc-theme-primary: #cc0000;
-            }
+              & button {
+                margin-top: 25px;
+                width: 100px;
+              }
 
-            & button:nth-of-type(2) {
-              --mdc-theme-primary: #cc0000;
-              color: var(--mdc-theme-primary) !important;
-              border: 1px solid var(--mdc-theme-primary);
+              & button:first-of-type {
+                margin-right: 50px;
+                --mdc-theme-primary: #cc0000;
+              }
+
+              & button:nth-of-type(2) {
+                --mdc-theme-primary: #cc0000;
+                color: var(--mdc-theme-primary) !important;
+                border: 1px solid var(--mdc-theme-primary);
+              }
             }
           }
         }
@@ -102,9 +106,67 @@
     }
 
     & .student-group--assignments {
-      padding: 10px 20px;
+      padding: 10px 0;
       min-height: 200px;
       background: lighten($mdc-theme-primary, 25%);
+
+      & ul {
+        padding: 0;
+      }
+
+      & .student-group--assignment {
+        height: 32px;
+        position: relative;
+        color: inherit;
+
+        & .student-group--assignment-icon {
+          position: absolute;
+          left: 0;
+          top: 0;
+          text-align: center;
+          width: 50px;
+
+          & i {
+            padding: 4px;
+          }
+        }
+
+        & .student-group--assignment-questions {
+          position: absolute;
+          height: 100%;
+          left: 50px;
+          width: 50px;
+          top: 0;
+          display: flex;
+          justify-content: center;
+          justify-items: center;
+          align-items: center;
+          font-size: 13px;
+
+          & span {
+            padding: 0 2px;
+          }
+        }
+
+        & .student-group--assignment-title {
+          padding-left: 120px;
+          padding-right: 170px;
+          height: 100%;
+          line-height: 32px;
+          font-size: 18px;
+        }
+
+        & .student-group--assignment-date {
+          position: absolute;
+          right: 0;
+          padding-right: 20px;
+          top: 0;
+          text-align: end;
+          line-height: 32px;
+          font-size: 13px;
+          opacity: 0.9;
+        }
+      }
     }
   }
 }
