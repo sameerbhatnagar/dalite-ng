@@ -76,6 +76,16 @@
                     <i class="material-icons mdc-list-item__graphic mdc-theme--primary" aria-hidden="true">search</i>{% trans 'Search database' %}
                   </a>
 
+                  <a class="mdc-list-item" href="{% url 'student-activity' %}">
+                    <i class="material-icons mdc-list-item__graphic mdc-theme--primary" aria-hidden="true">
+                      {% if user.teacher.student_activity %}
+                        star
+                      {% else %}
+                        star_border
+                      {% endif %}
+                    </i>{% trans 'Student activity ' %}({{ user.teacher.student_activity }})
+                  </a>
+
                   <a class="mdc-list-item" href="{% url 'question-create' %}">
                     <i class="material-icons mdc-list-item__graphic mdc-theme--primary" aria-hidden="true">edit</i>{% trans 'Create question' %}
                   </a>

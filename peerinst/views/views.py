@@ -1885,6 +1885,15 @@ def teacher_toggle_favourite(request):
         return HttpResponseBadRequest(response.render())
 
 
+@login_required
+@user_passes_test(student_check, login_url="/access_denied_and_logout/")
+def student_activity(request):
+
+    return TemplateResponse(
+        request, "peerinst/student_activity.html", context={}
+    )
+
+
 class TeacherBlinks(TeacherBase, ListView):
     """OBSOLETE??"""
 
