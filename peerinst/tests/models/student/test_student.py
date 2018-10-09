@@ -6,7 +6,7 @@ from django.core import mail
 
 from peerinst.models import Student, StudentAssignment
 
-from ..generators import (
+from peerinst.tests.generators import (
     add_assignments,
     add_groups,
     add_questions,

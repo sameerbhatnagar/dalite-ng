@@ -1,13 +1,9 @@
 import random
-from datetime import datetime, timedelta
-from operator import itemgetter
 
-import pytz
 from django.test import TestCase
 
 from peerinst.models import StudentAssignment
 from peerinst.tests.generators import (
-    add_answer_choices,
     add_answers,
     add_assignments,
     add_groups,
@@ -15,7 +11,6 @@ from peerinst.tests.generators import (
     add_student_assignments,
     add_student_group_assignments,
     add_students,
-    add_to_group,
     new_assignments,
     new_groups,
     new_questions,
@@ -125,7 +120,7 @@ class TestGetCurrentQuestion(TestCase):
         student = self.assignment.student
         questions = self.assignment.group_assignment.questions
         n_second = random.randrange(1, len(questions))
-        answers = add_answers(
+        add_answers(
             [
                 {
                     "question": question,
