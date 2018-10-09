@@ -1,16 +1,14 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import base64
 from datetime import datetime
-import smtplib
 import pytz
 
-from django.db import IntegrityError, models
+from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import User
-from django.core.mail import send_mail
 from django.core.urlresolvers import reverse
-from django.template import loader
 from django.utils import timezone
 
 from .group import StudentGroup
@@ -23,7 +21,8 @@ class Assignment(models.Model):
         primary_key=True,
         max_length=100,
         help_text=_(
-            "A unique identifier for this assignment used for inclusion in a course."
+            "A unique identifier for this assignment used for inclusion in a "
+            "course."
         ),
     )
     title = models.CharField(_("Title"), max_length=200)
@@ -37,7 +36,7 @@ class Assignment(models.Model):
         return reverse(
             "question-list", kwargs={"assignment_id": self.identifier}
         )
-        ### attempt to redirect to assignment-update after assignment-create
+        # attempt to redirect to assignment-update after assignment-create
         # return reverse('assignment-update',kwargs={'assignment_id': self.pk})
 
     class Meta:
@@ -63,8 +62,8 @@ class StudentGroupAssignment(models.Model):
         _("Show correct answers"),
         default=True,
         help_text=_(
-            "Check if students should be shown correct answer after completing "
-            "the question."
+            "Check if students should be shown correct answer after "
+            "completing the question."
         ),
     )
     order = models.TextField(blank=True, editable=False)
@@ -172,13 +171,16 @@ class StudentGroupAssignment(models.Model):
     def send_assignment_emails(self, host):
         assert isinstance(host, basestring), "Precondition failed for `host`"
 
-        for student in Student.objects.filter(groups=self.group):
-            assignment, _ = StudentAssignment.objects.get_or_create(
-                student=student, group_assignment=self
-            )
-            assignment.send_email(
-                host, mail_type="new_assignment", assignment_hash=self.hash
-            )
+        for student in self.group_set.student_set.all():
+            student.add_assignment(self, host)
+        #  for student in Student.objects.filter(groups=self.group):
+
+        #  assignment, _ = StudentAssignment.objects.get_or_create(
+        #  student=student, group_assignment=self
+        #  )
+        #  assignment.send_email(
+        #  host, mail_type="new_assignment", assignment_hash=self.hash
+        #  )
 
     def save(self, *args, **kwargs):
         if not self.order:
@@ -206,7 +208,8 @@ class StudentGroupAssignment(models.Model):
                 }
             )
             for student in students:
-                answer = Answer.objects.filter(
+                answer = self.assignment.answer_set.filter(
+                    #  answer = Answer.objects.filter(
                     user_token=student.student.username,
                     question=question,
                     assignment=self.assignment,

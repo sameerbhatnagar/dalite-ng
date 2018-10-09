@@ -207,6 +207,17 @@ class Student(models.Model):
         except StudentGroupMembership.DoesNotExist:
             pass
 
+    def add_assignment(self, group_assignment, host=None):
+        assignment, _ = StudentAssignment.objects.get_or_create(
+            student=self, group_assignment=group_assignment
+        )
+        if host:
+            assignment.send_email(
+                host,
+                mail_type="new_assignment",
+                assignment_hash=group_assignment.hash,
+            )
+
     @property
     def current_groups(self):
         return [
