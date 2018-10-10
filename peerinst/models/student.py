@@ -196,6 +196,9 @@ class Student(models.Model):
             StudentGroupMembership.objects.create(
                 student=self, group=group, current_member=True
             )
+        # TODO to remove eventually when groups are fully integrated in
+        # group membership
+        self.groups.add(group)
 
     def leave_group(self, group):
         try:
@@ -212,11 +215,7 @@ class Student(models.Model):
             student=self, group_assignment=group_assignment
         )
         if host:
-            assignment.send_email(
-                host,
-                mail_type="new_assignment",
-                assignment_hash=group_assignment.hash,
-            )
+            assignment.send_email(host, mail_type="new_assignment")
 
     @property
     def current_groups(self):
@@ -257,9 +256,7 @@ class StudentAssignment(models.Model):
     def __unicode__(self):
         return "{} for {}".format(self.group_assignment, self.student)
 
-    def send_email(
-        self, host, mail_type="login", link=None, assignment_hash=None
-    ):
+    def send_email(self, host, mail_type="login", link=None):
         assert (
             isinstance(link, basestring) and "{}" in link or link is None
         ), "Precondition failed for `link`"
@@ -381,3 +378,14 @@ class StudentAssignment(models.Model):
             output, Question
         ), "Postcondition failed"
         return output
+
+    def get_results(self):
+        """
+        Returns the following results:
+            - number of first questions answered
+            - number of second questions answered (or None if not applicable)
+            - number of correct first questions answered
+            - number of correct second questions answered (or None if not
+              applicable)
+        """
+        pass

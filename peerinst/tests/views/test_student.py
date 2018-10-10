@@ -1,5 +1,6 @@
 import json
 import pytest
+from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.test.client import Client
 
@@ -8,7 +9,8 @@ from peerinst.students import (
     get_student_username_and_password,
 )
 
-from ..generators import (
+from peerinst.models import Student
+from peerinst.tests.generators import (
     add_groups,
     add_students,
     add_users,
@@ -89,7 +91,7 @@ def test_student_page_student_not_logged_in_token(client, student):
         student.student.username, student.student.email
     )
 
-    resp = client.get(reverse("student-page", args=(token,)))
+    resp = client.get(reverse("student-page") + "?token={}".format(token))
     assert resp.status_code == 200
     assert any(t.name == "peerinst/student/index.html" for t in resp.templates)
     assert student.student.email in resp.content
@@ -106,7 +108,7 @@ def test_student_page_student_logged_in_token_same_user(client, student):
         student.student.username, student.student.email
     )
 
-    resp = client.get(reverse("student-page", args=(token,)))
+    resp = client.get(reverse("student-page") + "?token={}".format(token))
     assert resp.status_code == 200
     assert any(t.name == "peerinst/student/index.html" for t in resp.templates)
     assert student.student.email in resp.content
@@ -123,7 +125,7 @@ def test_student_page_student_logged_in_token_different_user(client, students):
         students[1].student.username, students[1].student.email
     )
 
-    resp = client.get(reverse("student-page", args=(token,)))
+    resp = client.get(reverse("student-page") + "?token={}".format(token))
     assert resp.status_code == 200
     assert any(t.name == "peerinst/student/index.html" for t in resp.templates)
     assert students[1].student.email in resp.content
@@ -213,3 +215,62 @@ def test_leave_group_is_not_member_of_group(client, student, group):
     )
     assert resp.status_code == 200
     assert not group in student.groups.all()
+
+
+def test_login_page(client):
+    resp = client.get(reverse("student-login"))
+    assert resp.status_code == 200
+    assert any(t.name == "peerinst/student/login.html" for t in resp.templates)
+
+
+@pytest.mark.django_db
+def test_send_signin_link_single_account(client, student):
+    data = {"email": student.student.email}
+    resp = client.post(reverse("student-send-signin-link"), data)
+    assert resp.status_code == 200
+    assert any(
+        t.name == "peerinst/student/login_confirmation.html"
+        for t in resp.templates
+    )
+    assert "Email sent" in resp.content
+
+
+@pytest.mark.django_db
+def test_send_signin_link_doesnt_exist(client, student):
+    data = {"email": student.student.email + "fdja"}
+    resp = client.post(reverse("student-send-signin-link"), data)
+    assert resp.status_code == 200
+    assert any(
+        t.name == "peerinst/student/login_confirmation.html"
+        for t in resp.templates
+    )
+    assert "There was an error with your email" in resp.content
+
+
+@pytest.mark.django_db
+def test_send_signin_link_multiple_accounts(client, student):
+    Student.objects.create(
+        student=User.objects.create_user(
+            username="test", email=student.student.email
+        )
+    )
+    data = {"email": student.student.email}
+    resp = client.post(reverse("student-send-signin-link"), data)
+    assert resp.status_code == 200
+    assert any(
+        t.name == "peerinst/student/login_confirmation.html"
+        for t in resp.templates
+    )
+    assert "Email sent" in resp.content
+
+
+def test_send_signin_link_wrong_method(client):
+    resp = client.get(reverse("student-send-signin-link"))
+    assert resp.status_code == 405
+
+
+def test_send_signin_link_missing_params(client):
+    resp = client.post(reverse("student-send-signin-link"))
+    assert resp.status_code == 400
+    assert any(t.name == "400.html" for t in resp.templates)
+    assert "There are missing parameters." in resp.content

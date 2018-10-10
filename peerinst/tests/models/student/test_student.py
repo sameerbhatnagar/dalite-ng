@@ -4,7 +4,7 @@ import hashlib
 import pytest
 from django.core import mail
 
-from peerinst.models import Student, StudentAssignment
+from peerinst.models import Student, StudentAssignment, StudentGroupAssignment
 
 from peerinst.tests.generators import (
     add_assignments,
@@ -32,6 +32,17 @@ def student():
 @pytest.fixture
 def group():
     return add_groups(new_groups(1))[0]
+
+
+@pytest.fixture
+def group_assignment(group):
+    questions = add_questions(new_questions(10))
+    assignment = add_assignments(
+        new_assignments(1, questions, min_questions=10)
+    )
+    return add_student_group_assignments(
+        new_student_group_assignments(1, group, assignment)
+    )[0]
 
 
 @pytest.mark.django_db
@@ -149,3 +160,29 @@ def test_leave_group_doesnt_exist(student, group):
     assert group not in student.student_groups.all()
     assert group not in student.current_groups
     assert group not in student.old_groups
+
+
+@pytest.mark.django_db
+def test_add_assignment(student, group_assignment):
+    #  assert not StudentAssignment.objects.filter(
+    #  student=student, group_assignment=group_assignment
+    #  ).exists
+    #  student.add_assignment(group_assignment)
+    #  assert StudentAssignment.objects.filter(
+    #  student=student, group_assignment=group_assignment
+    #  ).exists
+    #  assert len(mail.outbox) == 1
+    #  assert mail.outbox[0].subject == "New assignment for group {}".format(
+    #  group_assignment.assignment.title
+    #  )
+    pass
+
+
+@pytest.mark.django_db
+def test_add_assignment_assignment_exists(student, group_assignment):
+    pass
+
+
+@pytest.mark.django_db
+def test_add_assignment_no_host(student, group_assignment):
+    pass
