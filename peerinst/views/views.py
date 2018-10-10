@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 import datetime
 import json
 import logging
+import pytz
 import random
 import string
 import itertools
@@ -109,8 +110,9 @@ from django.views.generic.detail import SingleObjectMixin
 from django.contrib.sessions.models import Session
 
 # reports
+from django.db.models import BooleanField
 from django.db.models.expressions import Func
-from django.db.models import Count, Value, Case, Q, When, CharField
+from django.db.models import Count, Value, Case, Q, When, CharField, F
 
 
 # tos
@@ -1889,8 +1891,63 @@ def teacher_toggle_favourite(request):
 @user_passes_test(student_check, login_url="/access_denied_and_logout/")
 def student_activity(request):
 
+    teacher = request.user.teacher
+    current_groups = teacher.current_groups.all()
+
+    all_current_students = Student.objects.filter(groups__in=current_groups)
+
+    all_assignments = StudentGroupAssignment.objects.filter(
+        group__in=current_groups
+    )#.filter(due_date__gt=datetime.datetime.now(pytz.utc))
+
+    all_answers = Answer.objects.filter(
+        assignment__in=all_assignments.values("assignment")
+    ).filter(user_token__in=all_current_students.values("student__username"))
+
+    all_answers_by_group = {}
+    for g in current_groups:
+        all_answers_by_group[g] = {}
+        student_list = g.student_set.all().values_list(
+            "student__username", flat=True
+        )
+        for ga in all_assignments:
+            all_answers_by_group[g][ga] = {}
+            all_answers_by_group[g][ga]["answers"] = [
+                a
+                for a in all_answers
+                if a.user_token in student_list
+                and a.assignment == ga.assignment
+            ]
+            all_answers_by_group[g][ga]["new"] = [
+                a
+                for a in all_answers
+                if a.user_token in student_list
+                and a.assignment == ga.assignment
+                and a.time > request.user.last_login
+            ]
+            all_answers_by_group[g][ga]["percent_complete"] = len(all_answers_by_group[g][ga]["answers"]) / len(student_list) / ga.assignment.questions.count() * 100
+
+    # JSON
+    json_data = {}
+    for group_key, group_assignments in all_answers_by_group.items():
+        json_data[group_key.name] = {}
+        for key, value_list in group_assignments.items():
+            json_data[group_key.name][key.assignment.identifier] = {}
+            json_data[group_key.name][key.assignment.identifier]['distribution_date'] = str(key.distribution_date)
+            json_data[group_key.name][key.assignment.identifier]['due_date'] = str(key.due_date)
+            json_data[group_key.name][key.assignment.identifier]['last_login'] = str(request.user.last_login)
+            json_data[group_key.name][key.assignment.identifier]['now'] = str(datetime.datetime.now())
+            json_data[group_key.name][key.assignment.identifier]['total'] = group_key.student_set.count()*key.assignment.questions.count()
+            json_data[group_key.name][key.assignment.identifier]['answers'] = []
+            for answer in value_list['answers']:
+                json_data[group_key.name][key.assignment.identifier]['answers'].append(str(answer.time))
+
+    print(json_data)
+
     return TemplateResponse(
-        request, "peerinst/student_activity.html", context={}
+        request,
+        "peerinst/student_activity.html",
+        context={"data": all_answers_by_group, "json": json.dumps(json_data)},
     )
 
 
