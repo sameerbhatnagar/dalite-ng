@@ -1,3 +1,13 @@
 [MESSAGES CONTROL]
-disable=C0103,C0111,C0301,C0330,C0412,R0201,R0902,R0903,R0912,R0913,R0914,R0915,W0221,W0613,W0621,W0622,no-else-return
-msg-template='{msg_id}:{line:3d},{column:2d}: {msg} ({symbol})'
+disable=
+  arguments-differ,
+  bad-continuation,
+  invalid-name,
+  missing-docstring,
+  no-else-return,
+  no-init,
+  no-member,
+  no-method-argument,
+  old-style-class,
+  redefined-outer-name,
+  too-few-public-methods

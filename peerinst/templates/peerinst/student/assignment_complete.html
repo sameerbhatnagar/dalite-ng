@@ -1,10 +1,8 @@
 {% extends 'peerinst/base.html' %}
 
-{% load static compress i18n %}
-
 {% block stylesheets %}
 {% compress css %}
-<link href="{% static 'peerinst/css/student/assignment_complete.min.css' %}" rel="stylesheet">
+<link href="{% static 'peerinst/css/student.min.css' %}" rel="stylesheet">
 {% endcompress %}
 {% endblock %}
 

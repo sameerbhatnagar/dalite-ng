@@ -6,36 +6,23 @@
 
 <h1>{% trans 'Sign in to your myDALITE account' %}</h1>
 
-<h2>{% trans "Access any assignment by clicking the links below:" %}</h2>
+<h2>{% trans "Sign in to your myDALITE accout by clicking the link below:" %}</h2>
 
-{% for group in groups %}
-
-<h3>{{ group.title }}</h3>
-
-{% for assignment in group.assignments %}
-
-<a class="email-btn" href="{{ protocol }}://{{ host }}{{ assignment.link }}" target="_blank">{{ assignment.title }}</a>
-
-{% endfor %}
-
-{% endfor %}
+<a class="email-btn" href="{{ protocol }}://{{ host }}{{ link }}" target="_blank">
+  {% trans "Sign In" %}
+</a>
 
 <div class="backup-link">
   <p>
-    {% trans "If the buttons above don't work, paste these links into your web browser:" %}
+    {% trans "If the button above doesn't work, paste this link into your web browser:" %}
   </p>
-
-  {% for group in groups %}
 
   <p>
-    {{ group.title }}
-    {% for assignment in group.assignments %}
-    <br/>
-    {{ assignment.title }}: <a href="{{ protocol }}://{{ host }}{{ assignment.link }}" target="_blank">{{ protocol }}://{{ host }}{{ assignment.link }}</a>
-    {% endfor %}
+    <a class="email-btn" href="{{ protocol }}://{{ host }}{{ link }}" target="_blank">
+      {{ protocol }}://{{ host }}{{ link }}
+    </a>
   </p>
 
-  {% endfor %}
 </div>
 
 {% endblock %}

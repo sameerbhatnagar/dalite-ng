@@ -22,6 +22,9 @@ from tos.models import Consent as TosConsent
 
 
 def new_answers(n, assignments):
+    assignments = (
+        [assignments] if not isinstance(assignments, list) else assignments
+    )
     if n > sum(
         len(a.group_assignment.assignment.questions.all()) for a in assignments
     ):
@@ -56,6 +59,8 @@ def new_answers(n, assignments):
 
 
 def new_assignments(n, questions, min_questions=1):
+    questions = [questions] if not isinstance(questions, list) else questions
+
     def generator(min_questions):
         chars = string.ascii_letters + string.digits + "_-."
         gen = _extra_chars_gen()
@@ -152,6 +157,13 @@ def new_students(n):
 
 
 def new_student_assignments(n, group_assignments, students):
+    group_assignments = (
+        [group_assignments]
+        if not isinstance(group_assignments, list)
+        else group_assignments
+    )
+    students = [students] if not isinstance(students, list) else students
+
     def generator(combinations):
         while True:
             choice = random.choice(list(combinations))
@@ -169,6 +181,11 @@ def new_student_assignments(n, group_assignments, students):
 
 
 def new_student_group_assignments(n, groups, assignments, due_date=None):
+    groups = [groups] if not isinstance(groups, list) else groups
+    assignments = (
+        [assignments] if not isinstance(assignments, list) else assignments
+    )
+
     def generator(groups, assignments, due_date):
         while True:
             if due_date is None:

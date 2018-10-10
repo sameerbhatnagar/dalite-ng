@@ -5,11 +5,11 @@ import base64
 import itertools
 import smtplib
 import string
-
 from datetime import datetime
 
 import pytz
 from django.conf import settings
+from django.contrib import admin
 from django.contrib.auth.models import User
 from django.core import exceptions
 from django.core.exceptions import ValidationError
@@ -23,9 +23,9 @@ from django.utils.encoding import smart_bytes
 from django.utils.translation import ugettext_lazy as _
 from jsonfield import JSONField
 
-from . import rationale_choice
-from .students import create_student_token, get_student_username_and_password
-from .utils import create_token, verify_token
+from .. import rationale_choice
+from ..students import create_student_token, get_student_username_and_password
+from ..utils import create_token, verify_token
 
 
 def no_hyphens(value):
@@ -552,6 +552,12 @@ class StudentGroup(models.Model):
 class Student(models.Model):
     student = models.OneToOneField(User, on_delete=models.CASCADE)
     groups = models.ManyToManyField(StudentGroup, blank=True)
+    student_groups = models.ManyToManyField(
+        StudentGroup,
+        blank=True,
+        through="StudentGroupMembership",
+        related_name="groups_new",
+    )
 
     def __unicode__(self):
         return self.student.username
@@ -613,7 +619,7 @@ class Student(models.Model):
                 kwargs={"group_hash": hash_, "token": token},
             )
 
-            if host == "localhost" or host == "127.0.0.1":
+            if host.startswith("localhost") or host.startswith("127.0.0.1"):
                 protocol = "http"
             else:
                 protocol = "https"
@@ -653,24 +659,7 @@ class Student(models.Model):
             username = self.student.username
             user_email = self.student.email
             token = create_student_token(username, user_email)
-            groups = self.groups.all()
-            assignments = [
-                StudentGroupAssignment.objects.filter(group=group)
-                for group in groups
-            ]
-            links = [
-                [
-                    reverse(
-                        "live",
-                        kwargs={
-                            "assignment_hash": assignment.hash,
-                            "token": token,
-                        },
-                    )
-                    for assignment in group
-                ]
-                for group in assignments
-            ]
+            link = "{}?token={}".format(reverse("student-page"), token)
 
             if host.startswith("localhost") or host.startswith("127.0.0.1"):
                 protocol = "http"
@@ -679,34 +668,12 @@ class Student(models.Model):
 
             subject = "Sign in to your myDALITE account"
             message = (
-                "Go to any of your assignments by clicking the links below:\n"
-                "\n".join(
-                    "\n".join(
-                        ["Group: {}".format(group.title)]
-                        + [
-                            "{}: {}{}{}".format(
-                                a.assignment.title, protocol, host, l
-                            )
-                            for a, l in zip(assignment, link)
-                        ]
-                    )
-                    for group, assignment, link in zip(
-                        groups, assignments, links
-                    )
-                )
+                " Sign in to your myDALITE accout by clicking the link "
+                "below:\n"
+                "{}://{}{}".format(protocol, host, link)
             )
-            groups = [
-                {
-                    "title": group.title,
-                    "assignments": [
-                        {"title": a.assignment.title, "link": l}
-                        for a, l in zip(assignment, link)
-                    ],
-                }
-                for group, assignment, link in zip(groups, assignments, links)
-            ]
             template = "students/email_signin.html"
-            context = {"groups": groups, "host": host, "protocol": protocol}
+            context = {"host": host, "protocol": protocol, "link": link}
 
             try:
                 send_mail(
@@ -747,6 +714,52 @@ class Student(models.Model):
                     if not assignment.is_expired():
                         # Just send active assignments
                         assignment_.send_email(host, "new_assignment")
+
+    def add_group(self, group):
+        try:
+            membership = StudentGroupMembership.objects.get(
+                student=self, group=group
+            )
+            membership.current_member = True
+            membership.save()
+        except StudentGroupMembership.DoesNotExist:
+            StudentGroupMembership.objects.create(
+                student=self, group=group, current_member=True
+            )
+
+    def leave_group(self, group):
+        try:
+            membership = StudentGroupMembership.objects.get(
+                student=self, group=group
+            )
+            membership.current_member = False
+            membership.save()
+        except StudentGroupMembership.DoesNotExist:
+            pass
+
+    @property
+    def current_groups(self):
+        return [
+            g.group
+            for g in StudentGroupMembership.objects.filter(
+                student=self, current_member=True
+            )
+        ]
+
+    @property
+    def old_groups(self):
+        return [
+            g.group
+            for g in StudentGroupMembership.objects.filter(
+                student=self, current_member=False
+            )
+        ]
+
+
+class StudentGroupMembership(models.Model):
+    student = models.ForeignKey(Student)
+    group = models.ForeignKey(StudentGroup)
+    current_member = models.BooleanField(default=True)
 
 
 class Institution(models.Model):

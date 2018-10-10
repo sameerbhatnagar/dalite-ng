@@ -1,8 +1,7 @@
 import base64
 import hashlib
-from datetime import datetime, timedelta
+from datetime import timedelta
 
-import pytz
 from django.conf import settings
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
@@ -30,13 +29,16 @@ def verify_student_token(token):
     assert isinstance(token, basestring), "Precondition failed for `token`"
 
     payload, err = verify_token(token)
-    try:
-        username = payload["username"]
-        email = payload["email"]
-    except KeyError:
-        username = None
-        email = None
-        err = "This wasn't a student token"
+    if err is None:
+        try:
+            username = payload["username"]
+            email = payload["email"]
+        except KeyError:
+            username = None
+            email = None
+            err = "This wasn't a student token"
+    else:
+        username, email = None, None
 
     output = (username, email, err)
     assert (
@@ -100,9 +102,7 @@ def authenticate_student(req, token):
         else:
             output = user
 
-    assert isinstance(output, HttpResponse) or isinstance(
-        output, User
-    ), "Postcondition failed"
+    assert isinstance(output, (HttpResponse, User)), "Postcondition failed"
     return output
 
 

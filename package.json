@@ -50,5 +50,22 @@
     "sass": "^1.3.2",
     "vinyl-source-stream": "^2.0.0"
   },
-  "dependencies": {}
+  "dependencies": {},
+  "prettier": {
+    "printWidth": 79,
+    "parser": "flow",
+    "trailingComma": "all"
+  },
+  "eslintConfig": {
+    "extends": "google",
+    "parser": "babel-eslint",
+    "rules": {
+      "strict": 0,
+      "arrow-parens": "off",
+      "require-jsdoc": "off",
+      "guard-for-in": "off",
+      "quotes": ["error", "double"],
+      "object-curly-spacing": ["error", "always"]
+    }
+  }
 }

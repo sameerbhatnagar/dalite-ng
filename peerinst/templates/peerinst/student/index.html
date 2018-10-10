@@ -1,0 +1,136 @@
+{% extends 'peerinst/base.html' %}
+
+{% load static compress i18n %}
+
+{% block stylesheets %}
+<link href="{% static 'peerinst/css/student.min.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block body %}
+
+{% csrf_token %}
+
+<main>
+  <section id="student-page">
+
+    <h1 class="mdc-typography--display3">{% trans 'My Account' %}
+      <svg class="underline" width=150 height=4></svg>
+    </h1>
+
+    <div class="foldable foldable__unfolded">
+      <h2 class="foldable--title mdc-typography--display1 mdc-theme--secondary">
+        {% trans 'Identity' %}
+      </h2>
+      <div class="foldable--body">
+        <ul class="mdc-list mdc-list--non-interactive">
+          <li role="separator" class="mdc-list-divider"></li>
+          <li class="mdc-list-item">
+            <span class="mdc-list-item__graphic mdc-theme--primary">
+              <i class="material-icons md-48">account_circle</i>
+            </span>
+            <span class="mdc-list-item__text">
+              {{ student.student.email }}
+            </span>
+          </li>
+          <li role="separator" class="mdc-list-divider"></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="foldable foldable__unfolded">
+      <h2 class="foldable--title mdc-typography--display1 mdc-theme--secondary">
+        {% trans 'Notifications' %}
+      </h2>
+      <div class="foldable--body">
+      </div>
+    </div>
+
+    <div class="foldable foldable__unfolded">
+      <h2 class="foldable--title mdc-typography--display1 mdc-theme--secondary">
+        Groups
+      </h2>
+      <div id="student-page-groups" class="foldable--body">
+        {% for group in groups %}
+        <div class="student-group">
+          <div class="student-group--title">
+            <h3>{{ group.title }}</h3>
+            <div class="student-group--remove">
+              <i class="material-icons md-28"
+                 onclick="bundle.toggleLeaveGroup(event)">
+                close
+              </i>
+
+              <div class="student-group--remove-confirmation-box" 
+                   style="display: none;"
+                   onclick="event.stopPropagation; bundle.toggleLeaveGroup(event)">
+                <div onclick="event.stopPropagation();">
+                  <h3>Leave group {{ group.title }}</h3>
+                  <p>
+                    This will remove you from the group. All your answers will be
+                    saved, but you won't appear as a member of the group to your
+                    teacher.
+                  </p>
+                  <p>
+                    Are you sure?
+                  </p>
+                  <button class="mdc-button mdc-button--unelevated"
+                          onclick="bundle.leaveGroup(
+                            event,
+                            '{% url 'student-leave-group' %}',
+                            '{{ student.student.username }}',
+                            '{{ group.name }}'
+                          )">
+                    Remove
+                  </button>
+                  <button class="mdc-button" 
+                          onclick="bundle.toggleLeaveGroup(event)">
+                    Cancel
+                  </button>
+                </div>
+              </div>
+
+            </div>
+          </div>
+          <div class="student-group--assignments">
+            {% if group.assignments %}
+            {% else %}
+            No assignments yet
+            {% endif %}
+            <ul>
+              {% for assignment in group.assignments %}
+              <a href="{{ assignment.link }}">
+                <li class="student-group--assignment">
+                  <span class="student-group--assignment-icon">
+                    <i class="material-icons md-28">check</i>
+                  </span>
+                  <span class="student-group--assignment-questions">
+                    <span>1</span>
+                    <span>/</span>
+                    <span>2</span>
+                  </span>
+                  <span class="student-group--assignment-title">
+                    {{ assignment.title }}
+                  </span>
+                  <span class="student-group--assignment-date">
+                    {{ assignment.due_date|date:"Y-m-d H:i" }}
+                  </span>
+                </li>
+              </a>
+              {% endfor %}
+            </ul>
+            
+          </div>
+        </div>
+
+        {% endfor %} 
+      </div>
+    </div>
+
+  </section>
+</main>
+
+{% block scripts %}
+<script src="{% static 'peerinst/js/student.min.js' %}"></script>
+{% endblock %}
+
+{% endblock %}

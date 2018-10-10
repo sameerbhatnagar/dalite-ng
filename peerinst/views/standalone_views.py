@@ -60,44 +60,50 @@ def signup_through_link(request, group_hash):
             },
         )
         return HttpResponseNotFound(resp.render())
-    else:
-        if request.method == "POST":
-            form = EmailForm(request.POST)
-            if form.is_valid():
 
-                student = Student.get_or_create(form.cleaned_data["email"])
+    if request.method == "POST":
 
-                if student is None:
-                    resp = TemplateResponse(
-                        request,
-                        "400.html",
-                        context={
-                            "message": _(
-                                "There already exists a user with this "
-                                "username. Try a different email address."
-                            )
-                        },
+        form = EmailForm(request.POST)
+        if not form.is_valid():
+            resp = TemplateResponse(
+                request,
+                "400.html",
+                context={
+                    "message": _("There was a problem with the values sent.")
+                },
+            )
+            return HttpResponseBadRequest(resp.render())
+
+        student = Student.get_or_create(form.cleaned_data["email"])
+
+        if student is None:
+            resp = TemplateResponse(
+                request,
+                "400.html",
+                context={
+                    "message": _(
+                        "There already exists a user with this "
+                        "username. Try a different email address."
                     )
-                    return HttpResponseBadRequest(resp.render())
+                },
+            )
+            return HttpResponseBadRequest(resp.render())
 
-                else:
-
-                    student.send_confirmation_email(group, request.get_host())
-
-                    return TemplateResponse(
-                        request,
-                        "registration/sign_up_student_done.html",
-                        context={"student": student, "group": group},
-                    )
-
-        else:
-            form = EmailForm()
+        student.send_confirmation_email(group, request.get_host())
 
         return TemplateResponse(
             request,
-            "registration/sign_up_student.html",
-            context={"form": form, "group": group},
+            "registration/sign_up_student_done.html",
+            context={"student": student, "group": group},
         )
+
+    form = EmailForm()
+
+    return TemplateResponse(
+        request,
+        "registration/sign_up_student.html",
+        context={"form": form, "group": group},
+    )
 
 
 @require_safe
@@ -127,7 +133,7 @@ def confirm_signup_through_link(request, group_hash, token):
         student = get_object_or_404(Student, student__username=username)
         student.student.is_active = True
         student.student.save()
-        student.groups.add(group)
+        student.add_group(group)
         student.send_missing_assignments(group, request.get_host())
 
         return TemplateResponse(
@@ -135,8 +141,8 @@ def confirm_signup_through_link(request, group_hash, token):
             "registration/sign_up_student_confirmation.html",
             context={"group": group},
         )
-    else:
-        raise PermissionDenied
+
+    raise PermissionDenied
 
 
 @require_safe
@@ -195,37 +201,17 @@ def navigate_assignment(request, assignment_id, question_id, direction, index):
 
     hash = request.session.get("assignment")
     if hash is None:
-        try:
-            teacher = request.user.teacher
-
-            assignment = get_object_or_404(Assignment, pk=assignment_id)
-            questions = list(assignment.questions.all())
-            current_question = get_object_or_404(Question, pk=question_id)
-            idx = questions.index(current_question)
-            if direction == "next":
-                if idx < len(questions) - 1:
-                    new_question = questions[idx + 1]
-                else:
-                    new_question = questions[0]
-            else:
-                if idx > 0:
-                    new_question = questions[idx - 1]
-                else:
-                    new_question = questions[-1]
-
-            # Redirect
-            return HttpResponseRedirect(
-                reverse(
-                    "question",
-                    kwargs={
-                        "assignment_id": assignment.pk,
-                        "question_id": new_question.id,
-                    },
+        resp = TemplateResponse(
+            request,
+            "400.html",
+            context={
+                "message": _(
+                    "Try logging in again using the link to this assignment "
+                    "sent via email."
                 )
-            )
-
-        except:
-            raise PermissionDenied
+            },
+        )
+        return HttpResponseBadRequest(resp.render())
 
     else:
 
@@ -245,7 +231,11 @@ def navigate_assignment(request, assignment_id, question_id, direction, index):
             resp = TemplateResponse(
                 request,
                 "400.html",
-                context={"message": _("Try logging in again using the link to this assignment sent via email.")},
+                context={
+                    "message": _(
+                        "Try logging in again using the link to this assignment sent via email."
+                    )
+                },
             )
             return HttpResponseBadRequest(resp.render())
 

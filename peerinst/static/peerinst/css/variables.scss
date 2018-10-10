@@ -1,4 +1,4 @@
-$mdc-typography-font-family: 'Montserrat';
+$mdc-typography-font-family: "Montserrat", serif;
 $mdc-theme-primary: #54c0db;
 $mdc-theme-secondary: #004266;
 $mdc-theme-background: #f4f4f4;
@@ -6,18 +6,18 @@ $hint: DarkGray;
 
 $mdc-theme-text-colors: (
   dark: (
-    primary: rgba(black, .87),
-    secondary: rgba(black, .54),
+    primary: rgba(black, 0.87),
+    secondary: rgba(black, 0.54),
     hint: $hint,
-    disabled: rgba(black, .38),
-    icon: rgba(black, .38)
+    disabled: rgba(black, 0.38),
+    icon: rgba(black, 0.38)
   ),
   light: (
     primary: white,
-    secondary: rgba(white, .7),
-    hint: rgba(white, .5),
-    disabled: rgba(white, .5),
-    icon: rgba(white, .5)
+    secondary: rgba(white, 0.7),
+    hint: rgba(white, 0.5),
+    disabled: rgba(white, 0.5),
+    icon: rgba(white, 0.5)
   )
 ) !default;
 
