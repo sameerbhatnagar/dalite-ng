@@ -61,15 +61,22 @@
 <script>
 let data = {{ json|safe }};
 
-$('.progress-chart').each(function() {
-  let dataset = data[$(this).attr('group')][$(this).attr('assignment')];
-  plotTimeSeries(this, dataset);
-});
+function draw() {
+  $('.progress-chart').each(function() {
+    let dataset = data[$(this).attr('group')][$(this).attr('assignment')];
+    plotTimeSeries(this, dataset);
+  });
+}
+draw();
+window.addEventListener('resize', draw);
 
 function plotTimeSeries(el, d) {
   svg = d3.select(el);
-  let width = +svg.attr('width');
+  let width = 0.8*$('main').innerWidth();
+  svg.attr('width', width);
   let height = +svg.attr('height');
+
+  svg.selectAll('g').remove();
 
   let x = d3.scaleUtc().domain([new Date(d3.utcParse(d.distribution_date)), new Date( d3.utcParse(d.due_date))]).range([0, width]);
   let y = d3.scaleLinear().domain([0, d.total]).range([height, 0]);
@@ -157,8 +164,29 @@ function plotTimeSeries(el, d) {
       path.lineTo(d3.mouse(this)[0], -6);
       return path
     })
-    g.select('.slider-label-bottom').attr('x', d3.mouse(this)[0]).text(x.invert(d3.mouse(this)[0]));
-    g.select('.slider-label-top').attr('x', d3.mouse(this)[0]).text(d3.bisectLeft(d.answers.map(x => new Date(d3.utcParse(x))),x.invert(d3.mouse(this)[0])));
+
+    g.select('.slider-label-bottom').attr('text-anchor', function() {
+      if (d3.mouse(this)[0] < width/2) {
+        return 'start';
+      }
+      else {
+        return 'end';
+      }
+    })
+    .attr('dx', function() {
+      if (d3.mouse(this)[0] < width/2) {
+        return 5;
+      }
+      else {
+        return -5;
+      }
+    })
+    .attr('x', d3.mouse(this)[0])
+    .text(x.invert(d3.mouse(this)[0]));
+
+    g.select('.slider-label-top')
+    .attr('x', d3.mouse(this)[0])
+    .text(d3.bisectLeft(d.answers.map(x => new Date(d3.utcParse(x))),x.invert(d3.mouse(this)[0])));
   })
 
 }
