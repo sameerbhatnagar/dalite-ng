@@ -75,20 +75,13 @@ function plotTimeSeries(el, d) {
   let y = d3.scaleLinear().domain([0, d.total]).range([height, 0]);
 
   let xAxis = d3.axisBottom(x);
+  let xAxisTop = d3.axisTop(x).ticks('');
   let yAxis = d3.axisLeft(y);
 
   let g = svg.append('g');
 
   g.append('g').attr('transform', 'translate(0,'+height+')').call(xAxis);
-
-  g.append('g')
-  .selectAll('circle')
-  .data(d.answers)
-  .enter().append('circle')
-  .attr('cx', function(_) { return x(new Date(d3.utcParse(_))); })
-  .attr('cy', function(_,i) { return y(i+1); })
-  .attr('r', 0.5)
-  .attr('fill', 'red');
+  g.append('g').call(xAxisTop);
 
   var f = d3.line()
   .x(function(d){return x(new Date(d3.utcParse(d)));})
@@ -124,6 +117,49 @@ function plotTimeSeries(el, d) {
   .attr('y', function() { return 0; })
   .attr('width', function() { return x(new Date(d3.utcParse(d.now))) - x(new Date(d3.utcParse(d.last_login))); })
   .attr('height', height);
+
+  g.append('path')
+  .attr('class', 'slider')
+  .attr('stroke', 'gray')
+  .attr('stroke-width', '0.5px')
+  .attr('d', function() {
+    let path = d3.path();
+    path.moveTo(0, height+30);
+    path.lineTo(0, -6);
+    return path;
+  });
+
+  g.append('text')
+  .attr('class', 'slider-label-bottom')
+  .attr('x', 0)
+  .attr('dx', 5)
+  .attr('y', height+30)
+  .attr('dy', 5)
+  .attr('text-anchor', 'start')
+  .style('font-size', '10px')
+  .style('font-family', 'sans-serif')
+  .text();
+
+  g.append('text')
+  .attr('class', 'slider-label-top')
+  .attr('x', 0)
+  .attr('y', 0)
+  .attr('dy', -10)
+  .attr('text-anchor', 'middle')
+  .style('font-size', '10px')
+  .style('font-family', 'sans-serif')
+  .text();
+
+  svg.on('mousemove', function() {
+    g.select('.slider').attr('d', function() {
+      let path = d3.path();
+      path.moveTo(d3.mouse(this)[0], height+30);
+      path.lineTo(d3.mouse(this)[0], -6);
+      return path
+    })
+    g.select('.slider-label-bottom').attr('x', d3.mouse(this)[0]).text(x.invert(d3.mouse(this)[0]));
+    g.select('.slider-label-top').attr('x', d3.mouse(this)[0]).text(d3.bisectLeft(d.answers.map(x => new Date(d3.utcParse(x))),x.invert(d3.mouse(this)[0])));
+  })
 
 }
 </script>

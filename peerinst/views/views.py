@@ -1925,7 +1925,7 @@ def student_activity(request):
                 and a.assignment == ga.assignment
                 and a.time > request.user.last_login
             ]
-            all_answers_by_group[g][ga]["percent_complete"] = len(all_answers_by_group[g][ga]["answers"]) / len(student_list) / ga.assignment.questions.count() * 100
+            all_answers_by_group[g][ga]["percent_complete"] = int(100.0*len(all_answers_by_group[g][ga]["answers"]) / (len(student_list) * ga.assignment.questions.count()))
 
     # JSON
     json_data = {}
@@ -1941,8 +1941,6 @@ def student_activity(request):
             json_data[group_key.name][key.assignment.identifier]['answers'] = []
             for answer in value_list['answers']:
                 json_data[group_key.name][key.assignment.identifier]['answers'].append(str(answer.time))
-
-    print(json_data)
 
     return TemplateResponse(
         request,
