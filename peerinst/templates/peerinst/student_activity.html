@@ -6,7 +6,8 @@
 <style>
 .progress-chart {
   display: block;
-  margin: 40px auto;
+  margin: 60px auto;
+  margin-bottom: 100px;
   overflow: visible;
 }
 </style>
@@ -34,8 +35,6 @@
     </h3>
 
     <ul style='font-size:9pt;'>
-      <li>Distributed: {{assignment.distribution_date}}</li>
-      <li>Due: {{assignment.due_date}}</li>
       <li>Answers submitted: {{ answers.answers|length }}</li>
       <li>New answers since last login: {{ answers.new|length }} </li>
       <li>Percent complete: {{ answers.percent_complete }}%</li>
@@ -87,8 +86,17 @@ function plotTimeSeries(el, d) {
 
   let g = svg.append('g');
 
+  g.append('rect')
+  .attr('fill', 'white')
+  .attr('x', 0)
+  .attr('y', 0)
+  .attr('width', width)
+  .attr('height', height);
+
   g.append('g').attr('transform', 'translate(0,'+height+')').call(xAxis);
   g.append('g').call(xAxisTop);
+
+  var format = d3.timeFormat("%c");
 
   var f = d3.line()
   .x(function(d){return x(new Date(d3.utcParse(d)));})
@@ -137,6 +145,50 @@ function plotTimeSeries(el, d) {
   });
 
   g.append('text')
+  .attr('class', 'axis label')
+  .attr('x', width)
+  .attr('dx', -5)
+  .attr('y', -30)
+  .attr('text-anchor', 'end')
+  .style('font-size', '10px')
+  .style('font-family', 'sans-serif')
+  .text(format(new Date(d3.utcParse(d.due_date))));
+
+  g.append('text')
+  .attr('class', 'axis label')
+  .attr('x', 0)
+  .attr('dx', 5)
+  .attr('y', -30)
+  .attr('text-anchor', 'start')
+  .style('font-size', '10px')
+  .style('font-family', 'sans-serif')
+  .text(format(new Date(d3.utcParse(d.distribution_date))));
+
+  g.append('path')
+  .attr('class', 'limit')
+  .attr('stroke', 'black')
+  .attr('stroke-dasharray', 4)
+  .attr('stroke-width', '0.5px')
+  .attr('d', function() {
+    let path = d3.path();
+    path.moveTo(0, height);
+    path.lineTo(0, -30);
+    return path;
+  });
+
+  g.append('path')
+  .attr('class', 'limit')
+  .attr('stroke', 'black')
+  .attr('stroke-dasharray', 4)
+  .attr('stroke-width', '0.5px')
+  .attr('d', function() {
+    let path = d3.path();
+    path.moveTo(width, height);
+    path.lineTo(width, -30);
+    return path;
+  });
+
+  g.append('text')
   .attr('class', 'slider-label-bottom')
   .attr('x', 0)
   .attr('dx', 5)
@@ -150,8 +202,8 @@ function plotTimeSeries(el, d) {
   g.append('text')
   .attr('class', 'slider-label-top')
   .attr('x', 0)
-  .attr('y', 0)
-  .attr('dy', -10)
+  .attr('y', -6)
+  .attr('dy', -5)
   .attr('text-anchor', 'middle')
   .style('font-size', '10px')
   .style('font-family', 'sans-serif')
@@ -182,11 +234,11 @@ function plotTimeSeries(el, d) {
       }
     })
     .attr('x', d3.mouse(this)[0])
-    .text(x.invert(d3.mouse(this)[0]));
+    .text(format(x.invert(d3.mouse(this)[0])));
 
     g.select('.slider-label-top')
     .attr('x', d3.mouse(this)[0])
-    .text(d3.bisectLeft(d.answers.map(x => new Date(d3.utcParse(x))),x.invert(d3.mouse(this)[0])));
+    .text(parseInt(100*d3.bisectLeft(d.answers.map(x => new Date(d3.utcParse(x))),x.invert(d3.mouse(this)[0]))/d.total)+"%");
   })
 
 }
