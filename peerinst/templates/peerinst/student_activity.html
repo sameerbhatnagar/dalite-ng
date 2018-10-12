@@ -10,6 +10,10 @@
   margin-bottom: 100px;
   overflow: visible;
 }
+.area {
+  fill: #004266;
+  opacity: 0.3;
+}
 </style>
 {% endblock %}
 
@@ -25,30 +29,24 @@
     </div>
 
     {% for group, dataset in data.items %}
-    {% for assignment, answers in dataset.items %}
+      {% for assignment, answers in dataset.items %}
+        {% if answers.answers|length > 0 %}
+        <h3 class="mdc-typography--headline mdc-theme--secondary">
+          {{ group.title }}
+          <i class="material-icons" style="vertical-align:middle;">keyboard_arrow_right</i>
+          <a href="{% url 'group-assignment' assignment.hash %}">{{ assignment.assignment }}</a>
+        </h3>
 
-    {% if answers.answers|length > 0 %}
-    <h3 class="mdc-typography--headline mdc-theme--secondary">
-      {{ group.title }}
-      <i class="material-icons" style="vertical-align:middle;">keyboard_arrow_right</i>
-      <a href="{% url 'group-assignment' assignment.hash %}">{{ assignment.assignment }}</a>
-    </h3>
+        <ul style='font-size:9pt;'>
+          <li>Answers submitted: {{ answers.answers|length }}</li>
+          <li>New answers since last login: {{ answers.new|length }} </li>
+          <li>Percent complete: {{ answers.percent_complete }}%</li>
+        </ul>
 
-    <ul style='font-size:9pt;'>
-      <li>Answers submitted: {{ answers.answers|length }}</li>
-      <li>New answers since last login: {{ answers.new|length }} </li>
-      <li>Percent complete: {{ answers.percent_complete }}%</li>
-    </ul>
+        <svg class="progress-chart" group="{{group.name}}" assignment="{{assignment.assignment}}" width=600 height=70></svg>
 
-    <svg class="progress-chart" group="{{group.name}}" assignment="{{assignment.assignment}}" width=600 height=70></svg>
-
-    {% endif %}
-    {% endfor %}
-
-    <!--Group stats
-    Time of day histogram
-    Day of week histogram
-    -->
+        {% endif %}
+      {% endfor %}
     {% endfor %}
 
   </section>
@@ -71,13 +69,14 @@ window.addEventListener('resize', draw);
 
 function plotTimeSeries(el, d) {
   svg = d3.select(el);
+
   let width = 0.8*$('main').innerWidth();
   svg.attr('width', width);
   let height = +svg.attr('height');
 
   svg.selectAll('g').remove();
 
-  let x = d3.scaleUtc().domain([new Date(d3.utcParse(d.distribution_date)), new Date( d3.utcParse(d.due_date))]).range([0, width]);
+  let x = d3.scaleTime().domain([new Date(d3.timeParse(d.distribution_date)), new Date( d3.timeParse(d.due_date))]).range([0, width]);
   let y = d3.scaleLinear().domain([0, d.total]).range([height, 0]);
 
   let xAxis = d3.axisBottom(x);
@@ -90,7 +89,7 @@ function plotTimeSeries(el, d) {
   .attr('fill', 'white')
   .attr('x', 0)
   .attr('y', 0)
-  .attr('width', width)
+  .attr('width', width)//.attr('width', x(new Date(d3.timeParse(d.now))))
   .attr('height', height);
 
   g.append('g').attr('transform', 'translate(0,'+height+')').call(xAxis);
@@ -99,7 +98,7 @@ function plotTimeSeries(el, d) {
   var format = d3.timeFormat("%c");
 
   var f = d3.line()
-  .x(function(d){return x(new Date(d3.utcParse(d)));})
+  .x(function(d){return x(new Date(d3.timeParse(d)));})
   .y(function(d,i) { return y(i+1); })
   .curve(d3.curveStepAfter);
 
@@ -108,29 +107,19 @@ function plotTimeSeries(el, d) {
   .data([d.answers])
   .enter().append('path')
   .attr('stroke', '#004266')
-  .attr('stroke-width', '1px')
+  .attr('stroke-width', '2px')
   .attr('stroke-linecap', 'round')
   .attr('fill', 'none')
   .attr('d', f);
 
-  g.append('path')
-  .attr('stroke', 'black')
-  .attr('fill', 'none')
-  .attr('d', function() {
-    var path = d3.path();
-    let _x = x(new Date(d3.utcParse(d.last_login)));
-    path.moveTo(_x, y(0));
-    path.lineTo(_x, y(d.total));
-    return path;
-  });
-
   g.append('rect')
-  .attr('stroke', 'none')
+  .attr('stroke', 'black')
+  .attr('stroke-width', '1px')
   .attr('fill', 'gray')
-  .style('opacity', 0.1)
-  .attr('x', function() { return x(new Date(d3.utcParse(d.last_login))); })
+  .style('opacity', 0.2)
+  .attr('x', function() { return x(new Date(d3.timeParse(d.last_login))); })
   .attr('y', function() { return 0; })
-  .attr('width', function() { return x(new Date(d3.utcParse(d.now))) - x(new Date(d3.utcParse(d.last_login))); })
+  .attr('width', function() { return x(new Date(d3.timeParse(d.now))) - x(new Date(d3.timeParse(d.last_login))); })
   .attr('height', height);
 
   g.append('path')
@@ -145,28 +134,26 @@ function plotTimeSeries(el, d) {
   });
 
   g.append('text')
-  .attr('class', 'axis label')
   .attr('x', width)
   .attr('dx', -5)
-  .attr('y', -30)
+  .attr('y', -25)
   .attr('text-anchor', 'end')
   .style('font-size', '10px')
   .style('font-family', 'sans-serif')
-  .text(format(new Date(d3.utcParse(d.due_date))));
+  .text(format(new Date(d3.timeParse(d.due_date))));
 
   g.append('text')
-  .attr('class', 'axis label')
   .attr('x', 0)
   .attr('dx', 5)
-  .attr('y', -30)
+  .attr('y', -25)
   .attr('text-anchor', 'start')
   .style('font-size', '10px')
   .style('font-family', 'sans-serif')
-  .text(format(new Date(d3.utcParse(d.distribution_date))));
+  .text(format(new Date(d3.timeParse(d.distribution_date))));
 
   g.append('path')
   .attr('class', 'limit')
-  .attr('stroke', 'black')
+  .attr('stroke', 'gray')
   .attr('stroke-dasharray', 4)
   .attr('stroke-width', '0.5px')
   .attr('d', function() {
@@ -178,7 +165,7 @@ function plotTimeSeries(el, d) {
 
   g.append('path')
   .attr('class', 'limit')
-  .attr('stroke', 'black')
+  .attr('stroke', 'gray')
   .attr('stroke-dasharray', 4)
   .attr('stroke-width', '0.5px')
   .attr('d', function() {
@@ -192,7 +179,7 @@ function plotTimeSeries(el, d) {
   .attr('class', 'slider-label-bottom')
   .attr('x', 0)
   .attr('dx', 5)
-  .attr('y', height+30)
+  .attr('y', height+25)
   .attr('dy', 5)
   .attr('text-anchor', 'start')
   .style('font-size', '10px')
@@ -209,36 +196,62 @@ function plotTimeSeries(el, d) {
   .style('font-family', 'sans-serif')
   .text();
 
+  let area = d3.area()
+  .x0(f.x())
+  .y0(height)
+  .x1(f.x())
+  .y1(f.y())
+  .curve(d3.curveStepAfter);
+
   svg.on('mousemove', function() {
-    g.select('.slider').attr('d', function() {
-      let path = d3.path();
-      path.moveTo(d3.mouse(this)[0], height+30);
-      path.lineTo(d3.mouse(this)[0], -6);
-      return path
-    })
 
-    g.select('.slider-label-bottom').attr('text-anchor', function() {
-      if (d3.mouse(this)[0] < width/2) {
-        return 'start';
-      }
-      else {
-        return 'end';
-      }
-    })
-    .attr('dx', function() {
-      if (d3.mouse(this)[0] < width/2) {
-        return 5;
-      }
-      else {
-        return -5;
-      }
-    })
-    .attr('x', d3.mouse(this)[0])
-    .text(format(x.invert(d3.mouse(this)[0])));
+      let xValue = Math.min(d3.mouse(this)[0],1+x(d3.max(d.answers.map(x => new Date(d3.timeParse(x))))));
 
-    g.select('.slider-label-top')
-    .attr('x', d3.mouse(this)[0])
-    .text(parseInt(100*d3.bisectLeft(d.answers.map(x => new Date(d3.utcParse(x))),x.invert(d3.mouse(this)[0]))/d.total)+"%");
+      g.select('.slider').attr('d', function() {
+        let path = d3.path();
+        path.moveTo(xValue, height+30);
+        path.lineTo(xValue, -6);
+        return path
+      })
+
+      g.select('.slider-label-bottom').attr('text-anchor', function() {
+        if (xValue < width/2) {
+          return 'start';
+        }
+        else {
+          return 'end';
+        }
+      })
+      .attr('dx', function() {
+        if (xValue < width/2) {
+          return 5;
+        }
+        else {
+          return -5;
+        }
+      })
+      .attr('x', xValue)
+      .text(format(x.invert(xValue)));
+
+      g.select('.slider-label-top')
+      .attr('x', xValue)
+      .text(parseInt(100*d3.bisectLeft(d.answers.map(x => new Date(d3.timeParse(x))),x.invert(xValue))/d.total)+"%");
+
+      let data = d.answers.map(x => new Date(d3.timeParse(x)));
+      let index = d3.bisectLeft(data, x.invert(xValue));
+
+      data = data.slice(0,index);
+
+      if (data.length < d.answers.length) {
+        data.push(x.invert(xValue));
+      }
+
+      g.select(".area").remove();
+      g.append("path")
+      .datum(data)
+      .attr("class", "area")
+      .attr("d", area);
+
   })
 
 }

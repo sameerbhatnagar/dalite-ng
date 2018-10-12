@@ -1936,7 +1936,7 @@ def student_activity(request):
             json_data[group_key.name][key.assignment.identifier]['distribution_date'] = str(key.distribution_date)
             json_data[group_key.name][key.assignment.identifier]['due_date'] = str(key.due_date)
             json_data[group_key.name][key.assignment.identifier]['last_login'] = str(request.user.last_login)
-            json_data[group_key.name][key.assignment.identifier]['now'] = str(datetime.datetime.now())
+            json_data[group_key.name][key.assignment.identifier]['now'] = str(datetime.datetime.utcnow().replace(tzinfo=pytz.utc))
             json_data[group_key.name][key.assignment.identifier]['total'] = group_key.student_set.count()*key.assignment.questions.count()
             json_data[group_key.name][key.assignment.identifier]['answers'] = []
             for answer in value_list['answers']:
