@@ -1918,42 +1918,44 @@ def student_activity(request):
         student_list = g.student_set.all().values_list(
             "student__username", flat=True
         )
+        if len(student_list) > 0:
+            # Keyed on studentgroupassignment
+            for ga in standalone_assignments:
+                if ga.assignment.questions.count() > 0:
+                    all_answers_by_group[g][ga] = {}
+                    all_answers_by_group[g][ga]["answers"] = [
+                        a
+                        for a in standalone_answers
+                        if a.user_token in student_list
+                        and a.assignment == ga.assignment
+                    ]
+                    all_answers_by_group[g][ga]["new"] = [
+                        a
+                        for a in standalone_answers
+                        if a.user_token in student_list
+                        and a.assignment == ga.assignment
+                        and a.time > request.user.last_login
+                    ]
+                    all_answers_by_group[g][ga]["percent_complete"] = int(100.0*len(all_answers_by_group[g][ga]["answers"]) / (len(student_list) * ga.assignment.questions.count()))
 
-        # Keyed on studentgroupassignment
-        for ga in standalone_assignments:
-            all_answers_by_group[g][ga] = {}
-            all_answers_by_group[g][ga]["answers"] = [
-                a
-                for a in standalone_answers
-                if a.user_token in student_list
-                and a.assignment == ga.assignment
-            ]
-            all_answers_by_group[g][ga]["new"] = [
-                a
-                for a in standalone_answers
-                if a.user_token in student_list
-                and a.assignment == ga.assignment
-                and a.time > request.user.last_login
-            ]
-            all_answers_by_group[g][ga]["percent_complete"] = int(100.0*len(all_answers_by_group[g][ga]["answers"]) / (len(student_list) * ga.assignment.questions.count()))
-
-        # Keyed on assignment
-        for l in lti_assignments:
-            all_answers_by_group[g][l] = {}
-            all_answers_by_group[g][l]["answers"] = [
-                a
-                for a in lti_answers
-                if a.user_token in student_list
-                and a.assignment == l
-            ]
-            all_answers_by_group[g][l]["new"] = [
-                a
-                for a in lti_answers
-                if a.user_token in student_list
-                and a.assignment == l
-                and a.time > request.user.last_login
-            ]
-            all_answers_by_group[g][l]["percent_complete"] = int(100.0*len(all_answers_by_group[g][l]["answers"]) / (len(student_list) * l.questions.count()))
+            # Keyed on assignment
+            for l in lti_assignments:
+                if l.questions.count() > 0:
+                    all_answers_by_group[g][l] = {}
+                    all_answers_by_group[g][l]["answers"] = [
+                        a
+                        for a in lti_answers
+                        if a.user_token in student_list
+                        and a.assignment == l
+                    ]
+                    all_answers_by_group[g][l]["new"] = [
+                        a
+                        for a in lti_answers
+                        if a.user_token in student_list
+                        and a.assignment == l
+                        and a.time > request.user.last_login
+                    ]
+                    all_answers_by_group[g][l]["percent_complete"] = int(100.0*len(all_answers_by_group[g][l]["answers"]) / (len(student_list) * l.questions.count()))
 
     # JSON
     json_data = {}
