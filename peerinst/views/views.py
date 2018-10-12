@@ -1960,29 +1960,34 @@ def student_activity(request):
     for group_key, group_assignments in all_answers_by_group.items():
         json_data[group_key.name] = {}
         for key, value_list in group_assignments.items():
-            try:
-                assignment = key.assignment
-                id = key.assignment.identifier
-                start_date = key.distribution_date
-                end_date = key.due_date
-            except:
-                assignment = key
-                id = key.identifier
-                if len(value_list['answers']) > 0:
+            if len(value_list['answers']) > 0:
+                try:
+                    assignment = key.assignment
+                    id = key.assignment.identifier
+
+                    if key.distribution_date < value_list['answers'][0].time:
+                        start_date = key.distribution_date
+                    else:
+                        start_date = value_list['answers'][0].time
+                    if key.due_date > value_list['answers'][-1].time:
+                        end_date = key.due_date
+                    else:
+                        end_date = value_list['answers'][-1].time
+                except:
+                    assignment = key
+                    id = key.identifier
                     start_date = value_list['answers'][0].time
                     end_date = value_list['answers'][-1].time
-                else:
-                    start_date = None
-                    end_date = None
-            json_data[group_key.name][id] = {}
-            json_data[group_key.name][id]['distribution_date'] = str(start_date)
-            json_data[group_key.name][id]['due_date'] = str(end_date)
-            json_data[group_key.name][id]['last_login'] = str(request.user.last_login)
-            json_data[group_key.name][id]['now'] = str(datetime.datetime.utcnow().replace(tzinfo=pytz.utc))
-            json_data[group_key.name][id]['total'] = group_key.student_set.count()*assignment.questions.count()
-            json_data[group_key.name][id]['answers'] = []
-            for answer in value_list['answers']:
-                json_data[group_key.name][id]['answers'].append(str(answer.time))
+
+                json_data[group_key.name][id] = {}
+                json_data[group_key.name][id]['distribution_date'] = str(start_date)
+                json_data[group_key.name][id]['due_date'] = str(end_date)
+                json_data[group_key.name][id]['last_login'] = str(request.user.last_login)
+                json_data[group_key.name][id]['now'] = str(datetime.datetime.utcnow().replace(tzinfo=pytz.utc))
+                json_data[group_key.name][id]['total'] = group_key.student_set.count()*assignment.questions.count()
+                json_data[group_key.name][id]['answers'] = []
+                for answer in value_list['answers']:
+                    json_data[group_key.name][id]['answers'].append(str(answer.time))
 
     return TemplateResponse(
         request,
