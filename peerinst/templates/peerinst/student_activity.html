@@ -10,7 +10,7 @@
   margin-bottom: 100px;
   overflow: visible;
 }
-.area {
+.progress-chart .area {
   fill: #004266;
   opacity: 0.3;
 }
@@ -34,7 +34,11 @@
         <h3 class="mdc-typography--headline mdc-theme--secondary">
           {{ group.title }}
           <i class="material-icons" style="vertical-align:middle;">keyboard_arrow_right</i>
+          {% if assignment.assignment %}
           <a href="{% url 'group-assignment' assignment.hash %}">{{ assignment.assignment }}</a>
+          {% else %}
+          {{ assignment }}
+          {% endif %}
         </h3>
 
         <ul style='font-size:9pt;'>
@@ -43,7 +47,7 @@
           <li>Percent complete: {{ answers.percent_complete }}%</li>
         </ul>
 
-        <svg class="progress-chart" group="{{group.name}}" assignment="{{assignment.assignment}}" width=600 height=70></svg>
+        <svg class="progress-chart" group="{{group.name}}" assignment="{% if assignment.assignment %}{{assignment.assignment}}{% else %}{{ assignment }}{% endif %}" width=600 height=70></svg>
 
         {% endif %}
       {% endfor %}

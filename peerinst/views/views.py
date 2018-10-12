@@ -1896,12 +1896,20 @@ def student_activity(request):
 
     all_current_students = Student.objects.filter(groups__in=current_groups)
 
-    all_assignments = StudentGroupAssignment.objects.filter(
+    # Standalone
+    standalone_assignments = StudentGroupAssignment.objects.filter(
         group__in=current_groups
     )#.filter(due_date__gt=datetime.datetime.now(pytz.utc))
 
-    all_answers = Answer.objects.filter(
-        assignment__in=all_assignments.values("assignment")
+    standalone_answers = Answer.objects.filter(
+        assignment__in=standalone_assignments.values("assignment")
+    ).filter(user_token__in=all_current_students.values("student__username"))
+
+    # LTI
+    lti_assignments = [a for a in teacher.assignments.all() if a not in [b.assignment for b in standalone_assignments.all()]]
+
+    lti_answers = Answer.objects.filter(
+        assignment__in=lti_assignments
     ).filter(user_token__in=all_current_students.values("student__username"))
 
     all_answers_by_group = {}
@@ -1910,37 +1918,71 @@ def student_activity(request):
         student_list = g.student_set.all().values_list(
             "student__username", flat=True
         )
-        for ga in all_assignments:
+
+        # Keyed on studentgroupassignment
+        for ga in standalone_assignments:
             all_answers_by_group[g][ga] = {}
             all_answers_by_group[g][ga]["answers"] = [
                 a
-                for a in all_answers
+                for a in standalone_answers
                 if a.user_token in student_list
                 and a.assignment == ga.assignment
             ]
             all_answers_by_group[g][ga]["new"] = [
                 a
-                for a in all_answers
+                for a in standalone_answers
                 if a.user_token in student_list
                 and a.assignment == ga.assignment
                 and a.time > request.user.last_login
             ]
             all_answers_by_group[g][ga]["percent_complete"] = int(100.0*len(all_answers_by_group[g][ga]["answers"]) / (len(student_list) * ga.assignment.questions.count()))
 
+        # Keyed on assignment
+        for l in lti_assignments:
+            all_answers_by_group[g][l] = {}
+            all_answers_by_group[g][l]["answers"] = [
+                a
+                for a in lti_answers
+                if a.user_token in student_list
+                and a.assignment == l
+            ]
+            all_answers_by_group[g][l]["new"] = [
+                a
+                for a in lti_answers
+                if a.user_token in student_list
+                and a.assignment == l
+                and a.time > request.user.last_login
+            ]
+            all_answers_by_group[g][l]["percent_complete"] = int(100.0*len(all_answers_by_group[g][l]["answers"]) / (len(student_list) * l.questions.count()))
+
     # JSON
     json_data = {}
     for group_key, group_assignments in all_answers_by_group.items():
         json_data[group_key.name] = {}
         for key, value_list in group_assignments.items():
-            json_data[group_key.name][key.assignment.identifier] = {}
-            json_data[group_key.name][key.assignment.identifier]['distribution_date'] = str(key.distribution_date)
-            json_data[group_key.name][key.assignment.identifier]['due_date'] = str(key.due_date)
-            json_data[group_key.name][key.assignment.identifier]['last_login'] = str(request.user.last_login)
-            json_data[group_key.name][key.assignment.identifier]['now'] = str(datetime.datetime.utcnow().replace(tzinfo=pytz.utc))
-            json_data[group_key.name][key.assignment.identifier]['total'] = group_key.student_set.count()*key.assignment.questions.count()
-            json_data[group_key.name][key.assignment.identifier]['answers'] = []
+            try:
+                assignment = key.assignment
+                id = key.assignment.identifier
+                start_date = key.distribution_date
+                end_date = key.due_date
+            except:
+                assignment = key
+                id = key.identifier
+                if len(value_list['answers']) > 0:
+                    start_date = value_list['answers'][0].time
+                    end_date = value_list['answers'][-1].time
+                else:
+                    start_date = None
+                    end_date = None
+            json_data[group_key.name][id] = {}
+            json_data[group_key.name][id]['distribution_date'] = str(start_date)
+            json_data[group_key.name][id]['due_date'] = str(end_date)
+            json_data[group_key.name][id]['last_login'] = str(request.user.last_login)
+            json_data[group_key.name][id]['now'] = str(datetime.datetime.utcnow().replace(tzinfo=pytz.utc))
+            json_data[group_key.name][id]['total'] = group_key.student_set.count()*assignment.questions.count()
+            json_data[group_key.name][id]['answers'] = []
             for answer in value_list['answers']:
-                json_data[group_key.name][key.assignment.identifier]['answers'].append(str(answer.time))
+                json_data[group_key.name][id]['answers'].append(str(answer.time))
 
     return TemplateResponse(
         request,
