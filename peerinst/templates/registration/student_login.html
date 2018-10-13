@@ -48,7 +48,7 @@
           <div class="mdc-notched-outline__idle"></div>
       </div>
 
-      <input class="mdc-button mdc-button--raised" type="submit" value="{% trans 'Send email' %}"></input>
+      <input class="mdc-button mdc-button--raised" onclick="this.form.submit();this.disabled=true;" type="submit" value="{% trans 'Send email' %}"></input>
     </form>
 
   </section>
