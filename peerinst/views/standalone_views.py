@@ -255,6 +255,10 @@ def navigate_assignment(request, assignment_id, question_id, direction, index):
         request.session["assignment_first"] = idx == 0
         request.session["assignment_last"] = idx == len(questions) - 1
 
+        if not request.session["assignment_expired"] and assignment.is_expired():
+            request.session["assignment_expired"] = assignment.is_expired()
+            return HttpResponseRedirect(reverse("finish-assignment"))
+
     # Redirect
     return HttpResponseRedirect(
         reverse(
