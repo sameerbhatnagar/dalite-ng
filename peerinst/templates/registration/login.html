@@ -75,7 +75,7 @@
 
     <div class='padded-top'>
       <input type="hidden" name="next" value="{{ next }}"/>
-      <input class="mdc-button mdc-button--raised" type="submit" value="{% trans 'Submit' %}"/>
+      <input class="mdc-button mdc-button--raised" onclick="this.form.submit();this.disabled=true;" type="submit" value="{% trans 'Submit' %}"/>
     </div>
   </form>
 </section>
