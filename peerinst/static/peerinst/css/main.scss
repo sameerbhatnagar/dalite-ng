@@ -635,6 +635,17 @@ div.input-ripple-wrapper input {
   border-top-style: solid;
 }
 
+.progress-chart {
+  display: block;
+  margin: 60px auto;
+  margin-bottom: 100px;
+  overflow: visible;
+}
+.progress-chart .area {
+  fill: #004266;
+  opacity: 0.3;
+}
+
 @media (max-height: 650px) {
   .mdc-dialog__body--scrollable {
     max-height: 350px;
