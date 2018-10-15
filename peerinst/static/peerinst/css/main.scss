@@ -418,6 +418,10 @@ input[type='submit'].thumbs-button {
   cursor: pointer;
   overflow: visible;
 }
+.edit-question {
+  margin-right: 20px;
+  transform: translateY(4px);
+}
 .fake-link {
   color: $hint;
   cursor: default;

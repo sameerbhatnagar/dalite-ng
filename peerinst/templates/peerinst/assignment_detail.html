@@ -100,12 +100,12 @@
 
         <div class="mdc-card__action-icons">
           {% if request.user == g.user or request.user in g.collaborators.all %}
-            <a id="edit-question-{{ g.pk }}" href="{% url 'question-update' g.pk %}">
-              <i class="material-icons md-24 mdc-ripple-surface icon-list">mode_edit</i>
+            <a title="{% trans 'Edit' %}" id="edit-question-{{ g.pk }}" href="{% url 'question-update' g.pk %}">
+              <i class="material-icons md-24 mdc-ripple-surface icon-list edit-question mdc-theme--primary">mode_edit</i>
             </a>
           {% else %}
-            <a id="clone-question-{{ g.pk }}" href="{% url 'question-clone' g.pk %}">
-              <i class="material-icons md-24 mdc-ripple-surface icon-list">file_copy</i>
+            <a title="{% trans 'Copy and edit' %}" id="clone-question-{{ g.pk }}" href="{% url 'question-clone' g.pk %}">
+              <i class="material-icons md-24 mdc-ripple-surface icon-list edit-question mdc-theme--primary">file_copy</i>
             </a>
           {% endif %}
           <form style="display:inline;" method="post" action="#">
