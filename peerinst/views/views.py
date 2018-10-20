@@ -11,6 +11,7 @@ import itertools
 import re
 from collections import defaultdict, Counter
 import urllib
+import csv
 
 from django.conf import settings
 from django.contrib import messages
@@ -66,6 +67,8 @@ from ..util import (
     report_data_by_assignment,
     report_data_by_student,
     report_data_by_question,
+    get_student_objects_from_group_list,
+    subset_answers_by_studentgroup_and_assignment,
 )
 from ..admin_views import (
     get_question_rationale_aggregates,
@@ -3017,3 +3020,67 @@ def report_assignment_aggregates(request):
         j.append(d_a)
 
     return JsonResponse(j, safe=False)
+
+def csv_gradebook(request,group_hash):
+    response = HttpResponse(content_type='text/csv')
+    filename = 'myDALITE_gradebook_'+str(StudentGroup.get(group_hash))
+    response['Content-Disposition'] = 'attachment; filename=" ' + filename +'.csv"'
+
+    writer = csv.writer(response)
+
+    student_group = StudentGroup.get(group_hash)
+    
+    student_list = get_student_objects_from_group_list(
+        student_groups = [student_group.pk]
+        ).values_list(
+        'student__username',
+        'student__email'
+        )   
+    
+    student_list_sorted=sorted(student_list,key=lambda student: student[1].lower()) 
+
+    assignment_list = student_group.studentgroupassignment_set.all().values(
+        'assignment',
+        'distribution_date'
+        )
+        
+    assignment_list_sorted=sorted(
+        assignment_list,
+        key=lambda assignment: assignment['distribution_date']
+        )
+
+    answer_qs = subset_answers_by_studentgroup_and_assignment(
+        assignment_list = assignment_list.values_list('assignment__identifier',flat=True),
+        student_groups = [student_group.pk]
+        )
+
+    # Header Row
+    row = []
+    row.append('Student')
+    for d in assignment_list_sorted:
+        question_list = Assignment.objects.get(
+            identifier=d['assignment']
+            ).questions.all().values_list(
+            'title',flat = True
+            )
+        row.extend(question_list)
+    writer.writerow(row)
+    
+    for user_token,email in student_list_sorted:
+        row=[]
+        row.append(email.split('@')[0])
+        for d in assignment_list_sorted:
+            question_list = Assignment.objects.get(identifier=d['assignment']).questions.all()
+            for q in question_list:
+                try:
+                    row.append(
+                        answer_qs.get(
+                            assignment_id=d['assignment'],
+                            question_id=q.pk,user_token=user_token
+                            ).get_grade()
+                        )
+                except Answer.DoesNotExist:
+                    row.append('-')
+        writer.writerow(row)
+
+    return response

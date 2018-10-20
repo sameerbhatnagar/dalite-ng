@@ -453,6 +453,11 @@ def group_patterns():
             views.get_assignment_student_progress,
             name="get-assignment-student-progress",
         ),
+        url(
+            r"^group/(?P<group_hash>[0-9A-Za-z=_-]+)/csv_gradebook/$",
+            views.csv_gradebook,
+            name="group-csv-gradebook",
+        ),
     ]
 
 
