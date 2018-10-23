@@ -11,7 +11,7 @@ import pytz
 from django.conf import settings
 from django.contrib import admin
 from django.contrib.auth.models import User
-from django.core import exceptions
+from django.core import exceptions, validators
 from django.core.exceptions import ValidationError
 from django.core.mail import send_mail
 from django.core.urlresolvers import reverse
@@ -362,6 +362,7 @@ class Assignment(models.Model):
         help_text=_(
             "A unique identifier for this assignment used for inclusion in a course."
         ),
+        validators=[validators.validate_slug,]
     )
     title = models.CharField(_("Title"), max_length=200)
     questions = models.ManyToManyField(Question, verbose_name=_("Questions"))
