@@ -345,6 +345,8 @@ def add_answer_choices(n_each, questions):
 
 
 def add_to_group(students, groups):
+    if not hasattr(groups, "__iter__"):
+        groups = [groups]
     for student in students:
         student.groups.add(*groups)
 

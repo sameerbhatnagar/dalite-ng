@@ -36,22 +36,37 @@ def group():
     return add_groups(new_groups(1))[0]
 
 
-@pytest.fixture
-def assignment():
+@pytest.fixture()
+def questions():
     questions = add_questions(new_questions(10))
-    return add_assignments(new_assignments(1, questions, min_questions=10))[0]
+    add_answer_choices(2, questions)
+    return questions
 
 
 @pytest.fixture
-def student_group_assignment():
-    group = add_groups(new_groups(1))
-    questions = add_questions(new_questions(10))
-    assignment = add_assignments(
-        new_assignments(1, questions, min_questions=10)
-    )
+def assignment(questions):
+    return add_assignments(
+        new_assignments(1, questions, min_questions=len(questions))
+    )[0]
+
+
+@pytest.fixture
+def student_group_assignment(group, assignment):
     return add_student_group_assignments(
         new_student_group_assignments(1, group, assignment)
     )[0]
+
+
+@pytest.fixture
+def students_with_assignment(student_group_assignment):
+    students = add_students(new_students(20))
+    add_to_group(students, student_group_assignment.group)
+    add_student_assignments(
+        new_student_assignments(
+            len(students), student_group_assignment, students
+        )
+    )
+    return students
 
 
 @pytest.mark.django_db
@@ -190,222 +205,217 @@ def test_get_question_assert_raised(student_group_assignment):
     pass
 
 
-class TestGetStudentProgress(TestCase):
-    def setUp(self):
-        n_questions = 3
-        self.students = add_students(new_students(20))
-        groups = add_groups(new_groups(1))
-        add_to_group(self.students, groups)
-        self.questions = add_questions(new_questions(n_questions))
-        add_answer_choices(2, self.questions)
-        assignments = add_assignments(
-            new_assignments(1, self.questions, min_questions=n_questions)
-        )
-        self.assignment = add_student_group_assignments(
-            new_student_group_assignments(1, groups, assignments)
-        )[0]
-        add_student_assignments(
-            new_student_assignments(
-                len(self.students), [self.assignment], self.students
-            )
-        )
+@pytest.mark.django_db
+def test_get_student_progress_no_questions_done(
+    questions, students_with_assignment, student_group_assignment
+):
+    progress = student_group_assignment.get_student_progress()
 
-    def test_no_questions_done(self):
-        progress = self.assignment.get_student_progress()
+    assert not set(map(itemgetter("question_title"), progress)) - set(
+        (q.title for q in questions)
+    )
+    assert not set((q.title for q in questions)) - set(
+        map(itemgetter("question_title"), progress)
+    )
 
-        self.assertEqual(
-            0,
-            len(
-                set(map(itemgetter("question_title"), progress))
-                - set((q.title for q in self.questions))
-            ),
-        )
-        for question in progress:
-            self.assertEqual(len(self.students), len(question["students"]))
-            self.assertEqual(0, question["first"])
-            self.assertEqual(0, question["first_correct"])
-            self.assertEqual(0, question["second"])
-            self.assertEqual(0, question["second_correct"])
+    for question in progress:
+        assert len(question["students"]) == len(students_with_assignment)
+        assert question["first"] == 0
+        assert question["first_correct"] == 0
+        assert question["second"] == 0
+        assert question["second_correct"] == 0
 
-    def test_some_first_answers_done(self):
-        times_answered = {
-            q.pk: random.randrange(1, len(self.students))
-            for q in self.questions
-        }
-        add_answers(
-            [
-                {
-                    "question": question,
-                    "assignment": self.assignment.assignment,
-                    "user_token": student.student.username,
-                    "first_answer_choice": 1,
-                    "rationale": "test",
-                }
-                for question in self.questions
-                for student in self.students[: times_answered[question.pk]]
+
+@pytest.mark.django_db
+def test_get_student_progress_some_first_answers_done(
+    questions, students_with_assignment, student_group_assignment
+):
+    times_answered = {
+        q.pk: random.randrange(1, len(students_with_assignment))
+        for q in questions
+    }
+    add_answers(
+        [
+            {
+                "question": question,
+                "assignment": student_group_assignment.assignment,
+                "user_token": student.student.username,
+                "first_answer_choice": 1,
+                "rationale": "test",
+            }
+            for question in questions
+            for student in students_with_assignment[
+                : times_answered[question.pk]
             ]
+        ]
+    )
+
+    progress = student_group_assignment.get_student_progress()
+
+    assert not set(map(itemgetter("question_title"), progress)) - set(
+        (q.title for q in questions)
+    )
+    assert not set((q.title for q in questions)) - set(
+        map(itemgetter("question_title"), progress)
+    )
+
+    for question in progress:
+        question_ = next(
+            q for q in questions if q.title == question["question_title"]
         )
+        assert len(question["students"]) == len(students_with_assignment)
+        assert question["first"] == times_answered[question_.pk]
+        assert question["first_correct"] == times_answered[question_.pk]
+        assert question["second"] == 0
+        assert question["second_correct"] == 0
 
-        progress = self.assignment.get_student_progress()
 
-        self.assertEqual(
-            0,
-            len(
-                set(map(itemgetter("question_title"), progress))
-                - set((q.title for q in self.questions))
-            ),
+@pytest.mark.django_db
+def test_get_student_progress_all_first_answers_done(
+    questions, students_with_assignment, student_group_assignment
+):
+    add_answers(
+        [
+            {
+                "question": question,
+                "assignment": student_group_assignment.assignment,
+                "user_token": student.student.username,
+                "first_answer_choice": 1,
+                "rationale": "test",
+            }
+            for question in questions
+            for student in students_with_assignment
+        ]
+    )
+
+    progress = student_group_assignment.get_student_progress()
+
+    assert not set(map(itemgetter("question_title"), progress)) - set(
+        (q.title for q in questions)
+    )
+    assert not set((q.title for q in questions)) - set(
+        map(itemgetter("question_title"), progress)
+    )
+    print(progress)
+
+    for question in progress:
+        question_ = next(
+            q for q in questions if q.title == question["question_title"]
         )
-        for question in progress:
-            question_ = next(
-                q
-                for q in self.questions
-                if q.title == question["question_title"]
-            )
-            self.assertEqual(len(self.students), len(question["students"]))
-            self.assertEqual(times_answered[question_.pk], question["first"])
-            self.assertEqual(
-                times_answered[question_.pk], question["first_correct"]
-            )
-            self.assertEqual(0, question["second"])
-            self.assertEqual(0, question["second_correct"])
+        assert len(question["students"]) == len(students_with_assignment)
+        assert question["first"] == len(students_with_assignment)
+        assert question["first_correct"] == len(students_with_assignment)
+        assert question["second"] == 0
+        assert question["second_correct"] == 0
 
-    def test_all_first_answers_done(self):
-        add_answers(
-            [
-                {
-                    "question": question,
-                    "assignment": self.assignment.assignment,
-                    "user_token": student.student.username,
-                    "first_answer_choice": 1,
-                    "rationale": "test",
-                }
-                for question in self.questions
-                for student in self.students
-            ]
-        )
 
-        progress = self.assignment.get_student_progress()
-
-        self.assertEqual(
-            0,
-            len(
-                set(map(itemgetter("question_title"), progress))
-                - set((q.title for q in self.questions))
-            ),
-        )
-        for question in progress:
-            self.assertEqual(len(self.students), len(question["students"]))
-            self.assertEqual(len(self.students), question["first"])
-            self.assertEqual(len(self.students), question["first_correct"])
-            self.assertEqual(0, question["second"])
-            self.assertEqual(0, question["second_correct"])
-
-    def test_some_second_answers_done(self):
-        times_first_answered = {
-            q.pk: random.randrange(2, len(self.students))
-            for q in self.questions
-        }
-        times_second_answered = {
-            q.pk: random.randrange(1, times_first_answered[q.pk])
-            for q in self.questions
-        }
-        answers = add_answers(
-            [
-                {
-                    "question": question,
-                    "assignment": self.assignment.assignment,
-                    "user_token": student.student.username,
-                    "first_answer_choice": 1,
-                    "rationale": "test",
-                }
-                for question in self.questions
-                for student in self.students[
-                    times_second_answered[question.pk] : times_first_answered[
-                        question.pk
-                    ]
+@pytest.mark.django_db
+def test_get_student_progress_some_second_answers_done(
+    questions, students_with_assignment, student_group_assignment
+):
+    times_first_answered = {
+        q.pk: random.randrange(2, len(students_with_assignment))
+        for q in questions
+    }
+    times_second_answered = {
+        q.pk: random.randrange(1, times_first_answered[q.pk])
+        for q in questions
+    }
+    answers = add_answers(
+        [
+            {
+                "question": question,
+                "assignment": student_group_assignment.assignment,
+                "user_token": student.student.username,
+                "first_answer_choice": 1,
+                "rationale": "test",
+            }
+            for question in questions
+            for student in students_with_assignment[
+                times_second_answered[question.pk] : times_first_answered[
+                    question.pk
                 ]
             ]
-        )
-        answers += add_answers(
-            [
-                {
-                    "question": question,
-                    "assignment": self.assignment.assignment,
-                    "user_token": student.student.username,
-                    "first_answer_choice": 1,
-                    "rationale": "test",
-                    "second_answer_choice": 1,
-                    "chosen_rationale": random.choice(
-                        [a for a in answers if a.question == question]
-                    ),
-                }
-                for question in self.questions
-                for student in self.students[
-                    : times_second_answered[question.pk]
-                ]
+        ]
+    )
+    answers += add_answers(
+        [
+            {
+                "question": question,
+                "assignment": student_group_assignment.assignment,
+                "user_token": student.student.username,
+                "first_answer_choice": 1,
+                "rationale": "test",
+                "second_answer_choice": 1,
+                "chosen_rationale": random.choice(
+                    [a for a in answers if a.question == question]
+                ),
+            }
+            for question in questions
+            for student in students_with_assignment[
+                : times_second_answered[question.pk]
             ]
+        ]
+    )
+
+    progress = student_group_assignment.get_student_progress()
+
+    assert not set(map(itemgetter("question_title"), progress)) - set(
+        (q.title for q in questions)
+    )
+    assert not set((q.title for q in questions)) - set(
+        map(itemgetter("question_title"), progress)
+    )
+
+    for question in progress:
+        question_ = next(
+            q for q in questions if q.title == question["question_title"]
+        )
+        assert len(question["students"]) == len(students_with_assignment)
+        assert question["first"] == times_first_answered[question_.pk]
+        assert question["first_correct"] == times_first_answered[question_.pk]
+        assert question["second"] == times_second_answered[question_.pk]
+        assert (
+            question["second_correct"] == times_second_answered[question_.pk]
         )
 
-        progress = self.assignment.get_student_progress()
 
-        self.assertEqual(
-            0,
-            len(
-                set(map(itemgetter("question_title"), progress))
-                - set((q.title for q in self.questions))
-            ),
+@pytest.mark.django_db
+def test_get_student_progress_all_second_answers_done(
+    questions, students_with_assignment, student_group_assignment
+):
+    add_answers(
+        [
+            {
+                "question": question,
+                "assignment": student_group_assignment.assignment,
+                "user_token": student.student.username,
+                "first_answer_choice": 1,
+                "rationale": "test",
+                "second_answer_choice": 1,
+                "chosen_rationale": None,
+            }
+            for question in questions
+            for student in students_with_assignment
+        ]
+    )
+
+    progress = student_group_assignment.get_student_progress()
+
+    assert not set(map(itemgetter("question_title"), progress)) - set(
+        (q.title for q in questions)
+    )
+    assert not set((q.title for q in questions)) - set(
+        map(itemgetter("question_title"), progress)
+    )
+    print(progress)
+
+    for question in progress:
+        question_ = next(
+            q for q in questions if q.title == question["question_title"]
         )
-        for question in progress:
-            question_ = next(
-                q
-                for q in self.questions
-                if q.title == question["question_title"]
-            )
-            self.assertEqual(len(self.students), len(question["students"]))
-            self.assertEqual(
-                times_first_answered[question_.pk], question["first"]
-            )
-
-            self.assertEqual(
-                times_first_answered[question_.pk], question["first_correct"]
-            )
-            self.assertEqual(
-                times_second_answered[question_.pk], question["second"]
-            )
-            self.assertEqual(
-                times_second_answered[question_.pk], question["second_correct"]
-            )
-
-    def test_all_second_answers_done(self):
-
-        add_answers(
-            [
-                {
-                    "question": question,
-                    "assignment": self.assignment.assignment,
-                    "user_token": student.student.username,
-                    "first_answer_choice": 1,
-                    "rationale": "test",
-                    "second_answer_choice": 1,
-                    "chosen_rationale": None,
-                }
-                for question in self.questions
-                for student in self.students
-            ]
-        )
-
-        progress = self.assignment.get_student_progress()
-
-        self.assertEqual(
-            0,
-            len(
-                set(map(itemgetter("question_title"), progress))
-                - set((q.title for q in self.questions))
-            ),
-        )
-        for question in progress:
-            self.assertEqual(len(self.students), len(question["students"]))
-            self.assertEqual(len(self.students), question["first"])
-            self.assertEqual(len(self.students), question["first_correct"])
-            self.assertEqual(len(self.students), question["second"])
-            self.assertEqual(len(self.students), question["second_correct"])
+        assert len(question["students"]) == len(students_with_assignment)
+        assert question["first"] == len(students_with_assignment)
+        assert question["first_correct"] == len(students_with_assignment)
+        assert question["second"] == len(students_with_assignment)
+        assert question["second_correct"] == len(students_with_assignment)
