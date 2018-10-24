@@ -2,6 +2,7 @@ import random
 from datetime import datetime, timedelta
 from operator import itemgetter
 
+import pytest
 import pytz
 from django.test import TestCase
 
@@ -25,134 +26,168 @@ from peerinst.tests.generators import (
 )
 
 
-class TestNewStudentGroupAssignment(TestCase):
-    def setUp(self):
-        questions = add_questions(new_questions(100))
-        self.groups = add_groups(new_groups(2))
-        self.assignments = add_assignments(new_assignments(2, questions))
-
-    def test_working(self):
-        n = 4
-        data = new_student_group_assignments(n, self.groups, self.assignments)
-
-        for d in data:
-            group = StudentGroupAssignment.objects.create(**d)
-            n = len(group.assignment.questions.all())
-            self.assertIsInstance(group, StudentGroupAssignment)
-            self.assertEqual(group.group, d["group"])
-            self.assertEqual(group.assignment, d["assignment"])
-            self.assertEqual(group.order, ",".join(map(str, range(n))))
+@pytest.fixture
+def student():
+    return add_students(new_students(1))[0]
 
 
-class TestIsExpired(TestCase):
-    def setUp(self):
-        questions = add_questions(new_questions(100))
-        self.groups = add_groups(new_groups(2))
-        self.assignments = add_assignments(new_assignments(20, questions))
+@pytest.fixture()
+def group():
+    return add_groups(new_groups(1))[0]
 
-    def test_expired(self):
-        assignment = add_student_group_assignments(
-            new_student_group_assignments(
-                1,
-                self.groups,
-                self.assignments,
-                due_date=datetime.now(pytz.utc),
+
+@pytest.fixture
+def assignment():
+    questions = add_questions(new_questions(10))
+    return add_assignments(new_assignments(1, questions, min_questions=10))[0]
+
+
+@pytest.fixture
+def student_group_assignment():
+    group = add_groups(new_groups(1))
+    questions = add_questions(new_questions(10))
+    assignment = add_assignments(
+        new_assignments(1, questions, min_questions=10)
+    )
+    return add_student_group_assignments(
+        new_student_group_assignments(1, group, assignment)
+    )[0]
+
+
+@pytest.mark.django_db
+def test_new_student_group_assignment(group, assignment):
+    data = new_student_group_assignments(1, group, assignment)[0]
+    n_questions = assignment.questions.count()
+    student_group_assignment = StudentGroupAssignment.objects.create(**data)
+    assert isinstance(student_group_assignment, StudentGroupAssignment)
+    assert student_group_assignment.group == data["group"]
+    assert student_group_assignment.assignment == data["assignment"]
+    assert student_group_assignment.order == ",".join(
+        map(str, range(n_questions))
+    )
+
+
+@pytest.mark.django_db
+def test_is_expired_expired(group, assignment):
+    student_group_assignment = add_student_group_assignments(
+        new_student_group_assignments(
+            1, group, assignment, due_date=datetime.now(pytz.utc)
+        )
+    )[0]
+    assert student_group_assignment.is_expired()
+
+
+@pytest.mark.django_db
+def test_is_expired_not_expired(group, assignment):
+    student_group_assignment = add_student_group_assignments(
+        new_student_group_assignments(
+            1,
+            group,
+            assignment,
+            due_date=datetime.now(pytz.utc) + timedelta(days=1),
+        )
+    )[0]
+    assert not student_group_assignment.is_expired()
+
+
+@pytest.mark.django_db
+def test_hashing(student_group_assignment):
+    assert student_group_assignment == StudentGroupAssignment.get(
+        student_group_assignment.hash
+    )
+
+
+@pytest.mark.django_db
+def test_modify_order(student_group_assignment):
+    k = student_group_assignment.assignment.questions.count()
+    for _ in range(3):
+        new_order = ",".join(map(str, random.sample(range(k), k=k)))
+        err = student_group_assignment.modify_order(new_order)
+        assert err is None
+        assert new_order == student_group_assignment.order
+
+
+@pytest.mark.django_db
+def test_modify_order_wrong_type(student_group_assignment):
+    new_order = [1, 2, 3]
+    with pytest.raises(AssertionError):
+        student_group_assignment.modify_order(new_order)
+
+    new_order = "abc"
+    err = student_group_assignment.modify_order(new_order)
+    assert err == "Given `order` isn't a comma separated list of integers."
+
+    new_order = "a,b,c"
+    err = student_group_assignment.modify_order(new_order)
+    assert err == "Given `order` isn't a comma separated list of integers."
+
+
+@pytest.mark.django_db
+def test_questions(student_group_assignment):
+    k = len(student_group_assignment.questions)
+    new_order = ",".join(map(str, random.sample(range(k), k=k)))
+    err = student_group_assignment.modify_order(new_order)
+    assert err is None
+    for i, j in enumerate(map(int, new_order.split(","))):
+        assert (
+            student_group_assignment.questions[i]
+            == student_group_assignment.assignment.questions.all()[j]
+        )
+
+    assert new_order == student_group_assignment.order
+
+
+@pytest.mark.django_db
+def test_get_question_by_idx(student_group_assignment):
+    questions = student_group_assignment.questions
+    for i, question in enumerate(questions):
+        assert question == student_group_assignment.get_question(idx=i)
+
+
+@pytest.mark.django_db
+def test_get_question_regular(student_group_assignment):
+    questions = student_group_assignment.questions
+    for i, question in enumerate(questions):
+        if i != 0 and i != len(questions) - 1:
+            assert (
+                student_group_assignment.get_question(
+                    current_question=question, after=True
+                )
+                == questions[i + 1]
             )
-        )[0]
-        self.assertTrue(assignment.is_expired())
-
-    def test_not_expired(self):
-        assignment = add_student_group_assignments(
-            new_student_group_assignments(
-                1,
-                self.groups,
-                self.assignments,
-                due_date=datetime.now(pytz.utc) + timedelta(days=1),
-            )
-        )[0]
-        self.assertTrue(not assignment.is_expired())
-
-
-class TestHashing(TestCase):
-    def setUp(self):
-        questions = add_questions(new_questions(100))
-        self.groups = add_groups(new_groups(2))
-        self.assignments = add_assignments(new_assignments(20, questions))
-
-    def test_working(self):
-        n = 10
-        assignments = add_student_group_assignments(
-            new_student_group_assignments(n, self.groups, self.assignments)
-        )
-
-        for assignment in assignments:
-            self.assertEqual(
-                assignment, StudentGroupAssignment.get(assignment.hash)
+            assert (
+                student_group_assignment.get_question(
+                    current_question=question, after=False
+                )
+                == questions[i - 1]
             )
 
 
-class TestModifyOrder(TestCase):
-    def setUp(self):
-        questions = add_questions(new_questions(100))
-        self.groups = add_groups(new_groups(2))
-        self.assignments = add_assignments(new_assignments(20, questions))
-
-    def test_working(self):
-        n = 2
-        assignments = add_student_group_assignments(
-            new_student_group_assignments(n, self.groups, self.assignments)
+@pytest.mark.django_db
+def test_get_question_edges(student_group_assignment):
+    questions = student_group_assignment.questions
+    assert (
+        student_group_assignment.get_question(
+            current_question=questions[0], after=False
         )
-
-        for assignment in assignments:
-            k = len(assignment.assignment.questions.all())
-            new_order = ",".join(map(str, random.sample(range(k), k=k)))
-            err = assignment.modify_order(new_order)
-            self.assertIs(err, None)
-            self.assertEqual(new_order, assignment.order)
-
-    def test_wrong_type(self):
-        n = 1
-        assignment = add_student_group_assignments(
-            new_student_group_assignments(n, self.groups, self.assignments)
-        )[0]
-
-        new_order = [1, 2, 3]
-        self.assertRaises(AssertionError, assignment.modify_order, new_order)
-
-        new_order = "abc"
-        err = assignment.modify_order(new_order)
-        self.assertEqual(
-            err, "Given `order` isn't a comma separated list of integers."
+        is None
+    )
+    assert (
+        student_group_assignment.get_question(
+            current_question=questions[-1], after=True
         )
+        is None
+    )
 
-        new_order = "a,b,c"
-        err = assignment.modify_order(new_order)
-        self.assertEqual(
-            err, "Given `order` isn't a comma separated list of integers."
-        )
 
-    def test_wrong_values(self):
-        n = 1
-        assignment = add_student_group_assignments(
-            new_student_group_assignments(n, self.groups, self.assignments)
-        )[0]
-
-        n = len(assignment.assignment.questions.all())
-
-        data = ("-1,2,3", "1,2,{}".format(n), "1,1,2")
-
-        errors = (
-            "Given `order` has negative values.",
-            (
-                "Given `order` has at least one value bigger than the number "
-                "of questions."
-            ),
-            "There are duplicate values in `order`.",
-        )
-
-        for d, e in zip(data, errors):
-            err = assignment.modify_order(d)
-            self.assertEqual(err, e)
+@pytest.mark.django_db
+def test_get_question_assert_raised(student_group_assignment):
+    # To be revised with assertions in method
+    #  with pytest.raises(AssertionError):
+    #  student_group_assignment.get_question(
+    #  0, student_group_assignment.questions[0]
+    #  )
+    pass
 
 
 class TestGetStudentProgress(TestCase):
@@ -374,81 +409,3 @@ class TestGetStudentProgress(TestCase):
             self.assertEqual(len(self.students), question["first_correct"])
             self.assertEqual(len(self.students), question["second"])
             self.assertEqual(len(self.students), question["second_correct"])
-
-
-class TestQuestions(TestCase):
-    def setUp(self):
-        questions = add_questions(new_questions(10))
-        self.groups = add_groups(new_groups(2))
-        self.assignments = add_assignments(new_assignments(20, questions))
-
-    def test_working(self):
-        n = 2
-        assignments = add_student_group_assignments(
-            new_student_group_assignments(n, self.groups, self.assignments)
-        )
-
-        for assignment in assignments:
-            k = len(assignment.questions)
-            new_order = ",".join(map(str, random.sample(range(k), k=k)))
-            err = assignment.modify_order(new_order)
-            self.assertIs(err, None)
-            for i, j in enumerate(map(int, new_order.split(","))):
-                self.assertEqual(
-                    assignment.questions[i],
-                    assignment.assignment.questions.all()[j],
-                )
-
-            self.assertEqual(new_order, assignment.order)
-
-
-class TestGetQuestion(TestCase):
-    def setUp(self):
-        questions = add_questions(new_questions(10))
-        groups = add_groups(new_groups(1))
-        assignments = add_assignments(new_assignments(1, questions))
-        self.assignment = add_student_group_assignments(
-            new_student_group_assignments(1, groups, assignments)
-        )[0]
-
-    def test_get_question_by_idx(self):
-        questions = self.assignment.questions
-
-        for i, question in enumerate(questions):
-            question_ = self.assignment.get_question(idx=i)
-            self.assertEqual(question, question_)
-
-    def test_get_question_current_question_regular(self):
-        questions = self.assignment.questions
-
-        for i, question in enumerate(questions):
-            if i != 0 and i != len(questions) - 1:
-                question_ = self.assignment.get_question(
-                    current_question=question, after=True
-                )
-                self.assertEqual(question_, questions[i + 1])
-                question_ = self.assignment.get_question(
-                    current_question=question, after=False
-                )
-                self.assertEqual(question_, questions[i - 1])
-
-    def test_get_question_current_question_edges(self):
-        questions = self.assignment.questions
-
-        question_ = self.assignment.get_question(
-            current_question=questions[0], after=False
-        )
-        self.assertIs(question_, None)
-        question_ = self.assignment.get_question(
-            current_question=questions[-1], after=True
-        )
-        self.assertIs(question_, None)
-
-    def test_get_question_assert_raised(self):
-        pass
-        # To be revised with assertions in method
-        # self.assertRaises(
-        #    AssertionError,
-        #    self.assignment.get_question,
-        #    (0, self.assignment.questions[0]),
-        # )
