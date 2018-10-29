@@ -3,13 +3,13 @@ from __future__ import unicode_literals
 
 import base64
 from datetime import datetime
-import pytz
 
-from django.db import models
-from django.utils.translation import ugettext_lazy as _
+import pytz
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
+from django.db import models
 from django.utils import timezone
+from django.utils.translation import ugettext_lazy as _
 
 from .group import StudentGroup
 from .question import Question
@@ -190,6 +190,42 @@ class StudentGroupAssignment(models.Model):
         super(StudentGroupAssignment, self).save(*args, **kwargs)
 
     def get_student_progress(self):
+        """
+        Returns
+        -------
+        [
+            {
+                "question_title": str
+                    title of the question,
+                "n_choices" : int
+                    number of answer choices,
+                "correct" : Optional[int]
+                    indices of the correct answers (starting at 1),
+                "students" : [
+                    {
+                        "student" :{
+                            "username" : str,
+                            "email" : str
+                        },
+                        "answer": {
+                            "first" : Optional[int]
+                                index of the first answer if answered or None
+                                (starting at 1),
+                            "second" : Optional[int]
+                                index of the second answer if answered or None
+                                (starting at 1),
+                            "first_correct" : Optional[bool]
+                                if not answered, None, else if correct
+                            "second_correct" : Optional[bool]
+                                if not answered, None, else if correct
+                        }
+
+                    }
+                ]
+
+            }
+        ]
+        """
 
         students = self.group.students
         questions = self.questions
@@ -199,11 +235,11 @@ class StudentGroupAssignment(models.Model):
                 {
                     "question_title": question.title,
                     "n_choices": len(question.get_choices()),
-                    "correct": next(
+                    "correct": [
                         i + 1
                         for i, _ in enumerate(question.get_choices())
                         if question.is_correct(i + 1)
-                    ),
+                    ],
                     "students": [],
                 }
             )
@@ -232,12 +268,12 @@ class StudentGroupAssignment(models.Model):
                             "first_correct": None
                             if answer is None
                             else answer.first_answer_choice
-                            == progress[-1]["correct"],
+                            in progress[-1]["correct"],
                             "second_correct": None
                             if (answer is None)
                             or (answer.second_answer_choice is None)
                             else answer.second_answer_choice
-                            == progress[-1]["correct"],
+                            in progress[-1]["correct"],
                         },
                     }
                 )

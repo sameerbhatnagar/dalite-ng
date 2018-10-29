@@ -7,65 +7,12 @@ import pytz
 
 from peerinst.models import StudentGroupAssignment
 from peerinst.tests.generators import (
-    add_answer_choices,
     add_answers,
-    add_assignments,
-    add_groups,
-    add_questions,
-    add_student_assignments,
     add_student_group_assignments,
-    add_students,
-    add_to_group,
-    new_assignments,
-    new_groups,
-    new_questions,
-    new_student_assignments,
     new_student_group_assignments,
-    new_students,
 )
 
-
-@pytest.fixture
-def student():
-    return add_students(new_students(1))[0]
-
-
-@pytest.fixture()
-def group():
-    return add_groups(new_groups(1))[0]
-
-
-@pytest.fixture()
-def questions():
-    questions = add_questions(new_questions(10))
-    add_answer_choices(2, questions)
-    return questions
-
-
-@pytest.fixture
-def assignment(questions):
-    return add_assignments(
-        new_assignments(1, questions, min_questions=len(questions))
-    )[0]
-
-
-@pytest.fixture
-def student_group_assignment(group, assignment):
-    return add_student_group_assignments(
-        new_student_group_assignments(1, group, assignment)
-    )[0]
-
-
-@pytest.fixture
-def students_with_assignment(student_group_assignment):
-    students = add_students(new_students(20))
-    add_to_group(students, student_group_assignment.group)
-    add_student_assignments(
-        new_student_assignments(
-            len(students), student_group_assignment, students
-        )
-    )
-    return students
+from .fixtures import *  # noqa F403
 
 
 @pytest.mark.django_db
@@ -233,19 +180,22 @@ def test_get_student_progress_some_first_answers_done(
         q.pk: random.randrange(1, len(students_with_assignment))
         for q in questions
     }
+    n_correct = {
+        q.pk: random.randint(0, times_answered[q.pk]) for q in questions
+    }
     add_answers(
         [
             {
                 "question": question,
                 "assignment": student_group_assignment.assignment,
                 "user_token": student.student.username,
-                "first_answer_choice": 1,
+                "first_answer_choice": 1 + (i >= n_correct[question.pk]),
                 "rationale": "test",
             }
             for question in questions
-            for student in students_with_assignment[
-                : times_answered[question.pk]
-            ]
+            for i, student in enumerate(
+                students_with_assignment[: times_answered[question.pk]]
+            )
         ]
     )
 
@@ -264,7 +214,7 @@ def test_get_student_progress_some_first_answers_done(
         )
         assert len(question["students"]) == len(students_with_assignment)
         assert question["first"] == times_answered[question_.pk]
-        assert question["first_correct"] == times_answered[question_.pk]
+        assert question["first_correct"] == n_correct[question_.pk]
         assert question["second"] == 0
         assert question["second_correct"] == 0
 
@@ -273,17 +223,21 @@ def test_get_student_progress_some_first_answers_done(
 def test_get_student_progress_all_first_answers_done(
     questions, students_with_assignment, student_group_assignment
 ):
+    n_correct = {
+        q.pk: random.randint(0, len(students_with_assignment))
+        for q in questions
+    }
     add_answers(
         [
             {
                 "question": question,
                 "assignment": student_group_assignment.assignment,
                 "user_token": student.student.username,
-                "first_answer_choice": 1,
+                "first_answer_choice": 1 + (i >= n_correct[question.pk]),
                 "rationale": "test",
             }
             for question in questions
-            for student in students_with_assignment
+            for i, student in enumerate(students_with_assignment)
         ]
     )
 
@@ -295,12 +249,14 @@ def test_get_student_progress_all_first_answers_done(
     assert not set((q.title for q in questions)) - set(
         map(itemgetter("question_title"), progress)
     )
-    print(progress)
 
     for question in progress:
+        question_ = next(
+            q for q in questions if q.title == question["question_title"]
+        )
         assert len(question["students"]) == len(students_with_assignment)
         assert question["first"] == len(students_with_assignment)
-        assert question["first_correct"] == len(students_with_assignment)
+        assert question["first_correct"] == n_correct[question_.pk]
         assert question["second"] == 0
         assert question["second_correct"] == 0
 
@@ -313,9 +269,15 @@ def test_get_student_progress_some_second_answers_done(
         q.pk: random.randrange(2, len(students_with_assignment))
         for q in questions
     }
+    n_first_correct = {
+        q.pk: random.randint(0, times_first_answered[q.pk]) for q in questions
+    }
     times_second_answered = {
         q.pk: random.randrange(1, times_first_answered[q.pk])
         for q in questions
+    }
+    n_second_correct = {
+        q.pk: random.randint(0, times_second_answered[q.pk]) for q in questions
     }
     answers = add_answers(
         [
@@ -323,15 +285,21 @@ def test_get_student_progress_some_second_answers_done(
                 "question": question,
                 "assignment": student_group_assignment.assignment,
                 "user_token": student.student.username,
-                "first_answer_choice": 1,
+                "first_answer_choice": 1
+                + (
+                    i + times_second_answered[question.pk]
+                    >= n_first_correct[question.pk]
+                ),
                 "rationale": "test",
             }
             for question in questions
-            for student in students_with_assignment[
-                times_second_answered[question.pk] : times_first_answered[
-                    question.pk
+            for i, student in enumerate(
+                students_with_assignment[
+                    times_second_answered[question.pk] : times_first_answered[
+                        question.pk
+                    ]
                 ]
-            ]
+            )
         ]
     )
     answers += add_answers(
@@ -340,17 +308,18 @@ def test_get_student_progress_some_second_answers_done(
                 "question": question,
                 "assignment": student_group_assignment.assignment,
                 "user_token": student.student.username,
-                "first_answer_choice": 1,
+                "first_answer_choice": 1 + (i >= n_first_correct[question.pk]),
                 "rationale": "test",
-                "second_answer_choice": 1,
+                "second_answer_choice": 1
+                + (i >= n_second_correct[question.pk]),
                 "chosen_rationale": random.choice(
                     [a for a in answers if a.question == question]
                 ),
             }
             for question in questions
-            for student in students_with_assignment[
-                : times_second_answered[question.pk]
-            ]
+            for i, student in enumerate(
+                students_with_assignment[: times_second_answered[question.pk]]
+            )
         ]
     )
 
@@ -369,30 +338,37 @@ def test_get_student_progress_some_second_answers_done(
         )
         assert len(question["students"]) == len(students_with_assignment)
         assert question["first"] == times_first_answered[question_.pk]
-        assert question["first_correct"] == times_first_answered[question_.pk]
+        assert question["first_correct"] == n_first_correct[question_.pk]
         assert question["second"] == times_second_answered[question_.pk]
-        assert (
-            question["second_correct"] == times_second_answered[question_.pk]
-        )
+        assert question["second_correct"] == n_second_correct[question_.pk]
 
 
 @pytest.mark.django_db
 def test_get_student_progress_all_second_answers_done(
     questions, students_with_assignment, student_group_assignment
 ):
+    n_first_correct = {
+        q.pk: random.randint(0, len(students_with_assignment))
+        for q in questions
+    }
+    n_second_correct = {
+        q.pk: random.randint(0, len(students_with_assignment))
+        for q in questions
+    }
     add_answers(
         [
             {
                 "question": question,
                 "assignment": student_group_assignment.assignment,
                 "user_token": student.student.username,
-                "first_answer_choice": 1,
+                "first_answer_choice": 1 + (i >= n_first_correct[question.pk]),
                 "rationale": "test",
-                "second_answer_choice": 1,
+                "second_answer_choice": 1
+                + (i >= n_second_correct[question.pk]),
                 "chosen_rationale": None,
             }
             for question in questions
-            for student in students_with_assignment
+            for i, student in enumerate(students_with_assignment)
         ]
     )
 
@@ -404,11 +380,317 @@ def test_get_student_progress_all_second_answers_done(
     assert not set((q.title for q in questions)) - set(
         map(itemgetter("question_title"), progress)
     )
-    print(progress)
 
     for question in progress:
+        question_ = next(
+            q for q in questions if q.title == question["question_title"]
+        )
         assert len(question["students"]) == len(students_with_assignment)
         assert question["first"] == len(students_with_assignment)
-        assert question["first_correct"] == len(students_with_assignment)
+        assert question["first_correct"] == n_first_correct[question_.pk]
         assert question["second"] == len(students_with_assignment)
-        assert question["second_correct"] == len(students_with_assignment)
+        assert question["second_correct"] == n_second_correct[question_.pk]
+
+
+@pytest.mark.django_db
+def test_get_student_progress_all_answers_correct_no_questions_all_answers_correct_done(
+    questions_all_answers_correct,
+    students_with_assignment_all_answers_correct,
+    student_group_assignment_all_answers_correct,
+):
+    progress = (
+        student_group_assignment_all_answers_correct.get_student_progress()
+    )
+
+    assert not set(map(itemgetter("question_title"), progress)) - set(
+        (q.title for q in questions_all_answers_correct)
+    )
+    assert not set((q.title for q in questions_all_answers_correct)) - set(
+        map(itemgetter("question_title"), progress)
+    )
+
+    for question in progress:
+        assert len(question["students"]) == len(
+            students_with_assignment_all_answers_correct
+        )
+        assert question["first"] == 0
+        assert question["first_correct"] == 0
+        assert question["second"] == 0
+        assert question["second_correct"] == 0
+
+
+@pytest.mark.django_db
+def test_get_student_progress_all_answers_correct_some_first_answers_done(
+    questions_all_answers_correct,
+    students_with_assignment_all_answers_correct,
+    student_group_assignment_all_answers_correct,
+):
+    times_answered = {
+        q.pk: random.randrange(
+            1, len(students_with_assignment_all_answers_correct)
+        )
+        for q in questions_all_answers_correct
+    }
+    n_correct = {
+        q.pk: random.randint(0, times_answered[q.pk])
+        for q in questions_all_answers_correct
+    }
+    add_answers(
+        [
+            {
+                "question": question,
+                "assignment": student_group_assignment_all_answers_correct.assignment,
+                "user_token": student.student.username,
+                "first_answer_choice": 1 + (i >= n_correct[question.pk]),
+                "rationale": "test",
+            }
+            for question in questions_all_answers_correct
+            for i, student in enumerate(
+                students_with_assignment_all_answers_correct[
+                    : times_answered[question.pk]
+                ]
+            )
+        ]
+    )
+
+    progress = (
+        student_group_assignment_all_answers_correct.get_student_progress()
+    )
+
+    assert not set(map(itemgetter("question_title"), progress)) - set(
+        (q.title for q in questions_all_answers_correct)
+    )
+    assert not set((q.title for q in questions_all_answers_correct)) - set(
+        map(itemgetter("question_title"), progress)
+    )
+
+    for question in progress:
+        question_ = next(
+            q
+            for q in questions_all_answers_correct
+            if q.title == question["question_title"]
+        )
+        assert len(question["students"]) == len(
+            students_with_assignment_all_answers_correct
+        )
+        assert question["first"] == times_answered[question_.pk]
+        assert question["first_correct"] == times_answered[question_.pk]
+        assert question["second"] == 0
+        assert question["second_correct"] == 0
+
+
+@pytest.mark.django_db
+def test_get_student_progress_all_answers_correct_all_first_answers_done(
+    questions_all_answers_correct,
+    students_with_assignment_all_answers_correct,
+    student_group_assignment_all_answers_correct,
+):
+    n_correct = {
+        q.pk: random.randint(
+            0, len(students_with_assignment_all_answers_correct)
+        )
+        for q in questions_all_answers_correct
+    }
+    add_answers(
+        [
+            {
+                "question": question,
+                "assignment": student_group_assignment_all_answers_correct.assignment,
+                "user_token": student.student.username,
+                "first_answer_choice": 1 + (i >= n_correct[question.pk]),
+                "rationale": "test",
+            }
+            for question in questions_all_answers_correct
+            for i, student in enumerate(
+                students_with_assignment_all_answers_correct
+            )
+        ]
+    )
+
+    progress = (
+        student_group_assignment_all_answers_correct.get_student_progress()
+    )
+
+    assert not set(map(itemgetter("question_title"), progress)) - set(
+        (q.title for q in questions_all_answers_correct)
+    )
+    assert not set((q.title for q in questions_all_answers_correct)) - set(
+        map(itemgetter("question_title"), progress)
+    )
+
+    for question in progress:
+        assert len(question["students"]) == len(
+            students_with_assignment_all_answers_correct
+        )
+        assert question["first"] == len(
+            students_with_assignment_all_answers_correct
+        )
+        assert question["first_correct"] == len(
+            students_with_assignment_all_answers_correct
+        )
+        assert question["second"] == 0
+        assert question["second_correct"] == 0
+
+
+@pytest.mark.django_db
+def test_get_student_progress_all_answers_correct_some_second_answers_done(
+    questions_all_answers_correct,
+    students_with_assignment_all_answers_correct,
+    student_group_assignment_all_answers_correct,
+):
+    times_first_answered = {
+        q.pk: random.randrange(
+            2, len(students_with_assignment_all_answers_correct)
+        )
+        for q in questions_all_answers_correct
+    }
+    n_first_correct = {
+        q.pk: random.randint(0, times_first_answered[q.pk])
+        for q in questions_all_answers_correct
+    }
+    times_second_answered = {
+        q.pk: random.randrange(1, times_first_answered[q.pk])
+        for q in questions_all_answers_correct
+    }
+    n_second_correct = {
+        q.pk: random.randint(0, times_second_answered[q.pk])
+        for q in questions_all_answers_correct
+    }
+    answers = add_answers(
+        [
+            {
+                "question": question,
+                "assignment": student_group_assignment_all_answers_correct.assignment,
+                "user_token": student.student.username,
+                "first_answer_choice": 1
+                + (
+                    i + times_second_answered[question.pk]
+                    >= n_first_correct[question.pk]
+                ),
+                "rationale": "test",
+            }
+            for question in questions_all_answers_correct
+            for i, student in enumerate(
+                students_with_assignment_all_answers_correct[
+                    times_second_answered[question.pk] : times_first_answered[
+                        question.pk
+                    ]
+                ]
+            )
+        ]
+    )
+    answers += add_answers(
+        [
+            {
+                "question": question,
+                "assignment": student_group_assignment_all_answers_correct.assignment,
+                "user_token": student.student.username,
+                "first_answer_choice": 1 + (i >= n_first_correct[question.pk]),
+                "rationale": "test",
+                "second_answer_choice": 1
+                + (i >= n_second_correct[question.pk]),
+                "chosen_rationale": random.choice(
+                    [a for a in answers if a.question == question]
+                ),
+            }
+            for question in questions_all_answers_correct
+            for i, student in enumerate(
+                students_with_assignment_all_answers_correct[
+                    : times_second_answered[question.pk]
+                ]
+            )
+        ]
+    )
+
+    progress = (
+        student_group_assignment_all_answers_correct.get_student_progress()
+    )
+
+    assert not set(map(itemgetter("question_title"), progress)) - set(
+        (q.title for q in questions_all_answers_correct)
+    )
+    assert not set((q.title for q in questions_all_answers_correct)) - set(
+        map(itemgetter("question_title"), progress)
+    )
+
+    for question in progress:
+        question_ = next(
+            q
+            for q in questions_all_answers_correct
+            if q.title == question["question_title"]
+        )
+        assert len(question["students"]) == len(
+            students_with_assignment_all_answers_correct
+        )
+        assert question["first"] == times_first_answered[question_.pk]
+        assert question["first_correct"] == times_first_answered[question_.pk]
+        assert question["second"] == times_second_answered[question_.pk]
+        assert (
+            question["second_correct"] == times_second_answered[question_.pk]
+        )
+
+
+@pytest.mark.django_db
+def test_get_student_progress_all_answers_correct_all_second_answers_done(
+    questions_all_answers_correct,
+    students_with_assignment_all_answers_correct,
+    student_group_assignment_all_answers_correct,
+):
+    n_first_correct = {
+        q.pk: random.randint(
+            0, len(students_with_assignment_all_answers_correct)
+        )
+        for q in questions_all_answers_correct
+    }
+    n_second_correct = {
+        q.pk: random.randint(
+            0, len(students_with_assignment_all_answers_correct)
+        )
+        for q in questions_all_answers_correct
+    }
+    add_answers(
+        [
+            {
+                "question": question,
+                "assignment": student_group_assignment_all_answers_correct.assignment,
+                "user_token": student.student.username,
+                "first_answer_choice": 1 + (i >= n_first_correct[question.pk]),
+                "rationale": "test",
+                "second_answer_choice": 1
+                + (i >= n_second_correct[question.pk]),
+                "chosen_rationale": None,
+            }
+            for question in questions_all_answers_correct
+            for i, student in enumerate(
+                students_with_assignment_all_answers_correct
+            )
+        ]
+    )
+
+    progress = (
+        student_group_assignment_all_answers_correct.get_student_progress()
+    )
+
+    assert not set(map(itemgetter("question_title"), progress)) - set(
+        (q.title for q in questions_all_answers_correct)
+    )
+    assert not set((q.title for q in questions_all_answers_correct)) - set(
+        map(itemgetter("question_title"), progress)
+    )
+
+    for question in progress:
+        assert len(question["students"]) == len(
+            students_with_assignment_all_answers_correct
+        )
+        assert question["first"] == len(
+            students_with_assignment_all_answers_correct
+        )
+        assert question["first_correct"] == len(
+            students_with_assignment_all_answers_correct
+        )
+        assert question["second"] == len(
+            students_with_assignment_all_answers_correct
+        )
+        assert question["second_correct"] == len(
+            students_with_assignment_all_answers_correct
+        )

@@ -18,7 +18,6 @@ from peerinst.models import (
     StudentGroupAssignment,
     Teacher,
 )
-from tos.models import Consent as TosConsent
 
 
 def new_answers(n, assignments):
@@ -320,7 +319,6 @@ def add_users(users):
 
 
 def add_second_choice_to_answers(answers, assignment, n_second_choices=None):
-    assignments = set((a.assignment for a in answers))
     answers_ = [
         a
         for a in answers
@@ -336,12 +334,17 @@ def add_second_choice_to_answers(answers, assignment, n_second_choices=None):
     return answers
 
 
-def add_answer_choices(n_each, questions):
+def add_answer_choices(n_each, questions, all_correct=False):
     for question in questions:
         for i in range(n_each):
-            AnswerChoice.objects.create(
-                question=question, text=str(i), correct=i == 0
-            )
+            if all_correct:
+                AnswerChoice.objects.create(
+                    question=question, text=str(i), correct=True
+                )
+            else:
+                AnswerChoice.objects.create(
+                    question=question, text=str(i), correct=i == 0
+                )
 
 
 def add_to_group(students, groups):
