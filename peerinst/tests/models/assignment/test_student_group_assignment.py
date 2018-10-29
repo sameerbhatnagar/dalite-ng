@@ -4,7 +4,6 @@ from operator import itemgetter
 
 import pytest
 import pytz
-from django.test import TestCase
 
 from peerinst.models import StudentGroupAssignment
 from peerinst.tests.generators import (
@@ -299,9 +298,6 @@ def test_get_student_progress_all_first_answers_done(
     print(progress)
 
     for question in progress:
-        question_ = next(
-            q for q in questions if q.title == question["question_title"]
-        )
         assert len(question["students"]) == len(students_with_assignment)
         assert question["first"] == len(students_with_assignment)
         assert question["first_correct"] == len(students_with_assignment)
@@ -411,9 +407,6 @@ def test_get_student_progress_all_second_answers_done(
     print(progress)
 
     for question in progress:
-        question_ = next(
-            q for q in questions if q.title == question["question_title"]
-        )
         assert len(question["students"]) == len(students_with_assignment)
         assert question["first"] == len(students_with_assignment)
         assert question["first_correct"] == len(students_with_assignment)
