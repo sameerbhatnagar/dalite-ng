@@ -202,7 +202,7 @@ def test_leave_group_is_member_of_group(client, student, group):
         content_type="application/json",
     )
     assert resp.status_code == 200
-    assert not group in student.groups.all()
+    assert group not in student.groups.all()
 
 
 @pytest.mark.django_db
@@ -214,7 +214,7 @@ def test_leave_group_is_not_member_of_group(client, student, group):
         content_type="application/json",
     )
     assert resp.status_code == 200
-    assert not group in student.groups.all()
+    assert group not in student.groups.all()
 
 
 def test_login_page(client):
