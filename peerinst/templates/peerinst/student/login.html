@@ -34,7 +34,7 @@
       {% csrf_token %}
 
       <div class="mdc-text-field mdc-text-field--outlined" data-mdc-auto-init="MDCTextField">
-        <input type="email" id="form_email" name="email" class="mdc-text-field__input" required></input>
+        <input type="email" id="form_email" name="email" class="mdc-text-field__input" required autofocus></input>
         <label class="mdc-floating-label" for="form_email">
           {% trans 'Email' %}
         </label>
