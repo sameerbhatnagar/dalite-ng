@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 import base64
 from datetime import datetime
+import logging
 
 import pytz
 from django.contrib.auth.models import User
@@ -13,6 +14,8 @@ from django.utils.translation import ugettext_lazy as _
 
 from .group import StudentGroup
 from .question import Question
+
+logger = logging.getLogger("peerinst-models")
 
 
 class Assignment(models.Model):
@@ -170,17 +173,18 @@ class StudentGroupAssignment(models.Model):
 
     def send_assignment_emails(self, host):
         assert isinstance(host, basestring), "Precondition failed for `host`"
+        logger.debug(
+            "Sending assignment emails for student group assignment %d",
+            self.pk,
+        )
 
-        for student in self.group_set.student_set.all():
+        for student in self.group.student_set.all():
+            logger.debug(
+                "Sending assignment %d email for student %d",
+                self.pk,
+                student.pk,
+            )
             student.add_assignment(self, host)
-        #  for student in Student.objects.filter(groups=self.group):
-
-        #  assignment, _ = StudentAssignment.objects.get_or_create(
-        #  student=student, group_assignment=self
-        #  )
-        #  assignment.send_email(
-        #  host, mail_type="new_assignment", assignment_hash=self.hash
-        #  )
 
     def save(self, *args, **kwargs):
         if not self.order:
