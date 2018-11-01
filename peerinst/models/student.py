@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import logging
 import smtplib
 
 import pytz
@@ -17,6 +18,8 @@ from .answer import Answer
 from .assignment import StudentGroupAssignment
 from .group import StudentGroup
 from .question import Question
+
+logger = logging.getLogger("peerinst-models")
 
 
 class Student(models.Model):
@@ -181,9 +184,19 @@ class Student(models.Model):
                     assignment_ = StudentAssignment.objects.create(
                         student=self, group_assignment=assignment
                     )
+                    logger.debug(
+                        "Assignment %d created for student %d.",
+                        assignment_.pk,
+                        self.pk,
+                    )
                     if not assignment.is_expired():
                         # Just send active assignments
                         assignment_.send_email(host, "new_assignment")
+                        logger.debug(
+                            "Assignment %d sent to student %d.",
+                            assignment_.pk,
+                            self.pk,
+                        )
 
     def add_group(self, group):
         try:
@@ -192,9 +205,17 @@ class Student(models.Model):
             )
             membership.current_member = True
             membership.save()
+            logger.debug(
+                "Student %d added back to group %d.", self.pk, group.pk
+            )
         except StudentGroupMembership.DoesNotExist:
             StudentGroupMembership.objects.create(
                 student=self, group=group, current_member=True
+            )
+            logger.debug(
+                "Student %d added to group %d for the first time.",
+                self.pk,
+                group.pk,
             )
         # TODO to remove eventually when groups are fully integrated in
         # group membership
@@ -211,9 +232,19 @@ class Student(models.Model):
             pass
 
     def add_assignment(self, group_assignment, host=None):
-        assignment, _ = StudentAssignment.objects.get_or_create(
+        assignment, created = StudentAssignment.objects.get_or_create(
             student=self, group_assignment=group_assignment
         )
+        if created:
+            logger.debug(
+                "Assignment %d created for student %d.", assignment.pk, self.pk
+            )
+        else:
+            logger.debug(
+                "Assignment %d retrieved for student %d.",
+                assignment.pk,
+                self.pk,
+            )
         if host:
             assignment.send_email(host, mail_type="new_assignment")
 
@@ -381,11 +412,81 @@ class StudentAssignment(models.Model):
 
     def get_results(self):
         """
-        Returns the following results:
-            - number of first questions answered
-            - number of second questions answered (or None if not applicable)
-            - number of correct first questions answered
-            - number of correct second questions answered (or None if not
-              applicable)
+        Returns
+        -------
+        {
+            "n" : int
+                number of questions
+            "n_first_answered" : int
+                number of questions answered
+            "n_second_answered" : Optional[int]
+                number of questions answered with a second answer (or None if
+                not applicable)
+            "n_first_correct" : int
+                number of correct first answers
+            "n_second_correct" : Optional[int]
+                number of correct second answers (or None if not applicable)
+
+        }
         """
-        pass
+        data = [
+            {
+                "question": question,
+                "answer": (
+                    Answer.objects.filter(
+                        assignment=self.group_assignment.assignment,
+                        user_token=self.student.student.username,
+                        question=question,
+                    )
+                    or [None]
+                )[0],
+                "correct": [
+                    i + 1
+                    for i, _ in enumerate(question.get_choices())
+                    if question.is_correct(i + 1)
+                ],
+            }
+            for question in self.group_assignment.questions
+        ]
+
+        print(
+            [
+                (q["answer"].second_answer_choice, q["correct"])
+                for q in data
+                if q["answer"] is not None
+            ]
+        )
+
+        results = {
+            "n": len(data),
+            "n_first_answered": len(
+                [q for q in data if q["answer"] is not None]
+            ),
+            "n_second_answered": len(
+                [
+                    q
+                    for q in data
+                    if q["answer"] is not None
+                    and q["answer"].second_answer_choice is not None
+                ]
+            ),
+            "n_first_correct": len(
+                [
+                    q
+                    for q in data
+                    if q["answer"] is not None
+                    and q["answer"].first_answer_choice in q["correct"]
+                ]
+            ),
+            "n_second_correct": len(
+                [
+                    q
+                    for q in data
+                    if q["answer"] is not None
+                    and q["answer"].second_answer_choice is not None
+                    and q["answer"].second_answer_choice in q["correct"]
+                ]
+            ),
+        }
+
+        return results
