@@ -169,7 +169,12 @@ LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
     "formatters": {
-        "simple": {"format": "%(levelname)s | %(asctime)s | %(message)s"}
+        "simple": {"format": "%(levelname)s | %(asctime)s | %(message)s"},
+        "complete": {
+            "format": "%(asctime)s - %(name)s - %(levelname)s - "
+            "%(filename)s: %(lineno)d - %(message)s",
+            "datefmt": "%Y-%m-%d %H:%M:%S",
+        },
     },
     "version": 1,
     "disable_existing_loggers": False,
@@ -193,6 +198,18 @@ LOGGING = {
             "level": "INFO",
             "class": "logging.FileHandler",
             "filename": os.path.join(BASE_DIR, "log/tos.log"),
+        },
+        "peerinst_file_log": {
+            "level": "DEBUG" if DEBUG else "INFO",
+            "class": "logging.FileHandler",
+            "formatter": "complete",
+            "filename": os.path.join(BASE_DIR, "log", "peerinst.log"),
+        },
+        "peerinst_console_log": {
+            "level": "DEBUG" if DEBUG else "INFO",
+            "class": "logging.StreamHandler",
+            "formatter": "complete",
+            "stream": "ext://sys.stdout",
         },
     },
     "loggers": {
@@ -219,6 +236,21 @@ LOGGING = {
         "teacher_activity": {
             "handlers": ["file_teacher_log"],
             "level": "INFO",
+            "propagate": True,
+        },
+        "peerinst-models": {
+            "handlers": ["peerinst_file_log", "peerinst_console_log"],
+            "level": "DEBUG" if DEBUG else "INFO",
+            "propagate": True,
+        },
+        "peerinst-views": {
+            "handlers": ["peerinst_file_log", "peerinst_console_log"],
+            "level": "DEBUG" if DEBUG else "INFO",
+            "propagate": True,
+        },
+        "peerinst-auth": {
+            "handlers": ["peerinst_file_log", "peerinst_console_log"],
+            "level": "DEBUG" if DEBUG else "INFO",
             "propagate": True,
         },
     },
