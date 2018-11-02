@@ -449,14 +449,6 @@ class StudentAssignment(models.Model):
             for question in self.group_assignment.questions
         ]
 
-        print(
-            [
-                (q["answer"].second_answer_choice, q["correct"])
-                for q in data
-                if q["answer"] is not None
-            ]
-        )
-
         results = {
             "n": len(data),
             "n_first_answered": len(
