@@ -176,8 +176,6 @@ LOGGING = {
             "datefmt": "%Y-%m-%d %H:%M:%S",
         },
     },
-    "version": 1,
-    "disable_existing_loggers": False,
     "handlers": {
         "file_debug_log": {
             "level": "DEBUG",
