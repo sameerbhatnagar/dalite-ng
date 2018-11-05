@@ -152,7 +152,7 @@ def index_page(req):
     }
 
     context = {
-        "students": student,
+        "student": student,
         "groups": [
             {"title": group.title, "assignments": assignments[group]}
             for group in student.groups.all()
