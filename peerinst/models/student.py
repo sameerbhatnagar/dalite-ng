@@ -273,6 +273,9 @@ class StudentGroupMembership(models.Model):
     current_member = models.BooleanField(default=True)
     sending_email = models.BooleanField(default=True)
 
+    class Meta:
+        unique_together = ("student", "group")
+
 
 class StudentAssignment(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
@@ -483,3 +486,17 @@ class StudentAssignment(models.Model):
         }
 
         return results
+
+
+class StudentNotificationType(models.Model):
+    type = models.CharField(max_length=32, unique=True)
+    icon = models.TextField()
+
+
+class StudentNotifications(models.Model):
+    student = models.ForeignKey(Student)
+    notification = models.ForeignKey(StudentNotificationType)
+    created_on = models.DateTimeField(auto_now=True, null=True)
+    link = models.URLField(blank=True, null=True)
+    text = models.TextField()
+    hover_text = models.TextField(blank=True, null=True)

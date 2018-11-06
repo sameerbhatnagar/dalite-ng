@@ -40,6 +40,9 @@ def validate_student_group_data(req):
     """
     Checks if the request is a well formed json, contains the data to
     get student and group information and the student and group exist.
+    The user is obtained with a field `username` and the group with
+    either a field `group_name` or `group_link`.
+
     Returns
     -------
     Either:
@@ -301,8 +304,8 @@ def index_page(req):
             }
             for group in groups
         ],
+        "notifications": [],
     }
-    print(context)
 
     return render(req, "peerinst/student/index.html", context)
 

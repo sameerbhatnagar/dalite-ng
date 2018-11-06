@@ -1,6 +1,9 @@
 from django.core.signals import request_started
+from django.db.models.signals import post_migrate
 from django.dispatch import receiver
 from django.utils import timezone
+
+from .models import StudentNotificationType
 
 
 @receiver(request_started)
@@ -24,3 +27,17 @@ def logger_signal(sender, environ, **kwargs):
         # import pprint
         # pprint.pprint(log)
         pass
+
+
+@receiver(post_migrate)
+def student_notification_type_init_signal(sender, **kwargs):
+    notifications = [
+        {"type": "new_assignment", "icon": "assignment"},
+        {"type": "assignment_about_to_expire", "icon": "assignment_late"},
+        {"type": "assignment_due_date_changed", "icon": "schedule"},
+    ]
+    for notification in notifications:
+        if not StudentNotificationType.objects.filter(
+            type=notification["type"]
+        ).exists():
+            StudentNotificationType.objects.create(**notification)
