@@ -133,7 +133,7 @@ def confirm_signup_through_link(request, group_hash, token):
         student = get_object_or_404(Student, student__username=username)
         student.student.is_active = True
         student.student.save()
-        student.add_group(group)
+        student.join_group(group)
         student.send_missing_assignments(group, request.get_host())
 
         return TemplateResponse(

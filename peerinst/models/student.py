@@ -184,7 +184,7 @@ class Student(models.Model):
                     assignment_ = StudentAssignment.objects.create(
                         student=self, group_assignment=assignment
                     )
-                    logger.debug(
+                    logger.info(
                         "Assignment %d created for student %d.",
                         assignment_.pk,
                         self.pk,
@@ -192,27 +192,27 @@ class Student(models.Model):
                     if not assignment.is_expired():
                         # Just send active assignments
                         assignment_.send_email(host, "new_assignment")
-                        logger.debug(
+                        logger.info(
                             "Assignment %d sent to student %d.",
                             assignment_.pk,
                             self.pk,
                         )
 
-    def add_group(self, group):
+    def join_group(self, group):
         try:
             membership = StudentGroupMembership.objects.get(
                 student=self, group=group
             )
             membership.current_member = True
             membership.save()
-            logger.debug(
+            logger.info(
                 "Student %d added back to group %d.", self.pk, group.pk
             )
         except StudentGroupMembership.DoesNotExist:
             StudentGroupMembership.objects.create(
                 student=self, group=group, current_member=True
             )
-            logger.debug(
+            logger.info(
                 "Student %d added to group %d for the first time.",
                 self.pk,
                 group.pk,
@@ -236,11 +236,11 @@ class Student(models.Model):
             student=self, group_assignment=group_assignment
         )
         if created:
-            logger.debug(
+            logger.info(
                 "Assignment %d created for student %d.", assignment.pk, self.pk
             )
         else:
-            logger.debug(
+            logger.info(
                 "Assignment %d retrieved for student %d.",
                 assignment.pk,
                 self.pk,

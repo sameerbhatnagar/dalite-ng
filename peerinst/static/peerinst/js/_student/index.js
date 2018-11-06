@@ -2,6 +2,15 @@
 
 import { buildReq } from "../_ajax/utils.js";
 
+export function toggleJoinGroup() {
+  let box = document.getElementById("student-page-add-group--box");
+  if (box.style.display == "none") {
+    box.style.display = "flex";
+  } else {
+    box.style.display = "none";
+  }
+}
+
 export function toggleLeaveGroup(event) {
   let element = event.currentTarget;
   let div;
@@ -21,6 +30,33 @@ export function toggleLeaveGroup(event) {
   }
 }
 
+export function joinGroup(url, username) {
+  let input = document.querySelector("#student-page-add-group--box input");
+  let select = document.querySelector("#student-page-add-group--box select");
+
+  let data;
+  if (input.value) {
+    data = {
+      username: username,
+      group_link: input.value,
+    };
+  } else {
+    data = {
+      username: username,
+      group_name: select.value,
+    };
+  }
+
+  let req = buildReq(data, "post");
+  fetch(url, req)
+    .then(function(resp) {
+      location.reload();
+    })
+    .catch(function(err) {
+      console.log(err);
+    });
+}
+
 export function leaveGroup(event, url, username, groupName) {
   let groupNode =
     event.currentTarget.parentNode.parentNode.parentNode.parentNode.parentNode;
@@ -38,6 +74,17 @@ export function leaveGroup(event, url, username, groupName) {
       console.log(resp);
     }
   });
+}
+
+export function verifyJoinGroupDisabledStatus() {
+  let input = document.querySelector("#student-page-add-group--box input");
+  let select = document.querySelector("#student-page-add-group--box select");
+
+  if (input.value) {
+    select.disabled = true;
+  } else {
+    select.disabled = false;
+  }
 }
 
 export function toggleGroupNotifications(event, url, username, groupName) {

@@ -4,7 +4,7 @@ import hashlib
 import pytest
 from django.core import mail
 
-from peerinst.models import Student, StudentAssignment, StudentGroupAssignment
+from peerinst.models import Student, StudentAssignment
 
 from peerinst.tests.generators import (
     add_assignments,
@@ -135,8 +135,8 @@ def test_send_missing_assignments():
 
 
 @pytest.mark.django_db
-def test_add_group(student, group):
-    student.add_group(group)
+def test_join_group(student, group):
+    student.join_group(group)
 
     assert group in student.student_groups.all()
     assert group in student.current_groups

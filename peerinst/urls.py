@@ -470,6 +470,11 @@ def student_patterns():
         ),
         url(r"^student/$", views.student.index_page, name="student-page"),
         url(
+            r"^student/join-group/$",
+            views.student.join_group,
+            name="student-join-group",
+        ),
+        url(
             r"^student/leave-group/$",
             views.student.leave_group,
             name="student-leave-group",

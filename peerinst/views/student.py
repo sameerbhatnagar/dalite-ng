@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 import json
 import logging
+import re
 from datetime import datetime, timedelta
 
 import pytz
@@ -60,7 +61,6 @@ def validate_student_group_data(req):
 
     try:
         username = data["username"]
-        group_name = data["group_name"]
     except KeyError as e:
         logger.warning("The arguments '%s' were missing.", ",".join(e.args))
         resp = TemplateResponse(
@@ -69,6 +69,24 @@ def validate_student_group_data(req):
             context={"message": _("There are missing parameters.")},
         )
         return HttpResponseBadRequest(resp.render())
+
+    try:
+        group_name = data["group_name"]
+        group_link = None
+    except KeyError:
+        try:
+            group_link = data["group_link"]
+            group_name = None
+        except KeyError:
+            logger.warning(
+                "The arguments 'group_name' or 'group_link' were missing."
+            )
+            resp = TemplateResponse(
+                req,
+                "400.html",
+                context={"message": _("There are missing parameters.")},
+            )
+            return HttpResponseBadRequest(resp.render())
 
     try:
         student = Student.objects.get(student__username=username)
@@ -88,23 +106,61 @@ def validate_student_group_data(req):
         )
         return HttpResponseBadRequest(resp.render())
 
-    try:
-        group = StudentGroup.objects.get(name=group_name)
-    except StudentGroup.DoesNotExist:
-        logger.warning(
-            "There is no group corresponding to the name %s.", group_name
-        )
-        resp = TemplateResponse(
-            req,
-            "400.html",
-            context={
-                "message": _(
-                    "The group doesn't seem to exist. Refresh the page and "
-                    "try again"
-                )
-            },
-        )
-        return HttpResponseBadRequest(resp.render())
+    if group_name is None:
+        try:
+            hash_ = re.match(
+                r"live/signup/form/([0-9A-Za-z=_-]+)$", group_link
+            ).group(1)
+        except AttributeError:
+            logger.warning(
+                "A student signup was tried with the link %s.", group_link
+            )
+            resp = TemplateResponse(
+                req,
+                "400.html",
+                context={
+                    "message": _(
+                        "There pas an error parsing the sent link. Please try "
+                        "again."
+                    )
+                },
+            )
+            return HttpResponseBadRequest(resp.render())
+        group = StudentGroup.get(hash_)
+        if group is None:
+            logger.warning(
+                "There is no group corresponding to the hash %s.", hash_
+            )
+            resp = TemplateResponse(
+                req,
+                "400.html",
+                context={
+                    "message": _(
+                        "There doesn't seem to be any group corresponding to"
+                        "the link. Please try again."
+                    )
+                },
+            )
+            return HttpResponseBadRequest(resp.render())
+
+    else:
+        try:
+            group = StudentGroup.objects.get(name=group_name)
+        except StudentGroup.DoesNotExist:
+            logger.warning(
+                "There is no group corresponding to the name %s.", group_name
+            )
+            resp = TemplateResponse(
+                req,
+                "400.html",
+                context={
+                    "message": _(
+                        "The group doesn't seem to exist. Refresh the page "
+                        "and try again"
+                    )
+                },
+            )
+            return HttpResponseBadRequest(resp.render())
 
     return student, group
 
@@ -187,6 +243,8 @@ def index_page(req):
     else:
         protocol = "https"
 
+    groups = StudentGroupMembership.objects.filter(student=student)
+
     assignments = {
         group: [
             {
@@ -206,10 +264,10 @@ def index_page(req):
                 "results": assignment.get_results(),
             }
             for assignment in StudentAssignment.objects.filter(
-                student=student, group_assignment__group=group
+                student=student, group_assignment__group=group.group
             )
         ]
-        for group in student.groups.all()
+        for group in groups
     }
 
     assignments = {
@@ -235,18 +293,36 @@ def index_page(req):
         "student": student,
         "groups": [
             {
-                "name": group.name,
-                "title": group.title,
-                "notifications": StudentGroupMembership.objects.get(
-                    group=group, student=student
-                ).sending_email,
+                "name": group.group.name,
+                "title": group.group.title,
+                "notifications": group.sending_email,
+                "member_of": group.current_member,
                 "assignments": assignments[group],
             }
-            for group in student.groups.all()
+            for group in groups
         ],
     }
+    print(context)
 
     return render(req, "peerinst/student/index.html", context)
+
+
+@require_http_methods(["POST"])
+def join_group(req):
+    result = validate_student_group_data(req)
+    if isinstance(result, HttpResponse):
+        return result
+    else:
+        student, group = result
+
+    student.join_group(group)
+    print(
+        StudentGroupMembership.objects.filter(student=student, group=group)[
+            0
+        ].current_member
+    )
+
+    return HttpResponse()
 
 
 @require_http_methods(["POST"])
@@ -257,7 +333,7 @@ def leave_group(req):
     else:
         student, group = result
 
-    student.groups.remove(group)
+    student.leave_group(group)
 
     return HttpResponse()
 
