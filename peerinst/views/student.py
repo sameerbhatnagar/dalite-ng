@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from datetime import datetime, timedelta
-import pytz
 import json
 import logging
+from datetime import datetime, timedelta
 
+import pytz
 from django.contrib.auth import login, logout
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
@@ -13,13 +13,19 @@ from django.http import (
     HttpResponse,
     HttpResponseBadRequest,
     HttpResponseForbidden,
+    JsonResponse,
 )
 from django.shortcuts import render
 from django.template.response import TemplateResponse
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_http_methods
 
-from ..models import Student, StudentAssignment, StudentGroup
+from ..models import (
+    Student,
+    StudentAssignment,
+    StudentGroup,
+    StudentGroupMembership,
+)
 from ..students import (
     authenticate_student,
     create_student_token,
@@ -27,6 +33,80 @@ from ..students import (
 )
 
 logger = logging.getLogger("peerinst-views")
+
+
+def validate_student_group_data(req):
+    """
+    Checks if the request is a well formed json, contains the data to
+    get student and group information and the student and group exist.
+    Returns
+    -------
+    Either:
+    (Student, StudentGroup)
+        Student and group corresponding for the request
+    HttpResponse
+        Response corresponding to the obtained error
+    """
+    try:
+        data = json.loads(req.body)
+    except ValueError:
+        logger.warning("The sent data wasn't in a valid JSON format.")
+        resp = TemplateResponse(
+            req,
+            "400.html",
+            context={"message": _("Wrong data type was sent.")},
+        )
+        return HttpResponseBadRequest(resp.render())
+
+    try:
+        username = data["username"]
+        group_name = data["group_name"]
+    except KeyError as e:
+        logger.warning("The arguments '%s' were missing.", ",".join(e.args))
+        resp = TemplateResponse(
+            req,
+            "400.html",
+            context={"message": _("There are missing parameters.")},
+        )
+        return HttpResponseBadRequest(resp.render())
+
+    try:
+        student = Student.objects.get(student__username=username)
+    except Student.DoesNotExist:
+        logger.warning(
+            "There is no student corresponding to the username %s.", username
+        )
+        resp = TemplateResponse(
+            req,
+            "400.html",
+            context={
+                "message": _(
+                    "The student doesn't seem to exist. Refresh the page and "
+                    "try again"
+                )
+            },
+        )
+        return HttpResponseBadRequest(resp.render())
+
+    try:
+        group = StudentGroup.objects.get(name=group_name)
+    except StudentGroup.DoesNotExist:
+        logger.warning(
+            "There is no group corresponding to the name %s.", group_name
+        )
+        resp = TemplateResponse(
+            req,
+            "400.html",
+            context={
+                "message": _(
+                    "The group doesn't seem to exist. Refresh the page and "
+                    "try again"
+                )
+            },
+        )
+        return HttpResponseBadRequest(resp.render())
+
+    return student, group
 
 
 @require_http_methods(["GET"])
@@ -154,7 +234,14 @@ def index_page(req):
     context = {
         "student": student,
         "groups": [
-            {"title": group.title, "assignments": assignments[group]}
+            {
+                "name": group.name,
+                "title": group.title,
+                "notifications": StudentGroupMembership.objects.get(
+                    group=group, student=student
+                ).sending_email,
+                "assignments": assignments[group],
+            }
             for group in student.groups.all()
         ],
     }
@@ -164,68 +251,35 @@ def index_page(req):
 
 @require_http_methods(["POST"])
 def leave_group(req):
-    try:
-        data = json.loads(req.body)
-    except ValueError:
-        logger.warning("The sent data wasn't in a valid JSON format.")
-        resp = TemplateResponse(
-            req,
-            "400.html",
-            context={"message": _("Wrong data type was sent.")},
-        )
-        return HttpResponseBadRequest(resp.render())
-
-    try:
-        username = data["username"]
-        group_name = data["group_name"]
-    except KeyError as e:
-        logger.warning("The arguments '%s' were missing.", ",".join(e.args))
-        resp = TemplateResponse(
-            req,
-            "400.html",
-            context={"message": _("There are missing parameters.")},
-        )
-        return HttpResponseBadRequest(resp.render())
-
-    try:
-        student = Student.objects.get(student__username=username)
-    except Student.DoesNotExist:
-        logger.warning(
-            "There is no student corresponding to the username %s.", username
-        )
-        resp = TemplateResponse(
-            req,
-            "400.html",
-            context={
-                "message": _(
-                    "The student doesn't seem to exist. Refresh the page and "
-                    "try again"
-                )
-            },
-        )
-        return HttpResponseBadRequest(resp.render())
-
-    try:
-        group = StudentGroup.objects.get(name=group_name)
-    except StudentGroup.DoesNotExist:
-        logger.warning(
-            "There is no group corresponding to the name %s.", group_name
-        )
-        resp = TemplateResponse(
-            req,
-            "400.html",
-            context={
-                "message": _(
-                    "The group doesn't seem to exist. Refresh the page and "
-                    "try again"
-                )
-            },
-        )
-        return HttpResponseBadRequest(resp.render())
+    result = validate_student_group_data(req)
+    if isinstance(result, HttpResponse):
+        return result
+    else:
+        student, group = result
 
     student.groups.remove(group)
 
     return HttpResponse()
+
+
+@require_http_methods(["POST"])
+def toggle_group_notifications(req):
+    result = validate_student_group_data(req)
+    if isinstance(result, HttpResponse):
+        return result
+    else:
+        student, group = result
+
+    membership = StudentGroupMembership.objects.get(
+        student=student, group=group
+    )
+
+    notifications = not membership.sending_email
+
+    membership.sending_email = notifications
+    membership.save()
+
+    return JsonResponse({"notifications": notifications})
 
 
 @require_http_methods(["GET"])

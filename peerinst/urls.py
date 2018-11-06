@@ -475,6 +475,11 @@ def student_patterns():
             name="student-leave-group",
         ),
         url(
+            r"^student/toggle-group-notifications/$",
+            views.student.toggle_group_notifications,
+            name="student-toggle-group-notifications",
+        ),
+        url(
             r"^student/login/$", views.student.login_page, name="student-login"
         ),
         url(

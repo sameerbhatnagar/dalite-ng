@@ -1,1 +1,5 @@
-export { toggleLeaveGroup, leaveGroup } from "./_student/index.js";
+export {
+  toggleLeaveGroup,
+  leaveGroup,
+  toggleGroupNotifications,
+} from "./_student/index.js";

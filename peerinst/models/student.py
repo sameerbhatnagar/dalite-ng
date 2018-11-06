@@ -271,6 +271,7 @@ class StudentGroupMembership(models.Model):
     student = models.ForeignKey(Student)
     group = models.ForeignKey(StudentGroup)
     current_member = models.BooleanField(default=True)
+    sending_email = models.BooleanField(default=True)
 
 
 class StudentAssignment(models.Model):

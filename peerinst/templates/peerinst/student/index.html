@@ -54,12 +54,37 @@
         <div class="student-group">
           <div class="student-group--title">
             <h3>{{ group.title }}</h3>
-            <div class="student-group--remove">
+            <div class="student-group--notifications">
+              {% if group.notifications %}
+              <i class="material-icons md-28"
+                 onclick="bundle.toggleGroupNotifications(
+                   event,
+                   '{% url 'student-toggle-group-notifications' %}',
+                   '{{ student.student.username }}',
+                   '{{ group.name }}'
+                 )"
+                 title="Deactivate email notifications for this group">
+                notifications
+              </i>
+              {% else %}
+              <i class="material-icons md-28 student-group--notifications__disabled"
+                 onclick="bundle.toggleGroupNotifications(
+                   event,
+                   '{% url 'student-toggle-group-notifications' %}',
+                   '{{ student.student.username }}',
+                   '{{ group.name }}'
+                 )"
+                 title="Activate email notifications for this group">
+                notifications_off
+              </i>
+              {% endif %}
+            </div>
+            <div class="student-group--remove"
+                 title="{% trans 'Leave group' %}">
               <i class="material-icons md-28"
                  onclick="bundle.toggleLeaveGroup(event)">
                 close
               </i>
-
               <div class="student-group--remove-confirmation-box" 
                    style="display: none;"
                    onclick="event.stopPropagation; bundle.toggleLeaveGroup(event)">
@@ -88,7 +113,6 @@
                   </button>
                 </div>
               </div>
-
             </div>
           </div>
           <div class="student-group--assignments">
