@@ -449,7 +449,7 @@ def group_patterns():
             name="send-student-assignment",
         ),
         url(
-            r"^group-assignment/(?P<assignment_hash>[0-9A-Za-z=_-]+)/student-progress/$",
+            r"^group-assignment/(?P<assignment_hash>[0-9A-Za-z=_-]+)/student-progress/$",  # noqa
             views.get_assignment_student_progress,
             name="get-assignment-student-progress",
         ),
