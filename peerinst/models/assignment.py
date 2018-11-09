@@ -183,6 +183,43 @@ class StudentGroupAssignment(models.Model):
             )
             student.add_assignment(self, host)
 
+    def update(self, name, value):
+        """
+        Updates the field with the given `name` with the new `value`.
+
+        Parameters
+        ----------
+        name : str
+            Name of the field
+        value : Any
+            New value of the field
+
+        Returns
+        -------
+        err : Optional[str]
+            Error message if there is any
+        """
+        err = None
+        if name == "due_date":
+            self.due_date = datetime.strptime(
+                value[:-5], "%Y-%m-%dT%H:%M:%S"
+            ).replace(tzinfo=pytz.utc)
+            self.save()
+
+        elif name == "question_list":
+            questions = [q.title for q in self.assignment.questions.all()]
+            order = ",".join(str(questions.index(v)) for v in value)
+            err = self.modify_order(order)
+            if err is not None:
+                err = _(
+                    "There was an error changing the question order. "
+                    "The problem will soon be resolved."
+                )
+        else:
+            err = _("Wrong data type was sent.")
+
+        return err
+
     def save(self, *args, **kwargs):
         if not self.order:
             self.order = ",".join(

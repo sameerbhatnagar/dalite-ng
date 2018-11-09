@@ -2,9 +2,7 @@
 from __future__ import unicode_literals
 
 import json
-from datetime import datetime
 
-import pytz
 from django.contrib.auth.decorators import login_required
 from django.http import (
     HttpResponse,
@@ -154,35 +152,10 @@ def group_assignment_update(req, assignment_hash, teacher, group, assignment):
     if isinstance(name, HttpResponse):
         return name
 
-    if name == "due_date":
-        assignment.due_date = datetime.strptime(
-            value[:-5], "%Y-%m-%dT%H:%M:%S"
-        ).replace(tzinfo=pytz.utc)
-        assignment.save()
+    err = assignment.update(name, value)
 
-    elif name == "question_list":
-        questions = [q.title for q in assignment.assignment.questions.all()]
-        order = ",".join(str(questions.index(v)) for v in value)
-        err = assignment.modify_order(order)
-        if err is not None:
-            resp = TemplateResponse(
-                req,
-                "500.html",
-                context={
-                    "message": _(
-                        "There was an error changing the question order. "
-                        "The problem will soon be resolved."
-                    )
-                },
-            )
-            return HttpResponseBadRequest(resp.render())
-
-    else:
-        resp = TemplateResponse(
-            req,
-            "400.html",
-            context={"message": _("Wrong data type was sent.")},
-        )
+    if err is not None:
+        resp = TemplateResponse(req, "400.html", context={"message": err})
         return HttpResponseBadRequest(resp.render())
 
     return HttpResponse(content_type="text/plain")
