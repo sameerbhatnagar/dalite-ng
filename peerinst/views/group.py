@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+
+import json
 from datetime import datetime
 
+import pytz
 from django.contrib.auth.decorators import login_required
 from django.http import (
     HttpResponse,
     HttpResponseBadRequest,
-    HttpResponseForbidden,
-    HttpResponseRedirect,
     HttpResponseServerError,
     JsonResponse,
 )
@@ -15,8 +16,6 @@ from django.shortcuts import render
 from django.template.response import TemplateResponse
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_http_methods
-import json
-import pytz
 
 from peerinst.models import (
     Student,
@@ -130,7 +129,9 @@ def group_assignment_page(req, assignment_hash, teacher, group, assignment):
         "group": group,
         "assignment": assignment,
         "questions": assignment.questions,
-        "students_with_answers": assignment.assignment.answer_set.values_list('user_token', flat=True),
+        "students_with_answers": assignment.assignment.answer_set.values_list(
+            "user_token", flat=True
+        ),
     }
 
     return render(req, "peerinst/group/assignment.html", context)
@@ -163,6 +164,18 @@ def group_assignment_update(req, assignment_hash, teacher, group, assignment):
         questions = [q.title for q in assignment.assignment.questions.all()]
         order = ",".join(str(questions.index(v)) for v in value)
         err = assignment.modify_order(order)
+        if err is not None:
+            resp = TemplateResponse(
+                req,
+                "500.html",
+                context={
+                    "message": _(
+                        "There was an error changing the question order. "
+                        "The problem will soon be resolved."
+                    )
+                },
+            )
+            return HttpResponseBadRequest(resp.render())
 
     else:
         resp = TemplateResponse(
