@@ -2,8 +2,8 @@
 from __future__ import unicode_literals
 
 import base64
-from datetime import datetime
 import logging
+from datetime import datetime
 
 import pytz
 from django.contrib.auth.models import User
@@ -104,17 +104,77 @@ class StudentGroupAssignment(models.Model):
         ), "Postcondition failed"
         return output
 
-    def _modify_order(self, order):
-        err = self._verify_order(order)
-        if err is None:
-            self.order = order
-            self.save()
+    def _modify_due_date(self, due_date):
+        """
+        Modifies the due date.
 
-        output = err
+        Parameters
+        ----------
+        due_date : str
+            String in the format "%Y-%m-%dT%H:%M:%S(.%f)?"
+
+        Returns
+        -------
+        err : Optional[str]
+            Error message if there is any
+        """
+        err = None
+        prev_due_date = self.due_date
+        try:
+            self.due_date = datetime.strptime(
+                due_date[:-5], "%Y-%m-%dT%H:%M:%S"
+            ).replace(tzinfo=pytz.utc)
+        except ValueError:
+            err = (
+                "The given due date wasn't in the format "
+                '"%Y-%m-%dT%H:%M:%S(.%f)?"'
+            )
+            logger.error(err)
+        else:
+            self.save()
+            logger.info(
+                "Student group assignment {}".format(self.pk)
+                + " due date updated to {} from {}.".format(
+                    self.due_date, prev_due_date
+                )
+            )
         assert (err is None) or isinstance(
             err, basestring
         ), "Postcondition failed"
-        return output
+        return err
+
+    def _modify_order(self, order):
+        """
+        Modifies the question order.
+
+        Parameters
+        ----------
+        order : str
+            New order as a string of indices separated by commas
+
+        Returns
+        -------
+        err : Optional[str]
+            Error message if there is any
+        """
+        err = self._verify_order(order)
+        if err is None:
+            prev_order = self.order
+            self.order = order
+            self.save()
+            logger.info(
+                "Student group assignment {}".format(self.pk)
+                + " order updated to {} from {}.".format(
+                    self.order, prev_order
+                )
+            )
+        else:
+            logger.error(err)
+
+        assert (err is None) or isinstance(
+            err, basestring
+        ), "Postcondition failed"
+        return err
 
     def is_expired(self):
         output = datetime.now(pytz.utc) > self.due_date
@@ -183,7 +243,7 @@ class StudentGroupAssignment(models.Model):
             )
             student.add_assignment(self, host)
 
-    def update(self, name, value):
+    def update(self, name, value, host=None):
         """
         Updates the assignment using the given `name` to assign the new
         `value`.
@@ -197,6 +257,9 @@ class StudentGroupAssignment(models.Model):
 
         value : Any
             New value of the field
+        host : Optional[str]
+            Hostname of the server to be able to send emails (emails aren't
+            sent if None)
 
         Returns
         -------
@@ -206,10 +269,7 @@ class StudentGroupAssignment(models.Model):
         assert isinstance(name, str), "Precondtion failed for `name`"
         err = None
         if name == "due_date":
-            self.due_date = datetime.strptime(
-                value[:-5], "%Y-%m-%dT%H:%M:%S"
-            ).replace(tzinfo=pytz.utc)
-            self.save()
+            self._modify_due_date(value)
 
         elif name == "question_list":
             questions = [q.title for q in self.assignment.questions.all()]
@@ -222,6 +282,10 @@ class StudentGroupAssignment(models.Model):
                 )
         else:
             err = _("Wrong data type was sent.")
+
+        if err is not None and host is not None:
+            for assignment in self.studentassignment_set.all():
+                assignment.send_email(host, "assignment_updated")
 
         assert isinstance(err, str) or err is None, "Postcondition failed"
         return err
