@@ -4,8 +4,6 @@ from __future__ import unicode_literals
 import logging
 import smtplib
 
-import pytz
-from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
 from django.core.urlresolvers import reverse
@@ -101,7 +99,7 @@ class Student(models.Model):
             message = (
                 "Please confirm myDALITE account by going to: " + host + link
             )
-            template = "students/email_confirmation.html"
+            template = "peerinst/student/emails/confirmation.html"
             context = {"link": link, "host": host, "protocol": protocol}
 
             try:
@@ -145,7 +143,7 @@ class Student(models.Model):
                 "below:\n"
                 "{}://{}{}".format(protocol, host, link)
             )
-            template = "students/email_signin.html"
+            template = "peerinst/student/emails/signin.html"
             context = {"host": host, "protocol": protocol, "link": link}
 
             try:
@@ -329,14 +327,29 @@ class StudentAssignment(models.Model):
     def __unicode__(self):
         return "{} for {}".format(self.group_assignment, self.student)
 
-    def send_email(self, host, mail_type="login", link=None):
-        assert (
-            isinstance(link, basestring) and "{}" in link or link is None
-        ), "Precondition failed for `link`"
+    def send_email(self, host, mail_type):
+        """
+        Sends an email to announce a new assignment or an assignment update.
+
+        Parameters
+        ----------
+        host : str
+            Host name on which the server is run (there to allow beta, dev and
+            other differents hosts to test new features on)
+        mail_type : str
+            Type of mail to send. One of:
+                "new_assignment"
+                "assignment_updated"
+
+        Returns
+        -------
+        err : Optional[str]
+            Error message if there is any
+        """
         assert isinstance(host, basestring), "Precondition failed for `host`"
         assert isinstance(mail_type, basestring) and mail_type in (
-            "login",
             "new_assignment",
+            "assignment_updated",
         ), "Precondition failed for `mail_type`"
 
         err = None
@@ -346,38 +359,52 @@ class StudentAssignment(models.Model):
             username = self.student.student.username
             user_email = self.student.student.email
 
-            if err is None and user_email:
+            if not user_email:
+                err = "There is no email associated with user {}".format(
+                    self.student.user.username
+                )
+            else:
+
                 token = create_student_token(username, user_email)
 
-                if mail_type == "login":
+                login_link = "{}?token={}".format(
+                    reverse("student-page"), token
+                )
+                assignment_link = reverse(
+                    "live",
+                    kwargs={
+                        "assignment_hash": self.group_assignment.hash,
+                        "token": token,
+                    },
+                )
 
-                    subject = "Login to myDALITE"
-                    message = "Click link below to login to your account."
-
-                    template = "students/email_login.html"
-
-                elif mail_type == "new_assignment":
-
-                    link = reverse(
-                        "live",
-                        kwargs={
-                            "assignment_hash": self.group_assignment.hash,
-                            "token": token,
-                        },
+                if mail_type == "new_assignment":
+                    subject = "New assignment for group {}".format(
+                        self.group_assignment.group.title
                     )
-
-                    subject = (
-                        "New assignment for group "
-                        + self.group_assignment.group.title
+                    message = (
+                        "Use one of the links below to access your "
+                        "assignment or go to your student page."
                     )
-                    message = "Click link below to access your assignment."
+                    template = "peerinst/student/emails/new_assignment.html"
 
-                    template = "students/email_new_assignment.html"
+                elif mail_type == "assignment_updated":
+                    subject = "Assignment {} for group {} updated".format(
+                        self.group_assignment.assignment.title,
+                        self.group_assignment.group.title,
+                    )
+                    message = (
+                        "Use one of the links below to access your "
+                        "assignment or go to your student page."
+                    )
+                    template = (
+                        "peerinst/student/emails/assignment_updated.html"
+                    )
 
                 else:
-                    raise RuntimeError(
-                        "This error should not be possible. Check asserts and "
-                        "mail types."
+                    err = (
+                        "The mail_type should be one of new_assignment or "
+                        "assignment_updated."
                     )
 
                 if host == "localhost" or host == "127.0.0.1":
@@ -385,31 +412,34 @@ class StudentAssignment(models.Model):
                 else:
                     protocol = "https"
 
-                context = {"link": link, "host": host, "protocol": protocol}
+                context = {
+                    "group": self.group_assignment.group.title,
+                    "assignment": self.group_assignment.assignment.title,
+                    "assignment_link": assignment_link,
+                    "login_link": login_link,
+                    "host": host,
+                    "protocol": protocol,
+                }
 
-                try:
-                    send_mail(
-                        subject,
-                        message,
-                        "noreply@myDALITE.org",
-                        [user_email],
-                        fail_silently=False,
-                        html_message=loader.render_to_string(
-                            template, context=context
-                        ),
-                    )
-                except smtplib.SMTPException:
-                    err = "There was an error sending the email."
-            else:
                 if err is None:
-                    err = "There is no email associated with user {}".format(
-                        self.student.user.username
-                    )
+                    try:
+                        send_mail(
+                            subject,
+                            message,
+                            "noreply@myDALITE.org",
+                            [user_email],
+                            fail_silently=False,
+                            html_message=loader.render_to_string(
+                                template, context=context
+                            ),
+                        )
+                    except smtplib.SMTPException:
+                        err = "There was an error sending the email."
 
-        output = err
         assert err is None or isinstance(
-            output, basestring
+            err, basestring
         ), "Postcondition failed"
+        return err
 
     def get_current_question(self):
         questions = self.group_assignment.questions

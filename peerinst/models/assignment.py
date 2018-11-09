@@ -104,12 +104,7 @@ class StudentGroupAssignment(models.Model):
         ), "Postcondition failed"
         return output
 
-    def is_expired(self):
-        output = datetime.now(pytz.utc) > self.due_date
-        assert isinstance(output, bool), "Postcondition failed"
-        return output
-
-    def modify_order(self, order):
+    def _modify_order(self, order):
         err = self._verify_order(order)
         if err is None:
             self.order = order
@@ -119,6 +114,11 @@ class StudentGroupAssignment(models.Model):
         assert (err is None) or isinstance(
             err, basestring
         ), "Postcondition failed"
+        return output
+
+    def is_expired(self):
+        output = datetime.now(pytz.utc) > self.due_date
+        assert isinstance(output, bool), "Postcondition failed"
         return output
 
     def get_question(self, idx=None, current_question=None, after=True):
@@ -185,12 +185,16 @@ class StudentGroupAssignment(models.Model):
 
     def update(self, name, value):
         """
-        Updates the field with the given `name` with the new `value`.
+        Updates the assignment using the given `name` to assign the new
+        `value`.
 
         Parameters
         ----------
         name : str
-            Name of the field
+            Name indicating what to change. One of:
+                "due_date"
+                "question_list"
+
         value : Any
             New value of the field
 
@@ -199,6 +203,7 @@ class StudentGroupAssignment(models.Model):
         err : Optional[str]
             Error message if there is any
         """
+        assert isinstance(name, str), "Precondtion failed for `name`"
         err = None
         if name == "due_date":
             self.due_date = datetime.strptime(
@@ -209,7 +214,7 @@ class StudentGroupAssignment(models.Model):
         elif name == "question_list":
             questions = [q.title for q in self.assignment.questions.all()]
             order = ",".join(str(questions.index(v)) for v in value)
-            err = self.modify_order(order)
+            err = self._modify_order(order)
             if err is not None:
                 err = _(
                     "There was an error changing the question order. "
@@ -218,6 +223,7 @@ class StudentGroupAssignment(models.Model):
         else:
             err = _("Wrong data type was sent.")
 
+        assert isinstance(err, str) or err is None, "Postcondition failed"
         return err
 
     def save(self, *args, **kwargs):

@@ -23,28 +23,9 @@ from peerinst.tests.generators import (
     new_students,
 )
 
+from .fixtures import *  # noqa
+
 MAX_USERNAME_LENGTH = 30
-
-
-@pytest.fixture
-def student():
-    return add_students(new_students(1))[0]
-
-
-@pytest.fixture
-def group():
-    return add_groups(new_groups(1))[0]
-
-
-@pytest.fixture
-def group_assignment(group):
-    questions = add_questions(new_questions(10))
-    assignment = add_assignments(
-        new_assignments(1, questions, min_questions=10)
-    )
-    return add_student_group_assignments(
-        new_student_group_assignments(1, group, assignment)
-    )[0]
 
 
 @pytest.mark.django_db

@@ -63,7 +63,7 @@ def test_modify_order(student_group_assignment):
     k = student_group_assignment.assignment.questions.count()
     for _ in range(3):
         new_order = ",".join(map(str, random.sample(range(k), k=k)))
-        err = student_group_assignment.modify_order(new_order)
+        err = student_group_assignment._modify_order(new_order)
         assert err is None
         assert new_order == student_group_assignment.order
 
@@ -72,14 +72,14 @@ def test_modify_order(student_group_assignment):
 def test_modify_order_wrong_type(student_group_assignment):
     new_order = [1, 2, 3]
     with pytest.raises(AssertionError):
-        student_group_assignment.modify_order(new_order)
+        student_group_assignment._modify_order(new_order)
 
     new_order = "abc"
-    err = student_group_assignment.modify_order(new_order)
+    err = student_group_assignment._modify_order(new_order)
     assert err == "Given `order` isn't a comma separated list of integers."
 
     new_order = "a,b,c"
-    err = student_group_assignment.modify_order(new_order)
+    err = student_group_assignment._modify_order(new_order)
     assert err == "Given `order` isn't a comma separated list of integers."
 
 
@@ -87,7 +87,7 @@ def test_modify_order_wrong_type(student_group_assignment):
 def test_questions(student_group_assignment):
     k = len(student_group_assignment.questions)
     new_order = ",".join(map(str, random.sample(range(k), k=k)))
-    err = student_group_assignment.modify_order(new_order)
+    err = student_group_assignment._modify_order(new_order)
     assert err is None
     for i, j in enumerate(map(int, new_order.split(","))):
         assert (
@@ -393,7 +393,7 @@ def test_get_student_progress_all_second_answers_done(
 
 
 @pytest.mark.django_db
-def test_get_student_progress_all_answers_correct_no_questions_all_answers_correct_done(
+def test_get_student_progress_all_answers_correct_no_questions_all_answers_correct_done(  # noqa
     questions_all_answers_correct,
     students_with_assignment_all_answers_correct,
     student_group_assignment_all_answers_correct,
@@ -439,7 +439,7 @@ def test_get_student_progress_all_answers_correct_some_first_answers_done(
         [
             {
                 "question": question,
-                "assignment": student_group_assignment_all_answers_correct.assignment,
+                "assignment": student_group_assignment_all_answers_correct.assignment,  # noqa
                 "user_token": student.student.username,
                 "first_answer_choice": 1 + (i >= n_correct[question.pk]),
                 "rationale": "test",
@@ -495,7 +495,7 @@ def test_get_student_progress_all_answers_correct_all_first_answers_done(
         [
             {
                 "question": question,
-                "assignment": student_group_assignment_all_answers_correct.assignment,
+                "assignment": student_group_assignment_all_answers_correct.assignment,  # noqa
                 "user_token": student.student.username,
                 "first_answer_choice": 1 + (i >= n_correct[question.pk]),
                 "rationale": "test",
@@ -560,7 +560,7 @@ def test_get_student_progress_all_answers_correct_some_second_answers_done(
         [
             {
                 "question": question,
-                "assignment": student_group_assignment_all_answers_correct.assignment,
+                "assignment": student_group_assignment_all_answers_correct.assignment,  # noqa
                 "user_token": student.student.username,
                 "first_answer_choice": 1
                 + (
@@ -583,7 +583,7 @@ def test_get_student_progress_all_answers_correct_some_second_answers_done(
         [
             {
                 "question": question,
-                "assignment": student_group_assignment_all_answers_correct.assignment,
+                "assignment": student_group_assignment_all_answers_correct.assignment,  # noqa
                 "user_token": student.student.username,
                 "first_answer_choice": 1 + (i >= n_first_correct[question.pk]),
                 "rationale": "test",
@@ -652,7 +652,7 @@ def test_get_student_progress_all_answers_correct_all_second_answers_done(
         [
             {
                 "question": question,
-                "assignment": student_group_assignment_all_answers_correct.assignment,
+                "assignment": student_group_assignment_all_answers_correct.assignment,  # noqa
                 "user_token": student.student.username,
                 "first_answer_choice": 1 + (i >= n_first_correct[question.pk]),
                 "rationale": "test",
