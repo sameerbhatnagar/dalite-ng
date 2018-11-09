@@ -3,8 +3,10 @@ import hashlib
 
 import pytest
 from django.core import mail
+from django.core.urlresolvers import reverse
 
-from peerinst.models import Student, StudentAssignment
+from peerinst.models import Student, StudentAssignment, StudentNotifications
+from peerinst.students import create_student_token
 
 from peerinst.tests.generators import (
     add_assignments,
@@ -145,7 +147,7 @@ def test_join_group(student, group):
 
 @pytest.mark.django_db
 def test_leave_group(student, group):
-    student.add_group(group)
+    student.join_group(group)
     student.leave_group(group)
 
     assert group in student.student_groups.all()
@@ -164,25 +166,112 @@ def test_leave_group_doesnt_exist(student, group):
 
 @pytest.mark.django_db
 def test_add_assignment(student, group_assignment):
-    #  assert not StudentAssignment.objects.filter(
-    #  student=student, group_assignment=group_assignment
-    #  ).exists
-    #  student.add_assignment(group_assignment)
-    #  assert StudentAssignment.objects.filter(
-    #  student=student, group_assignment=group_assignment
-    #  ).exists
-    #  assert len(mail.outbox) == 1
-    #  assert mail.outbox[0].subject == "New assignment for group {}".format(
-    #  group_assignment.assignment.title
-    #  )
-    pass
+    assert not StudentAssignment.objects.filter(
+        student=student, group_assignment=group_assignment
+    ).exists()
+    assert not StudentNotifications.objects.filter(
+        student=student, notification__type="new_assignment"
+    ).exists()
+
+    student.add_assignment(group_assignment)
+
+    assert StudentAssignment.objects.filter(
+        student=student, group_assignment=group_assignment
+    ).exists()
+    assert StudentNotifications.objects.filter(
+        student=student, notification__type="new_assignment"
+    ).exists()
+    assert StudentNotifications.objects.get(
+        student=student, notification__type="new_assignment"
+    ).link == reverse(
+        "live",
+        kwargs={
+            "assignment_hash": group_assignment.hash,
+            "token": create_student_token(
+                student.student.username, student.student.email
+            ),
+        },
+    )
 
 
 @pytest.mark.django_db
 def test_add_assignment_assignment_exists(student, group_assignment):
-    pass
+    assert not StudentAssignment.objects.filter(
+        student=student, group_assignment=group_assignment
+    ).exists()
+    assert not StudentNotifications.objects.filter(
+        student=student, notification__type="new_assignment"
+    ).exists()
+
+    StudentAssignment.objects.create(
+        student=student, group_assignment=group_assignment
+    )
+
+    assert StudentAssignment.objects.filter(
+        student=student, group_assignment=group_assignment
+    ).exists()
+    assert not StudentNotifications.objects.filter(
+        student=student, notification__type="new_assignment"
+    ).exists()
+
+    student.add_assignment(group_assignment)
+
+    assert (
+        StudentAssignment.objects.filter(
+            student=student, group_assignment=group_assignment
+        ).count()
+        == 1
+    )
+    assert StudentNotifications.objects.filter(
+        student=student, notification__type="new_assignment"
+    ).exists()
+    assert StudentNotifications.objects.get(
+        student=student, notification__type="new_assignment"
+    ).link == reverse(
+        "live",
+        kwargs={
+            "assignment_hash": group_assignment.hash,
+            "token": create_student_token(
+                student.student.username, student.student.email
+            ),
+        },
+    )
 
 
 @pytest.mark.django_db
-def test_add_assignment_no_host(student, group_assignment):
-    pass
+def test_add_assignment_with_host(student, group_assignment):
+
+    host = "localhost"
+
+    assert not StudentAssignment.objects.filter(
+        student=student, group_assignment=group_assignment
+    ).exists()
+    assert not StudentNotifications.objects.filter(
+        student=student, notification__type="new_assignment"
+    ).exists()
+
+    student.add_assignment(group_assignment, host=host)
+
+    assert StudentAssignment.objects.filter(
+        student=student, group_assignment=group_assignment
+    ).exists()
+    assert StudentNotifications.objects.filter(
+        student=student, notification__type="new_assignment"
+    ).exists()
+    assert StudentNotifications.objects.get(
+        student=student, notification__type="new_assignment"
+    ).link == reverse(
+        "live",
+        kwargs={
+            "assignment_hash": group_assignment.hash,
+            "token": create_student_token(
+                student.student.username, student.student.email
+            ),
+        },
+    )
+
+    assert len(mail.outbox) == 1
+
+    assert mail.outbox[0].subject == "New assignment for group {}".format(
+        group_assignment.group.title
+    )

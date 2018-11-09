@@ -171,18 +171,15 @@ class StudentGroupAssignment(models.Model):
         ), "Postcondition failed"
         return output
 
-    def send_assignment_emails(self, host):
+    def update_students(self, host):
         assert isinstance(host, basestring), "Precondition failed for `host`"
-        logger.debug(
-            "Sending assignment emails for student group assignment %d",
-            self.pk,
+        logger.info(
+            "Updating students for student group assignment %d", self.pk
         )
 
         for student in self.group.student_set.all():
-            logger.debug(
-                "Sending assignment %d email for student %d",
-                self.pk,
-                student.pk,
+            logger.info(
+                "Adding assignment %d for student %d", self.pk, student.pk
             )
             student.add_assignment(self, host)
 

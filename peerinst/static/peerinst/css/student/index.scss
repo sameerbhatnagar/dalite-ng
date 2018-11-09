@@ -1,5 +1,12 @@
 @import "../variables";
 
+#student-page-notifications {
+  & #student-page-notifications--no-new {
+    margin-top: 15px;
+    margin-left: 50px;
+  }
+}
+
 #student-page-add-group {
   & .admin-link {
     margin-left: 50px;

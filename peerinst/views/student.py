@@ -304,7 +304,7 @@ def index_page(req):
             }
             for group in groups
         ],
-        "notifications": [],
+        "notifications": student.notifications,
     }
 
     return render(req, "peerinst/student/index.html", context)

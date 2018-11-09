@@ -37,11 +37,37 @@
       </div>
     </div>
 
+    {% if notifications %}
     <div class="foldable foldable__unfolded">
+    {% else %}
+    <div class="foldable">
+    {% endif %}
       <h2 class="foldable--title mdc-typography--display1 mdc-theme--secondary">
         {% trans 'Notifications' %}
       </h2>
       <div class="foldable--body">
+        <div id="student-page-notifications">
+          {% if notifications %}
+          <ul class="mdc-list mdc-list--non-interactive">
+            {% for notification in notifications %}
+            <a href="{{ notification.link }}" title="{{ notification.hover_text }}">
+              <li class="mdc-list-item">
+                <span class="mdc-list-item__graphic mdc-theme--primary">
+                  <i class="material-icons md-48">{{ notification.notification.icon }}</i>
+                </span>
+                <span class="mdc-list-item__text">
+                  {{ notification.text }}
+                </span>
+              </li>
+            </a>
+            {% endfor %}
+          </ul>
+          {% else %}
+          <p id="student-page-notifications--no-new">
+            No new notifications
+          </p>
+          {% endif %}
+        </div>
       </div>
     </div>
 
@@ -53,7 +79,7 @@
         <div id="student-page-add-group">
           <span class="admin-link"
                 onclick="bundle.toggleJoinGroup()">
-            {% trans 'Add groups back' %}
+            {% trans 'Add groups' %}
           </span>
           <div id="student-page-add-group--box"
                style="display: none;"

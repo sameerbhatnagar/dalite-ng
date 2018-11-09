@@ -245,8 +245,40 @@ class Student(models.Model):
                 assignment.pk,
                 self.pk,
             )
+
+        notification = StudentNotificationType.objects.get(
+            type="new_assignment"
+        )
+        link = reverse(
+            "live",
+            kwargs={
+                "assignment_hash": assignment.group_assignment.hash,
+                "token": create_student_token(
+                    self.student.username, self.student.email
+                ),
+            },
+        )
+        text = "A new assignment {} was added for group {}.".format(
+            assignment.group_assignment.assignment.title,
+            assignment.group_assignment.group.title,
+        )
+        hover_text = "Go to assignment"
+
+        StudentNotifications.objects.create(
+            student=self,
+            notification=notification,
+            link=link,
+            text=text,
+            hover_text=hover_text,
+        )
+
         if host:
             assignment.send_email(host, mail_type="new_assignment")
+            logger.info(
+                "Assignment %d email sent to student %d.",
+                assignment.pk,
+                self.pk,
+            )
 
     @property
     def current_groups(self):
@@ -265,6 +297,12 @@ class Student(models.Model):
                 student=self, current_member=False
             )
         ]
+
+    @property
+    def notifications(self):
+        return StudentNotifications.objects.filter(student=self).order_by(
+            "-created_on"
+        )
 
 
 class StudentGroupMembership(models.Model):
@@ -329,13 +367,8 @@ class StudentAssignment(models.Model):
                     )
 
                     subject = (
-                        "New assignment in "
+                        "New assignment for group "
                         + self.group_assignment.group.title
-                        + " (due "
-                        + self.group_assignment.due_date.astimezone(
-                            pytz.timezone(settings.DEFAULT_TIMEZONE)
-                        ).strftime("%Y-%m-%d %H:%M %Z")
-                        + ")"
                     )
                     message = "Click link below to access your assignment."
 
@@ -497,6 +530,6 @@ class StudentNotifications(models.Model):
     student = models.ForeignKey(Student)
     notification = models.ForeignKey(StudentNotificationType)
     created_on = models.DateTimeField(auto_now=True, null=True)
-    link = models.URLField(blank=True, null=True)
+    link = models.URLField(max_length=500, blank=True, null=True)
     text = models.TextField()
     hover_text = models.TextField(blank=True, null=True)
