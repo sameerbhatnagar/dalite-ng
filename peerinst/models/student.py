@@ -29,6 +29,8 @@ class Student(models.Model):
         through="StudentGroupMembership",
         related_name="groups_new",
     )
+    send_reminder_email_every_day = models.BooleanField(default=False)
+    send_reminder_email_day_before = models.BooleanField(default=True)
 
     def __unicode__(self):
         return self.student.username
@@ -244,30 +246,8 @@ class Student(models.Model):
                 self.pk,
             )
 
-        notification = StudentNotificationType.objects.get(
-            type="new_assignment"
-        )
-        link = reverse(
-            "live",
-            kwargs={
-                "assignment_hash": assignment.group_assignment.hash,
-                "token": create_student_token(
-                    self.student.username, self.student.email
-                ),
-            },
-        )
-        text = "A new assignment {} was added for group {}.".format(
-            assignment.group_assignment.assignment.title,
-            assignment.group_assignment.group.title,
-        )
-        hover_text = "Go to assignment"
-
-        StudentNotifications.objects.create(
-            student=self,
-            notification=notification,
-            link=link,
-            text=text,
-            hover_text=hover_text,
+        StudentNotification.create(
+            type_="new_assignment", student=self, assignment=assignment
         )
 
         if host:
@@ -298,16 +278,14 @@ class Student(models.Model):
 
     @property
     def notifications(self):
-        return StudentNotifications.objects.filter(student=self).order_by(
-            "-created_on"
-        )
+        return self.studentnotification_set.order_by("-created_on").all()
 
 
 class StudentGroupMembership(models.Model):
     student = models.ForeignKey(Student)
     group = models.ForeignKey(StudentGroup)
     current_member = models.BooleanField(default=True)
-    sending_email = models.BooleanField(default=True)
+    send_email = models.BooleanField(default=True)
 
     class Meta:
         unique_together = ("student", "group")
@@ -320,6 +298,7 @@ class StudentAssignment(models.Model):
     )
     first_access = models.DateTimeField(editable=False, auto_now=True)
     last_access = models.DateTimeField(editable=False, auto_now=True)
+    reminder_sent = models.BooleanField(editable=False, default=False)
 
     class Meta:
         unique_together = ("student", "group_assignment")
@@ -350,6 +329,7 @@ class StudentAssignment(models.Model):
         assert isinstance(mail_type, basestring) and mail_type in (
             "new_assignment",
             "assignment_updated",
+            "assignment_about_to_expire",
         ), "Precondition failed for `mail_type`"
 
         err = None
@@ -358,12 +338,15 @@ class StudentAssignment(models.Model):
 
             username = self.student.student.username
             user_email = self.student.student.email
+            group_membership = StudentGroupMembership.objects.get(
+                student=self.student, group=self.group_assignment.group
+            )
 
             if not user_email:
                 err = "There is no email associated with user {}".format(
                     self.student.user.username
                 )
-            else:
+            elif group_membership.send_email:
 
                 token = create_student_token(username, user_email)
 
@@ -400,6 +383,18 @@ class StudentAssignment(models.Model):
                     template = (
                         "peerinst/student/emails/assignment_updated.html"
                     )
+
+                elif mail_type == "assignment_about_to_expire":
+                    subject = "Assignment {} for ".format(
+                        self.group_assignment.assignment.title
+                    ) + "group {} about to expire".format(
+                        self.group_assignment.group.title
+                    )
+                    message = (
+                        "Use one of the links below to access your "
+                        "assignment or go to your student page."
+                    )
+                    template = "peerinst/student/emails/assignment_about_to_expire.html"  # noqa
 
                 else:
                     err = (
@@ -550,16 +545,175 @@ class StudentAssignment(models.Model):
 
         return results
 
+    def send_reminder(self, last_day):
+        """
+        Sends a reminder that the assignment is almost due as a reset of the
+        student notification and possibly an email.
+
+        Parameters
+        ----------
+        last_day : bool
+            If there is only one day before the assignment is due
+        """
+        if not self.completed:
+            if not StudentNotification.objects.filter(
+                student=self.student,
+                notification__type="assignment_about_to_expire",
+            ).exists():
+                StudentNotification.create(
+                    type_="assignment_about_to_expire",
+                    student=self.student,
+                    assignment=self,
+                )
+
+            if StudentGroupMembership.objects.get(
+                student=self.student, group=self.group_assignment.group
+            ).send_email:
+                # TODO Find way to determine correct host without passing
+                # through request
+                host = "mydalite.org"
+                if (
+                    not self.reminder_sent
+                    or self.student.send_reminder_email_every_day
+                    or (
+                        last_day
+                        and self.student.send_reminder_email_day_before
+                    )
+                ):
+                    self.send_email(host, "assignment_about_to_expire")
+
+    @property
+    def completed(self):
+        """
+        Returns
+        -------
+        bool
+            If the assignment was completed
+        """
+        return not any(
+            not Answer.objects.filter(
+                assignment=self.group_assignment.assignment,
+                user_token=self.student.student.username,
+                question=question,
+            ).exists()
+            or Answer.objects.get(
+                assignment=self.group_assignment.assignment,
+                user_token=self.student.student.username,
+                question=question,
+            ).second_answer_choice
+            is None
+            for question in self.group_assignment.questions
+        )
+
 
 class StudentNotificationType(models.Model):
     type = models.CharField(max_length=32, unique=True)
     icon = models.TextField()
 
 
-class StudentNotifications(models.Model):
+class StudentNotification(models.Model):
     student = models.ForeignKey(Student)
     notification = models.ForeignKey(StudentNotificationType)
     created_on = models.DateTimeField(auto_now=True, null=True)
     link = models.URLField(max_length=500, blank=True, null=True)
     text = models.TextField()
     hover_text = models.TextField(blank=True, null=True)
+
+    @staticmethod
+    def create(type_, student, assignment=None):
+        """
+        Creates a new notification of the given `type_` for the `student`.
+
+        Parameters
+        ----------
+        type_ : str
+            Type of notification. Must be equal to the field `type` for one of
+            the StudentNotificationType
+        student : Student
+            Student for whom the notification is created
+        assignment : Optional[StudentAssignment] (default : None)
+            Assignment corresponding to the notification if needed
+        """
+        assert isinstance(type_, basestring) and (
+            "assignment" not in type_ or assignment is not None
+        ), "Precondition failed for `type_`"
+        assert isinstance(
+            student, Student
+        ), "Precondition failed for `student`"
+        assert (
+            isinstance(assignment, StudentAssignment) or assignment is None
+        ), "Precondition failed for `assignment`"
+
+        try:
+            notification = StudentNotificationType.objects.get(type=type_)
+        except StudentNotificationType.DoesNotExist:
+            logger.error(
+                "A notification wasn't created for "
+                + "student {} ".format(student.pk)
+                + "because {} wasn't a valid notification type.".format(type_)
+            )
+        else:
+            if assignment is not None:
+                link = reverse(
+                    "live",
+                    kwargs={
+                        "assignment_hash": assignment.group_assignment.hash,
+                        "token": create_student_token(
+                            student.student.username, student.student.email
+                        ),
+                    },
+                )
+                hover_text = "Go to assignment"
+            else:
+                link = ""
+                hover_text = ""
+
+            if type_ == "new_assignment":
+                text = "A new assignment {} was added for group {}.".format(
+                    assignment.group_assignment.assignment.title,
+                    assignment.group_assignment.group.title,
+                )
+
+            elif type_ == "assignment_due_date_changed":
+                text = (
+                    "The due date for assignment {} ".format(
+                        assignment.group_assignment.assignment.title
+                    )
+                    + "in group {} was ".format(
+                        assignment.group_assignment.group.title
+                    )
+                    + "changed to {}.".format(
+                        assignment.group_assignment.due_date.strftime(
+                            "%Y-%m-%d %H:%M"
+                        )
+                    )
+                )
+
+            elif type_ == "assignment_about_to_expire":
+                text = "The assignment {} in group {} expires on {}.".format(
+                    assignment.group_assignment.assignment.title,
+                    assignment.group_assignment.group.title,
+                    assignment.group_assignment.due_date.strftime(
+                        "%Y-%m-%d %H:%M"
+                    ),
+                )
+
+            else:
+                logger.error(
+                    "There's a missing branch for notification "
+                    "type {}.".format(type_)
+                )
+                return
+
+            StudentNotification.objects.create(
+                student=student,
+                notification=notification,
+                link=link,
+                text=text,
+                hover_text=hover_text,
+            )
+            logger.info(
+                "Notification of type {} was created for student {}.".format(
+                    type_, student.pk
+                )
+            )

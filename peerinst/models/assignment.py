@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 import base64
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import pytz
 from django.contrib.auth.models import User
@@ -70,6 +70,7 @@ class StudentGroupAssignment(models.Model):
         ),
     )
     order = models.TextField(blank=True, editable=False)
+    reminder_days = models.PositiveIntegerField(default=3)
 
     def __unicode__(self):
         return "{} for {}".format(self.assignment, self.group)
@@ -257,7 +258,7 @@ class StudentGroupAssignment(models.Model):
 
         value : Any
             New value of the field
-        host : Optional[str]
+        host : Optional[str] (default : None)
             Hostname of the server to be able to send emails (emails aren't
             sent if None)
 
@@ -289,6 +290,19 @@ class StudentGroupAssignment(models.Model):
 
         assert isinstance(err, str) or err is None, "Postcondition failed"
         return err
+
+    def check_reminder_status(self):
+        """
+        Verifies the assignment due date and if the assignment is not finished
+        and the due date is sooner or equal to the number reminder days,
+        the student notification is updated and an email if possibly sent.
+        """
+        time_until_expiry = self.due_date - datetime.now()
+        if time_until_expiry <= timedelta(days=self.reminder_days):
+            for assignment in self.studentassignment_set.all():
+                assignment.send_reminder(
+                    last_day=time_until_expiry <= timedelta(days=1)
+                )
 
     def save(self, *args, **kwargs):
         if not self.order:
