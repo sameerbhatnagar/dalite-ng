@@ -2,6 +2,7 @@ from django.contrib.auth.hashers import make_password
 from django.core.urlresolvers import reverse
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from selenium import webdriver
+from selenium.common.exceptions import SessionNotCreatedException
 from selenium.webdriver.common.keys import Keys
 import time
 import unittest
@@ -23,7 +24,10 @@ class NewUserTests(StaticLiveServerTestCase):
     fixtures = ["test_users.yaml"]
 
     def setUp(self):
-        self.browser = webdriver.Chrome()
+        try:
+            self.browser = webdriver.Chrome()
+        except SessionNotCreatedException:
+            self.browser = webdriver.Firefox()
         self.browser.implicitly_wait(10)
 
         self.validated_teacher = ready_user(1)
