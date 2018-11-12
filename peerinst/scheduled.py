@@ -12,6 +12,10 @@ def start_scheduled_events():
     verify_assignment_due_dates()
 
 
+def stop_scheduled_events():
+    pass
+
+
 def verify_assignment_due_dates():
     """
     Verifies each day if each assignment is about to expire and not done and
@@ -21,9 +25,10 @@ def verify_assignment_due_dates():
         assignment.check_reminder_status()
 
     next_check = datetime.now() + timedelta(days=1)
-    next_check.replace(hout=0, minute=0, second=0, microsecond=0)
+    next_check.replace(hour=0, minute=0, second=0, microsecond=0)
 
     timer = threading.Timer(
         (next_check - datetime.now()).seconds, verify_assignment_due_dates
     )
+    timer.setDaemon(True)
     timer.start()
