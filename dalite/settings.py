@@ -251,6 +251,11 @@ LOGGING = {
             "level": "DEBUG" if DEBUG else "INFO",
             "propagate": True,
         },
+        "peerinst-scheduled": {
+            "handlers": ["peerinst_file_log", "peerinst_console_log"],
+            "level": "DEBUG" if DEBUG else "INFO",
+            "propagate": True,
+        },
     },
 }
 
