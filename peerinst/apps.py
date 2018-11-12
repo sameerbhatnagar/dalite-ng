@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import logging
+
 from django import apps
+from django.db.utils import OperationalError
 from django.utils.translation import ugettext_lazy as _
 
 from .scheduled import start_scheduled_events
@@ -14,4 +17,10 @@ class PeerInstConfig(apps.AppConfig):
     def ready(self):
         import peerinst.signals  # noqa
 
-        start_scheduled_events()
+        try:
+            start_scheduled_events()
+        except OperationalError:
+            logging.getLogger("peerinst-scheduled").warning(
+                "The migrations have to be run before the scheduled event "
+                "may work."
+            )
