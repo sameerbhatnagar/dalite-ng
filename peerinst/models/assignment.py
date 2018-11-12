@@ -123,7 +123,7 @@ class StudentGroupAssignment(models.Model):
         prev_due_date = self.due_date
         try:
             self.due_date = datetime.strptime(
-                due_date[:-5], "%Y-%m-%dT%H:%M:%S"
+                due_date[:19], "%Y-%m-%dT%H:%M:%S"
             ).replace(tzinfo=pytz.utc)
         except ValueError:
             err = (
@@ -297,8 +297,12 @@ class StudentGroupAssignment(models.Model):
         and the due date is sooner or equal to the number reminder days,
         the student notification is updated and an email if possibly sent.
         """
-        time_until_expiry = self.due_date - datetime.now()
-        if time_until_expiry <= timedelta(days=self.reminder_days):
+        time_until_expiry = self.due_date - datetime.now(pytz.utc)
+        if (
+            timedelta()
+            < time_until_expiry
+            <= timedelta(days=self.reminder_days)
+        ):
             for assignment in self.studentassignment_set.all():
                 assignment.send_reminder(
                     last_day=time_until_expiry <= timedelta(days=1)
