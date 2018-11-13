@@ -9,7 +9,7 @@ from peerinst.students import (
     get_student_username_and_password,
 )
 
-from peerinst.models import Student
+from peerinst.models import Student, StudentGroupMembership
 from peerinst.tests.generators import (
     add_groups,
     add_students,
@@ -47,7 +47,7 @@ def group():
     return add_groups(new_groups(1))[0]
 
 
-def test_student_page_fail_on_no_logged_in_and_no_token(client):
+def test_index_fail_on_no_logged_in_and_no_token(client):
     resp = client.get(reverse("student-page"))
     assert resp.status_code == 403
     assert any(t.name == "403.html" for t in resp.templates)
@@ -58,7 +58,7 @@ def test_student_page_fail_on_no_logged_in_and_no_token(client):
 
 
 @pytest.mark.django_db
-def test_student_page_fail_on_logged_in_not_student(client):
+def test_index_fail_on_logged_in_not_student(client):
     user = new_users(1)[0]
     add_users([user])
     assert client.login(username=user["username"], password=user["password"])
@@ -73,7 +73,7 @@ def test_student_page_fail_on_logged_in_not_student(client):
 
 
 @pytest.mark.django_db
-def test_student_page_student_logged_in(client, student):
+def test_index_student_logged_in(client, student):
     username, password = get_student_username_and_password(
         student.student.email
     )
@@ -86,7 +86,7 @@ def test_student_page_student_logged_in(client, student):
 
 
 @pytest.mark.django_db
-def test_student_page_student_not_logged_in_token(client, student):
+def test_index_student_not_logged_in_token(client, student):
     token = create_student_token(
         student.student.username, student.student.email
     )
@@ -98,7 +98,7 @@ def test_student_page_student_not_logged_in_token(client, student):
 
 
 @pytest.mark.django_db
-def test_student_page_student_logged_in_token_same_user(client, student):
+def test_index_student_logged_in_token_same_user(client, student):
     username, password = get_student_username_and_password(
         student.student.email
     )
@@ -115,7 +115,7 @@ def test_student_page_student_logged_in_token_same_user(client, student):
 
 
 @pytest.mark.django_db
-def test_student_page_student_logged_in_token_different_user(client, students):
+def test_index_student_logged_in_token_different_user(client, students):
     username, password = get_student_username_and_password(
         students[0].student.email
     )
@@ -130,6 +130,24 @@ def test_student_page_student_logged_in_token_different_user(client, students):
     assert any(t.name == "peerinst/student/index.html" for t in resp.templates)
     assert students[1].student.email in resp.content
     assert not students[0].student.email in resp.content
+
+
+@pytest.mark.django_db
+def test_index_new_student(client, student):
+    student.student.is_active = False
+    student.student.save()
+
+    token = create_student_token(
+        student.student.username, student.student.email
+    )
+
+    assert not Student.objects.get(student=student.student).student.is_active
+
+    resp = client.get(reverse("student-page") + "?token={}".format(token))
+    assert resp.status_code == 200
+    assert any(t.name == "peerinst/student/index.html" for t in resp.templates)
+    assert student.student.email in resp.content
+    assert Student.objects.get(student=student.student).student.is_active
 
 
 @pytest.mark.django_db
@@ -194,7 +212,13 @@ def test_leave_group_student_doesnt_exist(client, group):
 @pytest.mark.django_db
 def test_leave_group_is_member_of_group(client, student, group):
     student.groups.add(group)
+    StudentGroupMembership.objects.create(student=student, group=group)
+
     assert group in student.groups.all()
+    assert group in student.student_groups.all()
+    assert StudentGroupMembership.objects.get(
+        student=student, group=group
+    ).current_member
     data = {"username": student.student.username, "group_name": group.name}
     resp = client.post(
         reverse("student-leave-group"),
@@ -202,7 +226,10 @@ def test_leave_group_is_member_of_group(client, student, group):
         content_type="application/json",
     )
     assert resp.status_code == 200
-    assert group not in student.groups.all()
+    assert group in student.groups.all()
+    assert not StudentGroupMembership.objects.get(
+        student=student, group=group
+    ).current_member
 
 
 @pytest.mark.django_db

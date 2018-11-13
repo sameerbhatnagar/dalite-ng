@@ -9,14 +9,14 @@
 <p>{% trans "Please confirm your myDALITE account by clicking the button below." %}</p>
 
 <p style="text-align: center; margin: 50px 0;">
-  <a class="email-btn" href="{{ protocol }}://{{ host }}{{ link }}" target="_blank">{% trans 'Confirm' %}</a>
+  <a class="email-btn" href="{{ signin_link }}" target="_blank">{% trans 'Confirm' %}</a>
 </p>
 
 <p>
   {% trans "If the button above doesn't work, paste this link into your web browser:" %}
 </p>
 <p>
-  <a href="{{ protocol }}://{{ host }}{{ link }}" target="_blank">{{ protocol }}://{{ host }}{{ link }}</a>
+  <a href="{{ signin_link }}" target="_blank">{{ signin_link }}</a>
 </p>
 
 {% endblock %}

@@ -7,6 +7,7 @@ import re
 from datetime import datetime, timedelta
 
 import pytz
+from django.conf import settings
 from django.contrib.auth import login, logout
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
@@ -216,10 +217,19 @@ def index_page(req):
         token = create_student_token(
             student.student.username, student.student.email
         )
+        new_student = False
     else:
         user = authenticate_student(req, token)
         if isinstance(user, HttpResponse):
             return user
+
+        if not user.is_active:
+            user.is_active = True
+            user.save()
+            new_student = True
+        else:
+            new_student = False
+
         logout(req)
         login(req, user)
         try:
@@ -240,7 +250,7 @@ def index_page(req):
             )
             return HttpResponseForbidden(resp.render())
 
-    host = req.get_host()
+    host = settings.ALLOWED_HOSTS[0]
     if host.startswith("localhost") or host.startswith("127.0.0.1"):
         protocol = "http"
     else:
@@ -294,6 +304,7 @@ def index_page(req):
 
     context = {
         "student": student,
+        "new_student": new_student,
         "groups": [
             {
                 "name": group.group.name,
@@ -388,7 +399,7 @@ def send_signin_link(req):
             student = student.filter(student__username=username).first()
         if student:
             student.student.is_active = True
-            err = student.send_signin_email(req.get_host())
+            err = student.send_email(mail_type="signin")
             if err is None:
                 context = {}
             else:

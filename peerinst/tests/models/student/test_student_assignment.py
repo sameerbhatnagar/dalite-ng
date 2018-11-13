@@ -28,7 +28,7 @@ def test_get_current_question_no_answers(student_assignment):
         new_order = ",".join(
             map(str, random.sample(range(len(questions)), k=len(questions)))
         )
-        student_assignment.group_assignment.modify_order(new_order)
+        student_assignment.group_assignment._modify_order(new_order)
         questions = student_assignment.group_assignment.questions
         question = student_assignment.get_current_question()
         assert question == questions[0]
@@ -263,7 +263,7 @@ def test_get_results_some_answered_correct_first_and_second(
                 "question": question,
                 "assignment": assignment,
                 "user_token": student.student.username,
-                "first_answer_choice": 1 + (i >= n_correct_first),
+                "first_answer_choice": 1 + (i >= n_correct_first - n_second),
                 "rationale": "test",
             }
             for i, question in enumerate(questions[n_second:n_first])

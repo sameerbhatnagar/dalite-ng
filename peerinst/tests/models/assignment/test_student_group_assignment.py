@@ -59,7 +59,7 @@ def test_hashing(student_group_assignment):
 
 
 @pytest.mark.django_db
-def test_modify_order(student_group_assignment):
+def test__modify_order(student_group_assignment):
     k = student_group_assignment.assignment.questions.count()
     for _ in range(3):
         new_order = ",".join(map(str, random.sample(range(k), k=k)))
@@ -69,7 +69,7 @@ def test_modify_order(student_group_assignment):
 
 
 @pytest.mark.django_db
-def test_modify_order_wrong_type(student_group_assignment):
+def test__modify_order_wrong_type(student_group_assignment):
     new_order = [1, 2, 3]
     with pytest.raises(AssertionError):
         student_group_assignment._modify_order(new_order)
@@ -81,6 +81,62 @@ def test_modify_order_wrong_type(student_group_assignment):
     new_order = "a,b,c"
     err = student_group_assignment._modify_order(new_order)
     assert err == "Given `order` isn't a comma separated list of integers."
+
+
+@pytest.mark.django_db
+def test__modify_due_date(student_group_assignment):
+    due_date = student_group_assignment.due_date
+    new_due_date = datetime.now(pytz.utc) + timedelta(
+        days=random.randint(1, 10)
+    )
+    data = {"due_date": (new_due_date).strftime("%Y-%m-%dT%H:%M:%S")}
+
+    err = student_group_assignment._modify_due_date(**data)
+    assert err is None
+    assert abs(student_group_assignment.due_date - due_date) >= timedelta(
+        seconds=1
+    )
+    assert abs(student_group_assignment.due_date - new_due_date) < timedelta(
+        seconds=1
+    )
+
+
+@pytest.mark.django_db
+def test__modify_due_date_with_floating_point(student_group_assignment):
+    due_date = student_group_assignment.due_date
+    new_due_date = datetime.now(pytz.utc) + timedelta(
+        days=random.randint(1, 10)
+    )
+    data = {"due_date": (new_due_date).strftime("%Y-%m-%dT%H:%M:%S.%f")}
+
+    err = student_group_assignment._modify_due_date(**data)
+    assert err is None
+    assert abs(student_group_assignment.due_date - due_date) >= timedelta(
+        seconds=1
+    )
+    assert abs(student_group_assignment.due_date - new_due_date) < timedelta(
+        seconds=1
+    )
+
+
+@pytest.mark.django_db
+def test__modify_due_date_wrong_format(student_group_assignment):
+    due_date = student_group_assignment.due_date
+    new_due_date = datetime.now(pytz.utc) + timedelta(
+        days=random.randint(1, 10)
+    )
+    data = {"due_date": (new_due_date).strftime("%Y/%m/%d %H-%M-%S.%f")}
+
+    err = student_group_assignment._modify_due_date(**data)
+    assert err == (
+        'The given due date wasn\'t in the format "%Y-%m-%dT%H:%M:%S(.%f)?"'
+    )
+    assert abs(student_group_assignment.due_date - due_date) < timedelta(
+        seconds=1
+    )
+    assert abs(student_group_assignment.due_date - new_due_date) >= timedelta(
+        seconds=1
+    )
 
 
 @pytest.mark.django_db

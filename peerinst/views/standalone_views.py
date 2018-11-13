@@ -74,7 +74,7 @@ def signup_through_link(request, group_hash):
             )
             return HttpResponseBadRequest(resp.render())
 
-        student = Student.get_or_create(form.cleaned_data["email"])
+        student, created = Student.get_or_create(form.cleaned_data["email"])
 
         if student is None:
             resp = TemplateResponse(
@@ -89,7 +89,10 @@ def signup_through_link(request, group_hash):
             )
             return HttpResponseBadRequest(resp.render())
 
-        student.send_confirmation_email(group, request.get_host())
+        if created:
+            student.send_email(mail_type="confirmation", group=group)
+        else:
+            student.send_email(mail_type="new_group", group=group)
 
         return TemplateResponse(
             request,

@@ -294,7 +294,7 @@ def add_questions(questions):
 
 
 def add_students(students):
-    return [Student.get_or_create(**s) for s in students]
+    return [Student.get_or_create(**s)[0] for s in students]
 
 
 def add_student_assignments(student_assignments):

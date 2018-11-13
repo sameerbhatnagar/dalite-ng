@@ -4,18 +4,18 @@
 
 {% block body %}
 
-<h1>{% trans 'New assignment for group {{ group }}' %}</h1>
+<h1>{% trans 'Assignment {{ assignment }} for group {{ group }} expires in {{ days_to_expire }} days' %}</h1>
 
-<p>{% trans "Use the buttons below to go to the new assignment or to your student page." %}</p>
+<p>{% trans "Use the buttons below to go to the assignment or to your student page." %}</p>
 
 <p style="text-align: center; margin: 50px 0;">
   <a class="email-btn" 
-     href="{{ protocol }}://{{ host }}{{ assignment_link }}"
+     href="{{ assignment_link }}"
      target="_blank">
     {% trans 'Go to assignment' %}
   </a>
   <a class="email-btn" 
-     href="{{ protocol }}://{{ host }}{{ login_link }}"
+     href="{{ signin_link }}"
      target="_blank">
     {% trans 'Go to student page' %}
   </a>
@@ -27,15 +27,15 @@
 <p>
   Go to assignment:
   <br/>
-  <a href="{{ protocol }}://{{ host }}{{ assignment_link }}" target="_blank">
-    {{ protocol }}://{{ host }}{{ assignment_link }}
+  <a href="{{ assignment_link }}" target="_blank">
+    {{ assignment_link }}
   </a>
 </p>
 <p>
   Go to student page:
   <br/>
-  <a href="{{ protocol }}://{{ host }}{{ login_link }}" target="_blank">
-    {{ protocol }}://{{ host }}{{ login_link }}
+  <a href="{{ signin_link }}" target="_blank">
+    {{ signin_link }}
   </a>
 </p>
 

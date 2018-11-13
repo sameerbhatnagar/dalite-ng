@@ -457,3 +457,7 @@ class StudentGroupAssignment(models.Model):
         questions_ = self.assignment.questions.all()
         questions = [questions_[i] for i in map(int, self.order.split(","))]
         return questions
+
+    @property
+    def days_to_expiry(self):
+        return max(datetime.now(pytz.utc) - self.due_date, timedelta()).days
