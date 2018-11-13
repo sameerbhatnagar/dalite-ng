@@ -357,10 +357,8 @@ class StudentAssignment(models.Model):
         err : Optional[str]
             Error message if there is any
         """
-        assert isinstance(mail_type, basestring) and mail_type in (
-            "new_assignment",
-            "assignment_updated",
-            "assignment_about_to_expire",
+        assert isinstance(
+            mail_type, basestring
         ), "Precondition failed for `mail_type`"
 
         err = None
@@ -374,8 +372,8 @@ class StudentAssignment(models.Model):
             )
 
             if not user_email:
-                err = "There is no email associated with user {}".format(
-                    self.student.user.username
+                err = "There is no email associated with user {}.".format(
+                    self.student.student.username
                 )
                 logger.error(err)
             elif group_membership.send_emails:
@@ -457,7 +455,7 @@ class StudentAssignment(models.Model):
                     )
 
                 else:
-                    err = "The mail_type wasn't in the allowed types."
+                    err = "The `mail_type` wasn't in the allowed types."
                     logger.error(err)
 
                 context = {
@@ -630,7 +628,10 @@ class StudentAssignment(models.Model):
                         and self.student.send_reminder_email_day_before
                     )
                 ):
-                    self.send_email("assignment_about_to_expire")
+                    err = self.send_email("assignment_about_to_expire")
+                    if err is None:
+                        self.reminder_sent = True
+                        self.save()
 
     @property
     def completed(self):

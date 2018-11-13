@@ -4,6 +4,7 @@ from peerinst.tests.generators import (
     add_assignments,
     add_groups,
     add_questions,
+    add_to_group,
     add_student_assignments,
     add_student_group_assignments,
     add_students,
@@ -49,6 +50,7 @@ def group_assignment(group, assignment):
 
 @pytest.fixture
 def student_assignment(student, group_assignment):
+    add_to_group(student, group_assignment.group)
     return add_student_assignments(
         new_student_assignments(1, group_assignment, student)
     )[0]
