@@ -106,10 +106,8 @@ class Student(models.Model):
         err : Optional[str]
             Error message if there is any
         """
-        assert isinstance(mail_type, basestring) and mail_type in (
-            "signin",
-            "confirmation",
-            "new_group",
+        assert isinstance(
+            mail_type, basestring
         ), "Precondition failed for `mail_type`"
         assert (
             isinstance(group, StudentGroup) or group is None
@@ -126,8 +124,8 @@ class Student(models.Model):
             user_email = self.student.email
 
             if not user_email:
-                err = "There is no email associated with user {}".format(
-                    self.student.user.username
+                err = "There is no email associated with user {}.".format(
+                    self.student.username
                 )
                 logger.error(err)
 
@@ -172,7 +170,7 @@ class Student(models.Model):
                     )
                     template = "peerinst/student/emails/new_group.html"
                 else:
-                    err = "The mail_type wasn't in the allowed types."
+                    err = "The `mail_type` wasn't in the allowed types."
                     logger.error(err)
 
                 context = {"signin_link": signin_link, "group": group}

@@ -101,7 +101,7 @@ def test_send_email__no_email(student_assignment):
     student_assignment.student.student.email = ""
     student_assignment.student.student.save()
 
-    err = student_assignment.send_email(mail_type="wrong_type")
+    err = student_assignment.send_email(mail_type="new_assignment")
 
     assert err == "There is no email associated with user {}.".format(
         student_assignment.student.student.username
