@@ -57,7 +57,6 @@ def test_index_fail_on_no_logged_in_and_no_token(client):
     )
 
 
-@pytest.mark.django_db
 def test_index_fail_on_logged_in_not_student(client):
     user = new_users(1)[0]
     add_users([user])
@@ -72,7 +71,6 @@ def test_index_fail_on_logged_in_not_student(client):
     )
 
 
-@pytest.mark.django_db
 def test_index_student_logged_in(client, student):
     username, password = get_student_username_and_password(
         student.student.email
@@ -85,7 +83,6 @@ def test_index_student_logged_in(client, student):
     assert student.student.email in resp.content
 
 
-@pytest.mark.django_db
 def test_index_student_not_logged_in_token(client, student):
     token = create_student_token(
         student.student.username, student.student.email
@@ -97,7 +94,6 @@ def test_index_student_not_logged_in_token(client, student):
     assert student.student.email in resp.content
 
 
-@pytest.mark.django_db
 def test_index_student_logged_in_token_same_user(client, student):
     username, password = get_student_username_and_password(
         student.student.email
@@ -114,7 +110,6 @@ def test_index_student_logged_in_token_same_user(client, student):
     assert student.student.email in resp.content
 
 
-@pytest.mark.django_db
 def test_index_student_logged_in_token_different_user(client, students):
     username, password = get_student_username_and_password(
         students[0].student.email
@@ -132,7 +127,6 @@ def test_index_student_logged_in_token_different_user(client, students):
     assert not students[0].student.email in resp.content
 
 
-@pytest.mark.django_db
 def test_index_new_student(client, student):
     student.student.is_active = False
     student.student.save()
@@ -150,7 +144,6 @@ def test_index_new_student(client, student):
     assert Student.objects.get(student=student.student).student.is_active
 
 
-@pytest.mark.django_db
 def test_leave_group_no_data(client):
     #  data = {"email": self.student.student.email}
     resp = client.post(reverse("student-leave-group"))
@@ -159,7 +152,6 @@ def test_leave_group_no_data(client):
     assert "Wrong data type was sent." in resp.content
 
 
-@pytest.mark.django_db
 def test_leave_group_wrong_data(client, student, group):
     data = {"username": student.student.username}
     resp = client.post(
@@ -192,7 +184,6 @@ def test_leave_group_wrong_data(client, student, group):
     assert "There are missing parameters." in resp.content
 
 
-@pytest.mark.django_db
 def test_leave_group_student_doesnt_exist(client, group):
     user = add_users(new_users(1))[0]
     data = {"username": user.username, "group_name": group.name}
@@ -209,7 +200,6 @@ def test_leave_group_student_doesnt_exist(client, group):
     )
 
 
-@pytest.mark.django_db
 def test_leave_group_is_member_of_group(client, student, group):
     student.groups.add(group)
     StudentGroupMembership.objects.create(student=student, group=group)
@@ -232,7 +222,6 @@ def test_leave_group_is_member_of_group(client, student, group):
     ).current_member
 
 
-@pytest.mark.django_db
 def test_leave_group_is_not_member_of_group(client, student, group):
     data = {"username": student.student.username, "group_name": group.name}
     resp = client.post(
@@ -250,7 +239,6 @@ def test_login_page(client):
     assert any(t.name == "peerinst/student/login.html" for t in resp.templates)
 
 
-@pytest.mark.django_db
 def test_send_signin_link_single_account(client, student):
     data = {"email": student.student.email}
     resp = client.post(reverse("student-send-signin-link"), data)
@@ -262,7 +250,6 @@ def test_send_signin_link_single_account(client, student):
     assert "Email sent" in resp.content
 
 
-@pytest.mark.django_db
 def test_send_signin_link_doesnt_exist(client, student):
     data = {"email": student.student.email + "fdja"}
     resp = client.post(reverse("student-send-signin-link"), data)
@@ -274,7 +261,6 @@ def test_send_signin_link_doesnt_exist(client, student):
     assert "There was an error with your email" in resp.content
 
 
-@pytest.mark.django_db
 def test_send_signin_link_multiple_accounts(client, student):
     Student.objects.create(
         student=User.objects.create_user(

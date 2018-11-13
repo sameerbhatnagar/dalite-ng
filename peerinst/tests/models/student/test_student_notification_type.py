@@ -1,9 +1,6 @@
-import pytest
-
 from peerinst.models import StudentNotificationType
 
 
-@pytest.mark.django_db
 def test_notifications_types_exist():
     types = (
         "new_assignment",

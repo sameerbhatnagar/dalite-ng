@@ -1,13 +1,11 @@
 import random
 
-import pytest
 
 from peerinst.models import StudentAssignment
 from peerinst.tests.generators import add_answers, new_student_assignments
 from .fixtures import *  # noqa F403
 
 
-@pytest.mark.django_db
 def test_new_student_assignment(student, group_assignment):
     data = new_student_assignments(1, group_assignment, student)[0]
 
@@ -17,7 +15,6 @@ def test_new_student_assignment(student, group_assignment):
     assert assignment.group_assignment == group_assignment
 
 
-@pytest.mark.django_db
 def test_get_current_question_no_answers(student_assignment):
     questions = student_assignment.group_assignment.questions
 
@@ -34,7 +31,6 @@ def test_get_current_question_no_answers(student_assignment):
         assert question == questions[0]
 
 
-@pytest.mark.django_db
 def test_get_current_question_some_first_answers_done(student_assignment):
     student = student_assignment.student
     questions = student_assignment.group_assignment.questions
@@ -56,7 +52,6 @@ def test_get_current_question_some_first_answers_done(student_assignment):
     assert question == questions[n_done]
 
 
-@pytest.mark.django_db
 def test_get_current_question_all_first_answers_done(student_assignment):
     student = student_assignment.student
     questions = student_assignment.group_assignment.questions
@@ -77,7 +72,6 @@ def test_get_current_question_all_first_answers_done(student_assignment):
     assert question == questions[0]
 
 
-@pytest.mark.django_db
 def test_get_current_question_some_second_answers_done(student_assignment):
     student = student_assignment.student
     questions = student_assignment.group_assignment.questions
@@ -113,7 +107,6 @@ def test_get_current_question_some_second_answers_done(student_assignment):
     assert question == questions[n_second]
 
 
-@pytest.mark.django_db
 def test_get_current_question_all_second_answers_done(student_assignment):
     student = student_assignment.student
     questions = student_assignment.group_assignment.questions
@@ -137,7 +130,6 @@ def test_get_current_question_all_second_answers_done(student_assignment):
     assert question is None
 
 
-@pytest.mark.django_db
 def test_get_results_no_answers(student_assignment):
     n = student_assignment.group_assignment.assignment.questions.count()
 
@@ -153,7 +145,6 @@ def test_get_results_no_answers(student_assignment):
     assert result == correct
 
 
-@pytest.mark.django_db
 def test_get_results_all_answered_correct(student_assignment):
     assignment = student_assignment.group_assignment.assignment
     questions = assignment.questions.all()
@@ -187,7 +178,6 @@ def test_get_results_all_answered_correct(student_assignment):
     assert result == correct
 
 
-@pytest.mark.django_db
 def test_get_results_some_answered_correct_second(student_assignment):
     assignment = student_assignment.group_assignment.assignment
     questions = assignment.questions.all()
@@ -232,7 +222,6 @@ def test_get_results_some_answered_correct_second(student_assignment):
     assert result == correct
 
 
-@pytest.mark.django_db
 def test_get_results_some_answered_correct_first_and_second(
     student_assignment
 ):
@@ -281,7 +270,6 @@ def test_get_results_some_answered_correct_first_and_second(
     assert result == correct
 
 
-@pytest.mark.django_db
 def test_get_results_all_answered_correct_first_and_none_second(
     student_assignment
 ):
@@ -328,7 +316,6 @@ def test_get_results_all_answered_correct_first_and_none_second(
     assert result == correct
 
 
-@pytest.mark.django_db
 def test_get_results_none_answered_correct_first_and_all_second(
     student_assignment
 ):
@@ -375,7 +362,6 @@ def test_get_results_none_answered_correct_first_and_all_second(
     assert result == correct
 
 
-@pytest.mark.django_db
 def test_get_results_none_answered_correct_first_and_second(
     student_assignment
 ):

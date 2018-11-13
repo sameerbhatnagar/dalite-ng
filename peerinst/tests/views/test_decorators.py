@@ -1,15 +1,8 @@
-from django.contrib.auth.models import User
 from django.test import RequestFactory, TestCase
 from django.http import HttpResponseForbidden
 
 from ..generators import add_teachers, add_users, new_teachers, new_users
 from peerinst.views.decorators import teacher_required
-
-
-class TestGroupAccessRequired(TestCase):
-    def setUp(self):
-        self.req_factory = RequestFactory()
-        self.teacher_required = teacher_required(lambda req: None)
 
 
 class TeacherRequired(TestCase):

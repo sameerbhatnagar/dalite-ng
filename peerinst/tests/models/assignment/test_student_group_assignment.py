@@ -15,7 +15,6 @@ from peerinst.tests.generators import (
 from .fixtures import *  # noqa F403
 
 
-@pytest.mark.django_db
 def test_new_student_group_assignment(group, assignment):
     data = new_student_group_assignments(1, group, assignment)[0]
     n_questions = assignment.questions.count()
@@ -28,7 +27,6 @@ def test_new_student_group_assignment(group, assignment):
     )
 
 
-@pytest.mark.django_db
 def test_is_expired_expired(group, assignment):
     student_group_assignment = add_student_group_assignments(
         new_student_group_assignments(
@@ -38,7 +36,6 @@ def test_is_expired_expired(group, assignment):
     assert student_group_assignment.is_expired()
 
 
-@pytest.mark.django_db
 def test_is_expired_not_expired(group, assignment):
     student_group_assignment = add_student_group_assignments(
         new_student_group_assignments(
@@ -51,14 +48,12 @@ def test_is_expired_not_expired(group, assignment):
     assert not student_group_assignment.is_expired()
 
 
-@pytest.mark.django_db
 def test_hashing(student_group_assignment):
     assert student_group_assignment == StudentGroupAssignment.get(
         student_group_assignment.hash
     )
 
 
-@pytest.mark.django_db
 def test__modify_order(student_group_assignment):
     k = student_group_assignment.assignment.questions.count()
     for _ in range(3):
@@ -68,7 +63,6 @@ def test__modify_order(student_group_assignment):
         assert new_order == student_group_assignment.order
 
 
-@pytest.mark.django_db
 def test__modify_order_wrong_type(student_group_assignment):
     new_order = [1, 2, 3]
     with pytest.raises(AssertionError):
@@ -83,7 +77,6 @@ def test__modify_order_wrong_type(student_group_assignment):
     assert err == "Given `order` isn't a comma separated list of integers."
 
 
-@pytest.mark.django_db
 def test__modify_due_date(student_group_assignment):
     due_date = student_group_assignment.due_date
     new_due_date = datetime.now(pytz.utc) + timedelta(
@@ -101,7 +94,6 @@ def test__modify_due_date(student_group_assignment):
     )
 
 
-@pytest.mark.django_db
 def test__modify_due_date_with_floating_point(student_group_assignment):
     due_date = student_group_assignment.due_date
     new_due_date = datetime.now(pytz.utc) + timedelta(
@@ -119,7 +111,6 @@ def test__modify_due_date_with_floating_point(student_group_assignment):
     )
 
 
-@pytest.mark.django_db
 def test__modify_due_date_wrong_format(student_group_assignment):
     due_date = student_group_assignment.due_date
     new_due_date = datetime.now(pytz.utc) + timedelta(
@@ -139,7 +130,6 @@ def test__modify_due_date_wrong_format(student_group_assignment):
     )
 
 
-@pytest.mark.django_db
 def test_questions(student_group_assignment):
     k = len(student_group_assignment.questions)
     new_order = ",".join(map(str, random.sample(range(k), k=k)))
@@ -154,14 +144,12 @@ def test_questions(student_group_assignment):
     assert new_order == student_group_assignment.order
 
 
-@pytest.mark.django_db
 def test_get_question_by_idx(student_group_assignment):
     questions = student_group_assignment.questions
     for i, question in enumerate(questions):
         assert question == student_group_assignment.get_question(idx=i)
 
 
-@pytest.mark.django_db
 def test_get_question_regular(student_group_assignment):
     questions = student_group_assignment.questions
     for i, question in enumerate(questions):
@@ -180,7 +168,6 @@ def test_get_question_regular(student_group_assignment):
             )
 
 
-@pytest.mark.django_db
 def test_get_question_edges(student_group_assignment):
     questions = student_group_assignment.questions
     assert (
@@ -197,7 +184,6 @@ def test_get_question_edges(student_group_assignment):
     )
 
 
-@pytest.mark.django_db
 def test_get_question_assert_raised(student_group_assignment):
     # To be revised with assertions in method
     #  with pytest.raises(AssertionError):
@@ -207,7 +193,6 @@ def test_get_question_assert_raised(student_group_assignment):
     pass
 
 
-@pytest.mark.django_db
 def test_get_student_progress_no_questions_done(
     questions, students_with_assignment, student_group_assignment
 ):
@@ -228,7 +213,6 @@ def test_get_student_progress_no_questions_done(
         assert question["second_correct"] == 0
 
 
-@pytest.mark.django_db
 def test_get_student_progress_some_first_answers_done(
     questions, students_with_assignment, student_group_assignment
 ):
@@ -275,7 +259,6 @@ def test_get_student_progress_some_first_answers_done(
         assert question["second_correct"] == 0
 
 
-@pytest.mark.django_db
 def test_get_student_progress_all_first_answers_done(
     questions, students_with_assignment, student_group_assignment
 ):
@@ -317,7 +300,6 @@ def test_get_student_progress_all_first_answers_done(
         assert question["second_correct"] == 0
 
 
-@pytest.mark.django_db
 def test_get_student_progress_some_second_answers_done(
     questions, students_with_assignment, student_group_assignment
 ):
@@ -399,7 +381,6 @@ def test_get_student_progress_some_second_answers_done(
         assert question["second_correct"] == n_second_correct[question_.pk]
 
 
-@pytest.mark.django_db
 def test_get_student_progress_all_second_answers_done(
     questions, students_with_assignment, student_group_assignment
 ):
@@ -448,7 +429,6 @@ def test_get_student_progress_all_second_answers_done(
         assert question["second_correct"] == n_second_correct[question_.pk]
 
 
-@pytest.mark.django_db
 def test_get_student_progress_all_answers_correct_no_questions_all_answers_correct_done(  # noqa
     questions_all_answers_correct,
     students_with_assignment_all_answers_correct,
@@ -475,7 +455,6 @@ def test_get_student_progress_all_answers_correct_no_questions_all_answers_corre
         assert question["second_correct"] == 0
 
 
-@pytest.mark.django_db
 def test_get_student_progress_all_answers_correct_some_first_answers_done(
     questions_all_answers_correct,
     students_with_assignment_all_answers_correct,
@@ -535,7 +514,6 @@ def test_get_student_progress_all_answers_correct_some_first_answers_done(
         assert question["second_correct"] == 0
 
 
-@pytest.mark.django_db
 def test_get_student_progress_all_answers_correct_all_first_answers_done(
     questions_all_answers_correct,
     students_with_assignment_all_answers_correct,
@@ -588,7 +566,6 @@ def test_get_student_progress_all_answers_correct_all_first_answers_done(
         assert question["second_correct"] == 0
 
 
-@pytest.mark.django_db
 def test_get_student_progress_all_answers_correct_some_second_answers_done(
     questions_all_answers_correct,
     students_with_assignment_all_answers_correct,
@@ -686,7 +663,6 @@ def test_get_student_progress_all_answers_correct_some_second_answers_done(
         )
 
 
-@pytest.mark.django_db
 def test_get_student_progress_all_answers_correct_all_second_answers_done(
     questions_all_answers_correct,
     students_with_assignment_all_answers_correct,

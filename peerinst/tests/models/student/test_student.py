@@ -1,6 +1,5 @@
 import hashlib
 
-import pytest
 from django.core import mail
 from django.core.urlresolvers import reverse
 
@@ -19,7 +18,6 @@ from .fixtures import *  # noqa F403
 MAX_USERNAME_LENGTH = 30
 
 
-@pytest.mark.django_db
 def test_get_or_create_new():
     data = new_students(1)[0]
 
@@ -35,7 +33,6 @@ def test_get_or_create_new():
     assert len(Student.objects.all()) == 1
 
 
-@pytest.mark.django_db
 def test_get_or_create_get():
     data = new_students(1)[0]
     add_students([data])
@@ -52,7 +49,6 @@ def test_get_or_create_get():
     assert len(Student.objects.all()) == 1
 
 
-@pytest.mark.django_db
 def test_send_email_confirmation(student):
     err = student.send_email(mail_type="confirmation")
 
@@ -61,7 +57,6 @@ def test_send_email_confirmation(student):
     assert mail.outbox[0].subject == "Confirm your myDALITE account"
 
 
-@pytest.mark.django_db
 def test_send_email_confirmation_with_localhost(student):
     student.student.email = "fake-email@localhost"
     student.student.save()
@@ -72,7 +67,6 @@ def test_send_email_confirmation_with_localhost(student):
     assert not mail.outbox
 
 
-@pytest.mark.django_db
 def test_send_email_signin(student):
     err = student.send_email(mail_type="signin")
 
@@ -81,7 +75,6 @@ def test_send_email_signin(student):
     assert mail.outbox[0].subject == "Sign in to your myDALITE account"
 
 
-@pytest.mark.django_db
 def test_send_email_signin_with_localhost(student):
     student.student.email = "fake-email@localhost"
     student.student.save()
@@ -91,7 +84,6 @@ def test_send_email_signin_with_localhost(student):
     assert not mail.outbox
 
 
-@pytest.mark.django_db
 def test_send_email_new_group(student, group):
     err = student.send_email(mail_type="new_group", group=group)
     assert err is None
@@ -105,7 +97,6 @@ def test_send_email_new_group(student, group):
     )
 
 
-@pytest.mark.django_db
 def test_send_email_new_group_with_localhost(student, group):
     student.student.email = "fake-email@localhost"
     student.student.save()
@@ -115,7 +106,6 @@ def test_send_email_new_group_with_localhost(student, group):
     assert not mail.outbox
 
 
-@pytest.mark.django_db
 def test_send_missing_assignments(student, group_assignment):
     student.join_group(group_assignment.group)
 
@@ -134,7 +124,6 @@ def test_send_missing_assignments(student, group_assignment):
     assert len(mail.outbox) == 1
 
 
-@pytest.mark.django_db
 def test_join_group(student, group):
     student.join_group(group)
 
@@ -143,7 +132,6 @@ def test_join_group(student, group):
     assert group not in student.old_groups
 
 
-@pytest.mark.django_db
 def test_leave_group(student, group):
     student.groups.add(group)
     StudentGroupMembership.objects.create(student=student, group=group)
@@ -157,7 +145,6 @@ def test_leave_group(student, group):
     assert group in student.old_groups
 
 
-@pytest.mark.django_db
 def test_leave_group_doesnt_exist(student, group):
     student.leave_group(group)
 
@@ -166,7 +153,6 @@ def test_leave_group_doesnt_exist(student, group):
     assert group not in student.old_groups
 
 
-@pytest.mark.django_db
 def test_add_assignment(student, group_assignment):
     assert not StudentAssignment.objects.filter(
         student=student, group_assignment=group_assignment
@@ -196,7 +182,6 @@ def test_add_assignment(student, group_assignment):
     )
 
 
-@pytest.mark.django_db
 def test_add_assignment_assignment_exists(student, group_assignment):
     assert not StudentAssignment.objects.filter(
         student=student, group_assignment=group_assignment
@@ -240,7 +225,6 @@ def test_add_assignment_assignment_exists(student, group_assignment):
     )
 
 
-@pytest.mark.django_db
 def test_add_assignment_with_host(student, group_assignment):
 
     host = "localhost"

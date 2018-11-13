@@ -50,22 +50,18 @@ def teacher():
     return _teacher
 
 
-@pytest.mark.django_db
 def test_signup_through_link(client, group, student):
     pass
 
 
-@pytest.mark.django_db
 def test_signup_through_link_logged_in(client, group, student):
     pass
 
 
-@pytest.mark.django_db
 def test_signup_through_link_logged_in_other_student(client, group, students):
     pass
 
 
-@pytest.mark.django_db
 def test_signup_through_link_logged_in_other_teacher(
     client, group, student, teacher
 ):
@@ -76,39 +72,32 @@ def test_signup_through_link_invalid_hash(client):
     pass
 
 
-@pytest.mark.django_db
 def test_signup_through_link_not_post(client, group):
     pass
 
 
-@pytest.mark.django_db
 def test_signup_through_link_invalid_form(client, group):
     pass
 
 
-@pytest.mark.django_db
 def test_signup_through_link_student_doesnt_exist(client, group):
     pass
 
 
-@pytest.mark.django_db
 def test_confirm_signup_through_link(client, group, student):
     pass
 
 
-@pytest.mark.django_db
 def test_confirm_signup_through_link_logged_in(client, group, student):
     pass
 
 
-@pytest.mark.django_db
 def test_confirm_signup_through_link_logged_in_other_student(
     client, group, students
 ):
     pass
 
 
-@pytest.mark.django_db
 def test_confirm_signup_through_link_logged_in_teacher(
     client, group, student, teacher
 ):
@@ -119,7 +108,6 @@ def test_confirm_signup_through_link_group_doesnt_exist(client):
     pass
 
 
-@pytest.mark.django_db
 def test_confirm_signup_through_link_student_doesnt_exist(
     client, group, student
 ):
