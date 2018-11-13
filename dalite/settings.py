@@ -261,40 +261,46 @@ LOGGING = {
 
 # LTI integration
 
-# these are sensitive settings, so it is better to fail early than use some defaults visible on public repo
+# these are sensitive settings, so it is better to fail early than use some
+# defaults visible on public repo
 LTI_CLIENT_KEY = os.environ.get("LTI_CLIENT_KEY", None)
 LTI_CLIENT_SECRET = os.environ.get("LTI_CLIENT_SECRET", None)
 
-# hint: LTi passport in edX Studio should look like <arbitrary_label>:LTI_CLIENT_KEY:LTI_CLIENT_SECRET
+# hint: LTi passport in edX Studio should look like
+# <arbitrary_label>:LTI_CLIENT_KEY:LTI_CLIENT_SECRET
 
-# Used to automatically generate stable passwords from anonymous user ids coming from LTI requests - keep secret as well
-# If compromised, attackers would be able to restore any student passwords knowing his anonymous user ID from LMS
+# Used to automatically generate stable passwords from anonymous user ids
+# coming from LTI requests - keep secret as well
+# If compromised, attackers would be able to restore any student passwords
+# knowing his anonymous user ID from LMS
 PASSWORD_GENERATOR_NONCE = os.environ.get("PASSWORD_GENERATOR_NONCE", None)
 # LTI Integration end
 
-# Configureation file for the heartbeat view, should contain json file. See this url for file contents.
+# Configureation file for the heartbeat view, should contain json file. See
+# this url for file contents.
 HEARTBEAT_REQUIRED_FREE_SPACE_PERCENTAGE = 20
 
 
-# NB: Object level permissions are checked for certain models, including Question
-# TEACHER_GROUP will be automatically added to teachers at login
-# This group and its permissions need to be set through admin site
+# NB: Object level permissions are checked for certain models, including
+# Question
+# TEACHER_GROUP will be automatically added to teachers at login This group and
+# its permissions need to be set through admin site
 TEACHER_GROUP = "Teacher"
 
 DEFAULT_TIMEZONE = "America/Montreal"
 
-
 try:
-    from .local_settings import *
+    from .local_settings import *  # noqa F403
 
     try:
-        INSTALLED_APPS += LOCAL_APPS
+        INSTALLED_APPS += LOCAL_APPS  # noqa F405
     except NameError:
         pass
 except ImportError:
     import warnings
 
     warnings.warn(
-        "File local_settings.py not found.  You probably want to add it -- see README.md."
+        "File local_settings.py not found. You probably want to add it -- "
+        "see README.md."
     )
     pass
