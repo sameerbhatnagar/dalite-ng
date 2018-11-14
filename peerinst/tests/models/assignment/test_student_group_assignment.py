@@ -27,7 +27,7 @@ def test_new_student_group_assignment(group, assignment):
     )
 
 
-def test_is_expired_expired(group, assignment):
+def test_is_expired__expired(group, assignment):
     student_group_assignment = add_student_group_assignments(
         new_student_group_assignments(
             1, group, assignment, due_date=datetime.now(pytz.utc)
@@ -36,7 +36,7 @@ def test_is_expired_expired(group, assignment):
     assert student_group_assignment.is_expired()
 
 
-def test_is_expired_not_expired(group, assignment):
+def test_is_expired__not_expired(group, assignment):
     student_group_assignment = add_student_group_assignments(
         new_student_group_assignments(
             1,
@@ -63,7 +63,7 @@ def test__modify_order(student_group_assignment):
         assert new_order == student_group_assignment.order
 
 
-def test__modify_order_wrong_type(student_group_assignment):
+def test__modify_order__wrong_type(student_group_assignment):
     new_order = [1, 2, 3]
     with pytest.raises(AssertionError):
         student_group_assignment._modify_order(new_order)
@@ -94,7 +94,7 @@ def test__modify_due_date(student_group_assignment):
     )
 
 
-def test__modify_due_date_with_floating_point(student_group_assignment):
+def test__modify_due_date__with_floating_point(student_group_assignment):
     due_date = student_group_assignment.due_date
     new_due_date = datetime.now(pytz.utc) + timedelta(
         days=random.randint(1, 10)
@@ -111,7 +111,7 @@ def test__modify_due_date_with_floating_point(student_group_assignment):
     )
 
 
-def test__modify_due_date_wrong_format(student_group_assignment):
+def test__modify_due_date__wrong_format(student_group_assignment):
     due_date = student_group_assignment.due_date
     new_due_date = datetime.now(pytz.utc) + timedelta(
         days=random.randint(1, 10)
@@ -144,13 +144,13 @@ def test_questions(student_group_assignment):
     assert new_order == student_group_assignment.order
 
 
-def test_get_question_by_idx(student_group_assignment):
+def test_get_question__by_idx(student_group_assignment):
     questions = student_group_assignment.questions
     for i, question in enumerate(questions):
         assert question == student_group_assignment.get_question(idx=i)
 
 
-def test_get_question_regular(student_group_assignment):
+def test_get_question__regular(student_group_assignment):
     questions = student_group_assignment.questions
     for i, question in enumerate(questions):
         if i != 0 and i != len(questions) - 1:
@@ -168,7 +168,7 @@ def test_get_question_regular(student_group_assignment):
             )
 
 
-def test_get_question_edges(student_group_assignment):
+def test_get_question__edges(student_group_assignment):
     questions = student_group_assignment.questions
     assert (
         student_group_assignment.get_question(
@@ -184,7 +184,7 @@ def test_get_question_edges(student_group_assignment):
     )
 
 
-def test_get_question_assert_raised(student_group_assignment):
+def test_get_question__assert_raised(student_group_assignment):
     # To be revised with assertions in method
     #  with pytest.raises(AssertionError):
     #  student_group_assignment.get_question(
@@ -193,7 +193,7 @@ def test_get_question_assert_raised(student_group_assignment):
     pass
 
 
-def test_get_student_progress_no_questions_done(
+def test_get_student_progress__no_questions_done(
     questions, students_with_assignment, student_group_assignment
 ):
     progress = student_group_assignment.get_student_progress()
@@ -213,7 +213,7 @@ def test_get_student_progress_no_questions_done(
         assert question["second_correct"] == 0
 
 
-def test_get_student_progress_some_first_answers_done(
+def test_get_student_progress__some_first_answers_done(
     questions, students_with_assignment, student_group_assignment
 ):
     times_answered = {
@@ -259,7 +259,7 @@ def test_get_student_progress_some_first_answers_done(
         assert question["second_correct"] == 0
 
 
-def test_get_student_progress_all_first_answers_done(
+def test_get_student_progress__all_first_answers_done(
     questions, students_with_assignment, student_group_assignment
 ):
     n_correct = {
@@ -300,7 +300,7 @@ def test_get_student_progress_all_first_answers_done(
         assert question["second_correct"] == 0
 
 
-def test_get_student_progress_some_second_answers_done(
+def test_get_student_progress__some_second_answers_done(
     questions, students_with_assignment, student_group_assignment
 ):
     times_first_answered = {
@@ -381,7 +381,7 @@ def test_get_student_progress_some_second_answers_done(
         assert question["second_correct"] == n_second_correct[question_.pk]
 
 
-def test_get_student_progress_all_second_answers_done(
+def test_get_student_progress__all_second_answers_done(
     questions, students_with_assignment, student_group_assignment
 ):
     n_first_correct = {
@@ -429,7 +429,7 @@ def test_get_student_progress_all_second_answers_done(
         assert question["second_correct"] == n_second_correct[question_.pk]
 
 
-def test_get_student_progress_all_answers_correct_no_questions_all_answers_correct_done(  # noqa
+def test_get_student_progress__all_answers_correct_no_questions_all_answers_correct_done(  # noqa
     questions_all_answers_correct,
     students_with_assignment_all_answers_correct,
     student_group_assignment_all_answers_correct,
@@ -455,7 +455,7 @@ def test_get_student_progress_all_answers_correct_no_questions_all_answers_corre
         assert question["second_correct"] == 0
 
 
-def test_get_student_progress_all_answers_correct_some_first_answers_done(
+def test_get_student_progress__all_answers_correct_some_first_answers_done(
     questions_all_answers_correct,
     students_with_assignment_all_answers_correct,
     student_group_assignment_all_answers_correct,
@@ -514,7 +514,7 @@ def test_get_student_progress_all_answers_correct_some_first_answers_done(
         assert question["second_correct"] == 0
 
 
-def test_get_student_progress_all_answers_correct_all_first_answers_done(
+def test_get_student_progress__all_answers_correct_all_first_answers_done(
     questions_all_answers_correct,
     students_with_assignment_all_answers_correct,
     student_group_assignment_all_answers_correct,
@@ -566,7 +566,7 @@ def test_get_student_progress_all_answers_correct_all_first_answers_done(
         assert question["second_correct"] == 0
 
 
-def test_get_student_progress_all_answers_correct_some_second_answers_done(
+def test_get_student_progress__all_answers_correct_some_second_answers_done(
     questions_all_answers_correct,
     students_with_assignment_all_answers_correct,
     student_group_assignment_all_answers_correct,
@@ -663,7 +663,7 @@ def test_get_student_progress_all_answers_correct_some_second_answers_done(
         )
 
 
-def test_get_student_progress_all_answers_correct_all_second_answers_done(
+def test_get_student_progress__all_answers_correct_all_second_answers_done(
     questions_all_answers_correct,
     students_with_assignment_all_answers_correct,
     student_group_assignment_all_answers_correct,
