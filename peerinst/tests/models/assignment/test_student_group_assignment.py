@@ -27,56 +27,6 @@ def test_new_student_group_assignment(group, assignment):
     )
 
 
-def test_is_expired__expired(group, assignment):
-    student_group_assignment = add_student_group_assignments(
-        new_student_group_assignments(
-            1, group, assignment, due_date=datetime.now(pytz.utc)
-        )
-    )[0]
-    assert student_group_assignment.is_expired()
-
-
-def test_is_expired__not_expired(group, assignment):
-    student_group_assignment = add_student_group_assignments(
-        new_student_group_assignments(
-            1,
-            group,
-            assignment,
-            due_date=datetime.now(pytz.utc) + timedelta(days=1),
-        )
-    )[0]
-    assert not student_group_assignment.is_expired()
-
-
-def test_hashing(student_group_assignment):
-    assert student_group_assignment == StudentGroupAssignment.get(
-        student_group_assignment.hash
-    )
-
-
-def test__modify_order(student_group_assignment):
-    k = student_group_assignment.assignment.questions.count()
-    for _ in range(3):
-        new_order = ",".join(map(str, random.sample(range(k), k=k)))
-        err = student_group_assignment._modify_order(new_order)
-        assert err is None
-        assert new_order == student_group_assignment.order
-
-
-def test__modify_order__wrong_type(student_group_assignment):
-    new_order = [1, 2, 3]
-    with pytest.raises(AssertionError):
-        student_group_assignment._modify_order(new_order)
-
-    new_order = "abc"
-    err = student_group_assignment._modify_order(new_order)
-    assert err == "Given `order` isn't a comma separated list of integers."
-
-    new_order = "a,b,c"
-    err = student_group_assignment._modify_order(new_order)
-    assert err == "Given `order` isn't a comma separated list of integers."
-
-
 def test__modify_due_date(student_group_assignment):
     due_date = student_group_assignment.due_date
     new_due_date = datetime.now(pytz.utc) + timedelta(
@@ -130,18 +80,27 @@ def test__modify_due_date__wrong_format(student_group_assignment):
     )
 
 
-def test_questions(student_group_assignment):
-    k = len(student_group_assignment.questions)
-    new_order = ",".join(map(str, random.sample(range(k), k=k)))
-    err = student_group_assignment._modify_order(new_order)
-    assert err is None
-    for i, j in enumerate(map(int, new_order.split(","))):
-        assert (
-            student_group_assignment.questions[i]
-            == student_group_assignment.assignment.questions.all()[j]
-        )
+def test__modify_order(student_group_assignment):
+    k = student_group_assignment.assignment.questions.count()
+    for _ in range(3):
+        new_order = ",".join(map(str, random.sample(range(k), k=k)))
+        err = student_group_assignment._modify_order(new_order)
+        assert err is None
+        assert new_order == student_group_assignment.order
 
-    assert new_order == student_group_assignment.order
+
+def test__modify_order__wrong_type(student_group_assignment):
+    new_order = [1, 2, 3]
+    with pytest.raises(AssertionError):
+        student_group_assignment._modify_order(new_order)
+
+    new_order = "abc"
+    err = student_group_assignment._modify_order(new_order)
+    assert err == "Given `order` isn't a comma separated list of integers."
+
+    new_order = "a,b,c"
+    err = student_group_assignment._modify_order(new_order)
+    assert err == "Given `order` isn't a comma separated list of integers."
 
 
 def test_get_question__by_idx(student_group_assignment):
@@ -726,3 +685,44 @@ def test_get_student_progress__all_answers_correct_all_second_answers_done(
         assert question["second_correct"] == len(
             students_with_assignment_all_answers_correct
         )
+
+
+def test_hashing(student_group_assignment):
+    assert student_group_assignment == StudentGroupAssignment.get(
+        student_group_assignment.hash
+    )
+
+
+def test_expired__expired(group, assignment):
+    student_group_assignment = add_student_group_assignments(
+        new_student_group_assignments(
+            1, group, assignment, due_date=datetime.now(pytz.utc)
+        )
+    )[0]
+    assert student_group_assignment.expired
+
+
+def test_expired__not_expired(group, assignment):
+    student_group_assignment = add_student_group_assignments(
+        new_student_group_assignments(
+            1,
+            group,
+            assignment,
+            due_date=datetime.now(pytz.utc) + timedelta(days=1),
+        )
+    )[0]
+    assert not student_group_assignment.expired
+
+
+def test_questions(student_group_assignment):
+    k = len(student_group_assignment.questions)
+    new_order = ",".join(map(str, random.sample(range(k), k=k)))
+    err = student_group_assignment._modify_order(new_order)
+    assert err is None
+    for i, j in enumerate(map(int, new_order.split(","))):
+        assert (
+            student_group_assignment.questions[i]
+            == student_group_assignment.assignment.questions.all()[j]
+        )
+
+    assert new_order == student_group_assignment.order
