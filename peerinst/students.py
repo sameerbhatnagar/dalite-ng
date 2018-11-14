@@ -93,12 +93,15 @@ def authenticate_student(req, token):
         if user is None:
             resp = TemplateResponse(
                 req,
-                "401.html",
+                "400.html",
                 context={
-                    "message": _("The account hasn't been verified yet.")
+                    "message": _(
+                        "There is no user corresponding to the given link. "
+                        "You may try asking for another one."
+                    )
                 },
             )
-            output = HttpResponse(resp.render(), status=401)
+            output = HttpResponse(resp.render(), status=400)
         else:
             output = user
 

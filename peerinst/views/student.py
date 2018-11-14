@@ -253,6 +253,7 @@ def index_page(req):
     host = settings.ALLOWED_HOSTS[0]
     if host.startswith("localhost") or host.startswith("127.0.0.1"):
         protocol = "http"
+        host = "{}:{}".format(host, settings.DEV_PORT)
     else:
         protocol = "https"
 
@@ -309,7 +310,7 @@ def index_page(req):
             {
                 "name": group.group.name,
                 "title": group.group.title,
-                "notifications": group.sending_email,
+                "notifications": group.send_emails,
                 "member_of": group.current_member,
                 "assignments": assignments[group],
             }
@@ -391,22 +392,24 @@ def send_signin_link(req):
         return HttpResponseBadRequest(resp.render())
 
     student = Student.objects.filter(student__email=email)
-    if student:
-        if len(student) == 1:
-            student = student[0]
-        else:
-            username, __ = get_student_username_and_password(email)
-            student = student.filter(student__username=username).first()
-        if student:
-            student.student.is_active = True
-            err = student.send_email(mail_type="signin")
-            if err is None:
-                context = {}
-            else:
-                context = {"missing_student": True}
-        else:
-            context = {"missing_student": True}
+
+    if not student:
+        student, created = Student.get_or_create(email)
+        print(created)
+        logger.info("Student created with email {}.".format(email))
+
+    elif len(student) == 1:
+        student = student[0]
+
     else:
-        context = {"missing_student": True}
+        username, __ = get_student_username_and_password(email)
+        student = student.filter(student__username=username).first()
+
+    if student:
+        err = student.send_email(mail_type="signin")
+        if err is None:
+            context = {"error": False}
+        else:
+            context = {"error": True}
 
     return render(req, "peerinst/student/login_confirmation.html", context)

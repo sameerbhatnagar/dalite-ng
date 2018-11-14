@@ -250,17 +250,6 @@ def test_send_signin_link_single_account(client, student):
     assert "Email sent" in resp.content
 
 
-def test_send_signin_link_doesnt_exist(client, student):
-    data = {"email": student.student.email + "fdja"}
-    resp = client.post(reverse("student-send-signin-link"), data)
-    assert resp.status_code == 200
-    assert any(
-        t.name == "peerinst/student/login_confirmation.html"
-        for t in resp.templates
-    )
-    assert "There was an error with your email" in resp.content
-
-
 def test_send_signin_link_multiple_accounts(client, student):
     Student.objects.create(
         student=User.objects.create_user(
