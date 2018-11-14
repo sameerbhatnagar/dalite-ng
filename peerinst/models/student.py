@@ -603,7 +603,13 @@ class StudentAssignment(models.Model):
         ----------
         last_day : bool
             If there is only one day before the assignment is due
+
+        Returns
+        -------
+        err : Optional[str]
+            Error message if there is any
         """
+        err = None
         if not self.completed:
             if not StudentNotification.objects.filter(
                 student=self.student,
@@ -630,6 +636,7 @@ class StudentAssignment(models.Model):
                     if err is None:
                         self.reminder_sent = True
                         self.save()
+        return err
 
     @property
     def completed(self):
