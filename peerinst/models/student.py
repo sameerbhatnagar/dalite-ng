@@ -135,6 +135,7 @@ class Student(models.Model):
 
                 if host == "localhost" or host == "127.0.0.1":
                     protocol = "http"
+                    host = "{}:{}".format(host, settings.DEV_PORT)
                 else:
                     protocol = "https"
 
@@ -390,6 +391,7 @@ class StudentAssignment(models.Model):
 
                 if host == "localhost" or host == "127.0.0.1":
                     protocol = "http"
+                    host = "{}:{}".format(host, settings.DEV_PORT)
                 else:
                     protocol = "https"
 
