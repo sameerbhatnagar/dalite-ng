@@ -264,7 +264,7 @@ class Student(models.Model):
                 )
             )
 
-    def add_assignment(self, group_assignment, host=None):
+    def add_assignment(self, group_assignment):
         """
         Adds the `group_assignment` for the student by creating a
         StudentAssignment instance and sending an email informing them of it.
