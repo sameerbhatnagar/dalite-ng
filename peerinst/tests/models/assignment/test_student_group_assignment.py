@@ -4,11 +4,13 @@ from operator import itemgetter
 
 import pytest
 import pytz
+from django.core import mail
 
-from peerinst.models import StudentGroupAssignment
+from peerinst.models import StudentAssignment, StudentGroupAssignment
 from peerinst.tests.generators import (
     add_answers,
     add_student_group_assignments,
+    add_to_group,
     new_student_group_assignments,
 )
 
@@ -150,6 +152,107 @@ def test_get_question__assert_raised(student_group_assignment):
     #  0, student_group_assignment.questions[0]
     #  )
     pass
+
+
+def test_update_students(student_group_assignment, students):
+    add_to_group(students, student_group_assignment.group)
+
+    for student in students:
+        assert not StudentAssignment.objects.filter(
+            student=student, group_assignment=student_group_assignment
+        ).exists()
+
+    student_group_assignment.update_students()
+
+    for student in students:
+        assert StudentAssignment.objects.filter(
+            student=student, group_assignment=student_group_assignment
+        ).exists()
+
+    assert len(mail.outbox) == len(students)
+
+
+def test_update__due_date(student_group_assignment, students_with_assignment):
+    data = {
+        "name": "due_date",
+        "value": datetime.now(pytz.utc).strftime("%Y-%m-%dT%H:%M:%S"),
+    }
+
+    err = student_group_assignment.update(**data)
+
+    assert err is None
+    assert len(mail.outbox) == len(students_with_assignment)
+
+
+def test_update__question_list(
+    student_group_assignment, students_with_assignment
+):
+    data = {
+        "name": "question_list",
+        "value": random.sample(
+            [q.title for q in student_group_assignment.questions],
+            len(student_group_assignment.questions),
+        ),
+    }
+
+    err = student_group_assignment.update(**data)
+
+    assert err is None
+    assert len(mail.outbox) == len(students_with_assignment)
+
+
+def test_update__wrong_name(student_group_assignment):
+    data = {"name": "wrong_name", "value": None}
+
+    err = student_group_assignment.update(**data)
+
+    assert err == "An invalid name was sent."
+    assert not mail.outbox
+
+
+def test_check_reminder_status(
+    student_group_assignment, students_with_assignment
+):
+    student_group_assignment.reminder_days = 3
+    student_group_assignment.due_date = datetime.now(pytz.utc) + timedelta(
+        days=2
+    )
+    student_group_assignment.save()
+
+    err = student_group_assignment.check_reminder_status()
+
+    assert err is None
+    assert len(mail.outbox) == len(students_with_assignment)
+
+
+def test_check_reminder_status__over_reminder_days(
+    student_group_assignment, students_with_assignment
+):
+    student_group_assignment.reminder_days = 3
+    student_group_assignment.due_date = datetime.now(pytz.utc) + timedelta(
+        days=4
+    )
+    student_group_assignment.save()
+
+    err = student_group_assignment.check_reminder_status()
+
+    assert err is None
+    assert not mail.outbox
+
+
+def test_check_reminder_status__expired(
+    student_group_assignment, students_with_assignment
+):
+    student_group_assignment.reminder_days = 3
+    student_group_assignment.due_date = datetime.now(pytz.utc) + timedelta(
+        days=-1
+    )
+    student_group_assignment.save()
+
+    err = student_group_assignment.check_reminder_status()
+
+    assert err is None
+    assert not mail.outbox
 
 
 def test_get_student_progress__no_questions_done(

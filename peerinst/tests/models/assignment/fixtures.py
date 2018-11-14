@@ -23,6 +23,11 @@ def student():
 
 
 @pytest.fixture
+def students():
+    return add_students(new_students(3))
+
+
+@pytest.fixture
 def group():
     return add_groups(new_groups(1))[0]
 

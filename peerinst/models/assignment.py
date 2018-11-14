@@ -227,8 +227,7 @@ class StudentGroupAssignment(models.Model):
         ), "Postcondition failed"
         return output
 
-    def update_students(self, host):
-        assert isinstance(host, basestring), "Precondition failed for `host`"
+    def update_students(self):
         logger.info(
             "Updating students for student group assignment %d", self.pk
         )
@@ -237,9 +236,9 @@ class StudentGroupAssignment(models.Model):
             logger.info(
                 "Adding assignment %d for student %d", self.pk, student.pk
             )
-            student.add_assignment(self, host)
+            student.add_assignment(self)
 
-    def update(self, name, value, host=None):
+    def update(self, name, value):
         """
         Updates the assignment using the given `name` to assign the new
         `value`.
@@ -272,18 +271,17 @@ class StudentGroupAssignment(models.Model):
             order = ",".join(str(questions.index(v)) for v in value)
             err = self._modify_order(order)
             if err is not None:
-                err = _(
+                err = (
                     "There was an error changing the question order. "
                     "The problem will soon be resolved."
                 )
         else:
-            err = _("Wrong data type was sent.")
+            err = "An invalid name was sent."
 
-        if err is not None and host is not None:
+        if err is None:
             for assignment in self.studentassignment_set.all():
-                assignment.send_email(host, "assignment_updated")
+                assignment.send_email("assignment_updated")
 
-        assert isinstance(err, str) or err is None, "Postcondition failed"
         return err
 
     def check_reminder_status(self):
@@ -291,17 +289,29 @@ class StudentGroupAssignment(models.Model):
         Verifies the assignment due date and if the assignment is not finished
         and the due date is sooner or equal to the number reminder days,
         the student notification is updated and an email if possibly sent.
+
+        Returns
+        -------
+        err : Optional[str]
+            Error message if there is any
         """
+        err = None
         time_until_expiry = self.due_date - datetime.now(pytz.utc)
         if (
             timedelta()
             < time_until_expiry
             <= timedelta(days=self.reminder_days)
         ):
+            errs = []
             for assignment in self.studentassignment_set.all():
-                assignment.send_reminder(
-                    last_day=time_until_expiry <= timedelta(days=1)
+                errs.append(
+                    assignment.send_reminder(
+                        last_day=time_until_expiry <= timedelta(days=1)
+                    )
+                    or ""
                 )
+            err = "\n".join(errs) if any(errs) else None
+        return err
 
     def save(self, *args, **kwargs):
         if not self.order:
