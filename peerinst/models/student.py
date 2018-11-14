@@ -218,7 +218,7 @@ class Student(models.Model):
                         assignment_.pk,
                         self.pk,
                     )
-                    if not assignment.is_expired():
+                    if not assignment.expired:
                         # Just send active assignments
                         assignment_.send_email(mail_type="new_assignment")
                         logger.info(

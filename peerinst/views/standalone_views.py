@@ -3,26 +3,18 @@ from __future__ import unicode_literals
 
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
-from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
+from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.http import (
-    Http404,
     HttpResponse,
     HttpResponseBadRequest,
-    HttpResponseForbidden,
     HttpResponseNotFound,
     HttpResponseRedirect,
-    HttpResponseServerError,
-    JsonResponse,
 )
 from django.shortcuts import get_object_or_404, render
 from django.template.response import TemplateResponse
 from django.utils.translation import ugettext_lazy as _
-from django.views.decorators.http import (
-    require_http_methods,
-    require_POST,
-    require_safe,
-)
+from django.views.decorators.http import require_http_methods, require_safe
 from django.views.generic import ListView
 from django.views.generic.edit import CreateView
 
@@ -38,7 +30,6 @@ from ..models import (
     Teacher,
 )
 from ..students import authenticate_student, verify_student_token
-from ..util import get_object_or_none
 
 
 def signup_through_link(request, group_hash):
@@ -174,7 +165,7 @@ def live(request, token, assignment_hash):
 
     assignment = student_assignment.group_assignment
     current_question = student_assignment.get_current_question()
-    has_expired = student_assignment.group_assignment.is_expired()
+    has_expired = student_assignment.group_assignment.expired
 
     if has_expired or current_question is None:
         return HttpResponseRedirect(reverse("finish-assignment"))
@@ -236,7 +227,8 @@ def navigate_assignment(request, assignment_id, question_id, direction, index):
                 "400.html",
                 context={
                     "message": _(
-                        "Try logging in again using the link to this assignment sent via email."
+                        "Try logging in again using the link to this "
+                        "assignment sent via email."
                     )
                 },
             )
@@ -248,8 +240,8 @@ def navigate_assignment(request, assignment_id, question_id, direction, index):
         request.session["assignment_first"] = idx == 0
         request.session["assignment_last"] = idx == len(questions) - 1
 
-        if not request.session["assignment_expired"] and assignment.is_expired():
-            request.session["assignment_expired"] = assignment.is_expired()
+        if not request.session["assignment_expired"] and assignment.expired:
+            request.session["assignment_expired"] = assignment.expired
             return HttpResponseRedirect(reverse("finish-assignment"))
 
     # Redirect
@@ -276,7 +268,7 @@ def finish_assignment(req):
     context = {
         "assignment_id": assignment.assignment.pk,
         "question_id": assignment.questions[0].id,
-        "has_expired": assignment.is_expired,
+        "has_expired": assignment.expired,
     }
     return render(req, "peerinst/student/assignment_complete.html", context)
 

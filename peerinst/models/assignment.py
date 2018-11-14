@@ -177,11 +177,6 @@ class StudentGroupAssignment(models.Model):
         ), "Postcondition failed"
         return err
 
-    def is_expired(self):
-        output = datetime.now(pytz.utc) > self.due_date
-        assert isinstance(output, bool), "Postcondition failed"
-        return output
-
     def get_question(self, idx=None, current_question=None, after=True):
         # Assertions to be revised based on updated template logic
         # assert idx is None or isinstance(
@@ -451,6 +446,10 @@ class StudentGroupAssignment(models.Model):
         output = base64.urlsafe_b64encode(str(self.id).encode()).decode()
         assert isinstance(output, basestring), "Postcondition failed"
         return output
+
+    @property
+    def expired(self):
+        return datetime.now(pytz.utc) > self.due_date
 
     @property
     def questions(self):
