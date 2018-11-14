@@ -321,7 +321,7 @@ def logout_view(request):
 
 @login_required
 def welcome(request):
-    try:
+    if Teacher.objects.filter(user=request.user).exists():
         teacher = Teacher.objects.get(user=request.user)
         # Check if teacher group exists and ensure _this_ teacher belongs to it
         teacher_group = get_object_or_none(Group, name=settings.TEACHER_GROUP)
@@ -329,7 +329,11 @@ def welcome(request):
             if teacher_group not in teacher.user.groups.all():
                 teacher.user.groups.add(teacher_group)
         return HttpResponseRedirect(reverse("browse-database"))
-    except ObjectDoesNotExist:
+
+    elif Student.objects.filter(student=request.user).exists():
+        return HttpResponseRedirect(reverse("student-page"))
+
+    else:
         return HttpResponseRedirect(reverse("assignment-list"))
 
 
@@ -1902,18 +1906,22 @@ def student_activity(request):
     # Standalone
     standalone_assignments = StudentGroupAssignment.objects.filter(
         group__in=current_groups
-    )#.filter(due_date__gt=datetime.datetime.now(pytz.utc))
+    )  # .filter(due_date__gt=datetime.datetime.now(pytz.utc))
 
     standalone_answers = Answer.objects.filter(
         assignment__in=standalone_assignments.values("assignment")
     ).filter(user_token__in=all_current_students.values("student__username"))
 
     # LTI
-    lti_assignments = [a for a in teacher.assignments.all() if a not in [b.assignment for b in standalone_assignments.all()]]
+    lti_assignments = [
+        a
+        for a in teacher.assignments.all()
+        if a not in [b.assignment for b in standalone_assignments.all()]
+    ]
 
-    lti_answers = Answer.objects.filter(
-        assignment__in=lti_assignments
-    ).filter(user_token__in=all_current_students.values("student__username"))
+    lti_answers = Answer.objects.filter(assignment__in=lti_assignments).filter(
+        user_token__in=all_current_students.values("student__username")
+    )
 
     all_answers_by_group = {}
     for g in current_groups:
@@ -1939,7 +1947,11 @@ def student_activity(request):
                         and a.assignment == ga.assignment
                         and a.time > request.user.last_login
                     ]
-                    all_answers_by_group[g][ga]["percent_complete"] = int(100.0*len(all_answers_by_group[g][ga]["answers"]) / (len(student_list) * ga.assignment.questions.count()))
+                    all_answers_by_group[g][ga]["percent_complete"] = int(
+                        100.0
+                        * len(all_answers_by_group[g][ga]["answers"])
+                        / (len(student_list) * ga.assignment.questions.count())
+                    )
 
             # Keyed on assignment
             for l in lti_assignments:
@@ -1948,8 +1960,7 @@ def student_activity(request):
                     all_answers_by_group[g][l]["answers"] = [
                         a
                         for a in lti_answers
-                        if a.user_token in student_list
-                        and a.assignment == l
+                        if a.user_token in student_list and a.assignment == l
                     ]
                     all_answers_by_group[g][l]["new"] = [
                         a
@@ -1958,41 +1969,56 @@ def student_activity(request):
                         and a.assignment == l
                         and a.time > request.user.last_login
                     ]
-                    all_answers_by_group[g][l]["percent_complete"] = int(100.0*len(all_answers_by_group[g][l]["answers"]) / (len(student_list) * l.questions.count()))
+                    all_answers_by_group[g][l]["percent_complete"] = int(
+                        100.0
+                        * len(all_answers_by_group[g][l]["answers"])
+                        / (len(student_list) * l.questions.count())
+                    )
 
     # JSON
     json_data = {}
     for group_key, group_assignments in all_answers_by_group.items():
         json_data[group_key.name] = {}
         for key, value_list in group_assignments.items():
-            if len(value_list['answers']) > 0:
+            if len(value_list["answers"]) > 0:
                 try:
                     assignment = key.assignment
                     id = key.assignment.identifier
 
-                    if key.distribution_date < value_list['answers'][0].time:
+                    if key.distribution_date < value_list["answers"][0].time:
                         start_date = key.distribution_date
                     else:
-                        start_date = value_list['answers'][0].time
-                    if key.due_date > value_list['answers'][-1].time:
+                        start_date = value_list["answers"][0].time
+                    if key.due_date > value_list["answers"][-1].time:
                         end_date = key.due_date
                     else:
-                        end_date = value_list['answers'][-1].time
+                        end_date = value_list["answers"][-1].time
                 except:
                     assignment = key
                     id = key.identifier
-                    start_date = value_list['answers'][0].time
-                    end_date = value_list['answers'][-1].time
+                    start_date = value_list["answers"][0].time
+                    end_date = value_list["answers"][-1].time
 
                 json_data[group_key.name][id] = {}
-                json_data[group_key.name][id]['distribution_date'] = str(start_date)
-                json_data[group_key.name][id]['due_date'] = str(end_date)
-                json_data[group_key.name][id]['last_login'] = str(request.user.last_login)
-                json_data[group_key.name][id]['now'] = str(datetime.datetime.utcnow().replace(tzinfo=pytz.utc))
-                json_data[group_key.name][id]['total'] = group_key.student_set.count()*assignment.questions.count()
-                json_data[group_key.name][id]['answers'] = []
-                for answer in value_list['answers']:
-                    json_data[group_key.name][id]['answers'].append(str(answer.time))
+                json_data[group_key.name][id]["distribution_date"] = str(
+                    start_date
+                )
+                json_data[group_key.name][id]["due_date"] = str(end_date)
+                json_data[group_key.name][id]["last_login"] = str(
+                    request.user.last_login
+                )
+                json_data[group_key.name][id]["now"] = str(
+                    datetime.datetime.utcnow().replace(tzinfo=pytz.utc)
+                )
+                json_data[group_key.name][id]["total"] = (
+                    group_key.student_set.count()
+                    * assignment.questions.count()
+                )
+                json_data[group_key.name][id]["answers"] = []
+                for answer in value_list["answers"]:
+                    json_data[group_key.name][id]["answers"].append(
+                        str(answer.time)
+                    )
 
     return TemplateResponse(
         request,
@@ -3021,66 +3047,71 @@ def report_assignment_aggregates(request):
 
     return JsonResponse(j, safe=False)
 
-def csv_gradebook(request,group_hash):
-    response = HttpResponse(content_type='text/csv')
-    filename = 'myDALITE_gradebook_'+str(StudentGroup.get(group_hash))
-    response['Content-Disposition'] = 'attachment; filename=" ' + filename +'.csv"'
+
+def csv_gradebook(request, group_hash):
+    response = HttpResponse(content_type="text/csv")
+    filename = "myDALITE_gradebook_" + str(StudentGroup.get(group_hash))
+    response["Content-Disposition"] = (
+        'attachment; filename=" ' + filename + '.csv"'
+    )
 
     writer = csv.writer(response)
 
     student_group = StudentGroup.get(group_hash)
-    
+
     student_list = get_student_objects_from_group_list(
-        student_groups = [student_group.pk]
-        ).values_list(
-        'student__username',
-        'student__email'
-        )   
-    
-    student_list_sorted=sorted(student_list,key=lambda student: student[1].lower()) 
+        student_groups=[student_group.pk]
+    ).values_list("student__username", "student__email")
+
+    student_list_sorted = sorted(
+        student_list, key=lambda student: student[1].lower()
+    )
 
     assignment_list = student_group.studentgroupassignment_set.all().values(
-        'assignment',
-        'distribution_date'
-        )
-        
-    assignment_list_sorted=sorted(
-        assignment_list,
-        key=lambda assignment: assignment['distribution_date']
-        )
+        "assignment", "distribution_date"
+    )
+
+    assignment_list_sorted = sorted(
+        assignment_list, key=lambda assignment: assignment["distribution_date"]
+    )
 
     answer_qs = subset_answers_by_studentgroup_and_assignment(
-        assignment_list = assignment_list.values_list('assignment__identifier',flat=True),
-        student_groups = [student_group.pk]
-        )
+        assignment_list=assignment_list.values_list(
+            "assignment__identifier", flat=True
+        ),
+        student_groups=[student_group.pk],
+    )
 
     # Header Row
     row = []
-    row.append('Student')
+    row.append("Student")
     for d in assignment_list_sorted:
-        question_list = Assignment.objects.get(
-            identifier=d['assignment']
-            ).questions.all().values_list(
-            'title',flat = True
-            )
+        question_list = (
+            Assignment.objects.get(identifier=d["assignment"])
+            .questions.all()
+            .values_list("title", flat=True)
+        )
         row.extend(question_list)
     writer.writerow(row)
-    
-    for user_token,email in student_list_sorted:
-        row=[]
-        row.append(email.split('@')[0])
+
+    for user_token, email in student_list_sorted:
+        row = []
+        row.append(email.split("@")[0])
         for d in assignment_list_sorted:
-            question_list = Assignment.objects.get(identifier=d['assignment']).questions.all()
+            question_list = Assignment.objects.get(
+                identifier=d["assignment"]
+            ).questions.all()
             for q in question_list:
                 try:
                     row.append(
                         answer_qs.get(
-                            assignment_id=d['assignment'],
-                            question_id=q.pk,user_token=user_token
-                            ).get_grade()
-                        )
+                            assignment_id=d["assignment"],
+                            question_id=q.pk,
+                            user_token=user_token,
+                        ).get_grade()
+                    )
                 except Answer.DoesNotExist:
-                    row.append('-')
+                    row.append("-")
         writer.writerow(row)
 
     return response
