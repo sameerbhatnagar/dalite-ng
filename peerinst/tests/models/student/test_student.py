@@ -178,7 +178,6 @@ def test_leave_group__doesnt_exist(student, group):
 
 
 def test_add_assignment(student, group_assignment):
-
     student.join_group(group_assignment.group)
 
     assert not StudentAssignment.objects.filter(
@@ -216,6 +215,7 @@ def test_add_assignment(student, group_assignment):
 
 
 def test_add_assignment__assignment_exists(student, group_assignment):
+    student.join_group(group_assignment.group)
     assert not StudentAssignment.objects.filter(
         student=student, group_assignment=group_assignment
     ).exists()
