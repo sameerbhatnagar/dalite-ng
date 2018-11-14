@@ -178,6 +178,9 @@ def test_leave_group__doesnt_exist(student, group):
 
 
 def test_add_assignment(student, group_assignment):
+
+    student.join_group(group_assignment.group)
+
     assert not StudentAssignment.objects.filter(
         student=student, group_assignment=group_assignment
     ).exists()
@@ -203,6 +206,12 @@ def test_add_assignment(student, group_assignment):
                 student.student.username, student.student.email
             ),
         },
+    )
+
+    assert len(mail.outbox) == 1
+
+    assert mail.outbox[0].subject == "New assignment for group {}".format(
+        group_assignment.group.title
     )
 
 
@@ -246,43 +255,4 @@ def test_add_assignment__assignment_exists(student, group_assignment):
                 student.student.username, student.student.email
             ),
         },
-    )
-
-
-def test_add_assignment__with_host(student, group_assignment):
-
-    host = "localhost"
-    student.join_group(group_assignment.group)
-
-    assert not StudentAssignment.objects.filter(
-        student=student, group_assignment=group_assignment
-    ).exists()
-    assert not StudentNotification.objects.filter(
-        student=student, notification__type="new_assignment"
-    ).exists()
-
-    student.add_assignment(group_assignment, host=host)
-
-    assert StudentAssignment.objects.filter(
-        student=student, group_assignment=group_assignment
-    ).exists()
-    assert StudentNotification.objects.filter(
-        student=student, notification__type="new_assignment"
-    ).exists()
-    assert StudentNotification.objects.get(
-        student=student, notification__type="new_assignment"
-    ).link == reverse(
-        "live",
-        kwargs={
-            "assignment_hash": group_assignment.hash,
-            "token": create_student_token(
-                student.student.username, student.student.email
-            ),
-        },
-    )
-
-    assert len(mail.outbox) == 1
-
-    assert mail.outbox[0].subject == "New assignment for group {}".format(
-        group_assignment.group.title
     )

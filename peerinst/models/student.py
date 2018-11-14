@@ -265,6 +265,20 @@ class Student(models.Model):
             )
 
     def add_assignment(self, group_assignment, host=None):
+        """
+        Adds the `group_assignment` for the student by creating a
+        StudentAssignment instance and sending an email informing them of it.
+
+        Parameters
+        ----------
+        group_assignment : StudentGroupAssignment
+            Assignment to add
+
+        Returns
+        -------
+        err : Optional[str]
+            Error message if there is any
+        """
         assignment, created = StudentAssignment.objects.get_or_create(
             student=self, group_assignment=group_assignment
         )
@@ -283,13 +297,9 @@ class Student(models.Model):
             type_="new_assignment", student=self, assignment=assignment
         )
 
-        if host:
-            assignment.send_email(mail_type="new_assignment")
-            logger.info(
-                "Assignment %d email sent to student %d.",
-                assignment.pk,
-                self.pk,
-            )
+        err = assignment.send_email(mail_type="new_assignment")
+
+        return err
 
     @property
     def current_groups(self):
@@ -475,6 +485,11 @@ class StudentAssignment(models.Model):
                             html_message=loader.render_to_string(
                                 template, context=context
                             ),
+                        )
+                        logger.info(
+                            "Email of type %s send for student assignment %d",
+                            mail_type,
+                            self.pk,
                         )
                     except smtplib.SMTPException:
                         err = "There was an error sending the email."
