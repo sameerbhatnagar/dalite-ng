@@ -5,13 +5,22 @@
     margin-top: 15px;
     margin-left: 50px;
   }
+
+  & .mdc-list-item__text {
+    max-width: 100%;
+    color: $mdc-theme-secondary;
+
+    &:visited {
+      color: $mdc-theme-secondary;
+    }
+  }
 }
 
 #student-page-add-group {
   & .admin-link {
     margin-left: 50px;
-    opacity: 0.75;
     cursor: pointer;
+    color: rgba($mdc-theme-secondary, 0.75);
   }
 
   & #student-page-add-group--box {

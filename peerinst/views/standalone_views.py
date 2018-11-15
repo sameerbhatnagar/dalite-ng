@@ -265,10 +265,19 @@ def finish_assignment(req):
     req.session["assignment_first"] = True
     req.session["assignment_last"] = len(assignment.questions) == 1
     req.session["assignment_expired"] = True
+
+    try:
+        student_assignment = StudentAssignment.objects.get(
+            student__student=req.user, group_assignment=assignment
+        )
+        has_expired = assignment.expired and not student_assignment.completed
+    except Student.DoesNotExist:
+        has_expired = assignment.expired
+
     context = {
         "assignment_id": assignment.assignment.pk,
         "question_id": assignment.questions[0].id,
-        "has_expired": assignment.expired,
+        "has_expired": has_expired,
     }
     return render(req, "peerinst/student/assignment_complete.html", context)
 
