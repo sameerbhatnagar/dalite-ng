@@ -1,42 +1,62 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import csv
 import datetime
+import itertools
 import json
 import logging
-import pytz
 import random
-import string
-import itertools
 import re
-from collections import defaultdict, Counter
+import string
 import urllib
-import csv
+from collections import Counter, defaultdict
 
+import pytz
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.models import Group, User
 from django.contrib.auth.views import redirect_to_login
+from django.contrib.sessions.models import Session
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.core.mail import mail_admins, send_mail
 from django.core.urlresolvers import reverse, reverse_lazy
-from django.forms import inlineformset_factory, Textarea
+
+# reports
+from django.db.models import (
+    BooleanField,
+    Case,
+    CharField,
+    Count,
+    F,
+    Q,
+    Value,
+    When,
+)
+from django.db.models.expressions import Func
+from django.forms import Textarea, inlineformset_factory
+
+# blink
 from django.http import (
     Http404,
+    HttpResponse,
     HttpResponseBadRequest,
     HttpResponseForbidden,
     HttpResponseRedirect,
     HttpResponseServerError,
+    JsonResponse,
 )
 from django.shortcuts import (
     get_object_or_404,
+    redirect,
     render,
     render_to_response,
-    redirect,
 )
 from django.template import loader
 from django.template.response import TemplateResponse
+from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.utils.html import escape, format_html
 from django.utils.safestring import mark_safe
@@ -44,38 +64,23 @@ from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_POST, require_safe
 from django.views.generic import DetailView
 from django.views.generic.base import TemplateView, View
-from django.views.generic.edit import FormView, UpdateView, CreateView
+from django.views.generic.detail import SingleObjectMixin
+from django.views.generic.edit import CreateView, FormView, UpdateView
 from django.views.generic.list import ListView
-from django_lti_tool_provider.signals import Signals
 from django_lti_tool_provider.models import LtiUserData
-
+from django_lti_tool_provider.signals import Signals
 from opaque_keys import InvalidKeyError
 from opaque_keys.edx.keys import CourseKey
 
-from .. import heartbeat_checks
-from .. import admin
-from .. import forms
-from .. import models
-from .. import rationale_choice
-from ..util import (
-    SessionStageData,
-    get_object_or_none,
-    int_or_none,
-    roundrobin,
-    student_list_from_student_groups,
-    question_search_function,
-    report_data_by_assignment,
-    report_data_by_student,
-    report_data_by_question,
-    get_student_objects_from_group_list,
-    subset_answers_by_studentgroup_and_assignment,
-)
-from ..admin_views import (
-    get_question_rationale_aggregates,
-    get_assignment_aggregates,
-    AssignmentResultsViewBase,
-)
+# tos
+from tos.models import Consent, Tos
 
+from .. import admin, forms, heartbeat_checks, models, rationale_choice
+from ..admin_views import (
+    AssignmentResultsViewBase,
+    get_assignment_aggregates,
+    get_question_rationale_aggregates,
+)
 from ..mixins import (
     LoginRequiredMixin,
     NoStudentsMixin,
@@ -84,42 +89,37 @@ from ..mixins import (
     student_check,
     teacher_tos_accepted_check,
 )
-
 from ..models import (
+    Answer,
+    AnswerChoice,
+    Assignment,
+    BlinkAnswer,
+    BlinkAssignment,
+    BlinkAssignmentQuestion,
+    BlinkQuestion,
+    BlinkRound,
+    Discipline,
+    LtiEvent,
+    Question,
     Student,
     StudentGroup,
     StudentGroupAssignment,
     Teacher,
-    Assignment,
-    BlinkQuestion,
-    BlinkAnswer,
-    BlinkRound,
-    BlinkAssignment,
-    BlinkAssignmentQuestion,
-    Question,
-    Answer,
-    AnswerChoice,
-    Discipline,
     VerifiedDomain,
-    LtiEvent,
 )
-from django.contrib.auth.models import User, Group
-
-# blink
-from django.http import JsonResponse
-from django.http import HttpResponse
-from django.utils import timezone
-from django.views.generic.detail import SingleObjectMixin
-from django.contrib.sessions.models import Session
-
-# reports
-from django.db.models import BooleanField
-from django.db.models.expressions import Func
-from django.db.models import Count, Value, Case, Q, When, CharField, F
-
-
-# tos
-from tos.models import Consent, Tos
+from ..util import (
+    SessionStageData,
+    get_object_or_none,
+    get_student_objects_from_group_list,
+    int_or_none,
+    question_search_function,
+    report_data_by_assignment,
+    report_data_by_question,
+    report_data_by_student,
+    roundrobin,
+    student_list_from_student_groups,
+    subset_answers_by_studentgroup_and_assignment,
+)
 
 LOGGER = logging.getLogger(__name__)
 LOGGER_teacher_activity = logging.getLogger("teacher_activity")

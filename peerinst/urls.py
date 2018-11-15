@@ -24,7 +24,7 @@ def not_authenticated(user):
 def old_patterns():
     return [
         # DALITE
-        # Assignment table of contents - Enforce sameorigin to prevent access from LMS
+        # Assignment table of contents - Enforce sameorigin to prevent access from LMS  # noqa
         url(
             r"^browse/$",
             xframe_options_sameorigin(views.browse_database),
@@ -121,12 +121,12 @@ def old_patterns():
         url(r"^heartbeat/$", views.HeartBeatUrl.as_view(), name="heartbeat"),
         # Standalone
         url(
-            r"^live/access/(?P<token>[0-9A-Za-z=_-]+)/(?P<assignment_hash>[0-9A-Za-z=_-]+)$",
+            r"^live/access/(?P<token>[0-9A-Za-z=_-]+)/(?P<assignment_hash>[0-9A-Za-z=_-]+)$",  # noqa
             views.live,
             name="live",
         ),
         url(
-            r"^live/navigate/(?P<assignment_id>[^/]+)/(?P<question_id>\d+)/(?P<direction>(next|prev|goto))/(?P<index>[0-9x]+)$",
+            r"^live/navigate/(?P<assignment_id>[^/]+)/(?P<question_id>\d+)/(?P<direction>(next|prev|goto))/(?P<index>[0-9x]+)$",  # noqa
             views.navigate_assignment,
             name="navigate-assignment",
         ),
@@ -136,7 +136,7 @@ def old_patterns():
             name="signup-through-link",
         ),
         url(
-            r"^live/signup/confirm/(?P<group_hash>[0-9A-Za-z=_-]+)/(?P<token>[0-9A-Za-z=_-]+)$",
+            r"^live/signup/confirm/(?P<group_hash>[0-9A-Za-z=_-]+)/(?P<token>[0-9A-Za-z=_-]+)$",  # noqa  # noqa
             views.confirm_signup_through_link,
             name="confirm-signup-through-link",
         ),
@@ -162,12 +162,12 @@ def old_patterns():
                             [
                                 url(
                                     r"^$",
-                                    admin_views.AssignmentResultsView.as_view(),
+                                    admin_views.AssignmentResultsView.as_view(),  # noqa
                                     name="assignment-results",
                                 ),
                                 url(
                                     r"^rationales/(?P<question_id>\d+)$",
-                                    admin_views.QuestionRationaleView.as_view(),
+                                    admin_views.QuestionRationaleView.as_view(),  # noqa
                                     name="question-rationales",
                                 ),
                             ]
@@ -233,7 +233,7 @@ def old_patterns():
             name="teacher-groups",
         ),
         url(
-            r"^teacher/(?P<pk>[0-9]+)/group/(?P<group_hash>[0-9A-Za-z=_-]+)/share$",
+            r"^teacher/(?P<pk>[0-9]+)/group/(?P<group_hash>[0-9A-Za-z=_-]+)/share$",  # noqa
             views.TeacherGroupShare.as_view(),
             name="group-share",
         ),
@@ -268,7 +268,6 @@ def old_patterns():
             views.report_assignment_aggregates,
             name="report_rationales_chosen",
         ),
-        # url(r'^assignment_results/(?P<assignment_id>[^/]+)/(?P<student_group_id>[^/]+)/', views.AssignmentByGroupResultsView.as_view(), name='assignment-group-results'),
         # Auth
         url(r"^$", views.landing_page, name="landing_page"),
         url(r"^signup/$", views.sign_up, name="sign_up"),
@@ -296,7 +295,7 @@ def old_patterns():
             r"^password_reset/$",
             auth_views.password_reset,
             {
-                "html_email_template_name": "registration/password_reset_email_html.html",
+                "html_email_template_name": "registration/password_reset_email_html.html",  # noqa
                 "password_reset_form": NonStudentPasswordResetForm,
             },
             name="password_reset",
@@ -307,7 +306,7 @@ def old_patterns():
             name="password_reset_done",
         ),
         url(
-            r"^reset/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$",
+            r"^reset/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$",  # noqa
             password_views.password_reset_confirm,
             name="password_reset_confirm",
         ),

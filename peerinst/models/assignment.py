@@ -6,6 +6,7 @@ import logging
 from datetime import datetime, timedelta
 
 import pytz
+from django.core import validators
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.db import models
@@ -27,6 +28,7 @@ class Assignment(models.Model):
             "A unique identifier for this assignment used for inclusion in a "
             "course."
         ),
+        validators=[validators.validate_slug],
     )
     title = models.CharField(_("Title"), max_length=200)
     questions = models.ManyToManyField(Question, verbose_name=_("Questions"))
