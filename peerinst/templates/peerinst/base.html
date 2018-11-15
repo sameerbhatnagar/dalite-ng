@@ -113,8 +113,7 @@
             {% if request.session.LTI %}
             <a href="{% url 'tos:tos_modify' 'student' %}?next={{ request.path }}" title="{% trans 'Terms of Service' %}"><i class="icon ion-md-settings"></i></a>
             {% else %}
-            <a href="{% url 'student-page' %}" title="{% trans 'Account' %}"><i class="icon ion-md-settings"></i></a>
-            <a href="{% url 'logout' %}" title="{% trans 'Logout' %}"><i class="icon ion-md-log-out"></i></a>
+            {% block header_right %}{% endblock %}
             {% endif %}
           {% endif %}
         {% endif %}

@@ -1,12 +1,9 @@
-{% extends "peerinst/base.html" %}
+{% extends "peerinst/student/base.html" %}
 
-{% load static compress i18n %}
-
-{% block stylesheets %}
-  <link href="{% static 'peerinst/css/student.min.css' %}" rel="stylesheet">
-{% endblock %}
+{% load i18n %}
 
 {% block body %}
+
 <main>
   <section id="student-login">
 
@@ -51,11 +48,5 @@
 
   </section>
 </main>
-{% endblock %}
 
-{% block scripts %}
-<script>
-  import {MDCRipple} from '@material/ripple';
-  new MDCRipple(document.querySelector('.mdc-button'));
-</script>
 {% endblock %}

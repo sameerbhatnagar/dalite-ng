@@ -1,0 +1,70 @@
+{% extends 'peerinst/base.html' %}
+
+{% load static i18n %}
+
+{% csrf_token %}
+
+{% block stylesheets %}
+<link href="{% static 'peerinst/css/student.min.css' %}" rel="stylesheet">
+{% endblock %}
+
+
+{% block scripts %}
+<script src="{% static 'peerinst/js/student.min.js' %}"></script>
+<script>
+  import {MDCRipple} from '@material/ripple';
+  new MDCRipple(document.querySelector('.mdc-button'));
+</script>
+{% endblock %}
+
+
+{% block header_right %}
+
+{% if request.session.LTI %}
+
+<a href="{% url 'tos:tos_modify' 'student' %}?next={{ request.path }}" 
+   title="{% trans 'Terms of Service' %}">
+  <i class="icon ion-md-settings"></i>
+</a>
+
+{% else %}
+
+<i class="icon ion-md-menu"></i>
+<aside class="mdc-drawer mdc-drawer--temporary mdc-typography">
+  <nav class="mdc-drawer__drawer">
+
+    <nav id="icon-with-text-demo" class="mdc-drawer__content mdc-list">
+      <a class="mdc-list-item" href="{% url 'landing_page' %}">
+        <i class="material-icons mdc-list-item__graphic mdc-theme--primary"
+           aria-hidden="true">
+          home
+        </i>
+        {% trans 'Home page' %}
+      </a>
+
+      <a class="mdc-list-item" href="{% url 'student-page' %}">
+        <i class="material-icons mdc-list-item__graphic mdc-theme--primary"
+           aria-hidden="true">
+          account_circle
+        </i>
+        {% trans 'My account' %}
+      </a>
+
+      <a class="mdc-list-item" href="{% url 'logout' %}">
+        <i class="material-icons mdc-list-item__graphic mdc-theme--primary"
+           aria-hidden="true">
+          logout
+        </i>
+        {% trans 'Logout' %}
+      </a>
+    </nav>
+
+  </nav>
+</aside>
+
+
+{% endif %}
+
+{% endblock %}
+
+
