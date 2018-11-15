@@ -1,25 +1,11 @@
-import os
-
-import pytest
 from django.core.urlresolvers import reverse
-from selenium import webdriver
-from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.keys import Keys
 
 from peerinst.students import (
     create_student_token,
     get_student_username_and_password,
 )
-
-
-@pytest.yield_fixture
-def browser(live_server):
-    driver = webdriver.Firefox()
-    driver.server_url = live_server.url
-    yield driver
-    driver.close()
-    if os.path.exists("geckodriver.log"):
-        os.remove("geckodriver.log")
+from .fixtures import *  # noqa F403
 
 
 def test_fake_link(browser):
@@ -37,12 +23,7 @@ def test_fake_link(browser):
         "There is no user corresponding to the given link. "
         "You may try asking for another one."
     )
-    try:
-        browser.find_element_by_xpath(
-            "//*[contains(text(), '{}')]".format(err)
-        )
-    except NoSuchElementException:
-        assert False
+    browser.find_element_by_xpath("//*[contains(text(), '{}')]".format(err))
 
 
 def test_new_student(browser):
@@ -50,17 +31,10 @@ def test_new_student(browser):
 
     browser.get("{}{}".format(browser.server_url, reverse("login")))
 
-    try:
-        login_link = browser.find_element_by_link_text("LOGIN")
-    except NoSuchElementException:
-        assert False
+    login_link = browser.find_element_by_link_text("LOGIN")
     login_link.click()
 
-    try:
-        input_ = browser.find_element_by_name("email")
-    except NoSuchElementException:
-        assert False
-
+    input_ = browser.find_element_by_name("email")
     input_.clear()
     input_.send_keys(email)
     input_.send_keys(Keys.ENTER)
@@ -74,9 +48,4 @@ def test_new_student(browser):
 
     browser.get(signin_link)
 
-    try:
-        browser.find_element_by_xpath(
-            "//*[contains(text(), '{}')]".format(email)
-        )
-    except NoSuchElementException:
-        assert False
+    browser.find_element_by_xpath("//*[contains(text(), '{}')]".format(email))
