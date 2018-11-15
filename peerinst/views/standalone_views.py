@@ -295,7 +295,7 @@ class StudentGroupAssignmentCreateView(
         )
         self.object = form.save()
 
-        self.object.update_students(self.request.get_host())
+        self.object.update_students()
 
         return super(StudentGroupAssignmentCreateView, self).form_valid(form)
 
