@@ -65,6 +65,11 @@ def old_patterns():
             name="discipline-form",
         ),
         url(
+            r"^discipline/form$",
+            views.discipline_select_form,
+            name="discipline-form",
+        ),
+        url(
             r"^disciplines/create$",
             views.DisciplinesCreateView.as_view(),
             name="disciplines-create",

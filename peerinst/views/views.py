@@ -780,17 +780,18 @@ class DisciplineCreateView(
 @login_required
 @user_passes_test(student_check, login_url="/access_denied_and_logout/")
 @user_passes_test(teacher_tos_accepted_check, login_url="/tos/required/")
-def discipline_select_form(request, pk):
+def discipline_select_form(request, pk=None):
     """An AJAX view that simply renders the DisciplineSelectForm."""
-    """Preselects instance with pk."""
+    """Preselects instance with pk, if given."""
+    if pk:
+        form = forms.DisciplineSelectForm(
+            initial={"discipline": Discipline.objects.get(pk=pk)}
+        )
+    else:
+        form = forms.DisciplineSelectForm()
+
     return TemplateResponse(
-        request,
-        "peerinst/discipline_select_form.html",
-        context={
-            "form": forms.DisciplineSelectForm(
-                initial={"discipline": Discipline.objects.get(pk=pk)}
-            )
-        },
+        request, "peerinst/discipline_select_form.html", context={"form": form}
     )
 
 

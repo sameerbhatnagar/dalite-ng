@@ -394,6 +394,7 @@
 {% block scripts %}
 {% if form %}
 <script>
+  'use strict';
   bundle.bindCheckbox();
   bundle.bindAjaxTextInputForm('show_discipline_form', 'discipline_form', "{% url 'discipline-create' %}");
   bundle.bindAjaxTextInputForm('show_category_form', 'category_form', "{% url 'category-create' %}");
@@ -421,7 +422,6 @@
   updateForm();
 
   function limitFileSize() {
-    'use strict';
     var imageForm = document.getElementById('id_image');
     var warning = document.getElementById('warning');
     imageForm.setAttribute('accept', '.png, .jpg, .jpeg, .gif');
