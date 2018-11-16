@@ -48,7 +48,7 @@
           <h3>{% trans 'Content' %}</h3>
 
           <div class='field-container'>
-            <div class='number-box flush-to-textbox'><span class='number'>1</span></div>
+            <div class='number-box flush-to-textbox'><span class='number'></span></div>
             <div class='field'>
               <div class="mdc-text-field mdc-text-field--outlined mdc-text-field--dense" data-mdc-auto-init="MDCTextField">
                 {{ form.title|add_class:"mdc-text-field__input" }}
@@ -68,7 +68,7 @@
           </div>
 
           <div class='field-container'>
-            <div class='number-box flush-to-textbox'><span class='number'>2</span></div>
+            <div class='number-box flush-to-textbox'><span class='number'></span></div>
             <div class='field'>
               <div class='mdc-form-field' style="display:block; padding-top:15px; margin-bottom:10px;">
                 <label for="id_text"> {{ form.text.label }}</label>
@@ -84,7 +84,7 @@
           </div>
 
           <div class='field-container'>
-            <div class='number-box'><span class='number'>3</span></div>
+            <div class='number-box'><span class='number'></span></div>
             <div class='field'>
               <div class='mdc-form-field'>
                 <label for='id_type'>{{ form.type.label }}:</label>
@@ -101,7 +101,7 @@
           </div>
 
           <div class='field-container'>
-            <div class='number-box'><span class='number'>4</span></div>
+            <div class='number-box'><span class='number'></span></div>
             <div class='field'>
               <div class='mdc-form-field' style="display:block;">
                 <label for='id_image'>{{ form.image.label }}</label>
@@ -135,7 +135,7 @@
           </div>
 
           <div class='field-container'>
-            <div class='number-box flush-to-textbox'><span class='number'>5</span></div>
+            <div class='number-box flush-to-textbox'><span class='number'></span></div>
             <div class='field'>
               <div class="mdc-text-field mdc-text-field--outlined mdc-text-field--dense" data-mdc-auto-init="MDCTextField">
                 {{ form.video_url|add_class:"mdc-text-field__input" }}
@@ -156,7 +156,7 @@
 
           <section class='peerinst'>
             <div class='field-container'>
-              <div class='number-box'><span class='number'>6</span></div>
+              <div class='number-box'><span class='number'></span></div>
               <div class='field'>
                 <div class='mdc-form-field'>
                   <label for='id_answer_style'>{{ form.answer_style.label }}:</label>
@@ -176,7 +176,7 @@
           <h3>{% trans 'Indexing' %}</h3>
 
           <div class='field-container'>
-            <div class='number-box'><span class='number'>7</span></div>
+            <div class='number-box'><span class='number'></span></div>
             <div class='field'>
               <div id='discipline_form'>
                 {% include 'peerinst/discipline_select_form.html' %}
@@ -189,7 +189,7 @@
           </div>
 
           <div class='field-container'>
-            <div class='number-box'><span class='number'>8</span></div>
+            <div class='number-box'><span class='number'></span></div>
             <div class='field'>
               <div id='category_form'>
                 {% include 'peerinst/category_select_form.html' %}
@@ -205,7 +205,7 @@
             <h3>{% trans 'Options' %}</h3>
 
             <div class='field-container'>
-              <div class='number-box'><span class='number'>9</span></div>
+              <div class='number-box'><span class='number'></span></div>
               <div class='field'>
                 <div class='mdc-form-field'>
                   <label for="id_fake_attributions">{{ form.fake_attributions.label }}?</label>
@@ -231,7 +231,7 @@
             </div>
 
             <div class='field-container'>
-              <div class='number-box'><span class='number'>10</span></div>
+              <div class='number-box'><span class='number'></span></div>
               <div class='field'>
                 <div class='mdc-form-field'>
                   <label for="id_sequential_review">{{ form.sequential_review.label }}?</label>
@@ -257,7 +257,7 @@
             </div>
 
             <div class='field-container'>
-              <div class='number-box'><span class='number'>11</span></div>
+              <div class='number-box'><span class='number'></span></div>
               <div class='field'>
                 <div class='mdc-form-field'>
                   <label for='id_discipline'>{{ form.rationale_selection_algorithm.label }}:</label>
@@ -274,7 +274,7 @@
             </div>
 
             <div class='field-container'>
-              <div class='number-box'><span class='number'>12</span></div>
+              <div class='number-box'><span class='number'></span></div>
               <div class='field'>
                 <div class='mdc-form-field'>
                   <label for='id_discipline'>{{ form.grading_scheme.label }}:</label>
@@ -299,7 +299,7 @@
             <h3>{% trans 'Authorship' %}</h3>
 
             <div class='field-container'>
-              <div class='number-box'><span class='number'>13</span></div>
+              <div class='number-box'><span class='number'></span></div>
               <div class='field'>
                 <div class='mdc-form-field'>
                   <label for='id_collaborators'>{{ form.collaborators.label }}:</label>
@@ -399,13 +399,13 @@
   bundle.bindAjaxTextInputForm('show_category_form', 'category_form', "{% url 'category-create' %}");
 
   function updateForm(){
-
     if ($('#id_type').val() == "RO") {
       $('.peerinst').toggle(false);
     }
     else {
       $('.peerinst').toggle(true);
     }
+    enumerate();
   }
 
   $('#id_type').change(function(){
@@ -447,7 +447,14 @@
       return;
     }
   }
+
   limitFileSize();
+
+  function enumerate(){
+    $('.number-box:visible').each(function(i) {
+      $(this).children('.number')[0].innerHTML = i+1;
+    });
+  }
 
   // TinyMCE bind to textarea
   tinymce.init({
