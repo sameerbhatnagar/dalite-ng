@@ -279,7 +279,7 @@ def index_page(req):
             }
             for assignment in StudentAssignment.objects.filter(
                 student=student, group_assignment__group=group.group
-            )
+            ).order_by("-due_date")
         ]
         for group in groups
     }

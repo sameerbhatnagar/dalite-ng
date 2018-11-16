@@ -19,7 +19,7 @@ def copy_over_student_groups_to_field_with_through(apps, _):
 
 class Migration(migrations.Migration):
 
-    dependencies = [("peerinst", "0054_auto_20181003_1438")]
+    dependencies = [("peerinst", "0054_auto_20181116_1727")]
 
     operations = [
         migrations.RunPython(copy_over_student_groups_to_field_with_through)
