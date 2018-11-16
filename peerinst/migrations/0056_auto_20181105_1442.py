@@ -6,28 +6,32 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('peerinst', '0055_merge'),
-    ]
+    dependencies = [("peerinst", "0055_auto_20181003_1438")]
 
     operations = [
-        migrations.AlterModelOptions(
-            name='verifieddomain',
-            options={},
-        ),
+        migrations.AlterModelOptions(name="verifieddomain", options={}),
         migrations.AddField(
-            model_name='studentgroupmembership',
-            name='sending_email',
+            model_name="studentgroupmembership",
+            name="sending_email",
             field=models.BooleanField(default=True),
         ),
         migrations.AlterField(
-            model_name='assignment',
-            name='identifier',
-            field=models.CharField(help_text='A unique identifier for this assignment used for inclusion in a course.', max_length=100, serialize=False, verbose_name='identifier', primary_key=True),
+            model_name="assignment",
+            name="identifier",
+            field=models.CharField(
+                help_text="A unique identifier for this assignment used for inclusion in a course.",
+                max_length=100,
+                serialize=False,
+                verbose_name="identifier",
+                primary_key=True,
+            ),
         ),
         migrations.AlterField(
-            model_name='verifieddomain',
-            name='domain',
-            field=models.CharField(help_text='Teacher-only email domain, if available. Email addresses with these domains will be treated as verified.', max_length=100),
+            model_name="verifieddomain",
+            name="domain",
+            field=models.CharField(
+                help_text="Teacher-only email domain, if available. Email addresses with these domains will be treated as verified.",
+                max_length=100,
+            ),
         ),
     ]
