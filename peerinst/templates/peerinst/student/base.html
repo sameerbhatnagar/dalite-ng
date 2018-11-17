@@ -1,6 +1,6 @@
 {% extends 'peerinst/base.html' %}
 
-{% load static i18n %}
+{% load staticfiles i18n %}
 
 {% csrf_token %}
 
@@ -18,7 +18,7 @@
 {% endblock %}
 
 
-{% block header_right %}
+{% block header_menu %}
 
 {% if request.session.LTI %}
 
@@ -29,7 +29,7 @@
 
 {% else %}
 
-<i class="icon ion-md-menu"></i>
+<i class="icon ion-md-menu header-icon"></i>
 <aside class="mdc-drawer mdc-drawer--temporary mdc-typography">
   <nav class="mdc-drawer__drawer">
 
