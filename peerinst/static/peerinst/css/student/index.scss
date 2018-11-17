@@ -8,6 +8,7 @@
 
   & a {
     cursor: pointer;
+    font-size: 16px;
   }
 
   & .mdc-list-item__text {
@@ -122,6 +123,7 @@
       width: 100%;
       height: 50px;
       margin: 0;
+      border-radius: 5px 5px 0 0;
 
       & h3 {
         text-align: center;
@@ -233,6 +235,7 @@
       padding: 10px 5px;
       min-height: 200px;
       background: lighten($mdc-theme-primary, 25%);
+      border-radius: 0 0 5px 5px;
 
       & ul {
         padding: 0;
