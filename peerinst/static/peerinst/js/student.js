@@ -4,5 +4,6 @@ export {
   joinGroup,
   leaveGroup,
   toggleGroupNotifications,
-  verifyJoinGroupDisabledStatus,
+  handleJoinGroupLinkInput,
+  removeNotification,
 } from "./_student/index.js";

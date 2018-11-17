@@ -491,6 +491,11 @@ def student_patterns():
             views.student.send_signin_link,
             name="student-send-signin-link",
         ),
+        url(
+            r"^student/remove-notification/$",
+            views.student.remove_notification,
+            name="student-remove-notification",
+        ),
     ]
 
 

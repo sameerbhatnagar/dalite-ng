@@ -6,6 +6,10 @@
     margin-left: 50px;
   }
 
+  & a {
+    cursor: pointer;
+  }
+
   & .mdc-list-item__text {
     max-width: 100%;
     color: $mdc-theme-secondary;
@@ -99,7 +103,7 @@
   flex-direction: row;
   flex-wrap: wrap;
   margin-top: 25px;
-  margin-left: 50px;
+  margin-left: 8px;
 
   & .student-group {
     margin-right: 25px;
@@ -226,7 +230,7 @@
     }
 
     & .student-group--assignments {
-      padding: 10px 0;
+      padding: 10px 5px;
       min-height: 200px;
       background: lighten($mdc-theme-primary, 25%);
 

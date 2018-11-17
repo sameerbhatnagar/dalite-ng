@@ -44,10 +44,18 @@
           {% if notifications %}
           <ul class="mdc-list mdc-list--non-interactive">
             {% for notification in notifications %}
-            <a href="{{ notification.link }}" title="{{ notification.hover_text }}">
+            <a title="{{ notification.hover_text }}"
+               onclick="bundle.removeNotification(
+                 event,
+                 '{% url 'student-remove-notification' %}',
+                 '{{ notification.pk }}',
+                 '{{ notification.link }}'
+               )">
               <li class="mdc-list-item">
                 <span class="mdc-list-item__graphic mdc-theme--primary">
-                  <i class="material-icons md-48">{{ notification.notification.icon }}</i>
+                  <i class="material-icons md-48">
+                    {{ notification.notification.icon }}
+                  </i>
                 </span>
                 <span class="mdc-list-item__text">
                   {{ notification.text }}
@@ -88,7 +96,12 @@
                        name="new-group" 
                        value="" 
                        placeholder="Url link"
-                       onkeyup="bundle.verifyJoinGroupDisabledStatus()">
+                       onkeyup="bundle.handleJoinGroupLinkInput(
+                        event,
+                        '{% url 'student-join-group' %}',
+                        '{{ student.student.username }}'
+                       )">
+                {% if has_old_groups %}
                 <select>
                   {% for group in groups %}
                   {% if not group.member_of %}
@@ -96,6 +109,7 @@
                   {% endif %}
                   {% endfor %}
                 </select>
+                {% endif %}
                 <button class="mdc-button mdc-button--unelevated"
                         onclick="bundle.joinGroup(
                           '{% url 'student-join-group' %}',
@@ -191,7 +205,8 @@
                   <li class="student-group--assignment">
                   {% endif %}
                     {% if assignment.done %}
-                    <span class="student-group--assignment-icon">
+                    <span class="student-group--assignment-icon"
+                          title="{% trans 'Go to assignment' %}">
                       <i class="material-icons md-28">assignment_turned_in</i>
                     </span>
                     {% elif not assignment.done and almost_expired %}
@@ -200,7 +215,8 @@
                       <i class="material-icons md-28">assignment_late</i>
                     </span>
                     {% else %}
-                    <span class="student-group--assignment-icon">
+                    <span class="student-group--assignment-icon"
+                          title="{% trans 'Go to assignment' %}">
                       <i class="material-icons md-28">assignment</i>
                     </span>
                     {% endif %}

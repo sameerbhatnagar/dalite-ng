@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 import json
 import logging
+from operator import attrgetter
 import re
 from datetime import datetime, timedelta
 
@@ -27,6 +28,7 @@ from ..models import (
     StudentAssignment,
     StudentGroup,
     StudentGroupMembership,
+    StudentNotification,
 )
 from ..students import (
     authenticate_student,
@@ -112,8 +114,9 @@ def validate_student_group_data(req):
 
     if group_name is None:
         try:
+            print(group_link)
             hash_ = re.match(
-                r"live/signup/form/([0-9A-Za-z=_-]+)$", group_link
+                r"^[^/]+/\w{2}/live/signup/form/([0-9A-Za-z=_-]+)$", group_link
             ).group(1)
         except AttributeError:
             logger.warning(
@@ -279,7 +282,7 @@ def index_page(req):
             }
             for assignment in StudentAssignment.objects.filter(
                 student=student, group_assignment__group=group.group
-            ).order_by("-due_date")
+            ).order_by("-group_assignment__due_date")
         ]
         for group in groups
     }
@@ -316,6 +319,7 @@ def index_page(req):
             }
             for group in groups
         ],
+        "has_old_groups": not all(map(attrgetter("current_member"), groups)),
         "notifications": student.notifications,
     }
 
@@ -413,3 +417,35 @@ def send_signin_link(req):
             context = {"error": True}
 
     return render(req, "peerinst/student/login_confirmation.html", context)
+
+
+@require_http_methods(["POST"])
+def remove_notification(req):
+    try:
+        data = json.loads(req.body)
+    except ValueError:
+        logger.warning("The sent data wasn't in a valid JSON format.")
+        resp = TemplateResponse(
+            req,
+            "400.html",
+            context={"message": _("Wrong data type was sent.")},
+        )
+        return HttpResponseBadRequest(resp.render())
+
+    try:
+        notification_pk = data["notification_pk"]
+    except KeyError as e:
+        logger.warning("The arguments '%s' were missing.", ",".join(e.args))
+        resp = TemplateResponse(
+            req,
+            "400.html",
+            context={"message": _("There are missing parameters.")},
+        )
+        return HttpResponseBadRequest(resp.render())
+
+    try:
+        StudentNotification.objects.get(pk=notification_pk).delete()
+    except StudentNotification.DoesNotExist:
+        pass
+
+    return HttpResponse()

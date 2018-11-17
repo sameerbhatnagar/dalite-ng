@@ -54,78 +54,11 @@
     <div id="header-left">
       <div class="header">
         {% if user.is_authenticated %}
-        {% if user.teacher %}
-        <i class="icon ion-md-menu header-icon"></i>
-        <aside class="mdc-drawer mdc-drawer--temporary mdc-typography">
-          <nav class="mdc-drawer__drawer">
-            <nav id="icon-with-text-demo" class="mdc-drawer__content mdc-list">
-              <a class="mdc-list-item" href="{% url 'landing_page' %}">
-                <i class="material-icons mdc-list-item__graphic mdc-theme--primary"
-                   aria-hidden="true">
-                  home
-                </i>
-                {% trans 'Home page' %}
-              </a>
-              <a class="mdc-list-item" href="{% url 'browse-database' %}">
-                <i class="material-icons mdc-list-item__graphic mdc-theme--primary"
-                   aria-hidden="true">
-                  search
-                </i>
-                {% trans 'Search database' %}
-              </a>
-              <a class="mdc-list-item" href="{% url 'student-activity' %}">
-                <i class="material-icons mdc-list-item__graphic mdc-theme--primary"
-                   aria-hidden="true">
-                  {% if user.teacher.student_activity %}
-                    star
-                  {% else %}
-                    star_border
-                  {% endif %}
-                </i>
-                {% trans 'Student activity ' %}({{ user.teacher.student_activity }})
-              </a>
-              <a class="mdc-list-item" href="{% url 'question-create' %}">
-                <i class="material-icons mdc-list-item__graphic mdc-theme--primary"
-                   aria-hidden="true">
-                  edit
-                </i>
-                {% trans 'Create question' %}
-              </a>
-              <a class="mdc-list-item" 
-                 href="{% url 'teacher-assignments' user.teacher.pk %}">
-                <i class="material-icons mdc-list-item__graphic mdc-theme--primary"
-                   aria-hidden="true">
-                  assignment
-                </i>
-                {% trans 'Create assignment' %}
-              </a>
-              <a class="mdc-list-item" href="{% url 'teacher' user.teacher.pk %}">
-                <i class="material-icons mdc-list-item__graphic mdc-theme--primary"
-                   aria-hidden="true">
-                  account_circle
-                </i>
-                {% trans 'My account' %}
-              </a>
-              <a class="mdc-list-item" href="#">
-                <i class="material-icons mdc-list-item__graphic mdc-theme--primary"
-                  aria-hidden="true">
-                  help
-                </i>
-                {% trans 'Tutorials (coming soon)' %}
-              </a>
-              <a class="mdc-list-item" href="{% url 'logout' %}">
-                <i class="material-icons mdc-list-item__graphic mdc-theme--primary"
-                  aria-hidden="true">
-                  logout
-                </i>
-                {% trans 'Logout' %}
-              </a>
-            </nav>
-          </nav>
-        </aside>
-        {% else %}
-        {% block header_menu %}{% endblock %}
-        {% endif %}
+          {% if user.teacher %}
+            {% include 'peerinst/teacher/header.html' %}
+          {% else %}
+            {% include 'peerinst/student/header.html' %}
+          {% endif %}
         {% endif %}
       </div>
       <div class="header">
@@ -195,6 +128,7 @@
   {% block scripts %}{% endblock %}
   {% piwik %}
 </body>
+
 </html>
 
 {% endtimezone %}
