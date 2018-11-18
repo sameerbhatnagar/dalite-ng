@@ -206,7 +206,7 @@ def send_student_assignment(req, assignment_hash, teacher, group, assignment):
         group_assignment=assignment, student=student
     )
 
-    err = student_assignment.send_email(req.get_host(), "new_assignment")
+    err = student_assignment.send_email("new_assignment")
 
     if err is not None:
         resp = TemplateResponse(req, "500.html", context={"message": _(err)})
