@@ -4,7 +4,13 @@
 
 {% block body %}
 
-<h1>{% trans 'Assignment {{ assignment }} for group {{ group }} changed' %}</h1>
+<h1>
+  {% trans 'Assignment ' %}
+  {{ assignment }}
+  {% trans ' for group ' %}
+  {{ group }}
+  {% trans ' changed' %}
+</h1>
 
 <p>{% trans "Use the buttons below to go to the new assignment or to your student page." %}</p>
 
@@ -14,6 +20,7 @@
      target="_blank">
     {% trans 'Go to assignment' %}
   </a>
+  <br/>
   <a class="email-btn" 
      href="{{ signin_link }}"
      target="_blank">

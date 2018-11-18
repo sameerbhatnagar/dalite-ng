@@ -5,6 +5,10 @@
 {% block body %}
 
 <h1>{% trans 'Assignment {{ assignment }} for group {{ group }} expires in {{ days_to_expire }} days' %}</h1>
+<h1>
+  {% trans "There's a new assignment for group " %}
+  {{ group }}
+</h1>
 
 <p>{% trans "Use the buttons below to go to the assignment or to your student page." %}</p>
 
@@ -14,6 +18,7 @@
      target="_blank">
     {% trans 'Go to assignment' %}
   </a>
+  <br/>
   <a class="email-btn" 
      href="{{ signin_link }}"
      target="_blank">
