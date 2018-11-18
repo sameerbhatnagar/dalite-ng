@@ -128,23 +128,22 @@ header .icon {
 }
 
 .header {
-  margin-left: 20px;
+  margin-left: 10px;
 }
 
 .header-icon {
   cursor: pointer;
-  border-radius: 18px;
-  padding: 3px;
+  border-radius: 20px;
+  padding: 4px;
   text-align: center;
+  vertical-align: middle;
   transition: background 200ms;
-  box-shadow: 0 1px 1px 0 darken($mdc-theme-primary, 10%);
 
   &:hover {
     background: rgba(255, 255, 255, 0.25);
   }
   &:active {
     background: rgba(255, 255, 255, 0.5);
-    box-shadow: none;
   }
 
   &:before {

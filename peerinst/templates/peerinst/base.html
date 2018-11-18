@@ -1,5 +1,4 @@
-{% load staticfiles i18n compress admin_urls tz %}
-{% load piwik %}
+{% load staticfiles i18n compress admin_urls tz piwik %}
 
 {% get_current_language as LANGUAGE_CODE %}
 
@@ -63,8 +62,8 @@
       </div>
       <div class="header">
         <a href="{% url 'landing_page' %}">
-          <img src="{% static 'peerinst/img/SALTISE-favicon.gif' %}" 
-               alt="site-logo" 
+          <img src="{% static 'peerinst/img/SALTISE-favicon.gif' %}"
+               alt="site-logo"
                id="logo">
         </a>
         {% if not user.student and not lti %}
@@ -72,7 +71,7 @@
           {% include 'peerinst/custom-instance-header.html' %}
         </a>
         {% else %}
-        {% include 'peerinst/custom-instance-header.html' %}
+          {% include 'peerinst/custom-instance-header.html' %}
         {% endif %}
       </div>
     </div>
