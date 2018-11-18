@@ -36,6 +36,9 @@ from ..students import (
     get_student_username_and_password,
 )
 
+# tos
+from tos.models import Consent
+
 logger = logging.getLogger("peerinst-views")
 
 
@@ -306,6 +309,15 @@ def index_page(req):
         for group, assignments in assignments.items()
     }
 
+    latest_student_consent = (
+        Consent.objects.filter(
+            user__username=student.student.username,
+            tos__role="student",
+        )
+        .order_by("-datetime")
+        .first()
+    )
+
     context = {
         "student": student,
         "new_student": new_student,
@@ -321,6 +333,10 @@ def index_page(req):
         ],
         "has_old_groups": not all(map(attrgetter("current_member"), groups)),
         "notifications": student.notifications,
+        "tos_accepted": bool(
+            Consent.get(student.student.username, "student")
+        ),
+        "tos_timestamp": latest_student_consent.datetime,
     }
 
     return render(req, "peerinst/student/index.html", context)

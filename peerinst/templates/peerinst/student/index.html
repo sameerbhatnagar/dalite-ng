@@ -12,19 +12,37 @@
     </h1>
 
     <div class="foldable foldable__unfolded">
-      <h2 class="foldable--title mdc-typography--display1 mdc-theme--secondary">
-        {% trans 'Identity' %}
-      </h2>
+      <h2 class="foldable--title mdc-typography--display1 mdc-theme--secondary">{% trans 'Identity' %}</h2>
       <div class="foldable--body">
-        <ul class="mdc-list mdc-list--non-interactive">
+        <ul class="mdc-list mdc-list--non-interactive mdc-list--two-line" style="padding-bottom:0px;">
           <li role="separator" class="mdc-list-divider"></li>
-          <li class="mdc-list-item">
-            <span class="mdc-list-item__graphic mdc-theme--primary">
-              <i class="material-icons md-48">account_circle</i>
-            </span>
-            <span class="mdc-list-item__text">
+          <li class="mdc-list-item" onclick="edit_user()">
+            <span class="mdc-list-item__graphic mdc-theme--primary"><i class="material-icons md-48">account_circle</i></span>
+            <span class="mdc-list-item__text mdc-theme--secondary bold">
               {{ student.student.email }}
+              <span class="mdc-list-item__secondary-text">
+                {% trans "Member since: " %} {{ student.student.date_joined  }}
+              </span>
             </span>
+          </li>
+          <li role="separator" class="mdc-list-divider"></li>
+        </ul>
+        <ul class="mdc-list mdc-list--two-line" style="padding-top:0px;">
+          <li class="mdc-list-item" onclick="window.location.href='{% url 'tos:tos_modify' 'student' %}?next={{ request.path }}'" style="cursor:pointer;">
+            {% if tos_accepted %}
+              <span class="mdc-list-item__graphic mdc-theme--primary"><i class="material-icons md-48">check</i></span>
+              <span class="mdc-list-item__text mdc-theme--secondary bold">
+              {% trans 'Terms of service: Sharing' %}
+            {% else %}
+              <span class="mdc-list-item__graphic mdc-theme--primary"><i class="material-icons md-48" style="color:red;">clear</i></span>
+              <span class="mdc-list-item__text mdc-theme--secondary bold">
+              {% trans 'Terms of service: Not sharing' %}
+              {% endif %}
+              <span class="mdc-list-item__secondary-text">
+                {% trans 'Signed: ' %}{{ tos_timestamp }}
+              </span>
+            </span>
+            <span class="mdc-list-item__meta"><i class="material-icons md-24">settings</i></span>
           </li>
           <li role="separator" class="mdc-list-divider"></li>
         </ul>
@@ -33,9 +51,6 @@
 
     {% if notifications %}
     <div class="foldable foldable__unfolded">
-    {% else %}
-    <div class="foldable">
-    {% endif %}
       <h2 class="foldable--title mdc-typography--display1 mdc-theme--secondary">
         {% trans 'Notifications' %}
       </h2>
@@ -72,6 +87,7 @@
         </div>
       </div>
     </div>
+    {% endif %}
 
     <div class="foldable foldable__unfolded">
       <h2 class="foldable--title mdc-typography--display1 mdc-theme--secondary">
@@ -92,9 +108,9 @@
                   You may join any of your old groups or a new one by pasting
                   the link in the box below.
                 </p>
-                <input type="text" 
-                       name="new-group" 
-                       value="" 
+                <input type="text"
+                       name="new-group"
+                       value=""
                        placeholder="Url link"
                        onkeyup="bundle.handleJoinGroupLinkInput(
                         event,
@@ -117,7 +133,7 @@
                         )">
                   Join
                 </button>
-                <button class="mdc-button" 
+                <button class="mdc-button"
                         onclick="bundle.toggleJoinGroup()">
                   Cancel
                 </button>
@@ -139,7 +155,7 @@
                      '{{ student.student.username }}',
                      '{{ group.name }}'
                    )"
-                   title="Deactivate email notifications for this group">
+                   title="Deactivate email reminders for this group">
                   notifications
                 </i>
                 {% else %}
@@ -150,7 +166,7 @@
                      '{{ student.student.username }}',
                      '{{ group.name }}'
                    )"
-                   title="Activate email notifications for this group">
+                   title="Activate email reminders for this group">
                   notifications_off
                 </i>
                 {% endif %}
@@ -161,7 +177,7 @@
                    onclick="bundle.toggleLeaveGroup(event)">
                   close
                 </i>
-                <div class="student-group--remove-confirmation-box" 
+                <div class="student-group--remove-confirmation-box"
                      style="display: none;"
                      onclick="event.stopPropagation; bundle.toggleLeaveGroup(event)">
                   <div onclick="event.stopPropagation();">
@@ -183,7 +199,7 @@
                             )">
                       Remove
                     </button>
-                    <button class="mdc-button" 
+                    <button class="mdc-button"
                             onclick="bundle.toggleLeaveGroup(event)">
                       Cancel
                     </button>
@@ -241,7 +257,7 @@
             </div>
           </div>
           {% endif %}
-          {% endfor %} 
+          {% endfor %}
         </div>
       </div>
     </div>
