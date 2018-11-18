@@ -1,4 +1,5 @@
 from django.core.urlresolvers import reverse
+import re
 from selenium.webdriver.common.keys import Keys
 
 from peerinst.students import (
@@ -18,6 +19,8 @@ def test_fake_link(browser):
     )
 
     browser.get(signin_link)
+
+    assert re.search(r"student/", browser.current_url)
 
     err = (
         "There is no user corresponding to the given link. "
@@ -48,4 +51,4 @@ def test_new_student(browser):
 
     browser.get(signin_link)
 
-    browser.find_element_by_xpath("//*[contains(text(), '{}')]".format(email))
+    assert re.search(r"student/", browser.current_url)
