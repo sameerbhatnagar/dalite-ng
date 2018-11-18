@@ -1,0 +1,171 @@
+{% extends 'website/meta.html' %}
+
+{% load static i18n %}
+
+{% block head %}
+  <!-- CSS -->
+  <link rel="stylesheet" href="{% static 'website/css/style.min.css' %}">
+
+  <!-- JS -->
+  <script src="{% static 'website/js/index.min.js' %}"></script>
+
+  <!-- Required inline styles -->
+  <style>
+  .sr {
+    visibility: hidden;
+  }
+  </style>
+
+  {% block stylesheets %}{% endblock %}
+{% endblock %}
+
+{% block body %}
+  <body>
+
+    <header>
+      {% block header %}{% endblock %}
+    </header>
+
+    <nav id="corner-logo">
+      <a href="{% url 'apropos' %}" style="display:block;">
+        <img id="opieva-logo" src="{% static 'website/img/opieva_logo_final_version_02-768x1024.jpg' %}">
+      </a>
+    </nav>
+
+    <nav class='uqam'>
+      <div>
+        <a href="https://uqam.ca/">
+          <img
+            src="{% static 'website/img/uqam_logo.svg' %}"
+            alt="UQAM logo"
+            width="110px"
+            style="padding-left:10px;"/>
+        </a>
+      </div>
+
+      <div id="faculty">
+        <a href="https://education.uqam.ca/">Faculté des sciences de l'éducation</a>
+      </div>
+    </nav>
+
+    <nav class='sidebar'>
+      <div class='nav-icons-holder'>
+
+        <!--
+        <div class='nav-icon'>
+          <img
+            id='apropos'
+            class='block resize'
+            src="{% static 'website/img/opieva_logo_v1_white.png' %}"
+            alt="opiéva logo"
+            width="36px"/>
+          <div class='block nav-font'>
+            {% trans 'À propos' %}
+          </div>
+        </div>
+        -->
+
+        <div class='nav-icon'>
+          <i id='equipe' class="material-icons md-36 block resize">people</i>
+          <div class='block nav-font'>
+            {% trans 'Équipes' %}
+          </div>
+        </div>
+
+        <div class='nav-icon'>
+          <i id='ressources' class="material-icons md-36 block resize">library_books</i>
+          <div class='block nav-font'>
+            {% trans 'Ressources' %}
+          </div>
+        </div>
+
+        <div class='nav-icon'>
+          <i id='donnees' class="material-icons md-36 block resize">timeline</i>
+          <div class='block nav-font'>
+            {% trans 'Données' %}
+          </div>
+        </div>
+
+        <div class='nav-icon'>
+          <i id='boussole' class="material-icons md-36 block resize">near_me</i>
+          <div class='block nav-font'>
+            {% trans 'La boussole' %}
+          </div>
+        </div>
+
+        <div class='nav-icon'>
+          <i id='joindre' class='material-icons md-36 block resize'>mail_outline</i>
+          <div class='block nav-font'>
+            {% trans 'Nous joindre' %}
+          </div>
+        </div>
+
+        <div class='nav-icon'>
+          <i id='admin' class='material-icons md-36 block resize'>lock</i>
+          <div class='block nav-font'>
+            {% trans 'Admin' %}
+          </div>
+        </div>
+
+        <div class='nav-icon'>
+          <i id="submitLanguage" class='material-icons md-36 block resize'>language</i>
+          <div class='block nav-font'>
+            <!-- Language selection -->
+            <form id="switchLanguage" action="{% url 'set_language' %}" method="post">
+              {% csrf_token %}
+              <input name="next" type="hidden" value={{ request.path|slice:"3:"|urlencode }} />
+              <input name="language" type="hidden" value={% if LANGUAGE_CODE == 'fr' %}en{% else %}fr{% endif %} />
+            </form>
+            <span>{% if LANGUAGE_CODE == 'fr' %}EN{% else %}FR{% endif %}</span>
+          </div>
+        </div>
+
+      </div>
+      <svg id='expand' width=20 height=1></svg>
+    </nav>
+
+    <nav id="prompt">
+      <svg id="scrollPrompt" width=15 height=30></svg>
+    </nav>
+
+    {% block splash %}{% endblock %}
+
+    <main id='content'>
+      {% block main %}{% endblock %}
+    </main>
+
+    <footer>
+      <span><i class='material-icons md-12' style="transform: translateY(2px);">copyright</i> 2018 opiéva</span>
+    </footer>
+
+    <script>
+      // Store viewport width to check for true resize event (ios fires resize on scroll)
+      document.querySelector('html').setAttribute('currentWidth', bundle.$(window).width());
+      bundle.nav('expand');
+      bundle.menuUI();
+      bundle.redirectOnClick('boussole', 'content', "{% url 'boussole:index' %}");
+      bundle.redirectOnClick('equipe', 'content', "{% url 'equipe' %}");
+      bundle.redirectOnClick('ressources', 'content', "{% url 'ressources' %}");
+      bundle.redirectOnClick('joindre', 'content', "{% url 'joindre' %}");
+      bundle.redirectOnClick('admin', 'content', "{% url 'admin:index' %}");
+      bundle.placeFooter();
+      bundle.showFooter();
+      bundle.lang();
+      bundle.promptToScroll('scrollPrompt');
+
+      bundle.anime.easings['cycle'] = function(t) {
+        return Math.sin(t);
+      }
+      var infiniteLoop = bundle.anime({
+        targets: '#prompt',
+        bottom: '30px',
+        easing: 'cycle',
+        duration: 1000,
+        direction: 'alternate',
+        loop: true,
+      });
+    </script>
+
+    {% block scripts %}{% endblock %}
+  </body>
+{% endblock %}

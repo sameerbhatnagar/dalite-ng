@@ -366,11 +366,11 @@
               </span>
             {% endif %}
           <span class="padded">
-            <input form="question-create-form" class="mdc-button mdc-button--raised" type="submit" value="Save and next" />
+            <input form="question-create-form" class="mdc-button mdc-button--raised" type="submit" value="{% trans 'Save and next' %}" />
           </span>
           {% else %}
           <span class="padded">
-            <input form="question-create-form" class="mdc-button mdc-button--raised" type="submit" value="Add" />
+            <input form="question-create-form" class="mdc-button mdc-button--raised" type="submit" value="{% trans 'Add' %}" />
           </span>
           {% endif %}
         {% else %}
