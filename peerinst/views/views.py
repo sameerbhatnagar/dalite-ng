@@ -95,6 +95,7 @@ from ..models import (
     Question,
     Answer,
     AnswerChoice,
+    Category,
     Discipline,
     VerifiedDomain,
     LtiEvent,
@@ -770,7 +771,7 @@ class DisciplineCreateView(
 ):
     """View to create a new discipline outside of admin."""
 
-    model = models.Discipline
+    model = Discipline
     fields = ["title"]
 
     def get_success_url(self):
@@ -798,7 +799,7 @@ def discipline_select_form(request, pk=None):
 class DisciplinesCreateView(LoginRequiredMixin, NoStudentsMixin, CreateView):
     """View to create a new discipline outside of admin."""
 
-    model = models.Discipline
+    model = Discipline
     fields = ["title"]
     template_name = "peerinst/disciplines_form.html"
 
@@ -827,7 +828,7 @@ class CategoryCreateView(
 ):
     """View to create a new discipline outside of admin."""
 
-    model = models.Category
+    model = Category
     fields = ["title"]
 
     def get_success_url(self):
@@ -837,13 +838,18 @@ class CategoryCreateView(
 @login_required
 @user_passes_test(student_check, login_url="/access_denied_and_logout/")
 @user_passes_test(teacher_tos_accepted_check, login_url="/tos/required/")
-def category_select_form(request, pk):
+def category_select_form(request, pk=None):
     """An AJAX view that simply renders the CategorySelectForm."""
-    """Preselects instance with pk."""
+    """Preselects instance with pk, if given."""
+    if pk:
+        form = forms.CategorySelectForm(
+            initial={"category": [Category.objects.get(pk=pk)]}
+        )
+    else:
+        form = forms.CategorySelectForm()
+
     return TemplateResponse(
-        request,
-        "peerinst/category_select_form.html",
-        context={"form": forms.CategorySelectForm()},
+        request, "peerinst/category_select_form.html", context={"form": form}
     )
 
 

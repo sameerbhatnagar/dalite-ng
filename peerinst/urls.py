@@ -90,6 +90,11 @@ def old_patterns():
             name="category-form",
         ),
         url(
+            r"^category/form$",
+            views.category_select_form,
+            name="category-form",
+        ),
+        url(
             r"^answer-choice/form/(?P<question_id>[0-9]+)$",
             views.answer_choice_form,
             name="answer-choice-form",

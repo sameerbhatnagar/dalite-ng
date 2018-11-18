@@ -1,4 +1,4 @@
-{% load add_class %}
+{% load i18n add_class %}
 
 <form id="category_create_form" action="{% url 'category-create' %}" method="post">
   {% csrf_token %}
@@ -15,12 +15,27 @@
     </div>
     {{ field.errors }}
   {% endfor %}
-  <div>
-    <input form="category_create_form" class="mdc-button mdc-button--raised" type="submit" value="Create"/>
-  </div>
+  <i id="submit_category_form" class="material-icons md-24 mdc-icon-button mdc-theme--primary mdc-ripple-surface icon-list">
+    create
+  </i>
+  <i id="clear_category_form" class="material-icons md-24 mdc-icon-button mdc-theme--primary mdc-ripple-surface icon-list ">
+    clear
+  </i>
 </form>
 
 <script>
+'use strict';
+
+$( "#submit_category_form" ).click(function() {
+  $( "#category_create_form" ).submit();
+});
+
+$( "#clear_category_form" ).click(function() {
+  $( "#category_form" ).load("{% url 'category-form' %}", function(){
+    bundle.bindAjaxTextInputForm('show_category_form', 'category_form', "{% url 'category-create' %}");
+  });
+});
+
 $.ajaxSetup({
     beforeSend: function(xhr, settings) {
         if (!bundle.csrfSafeMethod(settings.type) && !this.crossDomain) {
@@ -46,7 +61,6 @@ $( "#category_create_form" ).submit(function( event ) {
   // Put the results in a div
   posting.done(function(data) {
     $('#category_form').empty().append(data);
-    bundle.autoInit();
     bundle.bindAjaxTextInputForm('show_category_form', 'category_form', "{% url 'category-create' %}");
   });
 });
