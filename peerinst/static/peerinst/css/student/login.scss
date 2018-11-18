@@ -1,0 +1,17 @@
+@import "../variables";
+
+#student-login {
+  & h1 {
+    position: sticky;
+  }
+
+  & form {
+    display: flex;
+    flex-direction: column;
+    width: 275px;
+
+    & > * {
+      margin-bottom: 30px;
+    }
+  }
+}

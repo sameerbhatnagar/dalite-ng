@@ -1,0 +1,28 @@
+{% extends 'peerinst/student/emails/base.html' %}
+
+{% load i18n %}
+
+{% block body %}
+
+<h1>{% trans "You've successfully been registered to group {{ group }}" %}</h1>
+
+<h2>{% trans "Sign in to your myDALITE account by clicking the link below:" %}</h2>
+
+<a class="email-btn" href="{{ signin_link }}" target="_blank">
+  {% trans "Sign In" %}
+</a>
+
+<div class="backup-link">
+  <p>
+    {% trans "If the button above doesn't work, paste this link into your web browser:" %}
+  </p>
+
+  <p>
+    <a class="email-btn" href="{{ signin_link }}" target="_blank">
+      {{ signin_link }}
+    </a>
+  </p>
+
+</div>
+
+{% endblock %}

@@ -1,27 +1,27 @@
 // MDC
-import autoInit from '@material/auto-init/index';
-import * as checkbox from '@material/checkbox/index';
-import * as chips from '@material/chips/index';
-import * as dialog from '@material/dialog/index';
-import * as drawer from '@material/drawer/index';
-import * as iconToggle from '@material/icon-toggle/index';
-import * as radio from '@material/radio/index';
-import * as ripple from '@material/ripple/index';
-import * as selectbox from '@material/select/index';
-import * as textField from '@material/textfield/index';
-import * as toolbar from '@material/toolbar/index';
+import autoInit from "@material/auto-init/index";
+import * as checkbox from "@material/checkbox/index";
+import * as chips from "@material/chips/index";
+import * as dialog from "@material/dialog/index";
+import * as drawer from "@material/drawer/index";
+import * as iconToggle from "@material/icon-toggle/index";
+import * as radio from "@material/radio/index";
+import * as ripple from "@material/ripple/index";
+import * as selectbox from "@material/select/index";
+import * as textField from "@material/textfield/index";
+import * as toolbar from "@material/toolbar/index";
 
-autoInit.register('MDCCheckbox', checkbox.MDCCheckbox);
-autoInit.register('MDCChip', chips.MDCChip);
-autoInit.register('MDCChipSet', chips.MDCChipSet);
-autoInit.register('MDCDialog', dialog.MDCDialog);
-autoInit.register('MDCDrawer', drawer.MDCTemporaryDrawer);
-autoInit.register('MDCIconToggle', iconToggle.MDCIconToggle);
-autoInit.register('MDCRadio', radio.MDCRadio);
-autoInit.register('MDCRipple', ripple.MDCRipple);
-autoInit.register('MDCSelect', selectbox.MDCSelect);
-autoInit.register('MDCTextField', textField.MDCTextField);
-autoInit.register('MDCToolbar', toolbar.MDCToolbar);
+autoInit.register("MDCCheckbox", checkbox.MDCCheckbox);
+autoInit.register("MDCChip", chips.MDCChip);
+autoInit.register("MDCChipSet", chips.MDCChipSet);
+autoInit.register("MDCDialog", dialog.MDCDialog);
+autoInit.register("MDCDrawer", drawer.MDCTemporaryDrawer);
+autoInit.register("MDCIconToggle", iconToggle.MDCIconToggle);
+autoInit.register("MDCRadio", radio.MDCRadio);
+autoInit.register("MDCRipple", ripple.MDCRipple);
+autoInit.register("MDCSelect", selectbox.MDCSelect);
+autoInit.register("MDCTextField", textField.MDCTextField);
+autoInit.register("MDCToolbar", toolbar.MDCToolbar);
 
 export {
   autoInit,
@@ -38,7 +38,7 @@ export {
 };
 
 // D3
-import * as d3 from 'd3';
+import * as d3 from "d3";
 
 export {
   active,
@@ -62,10 +62,10 @@ export {
   selectAll,
   transition,
   values,
-} from 'd3';
+} from "d3";
 
 // Custom functions (works with utils.scss)
-import {addEventListeners} from './utils';
+import { addEventListeners } from "./utils";
 
 addEventListeners();
 
@@ -89,12 +89,12 @@ export function csrfSafeMethod(method) {
  */
 export function getCookie(name) {
   let cookieValue = null;
-  if (document.cookie && document.cookie != '') {
-    let cookies = document.cookie.split(';');
+  if (document.cookie && document.cookie != "") {
+    let cookies = document.cookie.split(";");
     for (let i = 0; i < cookies.length; i++) {
       let cookie = jQuery.trim(cookies[i]);
       // Does this cookie string begin with the name we want?
-      if (cookie.substring(0, name.length + 1) == name + '=') {
+      if (cookie.substring(0, name.length + 1) == name + "=") {
         cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
         break;
       }
@@ -119,10 +119,10 @@ export function bindAjaxTextInputForm(idToBind, formToReplace, url) {
        */
       function callback() {
         bundle.autoInit();
-        let input = this.querySelector('.mdc-text-field__input');
+        let input = this.querySelector(".mdc-text-field__input");
         input.focus();
       }
-      $('#' + formToReplace).load(url, callback);
+      $("#" + formToReplace).load(url, callback);
     };
   }
 }
@@ -137,13 +137,13 @@ export function bindAjaxTextInputForm(idToBind, formToReplace, url) {
  */
 export function cornerGraphic(svgSelector, formID, lang, className) {
   let svg = d3.select(svgSelector);
-  let w = +svg.attr('width');
-  let h = +svg.attr('height');
+  let w = +svg.attr("width");
+  let h = +svg.attr("height");
 
-  const g = svg.append('g');
-  g.append('path')
-    .attr('class', className)
-    .attr('d', () => {
+  const g = svg.append("g");
+  g.append("path")
+    .attr("class", className)
+    .attr("d", () => {
       let path = d3.path();
       path.moveTo(0, h);
       path.lineTo(w, 0);
@@ -152,15 +152,15 @@ export function cornerGraphic(svgSelector, formID, lang, className) {
       return path;
     });
 
-  g.append('text')
-    .attr('x', w - w / 3)
-    .attr('y', h - h / 3 + h / 6)
-    .attr('text-anchor', 'middle')
-    .style('fill', 'white')
-    .style('font-size', h / 3 + 'px')
+  g.append("text")
+    .attr("x", w - w / 3)
+    .attr("y", h - h / 3 + h / 6)
+    .attr("text-anchor", "middle")
+    .style("fill", "white")
+    .style("font-size", h / 3 + "px")
     .text(lang);
 
-  g.on('click', () => {
+  g.on("click", () => {
     document.getElementById(formID).submit();
   });
 }
@@ -185,30 +185,30 @@ export function wrap(text, width) {
       let line = [];
       let lineNumber = 0;
       let lineHeight = 16; // px
-      let x = text.attr('x');
-      let dx = text.attr('dx');
-      let y = text.attr('y');
-      let dy = parseFloat(text.attr('dy'));
+      let x = text.attr("x");
+      let dx = text.attr("dx");
+      let y = text.attr("y");
+      let dy = parseFloat(text.attr("dy"));
       let tspan = text
         .text(null)
-        .append('tspan')
-        .attr('x', x)
-        .attr('y', y)
-        .attr('dx', dx)
-        .attr('dy', dy + 'px');
+        .append("tspan")
+        .attr("x", x)
+        .attr("y", y)
+        .attr("dx", dx)
+        .attr("dy", dy + "px");
       while ((word = words.pop())) {
         line.push(word);
-        tspan.text(line.join(' '));
+        tspan.text(line.join(" "));
         if (tspan.node().getComputedTextLength() > width) {
           line.pop();
-          tspan.text(line.join(' '));
+          tspan.text(line.join(" "));
           line = [word];
           tspan = text
-            .append('tspan')
-            .attr('x', x)
-            .attr('y', y)
-            .attr('dx', dx)
-            .attr('dy', ++lineNumber * lineHeight + dy + 'px')
+            .append("tspan")
+            .attr("x", x)
+            .attr("y", y)
+            .attr("dx", dx)
+            .attr("dy", ++lineNumber * lineHeight + dy + "px")
             .text(word);
         }
       }
@@ -216,70 +216,68 @@ export function wrap(text, width) {
   );
 }
 
-
 /** Underline h1 with svg
  *  @function
  */
 function underlines() {
-  'use strict';
+  "use strict";
 
   // Decorate h1 headers
-  let lines = d3.selectAll('.underline');
-  lines.selectAll('g').remove();
-  let w = document.querySelector('main').offsetWidth;
+  let lines = d3.selectAll(".underline");
+  lines.selectAll("g").remove();
+  let w = document.querySelector("main").offsetWidth;
 
   let gradientX = lines
-    .append('linearGradient')
-    .attr('id', 'underlineGradientX')
-    .attr('x1', 0)
-    .attr('x2', 1)
-    .attr('y1', 0)
-    .attr('y2', 0);
+    .append("linearGradient")
+    .attr("id", "underlineGradientX")
+    .attr("x1", 0)
+    .attr("x2", 1)
+    .attr("y1", 0)
+    .attr("y2", 0);
 
   gradientX
-    .append('stop')
-    .attr('offset', '0%')
-    .attr('stop-color', '#54c0db');
+    .append("stop")
+    .attr("offset", "0%")
+    .attr("stop-color", "#54c0db");
 
   gradientX
-    .append('stop')
-    .attr('offset', '100%')
-    .attr('stop-color', '#004266');
+    .append("stop")
+    .attr("offset", "100%")
+    .attr("stop-color", "#004266");
 
   let gradientY = lines
-    .append('linearGradient')
-    .attr('id', 'underlineGradientY')
-    .attr('x1', 0)
-    .attr('x2', 0)
-    .attr('y1', 0)
-    .attr('y2', 1);
+    .append("linearGradient")
+    .attr("id", "underlineGradientY")
+    .attr("x1", 0)
+    .attr("x2", 0)
+    .attr("y1", 0)
+    .attr("y2", 1);
 
   gradientY
-    .append('stop')
-    .attr('offset', '0%')
-    .attr('stop-color', '#004266');
+    .append("stop")
+    .attr("offset", "0%")
+    .attr("stop-color", "#004266");
 
   gradientY
-    .append('stop')
-    .attr('offset', '100%')
-    .attr('stop-color', '#54c0db');
+    .append("stop")
+    .attr("offset", "100%")
+    .attr("stop-color", "#54c0db");
 
-  let g = lines.append('g');
-  g.append('rect')
-    .attr('x', -10)
-    .attr('y', 0)
-    .attr('width', w + 10)
-    .attr('height', 1)
-    .attr('fill', 'url(#underlineGradientX)');
+  let g = lines.append("g");
+  g.append("rect")
+    .attr("x", -10)
+    .attr("y", 0)
+    .attr("width", w + 10)
+    .attr("height", 1)
+    .attr("fill", "url(#underlineGradientX)");
 
-  g.append('rect')
-    .attr('x', w)
-    .attr('y', 0)
-    .attr('width', 1)
-    .attr('height', 120)
-    .attr('fill', 'url(#underlineGradientY)');
+  g.append("rect")
+    .attr("x", w)
+    .attr("y", 0)
+    .attr("width", 1)
+    .attr("height", 120)
+    .attr("fill", "url(#underlineGradientY)");
 }
-
 
 /** Question difficulty
  *  @function
@@ -289,13 +287,13 @@ function underlines() {
 export function difficulty(matrix, id) {
   matrix = JSON.parse(matrix);
   const colour = {
-    easy: 'rgb(30, 142, 62)',
-    hard: 'rgb(237, 69, 40)',
-    tricky: 'rgb(237, 170, 30)',
-    peer: 'rgb(25, 118, 188)',
+    easy: "rgb(30, 142, 62)",
+    hard: "rgb(237, 69, 40)",
+    tricky: "rgb(237, 170, 30)",
+    peer: "rgb(25, 118, 188)",
   };
   let max = -0;
-  let label = '';
+  let label = "";
   for (let entry in bundle.entries(matrix)) {
     if ({}.hasOwnProperty.call(bundle.entries(matrix), entry)) {
       let item = bundle.entries(matrix)[entry];
@@ -306,14 +304,14 @@ export function difficulty(matrix, id) {
     }
   }
   if (max > 0) {
-    const rating = document.getElementById('rating-' + id);
-    rating.innerHTML = label.substring(0, 1).toUpperCase() + label.substring(1);
+    const rating = document.getElementById("rating-" + id);
+    rating.innerHTML =
+      label.substring(0, 1).toUpperCase() + label.substring(1);
 
-    const stats = document.getElementById('stats-' + id);
+    const stats = document.getElementById("stats-" + id);
     stats.style.color = colour[label];
   }
 }
-
 
 /** Question analytics
  *  @function
@@ -323,13 +321,13 @@ export function difficulty(matrix, id) {
  */
 export function plot(matrix, freq, id) {
   const colour = {
-    easy: 'rgb(30, 142, 62)',
-    hard: 'rgb(237, 69, 40)',
-    tricky: 'rgb(237, 170, 30)',
-    peer: 'rgb(25, 118, 188)',
+    easy: "rgb(30, 142, 62)",
+    hard: "rgb(237, 69, 40)",
+    tricky: "rgb(237, 170, 30)",
+    peer: "rgb(25, 118, 188)",
   };
   let max = -0;
-  let label = '';
+  let label = "";
   for (let entry in bundle.entries(matrix)) {
     if ({}.hasOwnProperty.call(bundle.entries(matrix), entry)) {
       let item = bundle.entries(matrix)[entry];
@@ -340,103 +338,104 @@ export function plot(matrix, freq, id) {
     }
   }
   if (max > 0) {
-    const rating = document.getElementById('rating-' + id);
-    rating.innerHTML = label.substring(0, 1).toUpperCase() + label.substring(1);
+    const rating = document.getElementById("rating-" + id);
+    rating.innerHTML =
+      label.substring(0, 1).toUpperCase() + label.substring(1);
 
-    const stats = document.getElementById('stats-' + id);
+    const stats = document.getElementById("stats-" + id);
     stats.style.color = colour[label];
   }
 
-  const matrixSvg = bundle.select('#matrix-' + id);
-  let size = matrixSvg.attr('width');
-  const g = matrixSvg.append('g');
+  const matrixSvg = bundle.select("#matrix-" + id);
+  let size = matrixSvg.attr("width");
+  const g = matrixSvg.append("g");
 
-  g.append('rect')
-    .attr('x', 0)
-    .attr('y', 0)
-    .attr('width', size / 2)
-    .attr('height', size / 2)
-    .attr('fill', colour['easy'])
-    .style('opacity', 0.5 + 0.5 * matrix['easy']);
+  g.append("rect")
+    .attr("x", 0)
+    .attr("y", 0)
+    .attr("width", size / 2)
+    .attr("height", size / 2)
+    .attr("fill", colour["easy"])
+    .style("opacity", 0.5 + 0.5 * matrix["easy"]);
 
-  g.append('text')
-    .attr('x', size / 4)
-    .attr('y', size / 4)
-    .attr('dy', 4)
-    .style('font-size', '8pt')
-    .style('fill', 'white')
-    .style('text-anchor', 'middle')
-    .text(parseInt(100 * matrix['easy']) + '%');
+  g.append("text")
+    .attr("x", size / 4)
+    .attr("y", size / 4)
+    .attr("dy", 4)
+    .style("font-size", "8pt")
+    .style("fill", "white")
+    .style("text-anchor", "middle")
+    .text(parseInt(100 * matrix["easy"]) + "%");
 
-  g.append('rect')
-    .attr('x', size / 2)
-    .attr('y', size / 2)
-    .attr('width', size / 2)
-    .attr('height', size / 2)
-    .attr('fill', colour['hard'])
-    .style('opacity', 0.5 + 0.5 * matrix['hard']);
+  g.append("rect")
+    .attr("x", size / 2)
+    .attr("y", size / 2)
+    .attr("width", size / 2)
+    .attr("height", size / 2)
+    .attr("fill", colour["hard"])
+    .style("opacity", 0.5 + 0.5 * matrix["hard"]);
 
-  g.append('text')
-    .attr('x', (3 * size) / 4)
-    .attr('y', (3 * size) / 4)
-    .attr('dy', 4)
-    .style('font-size', '8pt')
-    .style('fill', 'white')
-    .style('text-anchor', 'middle')
-    .text(parseInt(100 * matrix['hard']) + '%');
+  g.append("text")
+    .attr("x", (3 * size) / 4)
+    .attr("y", (3 * size) / 4)
+    .attr("dy", 4)
+    .style("font-size", "8pt")
+    .style("fill", "white")
+    .style("text-anchor", "middle")
+    .text(parseInt(100 * matrix["hard"]) + "%");
 
-  g.append('rect')
-    .attr('x', 0)
-    .attr('y', size / 2)
-    .attr('width', size / 2)
-    .attr('height', size / 2)
-    .attr('fill', colour['peer'])
-    .style('opacity', 0.5 + 0.5 * matrix['peer']);
+  g.append("rect")
+    .attr("x", 0)
+    .attr("y", size / 2)
+    .attr("width", size / 2)
+    .attr("height", size / 2)
+    .attr("fill", colour["peer"])
+    .style("opacity", 0.5 + 0.5 * matrix["peer"]);
 
-  g.append('text')
-    .attr('x', size / 4)
-    .attr('y', (3 * size) / 4)
-    .attr('dy', 4)
-    .style('font-size', '8pt')
-    .style('fill', 'white')
-    .style('text-anchor', 'middle')
-    .text(parseInt(100 * matrix['peer']) + '%');
+  g.append("text")
+    .attr("x", size / 4)
+    .attr("y", (3 * size) / 4)
+    .attr("dy", 4)
+    .style("font-size", "8pt")
+    .style("fill", "white")
+    .style("text-anchor", "middle")
+    .text(parseInt(100 * matrix["peer"]) + "%");
 
-  g.append('rect')
-    .attr('x', size / 2)
-    .attr('y', 0)
-    .attr('width', size / 2)
-    .attr('height', size / 2)
-    .attr('fill', colour['tricky'])
-    .style('opacity', 0.5 + 0.5 * matrix['tricky']);
+  g.append("rect")
+    .attr("x", size / 2)
+    .attr("y", 0)
+    .attr("width", size / 2)
+    .attr("height", size / 2)
+    .attr("fill", colour["tricky"])
+    .style("opacity", 0.5 + 0.5 * matrix["tricky"]);
 
-  g.append('text')
-    .attr('x', (3 * size) / 4)
-    .attr('y', size / 4)
-    .attr('dy', 4)
-    .style('font-size', '8pt')
-    .style('fill', 'white')
-    .style('text-anchor', 'middle')
-    .text(parseInt(100 * matrix['tricky']) + '%');
+  g.append("text")
+    .attr("x", (3 * size) / 4)
+    .attr("y", size / 4)
+    .attr("dy", 4)
+    .style("font-size", "8pt")
+    .style("fill", "white")
+    .style("text-anchor", "middle")
+    .text(parseInt(100 * matrix["tricky"]) + "%");
 
-  let firstFreqSvg = bundle.select('#first-frequency-' + id);
-  let secondFreqSvg = bundle.select('#second-frequency-' + id);
-  let margin = {left: 30, right: 30};
+  let firstFreqSvg = bundle.select("#first-frequency-" + id);
+  let secondFreqSvg = bundle.select("#second-frequency-" + id);
+  let margin = { left: 30, right: 30 };
 
   let sum = 0;
-  for (let entry in freq['first_choice']) {
-    if ({}.hasOwnProperty.call(freq['first_choice'], entry)) {
-      sum += freq['first_choice'][entry];
+  for (let entry in freq["first_choice"]) {
+    if ({}.hasOwnProperty.call(freq["first_choice"], entry)) {
+      sum += freq["first_choice"][entry];
     }
   }
-  for (let entry in freq['first_choice']) {
-    if ({}.hasOwnProperty.call(freq['first_choice'], entry)) {
-      freq['first_choice'][entry] /= sum;
-      freq['second_choice'][entry] /= sum;
+  for (let entry in freq["first_choice"]) {
+    if ({}.hasOwnProperty.call(freq["first_choice"], entry)) {
+      freq["first_choice"][entry] /= sum;
+      freq["second_choice"][entry] /= sum;
     }
   }
 
-  size = secondFreqSvg.attr('width') - margin.left;
+  size = secondFreqSvg.attr("width") - margin.left;
 
   let x = bundle
     .scaleLinear()
@@ -444,126 +443,127 @@ export function plot(matrix, freq, id) {
     .rangeRound([0, size]);
   let y = bundle
     .scaleBand()
-    .domain(bundle.keys(freq['first_choice']).sort())
-    .rangeRound([0, firstFreqSvg.attr('height')]);
+    .domain(bundle.keys(freq["first_choice"]).sort())
+    .rangeRound([0, firstFreqSvg.attr("height")]);
 
   let gg = secondFreqSvg
-    .append('g')
-    .attr('transform', 'translate(' + margin.left + ',0)');
+    .append("g")
+    .attr("transform", "translate(" + margin.left + ",0)");
 
-  let ggg = firstFreqSvg.append('g');
+  let ggg = firstFreqSvg.append("g");
 
-  gg.append('g')
-    .attr('class', 'axis axis--x')
-    .style('opacity', 0)
+  gg.append("g")
+    .attr("class", "axis axis--x")
+    .style("opacity", 0)
     .call(bundle.axisBottom(x));
 
   ggg
-    .append('g')
-    .attr('class', 'axis axis--x')
-    .style('opacity', 0)
+    .append("g")
+    .attr("class", "axis axis--x")
+    .style("opacity", 0)
     .call(bundle.axisBottom(x));
 
-  gg.append('g')
-    .attr('class', 'axis axis--y')
-    .style('opacity', 0)
+  gg.append("g")
+    .attr("class", "axis axis--y")
+    .style("opacity", 0)
     .call(bundle.axisLeft(y).ticks);
 
-  gg.append('g')
-    .selectAll('rect')
-    .data(bundle.entries(freq['second_choice']))
+  gg.append("g")
+    .selectAll("rect")
+    .data(bundle.entries(freq["second_choice"]))
     .enter()
-    .append('rect')
-    .attr('id', 'second_choice-' + id)
-    .attr('finalwidth', function(d) {
+    .append("rect")
+    .attr("id", "second_choice-" + id)
+    .attr("finalwidth", function(d) {
       return x(d.value);
     })
-    .attr('x', x(0))
-    .attr('y', function(d) {
+    .attr("x", x(0))
+    .attr("y", function(d) {
       return y(d.key);
     })
-    .attr('width', 0)
+    .attr("width", 0)
     .attr(
-      'height',
-      firstFreqSvg.attr('height') / bundle.values(freq['second_choice']).length,
+      "height",
+      firstFreqSvg.attr("height") /
+        bundle.values(freq["second_choice"]).length,
     )
-    .attr('fill', 'gray')
-    .style('stroke', 'white')
-    .style('opacity', 0.2);
+    .attr("fill", "gray")
+    .style("stroke", "white")
+    .style("opacity", 0.2);
 
   ggg
-    .append('g')
-    .selectAll('rect')
-    .data(bundle.entries(freq['first_choice']))
+    .append("g")
+    .selectAll("rect")
+    .data(bundle.entries(freq["first_choice"]))
     .enter()
-    .append('rect')
-    .attr('id', 'first_choice-' + id)
-    .attr('finalwidth', function(d) {
+    .append("rect")
+    .attr("id", "first_choice-" + id)
+    .attr("finalwidth", function(d) {
       return x(d.value);
     })
-    .attr('finalx', function(d) {
+    .attr("finalx", function(d) {
       return x(1 - d.value);
     })
-    .attr('x', x(1))
-    .attr('y', function(d) {
+    .attr("x", x(1))
+    .attr("y", function(d) {
       return y(d.key);
     })
-    .attr('width', 0)
+    .attr("width", 0)
     .attr(
-      'height',
-      firstFreqSvg.attr('height') / bundle.values(freq['first_choice']).length,
+      "height",
+      firstFreqSvg.attr("height") / bundle.values(freq["first_choice"]).length,
     )
-    .attr('fill', 'gray')
-    .style('stroke', 'white')
-    .style('opacity', 0.2);
+    .attr("fill", "gray")
+    .style("stroke", "white")
+    .style("opacity", 0.2);
 
-  gg.append('g')
-    .selectAll('text')
-    .data(bundle.entries(freq['second_choice']))
+  gg.append("g")
+    .selectAll("text")
+    .data(bundle.entries(freq["second_choice"]))
     .enter()
-    .append('text')
-    .attr('x', x(0))
-    .attr('dx', -2)
-    .attr('y', function(d) {
+    .append("text")
+    .attr("x", x(0))
+    .attr("dx", -2)
+    .attr("y", function(d) {
       return y(d.key);
     })
-    .attr('dy', y.bandwidth() / 2 + 4)
-    .style('font-size', '8pt')
-    .style('text-anchor', 'end')
+    .attr("dy", y.bandwidth() / 2 + 4)
+    .style("font-size", "8pt")
+    .style("text-anchor", "end")
     .text(function(d) {
-      return parseInt(100 * d.value) + '%';
+      return parseInt(100 * d.value) + "%";
     });
 
   ggg
-    .append('g')
-    .selectAll('text')
-    .data(bundle.entries(freq['first_choice']))
+    .append("g")
+    .selectAll("text")
+    .data(bundle.entries(freq["first_choice"]))
     .enter()
-    .append('text')
-    .attr('x', x(1))
-    .attr('dx', 2)
-    .attr('y', function(d) {
+    .append("text")
+    .attr("x", x(1))
+    .attr("dx", 2)
+    .attr("y", function(d) {
       return y(d.key);
     })
-    .attr('dy', y.bandwidth() / 2 + 4)
-    .style('font-size', '8pt')
-    .style('text-anchor', 'start')
+    .attr("dy", y.bandwidth() / 2 + 4)
+    .style("font-size", "8pt")
+    .style("text-anchor", "start")
     .text(function(d) {
-      return parseInt(100 * d.value) + '%';
+      return parseInt(100 * d.value) + "%";
     });
 
-  gg.append('g')
-    .selectAll('text')
-    .data(bundle.entries(freq['second_choice']))
+  gg.append("g")
+    .selectAll("text")
+    .data(bundle.entries(freq["second_choice"]))
     .enter()
-    .append('text')
-    .attr('x', x(0))
-    .attr('dx', 2)
-    .attr('y', function(d) {
+    .append("text")
+    .attr("x", x(0))
+    .attr("dx", 2)
+    .attr("y", function(d) {
       return y(d.key);
     })
-    .attr('dy', y.bandwidth() / 2 + 4)
-    .style('font-size', '8pt')
+    .attr("dy", y.bandwidth() / 2 + 4)
+    .style("font-size", "8pt")
     .text(function(d) {
       return d.key;
     });
@@ -583,9 +583,9 @@ export function search(className, searchBar) {
       items[i].innerText.toLowerCase().indexOf(searchBar.value.toLowerCase()) <
       0
     ) {
-      items[i].style.display = 'none';
+      items[i].style.display = "none";
     } else {
-      items[i].style.display = 'block';
+      items[i].style.display = "block";
     }
   }
   return;
@@ -595,9 +595,9 @@ export function search(className, searchBar) {
  *  @function
  */
 export function addDialog() {
-  [].forEach.call(document.querySelectorAll('[id^=dialog]'), el => {
+  [].forEach.call(document.querySelectorAll("[id^=dialog]"), el => {
     const dialog = bundle.dialog.MDCDialog.attachTo(el);
-    document.querySelector('#activate-' + el.id).onclick = () => {
+    document.querySelector("#activate-" + el.id).onclick = () => {
       dialog.show();
     };
   });
@@ -609,28 +609,28 @@ export function addDialog() {
  */
 export function handleQuestionDelete(url) {
   // Toggle questions
-  $('.toggle-deleted-questions').click(() => {
-    $('.deleted').slideToggle();
-    $('#hide-deleted-questions').toggle();
-    $('#show-deleted-questions').toggle();
+  $(".toggle-deleted-questions").click(() => {
+    $(".deleted").slideToggle();
+    $("#hide-deleted-questions").toggle();
+    $("#show-deleted-questions").toggle();
     deletedQuestionsHidden = !deletedQuestionsHidden;
   });
 
   // Delete/undelete
-  $('[class*=delete-question]').click(event => {
+  $("[class*=delete-question]").click(event => {
     let el = event.target;
-    let pk = $(el).attr('question');
-    let posting = $.post(url, {pk: pk});
+    let pk = $(el).attr("question");
+    let posting = $.post(url, { pk: pk });
     posting.done(data => {
-      if (data['action'] == 'restore') {
-        $('.list-item-question-' + pk).removeClass('deleted');
+      if (data["action"] == "restore") {
+        $(".list-item-question-" + pk).removeClass("deleted");
       } else {
-        $('.list-item-question-' + pk).addClass('deleted');
+        $(".list-item-question-" + pk).addClass("deleted");
       }
-      $('.undelete-question-' + pk).toggle();
-      $('.delete-question-' + pk).toggle();
+      $(".undelete-question-" + pk).toggle();
+      $(".delete-question-" + pk).toggle();
       if (deletedQuestionsHidden == true) {
-        $('.list-item-question-' + pk).slideToggle('deleted');
+        $(".list-item-question-" + pk).slideToggle("deleted");
       }
     });
   });
@@ -640,28 +640,28 @@ export function handleQuestionDelete(url) {
  *  @function
  */
 export function toggleImages() {
-  [].forEach.call(document.querySelectorAll('.toggle-images'), el => {
+  [].forEach.call(document.querySelectorAll(".toggle-images"), el => {
     const toggle = bundle.iconToggle.MDCIconToggle.attachTo(el);
     if (sessionStorage.images !== undefined) {
-      if (sessionStorage.images == 'block') {
+      if (sessionStorage.images == "block") {
         toggle.on = true;
       } else {
         toggle.on = false;
       }
-      [].forEach.call(document.querySelectorAll('.question-image'), el => {
-        if (sessionStorage.images == 'block') {
-          el.style.display = 'block';
+      [].forEach.call(document.querySelectorAll(".question-image"), el => {
+        if (sessionStorage.images == "block") {
+          el.style.display = "block";
         } else {
-          el.style.display = 'none';
+          el.style.display = "none";
         }
       });
     }
-    el.addEventListener('MDCIconToggle:change', ({detail}) => {
-      [].forEach.call(document.querySelectorAll('.question-image'), el => {
+    el.addEventListener("MDCIconToggle:change", ({ detail }) => {
+      [].forEach.call(document.querySelectorAll(".question-image"), el => {
         if (detail.isOn) {
-          el.style.display = 'block';
+          el.style.display = "block";
         } else {
-          el.style.display = 'none';
+          el.style.display = "none";
         }
         sessionStorage.images = el.style.display;
       });
@@ -673,24 +673,24 @@ export function toggleImages() {
  *  @function
  */
 export function toggleAnswers() {
-  [].forEach.call(document.querySelectorAll('.toggle-answers'), el => {
+  [].forEach.call(document.querySelectorAll(".toggle-answers"), el => {
     const toggle = bundle.iconToggle.MDCIconToggle.attachTo(el);
     if (sessionStorage.answers) {
-      if (sessionStorage.answers == 'block') {
+      if (sessionStorage.answers == "block") {
         toggle.on = true;
       } else {
         toggle.on = false;
       }
-      [].forEach.call(document.querySelectorAll('.question-answers'), el => {
+      [].forEach.call(document.querySelectorAll(".question-answers"), el => {
         el.style.display = sessionStorage.answers;
       });
     }
-    el.addEventListener('MDCIconToggle:change', ({detail}) => {
-      [].forEach.call(document.querySelectorAll('.question-answers'), el => {
+    el.addEventListener("MDCIconToggle:change", ({ detail }) => {
+      [].forEach.call(document.querySelectorAll(".question-answers"), el => {
         if (detail.isOn) {
-          el.style.display = 'block';
+          el.style.display = "block";
         } else {
-          el.style.display = 'none';
+          el.style.display = "none";
         }
         sessionStorage.answers = el.style.display;
       });
@@ -702,7 +702,7 @@ export function toggleAnswers() {
  *  @function
  */
 export function bindCheckbox() {
-  [].forEach.call(document.querySelectorAll('.mdc-checkbox'), el => {
+  [].forEach.call(document.querySelectorAll(".mdc-checkbox"), el => {
     bundle.checkbox.MDCCheckbox.attachTo(el);
   });
 }
@@ -927,7 +927,7 @@ export function plotTimeSeries(el, d) {
 underlines();
 
 // Listeners
-window.addEventListener('resize', underlines);
+window.addEventListener("resize", underlines);
 
 // MDC
 autoInit();

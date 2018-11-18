@@ -1,0 +1,25 @@
+{% extends 'peerinst/base.html' %}
+
+{% load staticfiles i18n %}
+
+{% csrf_token %}
+
+{% block stylesheets %}
+<link href="{% static 'peerinst/css/student.min.css' %}" rel="stylesheet">
+{% endblock %}
+
+
+{% block scripts %}
+<script src="{% static 'peerinst/js/student.min.js' %}"></script>
+<script>
+  import {MDCRipple} from '@material/ripple';
+  new MDCRipple(document.querySelector('.mdc-button'));
+</script>
+{% endblock %}
+
+
+{% block header_menu %}
+{% include 'peerinst/student/header.html' %}
+{% endblock %}
+
+

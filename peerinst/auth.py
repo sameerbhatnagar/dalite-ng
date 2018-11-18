@@ -1,5 +1,4 @@
 import logging
-import re
 
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
@@ -11,12 +10,10 @@ from .students import (
     get_student_username_and_password,
 )
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("peerinst-auth")
 
 
 def authenticate_student(email, user_id=None):
-
-    err = None
 
     username, password = get_student_username_and_password(email)
 
@@ -52,7 +49,10 @@ def authenticate_student(email, user_id=None):
                     username=username, email=email, password=password
                 )
                 user = authenticate(username=username, password=password)
-                if user and not Teacher.objects.filter(user__email=email).exists():
+                if (
+                    user
+                    and not Teacher.objects.filter(user__email=email).exists()
+                ):
                     Student.objects.create(student=user)
             except IntegrityError as e:
                 logger.error(

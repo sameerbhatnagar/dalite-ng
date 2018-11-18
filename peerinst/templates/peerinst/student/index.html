@@ -1,0 +1,252 @@
+{% extends 'peerinst/student/base.html' %}
+
+{% load i18n %}
+
+{% block body %}
+
+<main>
+  <section id="student-page">
+
+    <h1 class="mdc-typography--display3">{% trans 'My Account' %}
+      <svg class="underline" width=150 height=4></svg>
+    </h1>
+
+    <div class="foldable foldable__unfolded">
+      <h2 class="foldable--title mdc-typography--display1 mdc-theme--secondary">
+        {% trans 'Identity' %}
+      </h2>
+      <div class="foldable--body">
+        <ul class="mdc-list mdc-list--non-interactive">
+          <li role="separator" class="mdc-list-divider"></li>
+          <li class="mdc-list-item">
+            <span class="mdc-list-item__graphic mdc-theme--primary">
+              <i class="material-icons md-48">account_circle</i>
+            </span>
+            <span class="mdc-list-item__text">
+              {{ student.student.email }}
+            </span>
+          </li>
+          <li role="separator" class="mdc-list-divider"></li>
+        </ul>
+      </div>
+    </div>
+
+    {% if notifications %}
+    <div class="foldable foldable__unfolded">
+    {% else %}
+    <div class="foldable">
+    {% endif %}
+      <h2 class="foldable--title mdc-typography--display1 mdc-theme--secondary">
+        {% trans 'Notifications' %}
+      </h2>
+      <div class="foldable--body">
+        <div id="student-page-notifications">
+          {% if notifications %}
+          <ul class="mdc-list mdc-list--non-interactive">
+            {% for notification in notifications %}
+            <a title="{{ notification.hover_text }}"
+               onclick="bundle.removeNotification(
+                 event,
+                 '{% url 'student-remove-notification' %}',
+                 '{{ notification.pk }}',
+                 '{{ notification.link }}'
+               )">
+              <li class="mdc-list-item">
+                <span class="mdc-list-item__graphic mdc-theme--primary">
+                  <i class="material-icons md-36">
+                    {{ notification.notification.icon }}
+                  </i>
+                </span>
+                <span class="mdc-list-item__text">
+                  {{ notification.text }}
+                </span>
+              </li>
+            </a>
+            {% endfor %}
+          </ul>
+          {% else %}
+          <p id="student-page-notifications--no-new">
+            No new notifications
+          </p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="foldable foldable__unfolded">
+      <h2 class="foldable--title mdc-typography--display1 mdc-theme--secondary">
+        Groups
+      </h2>
+      <div class="foldable--body">
+        <div id="student-page-add-group">
+          <span class="admin-link"
+                onclick="bundle.toggleJoinGroup()">
+            {% trans 'Add groups' %}
+          </span>
+          <div id="student-page-add-group--box"
+               style="display: none;"
+               onclick="event.stopPropagation; bundle.toggleJoinGroup()">
+              <div onclick="event.stopPropagation();">
+                <h3>Join group {{ group.title }}</h3>
+                <p>
+                  You may join any of your old groups or a new one by pasting
+                  the link in the box below.
+                </p>
+                <input type="text" 
+                       name="new-group" 
+                       value="" 
+                       placeholder="Url link"
+                       onkeyup="bundle.handleJoinGroupLinkInput(
+                        event,
+                        '{% url 'student-join-group' %}',
+                        '{{ student.student.username }}'
+                       )">
+                {% if has_old_groups %}
+                <select>
+                  {% for group in groups %}
+                  {% if not group.member_of %}
+                  <option value="{{ group.name }}">{{ group.title }}</option>
+                  {% endif %}
+                  {% endfor %}
+                </select>
+                {% endif %}
+                <button class="mdc-button mdc-button--unelevated"
+                        onclick="bundle.joinGroup(
+                          '{% url 'student-join-group' %}',
+                          '{{ student.student.username }}'
+                        )">
+                  Join
+                </button>
+                <button class="mdc-button" 
+                        onclick="bundle.toggleJoinGroup()">
+                  Cancel
+                </button>
+              </div>
+          </div>
+        </div>
+        <div id="student-page-groups" class="foldable--body">
+          {% for group in groups %}
+          {% if group.member_of %}
+          <div class="student-group">
+            <div class="student-group--title">
+              <h3>{{ group.title }}</h3>
+              <div class="student-group--notifications">
+                {% if group.notifications %}
+                <i class="material-icons md-28"
+                   onclick="bundle.toggleGroupNotifications(
+                     event,
+                     '{% url 'student-toggle-group-notifications' %}',
+                     '{{ student.student.username }}',
+                     '{{ group.name }}'
+                   )"
+                   title="Deactivate email notifications for this group">
+                  notifications
+                </i>
+                {% else %}
+                <i class="material-icons md-28 student-group--notifications__disabled"
+                   onclick="bundle.toggleGroupNotifications(
+                     event,
+                     '{% url 'student-toggle-group-notifications' %}',
+                     '{{ student.student.username }}',
+                     '{{ group.name }}'
+                   )"
+                   title="Activate email notifications for this group">
+                  notifications_off
+                </i>
+                {% endif %}
+              </div>
+              <div class="student-group--remove"
+                   title="{% trans 'Leave group' %}">
+                <i class="material-icons md-28"
+                   onclick="bundle.toggleLeaveGroup(event)">
+                  close
+                </i>
+                <div class="student-group--remove-confirmation-box" 
+                     style="display: none;"
+                     onclick="event.stopPropagation; bundle.toggleLeaveGroup(event)">
+                  <div onclick="event.stopPropagation();">
+                    <h3>Leave group {{ group.title }}</h3>
+                    <p>
+                      This will remove you from the group. All your answers will be
+                      saved, but you won't appear as a member of the group to your
+                      teacher.
+                    </p>
+                    <p>
+                      Are you sure?
+                    </p>
+                    <button class="mdc-button mdc-button--unelevated"
+                            onclick="bundle.leaveGroup(
+                              event,
+                              '{% url 'student-leave-group' %}',
+                              '{{ student.student.username }}',
+                              '{{ group.name }}'
+                            )">
+                      Remove
+                    </button>
+                    <button class="mdc-button" 
+                            onclick="bundle.toggleLeaveGroup(event)">
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="student-group--assignments">
+              {% if group.assignments %}
+              {% else %}
+              No assignments yet
+              {% endif %}
+              <ul>
+                {% for assignment in group.assignments %}
+                <a href="{{ assignment.link }}">
+                  {% if assignment.results.n_second_answered == assignment.results.n %}
+                  <li class="student-group--assignment student-group--assignment-complete">
+                  {% else %}
+                  <li class="student-group--assignment">
+                  {% endif %}
+                    {% if assignment.done %}
+                    <span class="student-group--assignment-icon"
+                          title="{% trans 'Go to assignment' %}">
+                      <i class="material-icons md-28">assignment_turned_in</i>
+                    </span>
+                    {% elif not assignment.done and almost_expired %}
+                    <span class="student-group--assignment-icon"
+                          title="This assignment is about to expire">
+                      <i class="material-icons md-28">assignment_late</i>
+                    </span>
+                    {% else %}
+                    <span class="student-group--assignment-icon"
+                          title="{% trans 'Go to assignment' %}">
+                      <i class="material-icons md-28">assignment</i>
+                    </span>
+                    {% endif %}
+                    <span class="student-group--assignment-questions"
+                          title="{% trans 'Number of questions completed' %}">
+                      <span>{{ assignment.results.n_second_answered }}</span>
+                      <span>/</span>
+                      <span>{{ assignment.results.n }}</span>
+                    </span>
+                    <span class="student-group--assignment-title"
+                          title="{% trans 'Go to assignment' %}">
+                      {{ assignment.title }}
+                    </span>
+                    <span class="student-group--assignment-date"
+                          title="{% trans 'Due date' %}">
+                      {{ assignment.due_date|date:"Y-m-d H:i" }}
+                    </span>
+                  </li>
+                </a>
+                {% endfor %}
+              </ul>
+            </div>
+          </div>
+          {% endif %}
+          {% endfor %} 
+        </div>
+      </div>
+    </div>
+
+  </section>
+</main>
+
+{% endblock %}

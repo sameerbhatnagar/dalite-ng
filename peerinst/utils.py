@@ -22,7 +22,7 @@ def create_token(payload, exp=timedelta(weeks=16)):
     )
 
     output = base64.urlsafe_b64encode(
-        jwt.encode(payload_, key).encode()
+        jwt.encode(payload_, key, algorithm="HS256").encode()
     ).decode()
 
     assert isinstance(output, basestring), "Postcondition failed"
@@ -41,6 +41,7 @@ def verify_token(token):
             base64.urlsafe_b64decode(token.encode()).decode(),
             key,
             audience="dalite",
+            algorithms="HS256",
         )
     except KeyError:
         err = "Token was incorrectly created."

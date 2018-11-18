@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 from operator import add
-from functools import reduce
 
 # Backport of django 1.9 password validation
 import password_validation.views as password_views
@@ -25,7 +24,7 @@ def not_authenticated(user):
 def old_patterns():
     return [
         # DALITE
-        # Assignment table of contents - Enforce sameorigin to prevent access from LMS
+        # Assignment table of contents - Enforce sameorigin to prevent access from LMS  # noqa
         url(
             r"^browse/$",
             xframe_options_sameorigin(views.browse_database),
@@ -122,12 +121,12 @@ def old_patterns():
         url(r"^heartbeat/$", views.HeartBeatUrl.as_view(), name="heartbeat"),
         # Standalone
         url(
-            r"^live/access/(?P<token>[0-9A-Za-z=_-]+)/(?P<assignment_hash>[0-9A-Za-z=_-]+)$",
+            r"^live/access/(?P<token>[0-9A-Za-z=_-]+)/(?P<assignment_hash>[0-9A-Za-z=_-]+)$",  # noqa
             views.live,
             name="live",
         ),
         url(
-            r"^live/navigate/(?P<assignment_id>[^/]+)/(?P<question_id>\d+)/(?P<direction>(next|prev|goto))/(?P<index>[0-9x]+)$",
+            r"^live/navigate/(?P<assignment_id>[^/]+)/(?P<question_id>\d+)/(?P<direction>(next|prev|goto))/(?P<index>[0-9x]+)$",  # noqa
             views.navigate_assignment,
             name="navigate-assignment",
         ),
@@ -137,7 +136,7 @@ def old_patterns():
             name="signup-through-link",
         ),
         url(
-            r"^live/signup/confirm/(?P<group_hash>[0-9A-Za-z=_-]+)/(?P<token>[0-9A-Za-z=_-]+)$",
+            r"^live/signup/confirm/(?P<group_hash>[0-9A-Za-z=_-]+)/(?P<token>[0-9A-Za-z=_-]+)$",  # noqa  # noqa
             views.confirm_signup_through_link,
             name="confirm-signup-through-link",
         ),
@@ -163,12 +162,12 @@ def old_patterns():
                             [
                                 url(
                                     r"^$",
-                                    admin_views.AssignmentResultsView.as_view(),
+                                    admin_views.AssignmentResultsView.as_view(),  # noqa
                                     name="assignment-results",
                                 ),
                                 url(
                                     r"^rationales/(?P<question_id>\d+)$",
-                                    admin_views.QuestionRationaleView.as_view(),
+                                    admin_views.QuestionRationaleView.as_view(),  # noqa
                                     name="question-rationales",
                                 ),
                             ]
@@ -224,7 +223,8 @@ def old_patterns():
             name="teacher-blinks",
         ),
         url(
-            r"^teacher/favourite", views.teacher_toggle_favourite,
+            r"^teacher/favourite",
+            views.teacher_toggle_favourite,
             name="teacher-toggle-favourite",
         ),
         url(
@@ -233,7 +233,7 @@ def old_patterns():
             name="teacher-groups",
         ),
         url(
-            r"^teacher/(?P<pk>[0-9]+)/group/(?P<group_hash>[0-9A-Za-z=_-]+)/share$",
+            r"^teacher/(?P<pk>[0-9]+)/group/(?P<group_hash>[0-9A-Za-z=_-]+)/share$",  # noqa
             views.TeacherGroupShare.as_view(),
             name="group-share",
         ),
@@ -268,7 +268,6 @@ def old_patterns():
             views.report_assignment_aggregates,
             name="report_rationales_chosen",
         ),
-        # url(r'^assignment_results/(?P<assignment_id>[^/]+)/(?P<student_group_id>[^/]+)/', views.AssignmentByGroupResultsView.as_view(), name='assignment-group-results'),
         # Auth
         url(r"^$", views.landing_page, name="landing_page"),
         url(r"^signup/$", views.sign_up, name="sign_up"),
@@ -296,7 +295,7 @@ def old_patterns():
             r"^password_reset/$",
             auth_views.password_reset,
             {
-                "html_email_template_name": "registration/password_reset_email_html.html",
+                "html_email_template_name": "registration/password_reset_email_html.html",  # noqa
                 "password_reset_form": NonStudentPasswordResetForm,
             },
             name="password_reset",
@@ -307,7 +306,7 @@ def old_patterns():
             name="password_reset_done",
         ),
         url(
-            r"^reset/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$",
+            r"^reset/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$",  # noqa
             password_views.password_reset_confirm,
             name="password_reset_confirm",
         ),
@@ -449,7 +448,7 @@ def group_patterns():
             name="send-student-assignment",
         ),
         url(
-            r"^group-assignment/(?P<assignment_hash>[0-9A-Za-z=_-]+)/student-progress/$",
+            r"^group-assignment/(?P<assignment_hash>[0-9A-Za-z=_-]+)/student-progress/$",  # noqa
             views.get_assignment_student_progress,
             name="get-assignment-student-progress",
         ),
@@ -461,30 +460,45 @@ def group_patterns():
     ]
 
 
-def auth_patterns():
-    return [
-        url(
-            r"^student-login/$", views.student_login_page, name="student-login"
-        ),
-        url(
-            r"^student-login-confirm/$",
-            views.student_send_signin_link,
-            name="student-send-signin-link",
-        ),
-    ]
-
-
 def student_patterns():
     return [
         url(
             r"^assignment-complete/$",
             views.finish_assignment,
             name="finish-assignment",
-        )
+        ),
+        url(r"^student/$", views.student.index_page, name="student-page"),
+        url(
+            r"^student/join-group/$",
+            views.student.join_group,
+            name="student-join-group",
+        ),
+        url(
+            r"^student/leave-group/$",
+            views.student.leave_group,
+            name="student-leave-group",
+        ),
+        url(
+            r"^student/toggle-group-notifications/$",
+            views.student.toggle_group_notifications,
+            name="student-toggle-group-notifications",
+        ),
+        url(
+            r"^student/login/$", views.student.login_page, name="student-login"
+        ),
+        url(
+            r"^student/login-confirm/$",
+            views.student.send_signin_link,
+            name="student-send-signin-link",
+        ),
+        url(
+            r"^student/remove-notification/$",
+            views.student.remove_notification,
+            name="student-remove-notification",
+        ),
     ]
 
 
 urlpatterns = reduce(
-    add,
-    [old_patterns(), group_patterns(), auth_patterns(), student_patterns()],
+    add, [old_patterns(), group_patterns(), student_patterns()]
 )

@@ -1,0 +1,42 @@
+{% extends 'peerinst/student/emails/base.html' %}
+
+{% load i18n %}
+
+{% block body %}
+
+<h1>{% trans 'Assignment {{ assignment }} for group {{ group }} changed' %}</h1>
+
+<p>{% trans "Use the buttons below to go to the new assignment or to your student page." %}</p>
+
+<p style="text-align: center; margin: 50px 0;">
+  <a class="email-btn" 
+     href="{{ assignment_link }}"
+     target="_blank">
+    {% trans 'Go to assignment' %}
+  </a>
+  <a class="email-btn" 
+     href="{{ signin_link }}"
+     target="_blank">
+    {% trans 'Go to student page' %}
+  </a>
+</p>
+
+<p>
+  {% trans "If the buttons above don't work, paste one of these links into your web browser:" %}
+</p>
+<p>
+  Go to assignment:
+  <br/>
+  <a href="{{ assignment_link }}" target="_blank">
+    {{ assignment_link }}
+  </a>
+</p>
+<p>
+  Go to student page:
+  <br/>
+  <a href="{{ signin_link }}" target="_blank">
+    {{ signin_link }}
+  </a>
+</p>
+
+{% endblock %}

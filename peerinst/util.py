@@ -412,8 +412,65 @@ def get_correct_answer_choices(question):
 
 def report_data_by_assignment(assignment_list, student_groups):
     """
-    given a list of assignment identifiers,
-    return serialized data for report by assignment
+    Returns data for report by assignment
+
+    Parameters
+    ----------
+    assignment_list : List[Assignment]
+        Wanted assignments
+    student_groups : List[int]
+        Primary keys for wanted student groups
+
+    Returns
+    -------
+    [
+        {
+            "assignment" : str
+                title of the assignment,
+            "transitions" : List[]
+            "questions" : [
+                {
+                    "answer_choices" : List[str]
+                        objects representing answer choices
+                    "question_image" : ImageFieldFile
+                        object representing an image for the question
+                    "title" : str
+                        title of the question,
+                    "text" : str
+                        text of the question
+                    "student_responses" : List
+                    "num_responses" : int
+                        number of student responses
+                    "transitions" : [
+                    {
+                        "data": List[]
+                        "label" : str
+                    }
+                    ],
+                    "confusion_matrix" : [
+                        {
+                        "first_answer_choice" : int
+                            index of the answer choice (starting at 1)
+                        "second_answer_choice" : {
+                            "value" : int
+                                index of the answer choice (starting at 1)
+                            "N" : int
+                                number of answers with that choice
+                            }
+                        }
+                    ]
+                    "answer_distributions" [
+                        {
+                            "data" : List[]
+                            "label" : str
+                                Label of what the data corresponds to (question
+                                index)
+                        }
+                    ]
+                }
+            ],
+        }
+    ]
     """
     student_obj_qs = get_student_objects_from_group_list(student_groups)
     answer_qs = subset_answers_by_studentgroup_and_assignment(
