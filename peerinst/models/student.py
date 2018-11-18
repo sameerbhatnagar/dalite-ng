@@ -99,8 +99,9 @@ class Student(models.Model):
         ----------
         mail_type : str
             Type of mail to send. One of:
-                "new_assignment"
-                "assignment_updated"
+                "signin"
+                "confirmation"
+                "new_group"
 
         Returns
         -------
@@ -361,6 +362,7 @@ class StudentAssignment(models.Model):
             Type of mail to send. One of:
                 "new_assignment"
                 "assignment_updated"
+                "assignment_about_to_expire"
 
         Returns
         -------
