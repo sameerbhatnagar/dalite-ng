@@ -369,9 +369,9 @@ def toggle_group_notifications(req):
         student=student, group=group
     )
 
-    notifications = not membership.sending_email
+    notifications = not membership.send_emails
 
-    membership.sending_email = notifications
+    membership.send_emails = notifications
     membership.save()
 
     return JsonResponse({"notifications": notifications})
