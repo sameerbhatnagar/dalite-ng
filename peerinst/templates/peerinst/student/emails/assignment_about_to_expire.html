@@ -9,9 +9,13 @@
   {{ assignment }}
   {% trans ' for group ' %}
   {{ group }}
-  {% trans ' expires in ' %}
-  {{ days_to_expiry }}
-  {% trans ' days' %}
+  {% if days_to_expiry %}
+    {% trans ' expires in ' %}
+    {{ days_to_expiry }}
+    {% trans ' days' %}
+  {% else %}
+    {% trans ' expires today' %}
+  {% endif %}
 </h1>
 
 <p>{% trans "Use the buttons below to go to the new assignment or to your student page." %}</p>

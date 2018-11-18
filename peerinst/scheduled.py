@@ -30,17 +30,18 @@ def verify_assignment_due_dates(check_every=1):
     assert isinstance(
         check_every, (int, float)
     ), "Precondition failed for `check_every`"
-    for assignment in StudentGroupAssignment.objects.all():
-        assignment.check_reminder_status()
-
-    next_check = datetime.now() + timedelta(days=check_every)
-    if round(check_every) == check_every:
-        next_check.replace(hour=0, minute=0, second=0, microsecond=0)
-    else:
-        next_check.replace(minute=0, second=0, microsecond=0)
-
-    timer = threading.Timer(
-        (next_check - datetime.now()).seconds, verify_assignment_due_dates
-    )
-    timer.setDaemon(True)
-    timer.start()
+    #  for assignment in StudentGroupAssignment.objects.all():
+    #  assignment.check_reminder_status()
+    #
+    #  next_check = datetime.now() + timedelta(days=check_every)
+    #  if round(check_every) == check_every:
+    #  next_check.replace(hour=0, minute=0, second=0, microsecond=0)
+    #  else:
+    #  next_check.replace(minute=0, second=0, microsecond=0)
+    #
+    #  timer = threading.Timer(
+    #  (next_check - datetime.now()).seconds, verify_assignment_due_dates
+    #  )
+    #  timer.setDaemon(True)
+    #  timer.start()
+    pass

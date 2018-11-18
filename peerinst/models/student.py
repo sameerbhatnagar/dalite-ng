@@ -449,11 +449,18 @@ class StudentAssignment(models.Model):
                     )
 
                 elif mail_type == "assignment_about_to_expire":
-                    subject = "Assignment {} for ".format(
-                        self.group_assignment.assignment.title
-                    ) + "group {} expires in {} days".format(
-                        self.group_assignment.group.title, days_to_expiry
-                    )
+                    if days_to_expiry:
+                        subject = "Assignment {} for ".format(
+                            self.group_assignment.assignment.title
+                        ) + "group {} expires in {} days".format(
+                            self.group_assignment.group.title, days_to_expiry
+                        )
+                    else:
+                        subject = "Assignment {} for ".format(
+                            self.group_assignment.assignment.title
+                        ) + "group {} expires today".format(
+                            self.group_assignment.group.title
+                        )
                     message = (
                         "Use one of the links below to access your "
                         "assignment or go to your student page."
