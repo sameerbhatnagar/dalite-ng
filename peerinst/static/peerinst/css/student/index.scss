@@ -301,3 +301,12 @@
     }
   }
 }
+
+@media (max-width: 450px) {
+  .mdc-list-item__text {
+    max-width: 100%;
+  }
+  .mdc-list-item__meta {
+    visibility: hidden;
+  }
+}

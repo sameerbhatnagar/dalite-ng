@@ -91,7 +91,7 @@
 
     <div class="foldable foldable__unfolded">
       <h2 class="foldable--title mdc-typography--display1 mdc-theme--secondary">
-        Groups
+        {% trans 'Groups' %}
       </h2>
       <div class="foldable--body">
         <div id="student-page-add-group">
@@ -105,8 +105,8 @@
               <div onclick="event.stopPropagation();">
                 <h3>Join group {{ group.title }}</h3>
                 <p>
-                  You may join any of your old groups or a new one by pasting
-                  the link in the box below.
+                  {% trans 'You may join any of your old groups or a new one by pasting
+                  the link in the box below.' %}
                 </p>
                 <input type="text"
                        name="new-group"
@@ -131,11 +131,11 @@
                           '{% url 'student-join-group' %}',
                           '{{ student.student.username }}'
                         )">
-                  Join
+                  {% trans 'Join' %}
                 </button>
                 <button class="mdc-button"
                         onclick="bundle.toggleJoinGroup()">
-                  Cancel
+                  {% trans 'Cancel' %}
                 </button>
               </div>
           </div>
@@ -155,7 +155,7 @@
                      '{{ student.student.username }}',
                      '{{ group.name }}'
                    )"
-                   title="Deactivate email reminders for this group">
+                   title="{% trans 'Toggle email reminders for this group' %}">
                   notifications
                 </i>
                 {% else %}
@@ -166,7 +166,7 @@
                      '{{ student.student.username }}',
                      '{{ group.name }}'
                    )"
-                   title="Activate email reminders for this group">
+                   title="{% trans 'Toggle email reminders for this group' %}">
                   notifications_off
                 </i>
                 {% endif %}
@@ -183,12 +183,12 @@
                   <div onclick="event.stopPropagation();">
                     <h3>Leave group {{ group.title }}</h3>
                     <p>
-                      This will remove you from the group. All your answers will be
+                      {% trans 'This will remove you from the group. All your answers will be
                       saved, but you won't appear as a member of the group to your
-                      teacher.
+                      teacher.' %}
                     </p>
                     <p>
-                      Are you sure?
+                      {% trans 'Are you sure?' %}
                     </p>
                     <button class="mdc-button mdc-button--unelevated"
                             onclick="bundle.leaveGroup(
@@ -197,11 +197,11 @@
                               '{{ student.student.username }}',
                               '{{ group.name }}'
                             )">
-                      Remove
+                      {% trans 'Remove' %}
                     </button>
                     <button class="mdc-button"
                             onclick="bundle.toggleLeaveGroup(event)">
-                      Cancel
+                      {% trans 'Cancel' %}
                     </button>
                   </div>
                 </div>
@@ -227,7 +227,7 @@
                     </span>
                     {% elif not assignment.done and almost_expired %}
                     <span class="student-group--assignment-icon"
-                          title="This assignment is about to expire">
+                          title="{% trans 'This assignment is about to expire' %}">
                       <i class="material-icons md-28">assignment_late</i>
                     </span>
                     {% else %}
