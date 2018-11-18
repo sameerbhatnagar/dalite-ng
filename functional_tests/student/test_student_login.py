@@ -5,7 +5,7 @@ from peerinst.students import (
     create_student_token,
     get_student_username_and_password,
 )
-from .fixtures import *  # noqa F403
+from functional_tests.fixtures import *  # noqa F403
 
 
 def test_fake_link(browser):

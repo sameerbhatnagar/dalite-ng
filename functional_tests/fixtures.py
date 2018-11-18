@@ -5,8 +5,10 @@ from selenium import webdriver
 from peerinst.tests.generators import (
     add_groups,
     add_students,
+    add_teachers,
     new_groups,
     new_students,
+    new_teachers,
 )
 
 
@@ -26,6 +28,14 @@ def student():
     student.student.is_active = True
     student.student.save()
     return student
+
+
+@pytest.fixture
+def teacher():
+    teacher = add_teachers(new_teachers(1))[0]
+    teacher.user.is_active = True
+    teacher.save()
+    return teacher
 
 
 @pytest.fixture

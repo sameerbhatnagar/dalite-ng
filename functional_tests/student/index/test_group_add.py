@@ -1,4 +1,4 @@
-from ..fixtures import *  # noqa F403
+from functional_tests.fixtures import *  # noqa F403
 from django.core.urlresolvers import reverse
 from peerinst.students import create_student_token
 
