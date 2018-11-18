@@ -117,7 +117,7 @@
   <script>
   if (document.querySelector('.mdc-drawer--temporary')){
     var drawer = new bundle.drawer.MDCTemporaryDrawer(document.querySelector('.mdc-drawer--temporary'));
-    document.querySelector('.ion-md-menu').addEventListener('click', function() {
+    document.querySelector('#menu-icon').addEventListener('click', function() {
       drawer.open = true;
     });
   }
