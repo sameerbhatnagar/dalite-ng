@@ -109,7 +109,7 @@
   & .student-group {
     margin-right: 25px;
     margin-bottom: 25px;
-    min-width: 300px;
+    width: 100%;
     position: relative;
     font-family: $mdc-typography-font-family;
 
@@ -141,7 +141,7 @@
         border-radius: 15px;
 
         & i {
-          color: darken($mdc-theme-primary, 40%);
+          color: white;
           padding: 4px;
           border-radius: 15px;
           transition: background 300ms;
@@ -167,7 +167,7 @@
         border-radius: 15px;
 
         & i {
-          color: #cc0000;
+          color: white;
           padding: 4px;
           border-radius: 15px;
           transition: background 300ms;
@@ -277,7 +277,6 @@
 
         & .student-group--assignment-title {
           padding-left: 120px;
-          padding-right: 170px;
           height: 100%;
           line-height: 32px;
           font-size: 18px;
@@ -299,5 +298,23 @@
         opacity: 0.7;
       }
     }
+  }
+}
+
+.blinking {
+  animation: 1s ease-in-out infinite alternate blink;
+}
+
+@keyframes blink {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+@media (max-width: 450px) {
+  .mdc-list-item__text {
+    max-width: 100%;
+  }
+  .mdc-list-item__meta {
+    visibility: hidden;
   }
 }

@@ -2,7 +2,7 @@
 
 {% if request.session.LTI %}
 
-<a href="{% url 'tos:tos_modify' 'student' %}?next={{ request.path }}" 
+<a href="{% url 'tos:tos_modify' 'student' %}?next={{ request.path }}"
    title="{% trans 'Terms of Service' %}">
   <i class="icon ion-md-settings"></i>
 </a>
@@ -28,6 +28,14 @@
           account_circle
         </i>
         {% trans 'My account' %}
+      </a>
+
+      <a class="mdc-list-item" href="{% url 'tos:tos_modify' 'student' %}?next={{ request.path }}">
+        <i class="material-icons mdc-list-item__graphic mdc-theme--primary"
+           aria-hidden="true">
+          settings
+        </i>
+        {% trans 'Terms of service' %}
       </a>
 
       <a class="mdc-list-item" href="{% url 'logout' %}">

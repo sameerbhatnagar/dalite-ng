@@ -263,6 +263,7 @@ class StudentGroupAssignment(models.Model):
         err : Optional[str]
             Error message if there is any
         """
+        name=str(name)
         assert isinstance(name, str), "Precondtion failed for `name`"
         err = None
         if name == "due_date":
