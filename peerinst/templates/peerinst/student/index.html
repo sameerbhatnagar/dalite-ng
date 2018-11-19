@@ -103,7 +103,7 @@
                style="display: none;"
                onclick="event.stopPropagation; bundle.toggleJoinGroup()">
               <div onclick="event.stopPropagation();">
-                <h3>Join group {{ group.title }}</h3>
+                <h3>{% trans 'Join group' %} {{ group.title }}</h3>
                 <p>
                   {% blocktrans %}
                   You may join any of your old groups or a new one by pasting
@@ -177,7 +177,7 @@
                    title="{% trans 'Leave group' %}">
                 <i class="material-icons md-28"
                    onclick="bundle.toggleLeaveGroup(event)">
-                  close
+                  remove_circle_outline
                 </i>
                 <div class="student-group--remove-confirmation-box"
                      style="display: none;"

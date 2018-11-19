@@ -277,7 +277,6 @@
 
         & .student-group--assignment-title {
           padding-left: 120px;
-          padding-right: 170px;
           height: 100%;
           line-height: 32px;
           font-size: 18px;
@@ -300,6 +299,15 @@
       }
     }
   }
+}
+
+.blinking {
+  animation: 1s ease-in-out infinite alternate blink;
+}
+
+@keyframes blink {
+  from { opacity: 1; }
+  to   { opacity: 0; }
 }
 
 @media (max-width: 450px) {
