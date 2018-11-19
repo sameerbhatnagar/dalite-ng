@@ -105,8 +105,10 @@
               <div onclick="event.stopPropagation();">
                 <h3>Join group {{ group.title }}</h3>
                 <p>
-                  {% trans 'You may join any of your old groups or a new one by pasting
-                  the link in the box below.' %}
+                  {% blocktrans %}
+                  You may join any of your old groups or a new one by pasting
+                  the link in the box below.
+                  {% endblocktrans %}
                 </p>
                 <input type="text"
                        name="new-group"
@@ -183,9 +185,11 @@
                   <div onclick="event.stopPropagation();">
                     <h3>Leave group {{ group.title }}</h3>
                     <p>
-                      {% trans 'This will remove you from the group. All your answers will be
+                      {% blocktrans %}
+                      This will remove you from the group. All your answers will be
                       saved, but you won't appear as a member of the group to your
-                      teacher.' %}
+                      teacher.
+                      {% endblocktrans %}
                     </p>
                     <p>
                       {% trans 'Are you sure?' %}
@@ -210,7 +214,7 @@
             <div class="student-group--assignments">
               {% if group.assignments %}
               {% else %}
-              No assignments yet
+              {% trans 'No assignments yet' %}
               {% endif %}
               <ul>
                 {% for assignment in group.assignments %}
@@ -225,7 +229,7 @@
                           title="{% trans 'Go to assignment' %}">
                       <i class="material-icons md-28">assignment_turned_in</i>
                     </span>
-                    {% elif not assignment.done and almost_expired %}
+                    {% elif not assignment.done and assignment.almost_expired %}
                     <span class="student-group--assignment-icon"
                           title="{% trans 'This assignment is about to expire' %}">
                       <i class="material-icons md-28">assignment_late</i>
@@ -246,10 +250,22 @@
                           title="{% trans 'Go to assignment' %}">
                       {{ assignment.title }}
                     </span>
+                    {% if not assignment.expired and assignment.almost_expired %}
                     <span class="student-group--assignment-date"
-                          title="{% trans 'Due date' %}">
-                      {{ assignment.due_date|date:"Y-m-d H:i" }}
+                          title="{% trans 'Time remaining' %}">
+                      <i class="material-icons md-18 blinking" style="vertical-align:middle;">access_time</i> {{ assignment.due_date|timeuntil }}
                     </span>
+                    {% elif not assignment.expired %}
+                    <span class="student-group--assignment-date"
+                          title="{% trans 'Time remaining' %}">
+                      <i class="material-icons md-18" style="vertical-align:middle;">access_time</i> {{ assignment.due_date|timeuntil }}
+                    </span>
+                    {% else %}
+                    <span class="student-group--assignment-date"
+                          title="{% trans 'Past due date' %}">
+                      {% trans 'Expired' %}
+                    </span>
+                    {% endif %}
                   </li>
                 </a>
                 {% endfor %}

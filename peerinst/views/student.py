@@ -269,6 +269,7 @@ def index_page(req):
         group: [
             {
                 "title": assignment.group_assignment.assignment.title,
+                "expired": assignment.group_assignment.expired,
                 "due_date": assignment.group_assignment.due_date,
                 "link": "{}://{}{}".format(
                     protocol,
@@ -294,6 +295,7 @@ def index_page(req):
         group: [
             {
                 "title": assignment["title"],
+                "expired": assignment["expired"],
                 "due_date": assignment["due_date"],
                 "link": assignment["link"],
                 "results": assignment["results"],
