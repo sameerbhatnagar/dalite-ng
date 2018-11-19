@@ -263,7 +263,7 @@ class StudentGroupAssignment(models.Model):
         err : Optional[str]
             Error message if there is any
         """
-        name=str(name)
+        name = str(name)
         assert isinstance(name, str), "Precondtion failed for `name`"
         err = None
         if name == "due_date":
@@ -472,4 +472,4 @@ class StudentGroupAssignment(models.Model):
 
     @property
     def days_to_expiry(self):
-        return max(datetime.now(pytz.utc) - self.due_date, timedelta()).days
+        return max(self.due_date - datetime.now(pytz.utc), timedelta()).days
