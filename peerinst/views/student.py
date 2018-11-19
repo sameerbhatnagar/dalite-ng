@@ -16,6 +16,7 @@ from django.http import (
     HttpResponse,
     HttpResponseBadRequest,
     HttpResponseForbidden,
+    HttpResponseRedirect,
     JsonResponse,
 )
 from django.shortcuts import render
@@ -311,10 +312,18 @@ def index_page(req):
         for group, assignments in assignments.items()
     }
 
+    if not Consent.objects.filter(
+        user=student.student, tos__role="student"
+    ).exists():
+        return HttpResponseRedirect(
+            reverse("tos:tos_consent", kwargs={"role": "student"})
+            + "?next="
+            + req.path
+        )
+
     latest_student_consent = (
         Consent.objects.filter(
-            user__username=student.student.username,
-            tos__role="student",
+            user__username=student.student.username, tos__role="student"
         )
         .order_by("-datetime")
         .first()
@@ -335,9 +344,7 @@ def index_page(req):
         ],
         "has_old_groups": not all(map(attrgetter("current_member"), groups)),
         "notifications": student.notifications,
-        "tos_accepted": bool(
-            Consent.get(student.student.username, "student")
-        ),
+        "tos_accepted": bool(Consent.get(student.student.username, "student")),
         "tos_timestamp": latest_student_consent.datetime,
     }
 

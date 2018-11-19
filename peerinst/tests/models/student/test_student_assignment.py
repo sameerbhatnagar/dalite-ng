@@ -1,4 +1,6 @@
 import random
+from datetime import datetime, timedelta
+import pytz
 
 from django.core import mail
 
@@ -65,6 +67,10 @@ def test_send_email__assignment_updated_with_localhost(student_assignment):
 
 
 def test_send_email__assignment_about_to_expire(student_assignment):
+    student_assignment.group_assignment.due_date = datetime.now(
+        pytz.utc
+    ) + timedelta(days=2)
+    student_assignment.group_assignment.save()
     err = student_assignment.send_email(mail_type="assignment_about_to_expire")
 
     assert err is None
@@ -72,6 +78,24 @@ def test_send_email__assignment_about_to_expire(student_assignment):
     assert mail.outbox[
         0
     ].subject == "Assignment {} for group {} expires in {} days".format(
+        student_assignment.group_assignment.assignment.title,
+        student_assignment.group_assignment.group.title,
+        student_assignment.group_assignment.days_to_expiry,
+    )
+
+
+def test_send_email__assignment_about_to_expire_in_0_days(student_assignment):
+    student_assignment.group_assignment.due_date = datetime.now(
+        pytz.utc
+    ) + timedelta(hours=12)
+    student_assignment.group_assignment.save()
+    err = student_assignment.send_email(mail_type="assignment_about_to_expire")
+
+    assert err is None
+    assert len(mail.outbox) == 1
+    assert mail.outbox[
+        0
+    ].subject == "Assignment {} for group {} expires today".format(
         student_assignment.group_assignment.assignment.title,
         student_assignment.group_assignment.group.title,
         student_assignment.group_assignment.days_to_expiry,
