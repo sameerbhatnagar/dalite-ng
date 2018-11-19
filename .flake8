@@ -1,3 +1,4 @@
 [flake8]
 ignore = E203 \  # whitespace before ':'
-         W503    # linebreak before binary operator
+         W503 \  # linebreak before binary operator
+         F811    # redefining unused variable (thrown with pytest)

@@ -1,8 +1,6 @@
 import json
-import pytest
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
-from django.test.client import Client
 
 from peerinst.students import (
     create_student_token,
@@ -10,41 +8,7 @@ from peerinst.students import (
 )
 
 from peerinst.models import Student, StudentGroupMembership
-from peerinst.tests.generators import (
-    add_groups,
-    add_students,
-    add_users,
-    new_groups,
-    new_students,
-    new_users,
-)
-
-
-@pytest.fixture
-def client():
-    return Client()
-
-
-@pytest.fixture
-def student():
-    _student = add_students(new_students(1))[0]
-    _student.student.is_active = True
-    _student.student.save()
-    return _student
-
-
-@pytest.fixture
-def students():
-    _students = add_students(new_students(2))
-    for student in _students:
-        student.student.is_active = True
-        student.student.save()
-    return _students
-
-
-@pytest.fixture
-def group():
-    return add_groups(new_groups(1))[0]
+from peerinst.tests.fixtures import *  # noqa
 
 
 def test_index_fail_on_no_logged_in_and_no_token(client):
@@ -57,10 +21,8 @@ def test_index_fail_on_no_logged_in_and_no_token(client):
     )
 
 
-def test_index_fail_on_logged_in_not_student(client):
-    user = new_users(1)[0]
-    add_users([user])
-    assert client.login(username=user["username"], password=user["password"])
+def test_index_fail_on_logged_in_not_student(client, user):
+    assert client.login(username=user.username, password="test")
 
     resp = client.get(reverse("student-page"))
     assert resp.status_code == 403
@@ -184,8 +146,7 @@ def test_leave_group_wrong_data(client, student, group):
     assert "There are missing parameters." in resp.content
 
 
-def test_leave_group_student_doesnt_exist(client, group):
-    user = add_users(new_users(1))[0]
+def test_leave_group_student_doesnt_exist(client, group, user):
     data = {"username": user.username, "group_name": group.name}
     resp = client.post(
         reverse("student-leave-group"),
