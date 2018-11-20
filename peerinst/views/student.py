@@ -313,7 +313,7 @@ def index_page(req):
     }
 
     if not Consent.objects.filter(
-        user=student.student, tos__role="student"
+        user=student.student, tos__role__role="student"
     ).exists():
         return HttpResponseRedirect(
             reverse("tos:tos_consent", kwargs={"role": "student"})
