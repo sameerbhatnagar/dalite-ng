@@ -359,12 +359,7 @@ def join_group(req):
     else:
         student, group = result
 
-    student.join_group(group)
-    print(
-        StudentGroupMembership.objects.filter(student=student, group=group)[
-            0
-        ].current_member
-    )
+    student.join_group(group, mail_type="new_group")
 
     return HttpResponse()
 

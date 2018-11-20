@@ -81,9 +81,9 @@ def signup_through_link(request, group_hash):
             return HttpResponseBadRequest(resp.render())
 
         if created:
-            student.send_email(mail_type="confirmation", group=group)
+            student.join_group(group, mail_type="confirmation")
         else:
-            student.send_email(mail_type="new_group", group=group)
+            student.join_group(group, mail_type="new_group")
 
         return TemplateResponse(
             request,

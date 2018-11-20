@@ -130,30 +130,48 @@ def test_send_email__no_email(student):
     assert not mail.outbox
 
 
-def test_send_missing_assignments(student, group_assignment):
-    student.join_group(group_assignment.group)
-
-    assert not StudentAssignment.objects.filter(
-        student=student, group_assignment=group_assignment
-    ).exists()
-
-    student.send_missing_assignments(
-        group=group_assignment.group, host="localhost"
-    )
-
-    assert StudentAssignment.objects.filter(
-        student=student, group_assignment=group_assignment
-    ).exists()
-
-    assert len(mail.outbox) == 1
-
-
 def test_join_group(student, group):
     student.join_group(group)
 
     assert group in student.student_groups.all()
     assert group in student.current_groups
     assert group not in student.old_groups
+    assert not mail.outbox
+
+
+def test_join_group_mail_new_group(student, group):
+    student.join_group(group, mail_type="new_group")
+
+    assert group in student.student_groups.all()
+    assert group in student.current_groups
+    assert group not in student.old_groups
+    assert len(mail.outbox) == 1
+
+
+def test_join_group_mail_confirmation(student, group):
+    student.join_group(group, mail_type="confirmation")
+
+    assert group in student.student_groups.all()
+    assert group in student.current_groups
+    assert group not in student.old_groups
+    assert len(mail.outbox) == 1
+
+
+def test_join_group_existing_assignments(student, group_assignment):
+    assert not StudentAssignment.objects.filter(
+        student=student, group_assignment=group_assignment
+    ).exists()
+
+    student.join_group(group_assignment.group)
+
+    assert group_assignment.group in student.student_groups.all()
+    assert group_assignment.group in student.current_groups
+    assert group_assignment.group not in student.old_groups
+
+    assert StudentAssignment.objects.filter(
+        student=student, group_assignment=group_assignment
+    ).exists()
+    assert not mail.outbox
 
 
 def test_leave_group(student, group):
@@ -180,12 +198,12 @@ def test_leave_group__doesnt_exist(student, group):
 def test_add_assignment(student, group_assignment):
     student.join_group(group_assignment.group)
 
-    assert not StudentAssignment.objects.filter(
+    StudentAssignment.objects.filter(
         student=student, group_assignment=group_assignment
-    ).exists()
-    assert not StudentNotification.objects.filter(
+    ).delete()
+    StudentNotification.objects.filter(
         student=student, notification__type="new_assignment"
-    ).exists()
+    ).delete()
 
     student.add_assignment(group_assignment)
 
@@ -216,21 +234,11 @@ def test_add_assignment(student, group_assignment):
 
 def test_add_assignment__assignment_exists(student, group_assignment):
     student.join_group(group_assignment.group)
-    assert not StudentAssignment.objects.filter(
-        student=student, group_assignment=group_assignment
-    ).exists()
-    assert not StudentNotification.objects.filter(
-        student=student, notification__type="new_assignment"
-    ).exists()
-
-    StudentAssignment.objects.create(
-        student=student, group_assignment=group_assignment
-    )
 
     assert StudentAssignment.objects.filter(
         student=student, group_assignment=group_assignment
     ).exists()
-    assert not StudentNotification.objects.filter(
+    assert StudentNotification.objects.filter(
         student=student, notification__type="new_assignment"
     ).exists()
 
