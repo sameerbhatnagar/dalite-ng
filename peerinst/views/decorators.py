@@ -1,10 +1,13 @@
 from __future__ import unicode_literals
+import logging
 
 from django.http import HttpResponseBadRequest, HttpResponseForbidden
 from django.template.response import TemplateResponse
 from django.utils.translation import ugettext_lazy as _
 
 from peerinst.models import StudentGroup, StudentGroupAssignment, Teacher
+
+logger = logging.getLogger("peerinst-views")
 
 
 def group_access_required(fct):
@@ -14,6 +17,11 @@ def group_access_required(fct):
         return_assignment = assignment_hash is not None
 
         if group_hash is None and assignment_hash is None:
+            logger.warning(
+                "Access to {} without a group or assignment hash.".format(
+                    req.path
+                )
+            )
             resp = TemplateResponse(
                 req,
                 "403.html",
@@ -26,6 +34,9 @@ def group_access_required(fct):
         try:
             teacher = Teacher.objects.get(user=req.user)
         except Teacher.DoesNotExist:
+            logger.warning(
+                "Access to {} with a non teacher user.".format(req.path)
+            )
             resp = TemplateResponse(
                 req,
                 "403.html",
@@ -38,6 +49,9 @@ def group_access_required(fct):
         if group_hash is not None:
             group = StudentGroup.get(group_hash)
             if group is None:
+                logger.warning(
+                    "Access to {} with a invalid group hash.".format(req.path)
+                )
                 resp = TemplateResponse(
                     req,
                     "400.html",
@@ -54,6 +68,11 @@ def group_access_required(fct):
         else:
             assignment = StudentGroupAssignment.get(assignment_hash)
             if assignment is None:
+                logger.warning(
+                    "Access to {} with a invalid assignment hash.".format(
+                        req.path
+                    )
+                )
                 resp = TemplateResponse(
                     req,
                     "400.html",
@@ -69,6 +88,11 @@ def group_access_required(fct):
             group = assignment.group
 
         if teacher not in group.teacher.all():
+            logger.warning(
+                "Invalid access to group {} from teacher {}.".format(
+                    group.pk, teacher.pk
+                )
+            )
             resp = TemplateResponse(
                 req,
                 "403.html",
@@ -101,6 +125,9 @@ def group_access_required(fct):
 def teacher_required(fct):
     def wrapper(req, *args, **kwargs):
         if not Teacher.objects.filter(user=req.user).exists():
+            logger.warning(
+                "Access to {} from a non teacher user.".format(req.path)
+            )
             resp = TemplateResponse(
                 req,
                 "403.html",
