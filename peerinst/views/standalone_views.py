@@ -101,45 +101,6 @@ def signup_through_link(request, group_hash):
 
 
 @require_safe
-def confirm_signup_through_link(request, group_hash, token):
-
-    # Call logout to ensure a clean session
-    logout(request)
-
-    # Validate token and activate account
-    username, email, err = verify_student_token(token)
-    group = StudentGroup.get(group_hash)
-
-    if group is None:
-        resp = TemplateResponse(
-            request,
-            "404.html",
-            context={
-                "message": _(
-                    "The group couldn't be found. Bear in mind that the URL "
-                    "is case-sensitive."
-                )
-            },
-        )
-        return HttpResponseNotFound(resp.render())
-
-    if username is not None:
-        student = get_object_or_404(Student, student__username=username)
-        student.student.is_active = True
-        student.student.save()
-        student.join_group(group)
-        student.send_missing_assignments(group, request.get_host())
-
-        return TemplateResponse(
-            request,
-            "registration/sign_up_student_confirmation.html",
-            context={"group": group},
-        )
-
-    raise PermissionDenied
-
-
-@require_safe
 def live(request, token, assignment_hash):
 
     # Call logout to ensure a clean session
