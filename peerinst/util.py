@@ -836,12 +836,17 @@ def build_event_dict(e,columns,event_columns):
     given and LtiEvent
     return flattened dict with specified columns
     """
-    event_dict1 = {c:e.event_log['event'].get(c) for c in event_columns}
-    event_dict2 = {c:e.event_log.get(c) for c in columns}
-    event_dict = event_dict1.copy()
-    event_dict.update(event_dict2)
-    event_dict['event_type'] = e.event_type
-    event_dict['timestamp'] = e.timestamp
+    try:
+        event_dict1 = {c:e.event_log['event'].get(c) for c in event_columns}
+        event_dict2 = {c:e.event_log.get(c) for c in columns}
+        event_dict = event_dict1.copy()
+        event_dict.update(event_dict2)
+        event_dict['event_type'] = e.event_type
+        event_dict['timestamp'] = e.timestamp
+    except TypeError:
+        event_dict = {}
+        event_dict['event_type'] = e.event_type
+        event_dict['timestamp'] = e.timestamp
 
     return event_dict
 
@@ -872,29 +877,27 @@ def serialize_events_to_dataframe(events):
 
     df=pd.DataFrame(columns=columns+event_columns)
 
-    for i,e in enumerate(events.filter(event_type='problem_show')):
+    for i,e in enumerate(events):
         df.loc[i] = pd.Series(build_event_dict(e,columns,event_columns))
-
-    for j,e in enumerate(events.filter(event_type='problem_check'),i+1):
-        df.loc[j] = pd.Series(build_event_dict(e,columns,event_columns))
-    
-    for k,e in enumerate(events.filter(event_type='save_problem_success'),j+1):
-        df.loc[k] = pd.Series(build_event_dict(e,columns,event_columns))
 
     return df
 
-def get_lti_data_as_csv(weeks,username=None):
+def get_lti_data_as_csv(weeks_ago_start,weeks_ago_stop=0,username=None):
     import os, datetime
     from django.conf import settings
 
     print('start')
     print(datetime.datetime.now())
 
+    start = datetime.datetime.now()-datetime.timedelta(weeks=weeks_ago_start)
+    end = datetime.datetime.now()-datetime.timedelta(weeks=weeks_ago_stop)
+
     rejected,events = filter_ltievents(
-        start_date=datetime.datetime.now()-datetime.timedelta(weeks=weeks),
+        start_date = start,
+        stop_date = end,
         username = username
         )
-    print('events filteres')
+    print('events filtered')
     print(datetime.datetime.now())
     
     df=serialize_events_to_dataframe(events) 
