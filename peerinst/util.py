@@ -3,6 +3,7 @@ from __future__ import division, unicode_literals
 
 import itertools
 import string
+import datetime
 from collections import defaultdict, Counter
 
 
@@ -804,3 +805,105 @@ def report_data_by_question(assignment_list, student_groups):
         gradebook_question.append(d_g)
 
     return gradebook_question
+
+def filter_ltievents(start_date,stop_date=datetime.datetime.now(),username=None):
+    """
+    given a start date and stop date (as datetime objects), and optional username
+    return all LtiEvents that match the criteria
+    """
+    from peerinst.models import LtiEvent
+    import json
+
+    events = LtiEvent.objects.filter(timestamp__gte=start_date,timestamp__lte=stop_date)
+
+    if username:
+        rejected_pks, event_pks = [],[]
+        for e in events:
+            try:
+                if e.event_log['username']==username:
+                    event_pks.append(e.pk)
+            except TypeError as error:
+                rejected_pks.append(e.pk)
+        events = events.filter(pk__in=event_pks)
+        rejected = events.filter(pk__in=rejected_pks)
+    else:
+        rejected = []
+
+    return rejected,events
+
+def build_event_dict(e,columns,event_columns):
+    """
+    given and LtiEvent
+    return flattened dict with specified columns
+    """
+    event_dict1 = {c:e.event_log['event'].get(c) for c in event_columns}
+    event_dict2 = {c:e.event_log.get(c) for c in columns}
+    event_dict = event_dict1.copy()
+    event_dict.update(event_dict2)
+    event_dict['event_type'] = e.event_type
+    event_dict['timestamp'] = e.timestamp
+
+    return event_dict
+
+def serialize_events_to_dataframe(events):
+    """
+    given a queryset of LtiEvent objects
+    return a pandas dataframe with columns username,event_type,assignment_id,question_id,timestamp
+    """
+    import pandas as pd
+
+    columns = ['username','course_id','referer','agent','accept_language']
+
+    event_columns = [
+    'event_type',
+    'assignment_id',
+    'question_text',
+    'question_id',
+    'timestamp',
+    'rationales',
+    'success',
+    'assignment_title',
+    'rationale_algorithm',
+    'chosen_rationale_id',
+    'second_answer_choice',
+    'first_answer_choice',
+    'rationale'
+    ]
+
+    df=pd.DataFrame(columns=columns+event_columns)
+
+    for i,e in enumerate(events.filter(event_type='problem_show')):
+        df.loc[i] = pd.Series(build_event_dict(e,columns,event_columns))
+
+    for j,e in enumerate(events.filter(event_type='problem_check'),i+1):
+        df.loc[j] = pd.Series(build_event_dict(e,columns,event_columns))
+    
+    for k,e in enumerate(events.filter(event_type='save_problem_success'),j+1):
+        df.loc[k] = pd.Series(build_event_dict(e,columns,event_columns))
+
+    return df
+
+def get_lti_data_as_csv(weeks,username=None):
+    import os, datetime
+    from django.conf import settings
+
+    print('start')
+    print(datetime.datetime.now())
+
+    rejected,events = filter_ltievents(
+        start_date=datetime.datetime.now()-datetime.timedelta(weeks=weeks),
+        username = username
+        )
+    print('events filteres')
+    print(datetime.datetime.now())
+    
+    df=serialize_events_to_dataframe(events) 
+    
+    print('serialied df')
+    print(datetime.datetime.now())
+    
+    fname = os.path.join(settings.BASE_DIR,'data.csv')
+    with open(fname,'w') as f:
+        df.to_csv(path_or_buf=f,encoding='utf-8')
+
+    return df
