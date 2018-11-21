@@ -481,6 +481,10 @@
     });
   }
 
+  // Autofill for categories
+
+
+  // Autofill for collaborators
   $('#autofill_collaborators').autocomplete({
     delay: 200,
     minLength: 3,
@@ -495,8 +499,10 @@
         return !collaboratorList.includes(el.label);
       });
 
-      for (let i = 0; i <= ui.content.length; i++) {
+      let l = ui.content.length
+      while (l > 0) {
         ui.content.pop();
+        l = ui.content.length;
       }
 
       for (let i = 0; i < tmp.length; i++) {
