@@ -198,7 +198,7 @@
           </div>
 
           <div class='field-container'>
-            <div class='number-box'><span class='number'></span></div>
+            <div class='number-box flush-to-textbox'><span class='number'></span></div>
             <div class='field'>
               <div id='category_form'>
                 {% include 'peerinst/category_select_form.html' %}
@@ -207,6 +207,22 @@
                 {{ form.category.help_text|safe }}
               </p>
               {{ form.category.errors }}
+
+              <div id='current_categories' class='mdc-chip-set mdc-chip-set--input' data-mdc-auto-init='MDCChipSet'>
+                {% for c in object.category.all %}
+                  <div d="{{c.username}}" v="{{c.pk}}" class='mdc-chip mdc-typography--caption category' onclick="updateSelect(this,'#id_category');" tabindex='0' data-mdc-auto-init='MDCChip'>
+                    <div class='mdc-chip__text'>{{c.title|title}}</div>
+                    <i class='material-icons mdc-chip__icon mdc-chip__icon--trailing' tabindex='0' role='button'>cancel</i>
+                    </div>
+                {% endfor %}
+              </div>
+
+              <select id='id_category' name='category' multiple='multiple' hidden='true'>
+                {% for c in object.category.all %}
+                  <option selected="selected" value={{c.id}}>{{c.title|title}}</option>
+                {% endfor %}
+              </select>
+
             </div>
           </div>
 
@@ -321,7 +337,7 @@
                   <div class="mdc-notched-outline__idle"></div>
                 </div>
 
-                <i class='material-icons spinning mdc-theme--primary'>loop</i>
+                <i class='material-icons spinning mdc-theme--primary' id='search_collaborators'>loop</i>
 
                 <p class="form-helper-text" aria-hidden="true">
                   {{ form.collaborators.help_text|safe }}
@@ -330,7 +346,7 @@
 
                 <div id='current_collaborators' class='mdc-chip-set mdc-chip-set--input' data-mdc-auto-init='MDCChipSet'>
                   {% for c in object.collaborators.all %}
-                    <div d="{{c.username}}" v="{{c.pk}}" class='mdc-chip mdc-typography--caption collaborator' onclick="updateCollaborators(this);" tabindex='0' data-mdc-auto-init='MDCChip'>
+                    <div d="{{c.username}}" v="{{c.pk}}" class='mdc-chip mdc-typography--caption collaborator' onclick="updateSelect(this,'#id_collaborators');" tabindex='0' data-mdc-auto-init='MDCChip'>
                       <div class='mdc-chip__text'>{{c.username}}</div>
                       <i class='material-icons mdc-chip__icon mdc-chip__icon--trailing' tabindex='0' role='button'>cancel</i>
                       </div>
@@ -493,22 +509,16 @@
     });
   }
 
-  // Autofill for categories
-
-
-  // Autofill for collaborators
-  $('#autofill_collaborators').autocomplete({
-    delay: 200,
-    minLength: 3,
-    source: "{% url 'search-users' %}",
-    response: function( event, ui ) {
+  // Generators for autocomplete
+  const response = function(searchClass, spinnerId) {
+    return function( event, ui ) {
       // NB: Pass by reference.  ui can be modified, but not recreated.
-      let collaboratorList = $.map($('.collaborator'), function(obj, i) {
+      let currentList = $.map($(searchClass), function(obj, i) {
         return $(obj).attr('d');
       });
 
       let tmp = ui.content.filter( el => {
-        return !collaboratorList.includes(el.label);
+        return !currentList.includes(el.label);
       });
 
       let l = ui.content.length
@@ -525,33 +535,64 @@
         // Could add hint that there are no results
       }
 
-      $('.spinning').css('opacity', 0);
+      $(spinnerId).css('opacity', 0);
       return;
-    },
-    search: function( event, ui ) {
-      $('.spinning').css('opacity', 1);
-    },
-    focus: function( event, ui ) {
-      event.preventDefault();
-      $(this).val(ui.item.label);
-    },
-    select: function( event, ui ) {
+    }
+  }
+
+  const search = function(spinnerId) {
+    return function( event, ui ) {
+      $(spinnerId).css('opacity', 1);
+    }
+  }
+
+  const focus = function( event, ui ) {
+    event.preventDefault();
+    $(this).val(ui.item.label);
+  }
+
+  const select = function(currentIds, className, formId) {
+    return function( event, ui ) {
       event.preventDefault();
       $(this).val("");
 
-      $('#current_collaborators').append("<div d="+ui.item.label+" v="+ui.item.value+" class='mdc-chip mdc-typography--caption collaborator' onclick='updateCollaborators(this);' tabindex='0' data-mdc-auto-init='MDCChip'>\
+      $(currentIds).append("<div d="+ui.item.label+" v="+ui.item.value+" class='mdc-chip mdc-typography--caption "+className+"' onclick=\"updateSelect(this,\'"+formId+"\');\" tabindex='0' data-mdc-auto-init='MDCChip'>\
         <div class='mdc-chip__text'>"+ui.item.label+"</div>\
         <i class='material-icons mdc-chip__icon mdc-chip__icon--trailing' tabindex='0' role='button'>cancel</i>\
         </div>");
 
-      $('#id_collaborators').append("<option selected='selected' value="+ui.item.value+">"+ui.item.label+"</option>");
+      $(formId).append("<option selected='selected' value="+ui.item.value+">"+ui.item.label+"</option>");
     }
-  })
-
-  function updateCollaborators(el) {
-    el.remove();
-    $('#id_collaborators').find("[value="+$(el).attr('v')+"]").remove();
   }
+
+  function updateSelect(el, formId) {
+    el.remove();
+    $(formId).find("[value="+$(el).attr('v')+"]").remove();
+  }
+
+  $('#autofill_collaborators').autocomplete({
+    delay: 200,
+    minLength: 3,
+    source: "{% url 'search-users' %}",
+    response: response('.collaborator', '#search_collaborators'),
+    search: search('#search_collaborators'),
+    focus: focus,
+    select: select('#current_collaborators', 'collaborator', '#id_collaborators'),
+  });
+
+  function bindCategoryAutofill() {
+    $('#autofill_categories').autocomplete({
+      delay: 200,
+      minLength: 3,
+      source: "{% url 'search-categories' %}",
+      response: response('.category', '#search_categories'),
+      search: search('#search_categories'),
+      focus: focus,
+      select: select('#current_categories', 'category', '#id_category'),
+    });
+  }
+  bindCategoryAutofill();
+
 
   // TinyMCE bind to textarea
   tinymce.init({

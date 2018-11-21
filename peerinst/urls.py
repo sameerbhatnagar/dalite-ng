@@ -486,7 +486,14 @@ def student_patterns():
 
 
 def search_patterns():
-    return [url(r"^search/user$", views.search_users, name="search-users")]
+    return [
+        url(r"^search/user$", views.search_users, name="search-users"),
+        url(
+            r"^search/category$",
+            views.search_categories,
+            name="search-categories",
+        ),
+    ]
 
 
 urlpatterns = reduce(

@@ -33,6 +33,8 @@ $( "#submit_category_form" ).click(function() {
 $( "#clear_category_form" ).click(function() {
   $( "#category_form" ).load("{% url 'category-form' %}", function(){
     bundle.bindAjaxTextInputForm('show_category_form', 'category_form', "{% url 'category-create' %}");
+    bindCategoryAutofill();
+    bundle.autoInit();
   });
 });
 
@@ -62,6 +64,8 @@ $( "#category_create_form" ).submit(function( event ) {
   posting.done(function(data) {
     $('#category_form').empty().append(data);
     bundle.bindAjaxTextInputForm('show_category_form', 'category_form', "{% url 'category-create' %}");
+    bindCategoryAutofill();
+    bundle.autoInit();
   });
 });
 </script>
