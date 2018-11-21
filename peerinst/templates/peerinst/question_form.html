@@ -7,6 +7,15 @@
 <script src="{% static 'peerinst/js/tinymce/js/tinymce/tinymce.min.js' %}"></script>
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 <style>
+.spinning {
+  opacity: 0;
+  vertical-align: sub;
+  animation: 1s ease-in-out infinite spin;
+}
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(-180deg); }
+}
 .image-field {
   padding-top:6px;
   padding-bottom: 6px;
@@ -311,6 +320,9 @@
                   </div>
                   <div class="mdc-notched-outline__idle"></div>
                 </div>
+
+                <i class='material-icons spinning mdc-theme--primary'>loop</i>
+
                 <p class="form-helper-text" aria-hidden="true">
                   {{ form.collaborators.help_text|safe }}
                 </p>
@@ -508,7 +520,16 @@
       for (let i = 0; i < tmp.length; i++) {
         ui.content.push(tmp[i]);
       }
+
+      if (ui.content.length == 0) {
+        // Could add hint that there are no results
+      }
+
+      $('.spinning').css('opacity', 0);
       return;
+    },
+    search: function( event, ui ) {
+      $('.spinning').css('opacity', 1);
     },
     focus: function( event, ui ) {
       event.preventDefault();
