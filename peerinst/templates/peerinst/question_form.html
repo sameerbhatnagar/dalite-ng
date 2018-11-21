@@ -578,6 +578,7 @@
     search: search('#search_collaborators'),
     focus: focus,
     select: select('#current_collaborators', 'collaborator', '#id_collaborators'),
+    autoFocus: true,
   });
 
   function bindCategoryAutofill() {
@@ -589,6 +590,7 @@
       search: search('#search_categories'),
       focus: focus,
       select: select('#current_categories', 'category', '#id_category'),
+      autoFocus: true,
     });
   }
   bindCategoryAutofill();

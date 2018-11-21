@@ -66,6 +66,8 @@ $( "#category_create_form" ).submit(function( event ) {
     bundle.bindAjaxTextInputForm('show_category_form', 'category_form', "{% url 'category-create' %}");
     bindCategoryAutofill();
     bundle.autoInit();
+    $('#autofill_categories').val(title).focus().autocomplete("search");
+
   });
 });
 </script>
