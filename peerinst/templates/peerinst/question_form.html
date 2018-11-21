@@ -317,11 +317,19 @@
                 {{ form.collaborators.errors }}
 
                 <div id='current_collaborators' class='mdc-chip-set mdc-chip-set--input' data-mdc-auto-init='MDCChipSet'>
+                  {% for c in object.collaborators.all %}
+                    <div d="{{c.username}}" v="{{c.pk}}" class='mdc-chip mdc-typography--caption collaborator' onclick="updateCollaborators(this);" tabindex='0' data-mdc-auto-init='MDCChip'>
+                      <div class='mdc-chip__text'>{{c.username}}</div>
+                      <i class='material-icons mdc-chip__icon mdc-chip__icon--trailing' tabindex='0' role='button'>cancel</i>
+                      </div>
+                  {% endfor %}
                 </div>
 
-                <div class='mdc-form-field'>
-                  {{ form.collaborators|add_class:'multiple-select mdc-theme--background' }}
-                </div>
+                <select id='id_collaborators' name='collaborators' multiple='multiple' hidden='true'>
+                  {% for c in object.collaborators.all %}
+                    <option selected="selected" value={{c.pk}}>{{c.username}}</option>
+                  {% endfor %}
+                </select>
 
               </div>
             </div>
@@ -413,15 +421,6 @@
 <script>
   'use strict';
   bundle.bindCheckbox();
-
-  $.ajaxSetup({
-      beforeSend: function(xhr, settings) {
-          if (!bundle.csrfSafeMethod(settings.type) && !this.crossDomain) {
-              xhr.setRequestHeader("X-CSRFToken", bundle.getCookie('csrftoken'));
-          }
-      }
-  });
-
   bundle.bindAjaxTextInputForm('show_discipline_form', 'discipline_form', "{% url 'discipline-create' %}");
   bundle.bindAjaxTextInputForm('show_category_form', 'category_form', "{% url 'category-create' %}");
 
@@ -487,7 +486,23 @@
     minLength: 3,
     source: "{% url 'search-users' %}",
     response: function( event, ui ) {
-      //ui.content.pop();
+      // NB: Pass by reference.  ui can be modified, but not recreated.
+      let collaboratorList = $.map($('.collaborator'), function(obj, i) {
+        return $(obj).attr('d');
+      });
+
+      let tmp = ui.content.filter( el => {
+        return !collaboratorList.includes(el.label);
+      });
+
+      for (let i = 0; i <= ui.content.length; i++) {
+        ui.content.pop();
+      }
+
+      for (let i = 0; i < tmp.length; i++) {
+        ui.content.push(tmp[i]);
+      }
+      return;
     },
     focus: function( event, ui ) {
       event.preventDefault();
@@ -496,20 +511,20 @@
     select: function( event, ui ) {
       event.preventDefault();
       $(this).val("");
-      $('#id_collaborators').val(ui.item.value);
 
-      $('#current_collaborators').append("<div d="+ui.item.label+" class='mdc-chip mdc-typography--caption' onclick='this.remove();' tabindex='0' data-mdc-auto-init='MDCChip'>\
-        <div class='mdc-chip__checkmark' >\
-          <svg class='mdc-chip__checkmark-svg' viewBox='-2 -3 30 30'>\
-            <path class='mdc-chip__checkmark-path' fill='none' stroke='black'\
-              d='M1.73,12.91 8.1,19.28 22.79,4.59'/>\
-          </svg>\
-        </div>\
+      $('#current_collaborators').append("<div d="+ui.item.label+" v="+ui.item.value+" class='mdc-chip mdc-typography--caption collaborator' onclick='updateCollaborators(this);' tabindex='0' data-mdc-auto-init='MDCChip'>\
         <div class='mdc-chip__text'>"+ui.item.label+"</div>\
         <i class='material-icons mdc-chip__icon mdc-chip__icon--trailing' tabindex='0' role='button'>cancel</i>\
         </div>");
+
+      $('#id_collaborators').append("<option selected='selected' value="+ui.item.value+">"+ui.item.label+"</option>");
     }
   })
+
+  function updateCollaborators(el) {
+    el.remove();
+    $('#id_collaborators').find("[value="+$(el).attr('v')+"]").remove();
+  }
 
   // TinyMCE bind to textarea
   tinymce.init({

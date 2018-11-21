@@ -27,6 +27,8 @@ def search_users(request):
             .values_list("user__username", "user__pk")
         )
 
+        print([{"label": str(u[0]), "value": u[1]} for u in users])
+
         return JsonResponse(
             [{"label": str(u[0]), "value": u[1]} for u in users], safe=False
         )
