@@ -234,7 +234,8 @@ def old_patterns():
             name="teacher-blinks",
         ),
         url(
-            r"^teacher/favourite", views.teacher_toggle_favourite,
+            r"^teacher/favourite",
+            views.teacher_toggle_favourite,
             name="teacher-toggle-favourite",
         ),
         url(
@@ -484,7 +485,17 @@ def student_patterns():
     ]
 
 
+def search_patterns():
+    return [url(r"^search/user$", views.search_users, name="search-users")]
+
+
 urlpatterns = reduce(
     add,
-    [old_patterns(), group_patterns(), auth_patterns(), student_patterns()],
+    [
+        old_patterns(),
+        group_patterns(),
+        auth_patterns(),
+        student_patterns(),
+        search_patterns(),
+    ],
 )
