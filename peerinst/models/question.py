@@ -226,7 +226,7 @@ class Question(models.Model):
         return self.title
 
     def get_start_form_class(self):
-        from .forms import FirstAnswerForm
+        from ..forms import FirstAnswerForm
         return FirstAnswerForm
 
     def start_form_valid(request, view, form):
@@ -403,5 +403,5 @@ class RationaleOnlyQuestion(Question):
         return True
 
     def get_start_form_class(self):
-        from .forms import RationaleOnlyForm
+        from ..forms import RationaleOnlyForm
         return RationaleOnlyForm
