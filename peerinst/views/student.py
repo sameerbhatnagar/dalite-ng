@@ -313,7 +313,7 @@ def index_page(req):
     }
 
     if not Consent.objects.filter(
-        user=student.student, tos__role="student"
+        user=student.student, tos__role__role="student"
     ).exists():
         return HttpResponseRedirect(
             reverse("tos:tos_consent", kwargs={"role": "student"})
@@ -359,12 +359,7 @@ def join_group(req):
     else:
         student, group = result
 
-    student.join_group(group)
-    print(
-        StudentGroupMembership.objects.filter(student=student, group=group)[
-            0
-        ].current_member
-    )
+    student.join_group(group, mail_type="new_group")
 
     return HttpResponse()
 

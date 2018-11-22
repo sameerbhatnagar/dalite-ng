@@ -136,11 +136,6 @@ def old_patterns():
             name="signup-through-link",
         ),
         url(
-            r"^live/signup/confirm/(?P<group_hash>[0-9A-Za-z=_-]+)/(?P<token>[0-9A-Za-z=_-]+)$",  # noqa  # noqa
-            views.confirm_signup_through_link,
-            name="confirm-signup-through-link",
-        ),
-        url(
             r"^live/studentgroupassignment/create/(?P<assignment_id>[^/]+)$",
             views.StudentGroupAssignmentCreateView.as_view(),
             name="student-group-assignment-create",

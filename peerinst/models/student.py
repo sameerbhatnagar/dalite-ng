@@ -199,38 +199,19 @@ class Student(models.Model):
         ), "Postcondition failed"
         return err
 
-    def send_missing_assignments(self, group, host):
-        assert isinstance(
-            group, StudentGroup
-        ), "Precondition failed for `group`"
+    def join_group(self, group, mail_type=None):
+        """
+        Join the given group, adding missing assignments and sending an email.
 
-        if not self.student.email.endswith("localhost"):
-
-            assignments = StudentGroupAssignment.objects.filter(group=group)
-
-            for assignment in assignments:
-                # Create missing instances
-                if not StudentAssignment.objects.filter(
-                    student=self, group_assignment=assignment
-                ).exists():
-                    assignment_ = StudentAssignment.objects.create(
-                        student=self, group_assignment=assignment
-                    )
-                    logger.info(
-                        "Assignment %d created for student %d.",
-                        assignment_.pk,
-                        self.pk,
-                    )
-                    if not assignment.expired:
-                        # Just send active assignments
-                        assignment_.send_email(mail_type="new_assignment")
-                        logger.info(
-                            "Assignment %d sent to student %d.",
-                            assignment_.pk,
-                            self.pk,
-                        )
-
-    def join_group(self, group):
+        Parameters
+        ----------
+        group : StudentGroup
+            Group to join
+        mail_type : Optional[str] (default : None)
+            Type of mail to send if present. One of:
+                "confirmation"
+                "new_group"
+        """
         try:
             membership = StudentGroupMembership.objects.get(
                 student=self, group=group
@@ -249,6 +230,13 @@ class Student(models.Model):
                 self.pk,
                 group.pk,
             )
+
+        for assignment in StudentGroupAssignment.objects.filter(group=group):
+            self.add_assignment(assignment, send_email=False)
+
+        if mail_type is not None:
+            self.send_email(mail_type, group=group)
+
         # TODO to remove eventually when groups are fully integrated in
         # group membership
         self.groups.add(group)
@@ -267,7 +255,7 @@ class Student(models.Model):
                 )
             )
 
-    def add_assignment(self, group_assignment):
+    def add_assignment(self, group_assignment, send_email=True):
         """
         Adds the `group_assignment` for the student by creating a
         StudentAssignment instance and sending an email informing them of it.
@@ -276,6 +264,8 @@ class Student(models.Model):
         ----------
         group_assignment : StudentGroupAssignment
             Assignment to add
+        send_email : bool (default : True)
+            If a new assignment email should be sent
 
         Returns
         -------
@@ -300,7 +290,10 @@ class Student(models.Model):
             type_="new_assignment", student=self, assignment=assignment
         )
 
-        err = assignment.send_email(mail_type="new_assignment")
+        if send_email:
+            err = assignment.send_email(mail_type="new_assignment")
+        else:
+            err = None
 
         return err
 
@@ -789,13 +782,20 @@ class StudentNotification(models.Model):
                 )
                 return
 
-            StudentNotification.objects.create(
+            if not StudentNotification.objects.filter(
                 student=student,
                 notification=notification,
                 link=link,
                 text=text,
                 hover_text=hover_text,
-            )
+            ).exists():
+                StudentNotification.objects.create(
+                    student=student,
+                    notification=notification,
+                    link=link,
+                    text=text,
+                    hover_text=hover_text,
+                )
             logger.info(
                 "Notification of type {} was created for student {}.".format(
                     type_, student.pk

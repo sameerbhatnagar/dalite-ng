@@ -104,7 +104,9 @@ class StandaloneTest(TransactionTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed("registration/sign_up_student_done.html")
         self.assertEqual(len(mail.outbox), 1)
-        self.assertEqual(mail.outbox[0].subject, "Confirm myDALITE account")
+        self.assertEqual(
+            mail.outbox[0].subject, "Confirm your myDALITE account"
+        )
         student = Student.objects.get(student__email="test@test.com")
         self.assertFalse(student.student.is_active)
 
