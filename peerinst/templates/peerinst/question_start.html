@@ -59,7 +59,7 @@
 
       {% if form %}
       {% block form %}
-      <form method="post">
+      <form id="submit-answer-form" method="post">
         {% csrf_token %}
         {% block inner_form %}
         <!--
