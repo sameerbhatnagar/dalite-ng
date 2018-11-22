@@ -118,6 +118,7 @@ class QuestionAdmin(admin.ModelAdmin):
                     "category",
                     "id",
                     "parent",
+                    "type",
                 ]
             },
         ),

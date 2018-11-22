@@ -5,8 +5,20 @@
 {% block stylesheets %}
 <!-- Self-hosted tinyMCE -->
 <script src="{% static 'peerinst/js/tinymce/js/tinymce/tinymce.min.js' %}"></script>
-
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 <style>
+.spinning {
+  opacity: 0;
+  vertical-align: sub;
+  animation: 1s ease-in-out infinite spin;
+}
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(-180deg); }
+}
+.mdc-chip__icon--trailing {
+  pointer-events: none;
+}
 .image-field {
   padding-top:6px;
   padding-bottom: 6px;
@@ -48,7 +60,7 @@
           <h3>{% trans 'Content' %}</h3>
 
           <div class='field-container'>
-            <div class='number-box flush-to-textbox'><span class='number'>1</span></div>
+            <div class='number-box flush-to-textbox'><span class='number'></span></div>
             <div class='field'>
               <div class="mdc-text-field mdc-text-field--outlined mdc-text-field--dense" data-mdc-auto-init="MDCTextField">
                 {{ form.title|add_class:"mdc-text-field__input" }}
@@ -68,7 +80,7 @@
           </div>
 
           <div class='field-container'>
-            <div class='number-box flush-to-textbox'><span class='number'>2</span></div>
+            <div class='number-box flush-to-textbox'><span class='number'></span></div>
             <div class='field'>
               <div class='mdc-form-field' style="display:block; padding-top:15px; margin-bottom:10px;">
                 <label for="id_text"> {{ form.text.label }}</label>
@@ -84,7 +96,24 @@
           </div>
 
           <div class='field-container'>
-            <div class='number-box'><span class='number'>3</span></div>
+            <div class='number-box'><span class='number'></span></div>
+            <div class='field'>
+              <div class='mdc-form-field'>
+                <label for='id_type'>{{ form.type.label }}:</label>
+                <div class='mdc-select'>
+                  {{ form.type|add_class:"mdc-select__native-control" }}
+                  <div class="mdc-select__bottom-line"></div>
+                </div>
+              </div>
+              <p class="form-helper-text" aria-hidden="true">
+                {{ form.type.help_text|safe }}
+              </p>
+              {{ form.type.errors }}
+            </div>
+          </div>
+
+          <div class='field-container'>
+            <div class='number-box'><span class='number'></span></div>
             <div class='field'>
               <div class='mdc-form-field' style="display:block;">
                 <label for='id_image'>{{ form.image.label }}</label>
@@ -118,7 +147,7 @@
           </div>
 
           <div class='field-container'>
-            <div class='number-box flush-to-textbox'><span class='number'>4</span></div>
+            <div class='number-box flush-to-textbox'><span class='number'></span></div>
             <div class='field'>
               <div class="mdc-text-field mdc-text-field--outlined mdc-text-field--dense" data-mdc-auto-init="MDCTextField">
                 {{ form.video_url|add_class:"mdc-text-field__input" }}
@@ -137,28 +166,29 @@
             </div>
           </div>
 
-          <div class='field-container'>
-            <div class='number-box'><span class='number'>5</span></div>
-            <div class='field'>
-              <div class='mdc-form-field'>
-                <label for='id_answer_style'>{{ form.answer_style.label }}:</label>
-                <div class='mdc-select'>
-                  {{ form.answer_style|add_class:"mdc-select__native-control" }}
-                  <div class="mdc-select__bottom-line"></div>
+          <section class='peerinst'>
+            <div class='field-container'>
+              <div class='number-box'><span class='number'></span></div>
+              <div class='field'>
+                <div class='mdc-form-field'>
+                  <label for='id_answer_style'>{{ form.answer_style.label }}:</label>
+                  <div class='mdc-select'>
+                    {{ form.answer_style|add_class:"mdc-select__native-control" }}
+                    <div class="mdc-select__bottom-line"></div>
+                  </div>
                 </div>
+                <p class="form-helper-text" aria-hidden="true">
+                  {{ form.answer_style.help_text|safe }}
+                </p>
+                {{ form.answer_style.errors }}
               </div>
-              <p class="form-helper-text" aria-hidden="true">
-                {{ form.answer_style.help_text|safe }}
-              </p>
-              {{ form.answer_style.errors }}
             </div>
-          </div>
-
+          </section>
 
           <h3>{% trans 'Indexing' %}</h3>
 
           <div class='field-container'>
-            <div class='number-box'><span class='number'>6</span></div>
+            <div class='number-box'><span class='number'></span></div>
             <div class='field'>
               <div id='discipline_form'>
                 {% include 'peerinst/discipline_select_form.html' %}
@@ -171,7 +201,7 @@
           </div>
 
           <div class='field-container'>
-            <div class='number-box'><span class='number'>7</span></div>
+            <div class='number-box flush-to-textbox'><span class='number'></span></div>
             <div class='field'>
               <div id='category_form'>
                 {% include 'peerinst/category_select_form.html' %}
@@ -180,96 +210,114 @@
                 {{ form.category.help_text|safe }}
               </p>
               {{ form.category.errors }}
+
+              <div id='current_categories' class='mdc-chip-set mdc-chip-set--input' data-mdc-auto-init='MDCChipSet'>
+                {% for c in object.category.all %}
+                  <div d="{{c.username}}" v="{{c.pk}}" class='mdc-chip mdc-typography--caption category' onclick="updateSelect(this,'#id_category');" tabindex='0' data-mdc-auto-init='MDCChip'>
+                    <div class='mdc-chip__text'>{{c.title|title}}</div>
+                    <i class='material-icons mdc-chip__icon mdc-chip__icon--trailing' tabindex='0' role='button'>cancel</i>
+                    </div>
+                {% endfor %}
+              </div>
+
+              <select id='id_category' name='category' multiple='multiple' hidden='true'>
+                {% for c in object.category.all %}
+                  <option selected="selected" value={{c.id}}>{{c.title|title}}</option>
+                {% endfor %}
+              </select>
+
             </div>
           </div>
 
-          <h3>{% trans 'Options' %}</h3>
+          <section class='peerinst'>
+            <h3>{% trans 'Options' %}</h3>
 
-          <div class='field-container'>
-            <div class='number-box'><span class='number'>8</span></div>
-            <div class='field'>
-              <div class='mdc-form-field'>
-                <label for="id_fake_attributions">{{ form.fake_attributions.label }}?</label>
-                <div class="mdc-checkbox">
-                  {{ form.fake_attributions|add_class:'mdc-checkbox__native-control'}}
-                  <div class="mdc-checkbox__background">
-                    <svg class="mdc-checkbox__checkmark"
-                         viewBox="0 0 24 24">
-                      <path class="mdc-checkbox__checkmark-path"
-                            fill="none"
-                            stroke="white"
-                            d="M1.73,12.91 8.1,19.28 22.79,4.59"/>
-                    </svg>
-                    <div class="mdc-checkbox__mixedmark"></div>
+            <div class='field-container'>
+              <div class='number-box'><span class='number'></span></div>
+              <div class='field'>
+                <div class='mdc-form-field'>
+                  <label for="id_fake_attributions">{{ form.fake_attributions.label }}?</label>
+                  <div class="mdc-checkbox">
+                    {{ form.fake_attributions|add_class:'mdc-checkbox__native-control'}}
+                    <div class="mdc-checkbox__background">
+                      <svg class="mdc-checkbox__checkmark"
+                           viewBox="0 0 24 24">
+                        <path class="mdc-checkbox__checkmark-path"
+                              fill="none"
+                              stroke="white"
+                              d="M1.73,12.91 8.1,19.28 22.79,4.59"/>
+                      </svg>
+                      <div class="mdc-checkbox__mixedmark"></div>
+                    </div>
                   </div>
                 </div>
+                <p class="form-helper-text" aria-hidden="true">
+                  {{ form.fake_attributions.help_text|safe }}
+                </p>
+                {{ form.fake_attributions.errors }}
               </div>
-              <p class="form-helper-text" aria-hidden="true">
-                {{ form.fake_attributions.help_text|safe }}
-              </p>
-              {{ form.fake_attributions.errors }}
             </div>
-          </div>
 
-          <div class='field-container'>
-            <div class='number-box'><span class='number'>9</span></div>
-            <div class='field'>
-              <div class='mdc-form-field'>
-                <label for="id_sequential_review">{{ form.sequential_review.label }}?</label>
-                <div class="mdc-checkbox">
-                  {{ form.sequential_review|add_class:'mdc-checkbox__native-control'}}
-                  <div class="mdc-checkbox__background">
-                    <svg class="mdc-checkbox__checkmark"
-                         viewBox="0 0 24 24">
-                      <path class="mdc-checkbox__checkmark-path"
-                            fill="none"
-                            stroke="white"
-                            d="M1.73,12.91 8.1,19.28 22.79,4.59"/>
-                    </svg>
-                    <div class="mdc-checkbox__mixedmark"></div>
+            <div class='field-container'>
+              <div class='number-box'><span class='number'></span></div>
+              <div class='field'>
+                <div class='mdc-form-field'>
+                  <label for="id_sequential_review">{{ form.sequential_review.label }}?</label>
+                  <div class="mdc-checkbox">
+                    {{ form.sequential_review|add_class:'mdc-checkbox__native-control'}}
+                    <div class="mdc-checkbox__background">
+                      <svg class="mdc-checkbox__checkmark"
+                           viewBox="0 0 24 24">
+                        <path class="mdc-checkbox__checkmark-path"
+                              fill="none"
+                              stroke="white"
+                              d="M1.73,12.91 8.1,19.28 22.79,4.59"/>
+                      </svg>
+                      <div class="mdc-checkbox__mixedmark"></div>
+                    </div>
                   </div>
                 </div>
+                <p class="form-helper-text" aria-hidden="true">
+                  {{ form.sequential_review.help_text|safe }}
+                </p>
+                {{ form.sequential_review.errors }}
               </div>
-              <p class="form-helper-text" aria-hidden="true">
-                {{ form.sequential_review.help_text|safe }}
-              </p>
-              {{ form.sequential_review.errors }}
             </div>
-          </div>
 
-          <div class='field-container'>
-            <div class='number-box'><span class='number'>10</span></div>
-            <div class='field'>
-              <div class='mdc-form-field'>
-                <label for='id_discipline'>{{ form.rationale_selection_algorithm.label }}:</label>
-                <div class='mdc-select'>
-                  {{ form.rationale_selection_algorithm|add_class:"mdc-select__native-control" }}
-                  <div class="mdc-select__bottom-line"></div>
+            <div class='field-container'>
+              <div class='number-box'><span class='number'></span></div>
+              <div class='field'>
+                <div class='mdc-form-field'>
+                  <label for='id_discipline'>{{ form.rationale_selection_algorithm.label }}:</label>
+                  <div class='mdc-select'>
+                    {{ form.rationale_selection_algorithm|add_class:"mdc-select__native-control" }}
+                    <div class="mdc-select__bottom-line"></div>
+                  </div>
                 </div>
+                <p class="form-helper-text" aria-hidden="true">
+                  {{ form.rationale_selection_algorithm.help_text|safe }}
+                </p>
+                {{ form.rationale_selection_algorithm.errors }}
               </div>
-              <p class="form-helper-text" aria-hidden="true">
-                {{ form.rationale_selection_algorithm.help_text|safe }}
-              </p>
-              {{ form.rationale_selection_algorithm.errors }}
             </div>
-          </div>
 
-          <div class='field-container'>
-            <div class='number-box'><span class='number'>11</span></div>
-            <div class='field'>
-              <div class='mdc-form-field'>
-                <label for='id_discipline'>{{ form.grading_scheme.label }}:</label>
-                <div class='mdc-select'>
-                  {{ form.grading_scheme|add_class:"mdc-select__native-control" }}
-                  <div class="mdc-select__bottom-line"></div>
+            <div class='field-container'>
+              <div class='number-box'><span class='number'></span></div>
+              <div class='field'>
+                <div class='mdc-form-field'>
+                  <label for='id_discipline'>{{ form.grading_scheme.label }}:</label>
+                  <div class='mdc-select'>
+                    {{ form.grading_scheme|add_class:"mdc-select__native-control" }}
+                    <div class="mdc-select__bottom-line"></div>
+                  </div>
                 </div>
+                <p class="form-helper-text" aria-hidden="true">
+                  {{ form.grading_scheme.help_text|safe }}
+                </p>
+                {{ form.grading_scheme.errors }}
               </div>
-              <p class="form-helper-text" aria-hidden="true">
-                {{ form.grading_scheme.help_text|safe }}
-              </p>
-              {{ form.grading_scheme.errors }}
             </div>
-          </div>
+          </section>
 
           {% if not object or object.user == request.user %}
           <div>
@@ -279,19 +327,46 @@
             <h3>{% trans 'Authorship' %}</h3>
 
             <div class='field-container'>
-              <div class='number-box'><span class='number'>12</span></div>
+              <div class='number-box flush-to-textbox'><span class='number'></span></div>
               <div class='field'>
-                <div class='mdc-form-field'>
-                  <label for='id_collaborators'>{{ form.collaborators.label }}:</label>
-                  {{ form.collaborators|add_class:'multiple-select mdc-theme--background' }}
+                <div class="mdc-text-field mdc-text-field--outlined mdc-text-field--dense" data-mdc-auto-init="MDCTextField">
+                  <input type="text" id="autofill_collaborators" class="mdc-text-field__input"/>
+                  {{ form.collaborators.label_tag|add_class:"mdc-floating-label"|cut:":" }}
+                  <div class="mdc-notched-outline">
+                    <svg>
+                      <path class="mdc-notched-outline__path"/>
+                    </svg>
+                  </div>
+                  <div class="mdc-notched-outline__idle"></div>
                 </div>
+
+                <i class='material-icons spinning mdc-theme--primary' id='search_collaborators'>loop</i>
+
                 <p class="form-helper-text" aria-hidden="true">
                   {{ form.collaborators.help_text|safe }}
                 </p>
                 {{ form.collaborators.errors }}
+
+                <div id='current_collaborators' class='mdc-chip-set mdc-chip-set--input' data-mdc-auto-init='MDCChipSet'>
+                  {% for c in object.collaborators.all %}
+                    <div d="{{c.username}}" v="{{c.pk}}" class='mdc-chip mdc-typography--caption collaborator' onclick="updateSelect(this,'#id_collaborators');" tabindex='0' data-mdc-auto-init='MDCChip'>
+                      <div class='mdc-chip__text'>{{c.username}}</div>
+                      <i class='material-icons mdc-chip__icon mdc-chip__icon--trailing' tabindex='0' role='button'>cancel</i>
+                      </div>
+                  {% endfor %}
+                </div>
+
+                <select id='id_collaborators' name='collaborators' multiple='multiple' hidden='true'>
+                  {% for c in object.collaborators.all %}
+                    <option selected="selected" value={{c.pk}}>{{c.username}}</option>
+                  {% endfor %}
+                </select>
+
               </div>
             </div>
+
           </div>
+
         </form>
       {% else %}
         <h2 class="mdc-typography--display1 mdc-theme--secondary">{{question.title}}</h2>
@@ -332,23 +407,30 @@
       <div style="margin-top:20px;">
         {% if form %}
           {% if object %}
+            {% if question.type == "PI" %}
+              <span class="padded">
+                <form style="display:inline" id="next" action="{% url 'answer-choice-form' question_id=object.pk %}" method="get">
+                  <button form="next" type="submit" class="mdc-button mdc-button--raised">{% trans 'Next' %}</button>
+                </form>
+              </span>
+            {% else %}
+              <span class="padded">
+                <form style="display:inline" id="next" action="{% url 'sample-answer-form' question_id=question.id %}" method="get">
+                  <button form="next" type="submit" class="mdc-button mdc-button--raised">{% trans 'Next' %}</button>
+                </form>
+              </span>
+            {% endif %}
           <span class="padded">
-            <form style="display:inline" id="next" action="{% url 'answer-choice-form' question_id=object.pk %}" method="get">
-              <button form="next" type="submit" class="mdc-button mdc-button--raised">Next</button>
-            </form>
-          </span>
-
-          <span class="padded">
-            <input form="question-create-form" class="mdc-button mdc-button--raised" type="submit" value="Save and next" />
+            <input form="question-create-form" class="mdc-button mdc-button--raised" type="submit" value="{% trans 'Save and next' %}" />
           </span>
           {% else %}
           <span class="padded">
-            <input form="question-create-form" class="mdc-button mdc-button--raised" type="submit" value="Add" />
+            <input form="question-create-form" class="mdc-button mdc-button--raised" type="submit" value="{% trans 'Add' %}" />
           </span>
           {% endif %}
         {% else %}
           <span class="padded">
-            <form style="display:inline" id="next" action="{% url 'sample-answer-form' question_id=object.pk %}" method="get">
+            <form style="display:inline;" id="next" action="{% url 'sample-answer-form' question_id=object.pk %}" method="get">
               <button form="next" type="submit" class="mdc-button mdc-button--raised">{% trans 'Next' %}</button>
             </form>
           </span>
@@ -366,13 +448,36 @@
 
 {% block scripts %}
 {% if form %}
+<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
 <script>
+  'use strict';
   bundle.bindCheckbox();
   bundle.bindAjaxTextInputForm('show_discipline_form', 'discipline_form', "{% url 'discipline-create' %}");
   bundle.bindAjaxTextInputForm('show_category_form', 'category_form', "{% url 'category-create' %}");
 
+  function updateForm(){
+    if ($('#id_type').val() == "RO") {
+      $('.peerinst').toggle(false);
+    }
+    else {
+      $('.peerinst').toggle(true);
+    }
+    enumerate();
+  }
+
+  $('#id_type').change(function(){
+    if (this.value != "{{question.type}}") {
+      $('#next').find('button').attr('disabled', 'true');
+    }
+    else {
+      $('#next').find('button').attr('disabled', false);
+    }
+    updateForm();
+  });
+
+  updateForm();
+
   function limitFileSize() {
-    'use strict';
     var imageForm = document.getElementById('id_image');
     var warning = document.getElementById('warning');
     imageForm.setAttribute('accept', '.png, .jpg, .jpeg, .gif');
@@ -381,24 +486,120 @@
       if (fileSize > 1000000) {
         window.alert('File too big: '+fileSize/1000+'kB');
         warning.style.display = 'inline';
-        [].forEach.call(document.querySelectorAll('.mdc-button'),
-          function(el) {
-            el.disabled=true;
-          }
-        );
+        $('.mdc-button').each(function() {
+          $(this).attr('disabled',true);
+        });
       }
       else {
         warning.style.display = 'none';
-        [].forEach.call(document.querySelectorAll('.mdc-button'),
-          function(el) {
-            el.disabled=false;
-          }
-        );
+        $('.mdc-button').each(function() {
+          $(this).attr('disabled',false);
+        });
       }
       return;
     }
   }
+
   limitFileSize();
+
+  function enumerate(){
+    $('.number-box:visible').each(function(i) {
+      $(this).children('.number')[0].innerHTML = i+1;
+    });
+  }
+
+  // Generators for autocomplete
+  const response = function(searchClass, spinnerId) {
+    return function( event, ui ) {
+      // NB: Pass by reference.  ui can be modified, but not recreated.
+      let currentList = $.map($(searchClass), function(obj, i) {
+        return $(obj).attr('d');
+      });
+
+      let tmp = ui.content.filter( function(el) {
+        return !currentList.includes(el.label);
+      });
+
+      let l = ui.content.length
+      while (l > 0) {
+        ui.content.pop();
+        l = ui.content.length;
+      }
+
+      for (let i = 0; i < tmp.length; i++) {
+        ui.content.push(tmp[i]);
+      }
+
+      if (ui.content.length == 0) {
+        // Could add hint that there are no results
+      }
+
+      $(spinnerId).css('opacity', 0);
+      return;
+    }
+  }
+
+  const search = function(spinnerId) {
+    return function( event, ui ) {
+      $(spinnerId).css('opacity', 1);
+    }
+  }
+
+  const focus = function( event, ui ) {
+    event.preventDefault();
+    $(this).val(ui.item.label);
+  }
+
+  const select = function(currentIds, className, formId) {
+    return function( event, ui ) {
+      event.preventDefault();
+      $(this).val("");
+
+      $(currentIds).append("<div d="+ui.item.label+" v="+ui.item.value+" class='mdc-chip mdc-typography--caption "+className+"' onclick=\"updateSelect(this,\'"+formId+"\');\" tabindex='0' data-mdc-auto-init='MDCChip'>\
+        <div class='mdc-chip__text'>"+ui.item.label+"</div>\
+        <i class='material-icons mdc-chip__icon mdc-chip__icon--trailing' tabindex='0' role='button'>cancel</i>\
+        </div>");
+
+      $(formId).append("<option selected='selected' value="+ui.item.value+">"+ui.item.label+"</option>");
+    }
+  }
+
+  function updateSelect(el, formId) {
+    el.remove();
+    $(formId).find("[value="+$(el).attr('v')+"]").remove();
+  }
+
+  $('#autofill_collaborators').autocomplete({
+    delay: 200,
+    minLength: 3,
+    classes: {
+      "ui-autocomplete" : "mdc-typography--body1"
+    },
+    source: "{% url 'search-users' %}",
+    response: response('.collaborator', '#search_collaborators'),
+    search: search('#search_collaborators'),
+    focus: focus,
+    select: select('#current_collaborators', 'collaborator', '#id_collaborators'),
+    autoFocus: true,
+  });
+
+  function bindCategoryAutofill() {
+    $('#autofill_categories').autocomplete({
+      delay: 300,
+      minLength: 3,
+      classes: {
+        "ui-autocomplete" : "mdc-typography--body1"
+      },
+      source: "{% url 'search-categories' %}",
+      response: response('.category', '#search_categories'),
+      search: search('#search_categories'),
+      focus: focus,
+      select: select('#current_categories', 'category', '#id_category'),
+      autoFocus: true,
+    });
+  }
+  bindCategoryAutofill();
+
 
   // TinyMCE bind to textarea
   tinymce.init({
