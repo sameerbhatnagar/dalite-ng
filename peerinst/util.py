@@ -877,7 +877,7 @@ def serialize_events_to_dataframe(events):
 
     for j,e in enumerate(events.filter(event_type='problem_check'),i+1):
         df.loc[j] = pd.Series(build_event_dict(e,columns,event_columns))
-    
+
     for k,e in enumerate(events.filter(event_type='save_problem_success'),j+1):
         df.loc[k] = pd.Series(build_event_dict(e,columns,event_columns))
 
@@ -896,12 +896,12 @@ def get_lti_data_as_csv(weeks,username=None):
         )
     print('events filteres')
     print(datetime.datetime.now())
-    
-    df=serialize_events_to_dataframe(events) 
-    
+
+    df=serialize_events_to_dataframe(events)
+
     print('serialied df')
     print(datetime.datetime.now())
-    
+
     fname = os.path.join(settings.BASE_DIR,'data.csv')
     with open(fname,'w') as f:
         df.to_csv(path_or_buf=f,encoding='utf-8')

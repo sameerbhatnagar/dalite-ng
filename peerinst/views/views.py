@@ -2619,7 +2619,7 @@ def question_search(request):
             query_term = [
                 q
                 for q in query_term
-                if q not in query_all and q.answerchoice_set.count() > 0
+                if q not in query_all and (q.answerchoice_set.count() > 0 or q.type == "RO")
             ]
 
             query_meta[term] = query_term
