@@ -12,12 +12,12 @@
   vertical-align: sub;
   animation: 1s ease-in-out infinite spin;
 }
-.mdc-chip__icon--trailing {
-  pointer-events: none;
-}
 @keyframes spin {
   from { transform: rotate(0deg); }
   to   { transform: rotate(-180deg); }
+}
+.mdc-chip__icon--trailing {
+  pointer-events: none;
 }
 .image-field {
   padding-top:6px;
@@ -486,19 +486,15 @@
       if (fileSize > 1000000) {
         window.alert('File too big: '+fileSize/1000+'kB');
         warning.style.display = 'inline';
-        [].forEach.call(document.querySelectorAll('.mdc-button'),
-          function(el) {
-            el.disabled=true;
-          }
-        );
+        $('.mdc-button').each(function() {
+          $(this).attr('disabled',true);
+        });
       }
       else {
         warning.style.display = 'none';
-        [].forEach.call(document.querySelectorAll('.mdc-button'),
-          function(el) {
-            el.disabled=false;
-          }
-        );
+        $('.mdc-button').each(function() {
+          $(this).attr('disabled',false);
+        });
       }
       return;
     }

@@ -2,34 +2,34 @@
 
 <form id="category_create_form" action="{% url 'category-create' %}" method="post">
   {% csrf_token %}
-  {% for field in form %}
-    <div class="mdc-text-field mdc-text-field--outlined mdc-text-field--dense" data-mdc-auto-init="MDCTextField">
-      {{ field|add_class:"mdc-text-field__input" }}
-      {{ field.label_tag|add_class:"mdc-floating-label"|cut:":" }}
-      <div class="mdc-notched-outline">
-        <svg>
-          <path class="mdc-notched-outline__path"/>
-        </svg>
-      </div>
-      <div class="mdc-notched-outline__idle"></div>
+  <div class="mdc-text-field mdc-text-field--outlined mdc-text-field--dense" data-mdc-auto-init="MDCTextField">
+    {{ form.title|add_class:"mdc-text-field__input" }}
+    {{ form.title.label_tag|add_class:"mdc-floating-label"|cut:":" }}
+    <div class="mdc-notched-outline">
+      <svg>
+        <path class="mdc-notched-outline__path"/>
+      </svg>
     </div>
-    {{ field.errors }}
-  {% endfor %}
+    <div class="mdc-notched-outline__idle"></div>
+  </div>
   <i id="submit_category_form" class="material-icons md-24 mdc-icon-button mdc-theme--primary mdc-ripple-surface icon-list">
     add
   </i>
   <i id="clear_category_form" class="material-icons md-24 mdc-icon-button mdc-theme--primary mdc-ripple-surface icon-list">
     clear
   </i>
+  {{ form.title.errors }}
 </form>
 
 <script>
 'use strict';
 
+// Bind form submit to icon
 $( "#submit_category_form" ).click(function() {
   $( "#category_create_form" ).submit();
 });
 
+// Handle clear
 $( "#clear_category_form" ).click(function() {
   $( "#category_form" ).load("{% url 'category-form' %}", function(){
     bundle.bindAjaxTextInputForm('show_category_form', 'category_form', "{% url 'category-create' %}");
@@ -38,6 +38,7 @@ $( "#clear_category_form" ).click(function() {
   });
 });
 
+// Setup ajax call and attach a submit handler to the form
 $.ajaxSetup({
     beforeSend: function(xhr, settings) {
         if (!bundle.csrfSafeMethod(settings.type) && !this.crossDomain) {
@@ -45,11 +46,7 @@ $.ajaxSetup({
         }
     }
 });
-
-// Attach a submit handler to the form
 $( "#category_create_form" ).submit(function( event ) {
-
-  // Stop form from submitting normally
   event.preventDefault();
 
   // Get some values from elements on the page:
@@ -67,7 +64,6 @@ $( "#category_create_form" ).submit(function( event ) {
     bindCategoryAutofill();
     bundle.autoInit();
     $('#autofill_categories').val(title).focus().autocomplete("search");
-
   });
 });
 </script>
