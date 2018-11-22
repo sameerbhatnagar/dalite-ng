@@ -125,7 +125,7 @@
     </div>
 
     {% if assignment_last %}
-    {% if not assignment_expired and second_choice_label %}
+    {% if not assignment_expired and second_choice_label or first_choice_label and question.type == "RO" %}
     <a class='next-question mdc-button mdc-button--unelevated' href="{% url 'finish-assignment' %}">
       Finish
     </a>
