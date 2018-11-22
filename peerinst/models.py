@@ -154,7 +154,7 @@ class Question(models.Model):
         blank=True,
         help_text=_(
             "Optional. A video to include after the question text. All "
-            "videos should include transcripts."
+            "videos should include transcripts.  Format: https://www.youtube.com/embed/..."
         ),
     )
     ALPHA = 0
