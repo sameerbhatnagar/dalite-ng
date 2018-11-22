@@ -12,6 +12,9 @@
   vertical-align: sub;
   animation: 1s ease-in-out infinite spin;
 }
+.mdc-chip__icon--trailing {
+  pointer-events: none; 
+}
 @keyframes spin {
   from { transform: rotate(0deg); }
   to   { transform: rotate(-180deg); }
@@ -573,6 +576,9 @@
   $('#autofill_collaborators').autocomplete({
     delay: 200,
     minLength: 3,
+    classes: {
+      "ui-autocomplete" : "mdc-typography--body1"
+    },
     source: "{% url 'search-users' %}",
     response: response('.collaborator', '#search_collaborators'),
     search: search('#search_collaborators'),
@@ -585,6 +591,9 @@
     $('#autofill_categories').autocomplete({
       delay: 200,
       minLength: 3,
+      classes: {
+        "ui-autocomplete" : "mdc-typography--body1"
+      },
       source: "{% url 'search-categories' %}",
       response: response('.category', '#search_categories'),
       search: search('#search_categories'),
