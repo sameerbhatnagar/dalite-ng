@@ -13,7 +13,7 @@
   animation: 1s ease-in-out infinite spin;
 }
 .mdc-chip__icon--trailing {
-  pointer-events: none; 
+  pointer-events: none;
 }
 @keyframes spin {
   from { transform: rotate(0deg); }
@@ -430,7 +430,7 @@
           {% endif %}
         {% else %}
           <span class="padded">
-            <form style="display:inline" id="next" action="{% url 'sample-answer-form' question_id=object.pk %}" method="get">
+            <form style="display:inline;" id="next" action="{% url 'sample-answer-form' question_id=object.pk %}" method="get">
               <button form="next" type="submit" class="mdc-button mdc-button--raised">{% trans 'Next' %}</button>
             </form>
           </span>
@@ -520,7 +520,7 @@
         return $(obj).attr('d');
       });
 
-      let tmp = ui.content.filter( el => {
+      let tmp = ui.content.filter( function(el) {
         return !currentList.includes(el.label);
       });
 
@@ -589,7 +589,7 @@
 
   function bindCategoryAutofill() {
     $('#autofill_categories').autocomplete({
-      delay: 200,
+      delay: 300,
       minLength: 3,
       classes: {
         "ui-autocomplete" : "mdc-typography--body1"
