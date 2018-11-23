@@ -64,6 +64,11 @@ def old_patterns():
             name="discipline-form",
         ),
         url(
+            r"^discipline/form$",
+            views.discipline_select_form,
+            name="discipline-form",
+        ),
+        url(
             r"^disciplines/create$",
             views.DisciplinesCreateView.as_view(),
             name="disciplines-create",
@@ -80,6 +85,11 @@ def old_patterns():
         ),
         url(
             r"^category/form/(?P<pk>[0-9]+)$",
+            views.category_select_form,
+            name="category-form",
+        ),
+        url(
+            r"^category/form$",
             views.category_select_form,
             name="category-form",
         ),
@@ -494,6 +504,23 @@ def student_patterns():
     ]
 
 
+def search_patterns():
+    return [
+        url(r"^search/user$", views.search_users, name="search-users"),
+        url(
+            r"^search/category$",
+            views.search_categories,
+            name="search-categories",
+        ),
+    ]
+
+
 urlpatterns = reduce(
-    add, [old_patterns(), group_patterns(), student_patterns()]
+    add,
+    [
+        old_patterns(),
+        group_patterns(),
+        student_patterns(),
+        search_patterns(),
+    ],
 )

@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 
 from django.db import models
+from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
 from .assignment import Assignment
@@ -109,3 +110,50 @@ class AnswerVote(models.Model):
     vote_type = models.PositiveSmallIntegerField(
         _("Vote type"), choices=VOTE_TYPE_CHOICES
     )
+
+
+
+class RationaleOnlyManager(models.Manager):
+    def get_by_natural_key(self, title):
+        return self.get(title=title)
+
+    def get_queryset(self):
+        return super(RationaleOnlyManager, self).get_queryset().filter(
+            type='RO')
+
+
+class RationaleOnlyQuestion(Question):
+    objects = RationaleOnlyManager()
+    class Meta:
+        proxy = True
+
+    def start_form_valid(request, view, form):
+        rationale = form.cleaned_data["rationale"]
+
+        # Set first_answer_choice to 0 to indicate null
+        answer = Answer(
+            question=view.question,
+            assignment=view.assignment,
+            first_answer_choice=0,
+            rationale=rationale,
+            user_token=view.user_token,
+            time=timezone.now(),
+        )
+        answer.save()
+
+        view.emit_event(
+            "save_problem_success",
+            success="correct",
+            rationale=rationale,
+            grade=answer.get_grade(),
+        )
+        view.stage_data.clear()
+
+        return
+
+    def is_correct(*args):
+        return True
+
+    def get_start_form_class(self):
+        from ..forms import RationaleOnlyForm
+        return RationaleOnlyForm

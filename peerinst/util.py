@@ -899,12 +899,12 @@ def get_lti_data_as_csv(weeks_ago_start,weeks_ago_stop=0,username=None):
         )
     print('events filtered')
     print(datetime.datetime.now())
-    
-    df=serialize_events_to_dataframe(events) 
-    
+
+    df=serialize_events_to_dataframe(events)
+
     print('serialied df')
     print(datetime.datetime.now())
-    
+
     fname = os.path.join(settings.BASE_DIR,'data.csv')
     with open(fname,'w') as f:
         df.to_csv(path_or_buf=f,encoding='utf-8')

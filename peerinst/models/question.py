@@ -59,6 +59,12 @@ class GradingScheme(object):
     ADVANCED = 1
 
 
+QUESTION_TYPES = (
+    ('PI', 'Peer instruction'),
+    ('RO', 'Rationale only'),
+)
+
+
 class QuestionManager(models.Manager):
     def get_by_natural_key(self, title):
         return self.get(title=title)
@@ -75,6 +81,13 @@ class Question(models.Model):
             "is available."
         ),
     )
+    type = models.CharField(
+        _("Question type"),
+        max_length=2,
+        choices=QUESTION_TYPES,
+        default='PI',
+        help_text=_("Choose 'peer instruction' for two-step multiple choice with rationale or 'rationale only' for a simple text response."),
+        )
     title = models.CharField(
         _("Question title"),
         unique=True,
@@ -128,7 +141,7 @@ class Question(models.Model):
         blank=True,
         help_text=_(
             "Optional. A video to include after the question text. All "
-            "videos should include transcripts."
+            "videos should include transcripts.  Format: https://www.youtube.com/embed/..."
         ),
     )
     ALPHA = 0
@@ -212,6 +225,27 @@ class Question(models.Model):
             return "{} - {}".format(self.discipline, self.title)
         return self.title
 
+    def get_start_form_class(self):
+        from ..forms import FirstAnswerForm
+        return FirstAnswerForm
+
+    def start_form_valid(request, view, form):
+        first_answer_choice = int(form.cleaned_data["first_answer_choice"])
+        correct = view.question.is_correct(first_answer_choice)
+        rationale = form.cleaned_data["rationale"]
+        view.stage_data.update(
+            first_answer_choice=first_answer_choice,
+            rationale=rationale,
+            completed_stage="start",
+        )
+        view.emit_event(
+            "problem_check",
+            first_answer_choice=first_answer_choice,
+            success="correct" if correct else "incorrect",
+            rationale=rationale,
+        )
+        return
+
     def clean(self):
         errors = {}
         fields = ["image", "video_url"]
@@ -241,10 +275,7 @@ class Question(models.Model):
             return iter(string.ascii_uppercase)
         elif self.answer_style == Question.NUMERIC:
             return itertools.imap(str, itertools.count(1))
-        else:
-            raise ValueError(
-                "The field Question.answer_style has an invalid value."
-            )
+        assert False, "The field Question.answer_style has an invalid value."
 
     def get_choice_label(self, index):
         """Return an answer label for answer index with the style determined by answer_style.
@@ -257,10 +288,7 @@ class Question(models.Model):
             return string.ascii_uppercase[index - 1]
         elif self.answer_style == Question.NUMERIC:
             return str(index)
-        else:
-            raise ValueError(
-                "The field Question.answer_style has an invalid value."
-            )
+        assert False, "The field Question.answer_style has an invalid value."
 
     def get_choices(self):
         """Return a list of pairs (answer label, answer choice text)."""

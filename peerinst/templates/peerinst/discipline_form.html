@@ -2,25 +2,41 @@
 
 <form id="discipline_create_form" action="{% url 'discipline-create' %}" method="post">
   {% csrf_token %}
-  {% for field in form %}
-    <div class="mdc-text-field mdc-text-field--outlined mdc-text-field--dense" data-mdc-auto-init="MDCTextField">
-      {{ field|add_class:"mdc-text-field__input" }}
-      {{ field.label_tag|add_class:"mdc-floating-label"|cut:":" }}
-      <div class="mdc-notched-outline">
-        <svg>
-          <path class="mdc-notched-outline__path"/>
-        </svg>
-      </div>
-      <div class="mdc-notched-outline__idle"></div>
+  <div class="mdc-text-field mdc-text-field--outlined mdc-text-field--dense" data-mdc-auto-init="MDCTextField">
+    {{ form.title|add_class:"mdc-text-field__input" }}
+    {{ form.title.label_tag|add_class:"mdc-floating-label"|cut:":" }}
+    <div class="mdc-notched-outline">
+      <svg>
+        <path class="mdc-notched-outline__path"/>
+      </svg>
     </div>
-    {{ field.errors }}
-  {% endfor %}
-  <div>
-    <input form="discipline_create_form" class="mdc-button mdc-button--raised" type="submit" value="{% trans 'Create' %}"/>
+    <div class="mdc-notched-outline__idle"></div>
   </div>
+  <i id="submit_discipline_form" class="material-icons md-24 mdc-icon-button mdc-theme--primary mdc-ripple-surface icon-list">
+    add
+  </i>
+  <i id="clear_discipline_form" class="material-icons md-24 mdc-icon-button mdc-theme--primary mdc-ripple-surface icon-list ">
+    clear
+  </i>
+  {{ form.title.errors }}
 </form>
 
 <script>
+'use strict';
+
+// Bind form submit to icon
+$( "#submit_discipline_form" ).click(function() {
+  $( "#discipline_create_form" ).submit();
+});
+
+// Handle clear
+$( "#clear_discipline_form" ).click(function() {
+  $( "#discipline_form" ).load("{% url 'discipline-form' %}", function(){
+    bundle.bindAjaxTextInputForm('show_discipline_form', 'discipline_form', "{% url 'discipline-create' %}");
+  });
+});
+
+// Setup ajax call and attach a submit handler to the form
 $.ajaxSetup({
     beforeSend: function(xhr, settings) {
         if (!bundle.csrfSafeMethod(settings.type) && !this.crossDomain) {
@@ -28,11 +44,7 @@ $.ajaxSetup({
         }
     }
 });
-
-// Attach a submit handler to the form
 $( "#discipline_create_form" ).submit(function( event ) {
-
-  // Stop form from submitting normally
   event.preventDefault();
 
   // Get some values from elements on the page:
@@ -46,8 +58,8 @@ $( "#discipline_create_form" ).submit(function( event ) {
   // Put the results in a div
   posting.done(function(data) {
     $('#discipline_form').empty().append(data);
-    bundle.autoInit();
     bundle.bindAjaxTextInputForm('show_discipline_form', 'discipline_form', "{% url 'discipline-create' %}");
+    bundle.autoInit();
   });
 });
 </script>
