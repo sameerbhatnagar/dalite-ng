@@ -2,20 +2,12 @@
 from __future__ import unicode_literals
 
 from django.contrib.auth.decorators import login_required
-from django.http import (
-    HttpResponse,
-    HttpResponseBadRequest,
-    HttpResponseForbidden,
-    HttpResponseRedirect,
-    HttpResponseServerError,
-    JsonResponse,
-)
-from django.shortcuts import render
+from django.http import HttpResponse, HttpResponseBadRequest
+from django.core.exceptions import PermissionDenied
 from django.template.response import TemplateResponse
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_http_methods
 import json
-import pytz
 
 from peerinst.models import Assignment, Question
 
@@ -51,17 +43,9 @@ def update_assignment_question_list(req):
         return HttpResponseBadRequest(resp.render())
 
     # Check object permissions (to be refactored using mixin)
-    if (
-        req.user in assignment.owner.all()
-        or req.user.is_staff
-    ):
+    if req.user in assignment.owner.all() or req.user.is_staff:
         # Check for student answers
-        if (
-            assignment
-            .answer_set.exclude(user_token__exact="")
-            .count()
-            > 0
-        ):
+        if assignment.answer_set.exclude(user_token__exact="").count() > 0:
             raise PermissionDenied
     else:
         raise PermissionDenied
@@ -82,4 +66,4 @@ def update_assignment_question_list(req):
         assignment.questions.add(question)
     assignment.save()
 
-    return HttpResponse('Success')
+    return HttpResponse("Success")

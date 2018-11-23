@@ -59,10 +59,7 @@ class GradingScheme(object):
     ADVANCED = 1
 
 
-QUESTION_TYPES = (
-    ('PI', 'Peer instruction'),
-    ('RO', 'Rationale only'),
-)
+QUESTION_TYPES = (("PI", "Peer instruction"), ("RO", "Rationale only"))
 
 
 class QuestionManager(models.Manager):
@@ -85,9 +82,12 @@ class Question(models.Model):
         _("Question type"),
         max_length=2,
         choices=QUESTION_TYPES,
-        default='PI',
-        help_text=_("Choose 'peer instruction' for two-step multiple choice with rationale or 'rationale only' for a simple text response."),
-        )
+        default="PI",
+        help_text=_(
+            "Choose 'peer instruction' for two-step multiple choice with "
+            "rationale or 'rationale only' for a simple text response."
+        ),
+    )
     title = models.CharField(
         _("Question title"),
         unique=True,
@@ -141,7 +141,8 @@ class Question(models.Model):
         blank=True,
         help_text=_(
             "Optional. A video to include after the question text. All "
-            "videos should include transcripts.  Format: https://www.youtube.com/embed/..."
+            "videos should include transcripts.  Format: "
+            "https://www.youtube.com/embed/..."
         ),
     )
     ALPHA = 0
@@ -227,6 +228,7 @@ class Question(models.Model):
 
     def get_start_form_class(self):
         from ..forms import FirstAnswerForm
+
         return FirstAnswerForm
 
     def start_form_valid(request, view, form):
@@ -257,7 +259,8 @@ class Question(models.Model):
             errors.update({f: msg for f in fields})
         if self.image and not self.image_alt_text:
             msg = _(
-                "You must provide alternative text for accessibility if providing an image."
+                "You must provide alternative text for accessibility if "
+                "providing an image."
             )
             errors.update({"image_alt_text": msg})
         if errors:
@@ -267,8 +270,9 @@ class Question(models.Model):
         return (self.title,)
 
     def get_choice_label_iter(self):
-        """Return an iterator over the answer labels with the style determined by answer_style.
-
+        """
+        Return an iterator over the answer labels with the style determined
+        by answer_style.
         The iterable doesn't stop after the current number of answer choices.
         """
         if self.answer_style == Question.ALPHA:
@@ -278,8 +282,9 @@ class Question(models.Model):
         assert False, "The field Question.answer_style has an invalid value."
 
     def get_choice_label(self, index):
-        """Return an answer label for answer index with the style determined by answer_style.
-
+        """
+        Return an answer label for answer index with the style determined by
+        answer_style.
         This method does not check whether index is out of bounds.
         """
         if index is None:

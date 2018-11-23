@@ -1590,9 +1590,7 @@ def question(request, assignment_id, question_id):
 
     # Reload question through proxy based on type, if needed
     if question.type == "RO":
-        question = get_object_or_404(
-            RationaleOnlyQuestion, pk=question_id
-        )
+        question = get_object_or_404(RationaleOnlyQuestion, pk=question_id)
 
     custom_key = unicode(assignment.pk) + ":" + unicode(question.pk)
     stage_data = SessionStageData(request.session, custom_key)
@@ -2619,7 +2617,8 @@ def question_search(request):
             query_term = [
                 q
                 for q in query_term
-                if q not in query_all and (q.answerchoice_set.count() > 0 or q.type == "RO")
+                if q not in query_all
+                and (q.answerchoice_set.count() > 0 or q.type == "RO")
             ]
 
             query_meta[term] = query_term

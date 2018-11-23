@@ -75,7 +75,7 @@ class Answer(models.Model):
             return float(correct)
         else:
             # Advanced grading scheme: Partial scores for individual answers
-            grade = 0.
+            grade = 0.0
             if self.question.is_correct(self.first_answer_choice):
                 grade += 0.5
             if self.question.is_correct(self.second_answer_choice):
@@ -112,18 +112,19 @@ class AnswerVote(models.Model):
     )
 
 
-
 class RationaleOnlyManager(models.Manager):
     def get_by_natural_key(self, title):
         return self.get(title=title)
 
     def get_queryset(self):
-        return super(RationaleOnlyManager, self).get_queryset().filter(
-            type='RO')
+        return (
+            super(RationaleOnlyManager, self).get_queryset().filter(type="RO")
+        )
 
 
 class RationaleOnlyQuestion(Question):
     objects = RationaleOnlyManager()
+
     class Meta:
         proxy = True
 
@@ -156,4 +157,5 @@ class RationaleOnlyQuestion(Question):
 
     def get_start_form_class(self):
         from ..forms import RationaleOnlyForm
+
         return RationaleOnlyForm

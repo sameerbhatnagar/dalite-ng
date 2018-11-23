@@ -42,15 +42,13 @@ def search_users(request):
 def search_categories(request):
     """Return list of categories"""
     if request.is_ajax():
-        categories = (
-            Category.objects.filter(
-                title__icontains=request.GET.get("term")
-            )
-            .values_list("title", "id")
-        )
-        
+        categories = Category.objects.filter(
+            title__icontains=request.GET.get("term")
+        ).values_list("title", "id")
+
         return JsonResponse(
-            [{"label": str(c[0]), "value": c[1]} for c in categories], safe=False
+            [{"label": str(c[0]), "value": c[1]} for c in categories],
+            safe=False,
         )
     else:
         # Bad request
