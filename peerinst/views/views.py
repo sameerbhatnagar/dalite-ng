@@ -1019,7 +1019,13 @@ class QuestionFormView(QuestionMixin, FormView):
 
         # Write JSON to log file
         LOGGER.info(json.dumps(event))
-        lti_event = LtiEvent(event_type=name, event_log=json.dumps(event))
+        lti_event = LtiEvent(
+            event_type=name, 
+            event_log=json.dumps(event),
+            username = self.user_token,
+            assignment_id = self.assignment.identifier,
+            question_id=self.question.pk
+            )
         lti_event.save()
 
         if self.lti_data:
