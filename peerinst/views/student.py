@@ -257,6 +257,8 @@ def index_page(req):
             )
             return HttpResponseForbidden(resp.render())
 
+    StudentNotification.clean(student)
+
     host = settings.ALLOWED_HOSTS[0]
     if host.startswith("localhost") or host.startswith("127.0.0.1"):
         protocol = "http"
