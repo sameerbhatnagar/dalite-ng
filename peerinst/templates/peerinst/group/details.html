@@ -105,7 +105,7 @@
               </span>
               <span class="mdc-list-item__meta">
                 <div class="switch-button">
-                  {% if group.student_school_id_needed %}
+                  {% if group.student_id_needed %}
                   <input type="checkbox"
                          class="switch-button__input"
                          onclick="bundle.toggleStudentIdNeeded(
@@ -119,8 +119,7 @@
                          onclick="bundle.toggleStudentIdNeeded(
                             event,
                            '{% url 'group-details-update' group.hash %}'
-                         )"
-                         checked>
+                         )">
                   {% endif %}
                   <div class="switch-button__background"></div>
                   <div class="switch-button__button"></div>
