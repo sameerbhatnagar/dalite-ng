@@ -1,16 +1,14 @@
-django>=1.8.4,<1.9
+django-analytical
 django-compressor==2.2
-django-password-validation==0.1.1
 django-grappelli>=2.7.1,<2.8
 django-htmlmin==0.10.0
-python-memcached==1.59
+django-password-validation==0.1.1
+django>=1.8.4,<1.9
 mysql-python
 pillow
 pyjwt
-pytest
-pytest-django
+python-memcached==1.59
 pytz
-django-analytical
 
 # need an unreleased SNI fix from httplib2 lib TODO: remove after it is released to PyPi
 -e git+https://github.com/httplib2/httplib2.git@5ccd260911e2db802fa97498ae92558fac8c8057#egg=httplib2-0.9.2_dev
