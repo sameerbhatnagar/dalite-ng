@@ -57,6 +57,13 @@
         <img class="question-image" style="display:none;" src="{{ g.image.url }}" alt="g.image_alt_text">
       {% endif %}
 
+      {% if g.video_url %}
+      <div id="question-video">
+        <object class="question-image" width="640" height="390" data="{{ g.video_url }}"></object>
+      </div>
+      {% endif %}
+
+
       <div class="question-answers" style="display:none;">
         <ul>
           {% for label, choice in g.get_choices %}

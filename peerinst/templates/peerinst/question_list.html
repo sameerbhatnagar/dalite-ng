@@ -31,6 +31,12 @@
       <img class="question-image" src="{{ g.image.url }}" alt="g.image_alt_text">
       {% endif %}
 
+      {% if g.video_url %}
+      <div id="question-video">
+        <object class="question-image" width="640" height="390" data="{{ g.video_url }}"></object>
+      </div>
+      {% endif %}
+
       <div class="mdc-card__actions">
         <div class="mdc-card__action-buttons" style="color:grey;">
           <div class="mdc-typography--caption">
