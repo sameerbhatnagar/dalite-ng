@@ -4,9 +4,9 @@
     margin-bottom: 0;
   }
   & > .foldable--title:before {
-    font-family: 'Material Icons';
-    content: 'chevron_right';
-    font-feature-settings: 'liga' 1;
+    font-family: "Material Icons";
+    content: "chevron_right";
+    font-feature-settings: "liga" 1;
     font-size: 3rem;
     position: relative;
     top: 14px;
@@ -20,7 +20,7 @@
 
 .foldable__unfolded {
   & > .foldable--title:before {
-    content: 'expand_more';
+    content: "expand_more";
   }
 
   & > .foldable--body {
@@ -37,4 +37,53 @@
 .draggable--dragging {
   opacity: 0.5;
   cursor: grab;
+}
+
+.switch-button {
+  position: relative;
+  height: 20px;
+  width: 40px;
+
+  & .switch-button__input {
+    cursor: pointer;
+    height: 100%;
+    margin: 0;
+    opacity: 0;
+    position: absolute;
+    width: 100%;
+    z-index: 1;
+  }
+
+  & .switch-button__background {
+    background: #e6e6e6;
+    border-radius: 15px;
+    height: 100%;
+    left: 0;
+    position: absolute;
+    top: 0;
+    transition: background 200ms;
+    width: 100%;
+    z-index: 0;
+  }
+
+  & .switch-button__button {
+    background: #a9a9a9;
+    border-radius: 15px;
+    height: 100%;
+    left: 0;
+    position: absolute;
+    top: 0;
+    transition: left 200ms, background 200ms;
+    width: 50%;
+    z-index: 0;
+  }
+
+  & .switch-button__input:checked ~ .switch-button__background {
+    background: rgba(#339966, 0.5);
+  }
+
+  & .switch-button__input:checked ~ .switch-button__button {
+    background: #339966;
+    left: 50%;
+  }
 }

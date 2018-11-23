@@ -10,7 +10,7 @@ export function getCsrfToken() {
           c
             .replace(/^\s+/, "")
             .replace(/\s*$/, "")
-            .subtring(0, name.length + 1) ===
+            .substring(0, name.length + 1) ===
           name + "=",
       )
       .map(c => decodeURIComponent(c.substring(name.length + 1)))[0];

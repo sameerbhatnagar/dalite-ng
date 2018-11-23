@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 import json
+import logging
 
 from django.contrib.auth.decorators import login_required
 from django.http import (
@@ -24,6 +25,8 @@ from peerinst.models import (
 )
 
 from .decorators import group_access_required
+
+logger = logging.getLogger("peerinst-views")
 
 
 def validate_update_data(req):
@@ -67,6 +70,23 @@ def group_details_page(req, group_hash, teacher, group):
 @require_http_methods(["POST"])
 @group_access_required
 def group_details_update(req, group_hash, teacher, group):
+    """
+    Updates the field of the group using the `name` and `value` given by the
+    post request data.
+
+    Parameters
+    ----------
+    group_hash : str
+        Hash of the group
+    teacher : Teacher
+    group : StudentGroup
+        Group corresponding to the hash (returned by `group_access_required`)
+
+    Returns
+    -------
+    HttpResponse
+        Either an empty 200 response if everything worked or an error response
+    """
 
     name, value = validate_update_data(req)
     if isinstance(name, HttpResponse):
@@ -85,10 +105,12 @@ def group_details_update(req, group_hash, teacher, group):
             return HttpResponseBadRequest(resp.render())
         group.name = value
         group.save()
+        logger.info("Group %d's name was changed to %s.", group.pk, value)
 
     elif name == "title":
         group.title = value
         group.save()
+        logger.info("Group %d's title was changed to %s.", group.pk, value)
 
     elif name == "teacher":
         try:
@@ -106,6 +128,15 @@ def group_details_update(req, group_hash, teacher, group):
             return HttpResponseBadRequest(resp.render())
         group.teacher.add(teacher)
         group.save()
+        logger.info("Teacher %d was added to group %d.", value, group.pk)
+
+    elif name == "student_id_needed":
+        group.student_id_needed = value
+        group.save()
+        logger.info(
+            "Student id needed was set to %s for group %d.", value, group.pk
+        )
+
     else:
         resp = TemplateResponse(
             req,

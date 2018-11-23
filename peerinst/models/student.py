@@ -325,6 +325,7 @@ class StudentGroupMembership(models.Model):
     group = models.ForeignKey(StudentGroup)
     current_member = models.BooleanField(default=True)
     send_emails = models.BooleanField(default=True)
+    student_school_id = models.TextField(null=True, blank=True)
 
     class Meta:
         unique_together = ("student", "group")
