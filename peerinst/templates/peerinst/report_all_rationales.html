@@ -188,11 +188,19 @@ ul {
                             <thead>
                             <tr>
                                 <th>{% trans "Student" %}</th>
+                                
                                 {% if question.type == "PI" %}                                
                                   <th>{% trans "1st Ans" %}</th>
                                 {% endif %}                                
+                                
                                 <th>{% trans "Rationale" %} </th>
                                 
+                                {% if question.sequential_review %}                                
+                                  <th>{% trans "Up" %}</th>
+                                  <th>{% trans "Down" %}</th>
+                                {% endif %}                                
+                                
+
                                 {% if question.type == "PI" %}
                                   <th>{% trans "2nd Ans" %}</th>
                                   <th>{% trans "Chosen Rationale" %}</th>
@@ -211,6 +219,11 @@ ul {
                                 {% endif %}
 
                                 <td>{{ student_response.rationale }}</td>
+
+                                {% if question.sequential_review %}                                
+                                  <th>{{ student_response.upvotes }}</th>
+                                  <th>{{ student_response.downvotes }}</th>
+                                {% endif %} 
                                
                                 {% if question.type == "PI" %}                                
                                   <td>{{ student_response.second_answer_choice }}</td>

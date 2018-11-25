@@ -513,6 +513,7 @@ def report_data_by_assignment(assignment_list, student_groups):
                 d_q["show"] = True
 
             d_q["type"] = q.type
+            d_q["sequential_review"] = q.sequential_review
             
             question_list.append(q)                 
             
@@ -655,6 +656,11 @@ def report_data_by_assignment(assignment_list, student_groups):
                 else:
                     d_q_a["chosen_rationale"] = "Stick to my own rationale"
                 d_q_a["submitted"] = student_response.time
+
+                if q.sequential_review:
+                    d_q_a["upvotes"] = student_response.upvotes
+                    d_q_a["downvotes"] = student_response.downvotes
+
                 d_q["student_responses"].append(d_q_a)
 
             d_a["questions"].append(d_q)
