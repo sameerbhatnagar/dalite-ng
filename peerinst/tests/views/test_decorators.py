@@ -1,4 +1,5 @@
 from django.http import HttpResponseForbidden
+from django.contrib.auth.models import AnonymousUser
 from django.test import RequestFactory, TestCase
 
 from peerinst.tests.fixtures import *  # noqa
@@ -49,9 +50,19 @@ def test_student_required__with_teacher(client, rf, teacher):
     assert resp.status_code == 403
 
 
-def test_student_required__with_anonymous_user(client, rf, user):
+def test_student_required__with_regular_user(client, rf, user):
     req = rf.get("/test")
     req.user = user
+
+    fct = student_required(lambda req, student: student)
+    resp = fct(req)
+    assert isinstance(resp, HttpResponseForbidden)
+    assert resp.status_code == 403
+
+
+def test_student_required__with_anonymous_user(client, rf, user):
+    req = rf.get("/test")
+    req.user = AnonymousUser()
 
     fct = student_required(lambda req, student: student)
     resp = fct(req)

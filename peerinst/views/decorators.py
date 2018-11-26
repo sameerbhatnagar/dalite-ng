@@ -150,7 +150,7 @@ def student_required(fct):
     def wrapper(req, *args, **kwargs):
         try:
             student = Student.objects.get(student=req.user)
-        except Student.DoesNotExist:
+        except (Student.DoesNotExist, TypeError):
             logger.warning(
                 "Access to {} with a non student user.".format(req.path)
             )

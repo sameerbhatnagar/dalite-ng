@@ -478,6 +478,25 @@ def remove_notification(req):
 @student_required
 @require_http_methods(["POST"])
 def update_student_id(req, student):
+    """
+    Updates the student id.
+
+    Parameters
+    ----------
+    req : HttpRequest
+        Request with post parameters:
+            student_id : str
+                New student id
+            group_name : str
+                Name of the group (unique key)
+    student : Student
+        Student instance returned by @student_required
+
+    Returns
+    -------
+    HttpResponse
+        Empty 200 response if no errors or error response
+    """
     try:
         data = json.loads(req.body)
     except ValueError:
@@ -510,7 +529,7 @@ def update_student_id(req, student):
             "400.html",
             context={"message": _("The wanted group doesn't seem to exist.")},
         )
-        return HttpResponseForbidden(resp.render())
+        return HttpResponseBadRequest(resp.render())
 
     try:
         membership = StudentGroupMembership.objects.get(
@@ -525,7 +544,7 @@ def update_student_id(req, student):
             "400.html",
             context={"message": _("You don't seem to be part of this group.")},
         )
-        return HttpResponseForbidden(resp.render())
+        return HttpResponseBadRequest(resp.render())
 
     membership.student_school_id = student_id
     membership.save()
