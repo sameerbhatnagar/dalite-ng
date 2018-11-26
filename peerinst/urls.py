@@ -491,6 +491,11 @@ def student_patterns():
             views.student.remove_notification,
             name="student-remove-notification",
         ),
+        url(
+            r"^student/update/student-id/$",
+            views.student.update_student_id,
+            name="student-change-id",
+        ),
     ]
 
 

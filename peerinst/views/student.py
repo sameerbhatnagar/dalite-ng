@@ -24,6 +24,7 @@ from django.template.response import TemplateResponse
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_http_methods
 
+from tos.models import Consent
 from ..models import (
     Student,
     StudentAssignment,
@@ -36,9 +37,8 @@ from ..students import (
     create_student_token,
     get_student_username_and_password,
 )
+from .decorators import student_required
 
-# tos
-from tos.models import Consent
 
 logger = logging.getLogger("peerinst-views")
 
@@ -341,6 +341,7 @@ def index_page(req):
                 "notifications": group.send_emails,
                 "member_of": group.current_member,
                 "assignments": assignments[group],
+                "student_id_needed": group.group.student_id_needed,
             }
             for group in groups
         ],
@@ -469,5 +470,68 @@ def remove_notification(req):
         StudentNotification.objects.get(pk=notification_pk).delete()
     except StudentNotification.DoesNotExist:
         pass
+
+    return HttpResponse()
+
+
+@student_required
+@require_http_methods(["POST"])
+def update_student_id(req, student):
+    try:
+        data = json.loads(req.body)
+    except ValueError:
+        logger.warning("The sent data wasn't in a valid JSON format.")
+        resp = TemplateResponse(
+            req,
+            "400.html",
+            context={"message": _("Wrong data type was sent.")},
+        )
+        return HttpResponseBadRequest(resp.render())
+
+    try:
+        student_id = data["student_id"]
+        group_name = data["group_name"]
+    except KeyError as e:
+        logger.warning("The arguments '%s' were missing.", ",".join(e.args))
+        resp = TemplateResponse(
+            req,
+            "400.html",
+            context={"message": _("There are missing parameters.")},
+        )
+        return HttpResponseBadRequest(resp.render())
+
+    try:
+        group = StudentGroup.objects.get(name=group_name)
+    except StudentGroup.DoesNotExist:
+        logger.warning("Group {} doesn't exist.".format(group_name))
+        resp = TemplateResponse(
+            req,
+            "400.html",
+            context={"message": _("The wanted group doesn't seem to exist.")},
+        )
+        return HttpResponseForbidden(resp.render())
+
+    try:
+        membership = StudentGroupMembership.objects.get(
+            student=student, group=group
+        )
+    except StudentGroupMembership.DoesNotExist:
+        logger.warning(
+            "Student {} isn't part of group {}.".format(student.pk, group.pk)
+        )
+        resp = TemplateResponse(
+            req,
+            "400.html",
+            context={"message": _("You don't seem to be part of this group.")},
+        )
+        return HttpResponseForbidden(resp.render())
+
+    membership.student_school_id = student_id
+    membership.save()
+    logger.info(
+        "Student id for student {} and group {} changed to {}.".format(
+            student.pk, group.pk, student_id
+        )
+    )
 
     return HttpResponse()

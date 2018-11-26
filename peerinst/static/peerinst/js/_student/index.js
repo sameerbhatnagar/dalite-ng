@@ -134,6 +134,97 @@ export function removeNotification(event, url, notificationPk, link) {
     .catch(err => console.log(err));
 }
 
+export function editStudentId(event) {
+  let span = event.currentTarget.parentNode.querySelector("span");
+  let input = event.currentTarget.parentNode.querySelector("input");
+  let copyBtn = event.currentTarget.parentNode.querySelector(
+    ".student-group--id__copy",
+  );
+  let editBtn = event.currentTarget.parentNode.querySelector(
+    ".student-group--id__edit",
+  );
+  let confirmBtn = event.currentTarget.parentNode.querySelector(
+    ".student-group--id__confirm",
+  );
+  let cancelBtn = event.currentTarget.parentNode.querySelector(
+    ".student-group--id__cancel",
+  );
+
+  input.value = span.textContent;
+
+  span.style.display = "none";
+  copyBtn.style.display = "none";
+  editBtn.style.display = "none";
+  input.style.display = "block";
+  confirmBtn.style.display = "flex";
+  cancelBtn.style.display = "flex";
+
+  input.focus();
+}
+
+export function cancelStudentIdEdition(event) {
+  let span = event.currentTarget.parentNode.querySelector("span");
+  let input = event.currentTarget.parentNode.querySelector("input");
+  let copyBtn = event.currentTarget.parentNode.querySelector(
+    ".student-group--id__copy",
+  );
+  let editBtn = event.currentTarget.parentNode.querySelector(
+    ".student-group--id__edit",
+  );
+  let confirmBtn = event.currentTarget.parentNode.querySelector(
+    ".student-group--id__confirm",
+  );
+  let cancelBtn = event.currentTarget.parentNode.querySelector(
+    ".student-group--id__cancel",
+  );
+
+  span.style.display = "flex";
+  copyBtn.style.display = "flex";
+  editBtn.style.display = "flex";
+  input.style.display = "none";
+  confirmBtn.style.display = "none";
+  cancelBtn.style.display = "none";
+}
+
+export function saveStudentId(event, url, groupName) {
+  let span = event.currentTarget.parentNode.querySelector("span");
+  let input = event.currentTarget.parentNode.querySelector("input");
+  let copyBtn = event.currentTarget.parentNode.querySelector(
+    ".student-group--id__copy",
+  );
+  let editBtn = event.currentTarget.parentNode.querySelector(
+    ".student-group--id__edit",
+  );
+  let confirmBtn = event.currentTarget.parentNode.querySelector(
+    ".student-group--id__confirm",
+  );
+  let cancelBtn = event.currentTarget.parentNode.querySelector(
+    ".student-group--id__cancel",
+  );
+
+  let data = {
+    student_id: input.value,
+    group_name: groupName,
+  };
+
+  let req = buildReq(data, "post");
+  fetch(url, req)
+    .then(function(resp) {
+      location.reload();
+    })
+    .catch(function(err) {
+      console.log(err);
+    });
+}
+
+export function handleStudentIdKeyDown(event, url, groupName) {
+  if (event.key === "Enter") {
+    saveStudentId(event, url, groupName);
+  } else if (event.key === "Escape") {
+    cancelStudentIdEdition(event);
+  }
+}
+
 function verifyJoinGroupDisabledStatus() {
   let input = document.querySelector("#student-page-add-group--box input");
   let select = document.querySelector("#student-page-add-group--box select");

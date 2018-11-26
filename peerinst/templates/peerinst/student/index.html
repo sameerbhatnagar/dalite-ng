@@ -147,66 +147,108 @@
           {% if group.member_of %}
           <div class="student-group">
             <div class="student-group--title">
-              <h3>{{ group.title }}</h3>
-              <div class="student-group--notifications">
-                {% if group.notifications %}
-                <i class="material-icons md-28"
-                   onclick="bundle.toggleGroupNotifications(
-                     event,
-                     '{% url 'student-toggle-group-notifications' %}',
-                     '{{ student.student.username }}',
-                     '{{ group.name }}'
-                   )"
-                   title="{% trans 'Toggle email reminders for this group' %}">
-                  notifications
+              {% if group.student_id_needed %}
+              <div class="student-group--id">
+                <i class="material-icons md-28 student-group--id__copy"
+                   style="display: flex;">
+                  file_copy
                 </i>
-                {% else %}
-                <i class="material-icons md-28 student-group--notifications__disabled"
-                   onclick="bundle.toggleGroupNotifications(
-                     event,
-                     '{% url 'student-toggle-group-notifications' %}',
-                     '{{ student.student.username }}',
-                     '{{ group.name }}'
-                   )"
-                   title="{% trans 'Toggle email reminders for this group' %}">
-                  notifications_off
+                <span class="student-group--id__id"
+                      style="display: block;">
+                  {{ group.student_school_id }}
+                </span>
+                <input type="text"
+                       value="{{ group.student_school_id }}"
+                       class="student-group--id__input"
+                       onkeydown="bundle.handleStudentIdKeyDown(
+                        event,
+                        '{% url 'student-change-id' %}',
+                        '{{ group.name }}'
+                       )"
+                       style="display: none;">
+                <i class="material-icons md-28 student-group--id__edit"
+                   style="display: flex;"
+                   onclick="bundle.editStudentId(event)">
+                  edit
                 </i>
-                {% endif %}
+                <i class="material-icons md-28 student-group--id__confirm"
+                   style="display: none;"
+                   onclick="bundle.saveStudentId(
+                    event, 
+                    '{% url 'student-change-id' %}',
+                    '{{ group.name }}'
+                   )">
+                  check
+                </i>
+                <i class="material-icons md-28 student-group--id__cancel"
+                   style="display: none;"
+                   onclick="bundle.cancelStudentIdEdition(event)">
+                  close
+                </i>
               </div>
-              <div class="student-group--remove"
-                   title="{% trans 'Leave group' %}">
-                <i class="material-icons md-28"
-                   onclick="bundle.toggleLeaveGroup(event)">
-                  remove_circle_outline
-                </i>
-                <div class="student-group--remove-confirmation-box"
-                     style="display: none;"
-                     onclick="event.stopPropagation; bundle.toggleLeaveGroup(event)">
-                  <div onclick="event.stopPropagation();">
-                    <h3>Leave group {{ group.title }}</h3>
-                    <p>
-                      {% blocktrans %}
-                      This will remove you from the group. All your answers will be
-                      saved, but you won't appear as a member of the group to your
-                      teacher.
-                      {% endblocktrans %}
-                    </p>
-                    <p>
-                      {% trans 'Are you sure?' %}
-                    </p>
-                    <button class="mdc-button mdc-button--unelevated"
-                            onclick="bundle.leaveGroup(
-                              event,
-                              '{% url 'student-leave-group' %}',
-                              '{{ student.student.username }}',
-                              '{{ group.name }}'
-                            )">
-                      {% trans 'Remove' %}
-                    </button>
-                    <button class="mdc-button"
-                            onclick="bundle.toggleLeaveGroup(event)">
-                      {% trans 'Cancel' %}
-                    </button>
+              {% endif %}
+              <h3>{{ group.title }}</h3>
+              <div class="student-group--icons">
+                <div class="student-group--notifications">
+                  {% if group.notifications %}
+                  <i class="material-icons md-28"
+                     onclick="bundle.toggleGroupNotifications(
+                       event,
+                       '{% url 'student-toggle-group-notifications' %}',
+                       '{{ student.student.username }}',
+                       '{{ group.name }}'
+                     )"
+                     title="{% trans 'Toggle email reminders for this group' %}">
+                    notifications
+                  </i>
+                  {% else %}
+                  <i class="material-icons md-28 student-group--notifications__disabled"
+                     onclick="bundle.toggleGroupNotifications(
+                       event,
+                       '{% url 'student-toggle-group-notifications' %}',
+                       '{{ student.student.username }}',
+                       '{{ group.name }}'
+                     )"
+                     title="{% trans 'Toggle email reminders for this group' %}">
+                    notifications_off
+                  </i>
+                  {% endif %}
+                </div>
+                <div class="student-group--remove"
+                     title="{% trans 'Leave group' %}">
+                  <i class="material-icons md-28"
+                     onclick="bundle.toggleLeaveGroup(event)">
+                    remove_circle_outline
+                  </i>
+                  <div class="student-group--remove-confirmation-box"
+                       style="display: none;"
+                       onclick="event.stopPropagation; bundle.toggleLeaveGroup(event)">
+                    <div onclick="event.stopPropagation();">
+                      <h3>Leave group {{ group.title }}</h3>
+                      <p>
+                        {% blocktrans %}
+                        This will remove you from the group. All your answers will be
+                        saved, but you won't appear as a member of the group to your
+                        teacher.
+                        {% endblocktrans %}
+                      </p>
+                      <p>
+                        {% trans 'Are you sure?' %}
+                      </p>
+                      <button class="mdc-button mdc-button--unelevated"
+                              onclick="bundle.leaveGroup(
+                                event,
+                                '{% url 'student-leave-group' %}',
+                                '{{ student.student.username }}',
+                                '{{ group.name }}'
+                              )">
+                        {% trans 'Remove' %}
+                      </button>
+                      <button class="mdc-button"
+                              onclick="bundle.toggleLeaveGroup(event)">
+                        {% trans 'Cancel' %}
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
