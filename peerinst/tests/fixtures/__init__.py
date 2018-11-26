@@ -1,5 +1,6 @@
-from .auth import user
-from .group import group
-from .student import student, students
-from .tos import tos_student, tos_teacher
-from .utils import client
+from .auth import user  # noqa
+from .group import group  # noqa
+from .student import student, students  # noqa
+from .teacher import teacher  # noqa
+from .tos import tos_student, tos_teacher  # noqa
+from .utils import client  # noqa
