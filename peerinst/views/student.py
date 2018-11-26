@@ -442,6 +442,7 @@ def send_signin_link(req):
     return render(req, "peerinst/student/login_confirmation.html", context)
 
 
+@student_required
 @require_http_methods(["POST"])
 def remove_notification(req):
     try:
