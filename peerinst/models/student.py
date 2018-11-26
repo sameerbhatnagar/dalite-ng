@@ -704,7 +704,7 @@ class StudentNotification(models.Model):
     expiration = models.DateTimeField(null=True, blank=True)
 
     @staticmethod
-    def create(type_, student, assignment=None):
+    def create(type_, student, assignment=None, expiration=None):
         """
         Creates a new notification of the given `type_` for the `student`.
 
@@ -717,6 +717,8 @@ class StudentNotification(models.Model):
             Student for whom the notification is created
         assignment : Optional[StudentAssignment] (default : None)
             Assignment corresponding to the notification if needed
+        expiration : Optional[datetime.datetime] (default : None)
+            Expiration time
         """
         assert isinstance(
             student, Student
@@ -803,6 +805,7 @@ class StudentNotification(models.Model):
                     link=link,
                     text=text,
                     hover_text=hover_text,
+                    expiration=expiration,
                 )
             logger.info(
                 "Notification of type {} was created for student {}.".format(
