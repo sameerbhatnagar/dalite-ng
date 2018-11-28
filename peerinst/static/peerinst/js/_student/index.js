@@ -2,8 +2,544 @@
 
 import { buildReq } from "../_ajax/utils.js";
 
-export function toggleJoinGroup() {
-  let box = document.getElementById("student-page-add-group--box");
+/*********/
+/* model */
+/*********/
+
+let model;
+
+function initModel(data) {
+  model = {
+    expiryBlinkingDelay: data.expiry_blinking_delay,
+    joiningGroup: false,
+    newStudent: data.new_student,
+    student: {
+      username: data.student.username,
+      email: data.student.email,
+      memberSince: new Date(data.student.member_since),
+      tos: {
+        sharing: data.student.tos.sharing,
+        signedOn: new Date(data.student.tos.signed_on),
+      },
+    },
+    groups: data.groups.map(group => ({
+      name: group.name,
+      title: group.title,
+      notifications: group.notifications,
+      memberOf: group.member_of,
+      assignments: group.assignments.map(assignment => ({
+        title: assignment.title,
+        dueDate: new Date(assignment.due_date),
+        link: assignment.link,
+        results: {
+          n: assignment.results.n,
+          nFirstAnswered: assignment.results.n_first_answered,
+          nSecondAnswered: assignment.results.n_second_answered,
+          nFirstCorrect: assignment.results.n_first_correct,
+          nSecondCorrect: assignment.results.n_second_correct,
+        },
+        done: assignment.done,
+        almostExpired: assignment.almost_expired,
+      })),
+      studentId: group.student_id,
+      studentIdNeeded: group.student_id_needed,
+    })),
+    notifications: data.notifications.map(notification => ({
+      pk: notification.pk,
+      link: notification.link,
+      icon: notification.icon,
+      text: notification.text,
+      hoverText: notification.hover_text,
+    })),
+    urls: {
+      tosModify: data.urls.tos_modify,
+      removeNotification: data.urls.remove_notification,
+      joinGroup: data.urls.join_group,
+      leaveGroup: data.urls.leave_group,
+      saveStudentId: data.urls.save_student_id,
+      studentToggleGroupnotifications:
+        data.urls.student_toggle_group_notifications,
+    },
+    translations: {
+      assignmentAboutToExpire: data.translations.assignment_about_to_expire,
+      assignmentExpired: data.translations.assignment_expired,
+      cancel: data.translations.cancel,
+      day: data.translations.day,
+      days: data.translations.days,
+      dueOn: data.translations.due_on,
+      expired: data.translations.expired,
+      goToAssignment: data.translations.go_to_assignment,
+      hour: data.translations.hour,
+      hours: data.translations.hours,
+      leaveGroupQuestion: data.translations.leave_group_question,
+      leaveGroupText: data.translations.leave_group_text,
+      leaveGroupTitle: data.translations.leave_group_title,
+      minute: data.translations.minute,
+      minutes: data.translations.minutes,
+      nQuestionsCompleted: data.translations.n_questions_completed,
+      noAssignments: data.translations.no_assignments,
+      notificationsBell: data.translations.notifications_bell,
+      remove: data.translations.remove,
+      studentId: data.translations.student_id,
+    },
+  };
+}
+
+/********/
+/* view */
+/********/
+
+function initView() {
+  identityView();
+  notificationsView();
+  groupsView();
+  joinGroupView();
+}
+
+function identityView() {
+  let emailSpan = document.getElementById("student-email");
+  emailSpan.textContent = model.student.email;
+
+  let memberSinceSpan = document.getElementById("student-member-since");
+  memberSinceSpan.textContent = model.student.memberSince.toLocaleString(
+    "en-ca",
+    {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    },
+  );
+
+  let tosSharingIcon = document.getElementById("student-tos-sharing--icon");
+  let tosSharingSharingSpan = document.getElementById(
+    "student-tos-sharing--sharing",
+  );
+  let tosSharingNotSharingSpan = document.getElementById(
+    "student-tos-sharing--not-sharing",
+  );
+  if (model.student.tos.sharing) {
+    tosSharingIcon.textContent = "check";
+    tosSharingSharingSpan.style.display = "inline-block";
+    tosSharingNotSharingSpan.style.display = "none";
+  } else {
+    tosSharingIcon.textContent = "clear";
+    tosSharingSharingSpan.style.display = "none";
+    tosSharingNotSharingSpan.style.display = "inline-block";
+  }
+
+  let tosSignedOnSpan = document.getElementById("student-tos-signed-on");
+  tosSignedOnSpan.textContent = model.student.tos.signedOn.toLocaleString(
+    "en-ca",
+    {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    },
+  );
+}
+
+function notificationsView() {
+  let notificationsDiv = document.getElementById("notifications");
+  if (model.notifications.length) {
+    let notifications = notificationsDiv.querySelector("ul");
+    model.notifications.map(notification =>
+      notifications.appendChild(notificationView(notification)),
+    );
+    notificationsDiv.style.display = "block";
+  } else {
+    notificationsDiv.style.display = "none";
+  }
+}
+
+function notificationView(notification) {
+  let a = document.createElement("a");
+  a.title = notification.hoverText;
+  a.addEventListener("click", () => removeNotification(notification));
+
+  let li = document.createElement("li");
+  li.classList.add("mdc-list-item");
+  a.appendChild(li);
+
+  let iconSpan = document.createElement("span");
+  iconSpan.classList.add("mdc-list-item__graphic", "mdc-theme--primary");
+  li.appendChild(iconSpan);
+
+  let icon = document.createElement("i");
+  icon.classList.add("material-icons", "md-36");
+  icon.textContent = notification.icon;
+  iconSpan.appendChild(icon);
+
+  let textSpan = document.createElement("span");
+  textSpan.classList.add("mdc-list-item__text");
+  textSpan.textContent = notification.text;
+  li.appendChild(textSpan);
+
+  return a;
+}
+
+function joinGroupView() {
+  let box = document.getElementById("student-add-group--box");
+  if (model.joiningGroup) {
+    joinGroupsSelectView();
+    box.style.display = "flex";
+  } else {
+    box.style.display = "none";
+  }
+}
+
+function joinGroupsSelectView() {
+  let groupsSelect = document.getElementById("student-old-groups");
+  clear(groupsSelect);
+  let oldGroups = model.groups.filter(group => !group.memberOf);
+  if (oldGroups.length) {
+    oldGroups.map(group =>
+      groupsSelect.appendChild(joinGroupSelectView(group)),
+    );
+    groupsSelect.style.display = "inline-block";
+  } else {
+    groupsSelect.style.display = "none";
+  }
+}
+
+function joinGroupSelectView(group) {
+  let option = document.createElement("option");
+  option.value = group.name;
+  option.textContent = group.title;
+  return option;
+}
+
+function verifyJoinGroupDisabledStatus() {
+  let input = document.querySelector("#student-add-group--box input");
+  let select = document.querySelector("#student-add-group--box select");
+
+  if (input.value) {
+    select.disabled = true;
+  } else {
+    select.disabled = false;
+  }
+}
+
+function groupsView() {
+  let groups = document.getElementById("student-groups");
+  clear(groups);
+  model.groups
+    .filter(group => group.memberOf)
+    .map(group => groups.appendChild(groupView(group)));
+}
+
+function groupView(group) {
+  let div = document.createElement("div");
+  div.classList.add("student-group");
+
+  div.appendChild(groupTitleView(group));
+  div.appendChild(groupAssignmentsView(group));
+
+  return div;
+}
+
+function groupTitleView(group) {
+  let div = document.createElement("div");
+  div.classList.add("student-group--title");
+
+  if (group.studentIdNeeded) {
+    div.appendChild(groupTitleIdView(group));
+  }
+
+  let title = document.createElement("h3");
+  title.textContent = group.title;
+  div.appendChild(title);
+
+  let icons = document.createElement("div");
+  icons.classList.add("student-group--icons");
+  div.appendChild(icons);
+
+  let notifications = document.createElement("div");
+  notifications.classList.add("student-group--notifications");
+  icons.appendChild(notifications);
+
+  let bell = document.createElement("i");
+  bell.classList.add("material-icons", "md-28");
+  bell.title = model.translations.notifications_bell;
+  bell.addEventListener("click", () => toggleGroupNotifications(group, bell));
+  if (group.notifications) {
+    bell.textContent = "notifications";
+  } else {
+    bell.textContent = "notifications_off";
+    bell.classList.add("student-group--notifications__disabled");
+  }
+  notifications.appendChild(bell);
+
+  icons.appendChild(leaveGroupView(group, div));
+
+  return div;
+}
+
+function groupTitleIdView(group) {
+  let div = document.createElement("div");
+  div.classList.add("student-group--id");
+
+  let copyIcon = document.createElement("i");
+  copyIcon.classList.add("material-icons", "md-28", "student-group--id__copy");
+  copyIcon.style.display = "flex";
+  copyIcon.textContent = "file_copy";
+  copyIcon.addEventListener("click", () =>
+    copyStudentIdToClipboard(group, div),
+  );
+  div.appendChild(copyIcon);
+
+  let studentId = document.createElement("span");
+  studentId.classList.add("student-group--id__id");
+  studentId.style.display = "inline-block";
+  studentId.textContent = group.studentId;
+  studentId.title = model.translations.studentId;
+  studentId.addEventListener("click", () => editStudentId(group, div));
+  div.appendChild(studentId);
+
+  let input = document.createElement("input");
+  input.classList.add("student-group--id__input");
+  input.value = group.schoolId;
+  input.style.display = "none";
+  input.addEventListener("keydown", event =>
+    handleStudentIdKeyDown(event.key, group, div),
+  );
+  div.appendChild(input);
+
+  let editIcon = document.createElement("i");
+  editIcon.classList.add("material-icons", "md-28", "student-group--id__edit");
+  editIcon.style.display = "flex";
+  editIcon.textContent = "edit";
+  editIcon.addEventListener("click", () => editStudentId(group, div));
+  div.appendChild(editIcon);
+
+  let confirmIcon = document.createElement("i");
+  confirmIcon.classList.add(
+    "material-icons",
+    "md-28",
+    "student-group--id__confirm",
+  );
+  confirmIcon.style.display = "none";
+  confirmIcon.textContent = "check";
+  confirmIcon.addEventListener("click", () => saveStudentId(group, div));
+  div.appendChild(confirmIcon);
+
+  let cancelIcon = document.createElement("i");
+  cancelIcon.classList.add(
+    "material-icons",
+    "md-28",
+    "student-group--id__cancel",
+  );
+  cancelIcon.style.display = "none";
+  cancelIcon.textContent = "close";
+  cancelIcon.addEventListener("click", () => stopEditStudentId(group, div));
+  div.appendChild(cancelIcon);
+
+  return div;
+}
+
+function groupAssignmentsView(group) {
+  let div = document.createElement("div");
+  div.classList.add("student-group--assignments");
+  if (group.assignments.length) {
+    let ul = document.createElement("ul");
+    group.assignments.map(assignment =>
+      ul.appendChild(groupAssignmentView(assignment)),
+    );
+    div.appendChild(ul);
+  } else {
+    let span = document.createElement("span");
+    span.classList.add("student-group--no-assignments");
+    span.textContent = model.translations.noAssignments;
+    div.appendChild(span);
+  }
+  return div;
+}
+
+function groupAssignmentView(assignment) {
+  let a = document.createElement("a");
+  a.href = assignment.link;
+
+  let li = document.createElement("li");
+  li.classList.add("student-group--assignment");
+  if (assignment.results.nSecondAnswered == assignment.results.n) {
+    li.classList.add("student-group--assignment-complete");
+  }
+  a.appendChild(li);
+
+  let almostExpiredMin = new Date(assignment.dueDate);
+  almostExpiredMin.setDate(
+    almostExpiredMin.getDate() - model.expiryBlinkingDelay,
+  );
+
+  let iconSpan = document.createElement("span");
+  iconSpan.classList.add("student-group--assignment-icon");
+  li.appendChild(iconSpan);
+  let icon = document.createElement("i");
+  icon.classList.add("material-icons", "md-28");
+  if (assignment.results.nSecondAnswered == assignment.results.n) {
+    iconSpan.title = model.translations.goToAssignment;
+    icon.textContent = "assignment_turned_in";
+  } else if (assignment.dueDate <= new Date(Date.now())) {
+    iconSpan.title = model.translations.assignmentExpired;
+    icon.textContent = "assignment_late";
+  } else if (almostExpiredMin <= new Date(Date.now())) {
+    iconSpan.title = model.translations.assignmentaboutToExpire;
+    icon.textContent = "assignment_late";
+  } else {
+    iconSpan.title = model.translations.goToAssignment;
+    icon.textContent = "assignment";
+  }
+  iconSpan.appendChild(icon);
+
+  let questionsSpan = document.createElement("span");
+  questionsSpan.classList.add("student-group--assignment-questions");
+  questionsSpan.title = model.translations.nQuestionsCompleted;
+  li.appendChild(questionsSpan);
+  let nSecond = document.createElement("span");
+  nSecond.textContent = assignment.results.nSecondAnswered;
+  questionsSpan.appendChild(nSecond);
+  let slash = document.createElement("span");
+  slash.textContent = "/";
+  questionsSpan.appendChild(slash);
+  let n = document.createElement("span");
+  n.textContent = assignment.results.n;
+  questionsSpan.appendChild(n);
+
+  let title = document.createElement("span");
+  title.classList.add("student-group--assignment-title");
+  title.title = model.translations.goToAssignment;
+  title.textContent = assignment.title;
+  li.appendChild(title);
+
+  let date = document.createElement("span");
+  date.classList.add("student-group--assignment-date");
+  if (assignment.dueDate <= new Date(Date.now())) {
+    date.title = model.translations.assignmentExpired;
+    date.textContent = model.translations.expired;
+  } else {
+    date.title =
+      model.translations.dueOn +
+      " " +
+      assignment.dueDate.toLocaleString("en-ca", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    let dateIcon = document.createElement("i");
+    dateIcon.classList.add("material-icons", "md-18");
+    dateIcon.textContent = "access_time";
+    date.appendChild(dateIcon);
+    let remainingTimeSpan = document.createElement("span");
+    remainingTimeSpan.textContent = timeuntil(
+      assignment.dueDate,
+      new Date(Date.now()),
+      true,
+    );
+    date.appendChild(remainingTimeSpan);
+    if (almostExpiredMin <= new Date(Date.now())) {
+      dateIcon.classList.add("blinking");
+    }
+  }
+  li.appendChild(date);
+  return a;
+}
+
+function leaveGroupView(group, groupNode) {
+  let div = document.createElement("div");
+  div.classList.add("student-group--remove");
+  div.title = model.translations.leave_group_title;
+
+  let icon = document.createElement("i");
+  icon.classList.add("material-icons", "md-28");
+  icon.addEventListener("click", () => toggleLeaveGroup(groupNode));
+  icon.textContent = "remove_circle_outline";
+  div.appendChild(icon);
+
+  let box = document.createElement("div");
+  box.classList.add("student-group--remove-confirmation-box");
+  box.style.display = "none";
+  box.addEventListener("click", function(event) {
+    event.stopPropagation;
+    toggleLeaveGroup(groupNode);
+  });
+  div.appendChild(box);
+
+  let boxDiv = document.createElement("div");
+  boxDiv.addEventListener("click", event => event.stopPropagation());
+  box.appendChild(boxDiv);
+
+  let title = document.createElement("h3");
+  title.textContent = model.translations.leaveGroupTitle + " " + group.title;
+  boxDiv.appendChild(title);
+
+  let text = document.createElement("p");
+  text.textContent = model.translations.leaveGroupText;
+  boxDiv.appendChild(text);
+
+  let question = document.createElement("p");
+  question.textContent = model.translations.leaveGroupQuestion;
+  boxDiv.appendChild(question);
+
+  let remove = document.createElement("button");
+  remove.classList.add("mdc-button", "mdc-button--unelevated");
+  remove.addEventListener("click", () => leaveGroup(group, groupNode));
+  remove.textContent = model.translations.remove;
+  boxDiv.appendChild(remove);
+
+  let cancel = document.createElement("button");
+  cancel.classList.add("mdc-button");
+  cancel.addEventListener("click", () => toggleLeaveGroup(groupNode));
+  cancel.textContent = model.translations.cancel;
+  boxDiv.appendChild(cancel);
+
+  return div;
+}
+
+function editStudentId(group, node) {
+  let span = node.querySelector(".student-group--id__id");
+  let input = node.querySelector(".student-group--id__input");
+  let copyBtn = node.querySelector(".student-group--id__copy");
+  let editBtn = node.querySelector(".student-group--id__edit");
+  let confirmBtn = node.querySelector(".student-group--id__confirm");
+  let cancelBtn = node.querySelector(".student-group--id__cancel");
+
+  input.value = group.studentId;
+
+  span.style.display = "none";
+  copyBtn.style.display = "none";
+  editBtn.style.display = "none";
+  input.style.display = "inline-block";
+  confirmBtn.style.display = "flex";
+  cancelBtn.style.display = "flex";
+
+  input.focus();
+}
+
+function stopEditStudentId(group, node) {
+  let span = node.querySelector("span");
+  let input = node.querySelector("input");
+  let copyBtn = node.querySelector(".student-group--id__copy");
+  let editBtn = node.querySelector(".student-group--id__edit");
+  let confirmBtn = node.querySelector(".student-group--id__confirm");
+  let cancelBtn = node.querySelector(".student-group--id__cancel");
+
+  span.textContent = group.studentId;
+
+  span.style.display = "inline-block";
+  copyBtn.style.display = "flex";
+  editBtn.style.display = "flex";
+  input.style.display = "none";
+  confirmBtn.style.display = "none";
+  cancelBtn.style.display = "none";
+}
+
+function toggleLeaveGroup(node) {
+  let box = node.querySelector(".student-group--remove-confirmation-box");
   if (box.style.display == "none") {
     box.style.display = "flex";
   } else {
@@ -11,121 +547,38 @@ export function toggleJoinGroup() {
   }
 }
 
-export function toggleLeaveGroup(event) {
-  let element = event.currentTarget;
-  let div;
-  if (element.tagName == "BUTTON") {
-    div = element.parentNode.parentNode;
-  } else if (
-    element.classList.contains("student-group--remove-confirmation-box")
-  ) {
-    div = element;
-  } else {
-    div = element.nextSibling;
-  }
-  if (div.style.display == "none") {
-    div.style.display = "flex";
-  } else {
-    div.style.display = "none";
-  }
+function showCopyBubble(node) {
+  let bubble = document.createElement("div");
+  bubble.classList.add("bubble");
+  bubble.textContent = "Copied to clipboard!";
+  node.appendChild(bubble);
+
+  setTimeout(() => node.removeChild(bubble), 600);
 }
 
-export function joinGroup(url, username) {
-  let input = document.querySelector("#student-page-add-group--box input");
-  let select = document.querySelector("#student-page-add-group--box select");
+/**********/
+/* update */
+/**********/
 
-  let data;
-  if (input.value) {
-    data = {
-      username: username,
-      group_link: input.value,
-    };
-  } else {
-    data = {
-      username: username,
-      group_name: select.value,
-    };
-  }
-
-  let req = buildReq(data, "post");
-  fetch(url, req)
-    .then(function(resp) {
-      location.reload();
-    })
-    .catch(function(err) {
-      console.log(err);
-    });
-}
-
-export function leaveGroup(event, url, username, groupName) {
-  let groupNode =
-    event.currentTarget.parentNode.parentNode.parentNode.parentNode.parentNode;
-
+function removeNotification(notification) {
+  let url = model.urls.removeNotification;
   let data = {
-    username: username,
-    group_name: groupName,
+    notification_pk: notification.pk,
   };
 
   let req = buildReq(data, "post");
+
   fetch(url, req)
     .then(function(resp) {
       if (resp.ok) {
-        groupNode.parentNode.removeChild(groupNode);
-      } else {
-        console.log(resp);
-      }
-    })
-    .catch(err => console.log(err));
-}
-
-export function handleJoinGroupLinkInput(event, url, username) {
-  if (event.key === "Enter") {
-    joinGroup(url, username);
-    event.currentTarget.value = "";
-  } else {
-    verifyJoinGroupDisabledStatus();
-  }
-}
-
-export function toggleGroupNotifications(event, url, username, groupName) {
-  let icon = event.currentTarget;
-
-  let data = {
-    username: username,
-    group_name: groupName,
-  };
-
-  let req = buildReq(data, "post");
-  fetch(url, req)
-    .then(resp => resp.json())
-    .then(function(data) {
-      if (data.notifications) {
-        icon.textContent = "notifications";
-        icon.classList.remove("student-group--notifications__disabled");
-      } else {
-        icon.textContent = "notifications_off";
-        icon.classList.add("student-group--notifications__disabled");
-      }
-    })
-    .catch(function(err) {
-      console.log(err);
-    });
-}
-
-export function removeNotification(event, url, notificationPk, link) {
-  let notificationNode = event.currentTarget;
-  let data = {
-    notification_pk: notificationPk,
-  };
-
-  let req = buildReq(data, "post");
-  fetch(url, req)
-    .then(function(resp) {
-      if (resp.ok) {
-        if (link) {
-          window.location = link;
+        if (notification.link) {
+          window.location = notification.link;
         } else {
-          notificationNode.parentNode.removeChild(notificationNode);
+          model.notifications.splice(
+            model.notifications.indexOf(notification),
+            1,
+          );
+          notificationsView();
         }
       } else {
         console.log(resp);
@@ -134,104 +587,204 @@ export function removeNotification(event, url, notificationPk, link) {
     .catch(err => console.log(err));
 }
 
-export function editStudentId(event) {
-  let span = event.currentTarget.parentNode.querySelector("span");
-  let input = event.currentTarget.parentNode.querySelector("input");
-  let copyBtn = event.currentTarget.parentNode.querySelector(
-    ".student-group--id__copy",
-  );
-  let editBtn = event.currentTarget.parentNode.querySelector(
-    ".student-group--id__edit",
-  );
-  let confirmBtn = event.currentTarget.parentNode.querySelector(
-    ".student-group--id__confirm",
-  );
-  let cancelBtn = event.currentTarget.parentNode.querySelector(
-    ".student-group--id__cancel",
-  );
-
-  input.value = span.textContent;
-
-  span.style.display = "none";
-  copyBtn.style.display = "none";
-  editBtn.style.display = "none";
-  input.style.display = "block";
-  confirmBtn.style.display = "flex";
-  cancelBtn.style.display = "flex";
-
-  input.focus();
+function handleStudentIdKeyDown(key, group, node) {
+  if (key === "Enter") {
+    saveStudentId(group, node);
+  } else if (key === "Escape") {
+    stopEditStudentId(group, node);
+  }
 }
 
-export function cancelStudentIdEdition(event) {
-  let span = event.currentTarget.parentNode.querySelector("span");
-  let input = event.currentTarget.parentNode.querySelector("input");
-  let copyBtn = event.currentTarget.parentNode.querySelector(
-    ".student-group--id__copy",
-  );
-  let editBtn = event.currentTarget.parentNode.querySelector(
-    ".student-group--id__edit",
-  );
-  let confirmBtn = event.currentTarget.parentNode.querySelector(
-    ".student-group--id__confirm",
-  );
-  let cancelBtn = event.currentTarget.parentNode.querySelector(
-    ".student-group--id__cancel",
-  );
-
-  span.style.display = "flex";
-  copyBtn.style.display = "flex";
-  editBtn.style.display = "flex";
-  input.style.display = "none";
-  confirmBtn.style.display = "none";
-  cancelBtn.style.display = "none";
-}
-
-export function saveStudentId(event, url, groupName) {
-  let span = event.currentTarget.parentNode.querySelector("span");
-  let input = event.currentTarget.parentNode.querySelector("input");
-  let copyBtn = event.currentTarget.parentNode.querySelector(
-    ".student-group--id__copy",
-  );
-  let editBtn = event.currentTarget.parentNode.querySelector(
-    ".student-group--id__edit",
-  );
-  let confirmBtn = event.currentTarget.parentNode.querySelector(
-    ".student-group--id__confirm",
-  );
-  let cancelBtn = event.currentTarget.parentNode.querySelector(
-    ".student-group--id__cancel",
-  );
+function saveStudentId(group, node) {
+  let url = model.urls.saveStudentId;
+  let input = node.querySelector("input");
 
   let data = {
     student_id: input.value,
-    group_name: groupName,
+    group_name: group.name,
   };
 
   let req = buildReq(data, "post");
   fetch(url, req)
-    .then(function(resp) {
-      location.reload();
+    .then(resp => resp.json())
+    .then(function(data) {
+      group.studentId = data.student_id;
+      stopEditStudentId(group, node);
+    })
+    .catch(function(err) {
+      stopEditStudentId(group, node);
+      console.log(err);
+    });
+}
+
+function toggleGroupNotifications(group, bell) {
+  let url = model.urls.studentToggleGroupnotifications;
+  let data = {
+    group_name: group.name,
+  };
+  let req = buildReq(data, "post");
+  fetch(url, req)
+    .then(resp => resp.json())
+    .then(function(data) {
+      group.notifications = data.notifications;
+      if (group.notifications) {
+        bell.textContent = "notifications";
+        bell.classList.remove("student-group--notifications__disabled");
+      } else {
+        bell.textContent = "notifications_off";
+        bell.classList.add("student-group--notifications__disabled");
+      }
     })
     .catch(function(err) {
       console.log(err);
     });
 }
 
-export function handleStudentIdKeyDown(event, url, groupName) {
+function leaveGroup(group, groupNode) {
+  let url = model.urls.leaveGroup;
+  let data = {
+    group_name: group.name,
+  };
+
+  let req = buildReq(data, "post");
+  fetch(url, req)
+    .then(function(resp) {
+      if (resp.ok) {
+        model.groups.filter(g => g.name === group.name)[0].memberOf = false;
+        groupsView();
+      } else {
+        console.log(resp);
+      }
+    })
+    .catch(err => console.log(err));
+}
+
+function copyStudentIdToClipboard(group, node) {
+  navigator.clipboard
+    .writeText(group.studentId)
+    .then(() => showCopyBubble(node));
+}
+
+export function modifyTos() {
+  let url = model.urls.tosModify + "?next=" + window.location.href;
+  window.location.href = url;
+}
+
+export function toggleJoinGroup() {
+  model.joiningGroup = !model.joiningGroup;
+  joinGroupView();
+}
+
+export function handleJoinGroupLinkInput(event) {
   if (event.key === "Enter") {
-    saveStudentId(event, url, groupName);
-  } else if (event.key === "Escape") {
-    cancelStudentIdEdition(event);
+    joinGroup();
+  } else {
+    verifyJoinGroupDisabledStatus();
   }
 }
 
-function verifyJoinGroupDisabledStatus() {
-  let input = document.querySelector("#student-page-add-group--box input");
-  let select = document.querySelector("#student-page-add-group--box select");
+export function joinGroup() {
+  let url = model.urls.joinGroup;
+  let input = document.querySelector("#student-add-group--box input");
+  let select = document.querySelector("#student-add-group--box select");
 
+  let data;
   if (input.value) {
-    select.disabled = true;
+    data = {
+      username: model.student.username,
+      group_link: input.value,
+    };
+  } else if (model.groups.some(group => !group.memberOf)) {
+    data = {
+      username: model.student.username,
+      group_name: select.value,
+    };
   } else {
-    select.disabled = false;
+    console.log("Empty input");
   }
+
+  let req = buildReq(data, "post");
+  fetch(url, req)
+    .then(resp => resp.json())
+    .then(function(group) {
+      input.value = "";
+      if (model.groups.some(g => g.name === group.name)) {
+        model.groups.filter(g => g.name === group.name)[0].memberOf =
+          group.member_of;
+      } else {
+        model.groups.push({
+          name: group.name,
+          title: group.title,
+          notifications: group.notifications,
+          memberOf: group.member_of,
+          assignments: group.assignments.map(assignment => ({
+            title: assignment.title,
+            dueDate: new Date(assignment.due_date),
+            link: assignment.link,
+            results: {
+              n: assignment.results.n,
+              nFirstAnswered: assignment.results.nFirstAnswered,
+              nSecondAnswered: assignment.results.nSecondAnswered,
+              nFirstCorrect: assignment.results.nFirstCorrect,
+              nSecondCorrect: assignment.results.nSecondCorrect,
+            },
+            done: assignment.done,
+            almostExpired: assignment.almost_expired,
+          })),
+          student_id: group.student_id,
+          student_id_needed: group.student_id_needed,
+        });
+      }
+      toggleJoinGroup();
+      groupsView();
+    })
+    .catch(function(err) {
+      console.log(err);
+    });
+}
+
+/*********/
+/* utils */
+/*********/
+
+function timeuntil(date1, date2) {
+  let diff = date1 - date2;
+  let diffDays = Math.floor(diff / 1000 / 60 / 60 / 24);
+  diff = diff - diffDays * 24 * 60 * 60 * 1000;
+  let diffHours = Math.floor(diff / 1000 / 60 / 60);
+  diff = diff - diffHours * 60 * 60 * 1000;
+  let diffMinutes = Math.floor(diff / 1000 / 60);
+  let diff_ = "";
+  if (diffDays > 1) {
+    diff_ = diff_ + parseInt(diffDays) + " " + model.translations.days + ", ";
+  } else if (diffDays === 1) {
+    diff_ = diff_ + parseInt(diffDays) + " " + model.translations.day + ", ";
+  }
+  if (diffHours === 1) {
+    diff_ = diff_ + parseInt(diffHours) + " " + model.translations.hour + ", ";
+  } else if (diffHours > 1 || diffDays) {
+    diff_ =
+      diff_ + parseInt(diffHours) + " " + model.translations.hours + ", ";
+  }
+  if (diffMinutes === 1) {
+    diff_ = diff_ + parseInt(diffMinutes) + " " + model.translations.minute;
+  } else {
+    diff_ = diff_ + parseInt(diffMinutes) + " " + model.translations.minutes;
+  }
+  return diff_;
+}
+
+function clear(node) {
+  while (node.hasChildNodes()) {
+    node.removeChild(node.lastChild);
+  }
+}
+
+/********/
+/* init */
+/********/
+
+export function initStudentPage(data) {
+  initModel(data);
+  initView();
 }

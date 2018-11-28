@@ -3,11 +3,8 @@ from __future__ import unicode_literals
 
 import json
 import logging
-from operator import attrgetter
 import re
-from datetime import datetime, timedelta
 
-import pytz
 from django.conf import settings
 from django.contrib.auth import login, logout
 from django.contrib.auth.models import User
@@ -21,10 +18,11 @@ from django.http import (
 )
 from django.shortcuts import render
 from django.template.response import TemplateResponse
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 from django.views.decorators.http import require_http_methods
 
 from tos.models import Consent
+
 from ..models import (
     Student,
     StudentAssignment,
@@ -39,21 +37,19 @@ from ..students import (
 )
 from .decorators import student_required
 
-
 logger = logging.getLogger("peerinst-views")
 
 
-def validate_student_group_data(req):
+def validate_group_data(req):
     """
-    Checks if the request is a well formed json, contains the data to
-    get student and group information and the student and group exist.
-    The user is obtained with a field `username` and the group with
-    either a field `group_name` or `group_link`.
+    Checks if the request is a well formed json, contains the data to get group
+    information and the group exists.  The group is obtained with either a
+    field `group_name` or `group_link`.
 
     Returns
     -------
     Either:
-    (Student, StudentGroup)
+    StudentGroup
         Student and group corresponding for the request
     HttpResponse
         Response corresponding to the obtained error
@@ -66,17 +62,6 @@ def validate_student_group_data(req):
             req,
             "400.html",
             context={"message": _("Wrong data type was sent.")},
-        )
-        return HttpResponseBadRequest(resp.render())
-
-    try:
-        username = data["username"]
-    except KeyError as e:
-        logger.warning("The arguments '%s' were missing.", ",".join(e.args))
-        resp = TemplateResponse(
-            req,
-            "400.html",
-            context={"message": _("There are missing parameters.")},
         )
         return HttpResponseBadRequest(resp.render())
 
@@ -98,27 +83,8 @@ def validate_student_group_data(req):
             )
             return HttpResponseBadRequest(resp.render())
 
-    try:
-        student = Student.objects.get(student__username=username)
-    except Student.DoesNotExist:
-        logger.warning(
-            "There is no student corresponding to the username %s.", username
-        )
-        resp = TemplateResponse(
-            req,
-            "400.html",
-            context={
-                "message": _(
-                    "The student doesn't seem to exist. Refresh the page and "
-                    "try again"
-                )
-            },
-        )
-        return HttpResponseBadRequest(resp.render())
-
     if group_name is None:
         try:
-            print(group_link)
             hash_ = re.match(
                 r"^[^/]+/\w{2}/live/signup/form/([0-9A-Za-z=_-]+)$", group_link
             ).group(1)
@@ -173,7 +139,7 @@ def validate_student_group_data(req):
             )
             return HttpResponseBadRequest(resp.render())
 
-    return student, group
+    return group
 
 
 @require_http_methods(["GET"])
@@ -272,7 +238,6 @@ def index_page(req):
         group: [
             {
                 "title": assignment.group_assignment.assignment.title,
-                "expired": assignment.group_assignment.expired,
                 "due_date": assignment.group_assignment.due_date,
                 "link": "{}://{}{}".format(
                     protocol,
@@ -289,7 +254,7 @@ def index_page(req):
             }
             for assignment in StudentAssignment.objects.filter(
                 student=student, group_assignment__group=group.group
-            ).order_by("-group_assignment__due_date")
+            ).order_by("group_assignment__due_date")
         ]
         for group in groups
     }
@@ -298,16 +263,9 @@ def index_page(req):
         group: [
             {
                 "title": assignment["title"],
-                "expired": assignment["expired"],
                 "due_date": assignment["due_date"],
                 "link": assignment["link"],
                 "results": assignment["results"],
-                "done": assignment["results"]["n_second_answered"]
-                == assignment["results"]["n"],
-                "almost_expired": (
-                    assignment["due_date"] - datetime.now(pytz.utc)
-                )
-                <= timedelta(days=3),
             }
             for assignment in assignments
         ]
@@ -331,62 +289,182 @@ def index_page(req):
         .first()
     )
 
-    context = {
-        "student": student,
+    data = {
+        "expiry_blinking_delay": 3,
         "new_student": new_student,
+        "student": {
+            "username": student.student.username,
+            "email": student.student.email,
+            "member_since": student.student.date_joined.isoformat(),
+            "tos": {
+                "sharing": latest_student_consent.accepted,
+                "signed_on": latest_student_consent.datetime.isoformat(),
+            },
+        },
         "groups": [
             {
                 "name": group.group.name,
                 "title": group.group.title,
                 "notifications": group.send_emails,
                 "member_of": group.current_member,
-                "assignments": assignments[group],
+                "assignments": [
+                    {
+                        "title": assignment["title"],
+                        "due_date": assignment["due_date"].isoformat(),
+                        "link": assignment["link"],
+                        "results": assignment["results"],
+                    }
+                    for assignment in assignments[group]
+                ],
+                "student_id": group.student_school_id,
                 "student_id_needed": group.group.student_id_needed,
             }
             for group in groups
         ],
-        "has_old_groups": not all(map(attrgetter("current_member"), groups)),
-        "notifications": student.notifications,
-        "tos_accepted": bool(Consent.get(student.student.username, "student")),
-        "tos_timestamp": latest_student_consent.datetime,
+        "notifications": [
+            {
+                "link": notification.link,
+                "icon": notification.notification.icon,
+                "text": _(notification.text),
+                "hover_text": _(notification.hover_text),
+                "pk": notification.pk,
+            }
+            for notification in student.notifications
+        ],
+        "urls": {
+            "tos_modify": reverse(
+                "tos:tos_modify", kwargs={"role": "student"}
+            ),
+            "remove_notification": reverse("student-remove-notification"),
+            "join_group": reverse("student-join-group"),
+            "leave_group": reverse("student-leave-group"),
+            "save_student_id": reverse("student-change-id"),
+            "student_toggle_group_notifications": reverse(
+                "student-toggle-group-notifications"
+            ),
+        },
+        "translations": {
+            "assignment_about_to_expire": ugettext(
+                "This assignment is about to expire"
+            ),
+            "assignment_expired": ugettext("Past due date"),
+            "cancel": ugettext("Cancel"),
+            "day": ugettext("day"),
+            "days": ugettext("days"),
+            "due_on": ugettext("Due on"),
+            "expired": ugettext("Expired"),
+            "go_to_assignment": ugettext("Go to assignment"),
+            "hour": ugettext("hour"),
+            "hours": ugettext("hours"),
+            "leave_group_question": ugettext("Are you sure?"),
+            "leave_group_text": ugettext(
+                "This will remove you from the group. All your answers will "
+                "be saved, but you won't appear as a member of the group to "
+                "your teacher.  "
+            ),
+            "leave_group_title": ugettext("Leave group"),
+            "minute": ugettext("minute"),
+            "minutes": ugettext("minutes"),
+            "n_questions_completed": ugettext("Number of questions completed"),
+            "no_assignments": ugettext("No assignments yet"),
+            "notifications_bell": ugettext(
+                "Toggle email reminders for this group"
+            ),
+            "remove": ugettext("Remove"),
+            "student_id": ugettext("Student id"),
+        },
     }
+
+    context = {"data": json.dumps(data)}
 
     return render(req, "peerinst/student/index.html", context)
 
 
+@student_required
 @require_http_methods(["POST"])
-def join_group(req):
-    result = validate_student_group_data(req)
-    if isinstance(result, HttpResponse):
-        return result
-    else:
-        student, group = result
+def join_group(req, student):
+    group = validate_group_data(req)
+    if isinstance(group, HttpResponse):
+        return group
 
     student.join_group(group, mail_type="new_group")
 
-    return HttpResponse()
+    try:
+        membership = StudentGroupMembership.objects.get(
+            student=student, group=group
+        )
+    except StudentGroupMembership.DoesNotExist:
+        logger.warning(
+            "Student {} isn't part of group {}.".format(student.pk, group.pk)
+        )
+        resp = TemplateResponse(
+            req,
+            "400.html",
+            context={"message": _("You don't seem to be part of this group.")},
+        )
+        return HttpResponseBadRequest(resp.render())
 
-
-@require_http_methods(["POST"])
-def leave_group(req):
-    result = validate_student_group_data(req)
-    if isinstance(result, HttpResponse):
-        return result
+    token = create_student_token(
+        student.student.username, student.student.email
+    )
+    host = settings.ALLOWED_HOSTS[0]
+    if host.startswith("localhost") or host.startswith("127.0.0.1"):
+        protocol = "http"
+        host = "{}:{}".format(host, settings.DEV_PORT)
     else:
-        student, group = result
+        protocol = "https"
+
+    data = {
+        "name": group.name,
+        "title": group.title,
+        "notifications": membership.send_emails,
+        "member_of": membership.current_member,
+        "assignments": [
+            {
+                "title": assignment.group_assignment.assignment.title,
+                "due_date": assignment.group_assignment.due_date.isoformat(),
+                "link": "{}://{}{}".format(
+                    protocol,
+                    host,
+                    reverse(
+                        "live",
+                        kwargs={
+                            "assignment_hash": assignment.group_assignment.hash,  # noqa
+                            "token": token,
+                        },
+                    ),
+                ),
+                "results": assignment.get_results(),
+            }
+            for assignment in StudentAssignment.objects.filter(
+                student=student, group_assignment__group=group
+            ).order_by("-group_assignment__due_date")
+        ],
+        "student_id": membership.student_school_id,
+        "student_id_needed": group.student_id_needed,
+    }
+
+    return JsonResponse(data)
+
+
+@student_required
+@require_http_methods(["POST"])
+def leave_group(req, student):
+    group = validate_group_data(req)
+    if isinstance(group, HttpResponse):
+        return group
 
     student.leave_group(group)
 
     return HttpResponse()
 
 
+@student_required
 @require_http_methods(["POST"])
-def toggle_group_notifications(req):
-    result = validate_student_group_data(req)
-    if isinstance(result, HttpResponse):
-        return result
-    else:
-        student, group = result
+def toggle_group_notifications(req, student):
+    group = validate_group_data(req)
+    if isinstance(group, HttpResponse):
+        return group
 
     membership = StudentGroupMembership.objects.get(
         student=student, group=group
@@ -400,51 +478,26 @@ def toggle_group_notifications(req):
     return JsonResponse({"notifications": notifications})
 
 
-@require_http_methods(["GET"])
-def login_page(req):
-    return render(req, "peerinst/student/login.html")
-
-
-@require_http_methods(["POST"])
-def send_signin_link(req):
-    try:
-        email = req.POST["email"]
-    except KeyError as e:
-        logger.warning("The arguments '%s' were missing.", ",".join(e.args))
-        resp = TemplateResponse(
-            req,
-            "400.html",
-            context={"message": _("There are missing parameters.")},
-        )
-        return HttpResponseBadRequest(resp.render())
-
-    student = Student.objects.filter(student__email=email)
-
-    if not student:
-        student, created = Student.get_or_create(email)
-        print(created)
-        logger.info("Student created with email {}.".format(email))
-
-    elif len(student) == 1:
-        student = student[0]
-
-    else:
-        username, __ = get_student_username_and_password(email)
-        student = student.filter(student__username=username).first()
-
-    if student:
-        err = student.send_email(mail_type="signin")
-        if err is None:
-            context = {"error": False}
-        else:
-            context = {"error": True}
-
-    return render(req, "peerinst/student/login_confirmation.html", context)
-
-
 @student_required
 @require_http_methods(["POST"])
-def remove_notification(req):
+def remove_notification(req, student):
+    """
+    Removes the notification with the pk given as post value.
+
+    Parameters
+    ----------
+    req : HttpRequest
+        Request with post parameters:
+            notification_pk : str
+                Primary key of the notification
+    student : Student
+        Returned by @student_required (not used)
+
+    Returns
+    -------
+    HttpResponse
+        Empty 200 response if no errors or error response
+    """
     try:
         data = json.loads(req.body)
     except ValueError:
@@ -554,4 +607,48 @@ def update_student_id(req, student):
         )
     )
 
-    return HttpResponse()
+    data = {"student_id": student_id}
+
+    return JsonResponse(data)
+
+
+@require_http_methods(["GET"])
+def login_page(req):
+    return render(req, "peerinst/student/login.html")
+
+
+@require_http_methods(["POST"])
+def send_signin_link(req):
+    try:
+        email = req.POST["email"]
+    except KeyError as e:
+        logger.warning("The arguments '%s' were missing.", ",".join(e.args))
+        resp = TemplateResponse(
+            req,
+            "400.html",
+            context={"message": _("There are missing parameters.")},
+        )
+        return HttpResponseBadRequest(resp.render())
+
+    student = Student.objects.filter(student__email=email)
+
+    if not student:
+        student, created = Student.get_or_create(email)
+        print(created)
+        logger.info("Student created with email {}.".format(email))
+
+    elif len(student) == 1:
+        student = student[0]
+
+    else:
+        username, __ = get_student_username_and_password(email)
+        student = student.filter(student__username=username).first()
+
+    if student:
+        err = student.send_email(mail_type="signin")
+        if err is None:
+            context = {"error": False}
+        else:
+            context = {"error": True}
+
+    return render(req, "peerinst/student/login_confirmation.html", context)

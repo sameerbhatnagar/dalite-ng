@@ -65,6 +65,7 @@
       "require-jsdoc": "off",
       "guard-for-in": "off",
       "quotes": ["error", "double"],
+      "spaced-comment": "off",
       "object-curly-spacing": ["error", "always"]
     }
   }

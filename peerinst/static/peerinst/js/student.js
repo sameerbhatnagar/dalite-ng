@@ -1,13 +1,7 @@
 export {
-  toggleJoinGroup,
-  toggleLeaveGroup,
   joinGroup,
-  leaveGroup,
-  toggleGroupNotifications,
+  initStudentPage,
+  modifyTos,
+  toggleJoinGroup,
   handleJoinGroupLinkInput,
-  removeNotification,
-  editStudentId,
-  cancelStudentIdEdition,
-  saveStudentId,
-  handleStudentIdKeyDown,
 } from "./_student/index.js";
