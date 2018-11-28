@@ -8,7 +8,7 @@ export default {
   input: "peerinst/static/peerinst/js/student.js",
   output: {
     file: "peerinst/static/peerinst/js/student.min.js",
-    name: "bundle",
+    name: "student",
     format: "iife",
     sourceMap: "inline",
     globals: {

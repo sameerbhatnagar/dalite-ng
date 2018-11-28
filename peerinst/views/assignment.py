@@ -13,6 +13,8 @@ from peerinst.models import Assignment, Question
 
 from .decorators import teacher_required
 
+from django.core.exceptions import PermissionDenied
+
 
 @login_required
 @require_http_methods(["POST"])

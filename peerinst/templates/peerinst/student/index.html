@@ -12,98 +12,90 @@
     </h1>
 
     <div class="foldable foldable__unfolded">
-      <h2 class="foldable--title mdc-typography--display1 mdc-theme--secondary">{% trans 'Identity' %}</h2>
+      <h2 class="foldable--title mdc-typography--display1 mdc-theme--secondary">
+        {% trans 'Identity' %}
+      </h2>
       <div class="foldable--body">
-        <ul class="mdc-list mdc-list--non-interactive mdc-list--two-line" style="padding-bottom:0px;">
+        <ul class="mdc-list mdc-list--non-interactive mdc-list--two-line"
+            style="padding-bottom:0px;">
           <li role="separator" class="mdc-list-divider"></li>
           <li class="mdc-list-item" onclick="edit_user()">
-            <span class="mdc-list-item__graphic mdc-theme--primary"><i class="material-icons md-48">account_circle</i></span>
+            <span class="mdc-list-item__graphic mdc-theme--primary">
+              <i class="material-icons md-48">
+                account_circle
+              </i>
+            </span>
             <span class="mdc-list-item__text mdc-theme--secondary bold">
-              {{ student.student.email }}
+              <span id="student-email"></span>
               <span class="mdc-list-item__secondary-text">
-                {% trans "Member since: " %} {{ student.student.date_joined  }}
+                {% trans "Member since: " %}
+                <span id="student-member-since"></span>
               </span>
             </span>
           </li>
           <li role="separator" class="mdc-list-divider"></li>
         </ul>
-        <ul class="mdc-list mdc-list--two-line" style="padding-top:0px;">
-          <li class="mdc-list-item" onclick="window.location.href='{% url 'tos:tos_modify' 'student' %}?next={{ request.path }}'" style="cursor:pointer;">
-            {% if tos_accepted %}
-              <span class="mdc-list-item__graphic mdc-theme--primary"><i class="material-icons md-48">check</i></span>
-              <span class="mdc-list-item__text mdc-theme--secondary bold">
-              {% trans 'Terms of service: Sharing' %}
-            {% else %}
-              <span class="mdc-list-item__graphic mdc-theme--primary"><i class="material-icons md-48" style="color:red;">clear</i></span>
-              <span class="mdc-list-item__text mdc-theme--secondary bold">
-              {% trans 'Terms of service: Not sharing' %}
-              {% endif %}
+        <ul class="mdc-list mdc-list--two-line" style="padding-top: 0px;">
+          <li class="mdc-list-item"
+              onclick="student.modifyTos()"
+              style="cursor: pointer;">
+            <span class="mdc-list-item__graphic mdc-theme--primary">
+              <i id="student-tos-sharing--icon"
+                 class="material-icons md-48">
+              </i>
+            </span>
+            <span class="mdc-list-item__text mdc-theme--secondary bold">
+              {% trans 'Terms of service: ' %}
+              <span id="student-tos-sharing--sharing"
+                    style="display: none;">
+                {% trans 'Sharing' %}
+              </span>
+              <span id="student-tos-sharing--not-sharing"
+                    style="display: none;">
+                {% trans 'Not Sharing' %}
+              </span>
               <span class="mdc-list-item__secondary-text">
-                {% trans 'Signed: ' %}{{ tos_timestamp }}
+                {% trans 'Signed: ' %}
+                <span id="student-tos-signed-on"></span>
               </span>
             </span>
-            <span class="mdc-list-item__meta"><i class="material-icons md-24">settings</i></span>
+            <span class="mdc-list-item__meta">
+              <i class="material-icons md-24">
+                settings
+              </i>
+            </span>
           </li>
           <li role="separator" class="mdc-list-divider"></li>
         </ul>
       </div>
     </div>
 
-    {% if notifications %}
-    <div class="foldable foldable__unfolded">
+    <div class="foldable foldable__unfolded"
+         style="display: none;"
+         id="notifications">
       <h2 class="foldable--title mdc-typography--display1 mdc-theme--secondary">
         {% trans 'Notifications' %}
       </h2>
       <div class="foldable--body">
-        <div id="student-page-notifications">
-          {% if notifications %}
-          <ul class="mdc-list mdc-list--non-interactive">
-            {% for notification in notifications %}
-            <a title="{{ notification.hover_text }}"
-               onclick="bundle.removeNotification(
-                 event,
-                 '{% url 'student-remove-notification' %}',
-                 '{{ notification.pk }}',
-                 '{{ notification.link }}'
-               )">
-              <li class="mdc-list-item">
-                <span class="mdc-list-item__graphic mdc-theme--primary">
-                  <i class="material-icons md-36">
-                    {{ notification.notification.icon }}
-                  </i>
-                </span>
-                <span class="mdc-list-item__text">
-                  {{ notification.text }}
-                </span>
-              </li>
-            </a>
-            {% endfor %}
-          </ul>
-          {% else %}
-          <p id="student-page-notifications--no-new">
-            No new notifications
-          </p>
-          {% endif %}
-        </div>
+        <ul class="mdc-list mdc-list--non-interactive"></ul>
       </div>
     </div>
-    {% endif %}
 
     <div class="foldable foldable__unfolded">
       <h2 class="foldable--title mdc-typography--display1 mdc-theme--secondary">
         {% trans 'Groups' %}
       </h2>
       <div class="foldable--body">
-        <div id="student-page-add-group">
+        <div id="student-add-group">
           <span class="admin-link"
-                onclick="bundle.toggleJoinGroup()">
-            {% trans 'Add groups' %}
+                onclick="student.toggleJoinGroup()">
+            {% trans 'Add group' %}
           </span>
-          <div id="student-page-add-group--box"
+          <div id="student-add-group--box"
                style="display: none;"
-               onclick="event.stopPropagation; bundle.toggleJoinGroup()">
+               onclick="event.stopPropagation; student.toggleJoinGroup()">
               <div onclick="event.stopPropagation();">
-                <h3>{% trans 'Join group' %} {{ group.title }}</h3>
+                <h3>{% trans 'Join group' %}</h3>
                 <p>
                   {% blocktrans %}
                   You may join any of your old groups or a new one by pasting
@@ -114,171 +106,35 @@
                        name="new-group"
                        value=""
                        placeholder="Url link"
-                       onkeyup="bundle.handleJoinGroupLinkInput(
-                        event,
-                        '{% url 'student-join-group' %}',
-                        '{{ student.student.username }}'
-                       )">
-                {% if has_old_groups %}
-                <select>
-                  {% for group in groups %}
-                  {% if not group.member_of %}
-                  <option value="{{ group.name }}">{{ group.title }}</option>
-                  {% endif %}
-                  {% endfor %}
+                       onkeyup="student.handleJoinGroupLinkInput(event)">
+                <select id="student-old-groups"
+                        style="display: none;">
                 </select>
-                {% endif %}
                 <button class="mdc-button mdc-button--unelevated"
-                        onclick="bundle.joinGroup(
-                          '{% url 'student-join-group' %}',
-                          '{{ student.student.username }}'
-                        )">
+                        onclick="student.joinGroup()">
                   {% trans 'Join' %}
                 </button>
                 <button class="mdc-button"
-                        onclick="bundle.toggleJoinGroup()">
+                        onclick="student.toggleJoinGroup()">
                   {% trans 'Cancel' %}
                 </button>
               </div>
           </div>
         </div>
-        <div id="student-page-groups" class="foldable--body">
-          {% for group in groups %}
-          {% if group.member_of %}
-          <div class="student-group">
-            <div class="student-group--title">
-              <h3>{{ group.title }}</h3>
-              <div class="student-group--notifications">
-                {% if group.notifications %}
-                <i class="material-icons md-28"
-                   onclick="bundle.toggleGroupNotifications(
-                     event,
-                     '{% url 'student-toggle-group-notifications' %}',
-                     '{{ student.student.username }}',
-                     '{{ group.name }}'
-                   )"
-                   title="{% trans 'Toggle email reminders for this group' %}">
-                  notifications
-                </i>
-                {% else %}
-                <i class="material-icons md-28 student-group--notifications__disabled"
-                   onclick="bundle.toggleGroupNotifications(
-                     event,
-                     '{% url 'student-toggle-group-notifications' %}',
-                     '{{ student.student.username }}',
-                     '{{ group.name }}'
-                   )"
-                   title="{% trans 'Toggle email reminders for this group' %}">
-                  notifications_off
-                </i>
-                {% endif %}
-              </div>
-              <div class="student-group--remove"
-                   title="{% trans 'Leave group' %}">
-                <i class="material-icons md-28"
-                   onclick="bundle.toggleLeaveGroup(event)">
-                  remove_circle_outline
-                </i>
-                <div class="student-group--remove-confirmation-box"
-                     style="display: none;"
-                     onclick="event.stopPropagation; bundle.toggleLeaveGroup(event)">
-                  <div onclick="event.stopPropagation();">
-                    <h3>Leave group {{ group.title }}</h3>
-                    <p>
-                      {% blocktrans %}
-                      This will remove you from the group. All your answers will be
-                      saved, but you won't appear as a member of the group to your
-                      teacher.
-                      {% endblocktrans %}
-                    </p>
-                    <p>
-                      {% trans 'Are you sure?' %}
-                    </p>
-                    <button class="mdc-button mdc-button--unelevated"
-                            onclick="bundle.leaveGroup(
-                              event,
-                              '{% url 'student-leave-group' %}',
-                              '{{ student.student.username }}',
-                              '{{ group.name }}'
-                            )">
-                      {% trans 'Remove' %}
-                    </button>
-                    <button class="mdc-button"
-                            onclick="bundle.toggleLeaveGroup(event)">
-                      {% trans 'Cancel' %}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="student-group--assignments">
-              {% if group.assignments %}
-              {% else %}
-              {% trans 'No assignments yet' %}
-              {% endif %}
-              <ul>
-                {% for assignment in group.assignments %}
-                <a href="{{ assignment.link }}">
-                  {% if assignment.results.n_second_answered == assignment.results.n %}
-                  <li class="student-group--assignment student-group--assignment-complete">
-                  {% else %}
-                  <li class="student-group--assignment">
-                  {% endif %}
-                    {% if assignment.done %}
-                    <span class="student-group--assignment-icon"
-                          title="{% trans 'Go to assignment' %}">
-                      <i class="material-icons md-28">assignment_turned_in</i>
-                    </span>
-                    {% elif not assignment.done and assignment.almost_expired %}
-                    <span class="student-group--assignment-icon"
-                          title="{% trans 'This assignment is about to expire' %}">
-                      <i class="material-icons md-28">assignment_late</i>
-                    </span>
-                    {% else %}
-                    <span class="student-group--assignment-icon"
-                          title="{% trans 'Go to assignment' %}">
-                      <i class="material-icons md-28">assignment</i>
-                    </span>
-                    {% endif %}
-                    <span class="student-group--assignment-questions"
-                          title="{% trans 'Number of questions completed' %}">
-                      <span>{{ assignment.results.n_second_answered }}</span>
-                      <span>/</span>
-                      <span>{{ assignment.results.n }}</span>
-                    </span>
-                    <span class="student-group--assignment-title"
-                          title="{% trans 'Go to assignment' %}">
-                      {{ assignment.title }}
-                    </span>
-                    {% if not assignment.expired and assignment.almost_expired %}
-                    <span class="student-group--assignment-date"
-                          title="{% trans 'Time remaining' %}">
-                      <i class="material-icons md-18 blinking" style="vertical-align:middle;">access_time</i> {{ assignment.due_date|timeuntil }}
-                    </span>
-                    {% elif not assignment.expired %}
-                    <span class="student-group--assignment-date"
-                          title="{% trans 'Time remaining' %}">
-                      <i class="material-icons md-18" style="vertical-align:middle;">access_time</i> {{ assignment.due_date|timeuntil }}
-                    </span>
-                    {% else %}
-                    <span class="student-group--assignment-date"
-                          title="{% trans 'Past due date' %}">
-                      {% trans 'Expired' %}
-                    </span>
-                    {% endif %}
-                  </li>
-                </a>
-                {% endfor %}
-              </ul>
-            </div>
-          </div>
-          {% endif %}
-          {% endfor %}
+        <div id="student-groups" class="foldable--body">
         </div>
       </div>
     </div>
 
   </section>
 </main>
+
+<script>
+  window.addEventListener("load", function() {
+    student.initStudentPage(
+      {{ data|safe }}
+    )
+  });
+</script>
 
 {% endblock %}

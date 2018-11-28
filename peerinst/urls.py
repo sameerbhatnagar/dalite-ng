@@ -501,6 +501,11 @@ def student_patterns():
             views.student.remove_notification,
             name="student-remove-notification",
         ),
+        url(
+            r"^student/update/student-id/$",
+            views.student.update_student_id,
+            name="student-change-id",
+        ),
     ]
 
 
@@ -517,10 +522,5 @@ def search_patterns():
 
 urlpatterns = reduce(
     add,
-    [
-        old_patterns(),
-        group_patterns(),
-        student_patterns(),
-        search_patterns(),
-    ],
+    [old_patterns(), group_patterns(), student_patterns(), search_patterns()],
 )

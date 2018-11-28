@@ -5,7 +5,12 @@ from django.http import HttpResponseBadRequest, HttpResponseForbidden
 from django.template.response import TemplateResponse
 from django.utils.translation import ugettext_lazy as _
 
-from peerinst.models import StudentGroup, StudentGroupAssignment, Teacher
+from peerinst.models import (
+    Student,
+    StudentGroup,
+    StudentGroupAssignment,
+    Teacher,
+)
 
 logger = logging.getLogger("peerinst-views")
 
@@ -137,5 +142,27 @@ def teacher_required(fct):
             )
             return HttpResponseForbidden(resp.render())
         return fct(req, *args, **kwargs)
+
+    return wrapper
+
+
+def student_required(fct):
+    def wrapper(req, *args, **kwargs):
+        try:
+            student = Student.objects.get(student=req.user)
+        except (Student.DoesNotExist, TypeError):
+            logger.warning(
+                "Access to {} with a non student user.".format(req.path)
+            )
+            resp = TemplateResponse(
+                req,
+                "403.html",
+                context={
+                    "message": _("You don't have access to this resource.")
+                },
+            )
+            return HttpResponseForbidden(resp.render())
+
+        return fct(req, *args, student=student, **kwargs)
 
     return wrapper

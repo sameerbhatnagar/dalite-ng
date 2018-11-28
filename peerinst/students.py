@@ -174,3 +174,15 @@ def get_lti_passwords(hashed_username):
         isinstance(o, basestring) for o in output
     ), "Postcondition failed"
     return output
+
+
+def update_notifications(student):
+    """
+    Updates the notifications for the given student.
+
+    Parameters
+    ----------
+    student : Student
+        Student for whom to update the notifications
+    """
+    pass

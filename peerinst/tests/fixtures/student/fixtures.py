@@ -1,6 +1,6 @@
 import pytest
 from .generators import add_students, new_students
-from ..tos import consent_to_tos, tos_student
+from ..tos import consent_to_tos, tos_student  # noqa
 
 
 @pytest.fixture

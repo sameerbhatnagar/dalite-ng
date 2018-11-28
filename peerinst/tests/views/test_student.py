@@ -1,14 +1,15 @@
 import json
+
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 
+from peerinst.models import Student, StudentGroupMembership
 from peerinst.students import (
     create_student_token,
     get_student_username_and_password,
 )
-
-from peerinst.models import Student, StudentGroupMembership
 from peerinst.tests.fixtures import *  # noqa
+from peerinst.tests.fixtures.student import add_to_group
 
 
 def test_index_fail_on_no_logged_in_and_no_token(client):
@@ -237,3 +238,117 @@ def test_send_signin_link_missing_params(client):
     assert resp.status_code == 400
     assert any(t.name == "400.html" for t in resp.templates)
     assert "There are missing parameters." in resp.content
+
+
+def test_update_student_id(client, student, group):
+    add_to_group(student, group)
+    username, password = get_student_username_and_password(
+        student.student.email
+    )
+    assert client.login(username=username, password=password)
+
+    data = {"student_id": "1234567", "group_name": group.name}
+
+    resp = client.post(
+        reverse("student-change-id"),
+        json.dumps(data),
+        content_type="application/json",
+    )
+    assert resp.status_code == 200
+    assert (
+        StudentGroupMembership.objects.get(
+            student=student, group=group
+        ).student_school_id
+        == data["student_id"]
+    )
+
+
+def test_update_student_id__not_logged_in(client):
+    resp = client.post(reverse("student-change-id"))
+    assert resp.status_code == 403
+    assert any(t.name == "403.html" for t in resp.templates)
+
+
+def test_update_student_id__no_data(client, student, group):
+    add_to_group(student, group)
+    username, password = get_student_username_and_password(
+        student.student.email
+    )
+    assert client.login(username=username, password=password)
+
+    resp = client.post(reverse("student-change-id"))
+    assert resp.status_code == 400
+    assert any(t.name == "400.html" for t in resp.templates)
+
+
+def test_update_student_id__wrong_data(client, student, group):
+    add_to_group(student, group)
+    username, password = get_student_username_and_password(
+        student.student.email
+    )
+    assert client.login(username=username, password=password)
+
+    data = {"group_name": group.name}
+
+    resp = client.post(
+        reverse("student-change-id"),
+        json.dumps(data),
+        content_type="application/json",
+    )
+    assert resp.status_code == 400
+    assert any(t.name == "400.html" for t in resp.templates)
+
+    data = {"student_id": "1234567"}
+
+    resp = client.post(
+        reverse("student-change-id"),
+        json.dumps(data),
+        content_type="application/json",
+    )
+    assert resp.status_code == 400
+    assert any(t.name == "400.html" for t in resp.templates)
+
+    data = {}
+
+    resp = client.post(
+        reverse("student-change-id"),
+        json.dumps(data),
+        content_type="application/json",
+    )
+    assert resp.status_code == 400
+    assert any(t.name == "400.html" for t in resp.templates)
+
+
+def test_update_student_id__wrong_group(client, student, group):
+    add_to_group(student, group)
+    username, password = get_student_username_and_password(
+        student.student.email
+    )
+    assert client.login(username=username, password=password)
+
+    data = {"student_id": "1234567", "group_name": group.name + "fdsafdsaf"}
+
+    resp = client.post(
+        reverse("student-change-id"),
+        json.dumps(data),
+        content_type="application/json",
+    )
+    assert resp.status_code == 400
+    assert any(t.name == "400.html" for t in resp.templates)
+
+
+def test_update_student_id__no_group_membership(client, student, group):
+    username, password = get_student_username_and_password(
+        student.student.email
+    )
+    assert client.login(username=username, password=password)
+
+    data = {"student_id": "1234567", "group_name": group.name}
+
+    resp = client.post(
+        reverse("student-change-id"),
+        json.dumps(data),
+        content_type="application/json",
+    )
+    assert resp.status_code == 400
+    assert any(t.name == "400.html" for t in resp.templates)

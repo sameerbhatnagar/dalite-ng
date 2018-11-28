@@ -10,6 +10,7 @@ class StudentGroup(models.Model):
     title = models.CharField(max_length=100, null=True, blank=True)
     creation_date = models.DateField(blank=True, null=True, auto_now=True)
     teacher = models.ManyToManyField("Teacher", blank=True)
+    student_id_needed = models.BooleanField(default=False)
 
     def __unicode__(self):
         if not self.title:

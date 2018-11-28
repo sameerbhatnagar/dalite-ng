@@ -3,7 +3,9 @@ from __future__ import unicode_literals
 
 import logging
 import smtplib
+from datetime import datetime
 
+import pytz
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
@@ -287,7 +289,10 @@ class Student(models.Model):
             )
 
         StudentNotification.create(
-            type_="new_assignment", student=self, assignment=assignment
+            type_="new_assignment",
+            student=self,
+            assignment=assignment,
+            expiration=group_assignment.due_date,
         )
 
         if send_email:
@@ -325,6 +330,7 @@ class StudentGroupMembership(models.Model):
     group = models.ForeignKey(StudentGroup)
     current_member = models.BooleanField(default=True)
     send_emails = models.BooleanField(default=True)
+    student_school_id = models.TextField(null=True, blank=True)
 
     class Meta:
         unique_together = ("student", "group")
@@ -639,6 +645,7 @@ class StudentAssignment(models.Model):
                     type_="assignment_about_to_expire",
                     student=self.student,
                     assignment=self,
+                    expiration=self.group_assignment.due_date,
                 )
 
             if StudentGroupMembership.objects.get(
@@ -694,9 +701,10 @@ class StudentNotification(models.Model):
     link = models.URLField(max_length=500, blank=True, null=True)
     text = models.TextField()
     hover_text = models.TextField(blank=True, null=True)
+    expiration = models.DateTimeField(null=True, blank=True)
 
     @staticmethod
-    def create(type_, student, assignment=None):
+    def create(type_, student, assignment=None, expiration=None):
         """
         Creates a new notification of the given `type_` for the `student`.
 
@@ -709,6 +717,8 @@ class StudentNotification(models.Model):
             Student for whom the notification is created
         assignment : Optional[StudentAssignment] (default : None)
             Assignment corresponding to the notification if needed
+        expiration : Optional[datetime.datetime] (default : None)
+            Expiration time
         """
         assert isinstance(
             student, Student
@@ -795,9 +805,31 @@ class StudentNotification(models.Model):
                     link=link,
                     text=text,
                     hover_text=hover_text,
+                    expiration=expiration,
                 )
             logger.info(
                 "Notification of type {} was created for student {}.".format(
                     type_, student.pk
                 )
             )
+
+    @staticmethod
+    def clean(student=None):
+        """
+        Removes the expired notifications for the given student or all
+        students.
+
+        Parameters
+        ----------
+        student : Optional[Student] (default : None)
+            Student for whom to remove the notifications
+        """
+        if student is None:
+            StudentNotification.objects.filter(
+                expiration__isnull=False
+            ).filter(expiration__lt=datetime.now(pytz.utc)).delete()
+
+        else:
+            StudentNotification.objects.filter(
+                student=student, expiration__isnull=False
+            ).filter(expiration__lt=datetime.now(pytz.utc)).delete()
