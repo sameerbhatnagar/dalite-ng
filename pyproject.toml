@@ -1,7 +1,7 @@
 [tool.black]
 line_length = 79
-exclude = """
-  \(
-      \.git
-  \)
-"""
+exclude = '''
+/(
+    \.git
+/)
+'''
