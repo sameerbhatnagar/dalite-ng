@@ -106,6 +106,7 @@ from ..models import (
     Student,
     StudentGroup,
     StudentGroupAssignment,
+    StudentGroupMembership,
     Teacher,
     VerifiedDomain,
 )
@@ -3125,7 +3126,9 @@ def csv_gradebook(request, group_hash):
 
     # Header Row
     row = []
-    row.append("Student")
+    if student_group.student_id_needed:
+        row.append("Student ID")
+    row.append("Student Email")
     for d in assignment_list_sorted:
         question_list = (
             Assignment.objects.get(identifier=d["assignment"])
@@ -3137,7 +3140,16 @@ def csv_gradebook(request, group_hash):
 
     for user_token, email in student_list_sorted:
         row = []
-        row.append(email.split("@")[0])
+        student_school_id = Student.objects.get(
+            student__email=email
+            ).studentgroupmembership_set.get(
+            group=student_group
+            ).student_school_id
+
+        if student_group.student_id_needed:
+            row.append(student_school_id)
+        row.append(email)
+        
         for d in assignment_list_sorted:
             question_list = Assignment.objects.get(
                 identifier=d["assignment"]
