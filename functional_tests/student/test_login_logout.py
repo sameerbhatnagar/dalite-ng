@@ -1,12 +1,12 @@
-from django.core.urlresolvers import reverse
 import re
-from selenium.webdriver.common.keys import Keys
 
+from django.core.urlresolvers import reverse
+from functional_tests.fixtures import *  # noqa
 from peerinst.students import (
     create_student_token,
     get_student_username_and_password,
 )
-from functional_tests.fixtures import *  # noqa
+from selenium.webdriver.common.keys import Keys
 
 
 def signin(browser, student):

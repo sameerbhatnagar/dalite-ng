@@ -18,9 +18,9 @@ from django.http import (
 )
 from django.shortcuts import render
 from django.template.response import TemplateResponse
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import ugettext
+from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_http_methods
-
 from tos.models import Consent
 
 from ..models import (
