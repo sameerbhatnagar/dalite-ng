@@ -31,6 +31,7 @@ from ..models import (
 )
 from ..students import authenticate_student, verify_student_token
 
+from tos.models import Tos
 
 def signup_through_link(request, group_hash):
 
@@ -92,11 +93,12 @@ def signup_through_link(request, group_hash):
         )
 
     form = EmailForm()
+    tos = Tos.objects.filter(role='student').latest('created').text
 
     return TemplateResponse(
         request,
         "registration/sign_up_student.html",
-        context={"form": form, "group": group},
+        context={"form": form, "group": group, "tos": tos},
     )
 
 
