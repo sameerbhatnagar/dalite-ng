@@ -4,12 +4,9 @@ from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 
 from peerinst.models import Student, StudentGroupMembership
-from peerinst.students import (
-    create_student_token,
-    get_student_username_and_password,
-)
+from peerinst.students import create_student_token
 from peerinst.tests.fixtures import *  # noqa
-from peerinst.tests.fixtures.student import add_to_group
+from peerinst.tests.fixtures.student import add_to_group, login_student
 
 
 def test_index_fail_on_no_logged_in_and_no_token(client):
@@ -35,10 +32,7 @@ def test_index_fail_on_logged_in_not_student(client, user):
 
 
 def test_index_student_logged_in(client, student):
-    username, password = get_student_username_and_password(
-        student.student.email
-    )
-    assert client.login(username=username, password=password)
+    assert login_student(client, student)
 
     resp = client.get(reverse("student-page"))
     assert resp.status_code == 200
@@ -58,10 +52,7 @@ def test_index_student_not_logged_in_token(client, student):
 
 
 def test_index_student_logged_in_token_same_user(client, student):
-    username, password = get_student_username_and_password(
-        student.student.email
-    )
-    assert client.login(username=username, password=password)
+    assert login_student(client, student)
 
     token = create_student_token(
         student.student.username, student.student.email
@@ -74,10 +65,7 @@ def test_index_student_logged_in_token_same_user(client, student):
 
 
 def test_index_student_logged_in_token_different_user(client, students):
-    username, password = get_student_username_and_password(
-        students[0].student.email
-    )
-    assert client.login(username=username, password=password)
+    assert login_student(client, students[0])
 
     token = create_student_token(
         students[1].student.username, students[1].student.email
@@ -107,8 +95,8 @@ def test_index_new_student(client, student):
     assert Student.objects.get(student=student.student).student.is_active
 
 
-def test_leave_group_no_data(client):
-    #  data = {"email": self.student.student.email}
+def test_leave_group_no_data(client, student):
+    assert login_student(client, student)
     resp = client.post(reverse("student-leave-group"))
     assert resp.status_code == 400
     assert any(t.name == "400.html" for t in resp.templates)
@@ -116,26 +104,7 @@ def test_leave_group_no_data(client):
 
 
 def test_leave_group_wrong_data(client, student, group):
-    data = {"username": student.student.username}
-    resp = client.post(
-        reverse("student-leave-group"),
-        json.dumps(data),
-        content_type="application/json",
-    )
-    assert resp.status_code == 400
-    assert any(t.name == "400.html" for t in resp.templates)
-    assert "There are missing parameters." in resp.content
-
-    data = {"group_name": group.name}
-    resp = client.post(
-        reverse("student-leave-group"),
-        json.dumps(data),
-        content_type="application/json",
-    )
-    assert resp.status_code == 400
-    assert any(t.name == "400.html" for t in resp.templates)
-    assert "There are missing parameters." in resp.content
-
+    assert login_student(client, student)
     data = {}
     resp = client.post(
         reverse("student-leave-group"),
@@ -147,23 +116,9 @@ def test_leave_group_wrong_data(client, student, group):
     assert "There are missing parameters." in resp.content
 
 
-def test_leave_group_student_doesnt_exist(client, group, user):
-    data = {"username": user.username, "group_name": group.name}
-    resp = client.post(
-        reverse("student-leave-group"),
-        json.dumps(data),
-        content_type="application/json",
-    )
-    assert resp.status_code == 400
-    assert any(t.name == "400.html" for t in resp.templates)
-    assert (
-        "The student doesn't seem to exist. Refresh the page and try again"
-        in resp.content
-    )
-
-
 def test_leave_group_is_member_of_group(client, student, group):
     student.groups.add(group)
+    assert login_student(client, student)
     StudentGroupMembership.objects.create(student=student, group=group)
 
     assert group in student.groups.all()
@@ -185,6 +140,7 @@ def test_leave_group_is_member_of_group(client, student, group):
 
 
 def test_leave_group_is_not_member_of_group(client, student, group):
+    assert login_student(client, student)
     data = {"username": student.student.username, "group_name": group.name}
     resp = client.post(
         reverse("student-leave-group"),
@@ -241,11 +197,8 @@ def test_send_signin_link_missing_params(client):
 
 
 def test_update_student_id(client, student, group):
+    assert login_student(client, student)
     add_to_group(student, group)
-    username, password = get_student_username_and_password(
-        student.student.email
-    )
-    assert client.login(username=username, password=password)
 
     data = {"student_id": "1234567", "group_name": group.name}
 
@@ -270,11 +223,8 @@ def test_update_student_id__not_logged_in(client):
 
 
 def test_update_student_id__no_data(client, student, group):
+    assert login_student(client, student)
     add_to_group(student, group)
-    username, password = get_student_username_and_password(
-        student.student.email
-    )
-    assert client.login(username=username, password=password)
 
     resp = client.post(reverse("student-change-id"))
     assert resp.status_code == 400
@@ -282,11 +232,8 @@ def test_update_student_id__no_data(client, student, group):
 
 
 def test_update_student_id__wrong_data(client, student, group):
+    assert login_student(client, student)
     add_to_group(student, group)
-    username, password = get_student_username_and_password(
-        student.student.email
-    )
-    assert client.login(username=username, password=password)
 
     data = {"group_name": group.name}
 
@@ -320,11 +267,8 @@ def test_update_student_id__wrong_data(client, student, group):
 
 
 def test_update_student_id__wrong_group(client, student, group):
+    assert login_student(client, student)
     add_to_group(student, group)
-    username, password = get_student_username_and_password(
-        student.student.email
-    )
-    assert client.login(username=username, password=password)
 
     data = {"student_id": "1234567", "group_name": group.name + "fdsafdsaf"}
 
@@ -338,10 +282,7 @@ def test_update_student_id__wrong_group(client, student, group):
 
 
 def test_update_student_id__no_group_membership(client, student, group):
-    username, password = get_student_username_and_password(
-        student.student.email
-    )
-    assert client.login(username=username, password=password)
+    assert login_student(client, student)
 
     data = {"student_id": "1234567", "group_name": group.name}
 
