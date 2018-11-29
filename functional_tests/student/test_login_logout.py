@@ -6,7 +6,7 @@ from peerinst.students import (
     create_student_token,
     get_student_username_and_password,
 )
-from functional_tests.fixtures import *  # noqa F403
+from functional_tests.fixtures import *  # noqa
 
 
 def signin(browser, student):
@@ -37,7 +37,7 @@ def signin(browser, student):
 def access_logged_in_account_from_landing_page(browser, student):
     browser.get(browser.server_url)
     link = browser.find_element_by_link_text(
-        "Welcome back {}".format(student.student.username)
+        "Welcome back {}".format(student.student.email)
     )
     link.click()
     assert re.search(r"student/", browser.current_url)
