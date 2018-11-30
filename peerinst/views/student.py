@@ -370,7 +370,9 @@ def index_page(req):
             "notifications_bell": ugettext(
                 "Toggle email reminders for this group"
             ),
+            "not_sharing": ugettext("Not sharing"),
             "remove": ugettext("Remove"),
+            "sharing": ugettext("Sharing"),
             "student_id": ugettext("Student id"),
         },
     }
