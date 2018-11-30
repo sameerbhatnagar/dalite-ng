@@ -20,3 +20,9 @@ def students(tos_student):
         student.student.save()
         consent_to_tos(student, tos_student)
     return students
+
+
+@pytest.fixture
+def student_new(tos_student):
+    student = add_students(new_students(1))[0]
+    return student
