@@ -71,6 +71,7 @@ function initModel(data) {
       goToAssignment: data.translations.go_to_assignment,
       hour: data.translations.hour,
       hours: data.translations.hours,
+      leave: data.translations.leave,
       leaveGroupQuestion: data.translations.leave_group_question,
       leaveGroupText: data.translations.leave_group_text,
       leaveGroupTitle: data.translations.leave_group_title,
@@ -80,7 +81,6 @@ function initModel(data) {
       noAssignments: data.translations.no_assignments,
       notificationsBell: data.translations.notifications_bell,
       notSharing: data.translations.not_sharing,
-      remove: data.translations.remove,
       sharing: data.translations.sharing,
       studentId: data.translations.student_id,
     },
@@ -242,6 +242,7 @@ function groupTitleView(group) {
   const div = document.createElement("div");
   div.classList.add("student-group--title");
 
+  console.log(group.studentIdNeeded);
   if (group.studentIdNeeded) {
     div.appendChild(groupTitleIdView(group));
   }
@@ -260,7 +261,7 @@ function groupTitleView(group) {
 
   const bell = document.createElement("i");
   bell.classList.add("material-icons", "md-28");
-  bell.title = model.translations.notifications_bell;
+  bell.title = model.translations.notificationsBell;
   bell.addEventListener("click", () => toggleGroupNotifications(group, bell));
   if (group.notifications) {
     bell.textContent = "notifications";
@@ -449,7 +450,7 @@ function groupAssignmentView(assignment) {
 function leaveGroupView(group, groupNode) {
   const div = document.createElement("div");
   div.classList.add("student-group--remove");
-  div.title = model.translations.leave_group_title;
+  div.title = model.translations.leaveGroupTitle;
 
   const icon = document.createElement("i");
   icon.classList.add("material-icons", "md-28");
@@ -482,11 +483,11 @@ function leaveGroupView(group, groupNode) {
   question.textContent = model.translations.leaveGroupQuestion;
   boxDiv.appendChild(question);
 
-  const remove = document.createElement("button");
-  remove.classList.add("mdc-button", "mdc-button--unelevated");
-  remove.addEventListener("click", () => leaveGroup(group, groupNode));
-  remove.textContent = model.translations.remove;
-  boxDiv.appendChild(remove);
+  const leave = document.createElement("button");
+  leave.classList.add("mdc-button", "mdc-button--unelevated");
+  leave.addEventListener("click", () => leaveGroup(group, groupNode));
+  leave.textContent = model.translations.leave;
+  boxDiv.appendChild(leave);
 
   const cancel = document.createElement("button");
   cancel.classList.add("mdc-button");
@@ -728,8 +729,8 @@ export function joinGroup() {
             done: assignment.done,
             almostExpired: assignment.almost_expired,
           })),
-          student_id: group.student_id,
-          student_id_needed: group.student_id_needed,
+          studentId: group.student_id,
+          studentIdNeeded: group.student_id_needed,
         });
       }
       toggleJoinGroup();

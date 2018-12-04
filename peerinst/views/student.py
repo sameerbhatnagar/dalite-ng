@@ -86,7 +86,8 @@ def validate_group_data(req):
     if group_name is None:
         try:
             hash_ = re.match(
-                r"^[^/]+/\w{2}/live/signup/form/([0-9A-Za-z=_-]+)$", group_link
+                r"^https?://[^/]+/\w{2}/live/signup/form/([0-9A-Za-z=_-]+)$",
+                group_link,
             ).group(1)
         except AttributeError:
             logger.warning(
@@ -356,6 +357,7 @@ def index_page(req):
             "go_to_assignment": ugettext("Go to assignment"),
             "hour": ugettext("hour"),
             "hours": ugettext("hours"),
+            "leave": ugettext("Leave"),
             "leave_group_question": ugettext("Are you sure?"),
             "leave_group_text": ugettext(
                 "This will remove you from the group. All your answers will "
@@ -371,7 +373,6 @@ def index_page(req):
                 "Toggle email reminders for this group"
             ),
             "not_sharing": ugettext("Not sharing"),
-            "remove": ugettext("Remove"),
             "sharing": ugettext("Sharing"),
             "student_id": ugettext("Student id"),
         },
