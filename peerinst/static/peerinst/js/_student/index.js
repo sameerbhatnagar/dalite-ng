@@ -71,6 +71,7 @@ function initModel(data) {
       goToAssignment: data.translations.go_to_assignment,
       hour: data.translations.hour,
       hours: data.translations.hours,
+      leave: data.translations.leave,
       leaveGroupQuestion: data.translations.leave_group_question,
       leaveGroupText: data.translations.leave_group_text,
       leaveGroupTitle: data.translations.leave_group_title,
@@ -79,7 +80,8 @@ function initModel(data) {
       nQuestionsCompleted: data.translations.n_questions_completed,
       noAssignments: data.translations.no_assignments,
       notificationsBell: data.translations.notifications_bell,
-      remove: data.translations.remove,
+      notSharing: data.translations.not_sharing,
+      sharing: data.translations.sharing,
       studentId: data.translations.student_id,
     },
   };
@@ -97,10 +99,10 @@ function initView() {
 }
 
 function identityView() {
-  let emailSpan = document.getElementById("student-email");
+  const emailSpan = document.getElementById("student-email");
   emailSpan.textContent = model.student.email;
 
-  let memberSinceSpan = document.getElementById("student-member-since");
+  const memberSinceSpan = document.getElementById("student-member-since");
   memberSinceSpan.textContent = model.student.memberSince.toLocaleString(
     "en-ca",
     {
@@ -112,24 +114,19 @@ function identityView() {
     },
   );
 
-  let tosSharingIcon = document.getElementById("student-tos-sharing--icon");
-  let tosSharingSharingSpan = document.getElementById(
+  const tosSharingIcon = document.getElementById("student-tos-sharing--icon");
+  const tosSharingSpan = document.getElementById(
     "student-tos-sharing--sharing",
-  );
-  let tosSharingNotSharingSpan = document.getElementById(
-    "student-tos-sharing--not-sharing",
   );
   if (model.student.tos.sharing) {
     tosSharingIcon.textContent = "check";
-    tosSharingSharingSpan.style.display = "inline-block";
-    tosSharingNotSharingSpan.style.display = "none";
+    tosSharingSpan.textContent = model.translations.sharing;
   } else {
     tosSharingIcon.textContent = "clear";
-    tosSharingSharingSpan.style.display = "none";
-    tosSharingNotSharingSpan.style.display = "inline-block";
+    tosSharingSpan.textContent = model.translations.notSharing;
   }
 
-  let tosSignedOnSpan = document.getElementById("student-tos-signed-on");
+  const tosSignedOnSpan = document.getElementById("student-tos-signed-on");
   tosSignedOnSpan.textContent = model.student.tos.signedOn.toLocaleString(
     "en-ca",
     {
@@ -143,9 +140,9 @@ function identityView() {
 }
 
 function notificationsView() {
-  let notificationsDiv = document.getElementById("notifications");
+  const notificationsDiv = document.getElementById("notifications");
   if (model.notifications.length) {
-    let notifications = notificationsDiv.querySelector("ul");
+    const notifications = notificationsDiv.querySelector("ul");
     model.notifications.map(notification =>
       notifications.appendChild(notificationView(notification)),
     );
@@ -156,24 +153,24 @@ function notificationsView() {
 }
 
 function notificationView(notification) {
-  let a = document.createElement("a");
+  const a = document.createElement("a");
   a.title = notification.hoverText;
   a.addEventListener("click", () => removeNotification(notification));
 
-  let li = document.createElement("li");
+  const li = document.createElement("li");
   li.classList.add("mdc-list-item");
   a.appendChild(li);
 
-  let iconSpan = document.createElement("span");
+  const iconSpan = document.createElement("span");
   iconSpan.classList.add("mdc-list-item__graphic", "mdc-theme--primary");
   li.appendChild(iconSpan);
 
-  let icon = document.createElement("i");
+  const icon = document.createElement("i");
   icon.classList.add("material-icons", "md-36");
   icon.textContent = notification.icon;
   iconSpan.appendChild(icon);
 
-  let textSpan = document.createElement("span");
+  const textSpan = document.createElement("span");
   textSpan.classList.add("mdc-list-item__text");
   textSpan.textContent = notification.text;
   li.appendChild(textSpan);
@@ -182,7 +179,7 @@ function notificationView(notification) {
 }
 
 function joinGroupView() {
-  let box = document.getElementById("student-add-group--box");
+  const box = document.getElementById("student-add-group--box");
   if (model.joiningGroup) {
     joinGroupsSelectView();
     box.style.display = "flex";
@@ -192,9 +189,9 @@ function joinGroupView() {
 }
 
 function joinGroupsSelectView() {
-  let groupsSelect = document.getElementById("student-old-groups");
+  const groupsSelect = document.getElementById("student-old-groups");
   clear(groupsSelect);
-  let oldGroups = model.groups.filter(group => !group.memberOf);
+  const oldGroups = model.groups.filter(group => !group.memberOf);
   if (oldGroups.length) {
     oldGroups.map(group =>
       groupsSelect.appendChild(joinGroupSelectView(group)),
@@ -206,15 +203,15 @@ function joinGroupsSelectView() {
 }
 
 function joinGroupSelectView(group) {
-  let option = document.createElement("option");
+  const option = document.createElement("option");
   option.value = group.name;
   option.textContent = group.title;
   return option;
 }
 
 function verifyJoinGroupDisabledStatus() {
-  let input = document.querySelector("#student-add-group--box input");
-  let select = document.querySelector("#student-add-group--box select");
+  const input = document.querySelector("#student-add-group--box input");
+  const select = document.querySelector("#student-add-group--box select");
 
   if (input.value) {
     select.disabled = true;
@@ -224,7 +221,7 @@ function verifyJoinGroupDisabledStatus() {
 }
 
 function groupsView() {
-  let groups = document.getElementById("student-groups");
+  const groups = document.getElementById("student-groups");
   clear(groups);
   model.groups
     .filter(group => group.memberOf)
@@ -232,7 +229,7 @@ function groupsView() {
 }
 
 function groupView(group) {
-  let div = document.createElement("div");
+  const div = document.createElement("div");
   div.classList.add("student-group");
 
   div.appendChild(groupTitleView(group));
@@ -242,28 +239,29 @@ function groupView(group) {
 }
 
 function groupTitleView(group) {
-  let div = document.createElement("div");
+  const div = document.createElement("div");
   div.classList.add("student-group--title");
 
+  console.log(group.studentIdNeeded);
   if (group.studentIdNeeded) {
     div.appendChild(groupTitleIdView(group));
   }
 
-  let title = document.createElement("h3");
+  const title = document.createElement("h3");
   title.textContent = group.title;
   div.appendChild(title);
 
-  let icons = document.createElement("div");
+  const icons = document.createElement("div");
   icons.classList.add("student-group--icons");
   div.appendChild(icons);
 
-  let notifications = document.createElement("div");
+  const notifications = document.createElement("div");
   notifications.classList.add("student-group--notifications");
   icons.appendChild(notifications);
 
-  let bell = document.createElement("i");
+  const bell = document.createElement("i");
   bell.classList.add("material-icons", "md-28");
-  bell.title = model.translations.notifications_bell;
+  bell.title = model.translations.notificationsBell;
   bell.addEventListener("click", () => toggleGroupNotifications(group, bell));
   if (group.notifications) {
     bell.textContent = "notifications";
@@ -279,10 +277,10 @@ function groupTitleView(group) {
 }
 
 function groupTitleIdView(group) {
-  let div = document.createElement("div");
+  const div = document.createElement("div");
   div.classList.add("student-group--id");
 
-  let copyIcon = document.createElement("i");
+  const copyIcon = document.createElement("i");
   copyIcon.classList.add("material-icons", "md-28", "student-group--id__copy");
   copyIcon.style.display = "flex";
   copyIcon.textContent = "file_copy";
@@ -291,7 +289,7 @@ function groupTitleIdView(group) {
   );
   div.appendChild(copyIcon);
 
-  let studentId = document.createElement("span");
+  const studentId = document.createElement("span");
   studentId.classList.add("student-group--id__id");
   studentId.style.display = "inline-block";
   studentId.textContent = group.studentId;
@@ -299,7 +297,7 @@ function groupTitleIdView(group) {
   studentId.addEventListener("click", () => editStudentId(group, div));
   div.appendChild(studentId);
 
-  let input = document.createElement("input");
+  const input = document.createElement("input");
   input.classList.add("student-group--id__input");
   input.value = group.schoolId;
   input.style.display = "none";
@@ -308,14 +306,14 @@ function groupTitleIdView(group) {
   );
   div.appendChild(input);
 
-  let editIcon = document.createElement("i");
+  const editIcon = document.createElement("i");
   editIcon.classList.add("material-icons", "md-28", "student-group--id__edit");
   editIcon.style.display = "flex";
   editIcon.textContent = "edit";
   editIcon.addEventListener("click", () => editStudentId(group, div));
   div.appendChild(editIcon);
 
-  let confirmIcon = document.createElement("i");
+  const confirmIcon = document.createElement("i");
   confirmIcon.classList.add(
     "material-icons",
     "md-28",
@@ -326,7 +324,7 @@ function groupTitleIdView(group) {
   confirmIcon.addEventListener("click", () => saveStudentId(group, div));
   div.appendChild(confirmIcon);
 
-  let cancelIcon = document.createElement("i");
+  const cancelIcon = document.createElement("i");
   cancelIcon.classList.add(
     "material-icons",
     "md-28",
@@ -341,16 +339,16 @@ function groupTitleIdView(group) {
 }
 
 function groupAssignmentsView(group) {
-  let div = document.createElement("div");
+  const div = document.createElement("div");
   div.classList.add("student-group--assignments");
   if (group.assignments.length) {
-    let ul = document.createElement("ul");
+    const ul = document.createElement("ul");
     group.assignments.map(assignment =>
       ul.appendChild(groupAssignmentView(assignment)),
     );
     div.appendChild(ul);
   } else {
-    let span = document.createElement("span");
+    const span = document.createElement("span");
     span.classList.add("student-group--no-assignments");
     span.textContent = model.translations.noAssignments;
     div.appendChild(span);
@@ -359,25 +357,25 @@ function groupAssignmentsView(group) {
 }
 
 function groupAssignmentView(assignment) {
-  let a = document.createElement("a");
+  const a = document.createElement("a");
   a.href = assignment.link;
 
-  let li = document.createElement("li");
+  const li = document.createElement("li");
   li.classList.add("student-group--assignment");
   if (assignment.results.nSecondAnswered == assignment.results.n) {
     li.classList.add("student-group--assignment-complete");
   }
   a.appendChild(li);
 
-  let almostExpiredMin = new Date(assignment.dueDate);
+  const almostExpiredMin = new Date(assignment.dueDate);
   almostExpiredMin.setDate(
     almostExpiredMin.getDate() - model.expiryBlinkingDelay,
   );
 
-  let iconSpan = document.createElement("span");
+  const iconSpan = document.createElement("span");
   iconSpan.classList.add("student-group--assignment-icon");
   li.appendChild(iconSpan);
-  let icon = document.createElement("i");
+  const icon = document.createElement("i");
   icon.classList.add("material-icons", "md-28");
   if (assignment.results.nSecondAnswered == assignment.results.n) {
     iconSpan.title = model.translations.goToAssignment;
@@ -394,27 +392,27 @@ function groupAssignmentView(assignment) {
   }
   iconSpan.appendChild(icon);
 
-  let questionsSpan = document.createElement("span");
+  const questionsSpan = document.createElement("span");
   questionsSpan.classList.add("student-group--assignment-questions");
   questionsSpan.title = model.translations.nQuestionsCompleted;
   li.appendChild(questionsSpan);
-  let nSecond = document.createElement("span");
+  const nSecond = document.createElement("span");
   nSecond.textContent = assignment.results.nSecondAnswered;
   questionsSpan.appendChild(nSecond);
-  let slash = document.createElement("span");
+  const slash = document.createElement("span");
   slash.textContent = "/";
   questionsSpan.appendChild(slash);
-  let n = document.createElement("span");
+  const n = document.createElement("span");
   n.textContent = assignment.results.n;
   questionsSpan.appendChild(n);
 
-  let title = document.createElement("span");
+  const title = document.createElement("span");
   title.classList.add("student-group--assignment-title");
   title.title = model.translations.goToAssignment;
   title.textContent = assignment.title;
   li.appendChild(title);
 
-  let date = document.createElement("span");
+  const date = document.createElement("span");
   date.classList.add("student-group--assignment-date");
   if (assignment.dueDate <= new Date(Date.now())) {
     date.title = model.translations.assignmentExpired;
@@ -430,11 +428,11 @@ function groupAssignmentView(assignment) {
         hour: "2-digit",
         minute: "2-digit",
       });
-    let dateIcon = document.createElement("i");
+    const dateIcon = document.createElement("i");
     dateIcon.classList.add("material-icons", "md-18");
     dateIcon.textContent = "access_time";
     date.appendChild(dateIcon);
-    let remainingTimeSpan = document.createElement("span");
+    const remainingTimeSpan = document.createElement("span");
     remainingTimeSpan.textContent = timeuntil(
       assignment.dueDate,
       new Date(Date.now()),
@@ -450,17 +448,17 @@ function groupAssignmentView(assignment) {
 }
 
 function leaveGroupView(group, groupNode) {
-  let div = document.createElement("div");
+  const div = document.createElement("div");
   div.classList.add("student-group--remove");
-  div.title = model.translations.leave_group_title;
+  div.title = model.translations.leaveGroupTitle;
 
-  let icon = document.createElement("i");
+  const icon = document.createElement("i");
   icon.classList.add("material-icons", "md-28");
   icon.addEventListener("click", () => toggleLeaveGroup(groupNode));
   icon.textContent = "remove_circle_outline";
   div.appendChild(icon);
 
-  let box = document.createElement("div");
+  const box = document.createElement("div");
   box.classList.add("student-group--remove-confirmation-box");
   box.style.display = "none";
   box.addEventListener("click", function(event) {
@@ -469,29 +467,29 @@ function leaveGroupView(group, groupNode) {
   });
   div.appendChild(box);
 
-  let boxDiv = document.createElement("div");
+  const boxDiv = document.createElement("div");
   boxDiv.addEventListener("click", event => event.stopPropagation());
   box.appendChild(boxDiv);
 
-  let title = document.createElement("h3");
+  const title = document.createElement("h3");
   title.textContent = model.translations.leaveGroupTitle + " " + group.title;
   boxDiv.appendChild(title);
 
-  let text = document.createElement("p");
+  const text = document.createElement("p");
   text.textContent = model.translations.leaveGroupText;
   boxDiv.appendChild(text);
 
-  let question = document.createElement("p");
+  const question = document.createElement("p");
   question.textContent = model.translations.leaveGroupQuestion;
   boxDiv.appendChild(question);
 
-  let remove = document.createElement("button");
-  remove.classList.add("mdc-button", "mdc-button--unelevated");
-  remove.addEventListener("click", () => leaveGroup(group, groupNode));
-  remove.textContent = model.translations.remove;
-  boxDiv.appendChild(remove);
+  const leave = document.createElement("button");
+  leave.classList.add("mdc-button", "mdc-button--unelevated");
+  leave.addEventListener("click", () => leaveGroup(group, groupNode));
+  leave.textContent = model.translations.leave;
+  boxDiv.appendChild(leave);
 
-  let cancel = document.createElement("button");
+  const cancel = document.createElement("button");
   cancel.classList.add("mdc-button");
   cancel.addEventListener("click", () => toggleLeaveGroup(groupNode));
   cancel.textContent = model.translations.cancel;
@@ -501,12 +499,12 @@ function leaveGroupView(group, groupNode) {
 }
 
 function editStudentId(group, node) {
-  let span = node.querySelector(".student-group--id__id");
-  let input = node.querySelector(".student-group--id__input");
-  let copyBtn = node.querySelector(".student-group--id__copy");
-  let editBtn = node.querySelector(".student-group--id__edit");
-  let confirmBtn = node.querySelector(".student-group--id__confirm");
-  let cancelBtn = node.querySelector(".student-group--id__cancel");
+  const span = node.querySelector(".student-group--id__id");
+  const input = node.querySelector(".student-group--id__input");
+  const copyBtn = node.querySelector(".student-group--id__copy");
+  const editBtn = node.querySelector(".student-group--id__edit");
+  const confirmBtn = node.querySelector(".student-group--id__confirm");
+  const cancelBtn = node.querySelector(".student-group--id__cancel");
 
   input.value = group.studentId;
 
@@ -521,12 +519,12 @@ function editStudentId(group, node) {
 }
 
 function stopEditStudentId(group, node) {
-  let span = node.querySelector("span");
-  let input = node.querySelector("input");
-  let copyBtn = node.querySelector(".student-group--id__copy");
-  let editBtn = node.querySelector(".student-group--id__edit");
-  let confirmBtn = node.querySelector(".student-group--id__confirm");
-  let cancelBtn = node.querySelector(".student-group--id__cancel");
+  const span = node.querySelector("span");
+  const input = node.querySelector("input");
+  const copyBtn = node.querySelector(".student-group--id__copy");
+  const editBtn = node.querySelector(".student-group--id__edit");
+  const confirmBtn = node.querySelector(".student-group--id__confirm");
+  const cancelBtn = node.querySelector(".student-group--id__cancel");
 
   span.textContent = group.studentId;
 
@@ -539,7 +537,7 @@ function stopEditStudentId(group, node) {
 }
 
 function toggleLeaveGroup(node) {
-  let box = node.querySelector(".student-group--remove-confirmation-box");
+  const box = node.querySelector(".student-group--remove-confirmation-box");
   if (box.style.display == "none") {
     box.style.display = "flex";
   } else {
@@ -548,7 +546,7 @@ function toggleLeaveGroup(node) {
 }
 
 function showCopyBubble(node) {
-  let bubble = document.createElement("div");
+  const bubble = document.createElement("div");
   bubble.classList.add("bubble");
   bubble.textContent = "Copied to clipboard!";
   node.appendChild(bubble);
@@ -561,12 +559,12 @@ function showCopyBubble(node) {
 /**********/
 
 function removeNotification(notification) {
-  let url = model.urls.removeNotification;
-  let data = {
+  const url = model.urls.removeNotification;
+  const data = {
     notification_pk: notification.pk,
   };
 
-  let req = buildReq(data, "post");
+  const req = buildReq(data, "post");
 
   fetch(url, req)
     .then(function(resp) {
@@ -596,15 +594,15 @@ function handleStudentIdKeyDown(key, group, node) {
 }
 
 function saveStudentId(group, node) {
-  let url = model.urls.saveStudentId;
-  let input = node.querySelector("input");
+  const url = model.urls.saveStudentId;
+  const input = node.querySelector("input");
 
-  let data = {
+  const data = {
     student_id: input.value,
     group_name: group.name,
   };
 
-  let req = buildReq(data, "post");
+  const req = buildReq(data, "post");
   fetch(url, req)
     .then(resp => resp.json())
     .then(function(data) {
@@ -618,11 +616,11 @@ function saveStudentId(group, node) {
 }
 
 function toggleGroupNotifications(group, bell) {
-  let url = model.urls.studentToggleGroupnotifications;
-  let data = {
+  const url = model.urls.studentToggleGroupnotifications;
+  const data = {
     group_name: group.name,
   };
-  let req = buildReq(data, "post");
+  const req = buildReq(data, "post");
   fetch(url, req)
     .then(resp => resp.json())
     .then(function(data) {
@@ -641,12 +639,12 @@ function toggleGroupNotifications(group, bell) {
 }
 
 function leaveGroup(group, groupNode) {
-  let url = model.urls.leaveGroup;
-  let data = {
+  const url = model.urls.leaveGroup;
+  const data = {
     group_name: group.name,
   };
 
-  let req = buildReq(data, "post");
+  const req = buildReq(data, "post");
   fetch(url, req)
     .then(function(resp) {
       if (resp.ok) {
@@ -666,7 +664,7 @@ function copyStudentIdToClipboard(group, node) {
 }
 
 export function modifyTos() {
-  let url = model.urls.tosModify + "?next=" + window.location.href;
+  const url = model.urls.tosModify + "?next=" + window.location.href;
   window.location.href = url;
 }
 
@@ -684,9 +682,9 @@ export function handleJoinGroupLinkInput(event) {
 }
 
 export function joinGroup() {
-  let url = model.urls.joinGroup;
-  let input = document.querySelector("#student-add-group--box input");
-  let select = document.querySelector("#student-add-group--box select");
+  const url = model.urls.joinGroup;
+  const input = document.querySelector("#student-add-group--box input");
+  const select = document.querySelector("#student-add-group--box select");
 
   let data;
   if (input.value) {
@@ -703,7 +701,7 @@ export function joinGroup() {
     console.log("Empty input");
   }
 
-  let req = buildReq(data, "post");
+  const req = buildReq(data, "post");
   fetch(url, req)
     .then(resp => resp.json())
     .then(function(group) {
@@ -731,8 +729,8 @@ export function joinGroup() {
             done: assignment.done,
             almostExpired: assignment.almost_expired,
           })),
-          student_id: group.student_id,
-          student_id_needed: group.student_id_needed,
+          studentId: group.student_id,
+          studentIdNeeded: group.student_id_needed,
         });
       }
       toggleJoinGroup();
@@ -749,11 +747,11 @@ export function joinGroup() {
 
 function timeuntil(date1, date2) {
   let diff = date1 - date2;
-  let diffDays = Math.floor(diff / 1000 / 60 / 60 / 24);
+  const diffDays = Math.floor(diff / 1000 / 60 / 60 / 24);
   diff = diff - diffDays * 24 * 60 * 60 * 1000;
-  let diffHours = Math.floor(diff / 1000 / 60 / 60);
+  const diffHours = Math.floor(diff / 1000 / 60 / 60);
   diff = diff - diffHours * 60 * 60 * 1000;
-  let diffMinutes = Math.floor(diff / 1000 / 60);
+  const diffMinutes = Math.floor(diff / 1000 / 60);
   let diff_ = "";
   if (diffDays > 1) {
     diff_ = diff_ + parseInt(diffDays) + " " + model.translations.days + ", ";

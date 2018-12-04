@@ -1,15 +1,15 @@
-from django.core.urlresolvers import reverse
 import re
-from selenium.webdriver.common.keys import Keys
 
+from django.core.urlresolvers import reverse
+from functional_tests.fixtures import *  # noqa
 from peerinst.students import (
     create_student_token,
     get_student_username_and_password,
 )
-from functional_tests.fixtures import *  # noqa F403
+from selenium.webdriver.common.keys import Keys
 
 
-def signin(browser, student):
+def signin(browser, student, new=False):
     email = student.student.email
 
     browser.get("{}{}".format(browser.server_url, reverse("login")))
@@ -31,13 +31,19 @@ def signin(browser, student):
 
     browser.get(signin_link)
 
-    assert re.search(r"student/", browser.current_url)
+    if new:
+        assert re.search(
+            r"/(\w{2})/tos/tos/student/\?next=/\1/student/",
+            browser.current_url,
+        )
+    else:
+        assert re.search(r"/en/student/\?token=", browser.current_url)
 
 
 def access_logged_in_account_from_landing_page(browser, student):
     browser.get(browser.server_url)
     link = browser.find_element_by_link_text(
-        "Welcome back {}".format(student.student.username)
+        "Welcome back {}".format(student.student.email)
     )
     link.click()
     assert re.search(r"student/", browser.current_url)
@@ -54,6 +60,16 @@ def logout(browser):
 
     browser.find_element_by_link_text("Login")
     browser.find_element_by_link_text("Signup")
+
+
+def consent_to_tos(browser):
+    share = browser.find_element_by_xpath(
+        "//button[contains(text(), 'Share')]"
+    )
+    share.click()
+
+    sharing = browser.find_element_by_id("student-tos-sharing--sharing")
+    assert sharing.text == "Sharing"
 
 
 def test_fake_link(browser):
@@ -77,6 +93,11 @@ def test_fake_link(browser):
 
 
 def test_student_login_logout(browser, student):
-    signin(browser, student)
+    signin(browser, student, new=False)
     access_logged_in_account_from_landing_page(browser, student)
     logout(browser)
+
+
+def test_new_student_login(browser, student_new):
+    signin(browser, student_new, new=True)
+    consent_to_tos(browser)

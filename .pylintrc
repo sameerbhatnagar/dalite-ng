@@ -10,4 +10,5 @@ disable=
   no-method-argument,
   old-style-class,
   redefined-outer-name,
-  too-few-public-methods
+  too-few-public-methods,
+  unused-wildcard-import

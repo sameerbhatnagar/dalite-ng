@@ -1,6 +1,6 @@
 from django.core.urlresolvers import reverse
 
-from functional_tests.fixtures import *  # noqa F403
+from functional_tests.fixtures import *  # noqa
 
 
 def login(browser, teacher):

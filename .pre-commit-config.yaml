@@ -9,3 +9,19 @@ repos:
     rev: v2.0.0
     hooks:
       - id: flake8
+  - repo: https://github.com/pre-commit/mirrors-eslint
+    rev: v5.9.0
+    hooks:
+      - id: eslint
+        additional_dependencies:
+          - eslint
+          - babel-eslint
+          - eslint-config-google
+          - rollup-plugin-eslint
+        exclude: "^.*\\.min\\..*$"
+  - repo: https://github.com/prettier/prettier
+    rev: 1.15.2
+    hooks:
+      - id: prettier
+        types: [scss, javascript]
+        exclude: "^.*\\.min\\..*$"
