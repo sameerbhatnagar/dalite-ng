@@ -61,6 +61,7 @@ class TestApplicationHookManager(SimpleTestCase):
         user_objects_manager.get.return_value = User()
         student_objects_manager.get.return_value = Student()
         request = mock.Mock()
+        request.session = self.client.session
         expected_uname, expected_password = self._get_uname_and_password(
             user_id, email
         )
@@ -79,51 +80,52 @@ class TestApplicationHookManager(SimpleTestCase):
             if auth_result:
                 login_mock.assert_called_once_with(request, auth_result)
 
-    #  @ddt.unpack
-    #  @ddt.data(
-    #  (
-    #  "Luke Skywalker",
-    #  "luke27@tatooine.com",
-    #  User(username="Luke Skywalker", email="luke27@tatooine.com"),
-    #  ),
-    #  ("Ben Solo", None, None),
-    #  )
-    #  def test_authentication_hook_user_doesnt_exist(
-    #  self,
-    #  user_id,
-    #  email,
-    #  auth_result,
-    #  user_objects_manager,
-    #  student_objects_manager,
-    #  ):
-    #  user_objects_manager.get.return_value = User()
-    #  student_objects_manager.get.return_value = Student()
-    #  request = mock.Mock()
-    #  expected_uname, expected_password = self._get_uname_and_password(
-    #  user_id, email
-    #  )
-    #  expected_email = email = email if email else user_id + "@localhost"
+    # @ddt.unpack
+    # @ddt.data(
+    #     (
+    #         "Luke Skywalker",
+    #         "luke27@tatooine.com",
+    #         User(username="Luke Skywalker", email="luke27@tatooine.com"),
+    #     ),
+    #     ("Ben Solo", None, None),
+    # )
+    # def test_authentication_hook_user_doesnt_exist(
+    #     self,
+    #     user_id,
+    #     email,
+    #     auth_result,
+    #     user_objects_manager,
+    #     student_objects_manager,
+    # ):
+    #     user_objects_manager.get.return_value = User()
+    #     student_objects_manager.get.return_value = Student()
+    #     request = mock.Mock()
+    #     request.session = self.client.session
+    #     expected_uname, expected_password = self._get_uname_and_password(
+    #         user_id, email
+    #     )
+    #     expected_email = email = email if email else user_id + "@localhost"
+    #
+    #     with mock.patch(
+    #         "peerinst.auth.authenticate"
+    #     ) as authenticate_mock, mock.patch("dalite.login") as login_mock:
+    #         authenticate_mock.return_value = auth_result
+    #         self.manager.authentication_hook(
+    #             request, user_id, "irrelevant", email
+    #         )
+    #
+    #         user_objects_manager.create_user.assert_called_once_with(
+    #             username=expected_uname,
+    #             email=expected_email,
+    #             password=expected_password,
+    #         )
+    #         authenticate_mock.assert_called_once_with(
+    #             username=expected_uname, password=expected_password
+    #         )
+    #         if auth_result:
+    #             login_mock.assert_called_once_with(request, auth_result)
 
 
-#
-#  with mock.patch(
-#  "peerinst.auth.authenticate"
-#  ) as authenticate_mock, mock.patch("dalite.login") as login_mock:
-#  authenticate_mock.return_value = auth_result
-#  self.manager.authentication_hook(
-#  request, user_id, "irrelevant", email
-#  )
-#
-#  user_objects_manager.create_user.assert_called_once_with(
-#  username=expected_uname,
-#  email=expected_email,
-#  password=expected_password,
-#  )
-#  authenticate_mock.assert_called_once_with(
-#  username=expected_uname, password=expected_password
-#  )
-#  if auth_result:
-#  login_mock.assert_called_once_with(request, auth_result)
 #
 #  @ddt.unpack
 #  @ddt.data(
