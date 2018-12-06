@@ -66,7 +66,7 @@ def test__modify_due_date__with_floating_point(student_group_assignment):
 def test__modify_due_date__wrong_format(student_group_assignment):
     due_date = student_group_assignment.due_date
     new_due_date = datetime.now(pytz.utc) + timedelta(
-        days=random.randint(1, 10)
+        days=random.randint(2, 10)
     )
     data = {"due_date": (new_due_date).strftime("%Y/%m/%d %H-%M-%S.%f")}
 
