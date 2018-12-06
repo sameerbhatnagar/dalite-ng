@@ -325,6 +325,7 @@ class TeacherTest(TestCase):
             {
                 "text": "Text of new question",
                 "title": "New question",
+                "type": "PI",
                 "answer_style": 0,
                 "image": "",
                 "video_url": "",
@@ -363,6 +364,7 @@ class TeacherTest(TestCase):
             {
                 "text": "Text of new question",
                 "title": "New question",
+                "type": "PI",
                 "answer_style": 0,
                 "image": "",
                 "video_url": "",
@@ -386,6 +388,7 @@ class TeacherTest(TestCase):
             {
                 "text": "Text of new question",
                 "title": "New title for question 5",
+                "type": "PI",
                 "answer_style": 0,
                 "image": "",
                 "video_url": "",
@@ -644,6 +647,7 @@ class TeacherTest(TestCase):
             {
                 "text": "Text of cloned question",
                 "title": "Title for cloned question",
+                "type": "PI",
                 "answer_style": 0,
                 "image": "",
                 "video_url": "",
@@ -873,7 +877,7 @@ class TeacherTest(TestCase):
 class CustomMiddlewareTest(TestCase):
     def test_405_response(self):
         response = self.client.post(reverse("landing_page"), follow=True)
-        print(response)
+        # print(response)
 
         self.assertEqual(response.status_code, 405)
         self.assertTemplateUsed(response, "405.html")
