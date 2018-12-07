@@ -1,7 +1,7 @@
 -r requirements.txt
 
 bandit
-black
+# black
 coverage
 ddt
 factory_boy>=2.5.2,<2.6
@@ -10,6 +10,7 @@ flake8-docstrings
 mock
 pre-commit
 pytest
+pytest-cov==2.6.0
 pytest-django
 pytz
 pyyaml

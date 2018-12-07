@@ -39,7 +39,7 @@ Setting up the development server
 
 
 6. Add Sample Consent Form
-  
+
   - Navigate to `127.0.0.1:8000/admin/tos` and add a sample Terms of Service (mark it as current)
   - Login as a Teacher
 
@@ -324,3 +324,7 @@ Bruce][entypo].
 [entypo]: http://www.entypo.com/
 
 
+
+
+
+py.test --cov-config .coveragerc --cov-report html --cov=peerinst --cov=dalite --cov=tos ./
