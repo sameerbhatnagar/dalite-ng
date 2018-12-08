@@ -326,5 +326,7 @@ Bruce][entypo].
 
 
 
+Local coverage command
+----------------------
 
-py.test --cov-config .coveragerc --cov-report html --cov=peerinst --cov=dalite --cov=tos ./
+`$ py.test --cov-config .coveragerc --cov-report html --cov=peerinst --cov=dalite --cov=tos ./`
