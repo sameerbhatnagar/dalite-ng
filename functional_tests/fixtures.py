@@ -9,15 +9,34 @@ from peerinst.tests.fixtures import *  # noqa
 
 @pytest.yield_fixture
 def browser(live_server):
+    if hasattr(settings, "TESTING_BROWSER"):
+        browser = settings.TESTING_BROWSER.lower()
+    else:
+        browser = "firefox"
+
     if hasattr(settings, "HEADLESS_TESTING") and settings.HEADLESS_TESTING:
         os.environ["MOZ_HEADLESS"] = "1"
-    try:
-        driver = webdriver.Firefox()
-    except WebDriverException:
         options = webdriver.ChromeOptions()
-        if hasattr(settings, "HEADLESS_TESTING") and settings.HEADLESS_TESTING:
-            options.add_argument("headless")
-        driver = webdriver.Chrome(chrome_options=options)
+        options.add_argument("headless")
+    else:
+        options = webdriver.ChromeOptions()
+
+    if browser == "firefox":
+        try:
+            driver = webdriver.Firefox()
+        except WebDriverException:
+            driver = webdriver.Chrome(options=options)
+    elif browser == "chrome":
+        try:
+            driver = webdriver.Chrome(options=options)
+        except WebDriverException:
+            driver = webdriver.Firefox()
+    else:
+        raise ValueError(
+            "The TESTING_BROWSER setting in local_settings.py must either be "
+            "firefox or chrome."
+        )
+
     driver.server_url = live_server.url
     yield driver
     driver.close()
