@@ -14,7 +14,8 @@ jobs:
            ls -al
       - run:
           name: Test and coverage
-          command: 'py.test --cov-config .coveragerc --cov=peerinst --cov=dalite --cov=tos'
+          command: 'py.test --cov-config .coveragerc --cov-report xml:pytest-reports --cov=peerinst --cov=dalite --cov=tos'
+      - store_test_results:
+          path: pytest-reports
       - store_artifacts:
-          path: coverage.xml
-          prefix: coverage
+          path: pytest-reports
