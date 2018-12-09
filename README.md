@@ -1,6 +1,8 @@
 Dalite NG
 =========
 
+[![CircleCI](https://circleci.com/gh/SALTISES4/dalite-ng.svg?style=svg)](https://circleci.com/gh/SALTISES4/dalite-ng)
+
 Dalite NG is a Peer Instruction Tool for online learning platforms such as Open edX. It is implemented in Django as an [LTI](https://en.m.wikipedia.org/wiki/Learning_Tools_Interoperability) tool and should be compatible with most online learning platforms.  Dalite NG is a rewrite of the [Dalite tool][old-dalite] as a cleaner, Django-based LTI tool.
 
 [old-dalite]: https://github.com/open-craft/edu8-dalite/

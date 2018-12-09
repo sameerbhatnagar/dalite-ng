@@ -9,8 +9,8 @@ jobs:
     steps:
       - checkout
       - run:
-         name: Fetch
-         command: |
+          name: Fetch
+          command: |
            ls -al
       - run:
           name: Test and coverage
