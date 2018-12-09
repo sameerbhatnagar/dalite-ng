@@ -3,7 +3,6 @@ from __future__ import unicode_literals
 
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
-from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.http import (
     HttpResponse,
@@ -29,9 +28,10 @@ from ..models import (
     StudentGroupAssignment,
     Teacher,
 )
-from ..students import authenticate_student, verify_student_token
+from ..students import authenticate_student
 
 from tos.models import Tos
+
 
 def signup_through_link(request, group_hash):
 
@@ -93,7 +93,7 @@ def signup_through_link(request, group_hash):
         )
 
     form = EmailForm()
-    tos = Tos.objects.filter(role='student').latest('created').text
+    tos = Tos.objects.filter(role="student").latest("created").text
 
     return TemplateResponse(
         request,
@@ -213,17 +213,7 @@ def navigate_assignment(request, assignment_id, question_id, direction, index):
         )
 
         if new_question is None:
-            resp = TemplateResponse(
-                request,
-                "400.html",
-                context={
-                    "message": _(
-                        "Try logging in again using the link to this "
-                        "assignment sent via email."
-                    )
-                },
-            )
-            return HttpResponseBadRequest(resp.render())
+            return HttpResponseRedirect(reverse("student-page"))
 
         questions = assignment.questions
         idx = questions.index(new_question)
