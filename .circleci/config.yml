@@ -10,13 +10,11 @@ jobs:
     steps:
       - checkout
       - run:
-        name: Install dependencies
-        command: |
-          pip install -r requirements
-          yarn install
+          name: Install dependencies
+          command: |
+            pip install -r requirements
+            yarn install
       - run:
-        name: Run tests
-        command: |
-          pytest --cov
-
-
+          name: Run tests
+          command: |
+            pytest --cov
