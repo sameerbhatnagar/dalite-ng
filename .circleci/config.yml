@@ -1,21 +1,10 @@
-version: 2.0
-
+version: 2
 jobs:
   build:
-    machine: true
+    docker:
+      - image: circleci/python:2.7
     branches:
       only:
         - development
     steps:
       - checkout
-      - run:
-          name: Fetch
-          command: |
-           ls -al
-      - run:
-          name: Test and coverage
-          command: 'py.test --cov-config .coveragerc --cov-report xml:pytest-reports --cov=peerinst --cov=dalite --cov=tos'
-      - store_test_results:
-          path: pytest-reports
-      - store_artifacts:
-          path: pytest-reports
