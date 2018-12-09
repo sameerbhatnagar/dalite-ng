@@ -2,9 +2,21 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/python:2.7
+      - image: antoinelb/python2-yarn
+    working_directory: ~/repo
     branches:
       only:
         - development
     steps:
       - checkout
+      - run:
+        name: Install dependencies
+        command: |
+          pip install -r requirements
+          yarn install
+      - run:
+        name: Run tests
+        command: |
+          pytest --cov
+
+
