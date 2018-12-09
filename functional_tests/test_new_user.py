@@ -1,18 +1,21 @@
+import os
+import time
+
+from django.conf import settings
 from django.contrib.auth.hashers import make_password
-from django.core.urlresolvers import reverse
+from django.contrib.auth.models import Group, Permission
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
+from django.core.urlresolvers import reverse
 from selenium import webdriver
 from selenium.common.exceptions import TimeoutException, WebDriverException
-from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.expected_conditions import (
     presence_of_element_located,
     text_to_be_present_in_element,
 )
-import time
+from selenium.webdriver.support.ui import WebDriverWait
 
-from django.contrib.auth.models import Permission, Group
-from peerinst.models import User, Question, Assignment
+from peerinst.models import Assignment, Question, User
 from tos.models import Role, Tos
 
 timeout = 1
@@ -30,10 +33,35 @@ class NewUserTests(StaticLiveServerTestCase):
     fixtures = ["test_users.yaml"]
 
     def setUp(self):
-        try:
-            self.browser = webdriver.Chrome()
-        except WebDriverException:
-            self.browser = webdriver.Firefox()
+
+        if hasattr(settings, "TESTING_BROWSER"):
+            browser = settings.TESTING_BROWSER.lower()
+        else:
+            browser = "firefox"
+
+        if hasattr(settings, "HEADLESS_TESTING") and settings.HEADLESS_TESTING:
+            os.environ["MOZ_HEADLESS"] = "1"
+            options = webdriver.ChromeOptions()
+            options.add_argument("headless")
+        else:
+            options = webdriver.ChromeOptions()
+
+        if browser == "firefox":
+            try:
+                self.browser = webdriver.Firefox()
+            except WebDriverException:
+                self.browser = webdriver.Chrome(options=options)
+        elif browser == "chrome":
+            try:
+                self.browser = webdriver.Chrome(options=options)
+            except WebDriverException:
+                self.browser = webdriver.Firefox()
+        else:
+            raise ValueError(
+                "The TESTING_BROWSER setting in local_settings.py must either "
+                "be firefox or chrome."
+            )
+
         self.browser.implicitly_wait(10)
 
         self.validated_teacher = ready_user(1)
