@@ -21,6 +21,7 @@ from django.template.response import TemplateResponse
 from django.utils.translation import ugettext
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_http_methods
+
 from tos.models import Consent
 
 from ..models import (
@@ -326,8 +327,8 @@ def index_page(req):
             {
                 "link": notification.link,
                 "icon": notification.notification.icon,
-                "text": _(notification.text),
-                "hover_text": _(notification.hover_text),
+                "text": ugettext(notification.text),
+                "hover_text": ugettext(notification.hover_text),
                 "pk": notification.pk,
             }
             for notification in student.notifications
