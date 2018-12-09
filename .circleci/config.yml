@@ -13,6 +13,8 @@ jobs:
          command: |
            ls -al
       - run:
-          name: Start
-          command: |
-            echo 'Initiating build'
+          name: Test and coverage
+          command: 'py.test --cov-config .coveragerc --cov=peerinst --cov=dalite --cov=tos'
+      - store_artifacts:
+          path: coverage.xml
+          prefix: coverage
