@@ -1,0 +1,18 @@
+version: 2.0
+
+jobs:
+  build:
+    machine: true
+    branches:
+      only:
+        - development
+    steps:
+      - checkout
+      - run:
+         name: Fetch
+         command: |
+           ls -al
+      - run:
+          name: Start
+          command: |
+            echo 'Initiating build'
