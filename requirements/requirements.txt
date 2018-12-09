@@ -4,14 +4,11 @@ django-grappelli>=2.7.1,<2.8
 django-htmlmin==0.10.0
 django-password-validation==0.1.1
 django>=1.8.4,<1.9
-mysql-python
+mysqlclient
 pillow
 pyjwt
 python-memcached==1.59
 pytz
-
-# need an unreleased SNI fix from httplib2 lib TODO: remove after it is released to PyPi
--e git+https://github.com/httplib2/httplib2.git@5ccd260911e2db802fa97498ae92558fac8c8057#egg=httplib2-0.9.2_dev
 
 -e git+https://github.com/open-craft/ansible-sanity-checker@v0.0.2#egg=sanity_checker
 -e git+https://github.com/tophatmonocle/ims_lti_py.git@979244d83c2e6420d2c1941f58e52f641c56ad12#egg=ims_lti_py-develop
