@@ -1,7 +1,7 @@
 "use strict";
 
 export function getCsrfToken() {
-  let name = "csrftoken";
+  const name = "csrftoken";
   if (document.cookie && document.cookie !== "") {
     return document.cookie
       .split(";")
@@ -9,7 +9,7 @@ export function getCsrfToken() {
         c =>
           c
             .replace(/^\s+/, "")
-            .replace(/\s*$/, "")
+            .replace(/\s+$/, "")
             .substring(0, name.length + 1) ===
           name + "=",
       )

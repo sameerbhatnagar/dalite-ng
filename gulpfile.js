@@ -329,6 +329,6 @@ gulp.task("watch", function() {
       "./peerinst/static/peerinst/js/_ajax/*.js",
       "./peerinst/static/peerinst/js/ajax.js",
     ],
-    ["peerinst-scripts-ajax"],
+    ["peerinst-scripts-ajax", "peerinst-scripts-group"],
   );
 });

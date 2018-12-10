@@ -3,11 +3,11 @@ import { buildReq } from "../_ajax/utils.js";
 
 export function removeAssignment(event, url) {
   event.stopPropagation();
-  let li = event.currentTarget.parentNode.parentNode;
-  let container = li.parentNode;
+  const li = event.currentTarget.parentNode.parentNode;
+  const container = li.parentNode;
 
-  let token = document.getElementsByName("csrfmiddlewaretoken")[0].value;
-  let req = {
+  const token = document.getElementsByName("csrfmiddlewaretoken")[0].value;
+  const req = {
     method: "POST",
     credentials: "include",
     headers: {
@@ -29,16 +29,16 @@ export function removeAssignment(event, url) {
 }
 
 export function toggleStudentIdNeeded(event, url) {
-  let idNeeded = event.currentTarget.checked;
-  let data = {
+  const idNeeded = event.currentTarget.checked;
+  const data = {
     name: "student_id_needed",
     value: idNeeded,
   };
-  let req = buildReq(data, "post");
+  const req = buildReq(data, "post");
   fetch(url, req)
     .then(function(resp) {
       if (!resp.ok) {
-        console.log(err);
+        console.log(resp);
       }
     })
     .catch(function(err) {
