@@ -148,6 +148,7 @@ i {
 
         & .student-group--id__copy {
           grid-column: 1;
+          visibility: hidden;
         }
 
         & .student-group--id__id {
