@@ -9,20 +9,17 @@ export function getCsrfToken() {
         c =>
           c
             .replace(/^\s+/, "")
-            .replace(/\s*$/, "")
+            .replace(/\s+$/, "")
             .substring(0, name.length + 1) ===
           name + "=",
       )
-      .map(c =>
-        decodeURIComponent(c.substring(name.length + 1)).replace(/^=/, ""),
-      )[0];
+      .map(c => decodeURIComponent(c.substring(name.length + 1)))[0];
   } else {
     return null;
   }
 }
 
 export function buildReq(data, method) {
-  console.log(getCsrfToken());
   return {
     method: method.toUpperCase(),
     body: JSON.stringify(data),
