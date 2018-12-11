@@ -15,7 +15,7 @@ jobs:
       - run:
           name: Build
           command: |
-            sudo apt-get install yarn mariadb-dev
+            sudo apt-get install yarn libmariadbclient-dev
             sudo pip2 install virtualenv
             yarn global add gulp
             virtualenv .venv
