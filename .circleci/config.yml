@@ -39,6 +39,13 @@ jobs:
             echo 'PIWIK_DOMAIN_PATH = "matomo.mydalite.org"' >> dalite/local_settings.py
             echo 'PIWIK_SITE_ID = "1"' >> dalite/local_settings.py
             echo 'PASSWORD_GENERATOR_NONCE = "secret key"' >> dalite/local_settings.py
+            echo 'EMAIL_SUBJECT_PREFIX = "SALTISE/S4 @ Dawson College: "' >> dalite/local_settings.py
+            echo 'DEFAULT_FROM_EMAIL = "no-reply-SALTISES4@dawsoncollege.qc.ca"' >> dalite/local_settings.py
+            echo 'HOST = "localhost"' >> dalite/local_settings.py
+            echo 'PORT = 25' >> dalite/local_settings.py
+            echo 'EMAIL_USE_TLS = False' >> dalite/local_settings.py
+            echo 'EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"' >> dalite/local_settings.py
+            echo 'EMAIL_FILE_PATH = os.path.join(BASE_DIR, "sent_emails")' >> dalite/local_settings.py
       - run:
           name: Waiting for db
           command: dockerize -wait tcp://127.0.0.1:3306 -timeout 1m
