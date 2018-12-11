@@ -34,4 +34,6 @@ jobs:
           command: dockerize -wait tcp://127.0.0.1:3306 -timeout 1m
       - run:
           name: Setup db
-          command: ./manage.py migrate
+          command: |
+            . .venv/bin/activate
+            ./manage.py migrate
