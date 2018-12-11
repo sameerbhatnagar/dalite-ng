@@ -5,6 +5,8 @@ jobs:
       - image: circleci/python:2.7-node-browsers
         environment:
           DALITE_DB_PASSWORD: test key
+          DALITE_DB_HOST: 127.0.0.1
+          DALITE_DB_PORT: 3306
       - image: mariadb
         environment:
           MYSQL_ALLOW_EMPTY_PASSWORD: true

@@ -92,6 +92,8 @@ DATABASES = {
         "NAME": os.environ.get("DALITE_DB_NAME", "dalite_ng"),
         "USER": os.environ.get("DALITE_DB_USER", "dalite"),
         "PASSWORD": os.environ.get("DALITE_DB_PASSWORD", ""),
+        "HOST": os.environ.get("DALITE_DB_HOST", "127.0.0.1"),
+        "PORT": os.environ.get("DALITE_DB_PORT", "3306"),
     }
 }
 
