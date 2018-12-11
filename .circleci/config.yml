@@ -5,6 +5,13 @@ jobs:
       - image: circleci/python:2.7-node-browsers
         environment:
           DALITE_DB_PASSWORD: test key
+      - image: mariadb
+        environment:
+          MYSQL_ALLOW_EMPTY_PASSWORD: true
+          MYSQL_DATABASE: dalite_ng
+          MYSQL_USER: dalite
+          MYSQL_PASSWORD: test key
+
     working_directory: ~/repo
     branches:
       only:
@@ -22,3 +29,9 @@ jobs:
             pip install -r requirements/dev-requirements.txt
             yarn install
             gulp build
+      - run:
+          name: Waiting for db
+          command: dockerize -wait tcp://127.0.0.1:3306 -timeout 1m
+      - run:
+          name: Setup db
+          command: ./manage.py migrate
