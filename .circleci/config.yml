@@ -27,6 +27,7 @@ jobs:
             virtualenv .venv
             . .venv/bin/activate
             pip install -r requirements/dev-requirements.txt
+            tools/gen_secret_key.py > dalite/local_settings.py
             yarn install
             gulp build
       - run:
@@ -37,3 +38,8 @@ jobs:
           command: |
             . .venv/bin/activate
             ./manage.py migrate
+      - run:
+          name: Tests
+          command: |
+            . .venv/bin/activate
+            pytest --cov --create-db
