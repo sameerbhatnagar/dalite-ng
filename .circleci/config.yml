@@ -2,7 +2,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/python:2.7
+      - image: circleci/python:2.7-node-browsers
         environment:
           DALITE_DB_PASSWORD: test key
     working_directory: ~/repo
@@ -15,7 +15,6 @@ jobs:
       - run:
           name: Build
           command: |
-            sudo apt-get install yarn libmariadbclient-dev
             sudo pip2 install virtualenv
             yarn global add gulp
             virtualenv .venv
