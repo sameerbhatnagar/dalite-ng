@@ -15,6 +15,9 @@ jobs:
       - run:
           name: Build
           command: |
-            pip install -r requirements/test-requirements.txt
+            sudo pip2 install virtualenv
+            virtualenv .venv
+            . .venv/bin/activate
+            pip install -r requirements/dev-requirements
             yarn install
             gulp build
