@@ -2,19 +2,19 @@ version: 2
 jobs:
   build:
     docker:
-      - image: antoinelb/python2-yarn
+      - image: circleci/python:2.7
+        environment:
+          DALITE_DB_PASSWORD: test key
     working_directory: ~/repo
     branches:
       only:
         - development
+        - ci
     steps:
       - checkout
       - run:
-          name: Install dependencies
+          name: Build
           command: |
-            pip install -r requirements/dev-requirements.txt
+            pip install -r requirements/test-requirements.txt
             yarn install
-      - run:
-          name: Run tests
-          command: |
-            pytest --cov
+            gulp build
