@@ -13,6 +13,7 @@ jobs:
           MYSQL_DATABASE: dalite_ng
           MYSQL_USER: dalite
           MYSQL_PASSWORD: test key
+          MYSQL_HOST: localhost
 
     working_directory: ~/repo
     branches:
