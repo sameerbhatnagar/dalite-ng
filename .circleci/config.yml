@@ -38,6 +38,7 @@ jobs:
             tools/gen_secret_key.py > dalite/local_settings.py
             echo 'PIWIK_DOMAIN_PATH = "matomo.mydalite.org"' >> dalite/local_settings.py
             echo 'PIWIK_SITE_ID = "1"' >> dalite/local_settings.py
+            echo 'PASSWORD_GENERATOR_NONCE = "secret key"' >> dalite/local_settings.py
       - run:
           name: Waiting for db
           command: dockerize -wait tcp://127.0.0.1:3306 -timeout 1m
