@@ -148,7 +148,7 @@ def toggle_notification(browser):
 
 
 def change_student_id(browser):
-    copy_xpath = "//div[@class='student-group--title']//i[text()='file_copy']"
+    #  copy_xpath = "//div[@class='student-group--title']//i[text()='file_copy']"  # noqa
     span_xpath = (
         "//div[@class='student-group--title']//"
         "span[@class='student-group--id__id']"
@@ -160,7 +160,7 @@ def change_student_id(browser):
     edit_xpath = "//div[@class='student-group--title']//i[text()='edit']"
     check_xpath = "//div[@class='student-group--title']//i[text()='check']"
     cancel_xpath = "//div[@class='student-group--title']//i[text()='close']"
-    copy = browser.find_element_by_xpath(copy_xpath)
+    #  copy = browser.find_element_by_xpath(copy_xpath)
     span = browser.find_element_by_xpath(span_xpath)
     input_ = browser.find_element_by_xpath(input_xpath)
     edit = browser.find_element_by_xpath(edit_xpath)
@@ -168,9 +168,9 @@ def change_student_id(browser):
     cancel = browser.find_element_by_xpath(cancel_xpath)
 
     try:
-        WebDriverWait(browser, timeout).until(
-            visibility_of_element_located((By.XPATH, copy_xpath))
-        )
+        #  WebDriverWait(browser, timeout).until(
+        #  visibility_of_element_located((By.XPATH, copy_xpath))
+        #  )
         WebDriverWait(browser, timeout).until(
             visibility_of_element_located((By.XPATH, span_xpath))
         )
@@ -192,9 +192,9 @@ def change_student_id(browser):
     edit.click()
 
     try:
-        WebDriverWait(browser, timeout).until(
-            invisibility_of_element_located((By.XPATH, copy_xpath))
-        )
+        #  WebDriverWait(browser, timeout).until(
+        #  invisibility_of_element_located((By.XPATH, copy_xpath))
+        #  )
         WebDriverWait(browser, timeout).until(
             invisibility_of_element_located((By.XPATH, span_xpath))
         )
@@ -218,9 +218,9 @@ def change_student_id(browser):
     input_.send_keys(Keys.ENTER)
 
     try:
-        WebDriverWait(browser, timeout).until(
-            visibility_of_element_located((By.XPATH, copy_xpath))
-        )
+        #  WebDriverWait(browser, timeout).until(
+        #  visibility_of_element_located((By.XPATH, copy_xpath))
+        #  )
         WebDriverWait(browser, timeout).until(
             visibility_of_element_located((By.XPATH, span_xpath))
         )
@@ -245,9 +245,9 @@ def change_student_id(browser):
     span.click()
 
     try:
-        WebDriverWait(browser, timeout).until(
-            invisibility_of_element_located((By.XPATH, copy_xpath))
-        )
+        #  WebDriverWait(browser, timeout).until(
+        #  invisibility_of_element_located((By.XPATH, copy_xpath))
+        #  )
         WebDriverWait(browser, timeout).until(
             invisibility_of_element_located((By.XPATH, span_xpath))
         )
@@ -272,9 +272,9 @@ def change_student_id(browser):
     check.click()
 
     try:
-        WebDriverWait(browser, timeout).until(
-            visibility_of_element_located((By.XPATH, copy_xpath))
-        )
+        #  WebDriverWait(browser, timeout).until(
+        #  visibility_of_element_located((By.XPATH, copy_xpath))
+        #  )
         WebDriverWait(browser, timeout).until(
             visibility_of_element_located((By.XPATH, span_xpath))
         )
@@ -299,9 +299,9 @@ def change_student_id(browser):
     edit.click()
 
     try:
-        WebDriverWait(browser, timeout).until(
-            invisibility_of_element_located((By.XPATH, copy_xpath))
-        )
+        #  WebDriverWait(browser, timeout).until(
+        #  invisibility_of_element_located((By.XPATH, copy_xpath))
+        #  )
         WebDriverWait(browser, timeout).until(
             invisibility_of_element_located((By.XPATH, span_xpath))
         )
@@ -326,9 +326,9 @@ def change_student_id(browser):
     cancel.click()
 
     try:
-        WebDriverWait(browser, timeout).until(
-            visibility_of_element_located((By.XPATH, copy_xpath))
-        )
+        #  WebDriverWait(browser, timeout).until(
+        #  visibility_of_element_located((By.XPATH, copy_xpath))
+        #  )
         WebDriverWait(browser, timeout).until(
             visibility_of_element_located((By.XPATH, span_xpath))
         )
@@ -350,16 +350,18 @@ def change_student_id(browser):
     except TimeoutException:
         assert False
 
-    copy.click()
+    #  copy.click()
 
-    try:
-        bubble = WebDriverWait(browser, timeout).until(
-            visibility_of_element_located((By.CLASS_NAME, "bubble"))
-        )
-    except TimeoutException:
-        assert False
 
-    assert bubble.text == "Copied to clipboard!"
+#
+#  try:
+#  bubble = WebDriverWait(browser, timeout).until(
+#  visibility_of_element_located((By.CLASS_NAME, "bubble"))
+#  )
+#  except TimeoutException:
+#  assert False
+#
+#  assert bubble.text == "Copied to clipboard!"
 
 
 def test_index_workflow(browser, student, group):
