@@ -1,11 +1,12 @@
 from django.contrib.auth.hashers import make_password
+from django.contrib.auth.models import Group, Permission, User
 from django.core import mail
 from django.core.urlresolvers import reverse
 from django.test import TestCase, TransactionTestCase
 
-from ..models import Discipline, Question, Assignment, Teacher
 from tos.models import Consent, Role, Tos
-from django.contrib.auth.models import User, Permission, Group
+
+from ..models import Assignment, Discipline, Question, Teacher
 
 
 def ready_user(pk):
@@ -101,7 +102,6 @@ class SignUpTest(TestCase):
             )
         self.assertEqual(response.status_code, 500)
         self.assertTemplateUsed(response, "500.html")
-        assert False
 
 
 class AdminTest(TestCase):
