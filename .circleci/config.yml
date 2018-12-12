@@ -58,6 +58,3 @@ jobs:
           command: |
             . .venv/bin/activate
             pytest --cov --create-db
-      - store_artifacts:
-          path: .coverage
-          destination: coverage
