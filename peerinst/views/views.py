@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-
 import csv
 import datetime
 import itertools
@@ -11,7 +10,6 @@ import re
 import string
 import urllib
 from collections import Counter, defaultdict
-
 import pytz
 from django.conf import settings
 from django.contrib import messages
@@ -74,7 +72,6 @@ from opaque_keys.edx.keys import CourseKey
 
 # tos
 from tos.models import Consent, Tos
-
 from .. import admin, forms, heartbeat_checks, models, rationale_choice
 from ..admin_views import (
     AssignmentResultsViewBase,
@@ -264,6 +261,9 @@ def sign_up(request):
     template = "registration/sign_up.html"
     html_email_template_name = "registration/sign_up_admin_email_html.html"
     context = {}
+
+    print("Email:")
+    print(settings.EMAIL_BACKEND)
 
     if request.method == "POST":
         form = forms.SignUpForm(request.POST)
@@ -1021,12 +1021,12 @@ class QuestionFormView(QuestionMixin, FormView):
         # Write JSON to log file
         LOGGER.info(json.dumps(event))
         lti_event = LtiEvent(
-            event_type=name, 
+            event_type=name,
             event_log=json.dumps(event),
-            username = self.user_token,
-            assignment_id = self.assignment.identifier,
-            question_id=self.question.pk
-            )
+            username=self.user_token,
+            assignment_id=self.assignment.identifier,
+            question_id=self.question.pk,
+        )
         lti_event.save()
 
         if self.lti_data:
@@ -3140,16 +3140,16 @@ def csv_gradebook(request, group_hash):
 
     for user_token, email in student_list_sorted:
         row = []
-        student_school_id = Student.objects.get(
-            student__email=email
-            ).studentgroupmembership_set.get(
-            group=student_group
-            ).student_school_id
+        student_school_id = (
+            Student.objects.get(student__email=email)
+            .studentgroupmembership_set.get(group=student_group)
+            .student_school_id
+        )
 
         if student_group.student_id_needed:
             row.append(student_school_id)
         row.append(email)
-        
+
         for d in assignment_list_sorted:
             question_list = Assignment.objects.get(
                 identifier=d["assignment"]

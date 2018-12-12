@@ -101,6 +101,7 @@ class SignUpTest(TestCase):
             )
         self.assertEqual(response.status_code, 500)
         self.assertTemplateUsed(response, "500.html")
+        assert False
 
 
 class AdminTest(TestCase):
