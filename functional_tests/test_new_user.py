@@ -18,7 +18,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from peerinst.models import Assignment, Question, User
 from tos.models import Role, Tos
 
-timeout = 2
+timeout = 1
 
 
 def ready_user(pk):
@@ -383,12 +383,22 @@ class NewUserTests(StaticLiveServerTestCase):
         assert "Test title" in self.browser.page_source
 
         # Teacher can edit their questions
-        self.browser.find_element_by_id("question-section").click()
-        time.sleep(1)
+        try:
+            WebDriverWait(self.browser, timeout).until(
+                presence_of_element_located((By.ID, "question-section"))
+            ).click()
+        except TimeoutException:
+            assert False
         question = Question.objects.get(title="Test title")
-        self.browser.find_element_by_id(
-            "edit-question-" + str(question.id)
-        ).click()
+
+        try:
+            WebDriverWait(self.browser, timeout).until(
+                presence_of_element_located(
+                    (By.ID, "edit-question-{}".format(question.id))
+                )
+            ).click()
+        except TimeoutException:
+            assert False
 
         try:
             WebDriverWait(self.browser, timeout).until(
