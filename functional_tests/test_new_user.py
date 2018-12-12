@@ -18,7 +18,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from peerinst.models import Assignment, Question, User
 from tos.models import Role, Tos
 
-timeout = 1
+timeout = 2
 
 
 def ready_user(pk):
