@@ -58,8 +58,6 @@ jobs:
           command: |
             . .venv/bin/activate
             pytest --cov --create-db
-      - store_test_results:
-          path: test-results
       - store_artifacts:
-          path: test-results
-          destination: tr1
+          path: coverage
+          destination: coverage
