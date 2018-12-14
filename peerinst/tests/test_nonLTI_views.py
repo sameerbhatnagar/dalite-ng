@@ -587,7 +587,7 @@ class TeacherTest(TestCase):
             follow=True,
         )
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "peerinst/teacher_detail.html")
+        self.assertTemplateUsed(response, "peerinst/teacher/details.html")
         self.assertNotIn(
             Question.objects.get(pk=32), assignment.questions.all()
         )

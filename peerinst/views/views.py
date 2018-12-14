@@ -1755,7 +1755,7 @@ class TeacherGroupShare(TeacherBase, DetailView):
     """Share link for a group"""
 
     model = Teacher
-    template_name = "peerinst/teacher_group_detail.html"
+    template_name = "peerinst/teacher/group_details.html"
 
     def get_object(self):
         self.teacher = get_object_or_404(Teacher, user=self.request.user)
@@ -1785,6 +1785,7 @@ class TeacherDetailView(TeacherBase, DetailView):
     """Teacher account"""
 
     model = Teacher
+    template_name = "peerinst/teacher/details.html"
 
     def get_context_data(self, **kwargs):
         context = super(TeacherDetailView, self).get_context_data(**kwargs)
@@ -1842,7 +1843,7 @@ class TeacherAssignments(TeacherBase, ListView):
     """View to modify assignments associated to Teacher"""
 
     model = Teacher
-    template_name = "peerinst/teacher_assignments.html"
+    template_name = "peerinst/teacher/assignments.html"
 
     def get_queryset(self):
         self.teacher = get_object_or_404(Teacher, user=self.request.user)
@@ -1906,7 +1907,7 @@ class TeacherGroups(TeacherBase, ListView):
     """View to modify groups associated to Teacher"""
 
     model = Teacher
-    template_name = "peerinst/teacher_groups.html"
+    template_name = "peerinst/teacher/groups.html"
 
     def get_queryset(self):
         self.teacher = get_object_or_404(Teacher, user=self.request.user)

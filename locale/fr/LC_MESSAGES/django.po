@@ -258,7 +258,7 @@ msgstr "Veuillez voter positivement ou négativement."
 
 #: peerinst/forms.py:159 peerinst/templates/admin/peerinst/index.html:32
 #: peerinst/templates/peerinst/question_list.html:77
-#: peerinst/templates/peerinst/teacher_detail.html:162
+#: peerinst/templates/peerinst/teacher/details.html:162
 msgid "Assignments"
 msgstr "Exercices"
 
@@ -534,10 +534,10 @@ msgid "question"
 msgstr "question"
 
 #: peerinst/models.py:284
-#: peerinst/templates/peerinst/teacher_assignments.html:73
-#: peerinst/templates/peerinst/teacher_assignments.html:122
-#: peerinst/templates/peerinst/teacher_assignments.html:164
-#: peerinst/templates/peerinst/teacher_detail.html:183
+#: peerinst/templates/peerinst/teacher/assignments.html:73
+#: peerinst/templates/peerinst/teacher/assignments.html:122
+#: peerinst/templates/peerinst/teacher/assignments.html:164
+#: peerinst/templates/peerinst/teacher/details.html:183
 msgid "questions"
 msgstr "questions"
 
@@ -572,7 +572,7 @@ msgstr "Titre"
 
 #: peerinst/models.py:307 peerinst/templates/admin/peerinst/index.html:37
 #: peerinst/templates/peerinst/question_list.html:18
-#: peerinst/templates/peerinst/teacher_detail.html:244
+#: peerinst/templates/peerinst/teacher/details.html:244
 msgid "Questions"
 msgstr "Questions"
 
@@ -932,7 +932,7 @@ msgstr ""
 "(questions)"
 
 #: peerinst/templates/admin/peerinst/question_rationales.html:53
-#: peerinst/templates/peerinst/teacher_detail.html:183
+#: peerinst/templates/peerinst/teacher/details.html:183
 msgid "answers"
 msgstr "réponses"
 
@@ -992,9 +992,9 @@ msgstr ""
 #: peerinst/templates/peerinst/blinkassignment_detail.html:13
 #: peerinst/templates/peerinst/blinkassignment_form.html:13
 #: peerinst/templates/peerinst/report_all_rationales.html:17
-#: peerinst/templates/peerinst/teacher_assignments.html:13
-#: peerinst/templates/peerinst/teacher_form.html:23
-#: peerinst/templates/peerinst/teacher_groups.html:13
+#: peerinst/templates/peerinst/teacher/assignments.html:13
+#: peerinst/templates/peerinst/teacher/form.html:23
+#: peerinst/templates/peerinst/teachergroups.html:13
 #: peerinst/templates/registration/password_change_form.html:13
 msgid "Back to My Account"
 msgstr "Revenir à Mon compte"
@@ -1017,7 +1017,7 @@ msgstr "Modifier la question"
 #: peerinst/templates/peerinst/blinkassignment_detail.html:164
 #: peerinst/templates/peerinst/question_list.html:38
 #: peerinst/templates/peerinst/question_search_results.html:30
-#: peerinst/templates/peerinst/teacher_detail.html:44
+#: peerinst/templates/peerinst/teacher/details.html:44
 msgid "Discipline"
 msgstr "Disciplines"
 
@@ -1040,7 +1040,7 @@ msgid "Difficulty"
 msgstr "Difficulté"
 
 #: peerinst/templates/peerinst/assignment_detail.html:104
-#: peerinst/templates/peerinst/teacher_detail.html:250
+#: peerinst/templates/peerinst/teacher/details.html:250
 #, fuzzy
 #| msgid "questions"
 msgid "My questions"
@@ -1152,7 +1152,7 @@ msgid "Waiting for students"
 msgstr "En attente de la réponse des étudiants"
 
 #: peerinst/templates/peerinst/blink_waiting.html:16
-#: peerinst/templates/peerinst/teacher_detail.html:125
+#: peerinst/templates/peerinst/teacher/details.html:125
 msgid "Student link"
 msgstr "Lien pour l'étudiant(e)"
 
@@ -1237,7 +1237,7 @@ msgstr "Aucun utilisateur à ajouter"
 
 #: peerinst/templates/peerinst/discipline_form.html:19
 #: peerinst/templates/peerinst/disciplines_form.html:19
-#: peerinst/templates/peerinst/teacher_assignments.html:49
+#: peerinst/templates/peerinst/teacher/assignments.html:49
 #, fuzzy
 #| msgid "Created: "
 msgid "Create"
@@ -1507,15 +1507,15 @@ msgstr "Rapports personnalisés"
 msgid "Generate Report"
 msgstr "Produire un rapport"
 
-#: peerinst/templates/peerinst/teacher_assignments.html:8
+#: peerinst/templates/peerinst/teacher/assignments.html:8
 msgid "My Assignments"
 msgstr "Mes exercices"
 
-#: peerinst/templates/peerinst/teacher_assignments.html:16
+#: peerinst/templates/peerinst/teacher/assignments.html:16
 msgid "Create a new assignment"
 msgstr "Créer un nouvel exercice"
 
-#: peerinst/templates/peerinst/teacher_assignments.html:22
+#: peerinst/templates/peerinst/teacher/assignments.html:22
 msgid ""
 "\n"
 "          The assignment title may be displayed and should be informative. "
@@ -1524,11 +1524,11 @@ msgid ""
 "          "
 msgstr ""
 
-#: peerinst/templates/peerinst/teacher_assignments.html:53
+#: peerinst/templates/peerinst/teacher/assignments.html:53
 msgid "My assignments"
 msgstr "Mes exercices"
 
-#: peerinst/templates/peerinst/teacher_assignments.html:55
+#: peerinst/templates/peerinst/teacher/assignments.html:55
 msgid ""
 "These are the assignments for which you are an author, and have editing "
 "rights."
@@ -1536,7 +1536,7 @@ msgstr ""
 "Voici les exercices pour lesquels vous êtes auteur et avez des droits de "
 "modification."
 
-#: peerinst/templates/peerinst/teacher_assignments.html:58
+#: peerinst/templates/peerinst/teacher/assignments.html:58
 msgid ""
 " You currently do not have editing rights on any assignments. Make a new "
 "assignment of your own with the form above to be able to modify it."
@@ -1545,11 +1545,11 @@ msgstr ""
 "Créez un nouvel exercice vous-même à l'aide du formulaire ci-dessus pour "
 "être en mesure de le modifier."
 
-#: peerinst/templates/peerinst/teacher_assignments.html:102
+#: peerinst/templates/peerinst/teacher/assignments.html:102
 msgid "Following"
 msgstr "Suivant"
 
-#: peerinst/templates/peerinst/teacher_assignments.html:104
+#: peerinst/templates/peerinst/teacher/assignments.html:104
 msgid ""
 " These are the assignments you are following, and for which reports will be "
 "available (based on your selected groups)."
@@ -1557,7 +1557,7 @@ msgstr ""
 "Voici les exercices que vous suivez et pour lesquels des rapports seroont "
 "disponibles (selon les groupes que vous avez sélectionnés)."
 
-#: peerinst/templates/peerinst/teacher_assignments.html:107
+#: peerinst/templates/peerinst/teacher/assignments.html:107
 msgid ""
 " You do not have any assignments.  You can select and modify an existing "
 "assignment from the list below or create a new one."
@@ -1565,77 +1565,77 @@ msgstr ""
 "Vous n'avez aucun exercice. Vous pouvez sélectionner et modifier un exercice "
 "existant à partir de la liste ci-dessous ou en créer un nouveau."
 
-#: peerinst/templates/peerinst/teacher_assignments.html:147
+#: peerinst/templates/peerinst/teacher/assignments.html:147
 msgid "These are all the assignments in the database."
 msgstr "Voici tous les exercices présents dans la base de données."
 
-#: peerinst/templates/peerinst/teacher_detail.html:16
+#: peerinst/templates/peerinst/teacher/details.html:16
 msgid "My Account"
 msgstr "Mon compte"
 
-#: peerinst/templates/peerinst/teacher_detail.html:20
-#: peerinst/templates/peerinst/teacher_form.html:18
+#: peerinst/templates/peerinst/teacher/details.html:20
+#: peerinst/templates/peerinst/teacher/form.html:18
 #: peerinst/templates/registration/password_change_form.html:8
 msgid "Identity"
 msgstr "Identité"
 
-#: peerinst/templates/peerinst/teacher_detail.html:28
+#: peerinst/templates/peerinst/teacher/details.html:28
 msgid "Email: "
 msgstr "Courriel :"
 
-#: peerinst/templates/peerinst/teacher_detail.html:31
+#: peerinst/templates/peerinst/teacher/details.html:31
 msgid "Member since: "
 msgstr "Membre depuis :"
 
-#: peerinst/templates/peerinst/teacher_detail.html:57
+#: peerinst/templates/peerinst/teacher/details.html:57
 msgid "Institution"
 msgstr "Établissement"
 
-#: peerinst/templates/peerinst/teacher_detail.html:67
+#: peerinst/templates/peerinst/teacher/details.html:67
 msgid "Terms of service: Sharing"
 msgstr ""
 
-#: peerinst/templates/peerinst/teacher_detail.html:71
+#: peerinst/templates/peerinst/teacher/details.html:71
 msgid "Terms of service: Not sharing"
 msgstr ""
 
-#: peerinst/templates/peerinst/teacher_detail.html:74
+#: peerinst/templates/peerinst/teacher/details.html:74
 msgid "Signed: "
 msgstr ""
 
-#: peerinst/templates/peerinst/teacher_detail.html:83
+#: peerinst/templates/peerinst/teacher/details.html:83
 msgid "Groups"
 msgstr "Groupes"
 
-#: peerinst/templates/peerinst/teacher_detail.html:86
+#: peerinst/templates/peerinst/teacher/details.html:86
 msgid "Manage groups"
 msgstr "Gérer les groupes"
 
-#: peerinst/templates/peerinst/teacher_detail.html:89
+#: peerinst/templates/peerinst/teacher/details.html:89
 msgid "You are not currently following any student groups."
 msgstr "Vous ne suivez pas actuellement de groupes d'étudiants."
 
-#: peerinst/templates/peerinst/teacher_detail.html:101
-#: peerinst/templates/peerinst/teacher_groups.html:31
-#: peerinst/templates/peerinst/teacher_groups.html:73
+#: peerinst/templates/peerinst/teacher/details.html:101
+#: peerinst/templates/peerinst/teachergroups.html:31
+#: peerinst/templates/peerinst/teachergroups.html:73
 msgid "Created: "
 msgstr "Créé le :"
 
-#: peerinst/templates/peerinst/teacher_detail.html:104
-#: peerinst/templates/peerinst/teacher_groups.html:34
-#: peerinst/templates/peerinst/teacher_groups.html:76
+#: peerinst/templates/peerinst/teacher/details.html:104
+#: peerinst/templates/peerinst/teachergroups.html:34
+#: peerinst/templates/peerinst/teachergroups.html:76
 msgid "Students: "
 msgstr "Étudiants :"
 
-#: peerinst/templates/peerinst/teacher_detail.html:121
+#: peerinst/templates/peerinst/teacher/details.html:121
 msgid "Blink scripts"
 msgstr "Scripts clignotants"
 
-#: peerinst/templates/peerinst/teacher_detail.html:123
+#: peerinst/templates/peerinst/teacher/details.html:123
 msgid "Add script"
 msgstr "Ajouter un script"
 
-#: peerinst/templates/peerinst/teacher_detail.html:128
+#: peerinst/templates/peerinst/teacher/details.html:128
 msgid ""
 "A blink script is a series of blink questions strung together into one "
 "activity.  You do not have any blink scripts."
@@ -1643,29 +1643,29 @@ msgstr ""
 "Un script clignotant est une série de questions clignotantes rassemblées en "
 "une seule activité. Vous n'avez aucun script clignotant."
 
-#: peerinst/templates/peerinst/teacher_detail.html:145
+#: peerinst/templates/peerinst/teacher/details.html:145
 msgid "question(s)"
 msgstr "question(s)"
 
-#: peerinst/templates/peerinst/teacher_detail.html:164
+#: peerinst/templates/peerinst/teacher/details.html:164
 msgid "Manage assignments"
 msgstr "Gérer les exercices"
 
-#: peerinst/templates/peerinst/teacher_detail.html:165
+#: peerinst/templates/peerinst/teacher/details.html:165
 #, fuzzy
 #| msgid "Custom Reports"
 msgid "Custom reports"
 msgstr "Rapports personnalisés"
 
-#: peerinst/templates/peerinst/teacher_detail.html:169
+#: peerinst/templates/peerinst/teacher/details.html:169
 msgid "You do not have any assignments."
 msgstr "Vous n'avez aucun exercice."
 
-#: peerinst/templates/peerinst/teacher_detail.html:211
+#: peerinst/templates/peerinst/teacher/details.html:211
 msgid "How to use in your course through LTI"
 msgstr "Comment l'utiliser dans votre cours par l'entremise du LTI"
 
-#: peerinst/templates/peerinst/teacher_detail.html:215
+#: peerinst/templates/peerinst/teacher/details.html:215
 msgid ""
 "Use the following to configure the LTI tool in your Learning Management "
 "System (e.g. Moodle, OpenEdx)"
@@ -1673,19 +1673,19 @@ msgstr ""
 "Utilisez les options suivantes pour configurer l'outil LTI dans votre "
 "Gestionnaire d'apprentissage (p. ex., Moodle, OpenEdx)."
 
-#: peerinst/templates/peerinst/teacher_detail.html:217
+#: peerinst/templates/peerinst/teacher/details.html:217
 msgid "LTI Launch URL"
 msgstr "URL de lancement du LTI"
 
-#: peerinst/templates/peerinst/teacher_detail.html:218
+#: peerinst/templates/peerinst/teacher/details.html:218
 msgid "LTI Consumer Key"
 msgstr "Clé du consommateur LTI"
 
-#: peerinst/templates/peerinst/teacher_detail.html:219
+#: peerinst/templates/peerinst/teacher/details.html:219
 msgid "LTI Shared Secret"
 msgstr "Secret partagé LTI"
 
-#: peerinst/templates/peerinst/teacher_detail.html:221
+#: peerinst/templates/peerinst/teacher/details.html:221
 msgid ""
 "To import any of the questions below, copy and paste the text below the "
 "question title into the <em>Custom Paramaters</em> box of your LTI tool"
@@ -1694,48 +1694,48 @@ msgstr ""
 "texte sous le titre de la question dans la fenêtre <em>Personnaliser les "
 "paramètres</em> de votre outil LTI"
 
-#: peerinst/templates/peerinst/teacher_detail.html:226
+#: peerinst/templates/peerinst/teacher/details.html:226
 msgid "assignment_id"
 msgstr "id_exercice"
 
-#: peerinst/templates/peerinst/teacher_detail.html:227
+#: peerinst/templates/peerinst/teacher/details.html:227
 msgid "question id"
 msgstr "id. de la question"
 
-#: peerinst/templates/peerinst/teacher_detail.html:246
+#: peerinst/templates/peerinst/teacher/details.html:246
 #, fuzzy
 #| msgid "Created: "
 msgid "Create new"
 msgstr "Créé le :"
 
-#: peerinst/templates/peerinst/teacher_detail.html:247
+#: peerinst/templates/peerinst/teacher/details.html:247
 msgid "Show deleted"
 msgstr ""
 
-#: peerinst/templates/peerinst/teacher_detail.html:247
+#: peerinst/templates/peerinst/teacher/details.html:247
 msgid "Hide deleted"
 msgstr ""
 
-#: peerinst/templates/peerinst/teacher_detail.html:252
+#: peerinst/templates/peerinst/teacher/details.html:252
 msgid "You do not have any questions.  Create one using the link above!"
 msgstr ""
 
-#: peerinst/templates/peerinst/teacher_detail.html:266
-#: peerinst/templates/peerinst/teacher_detail.html:296
+#: peerinst/templates/peerinst/teacher/details.html:266
+#: peerinst/templates/peerinst/teacher/details.html:296
 msgid "Last modified: "
 msgstr ""
 
-#: peerinst/templates/peerinst/teacher_detail.html:283
+#: peerinst/templates/peerinst/teacher/details.html:283
 msgid "Collaborations"
 msgstr ""
 
-#: peerinst/templates/peerinst/teacher_form.html:26
+#: peerinst/templates/peerinst/teacher/form.html:26
 #, fuzzy
 #| msgid "Edit discipline and institution"
 msgid "Select discipline and institution"
 msgstr "Modifier la discipline et l'établissement"
 
-#: peerinst/templates/peerinst/teacher_form.html:32
+#: peerinst/templates/peerinst/teacher/form.html:32
 #, fuzzy
 #| msgid ""
 #| "Select content disciplines and the institutions where you teach.  You can "
@@ -1749,21 +1749,21 @@ msgstr ""
 "Sélectionnez vos disciplines et vos établissements d'enseignement. Vous "
 "pouvez sélectionner plusieurs réponses à l'aide de la touche Majuscule."
 
-#: peerinst/templates/peerinst/teacher_form.html:60
+#: peerinst/templates/peerinst/teacher/form.html:60
 #, fuzzy
 #| msgid "Update Script"
 msgid "Update"
 msgstr "Mettre à jour le script"
 
-#: peerinst/templates/peerinst/teacher_groups.html:9
+#: peerinst/templates/peerinst/teachergroups.html:9
 msgid "My Groups"
 msgstr "Mes groupes"
 
-#: peerinst/templates/peerinst/teacher_groups.html:16
+#: peerinst/templates/peerinst/teachergroups.html:16
 msgid "Current"
 msgstr "Actuel(s)"
 
-#: peerinst/templates/peerinst/teacher_groups.html:18
+#: peerinst/templates/peerinst/teachergroups.html:18
 msgid ""
 "You are not currently following any student groups.  You can select groups "
 "to follow from the lists below."
@@ -1771,7 +1771,7 @@ msgstr ""
 "Vous ne suivez actuellement aucun groupe d'étudiants. Vous pouvez "
 "sélectionner les groupes à suivre à partir des listes ci-dessous."
 
-#: peerinst/templates/peerinst/teacher_groups.html:56
+#: peerinst/templates/peerinst/teachergroups.html:56
 msgid "All"
 msgstr "Tous"
 

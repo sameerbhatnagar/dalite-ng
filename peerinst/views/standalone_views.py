@@ -17,6 +17,8 @@ from django.views.decorators.http import require_http_methods, require_safe
 from django.views.generic import ListView
 from django.views.generic.edit import CreateView
 
+from tos.models import Tos
+
 from ..forms import EmailForm, StudentGroupAssignmentForm
 from ..mixins import LoginRequiredMixin, NoStudentsMixin
 from ..models import (
@@ -29,8 +31,6 @@ from ..models import (
     Teacher,
 )
 from ..students import authenticate_student
-
-from tos.models import Tos
 
 
 def signup_through_link(request, group_hash):
@@ -309,7 +309,7 @@ class StudentGroupAssignmentListView(
     LoginRequiredMixin, NoStudentsMixin, ListView
 ):
     model = StudentGroupAssignment
-    template_name = "peerinst/teacher_studentgroup_assignments.html"
+    template_name = "peerinst/teacher/studentgroup_assignments.html"
 
     def get_queryset(self):
         teacher = get_object_or_404(Teacher, user=self.request.user)
