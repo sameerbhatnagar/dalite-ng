@@ -4,18 +4,17 @@ from __future__ import unicode_literals
 import json
 import random
 
+import ddt
+import mock
+from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django_lti_tool_provider.models import LtiUserData
 from django_lti_tool_provider.views import LTIView
 
-import ddt
-import mock
-
-from django.contrib.auth.models import User
-from ..models import Question, Answer, LtiEvent, Assignment
-from ..util import SessionStageData
 from . import factories
+from ..models import LtiEvent, Question
+from ..util import SessionStageData
 
 
 class Grade(object):
@@ -28,7 +27,7 @@ class QuestionViewTestCase(TestCase):
 
     ORG = "LTIX"
     COURSE_ID = "course-v1:{org}+LTI-101+now".format(org=ORG)
-    USAGE_ID = "block-v1:LTIX+LTI-101+now+type@lti+block@d41d8cd98f00b204e9800998ecf8427e"
+    USAGE_ID = "block-v1:LTIX+LTI-101+now+type@lti+block@d41d8cd98f00b204e9800998ecf8427e"  # noqa
     LTI_PARAMS = {
         "context_id": COURSE_ID,
         "lis_outcome_service_url": (
@@ -117,12 +116,13 @@ class QuestionViewTestCase(TestCase):
         """
         Log a user in pretending that scoring is disabled in the LMS.
 
-        This is done by calling `log_in_with_lti` with a modified version of `LTI_PARAMS`
-        that does not include `lis_outcome_service_url`.
+        This is done by calling `log_in_with_lti` with a modified version of
+        `LTI_PARAMS` that does not include `lis_outcome_service_url`.
 
-        `lis_outcome_service_url` is the URL of the handler to use for sending grades to the LMS.
-        It is only included in the LTI request if grading is enabled on the LMS side
-        (otherwise there is no need to send back a grade).
+        `lis_outcome_service_url` is the URL of the handler to use for sending
+        grades to the LMS.
+        It is only included in the LTI request if grading is enabled on the LMS
+        side (otherwise there is no need to send back a grade).
         """
         lti_params = self.LTI_PARAMS.copy()
         del lti_params["lis_outcome_service_url"]
@@ -153,7 +153,8 @@ class QuestionViewTestCase(TestCase):
     def question_get(self):
         # follow=True required in case of redirects
         response = self.client.get(self.question_url, follow=True)
-        # commented out by Sam because on TOS integration is meant to redirect (code 301) for new users
+        # commented out by Sam because on TOS integration is meant to redirect
+        # (code 301) for new users
         # self.assertEqual(response.status_code, 200)
         return response
 
@@ -180,7 +181,7 @@ class QuestionViewTest(QuestionViewTestCase):
 
         # Show the question and the form for the first answer and rationale.
         response = self.question_get()
-        self.assertTemplateUsed(response, "peerinst/question_start.html")
+        self.assertTemplateUsed(response, "peerinst/question/start.html")
         self.assertEqual(response.context["assignment"], self.assignment)
         self.assertEqual(response.context["question"], self.question)
         self.assertEqual(
@@ -194,7 +195,7 @@ class QuestionViewTest(QuestionViewTestCase):
         response = self.question_post(
             first_answer_choice=first_answer_choice, rationale=rationale
         )
-        self.assertTemplateUsed(response, "peerinst/question_review.html")
+        self.assertTemplateUsed(response, "peerinst/question/review.html")
         self.assertEqual(response.context["assignment"], self.assignment)
         self.assertEqual(response.context["question"], self.question)
         self.assertEqual(
@@ -230,7 +231,7 @@ class QuestionViewTest(QuestionViewTestCase):
             second_answer_choice=second_answer_choice,
             rationale_choice_1=chosen_rationale,
         )
-        self.assertTemplateUsed(response, "peerinst/question_summary.html")
+        self.assertTemplateUsed(response, "peerinst/question/summary.html")
         self.assertEqual(response.context["assignment"], self.assignment)
         self.assertEqual(response.context["question"], self.question)
         self.assertEqual(
@@ -249,7 +250,7 @@ class QuestionViewTest(QuestionViewTestCase):
 
         response = self.get_results_view()
         self.assertTemplateUsed(
-            response, "peerinst/question_answers_summary.html"
+            response, "peerinst/question/answers_summary.html"
         )
         self.assertEqual(response.context["question"], self.question)
         first_choice_row = next(
@@ -321,7 +322,7 @@ class QuestionViewTest(QuestionViewTestCase):
 
         # Show the question and the form for the first answer and rationale.
         response = self.question_get()
-        self.assertTemplateUsed(response, "peerinst/question_start.html")
+        self.assertTemplateUsed(response, "peerinst/question/start.html")
         self.assertEqual(response.context["assignment"], self.assignment)
         self.assertEqual(response.context["question"], self.question)
         self.assertEqual(
@@ -338,7 +339,7 @@ class QuestionViewTest(QuestionViewTestCase):
 
         # Loop over all rationales and vote on them.
         votes = []
-        while "peerinst/question_sequential_review.html" in (
+        while "peerinst/question/sequential_review.html" in (
             template.name for template in response.templates
         ):
             self.assertTrue(response.context["current_rationale"])
@@ -347,7 +348,7 @@ class QuestionViewTest(QuestionViewTestCase):
             response = self.question_post(**{vote: 1})
 
         # We've reached the final review.
-        self.assertTemplateUsed(response, "peerinst/question_review.html")
+        self.assertTemplateUsed(response, "peerinst/question/review.html")
         self.assertEqual(response.context["assignment"], self.assignment)
         self.assertEqual(response.context["question"], self.question)
         self.assertEqual(
@@ -380,7 +381,7 @@ class QuestionViewTest(QuestionViewTestCase):
             second_answer_choice=second_answer_choice,
             rationale_choice_1=chosen_rationale,
         )
-        self.assertTemplateUsed(response, "peerinst/question_summary.html")
+        self.assertTemplateUsed(response, "peerinst/question/summary.html")
         self.assertEqual(response.context["assignment"], self.assignment)
         self.assertEqual(response.context["question"], self.question)
         self.assertEqual(
@@ -433,7 +434,7 @@ class EventLogTest(QuestionViewTestCase):
         is_edx_course_id=True,
     ):
         # Show the question and verify the logged event.
-        response = self.question_get()
+        self.question_get()
         event = self.verify_event(
             logger,
             scoring_disabled=scoring_disabled,
@@ -447,7 +448,7 @@ class EventLogTest(QuestionViewTestCase):
         logger.reset_mock()
 
         # Provide a first answer and a rationale, and verify the logged event.
-        response = self.question_post(
+        self.question_post(
             first_answer_choice=2, rationale="my rationale text"
         )
         event = self.verify_event(
@@ -462,9 +463,7 @@ class EventLogTest(QuestionViewTestCase):
         logger.reset_mock()
 
         # Select our own rationale and verify the logged event
-        response = self.question_post(
-            second_answer_choice=2, rationale_choice_0=None
-        )
+        self.question_post(second_answer_choice=2, rationale_choice_0=None)
         event = self.verify_event(
             logger,
             scoring_disabled=scoring_disabled,
@@ -494,13 +493,14 @@ class EventLogTest(QuestionViewTestCase):
 
     @mock.patch("peerinst.views.views.LOGGER")
     def test_events_arbitrary_course_id(self, logger):
-        # Try using a non-edX compatible number as the course_id (just like Moodle does).
+        # Try using a non-edX compatible number as the course_id (just like
+        # Moodle does).
         self.COURSE_ID = "504"
-        # This piece is edx-specific and cannot be extracted from an arbitrary non-edX
-        # course_id, so we expect this to be None.
+        # This piece is edx-specific and cannot be extracted from an arbitrary
+        # non-edX course_id, so we expect this to be None.
         self.ORG = None
-        # This is also edx-specific and cannot be extracted from non-edx callback URLs, so
-        # we expect this to be None.
+        # This is also edx-specific and cannot be extracted from non-edx
+        # callback URLs, so we expect this to be None.
         self.USAGE_ID = None
 
         lti_params = self.LTI_PARAMS.copy()

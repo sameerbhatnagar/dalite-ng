@@ -492,6 +492,7 @@ class QuestionListView(LoginRequiredMixin, NoStudentsMixin, ListView):
     """List of questions used for debugging purposes."""
 
     model = models.Assignment
+    template_name = "peerinst/question/list.html"
 
     def get_queryset(self):
         self.assignment = get_object_or_404(
@@ -534,6 +535,8 @@ class QuestionCreateView(
         "grading_scheme",
     ]
 
+    template_name = "peerinst/question/form.html"
+
     # Custom save is needed to attach user to question
     def form_valid(self, form):
         form.instance.user = self.request.user
@@ -552,6 +555,8 @@ class QuestionCreateView(
 
 class QuestionCloneView(QuestionCreateView):
     """View to create a question from existing."""
+
+    template_name = "peerinst/question/form.html"
 
     def get_initial(self, *args, **kwargs):
         super(QuestionCloneView, self).get_initial(*args, **kwargs)
@@ -619,7 +624,7 @@ class QuestionUpdateView(
         "grading_scheme",
     ]
 
-    template_name_suffix = "_form"
+    template_name = "peerinst/question/form.html"
 
     def get_form(self, form_class=None):
         # Check if student answers exist
@@ -708,7 +713,7 @@ def answer_choice_form(request, question_id):
         if question.answer_set.exclude(user_token__exact="").count() > 0:
             return TemplateResponse(
                 request,
-                "peerinst/answer_choice_form.html",
+                "peerinst/question/answer_choice_form.html",
                 context={"question": question},
             )
 
@@ -731,7 +736,7 @@ def answer_choice_form(request, question_id):
 
         return TemplateResponse(
             request,
-            "peerinst/answer_choice_form.html",
+            "peerinst/question/answer_choice_form.html",
             context={"question": question, "formset": formset},
         )
     else:
@@ -932,6 +937,8 @@ class QuestionReload(Exception):
 class QuestionFormView(QuestionMixin, FormView):
     """Base class for the form views in the student UI."""
 
+    template_name = "peerinst/question/form.html"
+
     def dispatch(self, *args, **kwargs):
         # Check for any TOS
         if Consent.get(self.request.user.username, "student") is None:
@@ -1107,7 +1114,7 @@ class QuestionStartView(QuestionFormView):
     The user can choose one answer and enter a rationale.
     """
 
-    template_name = "peerinst/question_start.html"
+    template_name = "peerinst/question/start.html"
 
     def get_form_class(self):
         return self.question.get_start_form_class()
@@ -1215,7 +1222,7 @@ class QuestionReviewBaseView(QuestionFormView):
 
 class QuestionSequentialReviewView(QuestionReviewBaseView):
 
-    template_name = "peerinst/question_sequential_review.html"
+    template_name = "peerinst/question/sequential_review.html"
     form_class = forms.SequentialReviewForm
 
     def select_next_rationale(self):
@@ -1279,7 +1286,7 @@ class QuestionReviewView(QuestionReviewBaseView):
     simultaneously.
     """
 
-    template_name = "peerinst/question_review.html"
+    template_name = "peerinst/question/review.html"
     form_class = forms.ReviewAnswerForm
 
     def get_form_kwargs(self):
@@ -1419,7 +1426,7 @@ class QuestionSummaryView(QuestionMixin, TemplateView):
     database.
     """
 
-    template_name = "peerinst/question_summary.html"
+    template_name = "peerinst/question/summary.html"
 
     def get_context_data(self, **kwargs):
         context = super(QuestionSummaryView, self).get_context_data(**kwargs)
@@ -1444,7 +1451,7 @@ class RationaleOnlyQuestionSummaryView(QuestionMixin, TemplateView):
     database.
     """
 
-    template_name = "peerinst/question_summary.html"
+    template_name = "peerinst/question/summary.html"
 
     def get_context_data(self, **kwargs):
         context = super(
@@ -1592,7 +1599,7 @@ class AnswerSummaryChartView(View):
         # HTTP response.
         return TemplateResponse(
             request,
-            "peerinst/question_answers_summary.html",
+            "peerinst/question/answers_summary.html",
             context={
                 "question": question,
                 "columns": columns,
@@ -2694,7 +2701,7 @@ def question_search(request):
 
         return TemplateResponse(
             request,
-            "peerinst/question_search_results.html",
+            "peerinst/question/search_results.html",
             context={
                 "paginator": query_subset,
                 "search_results": query,

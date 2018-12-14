@@ -1,30 +1,28 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+
 import re
 
+import password_validation
 from django import forms
-from django.contrib.auth.forms import PasswordResetForm
+from django.contrib.auth.forms import PasswordResetForm, UserCreationForm
+from django.contrib.auth.models import User
+from django.db.models import Count, Q
+from django.forms import ModelForm
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
 from .models import (
-    Student,
-    StudentGroup,
-    StudentGroupAssignment,
     Assignment,
     BlinkAssignmentQuestion,
     BlinkQuestion,
-    Question,
-    Teacher,
-    Discipline,
     Category,
+    Discipline,
+    Question,
+    StudentGroup,
+    StudentGroupAssignment,
+    Teacher,
 )
-from django.contrib.auth.models import User
-from django.contrib.auth.forms import UserCreationForm
-from django.db.models import Count, Q
-from django.forms import ModelForm
-
-import password_validation
 
 
 class NonStudentPasswordResetForm(PasswordResetForm):
@@ -64,7 +62,8 @@ class FirstAnswerForm(forms.Form):
             )
             for pair in answer_choices
         ]
-        #  choice_texts = [mark_safe(". ".join(pair)) for pair in answer_choices]
+        #  choice_texts = [mark_safe(". ".join(pair)) for pair in
+        #  answer_choices]
         self.base_fields["first_answer_choice"].choices = enumerate(
             choice_texts, 1
         )
@@ -118,7 +117,8 @@ class ReviewAnswerForm(forms.Form):
             if key.startswith(self.RATIONALE_CHOICE)
         ]
         if sum(map(bool, rationale_choices)) != 1:
-            # This should be prevented by the UI on the client side, so this check is mostly to
+            # This should be prevented by the UI on the client side, so this
+            # check is mostly to
             # protect against bugs and people transferring made-up data.
             raise forms.ValidationError(
                 _("Please select exactly one rationale.")
@@ -156,7 +156,8 @@ class AssignmentMultiselectForm(forms.Form):
     def __init__(self, user=None, question=None, *args, **kwargs):
         super(AssignmentMultiselectForm, self).__init__(*args, **kwargs)
         if user:
-            # Remove assignments with question and assignments with student answers
+            # Remove assignments with question and assignments with student
+            # answers
             queryset = user.assignment_set.all()
         else:
             queryset = Assignment.objects.all()
@@ -180,7 +181,9 @@ class AssignmentMultiselectForm(forms.Form):
             queryset=queryset,
             label=_("Assignments"),
             help_text=_(
-                "Optional. Select assignments to add this question.  You can select multiple assignments.  Assignments that this question is already a part of will not appear in list."
+                "Optional. Select assignments to add this question. You can "
+                "select multiple assignments. Assignments that this question "
+                "is already a part of will not appear in list."
             ),
         )
 
@@ -243,7 +246,6 @@ class BlinkAnswerForm(forms.Form):
             )
             for pair in answer_choices
         ]
-        # choice_texts = [mark_safe(". ".join(pair)) for pair in answer_choices]
         self.base_fields["first_answer_choice"].choices = enumerate(
             choice_texts, 1
         )
@@ -259,7 +261,10 @@ class BlinkQuestionStateForm(ModelForm):
 
 
 class RankBlinkForm(forms.Form):
-    """Form to handle reordering or deletion of blinkquestions in a blinkassignment."""
+    """
+    Form to handle reordering or deletion of blinkquestions in a
+    blinkassignment.
+    """
 
     # Might be better to set the queryset to limit to teacher's blink set
     q = forms.ModelMultipleChoiceField(
@@ -286,7 +291,8 @@ class SignUpForm(UserCreationForm):
         initial="http://",
         max_length=200,
         help_text=_(
-            "Please provide an institutional url listing yourself as a faculty member and showing your e-mail address."
+            "Please provide an institutional url listing yourself as a "
+            "faculty member and showing your e-mail address."
         ),
     )
 
@@ -367,6 +373,8 @@ class ReportSelectForm(forms.Form):
 
 
 class AnswerChoiceForm(forms.ModelForm):
+    template_name = "peerinst/question/answer_choice_form.html"
+
     def clean_text(self):
         if self.cleaned_data["text"].startswith("<p>"):
             return "<br>".join(

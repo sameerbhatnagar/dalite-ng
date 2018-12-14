@@ -336,7 +336,9 @@ class TeacherTest(TestCase):
             follow=True,
         )
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "peerinst/answer_choice_form.html")
+        self.assertTemplateUsed(
+            response, "peerinst/question/answer_choice_form.html"
+        )
         self.assertEqual(Question.objects.count(), question_count + 1)
 
     def test_question_update(self):
@@ -658,7 +660,9 @@ class TeacherTest(TestCase):
             follow=True,
         )
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "peerinst/answer_choice_form.html")
+        self.assertTemplateUsed(
+            response, "peerinst/question/answer_choice_form.html"
+        )
         self.assertEqual(question, Question.objects.get(pk=43))
         new_question = Question.objects.get(title="Title for cloned question")
         self.assertNotEqual(question.pk, new_question.pk)
