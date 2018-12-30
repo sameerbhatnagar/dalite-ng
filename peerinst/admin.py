@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-import re, json
 
+from django.contrib.admin.models import LogEntry, DELETION
 from django.core import exceptions
+from django.core.urlresolvers import reverse
 from django import forms
 from django.contrib import admin
 from django.contrib.admin.models import LogEntry
+from django.utils.html import escape
 from django.utils.translation import ugettext_lazy as _
 from .models import (
     Answer,
@@ -23,10 +25,11 @@ from .models import (
     BlinkRound,
     BlinkAssignment,
     BlinkAssignmentQuestion,
-    VerifiedDomain,
     LtiEvent,
     StudentGroupAssignment,
     StudentAssignment,
+    StudentNotification,
+    StudentNotificationType,
 )
 
 
@@ -71,10 +74,12 @@ class AnswerModelForm(forms.ModelForm):
         labels = {"first_answer_choice": _("Associated answer")}
         help_texts = {
             "rationale": _(
-                "An example rationale that will be shown to students during the answer review."
+                "An example rationale that will be shown to students during the\
+                 answer review."
             ),
             "first_answer_choice": _(
-                "The number of the associated answer; 1 = first answer, 2 = second answer etc."
+                "The number of the associated answer; 1 = first answer, 2 =\
+                 second answer etc."
             ),
         }
 
@@ -91,8 +96,9 @@ class AnswerInline(admin.StackedInline):
 
     def hint(self, obj):
         return _(
-            'You can add example answers more comfortably by using the "Preview" button in the '
-            "top right corner.  The button appears after saving the question for the first time."
+            'You can add example answers more comfortably by using the\
+             "Preview" button in the top right corner.  The button appears\
+             after saving the question for the first time.'
         )
 
     def get_queryset(self, request):
@@ -118,6 +124,7 @@ class QuestionAdmin(admin.ModelAdmin):
                     "category",
                     "id",
                     "parent",
+                    "type",
                 ]
             },
         ),
@@ -240,6 +247,16 @@ class StudentGroupAdmin(admin.ModelAdmin):
     pass
 
 
+@admin.register(StudentNotification)
+class StudentNotificationAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(StudentNotificationType)
+class StudentNotificationTypeAdmin(admin.ModelAdmin):
+    pass
+
+
 @admin.register(StudentGroupAssignment)
 class StudentGroupAssignmentAdmin(admin.ModelAdmin):
     list_display = ("group", "assignment")
@@ -268,10 +285,6 @@ class StudentAssignmentAdmin(admin.ModelAdmin):
 class LtiEventAdmin(admin.ModelAdmin):
     readonly_fields = ["event_type", "event_log", "timestamp"]
 
-
-from django.contrib.admin.models import LogEntry, DELETION
-from django.utils.html import escape
-from django.core.urlresolvers import reverse
 
 # https://djangosnippets.org/snippets/2484/
 class LogEntryAdmin(admin.ModelAdmin):

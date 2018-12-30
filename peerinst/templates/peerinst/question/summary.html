@@ -1,0 +1,60 @@
+{% extends 'peerinst/question/review_base.html' %}
+{% load i18n %}
+
+{% block answers %}
+{{ block.super }}
+
+{% if question.type == "PI" %}
+  <p class="mdc-typography--body1">
+    {% if first_choice_label == second_choice_label %}
+      {% if chosen_rationale == None %}
+        {% blocktrans %}
+          You stuck with your answer choice and rationale.
+        {% endblocktrans %}
+      {% else %}
+        {% blocktrans %}
+          You stuck with your answer choice and selected this rationale:
+        {% endblocktrans %}
+        <blockquote id="chosen-rationale">{{ chosen_rationale.rationale }}</blockquote>
+      {% endif %}
+    {% else %}
+      {% blocktrans %}
+        You then changed your answer to <strong>{{ second_choice_label }}</strong>
+        and selected this rationale:
+      {% endblocktrans %}
+      <blockquote id="chosen-rationale">{{ chosen_rationale.rationale }}</blockquote>
+    {% endif %}
+  </p>
+
+  {% if not group_assignment or group_assignment.show_correct_answers %}
+  <p class='mdc-typography--body1'>
+    Correct answer(s):
+    {% for label, choice in answer_choices %}
+      {% for c in question.answerchoice_set.all %}
+        {% if forloop.counter == forloop.parentloop.counter %}
+          {% if c.correct %}
+            <blockquote><strong>{{ label }}. {{ choice|safe }}</strong></blockquote>
+          {% endif %}
+        {% endif %}
+      {% endfor %}
+    {% endfor %}
+  </p>
+  {% endif %}
+
+  <!-- Remove 'expert' rationales for now
+  {% if experts %}
+  <p class='mdc-typography--body1'>
+    Expert rationale(s):
+      {% for expert in experts %}
+        {% for option in question.answerchoice_set.all %}
+          {% if option.correct and expert.first_answer_choice == forloop.counter %}
+            <blockquote>{{ expert.rationale|safe }}</blockquote>
+          {% endif %}
+        {% endfor %}
+      {% endfor %}
+  </p>
+  {% endif %}
+  -->
+{% endif %}
+
+{% endblock %}

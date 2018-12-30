@@ -1,0 +1,133 @@
+{% extends 'peerinst/student/base.html' %}
+
+{% load i18n %}
+
+{% block body %}
+
+<main>
+  <section id="student-page">
+
+    <h1 class="mdc-typography--display3">{% trans 'My Account' %}
+      <svg class="underline" width=150 height=4></svg>
+    </h1>
+
+    <div class="foldable foldable__unfolded">
+      <h2 class="foldable--title mdc-typography--display1 mdc-theme--secondary">
+        {% trans 'Identity' %}
+      </h2>
+      <div class="foldable--body">
+        <ul class="mdc-list mdc-list--non-interactive mdc-list--two-line"
+            style="padding-bottom:0px;">
+          <li role="separator" class="mdc-list-divider"></li>
+          <li class="mdc-list-item" onclick="edit_user()">
+            <span class="mdc-list-item__graphic mdc-theme--primary">
+              <i class="material-icons md-48">
+                account_circle
+              </i>
+            </span>
+            <span class="mdc-list-item__text mdc-theme--secondary bold">
+              <span id="student-email"></span>
+              <span class="mdc-list-item__secondary-text">
+                {% trans "Member since: " %}
+                <span id="student-member-since"></span>
+              </span>
+            </span>
+          </li>
+          <li role="separator" class="mdc-list-divider"></li>
+        </ul>
+        <ul class="mdc-list mdc-list--two-line" style="padding-top: 0px;">
+          <li class="mdc-list-item"
+              onclick="student.modifyTos()"
+              style="cursor: pointer;">
+            <span class="mdc-list-item__graphic mdc-theme--primary">
+              <i id="student-tos-sharing--icon"
+                 class="material-icons md-48">
+              </i>
+            </span>
+            <span class="mdc-list-item__text mdc-theme--secondary bold">
+              {% trans 'Terms of service: ' %}
+              <span id="student-tos-sharing--sharing"> </span>
+              <span class="mdc-list-item__secondary-text">
+                {% trans 'Signed: ' %}
+                <span id="student-tos-signed-on"></span>
+              </span>
+            </span>
+            <span class="mdc-list-item__meta">
+              <i class="material-icons md-24">
+                settings
+              </i>
+            </span>
+          </li>
+          <li role="separator" class="mdc-list-divider"></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="foldable foldable__unfolded"
+         style="display: none;"
+         id="notifications">
+      <h2 class="foldable--title mdc-typography--display1 mdc-theme--secondary">
+        {% trans 'Notifications' %}
+      </h2>
+      <div class="foldable--body">
+        <ul class="mdc-list mdc-list--non-interactive"></ul>
+      </div>
+    </div>
+
+    <div class="foldable foldable__unfolded">
+      <h2 class="foldable--title mdc-typography--display1 mdc-theme--secondary">
+        {% trans 'Groups' %}
+      </h2>
+      <div class="foldable--body">
+        <div id="student-add-group">
+          <span class="admin-link"
+                onclick="student.toggleJoinGroup()">
+            {% trans 'Add group' %}
+          </span>
+          <div id="student-add-group--box"
+               style="display: none;"
+               onclick="event.stopPropagation; student.toggleJoinGroup()">
+              <div onclick="event.stopPropagation();">
+                <h3>{% trans 'Join group' %}</h3>
+                <p>
+                  {% blocktrans %}
+                  You may join any of your old groups or a new one by pasting
+                  the link in the box below.
+                  {% endblocktrans %}
+                </p>
+                <input type="text"
+                       name="new-group"
+                       value=""
+                       placeholder="Url link"
+                       onkeyup="student.handleJoinGroupLinkInput(event)">
+                <select id="student-old-groups"
+                        style="display: none;">
+                </select>
+                <button class="mdc-button mdc-button--unelevated"
+                        onclick="student.joinGroup()">
+                  {% trans 'Join' %}
+                </button>
+                <button class="mdc-button"
+                        onclick="student.toggleJoinGroup()">
+                  {% trans 'Cancel' %}
+                </button>
+              </div>
+          </div>
+        </div>
+        <div id="student-groups" class="foldable--body">
+        </div>
+      </div>
+    </div>
+
+  </section>
+</main>
+
+<script>
+  window.addEventListener("load", function() {
+    student.initStudentPage(
+      {{ data|safe }}
+    )
+  });
+</script>
+
+{% endblock %}

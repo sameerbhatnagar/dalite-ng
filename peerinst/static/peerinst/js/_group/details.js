@@ -1,19 +1,20 @@
-'use strict';
+"use strict";
+import { buildReq } from "../_ajax/utils.js";
 
-function removeAssignment(event, url) {
+export function removeAssignment(event, url) {
   event.stopPropagation();
-  let li = event.currentTarget.parentNode.parentNode;
-  let container = li.parentNode;
+  const li = event.currentTarget.parentNode.parentNode;
+  const container = li.parentNode;
 
-  let token = document.getElementsByName('csrfmiddlewaretoken')[0].value;
-  let req = {
-    method: 'POST',
-    credentials: 'include',
+  const token = document.getElementsByName("csrfmiddlewaretoken")[0].value;
+  const req = {
+    method: "POST",
+    credentials: "include",
     headers: {
-      'X-CSRFToken': token,
+      "X-CSRFToken": token,
     },
   };
-  url = url + 'remove/';
+  url = url + "remove/";
 
   fetch(url, req).then(function(resp) {
     if (resp.ok) {
@@ -27,4 +28,20 @@ function removeAssignment(event, url) {
   });
 }
 
-export {removeAssignment};
+export function toggleStudentIdNeeded(event, url) {
+  const idNeeded = event.currentTarget.checked;
+  const data = {
+    name: "student_id_needed",
+    value: idNeeded,
+  };
+  const req = buildReq(data, "post");
+  fetch(url, req)
+    .then(function(resp) {
+      if (!resp.ok) {
+        console.log(resp);
+      }
+    })
+    .catch(function(err) {
+      console.log(err);
+    });
+}

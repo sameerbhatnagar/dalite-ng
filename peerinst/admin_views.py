@@ -2,32 +2,32 @@
 from __future__ import unicode_literals
 
 import collections
-import functools
 import itertools
 import urllib
-from django.contrib.admin.views.decorators import staff_member_required
+
+from django import forms
 from django.contrib import messages
+from django.contrib.admin.views.decorators import staff_member_required
 from django.core.urlresolvers import reverse
 from django.db.models import F
-from django import forms
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import FormView
-from .forms import (
-    FirstAnswerForm,
-    AssignmentMultiselectForm,
-    StudentGroupAssignmentManagementForm,
-)
+
 from . import models
 from .admin import AnswerAdmin
-from .util import make_percent_function, student_list_from_student_groups
-
+from .forms import (
+    AssignmentMultiselectForm,
+    FirstAnswerForm,
+    StudentGroupAssignmentManagementForm,
+)
 from .mixins import (
     LoginRequiredMixin,
     NoStudentsMixin,
     TOSAcceptanceRequiredMixin,
 )
+from .util import make_percent_function, student_list_from_student_groups
 
 
 class StaffMemberRequiredMixin(object):
@@ -47,11 +47,11 @@ class AdminIndexView(StaffMemberRequiredMixin, TemplateView):
 
 
 def get_question_aggregates(assignment, question, student_groups=None):
-    """Get aggregate statistics for the given assignment and question.
-
-    This function returns a pair (sums, students), where 'sums' is a collections.Counter object
-    mapping labels to integers, and 'students' is the set of all user tokens of the submitted
-    answers.
+    """
+    Get aggregate statistics for the given assignment and question.  This
+    function returns a pair (sums, students), where 'sums' is a
+    collections.Counter object mapping labels to integers, and 'students' is
+    the set of all user tokens of the submitted answers.
     """
     # Get indices of the correct answer choices (usually only one)
     answerchoice_correct = question.answerchoice_set.values_list(
@@ -93,19 +93,19 @@ def get_question_aggregates(assignment, question, student_groups=None):
         ).count()
         if count:
             sums[key] = count
-    # Get a set of all user tokens.  DISTINCT queries are not implemented for MySQL, so this is the
-    # only way I can think of to determine the number of students who answered at least one
-    # question in an assignment.
+    # Get a set of all user tokens.  DISTINCT queries are not implemented for
+    # MySQL, so this is the only way I can think of to determine the number of
+    # students who answered at least one question in an assignment.
     students = set(answers.values_list("user_token", flat=True))
     return sums, students
 
 
 def get_assignment_aggregates(assignment, student_groups=None):
-    """Get aggregate statistics for the given assignment.
-
-    This function returns a pair (sums, question_data), where sums is a collections.Counter object
-    mapping labels to integers, and question_data is a list of pairs (question, sums) with the sums
-    for the respective question.
+    """
+    Get aggregate statistics for the given assignment.  This function returns a
+    pair (sums, question_data), where sums is a collections.Counter object
+    mapping labels to integers, and question_data is a list of pairs (question,
+    sums) with the sums for the respective question.
     """
     sums = collections.Counter()
     students = set()
@@ -130,19 +130,27 @@ def get_question_rationale_aggregates(
     include_own_rationales=False,
     student_groups=None,
 ):
-    """Get the top `perpage` rationales for answers to the given assignment and question.
+    """
+    Get the top `perpage` rationales for answers to the given assignment and
+    question.
 
-    This function returns a pair (sums, rationales), with entries for these groups of rationales:
+    This function returns a pair (sums, rationales), with entries for these
+    groups of rationales:
     * 'upvoted': upvoted rationales
     * 'chosen': chosen rationales for all answers to the given question
-    * 'right_to_wrong': chosen rationales for answers that switched from right to wrong
-    * 'wrong_to_right': chosen rationales for answers that switched from wrong to right
+    * 'right_to_wrong': chosen rationales for answers that switched from right
+                        to wrong
+    * 'wrong_to_right': chosen rationales for answers that switched from wrong
+                        to right
 
-    `perpage` limits the number of rationales returned, but does not affect the counts in the returned `sums`.
+    `perpage` limits the number of rationales returned, but does not affect the
+    counts in the returned `sums`.
 
-    'sums' is a collection.Counter object mapping the above rationale group labels to total rationale counts.
+    'sums' is a collection.Counter object mapping the above rationale group
+    labels to total rationale counts.
 
-    'rationales' is a dict keyed by the above rational group labels.  The values are sorted lists of dicts:
+    'rationales' is a dict keyed by the above rational group labels.  The
+    values are sorted lists of dicts:
 
         {
         'upvoted': [
@@ -190,16 +198,19 @@ def get_question_rationale_aggregates(
         itertools.compress(itertools.count(1), answerchoice_correct)
     )
 
-    # Helper function collects chosen rationales and the number of times used from a list of answers
+    # Helper function collects chosen rationales and the number of times used
+    # from a list of answers
     def _top_rationales(answer_list):
-        # Count the chosen rationales for the given answer list, counting the answer's original
-        # rationale if there's no related chosen rationale (the student stuck with their original rationale)
-        # and the function was called with include_own_rationales=True
+        # Count the chosen rationales for the given answer list, counting the
+        # answer's original rationale if there's no related chosen rationale
+        # (the student stuck with their original rationale) and the function
+        # was called with include_own_rationales=True
         counts = collections.Counter(
             a.chosen_rationale
             or (
-                # If a.chosen_rationale isn't truthy (in other words, if it is None),
-                # count a itself if include_own_rationales is True; otherwise, count None
+                # If a.chosen_rationale isn't truthy (in other words, if it is
+                # None), count a itself if include_own_rationales is True;
+                # otherwise, count None
                 a
                 if include_own_rationales
                 else None
@@ -259,13 +270,15 @@ class QuestionRationaleView(StaffMemberRequiredMixin, TemplateView):
             (_("Total rationales chosen"), sums["chosen"]),
             (
                 _(
-                    "Total rationales chosen for right to wrong answer switches"
+                    "Total rationales chosen for right to wrong answer "
+                    "switches"
                 ),
                 sums["right_to_wrong"],
             ),
             (
                 _(
-                    "Total rationales chosen for wrong to right answer switches"
+                    "Total rationales chosen for wrong to right answer "
+                    "switches"
                 ),
                 sums["wrong_to_right"],
             ),
@@ -366,7 +379,8 @@ class QuestionRationaleView(StaffMemberRequiredMixin, TemplateView):
         question_id = self.kwargs["question_id"]
         question = get_object_or_404(models.Question, id=question_id)
 
-        # Limit number of rationales shown to a number between [0, AnswerAdmin.list_per_page]
+        # Limit number of rationales shown to a number between [0,
+        # AnswerAdmin.list_per_page]
         perpage = self.request.GET.get("perpage")
         try:
             perpage = int(perpage)
@@ -513,7 +527,7 @@ class QuestionPreviewViewBase(
 ):
     """Non-admin base view for question preview and sample answer form."""
 
-    template_name = "peerinst/question_preview.html"
+    template_name = "peerinst/question/preview.html"
     form_class = QuestionPreviewForm
 
     def get_form_kwargs(self):
@@ -559,7 +573,7 @@ class QuestionPreviewViewBase(
 
 
 class QuestionPreviewView(StaffMemberRequiredMixin, QuestionPreviewViewBase):
-    template_name = "admin/peerinst/question_preview.html"
+    template_name = "admin/peerinst/question/preview.html"
 
     def get_success_url(self):
         return reverse(
@@ -651,7 +665,8 @@ def aggregate_fake_attribution_data(votes_qs):
         aggregates["total"] += 1
         aggregates[vote_type] += 1
 
-    # We are using plain dictionaries instead of collections.defaultdict for perfromance reasons.
+    # We are using plain dictionaries instead of collections.defaultdict for
+    # perfromance reasons.
     username_data = {}
     country_data = {}
     for answer_vote in votes_qs.iterator():
@@ -746,8 +761,13 @@ class StudentGroupAssignmentManagement(StaffMemberRequiredMixin, TemplateView):
                     )
                     count_assignments_created += 1
                     # Send email
-                    if not student.student.email.endswith("localhost") and not group_assignment.is_expired():
-                        assignment_.send_email(self.request.get_host(), "new_assignment")
+                    if (
+                        not student.student.email.endswith("localhost")
+                        and not group_assignment.expired
+                    ):
+                        assignment_.send_email(
+                            self.request.get_host(), "new_assignment"
+                        )
                         count_emails_sent += 1
 
             student_assignment_list = models.StudentAssignment.objects.filter(
@@ -779,7 +799,7 @@ class StudentGroupAssignmentManagement(StaffMemberRequiredMixin, TemplateView):
                 group_assignment = form.cleaned_data["group_assignment"]
                 group = group_assignment.group
                 student_list = models.Student.objects.filter(groups=group)
-                student_assignment_list = models.StudentAssignment.objects.filter(
+                student_assignment_list = models.StudentAssignment.objects.filter(  # noqa
                     student__in=student_list, group_assignment=group_assignment
                 )
 

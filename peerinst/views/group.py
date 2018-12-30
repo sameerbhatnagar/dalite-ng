@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-from datetime import datetime
+
+import json
+import logging
 
 from django.contrib.auth.decorators import login_required
 from django.http import (
     HttpResponse,
     HttpResponseBadRequest,
-    HttpResponseForbidden,
-    HttpResponseRedirect,
     HttpResponseServerError,
     JsonResponse,
 )
@@ -15,8 +15,6 @@ from django.shortcuts import render
 from django.template.response import TemplateResponse
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_http_methods
-import json
-import pytz
 
 from peerinst.models import (
     Student,
@@ -27,6 +25,8 @@ from peerinst.models import (
 )
 
 from .decorators import group_access_required
+
+logger = logging.getLogger("peerinst-views")
 
 
 def validate_update_data(req):
@@ -62,6 +62,7 @@ def group_details_page(req, group_hash, teacher, group):
     assignments = StudentGroupAssignment.objects.filter(group=group)
 
     context = {"group": group, "assignments": assignments, "teacher": teacher}
+    print(group.student_id_needed)
 
     return render(req, "peerinst/group/details.html", context)
 
@@ -70,6 +71,23 @@ def group_details_page(req, group_hash, teacher, group):
 @require_http_methods(["POST"])
 @group_access_required
 def group_details_update(req, group_hash, teacher, group):
+    """
+    Updates the field of the group using the `name` and `value` given by the
+    post request data.
+
+    Parameters
+    ----------
+    group_hash : str
+        Hash of the group
+    teacher : Teacher
+    group : StudentGroup
+        Group corresponding to the hash (returned by `group_access_required`)
+
+    Returns
+    -------
+    HttpResponse
+        Either an empty 200 response if everything worked or an error response
+    """
 
     name, value = validate_update_data(req)
     if isinstance(name, HttpResponse):
@@ -88,10 +106,12 @@ def group_details_update(req, group_hash, teacher, group):
             return HttpResponseBadRequest(resp.render())
         group.name = value
         group.save()
+        logger.info("Group %d's name was changed to %s.", group.pk, value)
 
     elif name == "title":
         group.title = value
         group.save()
+        logger.info("Group %d's title was changed to %s.", group.pk, value)
 
     elif name == "teacher":
         try:
@@ -109,6 +129,15 @@ def group_details_update(req, group_hash, teacher, group):
             return HttpResponseBadRequest(resp.render())
         group.teacher.add(teacher)
         group.save()
+        logger.info("Teacher %d was added to group %d.", value, group.pk)
+
+    elif name == "student_id_needed":
+        group.student_id_needed = value
+        group.save()
+        logger.info(
+            "Student id needed was set to %s for group %d.", value, group.pk
+        )
+
     else:
         resp = TemplateResponse(
             req,
@@ -130,7 +159,9 @@ def group_assignment_page(req, assignment_hash, teacher, group, assignment):
         "group": group,
         "assignment": assignment,
         "questions": assignment.questions,
-        "students_with_answers": assignment.assignment.answer_set.values_list('user_token', flat=True),
+        "students_with_answers": assignment.assignment.answer_set.values_list(
+            "user_token", flat=True
+        ),
     }
 
     return render(req, "peerinst/group/assignment.html", context)
@@ -153,23 +184,10 @@ def group_assignment_update(req, assignment_hash, teacher, group, assignment):
     if isinstance(name, HttpResponse):
         return name
 
-    if name == "due_date":
-        assignment.due_date = datetime.strptime(
-            value[:-5], "%Y-%m-%dT%H:%M:%S"
-        ).replace(tzinfo=pytz.utc)
-        assignment.save()
+    err = assignment.update(name, value)
 
-    elif name == "question_list":
-        questions = [q.title for q in assignment.assignment.questions.all()]
-        order = ",".join(str(questions.index(v)) for v in value)
-        err = assignment.modify_order(order)
-
-    else:
-        resp = TemplateResponse(
-            req,
-            "400.html",
-            context={"message": _("Wrong data type was sent.")},
-        )
+    if err is not None:
+        resp = TemplateResponse(req, "400.html", context={"message": err})
         return HttpResponseBadRequest(resp.render())
 
     return HttpResponse(content_type="text/plain")
@@ -220,7 +238,7 @@ def send_student_assignment(req, assignment_hash, teacher, group, assignment):
         group_assignment=assignment, student=student
     )
 
-    err = student_assignment.send_email(req.get_host(), "new_assignment")
+    err = student_assignment.send_email("new_assignment")
 
     if err is not None:
         resp = TemplateResponse(req, "500.html", context={"message": _(err)})

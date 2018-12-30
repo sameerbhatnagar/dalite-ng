@@ -1,0 +1,60 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: circleci/python:2.7-node-browsers
+        environment:
+          DALITE_DB_PASSWORD: test key
+          DALITE_DB_HOST: 127.0.0.1
+          DALITE_DB_PORT: 3306
+      - image: mariadb
+        environment:
+          MYSQL_ALLOW_EMPTY_PASSWORD: true
+          MYSQL_DATABASE: dalite_ng
+          MYSQL_USER: dalite
+          MYSQL_PASSWORD: test key
+          MYSQL_HOST: localhost
+
+    working_directory: ~/repo
+    branches:
+      only:
+        - development
+        - ci
+    steps:
+      - checkout
+      - run:
+          name: Build
+          command: |
+            sudo pip2 install virtualenv
+            sudo yarn global add gulp
+            virtualenv .venv
+            . .venv/bin/activate
+            pip install -r requirements/dev-requirements.txt
+            yarn install
+            gulp build
+      - run:
+          name: Setup local_settings.py
+          command: |
+            tools/gen_secret_key.py > dalite/local_settings.py
+            echo 'PIWIK_DOMAIN_PATH = "matomo.mydalite.org"' >> dalite/local_settings.py
+            echo 'PIWIK_SITE_ID = "1"' >> dalite/local_settings.py
+            echo 'PASSWORD_GENERATOR_NONCE = "secret key"' >> dalite/local_settings.py
+            echo 'import os' >> dalite/local_settings.py
+
+            echo 'BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))' >> dalite/local_settings.py
+            echo 'EMAIL_SUBJECT_PREFIX = "SALTISE/S4 @ Dawson College: "' >> dalite/local_settings.py
+            echo 'DEFAULT_FROM_EMAIL = "no-reply-SALTISES4@dawsoncollege.qc.ca"' >> dalite/local_settings.py
+            echo 'EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"' >> dalite/local_settings.py
+      - run:
+          name: Waiting for db
+          command: dockerize -wait tcp://127.0.0.1:3306 -timeout 1m
+      - run:
+          name: Setup db
+          command: |
+            . .venv/bin/activate
+            ./manage.py migrate
+      - run:
+          name: Tests
+          command: |
+            . .venv/bin/activate
+            pytest --cov --create-db

@@ -1,14 +1,24 @@
-from django.contrib.auth.hashers import make_password
-from django.core.urlresolvers import reverse
-from django.contrib.staticfiles.testing import StaticLiveServerTestCase
-from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
+import os
 import time
-import unittest
 
-from django.contrib.auth.models import Permission, Group
-from peerinst.models import User, Question, Assignment
+from django.conf import settings
+from django.contrib.auth.hashers import make_password
+from django.contrib.auth.models import Group, Permission
+from django.contrib.staticfiles.testing import StaticLiveServerTestCase
+from django.core.urlresolvers import reverse
+from selenium import webdriver
+from selenium.common.exceptions import TimeoutException, WebDriverException
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.expected_conditions import (
+    presence_of_element_located,
+    text_to_be_present_in_element,
+)
+from selenium.webdriver.support.ui import WebDriverWait
+
+from peerinst.models import Assignment, Question, User
 from tos.models import Role, Tos
+
+timeout = 2
 
 
 def ready_user(pk):
@@ -23,7 +33,35 @@ class NewUserTests(StaticLiveServerTestCase):
     fixtures = ["test_users.yaml"]
 
     def setUp(self):
-        self.browser = webdriver.Chrome()
+
+        if hasattr(settings, "TESTING_BROWSER"):
+            browser = settings.TESTING_BROWSER.lower()
+        else:
+            browser = "firefox"
+
+        if hasattr(settings, "HEADLESS_TESTING") and settings.HEADLESS_TESTING:
+            os.environ["MOZ_HEADLESS"] = "1"
+            options = webdriver.ChromeOptions()
+            options.add_argument("headless")
+        else:
+            options = webdriver.ChromeOptions()
+
+        if browser == "firefox":
+            try:
+                self.browser = webdriver.Firefox()
+            except WebDriverException:
+                self.browser = webdriver.Chrome(options=options)
+        elif browser == "chrome":
+            try:
+                self.browser = webdriver.Chrome(options=options)
+            except WebDriverException:
+                self.browser = webdriver.Firefox()
+        else:
+            raise ValueError(
+                "The TESTING_BROWSER setting in local_settings.py must either "
+                "be firefox or chrome."
+            )
+
         self.browser.implicitly_wait(10)
 
         self.validated_teacher = ready_user(1)
@@ -88,10 +126,14 @@ class NewUserTests(StaticLiveServerTestCase):
         inputbox.submit()
 
         # New user redirected post sign up
-        self.assertIn(
-            "Processing Request",
-            self.browser.find_element_by_tag_name("h1").text,
-        )
+        try:
+            WebDriverWait(self.browser, timeout).until(
+                text_to_be_present_in_element(
+                    (By.TAG_NAME, "h1"), "Processing Request"
+                )
+            )
+        except TimeoutException:
+            self.assertTrue(False)
 
         # New user cannot sign in
         self.browser.get(self.live_server_url + "/login")
@@ -181,9 +223,19 @@ class NewUserTests(StaticLiveServerTestCase):
 
         inputbox.submit()
 
-        time.sleep(1)
+        account_link = self.browser.find_element_by_xpath(
+            "//a[text()='Go to My Account']"
+        )
+        self.browser.get(account_link.get_attribute("href"))
 
-        assert "Terms of Service" in self.browser.page_source
+        try:
+            WebDriverWait(self.browser, timeout).until(
+                text_to_be_present_in_element(
+                    (By.TAG_NAME, "h1"), "Terms of Service"
+                )
+            )
+        except TimeoutException:
+            assert False
 
         button = self.browser.find_element_by_id("tos-accept")
         button.click()
@@ -209,8 +261,19 @@ class NewUserTests(StaticLiveServerTestCase):
 
         inputbox.submit()
 
-        time.sleep(1)
-        assert "My Account" in self.browser.page_source
+        account_link = self.browser.find_element_by_xpath(
+            "//a[text()='Go to My Account']"
+        )
+        self.browser.get(account_link.get_attribute("href"))
+
+        try:
+            WebDriverWait(self.browser, timeout).until(
+                presence_of_element_located(
+                    (By.XPATH, "//h1[text()='My Account']")
+                )
+            )
+        except TimeoutException:
+            assert False
 
         # Add a new current TOS for teachers and refresh account -> tos
         role = Role.objects.get(role="teacher")
@@ -218,6 +281,12 @@ class NewUserTests(StaticLiveServerTestCase):
         new_TOS.save()
 
         self.browser.get(self.live_server_url + "/login")
+
+        account_link = self.browser.find_element_by_xpath(
+            "//a[text()='Go to My Account']"
+        )
+        self.browser.get(account_link.get_attribute("href"))
+
         assert "Terms of Service" in self.browser.page_source
 
         button = self.browser.find_element_by_id("tos-accept")
@@ -226,13 +295,25 @@ class NewUserTests(StaticLiveServerTestCase):
         # Teacher generally redirected to account if logged in
         self.browser.get(self.live_server_url + "/login")
 
+        account_link = self.browser.find_element_by_xpath(
+            "//a[text()='Go to My Account']"
+        )
+        self.browser.get(account_link.get_attribute("href"))
+
         assert "My Account" in self.browser.page_source
 
         # Teacher can create a question
         self.browser.find_element_by_id("question-section").click()
         self.browser.find_element_by_link_text("Create new").click()
 
-        time.sleep(1)
+        try:
+            WebDriverWait(self.browser, timeout).until(
+                presence_of_element_located(
+                    (By.XPATH, "//h2[contains(text(), 'Step 1')]")
+                )
+            )
+        except TimeoutException:
+            assert False
 
         assert "Step 1" in self.browser.find_element_by_tag_name("h2").text
 
@@ -240,30 +321,37 @@ class NewUserTests(StaticLiveServerTestCase):
         inputbox.send_keys("Test title")
 
         tinymce_embed = self.browser.find_element_by_tag_name("iframe")
-        self.browser.switch_to_frame(tinymce_embed)
+        self.browser.switch_to.frame(tinymce_embed)
         ifrinputbox = self.browser.find_element_by_id("tinymce")
         ifrinputbox.send_keys("Test text")
-        self.browser.switch_to_default_content()
+        self.browser.switch_to.default_content()
 
         inputbox.submit()
 
-        assert "Step 2" in self.browser.find_element_by_tag_name("h2").text
+        try:
+            WebDriverWait(self.browser, timeout).until(
+                presence_of_element_located(
+                    (By.XPATH, "//h2[contains(text(), 'Step 2')]")
+                )
+            )
+        except TimeoutException:
+            assert False
 
         tinymce_embed = self.browser.find_element_by_id(
             "id_answerchoice_set-0-text_ifr"
         )
-        self.browser.switch_to_frame(tinymce_embed)
+        self.browser.switch_to.frame(tinymce_embed)
         ifrinputbox = self.browser.find_element_by_id("tinymce")
         ifrinputbox.send_keys("Answer 1")
-        self.browser.switch_to_default_content()
+        self.browser.switch_to.default_content()
 
         tinymce_embed = self.browser.find_element_by_id(
             "id_answerchoice_set-1-text_ifr"
         )
-        self.browser.switch_to_frame(tinymce_embed)
+        self.browser.switch_to.frame(tinymce_embed)
         ifrinputbox = self.browser.find_element_by_id("tinymce")
         ifrinputbox.send_keys("Answer 2")
-        self.browser.switch_to_default_content()
+        self.browser.switch_to.default_content()
 
         self.browser.find_element_by_id(
             "id_answerchoice_set-0-correct"
@@ -273,39 +361,76 @@ class NewUserTests(StaticLiveServerTestCase):
 
         inputbox.submit()
 
-        print(Question.objects.get(title="Test title").created_on)
-
-        assert "Step 3" in self.browser.find_element_by_tag_name("h2").text
+        try:
+            WebDriverWait(self.browser, timeout).until(
+                presence_of_element_located(
+                    (By.XPATH, "//h2[contains(text(), 'Step 3')]")
+                )
+            )
+        except TimeoutException:
+            assert False
 
         self.browser.find_element_by_id("add_question_to_assignment").submit()
 
-        time.sleep(1)
-
-        assert "My Account" in self.browser.find_element_by_tag_name("h1").text
+        try:
+            WebDriverWait(self.browser, timeout).until(
+                presence_of_element_located(
+                    (By.XPATH, "//h1[text()='My Account']")
+                )
+            )
+        except TimeoutException:
+            assert False
         assert "Test title" in self.browser.page_source
 
         # Teacher can edit their questions
-        self.browser.find_element_by_id("question-section").click()
-        time.sleep(1)
+        try:
+            WebDriverWait(self.browser, timeout).until(
+                presence_of_element_located((By.ID, "question-section"))
+            ).click()
+        except TimeoutException:
+            assert False
         question = Question.objects.get(title="Test title")
-        self.browser.find_element_by_id(
-            "edit-question-" + str(question.id)
-        ).click()
+
+        try:
+            WebDriverWait(self.browser, timeout).until(
+                presence_of_element_located(
+                    (By.ID, "edit-question-{}".format(question.id))
+                )
+            ).click()
+        except TimeoutException:
+            assert False
+
+        try:
+            WebDriverWait(self.browser, timeout).until(
+                presence_of_element_located(
+                    (By.XPATH, "//h2[contains(text(), 'Step 1')]")
+                )
+            )
+        except TimeoutException:
+            assert False
 
         assert "Step 1" in self.browser.find_element_by_tag_name("h2").text
 
         tinymce_embed = self.browser.find_element_by_tag_name("iframe")
-        self.browser.switch_to_frame(tinymce_embed)
+        self.browser.switch_to.frame(tinymce_embed)
         ifrinputbox = self.browser.find_element_by_id("tinymce")
         ifrinputbox.send_keys("Edited: ")
-        self.browser.switch_to_default_content()
+        self.browser.switch_to.default_content()
 
         inputbox = self.browser.find_element_by_id("id_title")
         inputbox.submit()
 
+        try:
+            WebDriverWait(self.browser, timeout).until(
+                presence_of_element_located(
+                    (By.XPATH, "//h2[contains(text(), 'Step 2')]")
+                )
+            )
+        except TimeoutException:
+            assert False
+
         question.refresh_from_db()
 
-        assert "Step 2" in self.browser.find_element_by_tag_name("h2").text
         assert "Edited: Test text" in question.text
 
         # Teacher cannot edit another teacher's questions
@@ -324,17 +449,29 @@ class NewUserTests(StaticLiveServerTestCase):
         assert "Create a new assignment" in self.browser.page_source
 
         inputbox = self.browser.find_element_by_id("id_identifier")
-        inputbox.send_keys("New unique assignment identifier")
+        inputbox.send_keys("new-unique-assignment-identifier")
 
         inputbox = self.browser.find_element_by_id("id_title")
         inputbox.send_keys("New assignment title")
 
         inputbox.submit()
 
-        assert "New unique assignment identifier" in self.browser.page_source
+        try:
+            WebDriverWait(self.browser, timeout).until(
+                presence_of_element_located(
+                    (
+                        By.XPATH,
+                        "//*[contains(text(), "
+                        "'new-unique-assignment-identifier')]",
+                    )
+                )
+            )
+        except TimeoutException:
+            assert False
+
         assert (
             Assignment.objects.filter(
-                identifier="New unique assignment identifier"
+                identifier="new-unique-assignment-identifier"
             ).count()
             == 1
         )
@@ -363,4 +500,5 @@ class NewUserTests(StaticLiveServerTestCase):
 
         # Need a test to assert reset question never appears in LTI
 
-        # Teacher clones: check new and old question states including answer_choices
+        # Teacher clones: check new and old question states including
+        # answer_choices

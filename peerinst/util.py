@@ -3,6 +3,7 @@ from __future__ import division, unicode_literals
 
 import itertools
 import string
+import datetime
 from collections import defaultdict, Counter
 
 
@@ -412,8 +413,65 @@ def get_correct_answer_choices(question):
 
 def report_data_by_assignment(assignment_list, student_groups):
     """
-    given a list of assignment identifiers,
-    return serialized data for report by assignment
+    Returns data for report by assignment
+
+    Parameters
+    ----------
+    assignment_list : List[Assignment]
+        Wanted assignments
+    student_groups : List[int]
+        Primary keys for wanted student groups
+
+    Returns
+    -------
+    [
+        {
+            "assignment" : str
+                title of the assignment,
+            "transitions" : List[]
+            "questions" : [
+                {
+                    "answer_choices" : List[str]
+                        objects representing answer choices
+                    "question_image" : ImageFieldFile
+                        object representing an image for the question
+                    "title" : str
+                        title of the question,
+                    "text" : str
+                        text of the question
+                    "student_responses" : List
+                    "num_responses" : int
+                        number of student responses
+                    "transitions" : [
+                    {
+                        "data": List[]
+                        "label" : str
+                    }
+                    ],
+                    "confusion_matrix" : [
+                        {
+                        "first_answer_choice" : int
+                            index of the answer choice (starting at 1)
+                        "second_answer_choice" : {
+                            "value" : int
+                                index of the answer choice (starting at 1)
+                            "N" : int
+                                number of answers with that choice
+                            }
+                        }
+                    ]
+                    "answer_distributions" [
+                        {
+                            "data" : List[]
+                            "label" : str
+                                Label of what the data corresponds to (question
+                                index)
+                        }
+                    ]
+                }
+            ],
+        }
+    ]
     """
     student_obj_qs = get_student_objects_from_group_list(student_groups)
     answer_qs = subset_answers_by_studentgroup_and_assignment(
@@ -440,11 +498,12 @@ def report_data_by_assignment(assignment_list, student_groups):
             d_q = {}
             d_q["text"] = q.text
             d_q["title"] = q.title
-            d_q["answer_choices"] = q.answerchoice_set.all()
-            question_list.append(q)
-
             try:
                 d_q["question_image"] = q.image
+            except ValueError as e:
+                pass
+            try:
+                d_q["question_video"] = q.video_url
             except ValueError as e:
                 pass
 
@@ -453,80 +512,90 @@ def report_data_by_assignment(assignment_list, student_groups):
             if d_q["num_responses"] > 0:
                 d_q["show"] = True
 
-            answer_choices_texts = q.answerchoice_set.values_list(
-                "text", flat=True
-            )
+            d_q["type"] = q.type
+            d_q["sequential_review"] = q.sequential_review
+            
+            question_list.append(q)                 
+            
+            ## PI questions
+            if q.answerchoice_set.all().count() > 0:
+                d_q["answer_choices"] = q.answerchoice_set.all()
 
-            answer_style = q.answer_style
 
-            correct_answer_choices = get_correct_answer_choices(q)
-
-            transitions = report_data_transitions(
-                question=q,
-                correct_answer_choices=correct_answer_choices,
-                assignment_list=assignment_list,
-                student_groups=student_groups,
-            )
-
-            # aggregates for this question in this assignment
-            field_names = [
-                "first_answer_choice",
-                "second_answer_choice",
-            ]  # ,'transition']
-            field_labels = [
-                "First Answer Choice",
-                "Second Answer Choice",
-            ]  # ,'Transition']
-            d_q["answer_distributions"] = []
-            for field_name, field_label in zip(field_names, field_labels):
-                counts = (
-                    answer_qs_question.values_list(field_name)
-                    .order_by(field_name)
-                    .annotate(count=Count(field_name))
+                answer_choices_texts = q.answerchoice_set.values_list(
+                    "text", flat=True
                 )
 
-                d_q_a_d = {}
-                d_q_a_d["label"] = field_label
-                d_q_a_d["data"] = []
-                for c in counts:
-                    d_q_a_c = {}
-                    d_q_a_c["answer_choice"] = list(string.ascii_uppercase)[
-                        c[0] - 1
-                    ]
-                    d_q_a_c[
-                        "answer_choice_correct"
-                    ] = q.answerchoice_set.values_list("correct", flat=True)[
-                        c[0] - 1
-                    ]
-                    d_q_a_c["count"] = c[1]
-                    d_q_a_d["data"].append(d_q_a_c)
-                d_q["answer_distributions"].append(d_q_a_d)
+                answer_style = q.answer_style
 
-            field_names = ["transition"]
-            field_labels = ["Transition"]
-            d_q["transitions"] = []
-            for field_name, field_label in zip(field_names, field_labels):
-                counts = (
-                    transitions.values_list(field_name)
-                    .order_by(field_name)
-                    .annotate(count=Count(field_name))
+                correct_answer_choices = get_correct_answer_choices(q)
+
+                transitions = report_data_transitions(
+                    question=q,
+                    correct_answer_choices=correct_answer_choices,
+                    assignment_list=assignment_list,
+                    student_groups=student_groups,
                 )
 
-                d_q_a_d = {}
-                d_q_a_d["label"] = field_label
-                d_q_a_d["data"] = []
-                for c in counts:
-                    d_q_a_c = {}
-                    d_q_a_c["transition_type"] = c[0]
-                    d_q_a_c["count"] = c[1]
-                    d_q_a_d["data"].append(d_q_a_c)
+                # aggregates for this question in this assignment
+                field_names = [
+                    "first_answer_choice",
+                    "second_answer_choice",
+                ]  # ,'transition']
+                field_labels = [
+                    "First Answer Choice",
+                    "Second Answer Choice",
+                ]  # ,'Transition']
+                d_q["answer_distributions"] = []
+                for field_name, field_label in zip(field_names, field_labels):
+                    counts = (
+                        answer_qs_question.values_list(field_name)
+                        .order_by(field_name)
+                        .annotate(count=Count(field_name))
+                    )
 
-                    # counter for assignment level aggregate
-                    if c[0] in student_gradebook_transitions:
-                        student_gradebook_transitions[c[0]] += c[1]
-                    else:
-                        student_gradebook_transitions[c[0]] = c[1]
+                    d_q_a_d = {}
+                    d_q_a_d["label"] = field_label
+                    d_q_a_d["data"] = []
+                    for c in counts:
+                        d_q_a_c = {}
+                        d_q_a_c["answer_choice"] = list(string.ascii_uppercase)[
+                            c[0] - 1
+                        ]
+                        d_q_a_c[
+                            "answer_choice_correct"
+                        ] = q.answerchoice_set.values_list("correct", flat=True)[
+                            c[0] - 1
+                        ]
+                        d_q_a_c["count"] = c[1]
+                        d_q_a_d["data"].append(d_q_a_c)
+                    d_q["answer_distributions"].append(d_q_a_d)
 
+                field_names = ["transition"]
+                field_labels = ["Transition"]
+                d_q["transitions"] = []
+                for field_name, field_label in zip(field_names, field_labels):
+                    counts = (
+                        transitions.values_list(field_name)
+                        .order_by(field_name)
+                        .annotate(count=Count(field_name))
+                    )
+
+                    d_q_a_d = {}
+                    d_q_a_d["label"] = field_label
+                    d_q_a_d["data"] = []
+                    for c in counts:
+                        d_q_a_c = {}
+                        d_q_a_c["transition_type"] = c[0]
+                        d_q_a_c["count"] = c[1]
+                        d_q_a_d["data"].append(d_q_a_c)
+
+                        # counter for assignment level aggregate
+                        if c[0] in student_gradebook_transitions:
+                            student_gradebook_transitions[c[0]] += c[1]
+                        else:
+                            student_gradebook_transitions[c[0]] = c[1]
+                ###
                 d_q["transitions"].append(d_q_a_d)
 
                 d3_data_dict = {}
@@ -572,9 +641,14 @@ def report_data_by_assignment(assignment_list, student_groups):
                     student_response.first_answer_choice - 1
                 ]
                 d_q_a["rationale"] = student_response.rationale
-                d_q_a["second_answer_choice"] = list(string.ascii_uppercase)[
-                    student_response.second_answer_choice - 1
-                ]
+                ##
+                if student_response.second_answer_choice:
+                    d_q_a["second_answer_choice"] = list(string.ascii_uppercase)[
+                        student_response.second_answer_choice - 1
+                    ]
+                else:
+                    d_q_a["second_answer_choice"] = student_response.second_answer_choice
+                ##
                 if student_response.chosen_rationale_id:
                     d_q_a["chosen_rationale"] = Answer.objects.get(
                         pk=student_response.chosen_rationale_id
@@ -582,6 +656,11 @@ def report_data_by_assignment(assignment_list, student_groups):
                 else:
                     d_q_a["chosen_rationale"] = "Stick to my own rationale"
                 d_q_a["submitted"] = student_response.time
+
+                if q.sequential_review:
+                    d_q_a["upvotes"] = student_response.upvotes
+                    d_q_a["downvotes"] = student_response.downvotes
+
                 d_q["student_responses"].append(d_q_a)
 
             d_a["questions"].append(d_q)
@@ -601,7 +680,8 @@ def report_data_transitions_dict(assignment_list, student_groups):
 
     student_transitions_by_q = {}
     for q in Question.objects.filter(
-        assignment__identifier__in=assignment_list
+        assignment__identifier__in = assignment_list,
+        type = 'PI'
     ):
 
         correct_answer_choices = get_correct_answer_choices(q)
@@ -747,3 +827,108 @@ def report_data_by_question(assignment_list, student_groups):
         gradebook_question.append(d_g)
 
     return gradebook_question
+
+def filter_ltievents(start_date,stop_date=datetime.datetime.now(),username=None):
+    """
+    given a start date and stop date (as datetime objects), and optional username
+    return all LtiEvents that match the criteria
+    """
+    from peerinst.models import LtiEvent
+    import json
+
+    events = LtiEvent.objects.filter(timestamp__gte=start_date,timestamp__lte=stop_date)
+
+    if username:
+        rejected_pks, event_pks = [],[]
+        for e in events:
+            try:
+                if e.event_log['username']==username:
+                    event_pks.append(e.pk)
+            except TypeError as error:
+                rejected_pks.append(e.pk)
+        events = events.filter(pk__in=event_pks)
+        rejected = events.filter(pk__in=rejected_pks)
+    else:
+        rejected = []
+
+    return rejected,events
+
+def build_event_dict(e,columns,event_columns):
+    """
+    given and LtiEvent
+    return flattened dict with specified columns
+    """
+    try:
+        event_dict1 = {c:e.event_log['event'].get(c) for c in event_columns}
+        event_dict2 = {c:e.event_log.get(c) for c in columns}
+        event_dict = event_dict1.copy()
+        event_dict.update(event_dict2)
+        event_dict['event_type'] = e.event_type
+        event_dict['timestamp'] = e.timestamp
+    except TypeError:
+        event_dict = {}
+        event_dict['event_type'] = e.event_type
+        event_dict['timestamp'] = e.timestamp
+
+    return event_dict
+
+def serialize_events_to_dataframe(events):
+    """
+    given a queryset of LtiEvent objects
+    return a pandas dataframe with columns username,event_type,assignment_id,question_id,timestamp
+    """
+    import pandas as pd
+
+    columns = ['username','course_id','referer','agent','accept_language']
+
+    event_columns = [
+    'event_type',
+    'assignment_id',
+    'question_text',
+    'question_id',
+    'timestamp',
+    'rationales',
+    'success',
+    'assignment_title',
+    'rationale_algorithm',
+    'chosen_rationale_id',
+    'second_answer_choice',
+    'first_answer_choice',
+    'rationale'
+    ]
+
+    df=pd.DataFrame(columns=columns+event_columns)
+
+    for i,e in enumerate(events):
+        df.loc[i] = pd.Series(build_event_dict(e,columns,event_columns))
+
+    return df
+
+def get_lti_data_as_csv(weeks_ago_start,weeks_ago_stop=0,username=None):
+    import os, datetime
+    from django.conf import settings
+
+    print('start')
+    print(datetime.datetime.now())
+
+    start = datetime.datetime.now()-datetime.timedelta(weeks=weeks_ago_start)
+    end = datetime.datetime.now()-datetime.timedelta(weeks=weeks_ago_stop)
+
+    rejected,events = filter_ltievents(
+        start_date = start,
+        stop_date = end,
+        username = username
+        )
+    print('events filtered')
+    print(datetime.datetime.now())
+
+    df=serialize_events_to_dataframe(events)
+
+    print('serialied df')
+    print(datetime.datetime.now())
+
+    fname = os.path.join(settings.BASE_DIR,'data.csv')
+    with open(fname,'w') as f:
+        df.to_csv(path_or_buf=f,encoding='utf-8')
+
+    return df

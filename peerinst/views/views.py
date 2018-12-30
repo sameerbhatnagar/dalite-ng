@@ -1,81 +1,67 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import csv
 import datetime
 import json
 import logging
-import pytz
 import random
-import string
-import itertools
 import re
-from collections import defaultdict, Counter
 import urllib
-import csv
 
+import pytz
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.models import Group, User
 from django.contrib.auth.views import redirect_to_login
-from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
+from django.core.exceptions import PermissionDenied
 from django.core.mail import mail_admins, send_mail
-from django.core.urlresolvers import reverse, reverse_lazy
-from django.forms import inlineformset_factory, Textarea
+from django.core.urlresolvers import reverse
+
+# reports
+from django.db.models import Count
+from django.db.models.expressions import Func
+from django.forms import Textarea, inlineformset_factory
+
+# blink
 from django.http import (
     Http404,
+    HttpResponse,
     HttpResponseBadRequest,
-    HttpResponseForbidden,
     HttpResponseRedirect,
     HttpResponseServerError,
+    JsonResponse,
 )
 from django.shortcuts import (
     get_object_or_404,
+    redirect,
     render,
     render_to_response,
-    redirect,
 )
 from django.template import loader
 from django.template.response import TemplateResponse
-from django.utils.decorators import method_decorator
+from django.utils import timezone
 from django.utils.html import escape, format_html
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_POST, require_safe
 from django.views.generic import DetailView
 from django.views.generic.base import TemplateView, View
-from django.views.generic.edit import FormView, UpdateView, CreateView
+from django.views.generic.detail import SingleObjectMixin
+from django.views.generic.edit import CreateView, FormView, UpdateView
 from django.views.generic.list import ListView
-from django_lti_tool_provider.signals import Signals
 from django_lti_tool_provider.models import LtiUserData
-
+from django_lti_tool_provider.signals import Signals
 from opaque_keys import InvalidKeyError
 from opaque_keys.edx.keys import CourseKey
 
-from .. import heartbeat_checks
-from .. import admin
-from .. import forms
-from .. import models
-from .. import rationale_choice
-from ..util import (
-    SessionStageData,
-    get_object_or_none,
-    int_or_none,
-    roundrobin,
-    student_list_from_student_groups,
-    question_search_function,
-    report_data_by_assignment,
-    report_data_by_student,
-    report_data_by_question,
-    get_student_objects_from_group_list,
-    subset_answers_by_studentgroup_and_assignment,
-)
-from ..admin_views import (
-    get_question_rationale_aggregates,
-    get_assignment_aggregates,
-    AssignmentResultsViewBase,
-)
+# tos
+from tos.models import Consent, Tos
 
+from .. import admin, forms, heartbeat_checks, models, rationale_choice
+from ..admin_views import get_question_rationale_aggregates
 from ..mixins import (
     LoginRequiredMixin,
     NoStudentsMixin,
@@ -84,45 +70,41 @@ from ..mixins import (
     student_check,
     teacher_tos_accepted_check,
 )
-
 from ..models import (
+    Answer,
+    AnswerChoice,
+    Assignment,
+    BlinkAnswer,
+    BlinkAssignment,
+    BlinkAssignmentQuestion,
+    BlinkQuestion,
+    BlinkRound,
+    Category,
+    Discipline,
+    LtiEvent,
+    Question,
+    RationaleOnlyQuestion,
     Student,
     StudentGroup,
     StudentGroupAssignment,
     Teacher,
-    Assignment,
-    BlinkQuestion,
-    BlinkAnswer,
-    BlinkRound,
-    BlinkAssignment,
-    BlinkAssignmentQuestion,
-    Question,
-    Answer,
-    AnswerChoice,
-    Discipline,
-    VerifiedDomain,
-    LtiEvent,
 )
-from django.contrib.auth.models import User, Group
-
-# blink
-from django.http import JsonResponse
-from django.http import HttpResponse
-from django.utils import timezone
-from django.views.generic.detail import SingleObjectMixin
-from django.contrib.sessions.models import Session
-
-# reports
-from django.db.models import BooleanField
-from django.db.models.expressions import Func
-from django.db.models import Count, Value, Case, Q, When, CharField, F
-
-
-# tos
-from tos.models import Consent, Tos
+from ..util import (
+    SessionStageData,
+    get_object_or_none,
+    get_student_objects_from_group_list,
+    int_or_none,
+    question_search_function,
+    report_data_by_assignment,
+    report_data_by_question,
+    report_data_by_student,
+    roundrobin,
+    subset_answers_by_studentgroup_and_assignment,
+)
 
 LOGGER = logging.getLogger(__name__)
 LOGGER_teacher_activity = logging.getLogger("teacher_activity")
+
 
 # Views related to Auth
 @require_safe
@@ -160,7 +142,7 @@ def landing_page(request):
 
     disciplines_json = json.dumps(disciplines)
 
-    ### try again, with re-ordering
+    # try again, with re-ordering
     disciplines_array = []
 
     d2 = {}
@@ -223,28 +205,36 @@ def dashboard(request):
                 teacher = Teacher(user=user)
                 teacher.save()
 
-            # Notify user
-            try:
-                email_context = dict(
-                    username=user.username, site_name="myDALITE"
-                )
-                send_mail(
-                    _("Your myDALITE account has been activated"),
-                    "Dear {},\n\nYour account has been recently activated. \n\nYou can login at:\n\n{}\n\nCheers,\nThe myDalite Team".format(
-                        user.username, "https://" + request.get_host()
-                    ),
-                    "noreply@myDALITE.org",
-                    [user.email],
-                    fail_silently=True,
-                    html_message=loader.render_to_string(
-                        html_email_template_name,
-                        context=email_context,
-                        request=request,
-                    ),
-                )
-            except:
+            if not settings.EMAIL_BACKEND.startswith(
+                "django.core.mail.backends"
+            ):
                 response = TemplateResponse(request, "500.html")
                 return HttpResponseServerError(response.render())
+
+            host = request.get_host()
+            if host == "localhost" or host == "127.0.0.1":
+                protocol = "http"
+                host = "{}:{}".format(host, settings.DEV_PORT)
+            else:
+                protocol = "https"
+
+            # Notify user
+            email_context = dict(username=user.username, site_name="myDALITE")
+            send_mail(
+                _("Your myDALITE account has been activated"),
+                "Dear {},".format(user.username)
+                + "\n\nYour account has been recently activate."
+                "\n\nYou can login at:\n\n{}://{}".format(protocol, host)
+                + "\n\nCheers,\nThe myDalite Team",
+                "noreply@myDALITE.org",
+                [user.email],
+                fail_silently=True,
+                html_message=loader.render_to_string(
+                    html_email_template_name,
+                    context=email_context,
+                    request=request,
+                ),
+            )
 
     return TemplateResponse(
         request,
@@ -269,34 +259,47 @@ def sign_up(request):
             form.instance.is_active = False
             form.save()
             # Notify administrators
-            try:
-                email_context = dict(
-                    user=form.cleaned_data["username"],
-                    date=timezone.now(),
-                    email=form.cleaned_data["email"],
-                    url=form.cleaned_data["url"],
-                    site_name="myDALITE",
-                )
-                mail_admins(
-                    "New user request",
-                    "Dear administrator,\n\nA new user {} was created on {}. \n\nEmail: {}  \nVerification url: {} \n\nAccess your administrator account to activate this new user.\n\n{}\n\nCheers,\nThe myDalite Team".format(
-                        form.cleaned_data["username"],
-                        timezone.now(),
-                        form.cleaned_data["email"],
-                        form.cleaned_data["url"],
-                        "https://" + request.get_host() + reverse("dashboard"),
-                    ),
-                    fail_silently=True,
-                    html_message=loader.render_to_string(
-                        html_email_template_name,
-                        context=email_context,
-                        request=request,
-                    ),
-                )
-                mail_admins("", "")
-            except:
+            if not settings.EMAIL_BACKEND.startswith(
+                "django.core.mail.backends"
+            ):
                 response = TemplateResponse(request, "500.html")
                 return HttpResponseServerError(response.render())
+
+            host = request.get_host()
+            if host == "localhost" or host == "127.0.0.1":
+                protocol = "http"
+                host = "{}:{}".format(host, settings.DEV_PORT)
+            else:
+                protocol = "https"
+
+            email_context = dict(
+                user=form.cleaned_data["username"],
+                date=timezone.now(),
+                email=form.cleaned_data["email"],
+                url=form.cleaned_data["url"],
+                site_name="myDALITE",
+            )
+            mail_admins(
+                "New user request",
+                "Dear administrator,"
+                "\n\nA new user {} was created on {}.".format(
+                    form.cleaned_data["username"], timezone.now()
+                )
+                + "\n\nEmail: {}".format(form.cleaned_data["email"])
+                + "\nVerification url: {}".format(form.cleaned_data["url"])
+                + "\n\nAccess your administrator account to activate this "
+                "new user."
+                "\n\n{}://{}{}".format(protocol, host, reverse("dashboard"))
+                + "\n\nCheers,"
+                "\nThe myDalite Team",
+                fail_silently=True,
+                html_message=loader.render_to_string(
+                    html_email_template_name,
+                    context=email_context,
+                    request=request,
+                ),
+            )
+            mail_admins("", "")
 
             return TemplateResponse(request, "registration/sign_up_done.html")
         else:
@@ -321,7 +324,7 @@ def logout_view(request):
 
 @login_required
 def welcome(request):
-    try:
+    if Teacher.objects.filter(user=request.user).exists():
         teacher = Teacher.objects.get(user=request.user)
         # Check if teacher group exists and ensure _this_ teacher belongs to it
         teacher_group = get_object_or_none(Group, name=settings.TEACHER_GROUP)
@@ -329,7 +332,11 @@ def welcome(request):
             if teacher_group not in teacher.user.groups.all():
                 teacher.user.groups.add(teacher_group)
         return HttpResponseRedirect(reverse("browse-database"))
-    except ObjectDoesNotExist:
+
+    elif Student.objects.filter(student=request.user).exists():
+        return HttpResponseRedirect(reverse("student-page"))
+
+    else:
         return HttpResponseRedirect(reverse("assignment-list"))
 
 
@@ -357,7 +364,7 @@ class AssignmentListView(LoginRequiredMixin, NoStudentsMixin, ListView):
 
 
 class AssignmentCopyView(LoginRequiredMixin, NoStudentsMixin, CreateView):
-    """View to create an assignment from existing"""
+    """View to create an assignment from existing."""
 
     model = models.Assignment
     form_class = forms.AssignmentCreateForm
@@ -464,7 +471,7 @@ class AssignmentUpdateView(LoginRequiredMixin, NoStudentsMixin, DetailView):
         form = forms.AddRemoveQuestionForm(request.POST)
         if form.is_valid():
             question = form.cleaned_data["q"]
-            if not question in self.object.questions.all():
+            if question not in self.object.questions.all():
                 self.object.questions.add(question)
             else:
                 self.object.questions.remove(question)
@@ -485,6 +492,7 @@ class QuestionListView(LoginRequiredMixin, NoStudentsMixin, ListView):
     """List of questions used for debugging purposes."""
 
     model = models.Assignment
+    template_name = "peerinst/question/list.html"
 
     def get_queryset(self):
         self.assignment = get_object_or_404(
@@ -513,6 +521,7 @@ class QuestionCreateView(
     fields = [
         "title",
         "text",
+        "type",
         "image",
         "image_alt_text",
         "video_url",
@@ -526,25 +535,35 @@ class QuestionCreateView(
         "grading_scheme",
     ]
 
+    template_name = "peerinst/question/form.html"
+
     # Custom save is needed to attach user to question
     def form_valid(self, form):
         form.instance.user = self.request.user
         return super(QuestionCreateView, self).form_valid(form)
 
     def get_success_url(self):
-        return reverse(
-            "answer-choice-form", kwargs={"question_id": self.object.pk}
-        )
+        if self.object.type == "RO":
+            return reverse(
+                "sample-answer-form", kwargs={"question_id": self.object.pk}
+            )
+        else:
+            return reverse(
+                "answer-choice-form", kwargs={"question_id": self.object.pk}
+            )
 
 
 class QuestionCloneView(QuestionCreateView):
-    """View to create a question from existing"""
+    """View to create a question from existing."""
+
+    template_name = "peerinst/question/form.html"
 
     def get_initial(self, *args, **kwargs):
         super(QuestionCloneView, self).get_initial(*args, **kwargs)
         question = get_object_or_404(models.Question, pk=self.kwargs["pk"])
         initial = {
             "text": question.text,
+            "type": question.type,
             "image": question.image,
             "image_alt_text": question.image_alt_text,
             "video_url": question.video_url,
@@ -553,7 +572,7 @@ class QuestionCloneView(QuestionCreateView):
             "discipline": question.discipline,
             "fake_attributions": question.fake_attributions,
             "sequential_review": question.sequential_review,
-            "rationale_selection_algorithm": question.rationale_selection_algorithm,
+            "rationale_selection_algorithm": question.rationale_selection_algorithm,  # noqa
             "grading_scheme": question.grading_scheme,
         }
         return initial
@@ -591,6 +610,7 @@ class QuestionUpdateView(
     fields = [
         "title",
         "text",
+        "type",
         "image",
         "image_alt_text",
         "video_url",
@@ -604,7 +624,7 @@ class QuestionUpdateView(
         "grading_scheme",
     ]
 
-    template_name_suffix = "_form"
+    template_name = "peerinst/question/form.html"
 
     def get_form(self, form_class=None):
         # Check if student answers exist
@@ -639,16 +659,21 @@ class QuestionUpdateView(
         return context
 
     def get_success_url(self):
-        return reverse(
-            "answer-choice-form", kwargs={"question_id": self.object.pk}
-        )
+        if self.object.type == "RO":
+            return reverse(
+                "sample-answer-form", kwargs={"question_id": self.object.pk}
+            )
+        else:
+            return reverse(
+                "answer-choice-form", kwargs={"question_id": self.object.pk}
+            )
 
 
 @login_required
 @user_passes_test(student_check, login_url="/access_denied_and_logout/")
 @require_POST
 def question_delete(request):
-    """Hide questions that a teacher deletes"""
+    """Hide questions that a teacher deletes."""
     if request.is_ajax():
         # Ajax only
         question = get_object_or_404(Question, pk=request.POST.get("pk"))
@@ -688,7 +713,7 @@ def answer_choice_form(request, question_id):
         if question.answer_set.exclude(user_token__exact="").count() > 0:
             return TemplateResponse(
                 request,
-                "peerinst/answer_choice_form.html",
+                "peerinst/question/answer_choice_form.html",
                 context={"question": question},
             )
 
@@ -711,7 +736,7 @@ def answer_choice_form(request, question_id):
 
         return TemplateResponse(
             request,
-            "peerinst/answer_choice_form.html",
+            "peerinst/question/answer_choice_form.html",
             context={"question": question, "formset": formset},
         )
     else:
@@ -747,7 +772,7 @@ def sample_answer_form_done(request, question_id):
             return HttpResponseRedirect(
                 reverse("teacher", kwargs={"pk": teacher.pk})
             )
-        except:
+        except Exception:
             # Bad request
             response = TemplateResponse(request, "400.html")
             return HttpResponseBadRequest(response.render())
@@ -762,7 +787,7 @@ class DisciplineCreateView(
 ):
     """View to create a new discipline outside of admin."""
 
-    model = models.Discipline
+    model = Discipline
     fields = ["title"]
 
     def get_success_url(self):
@@ -772,24 +797,27 @@ class DisciplineCreateView(
 @login_required
 @user_passes_test(student_check, login_url="/access_denied_and_logout/")
 @user_passes_test(teacher_tos_accepted_check, login_url="/tos/required/")
-def discipline_select_form(request, pk):
-    """An AJAX view that simply renders the DisciplineSelectForm."""
-    """Preselects instance with pk."""
+def discipline_select_form(request, pk=None):
+    """
+    An AJAX view that simply renders the DisciplineSelectForm. Preselects
+    instance with pk, if given.
+    """
+    if pk:
+        form = forms.DisciplineSelectForm(
+            initial={"discipline": Discipline.objects.get(pk=pk)}
+        )
+    else:
+        form = forms.DisciplineSelectForm()
+
     return TemplateResponse(
-        request,
-        "peerinst/discipline_select_form.html",
-        context={
-            "form": forms.DisciplineSelectForm(
-                initial={"discipline": Discipline.objects.get(pk=pk)}
-            )
-        },
+        request, "peerinst/discipline_select_form.html", context={"form": form}
     )
 
 
 class DisciplinesCreateView(LoginRequiredMixin, NoStudentsMixin, CreateView):
     """View to create a new discipline outside of admin."""
 
-    model = models.Discipline
+    model = Discipline
     fields = ["title"]
     template_name = "peerinst/disciplines_form.html"
 
@@ -800,8 +828,10 @@ class DisciplinesCreateView(LoginRequiredMixin, NoStudentsMixin, CreateView):
 @login_required
 @user_passes_test(student_check, login_url="/access_denied_and_logout/")
 def disciplines_select_form(request):
-    """An AJAX view that simply renders the DisciplinesSelectForm."""
-    """Preselects instance with teachers current set."""
+    """
+    AJAX view simply renders the DisciplinesSelectForm. Preselects instance
+    with teachers current set.
+    """
     return TemplateResponse(
         request,
         "peerinst/disciplines_select_form.html",
@@ -818,7 +848,7 @@ class CategoryCreateView(
 ):
     """View to create a new discipline outside of admin."""
 
-    model = models.Category
+    model = Category
     fields = ["title"]
 
     def get_success_url(self):
@@ -828,13 +858,20 @@ class CategoryCreateView(
 @login_required
 @user_passes_test(student_check, login_url="/access_denied_and_logout/")
 @user_passes_test(teacher_tos_accepted_check, login_url="/tos/required/")
-def category_select_form(request, pk):
-    """An AJAX view that simply renders the CategorySelectForm."""
-    """Preselects instance with pk."""
+def category_select_form(request, pk=None):
+    """
+    AJAX view simply renders the CategorySelectForm. Preselects instance with
+    pk, if given.
+    """
+    if pk:
+        form = forms.CategorySelectForm(
+            initial={"category": [Category.objects.get(pk=pk)]}
+        )
+    else:
+        form = forms.CategorySelectForm()
+
     return TemplateResponse(
-        request,
-        "peerinst/category_select_form.html",
-        context={"form": forms.CategorySelectForm()},
+        request, "peerinst/category_select_form.html", context={"form": form}
     )
 
 
@@ -874,10 +911,12 @@ class QuestionMixin(object):
 
     def send_grade(self):
         if not self.lti_data:
-            # We are running outside of an LTI context, so we don't need to send a grade.
+            # We are running outside of an LTI context, so we don't need to
+            # send a grade.
             return
         if not self.lti_data.edx_lti_parameters.get("lis_outcome_service_url"):
-            # edX didn't provide a callback URL for grading, so this is an unscored problem.
+            # edX didn't provide a callback URL for grading, so this is an
+            # unscored problem.
             return
 
         Signals.Grade.updated.send(
@@ -889,11 +928,16 @@ class QuestionMixin(object):
 
 
 class QuestionReload(Exception):
-    """Raised to cause a reload of the page, usually to start over in case of an error."""
+    """
+    Raised to cause a reload of the page, usually to start over in case of an
+    error.
+    """
 
 
 class QuestionFormView(QuestionMixin, FormView):
     """Base class for the form views in the student UI."""
+
+    template_name = "peerinst/question/form.html"
 
     def dispatch(self, *args, **kwargs):
         # Check for any TOS
@@ -923,7 +967,9 @@ class QuestionFormView(QuestionMixin, FormView):
                 return super(QuestionFormView, self).dispatch(*args, **kwargs)
 
     def emit_event(self, name, **data):
-        """Log an event in a JSON format similar to the edx-platform tracking logs.
+        """
+        Log an event in a JSON format similar to the edx-platform tracking
+        logs.
         """
         if self.lti_data:
             # Extract information from LTI parameters.
@@ -932,13 +978,13 @@ class QuestionFormView(QuestionMixin, FormView):
             try:
                 edx_org = CourseKey.from_string(course_id).org
             except InvalidKeyError:
-                # The course_id is not from edX. Don't place the org in the logs.
+                # The course_id is not from edX. Don't place the org in the
+                # logs.
                 edx_org = None
 
             grade_handler_re = re.compile(
-                "https?://[^/]+/courses/{course_id}/xblock/(?P<usage_key>[^/]+)/".format(
-                    course_id=re.escape(course_id)
-                )
+                "https?://[^/]+/courses/{}".format(re.escape(course_id))
+                + "/xblock/(?P<usage_key>[^/]+)/"
             )
             usage_key = None
             outcome_service_url = self.lti_data.edx_lti_parameters.get(
@@ -948,10 +994,12 @@ class QuestionFormView(QuestionMixin, FormView):
                 usage_key = grade_handler_re.match(outcome_service_url)
                 if usage_key:
                     usage_key = usage_key.group("usage_key")
-                # Grading is enabled, so include information about max grade in event data
+                # Grading is enabled, so include information about max grade in
+                # event data
                 data["max_grade"] = 1.0
             else:
-                # Grading is not enabled, so remove information about grade from event data
+                # Grading is not enabled, so remove information about grade
+                # from event data
                 if "grade" in data:
                     del data["grade"]
         else:
@@ -994,7 +1042,13 @@ class QuestionFormView(QuestionMixin, FormView):
 
         # Write JSON to log file
         LOGGER.info(json.dumps(event))
-        lti_event = LtiEvent(event_type=name, event_log=json.dumps(event))
+        lti_event = LtiEvent(
+            event_type=name,
+            event_log=json.dumps(event),
+            username=self.user_token,
+            assignment_id=self.assignment.identifier,
+            question_id=self.question.pk,
+        )
         lti_event.save()
 
         if self.lti_data:
@@ -1039,15 +1093,15 @@ class QuestionFormView(QuestionMixin, FormView):
         return super(QuestionFormView, self).form_invalid(form)
 
     def get_success_url(self):
-        # We always redirect to the same HTTP endpoint.  The actual view is selected based on the
-        # session state.
+        # We always redirect to the same HTTP endpoint.  The actual view is
+        # selected based on the session state.
         return self.request.path
 
     def start_over(self, msg=None):
-        """Start over with the current question.
-
-        This redirect is used when inconsistent data is encountered and shouldn't be called under
-        normal circumstances.
+        """
+        Start over with the current question. This redirect is used when
+        inconsistent data is encountered and shouldn't be called under normal
+        circumstances.
         """
         if msg is not None:
             messages.error(self.request, msg)
@@ -1055,13 +1109,15 @@ class QuestionFormView(QuestionMixin, FormView):
 
 
 class QuestionStartView(QuestionFormView):
-    """Render a question with answer choices.
+    """Render a question with or without answer choices depending on type.
 
     The user can choose one answer and enter a rationale.
     """
 
-    template_name = "peerinst/question_start.html"
-    form_class = forms.FirstAnswerForm
+    template_name = "peerinst/question/start.html"
+
+    def get_form_class(self):
+        return self.question.get_start_form_class()
 
     def get_form_kwargs(self):
         kwargs = super(QuestionStartView, self).get_form_kwargs()
@@ -1072,20 +1128,8 @@ class QuestionStartView(QuestionFormView):
         return kwargs
 
     def form_valid(self, form):
-        first_answer_choice = int(form.cleaned_data["first_answer_choice"])
-        correct = self.question.is_correct(first_answer_choice)
-        rationale = form.cleaned_data["rationale"]
-        self.stage_data.update(
-            first_answer_choice=first_answer_choice,
-            rationale=rationale,
-            completed_stage="start",
-        )
-        self.emit_event(
-            "problem_check",
-            first_answer_choice=first_answer_choice,
-            success="correct" if correct else "incorrect",
-            rationale=rationale,
-        )
+        self.question.start_form_valid(self, form)
+
         return super(QuestionStartView, self).form_valid(form)
 
 
@@ -1099,12 +1143,12 @@ class QuestionReviewBaseView(QuestionFormView):
             ]
         self.rationale_choices = self.stage_data.get("rationale_choices")
         if self.rationale_choices is not None:
-            # The rationales we stored in the session have already been HTML-escaped – mark them as
-            # safe to avoid double-escaping
+            # The rationales we stored in the session have already been
+            # HTML-escaped – mark them as safe to avoid double-escaping
             self.mark_rationales_safe(escape_html=False)
             return
-        # Make the choice of rationales deterministic, so rationales won't change when reloading
-        # the page after clearing the session.
+        # Make the choice of rationales deterministic, so rationales won't
+        # change when reloading the page after clearing the session.
         rng = random.Random(
             (self.user_token, self.assignment.pk, self.question.pk)
         )
@@ -1132,8 +1176,9 @@ class QuestionReviewBaseView(QuestionFormView):
         usernames = models.FakeUsername.objects.values_list("name", flat=True)
         countries = models.FakeCountry.objects.values_list("name", flat=True)
         if not usernames or not countries:
-            # No usernames or no countries were supplied, so we silently refrain from adding fake
-            # attributions.  We need to ensure, though, that the rationales get properly escaped.
+            # No usernames or no countries were supplied, so we silently
+            # refrain from adding fake attributions.  We need to ensure,
+            # though, that the rationales get properly escaped.
             self.mark_rationales_safe(escape_html=True)
             return
         fake_attributions = {}
@@ -1141,8 +1186,8 @@ class QuestionReviewBaseView(QuestionFormView):
             attributed_rationales = []
             for id, text in rationales:
                 if id is None:
-                    # This is the "I stick with my own rationale" option.  Don't add a fake
-                    # attribution, it might blow our cover.
+                    # This is the "I stick with my own rationale" option.
+                    # Don't add a fake attribution, it might blow our cover.
                     attributed_rationales.append((id, text))
                     continue
                 attribution = rng.choice(usernames), rng.choice(countries)
@@ -1177,7 +1222,7 @@ class QuestionReviewBaseView(QuestionFormView):
 
 class QuestionSequentialReviewView(QuestionReviewBaseView):
 
-    template_name = "peerinst/question_sequential_review.html"
+    template_name = "peerinst/question/sequential_review.html"
     form_class = forms.SequentialReviewForm
 
     def select_next_rationale(self):
@@ -1191,8 +1236,9 @@ class QuestionSequentialReviewView(QuestionReviewBaseView):
             return
         self.choose_rationales = rationale_choice.simple_sequential
         self.determine_rationale_choices()
-        # Select alternating rationales from the lists of rationales for the different answer
-        # choices.  Skip the "I stick with my own rationale" option marked by id == None.
+        # Select alternating rationales from the lists of rationales for the
+        # different answer choices.  Skip the "I stick with my own rationale"
+        # option marked by id == None.
         rationale_sequence = list(
             roundrobin(
                 [
@@ -1235,9 +1281,12 @@ class QuestionSequentialReviewView(QuestionReviewBaseView):
 
 
 class QuestionReviewView(QuestionReviewBaseView):
-    """The standard version of the review, showing all alternative rationales simultaneously."""
+    """
+    The standard version of the review, showing all alternative rationales
+    simultaneously.
+    """
 
-    template_name = "peerinst/question_review.html"
+    template_name = "peerinst/question/review.html"
     form_class = forms.ReviewAnswerForm
 
     def get_form_kwargs(self):
@@ -1284,7 +1333,9 @@ class QuestionReviewView(QuestionReviewBaseView):
         self.emit_event("save_problem_success", **event_data)
 
     def save_answer(self):
-        """Validate and save the answer defined by the arguments to the database."""
+        """
+        Validate and save the answer defined by the arguments to the database.
+        """
         if self.chosen_rationale_id is not None:
             try:
                 chosen_rationale = models.Answer.objects.get(
@@ -1294,8 +1345,9 @@ class QuestionReviewView(QuestionReviewBaseView):
                 # Raises exception.
                 self.start_over(
                     _(
-                        "The rationale you chose does not exist anymore.  "
-                        "This should not happen.  Please start over with the question."
+                        "The rationale you chose does not exist anymore. This "
+                        "should not happen.  Please start over with the "
+                        "question."
                     )
                 )
             if (
@@ -1304,8 +1356,9 @@ class QuestionReviewView(QuestionReviewBaseView):
             ):
                 self.start_over(
                     _(
-                        "The rationale you chose does not match your second answer choice.  "
-                        "This should not happen.  Please start over with the question."
+                        "The rationale you chose does not match your second "
+                        "answer choice.  This should not happen.  Please "
+                        "start over with the question."
                     )
                 )
         else:
@@ -1336,8 +1389,9 @@ class QuestionReviewView(QuestionReviewBaseView):
             try:
                 rationale = models.Answer.objects.get(id=rationale_id)
             except models.Answer.DoesNotExist:
-                # This corner case can only happen if an answer was deleted while the student was
-                # answering the question.  Simply ignore these votes.
+                # This corner case can only happen if an answer was deleted
+                # while the student was answering the question.  Simply ignore
+                # these votes.
                 continue
             if vote == "up":
                 rationale.upvotes += 1
@@ -1367,9 +1421,12 @@ class QuestionReviewView(QuestionReviewBaseView):
 
 
 class QuestionSummaryView(QuestionMixin, TemplateView):
-    """Show a summary of answers to the student and submit the data to the database."""
+    """
+    Show a summary of answers to the student and submit the data to the
+    database.
+    """
 
-    template_name = "peerinst/question_summary.html"
+    template_name = "peerinst/question/summary.html"
 
     def get_context_data(self, **kwargs):
         context = super(QuestionSummaryView, self).get_context_data(**kwargs)
@@ -1382,7 +1439,30 @@ class QuestionSummaryView(QuestionMixin, TemplateView):
         self.send_grade()
         return context
 
-    # If we get here via POST, it is likely from submitting an answer to a question that has already been answered.  Simply redirect here as GET.
+    # If we get here via POST, it is likely from submitting an answer to a
+    # question that has already been answered.  Simply redirect here as GET.
+    def post(self, request, *args, **kwargs):
+        return redirect(request.path)
+
+
+class RationaleOnlyQuestionSummaryView(QuestionMixin, TemplateView):
+    """
+    Show a summary of answers to the student and submit the data to the
+    database.
+    """
+
+    template_name = "peerinst/question/summary.html"
+
+    def get_context_data(self, **kwargs):
+        context = super(
+            RationaleOnlyQuestionSummaryView, self
+        ).get_context_data(**kwargs)
+        context.update(rationale=self.answer.rationale)
+        self.send_grade()
+        return context
+
+    # If we get here via POST, it is likely from submitting an answer to a
+    # question that has already been answered.  Simply redirect here as GET.
     def post(self, request, *args, **kwargs):
         return redirect(request.path)
 
@@ -1414,27 +1494,26 @@ class HeartBeatUrl(View):
 
 class AnswerSummaryChartView(View):
     """
-    This view draws a chart showing analytics about the answers
-    that students chose for a question, and the rationales
-    that they selected to back up those answers.
+    This view draws a chart showing analytics about the answers that students
+    chose for a question, and the rationales that they selected to back up
+    those answers.
     """
 
     def __init__(self, *args, **kwargs):
-        """
-        Save the initialization arguments for later use
-        """
+        """Save the initialization arguments for later use."""
         self.kwargs = kwargs
         super(AnswerSummaryChartView, self).__init__(*args, **kwargs)
 
     def get(self, request):
         """
-        This method handles creation of a piece of context that can
-        be used to draw the chart mentioned in the class docstring.
+        This method handles creation of a piece of context that can be used to
+        draw the chart mentioned in the class docstring.
         """
         # Get the relevant assignment/question pairing
         question = self.kwargs.get("question")
         assignment = self.kwargs.get("assignment")
-        # There are three columns that every chart will have - prefill them here
+        # There are three columns that every chart will have - prefill them
+        # here
         static_columns = [
             ("label", "Choice"),
             ("before", "Before"),
@@ -1452,8 +1531,8 @@ class AnswerSummaryChartView(View):
         # Initialize a list of answers that we can add details to
         answers = []
         for i, answer in enumerate(question.answerchoice_set.all(), start=1):
-            # Get the label for the row, and the counts for how many students chose
-            # this answer the first time, and the second time.
+            # Get the label for the row, and the counts for how many students
+            # chose this answer the first time, and the second time.
             answer_row = {
                 "label": "Answer {}: {}".format(
                     question.get_choice_label(i), answer.text
@@ -1470,15 +1549,17 @@ class AnswerSummaryChartView(View):
                 ).count(),
             }
             for j, column in enumerate(to_columns, start=1):
-                # For every other answer, determine the count of students who chose
-                # this answer the first time, but the other answer the second time.
+                # For every other answer, determine the count of students who
+                # chose this answer the first time, but the other answer the
+                # second time.
                 answer_row[column[0]] = models.Answer.objects.filter(
                     question=question,
                     first_answer_choice=i,
                     second_answer_choice=j,
                     assignment=assignment,
                 ).count()
-            # Get the top five rationales for this answer to display underneath the chart
+            # Get the top five rationales for this answer to display underneath
+            # the chart
             _, rationales = get_question_rationale_aggregates(
                 assignment,
                 question,
@@ -1498,8 +1579,8 @@ class AnswerSummaryChartView(View):
         answer_rows = [
             [row[column["name"]] for column in columns] for row in answers
         ]
-        # Transform the rationales we got from the other function into a format we can easily
-        # draw in the page using a template
+        # Transform the rationales we got from the other function into a format
+        # we can easily draw in the page using a template
         answer_rationales = [
             {
                 "label": each["label"],
@@ -1514,10 +1595,11 @@ class AnswerSummaryChartView(View):
             }
             for each in answers
         ]
-        # Render the template using the relevant variables and return it as an HTTP response.
+        # Render the template using the relevant variables and return it as an
+        # HTTP response.
         return TemplateResponse(
             request,
-            "peerinst/question_answers_summary.html",
+            "peerinst/question/answers_summary.html",
             context={
                 "question": question,
                 "columns": columns,
@@ -1528,14 +1610,16 @@ class AnswerSummaryChartView(View):
 
 
 def redirect_to_login_or_show_cookie_help(request):
-    """Redirect to login page outside of an iframe, show help on enabling cookies inside an iframe.
-
-    We consider the request to come from within an iframe if the HTTP Referer header is set.  This
-    isn't entirely accurate, but should be good enough.
+    """
+    Redirect to login page outside of an iframe, show help on enabling cookies
+    inside an iframe. We consider the request to come from within an iframe if
+    the HTTP Referer header is set. This isn't entirely accurate, but should
+    be good enough.
     """
     if request.META.get("HTTP_REFERER"):
-        # We probably got here from within the LMS, and the user has third-party cookies disabled,
-        # so we show help on enabling cookies for this site.
+        # We probably got here from within the LMS, and the user has
+        # third-party cookies disabled, so we show help on enabling cookies for
+        # this site.
         return render_to_response(
             "peerinst/cookie_help.html", dict(host=request.get_host())
         )
@@ -1543,10 +1627,10 @@ def redirect_to_login_or_show_cookie_help(request):
 
 
 def question(request, assignment_id, question_id):
-    """Load common question data and dispatch to the right question stage.
-
-    This dispatcher loads the session state and relevant database objects.  Based on the available
-    data, it delegates to the correct view class.
+    """
+    Load common question data and dispatch to the right question stage. This
+    dispatcher loads the session state and relevant database objects. Based on
+    the available data, it delegates to the correct view class.
     """
     if not request.user.is_authenticated():
         return redirect_to_login_or_show_cookie_help(request)
@@ -1554,6 +1638,11 @@ def question(request, assignment_id, question_id):
     # Collect common objects required for the view
     assignment = get_object_or_404(models.Assignment, pk=assignment_id)
     question = get_object_or_404(models.Question, pk=question_id)
+
+    # Reload question through proxy based on type, if needed
+    if question.type == "RO":
+        question = get_object_or_404(RationaleOnlyQuestion, pk=question_id)
+
     custom_key = unicode(assignment.pk) + ":" + unicode(question.pk)
     stage_data = SessionStageData(request.session, custom_key)
     user_token = request.user.username
@@ -1673,7 +1762,7 @@ class TeacherGroupShare(TeacherBase, DetailView):
     """Share link for a group"""
 
     model = Teacher
-    template_name = "peerinst/teacher_group_detail.html"
+    template_name = "peerinst/teacher/group_details.html"
 
     def get_object(self):
         self.teacher = get_object_or_404(Teacher, user=self.request.user)
@@ -1703,6 +1792,7 @@ class TeacherDetailView(TeacherBase, DetailView):
     """Teacher account"""
 
     model = Teacher
+    template_name = "peerinst/teacher/details.html"
 
     def get_context_data(self, **kwargs):
         context = super(TeacherDetailView, self).get_context_data(**kwargs)
@@ -1715,7 +1805,7 @@ class TeacherDetailView(TeacherBase, DetailView):
             Consent.get(self.get_object().user.username, "teacher")
         )
 
-        #### To revisit!
+        # To revisit!
         latest_teacher_consent = (
             Consent.objects.filter(
                 user__username=self.get_object().user.username,
@@ -1726,7 +1816,8 @@ class TeacherDetailView(TeacherBase, DetailView):
         )
         context["tos_timestamp"] = latest_teacher_consent.datetime
 
-        # Set all blink assignments, questions, and rounds for this teacher to inactive
+        # Set all blink assignments, questions, and rounds for this teacher to
+        # inactive
         for a in self.get_object().blinkassignment_set.all():
             if a.active:
                 a.active = False
@@ -1759,7 +1850,7 @@ class TeacherAssignments(TeacherBase, ListView):
     """View to modify assignments associated to Teacher"""
 
     model = Teacher
-    template_name = "peerinst/teacher_assignments.html"
+    template_name = "peerinst/teacher/assignments.html"
 
     def get_queryset(self):
         self.teacher = get_object_or_404(Teacher, user=self.request.user)
@@ -1823,7 +1914,7 @@ class TeacherGroups(TeacherBase, ListView):
     """View to modify groups associated to Teacher"""
 
     model = Teacher
-    template_name = "peerinst/teacher_groups.html"
+    template_name = "peerinst/teacher/groups.html"
 
     def get_queryset(self):
         self.teacher = get_object_or_404(Teacher, user=self.request.user)
@@ -1902,18 +1993,22 @@ def student_activity(request):
     # Standalone
     standalone_assignments = StudentGroupAssignment.objects.filter(
         group__in=current_groups
-    )#.filter(due_date__gt=datetime.datetime.now(pytz.utc))
+    )  # .filter(due_date__gt=datetime.datetime.now(pytz.utc))
 
     standalone_answers = Answer.objects.filter(
         assignment__in=standalone_assignments.values("assignment")
     ).filter(user_token__in=all_current_students.values("student__username"))
 
     # LTI
-    lti_assignments = [a for a in teacher.assignments.all() if a not in [b.assignment for b in standalone_assignments.all()]]
+    lti_assignments = [
+        a
+        for a in teacher.assignments.all()
+        if a not in [b.assignment for b in standalone_assignments.all()]
+    ]
 
-    lti_answers = Answer.objects.filter(
-        assignment__in=lti_assignments
-    ).filter(user_token__in=all_current_students.values("student__username"))
+    lti_answers = Answer.objects.filter(assignment__in=lti_assignments).filter(
+        user_token__in=all_current_students.values("student__username")
+    )
 
     all_answers_by_group = {}
     for g in current_groups:
@@ -1939,7 +2034,11 @@ def student_activity(request):
                         and a.assignment == ga.assignment
                         and a.time > request.user.last_login
                     ]
-                    all_answers_by_group[g][ga]["percent_complete"] = int(100.0*len(all_answers_by_group[g][ga]["answers"]) / (len(student_list) * ga.assignment.questions.count()))
+                    all_answers_by_group[g][ga]["percent_complete"] = int(
+                        100.0
+                        * len(all_answers_by_group[g][ga]["answers"])
+                        / (len(student_list) * ga.assignment.questions.count())
+                    )
 
             # Keyed on assignment
             for l in lti_assignments:
@@ -1948,8 +2047,7 @@ def student_activity(request):
                     all_answers_by_group[g][l]["answers"] = [
                         a
                         for a in lti_answers
-                        if a.user_token in student_list
-                        and a.assignment == l
+                        if a.user_token in student_list and a.assignment == l
                     ]
                     all_answers_by_group[g][l]["new"] = [
                         a
@@ -1958,41 +2056,56 @@ def student_activity(request):
                         and a.assignment == l
                         and a.time > request.user.last_login
                     ]
-                    all_answers_by_group[g][l]["percent_complete"] = int(100.0*len(all_answers_by_group[g][l]["answers"]) / (len(student_list) * l.questions.count()))
+                    all_answers_by_group[g][l]["percent_complete"] = int(
+                        100.0
+                        * len(all_answers_by_group[g][l]["answers"])
+                        / (len(student_list) * l.questions.count())
+                    )
 
     # JSON
     json_data = {}
     for group_key, group_assignments in all_answers_by_group.items():
         json_data[group_key.name] = {}
         for key, value_list in group_assignments.items():
-            if len(value_list['answers']) > 0:
+            if len(value_list["answers"]) > 0:
                 try:
                     assignment = key.assignment
                     id = key.assignment.identifier
 
-                    if key.distribution_date < value_list['answers'][0].time:
+                    if key.distribution_date < value_list["answers"][0].time:
                         start_date = key.distribution_date
                     else:
-                        start_date = value_list['answers'][0].time
-                    if key.due_date > value_list['answers'][-1].time:
+                        start_date = value_list["answers"][0].time
+                    if key.due_date > value_list["answers"][-1].time:
                         end_date = key.due_date
                     else:
-                        end_date = value_list['answers'][-1].time
-                except:
+                        end_date = value_list["answers"][-1].time
+                except Exception:
                     assignment = key
                     id = key.identifier
-                    start_date = value_list['answers'][0].time
-                    end_date = value_list['answers'][-1].time
+                    start_date = value_list["answers"][0].time
+                    end_date = value_list["answers"][-1].time
 
                 json_data[group_key.name][id] = {}
-                json_data[group_key.name][id]['distribution_date'] = str(start_date)
-                json_data[group_key.name][id]['due_date'] = str(end_date)
-                json_data[group_key.name][id]['last_login'] = str(request.user.last_login)
-                json_data[group_key.name][id]['now'] = str(datetime.datetime.utcnow().replace(tzinfo=pytz.utc))
-                json_data[group_key.name][id]['total'] = group_key.student_set.count()*assignment.questions.count()
-                json_data[group_key.name][id]['answers'] = []
-                for answer in value_list['answers']:
-                    json_data[group_key.name][id]['answers'].append(str(answer.time))
+                json_data[group_key.name][id]["distribution_date"] = str(
+                    start_date
+                )
+                json_data[group_key.name][id]["due_date"] = str(end_date)
+                json_data[group_key.name][id]["last_login"] = str(
+                    request.user.last_login
+                )
+                json_data[group_key.name][id]["now"] = str(
+                    datetime.datetime.utcnow().replace(tzinfo=pytz.utc)
+                )
+                json_data[group_key.name][id]["total"] = (
+                    group_key.student_set.count()
+                    * assignment.questions.count()
+                )
+                json_data[group_key.name][id]["answers"] = []
+                for answer in value_list["answers"]:
+                    json_data[group_key.name][id]["answers"].append(
+                        str(answer.time)
+                    )
 
     return TemplateResponse(
         request,
@@ -2054,7 +2167,7 @@ class TeacherBlinks(TeacherBase, ListView):
                         key=key,
                     )
                     blink.save()
-                except:
+                except Exception:
                     return HttpResponse("error")
 
         return HttpResponseRedirect(
@@ -2078,7 +2191,7 @@ class BlinkQuestionFormView(SingleObjectMixin, FormView):
             blinkround = BlinkRound.objects.get(
                 question=self.object, deactivate_time__isnull=True
             )
-        except:
+        except Exception:
             return TemplateResponse(
                 self.request,
                 "peerinst/blink_error.html",
@@ -2120,7 +2233,7 @@ class BlinkQuestionFormView(SingleObjectMixin, FormView):
                     self.request.session[
                         "BQid_" + self.object.key
                     ] = form.cleaned_data["first_answer_choice"]
-                except:
+                except Exception:
                     return TemplateResponse(
                         self.request,
                         "peerinst/blink_error.html",
@@ -2129,7 +2242,7 @@ class BlinkQuestionFormView(SingleObjectMixin, FormView):
                             "url": reverse(
                                 "blink-get-current",
                                 kwargs={
-                                    "username": self.object.teacher.user.username
+                                    "username": self.object.teacher.user.username  # noqa
                                 },
                             ),
                         },
@@ -2172,7 +2285,8 @@ class BlinkQuestionDetailView(DetailView):
     model = BlinkQuestion
 
     def get(self, request, *args, **kwargs):
-        # Check for an answer... teacher might have refreshed their page and started a new round
+        # Check for an answer... teacher might have refreshed their page and
+        # started a new round
         if not request.user.is_authenticated():
             try:
                 r = BlinkRound.objects.get(
@@ -2187,7 +2301,7 @@ class BlinkQuestionDetailView(DetailView):
                             kwargs={"pk": self.get_object().pk},
                         )
                     )
-            except:
+            except Exception:
                 pass
 
         return super(BlinkQuestionDetailView, self).get(
@@ -2249,7 +2363,7 @@ class BlinkQuestionDetailView(DetailView):
                 )
                 elapsed_time = (timezone.now() - r.activate_time).seconds
                 time_left = max(self.object.time_limit - elapsed_time, 0)
-            except:
+            except Exception:
                 time_left = 0
 
             # Get latest vote, if any
@@ -2327,7 +2441,7 @@ def blink_assignment_start(request, pk):
                 },
             )
 
-    except:
+    except Exception:
         return TemplateResponse(
             request,
             "peerinst/blink_error.html",
@@ -2363,7 +2477,7 @@ def blink_assignment_delete(request, pk):
                 },
             )
 
-    except:
+    except Exception:
         return TemplateResponse(
             request,
             "peerinst/blink_error.html",
@@ -2372,7 +2486,10 @@ def blink_assignment_delete(request, pk):
 
 
 def blink_get_next(request, pk):
-    """View to process next question in a series of blink questions based on state."""
+    """
+    View to process next question in a series of blink questions based on
+    state.
+    """
 
     try:
         # Get BlinkQuestion
@@ -2392,24 +2509,23 @@ def blink_get_next(request, pk):
             try:
                 # Teacher to new summary page
                 # Check existence of teacher (exception thrown otherwise)
-                user_role = Teacher.objects.get(user__username=request.user)
                 return HttpResponseRedirect(
                     reverse(
                         "blink-summary",
                         kwargs={
-                            "pk": blinkassignment.blinkassignmentquestion_set.get(
+                            "pk": blinkassignment.blinkassignmentquestion_set.get(  # noqa
                                 rank=rank + 1
                             ).blinkquestion.pk
                         },
                     )
                 )
-            except:
+            except Exception:
                 # Others to new question page
                 return HttpResponseRedirect(
                     reverse(
                         "blink-question",
                         kwargs={
-                            "pk": blinkassignment.blinkassignmentquestion_set.get(
+                            "pk": blinkassignment.blinkassignmentquestion_set.get(  # noqa
                                 rank=rank + 1
                             ).blinkquestion.pk
                         },
@@ -2423,7 +2539,7 @@ def blink_get_next(request, pk):
                 reverse("teacher", kwargs={"pk": teacher.pk})
             )
 
-    except:
+    except Exception:
         return HttpResponse("Error")
 
 
@@ -2433,7 +2549,7 @@ def blink_get_current(request, username):
     try:
         # Get teacher
         teacher = Teacher.objects.get(user__username=username)
-    except:
+    except Exception:
         return HttpResponse("Teacher does not exist")
 
     # Only teacher that owns this script can access page while logged in
@@ -2441,7 +2557,8 @@ def blink_get_current(request, username):
         logout(request)
 
     try:
-        # Redirect to current active blinkquestion, if any, if this user has not voted yet in this round
+        # Redirect to current active blinkquestion, if any, if this user has
+        # not voted yet in this round
         blinkquestion = teacher.blinkquestion_set.get(active=True)
         blinkround = blinkquestion.blinkround_set.latest("activate_time")
         if request.session.get(
@@ -2454,12 +2571,11 @@ def blink_get_current(request, username):
             return HttpResponseRedirect(
                 reverse("blink-question", kwargs={"pk": blinkquestion.pk})
             )
-    except:
-        # Else, redirect to summary for last active question
-        # latest_round = BlinkRound.objects.filter(question__in=teacher.blinkquestion_set.all()).latest('activate_time')
-        # return HttpResponseRedirect(reverse('blink-summary', kwargs={'pk' : latest_round.question.pk}))
-
-        # Else, redirect to waiting room
+    except Exception:
+        # Else, redirect to summary for last active question latest_round =
+        # BlinkRound.objects.filter(question__in=teacher.blinkquestion_set.all()).latest('activate_time')
+        # return HttpResponseRedirect(reverse('blink-summary', kwargs={'pk' :
+        # latest_round.question.pk})) Else, redirect to waiting room
         return HttpResponseRedirect(
             reverse(
                 "blink-waiting", kwargs={"username": teacher.user.username}
@@ -2471,7 +2587,7 @@ def blink_waiting(request, username, assignment=""):
 
     try:
         teacher = Teacher.objects.get(user__username=username)
-    except:
+    except Exception:
         return HttpResponse("Error")
 
     # Only teacher that owns this script can access page while logged in
@@ -2493,12 +2609,11 @@ def blink_waiting(request, username, assignment=""):
 def question_search(request):
     from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
-    try:
-        teacher = Teacher.objects.get(user=request.user)
-    except:
+    if not Teacher.objects.filter(user=request.user).exists():
         return HttpResponse(
             _(
-                "You must be logged in as a teacher to search the database.  Log in again with a teacher account."
+                "You must be logged in as a teacher to search the database. "
+                "Log in again with a teacher account."
             )
         )
 
@@ -2527,7 +2642,7 @@ def question_search(request):
             q_qs.extend([q.id for q in t_qs])
             form_field_name = "q"
 
-        if type == None:
+        if type is None:
             assignment = None
             q_qs = []
             form_field_name = None
@@ -2541,8 +2656,8 @@ def question_search(request):
         query = []
         query_all = []
         # by searching first for full string, and then for constituent parts,
-        # and preserving order, the results should rank the items higher to the top
-        # that have the entire search_string included
+        # and preserving order, the results should rank the items higher to the
+        # top that have the entire search_string included
         query_meta = {}
         for term in search_terms:
             query_term = question_search_function(term)
@@ -2557,7 +2672,8 @@ def question_search(request):
             query_term = [
                 q
                 for q in query_term
-                if q not in query_all and q.answerchoice_set.count() > 0
+                if q not in query_all
+                and (q.answerchoice_set.count() > 0 or q.type == "RO")
             ]
 
             query_meta[term] = query_term
@@ -2585,7 +2701,7 @@ def question_search(request):
 
         return TemplateResponse(
             request,
-            "peerinst/question_search_results.html",
+            "peerinst/question/search_results.html",
             context={
                 "paginator": query_subset,
                 "search_results": query,
@@ -2608,7 +2724,7 @@ def blink_get_current_url(request, username):
     try:
         # Get teacher
         teacher = Teacher.objects.get(user__username=username)
-    except:
+    except Exception:
         return HttpResponse("Teacher does not exist")
 
     try:
@@ -2617,9 +2733,10 @@ def blink_get_current_url(request, username):
         return HttpResponse(
             reverse("blink-question", kwargs={"pk": blinkquestion.pk})
         )
-    except:
+    except Exception:
+        if not teacher.blinkassignment_set.filter(active=True).exists():
+            return HttpResponse("stop")
         try:
-            blinkassignment = teacher.blinkassignment_set.get(active=True)
             latest_round = BlinkRound.objects.filter(
                 question__in=teacher.blinkquestion_set.all()
             ).latest("activate_time")
@@ -2628,7 +2745,7 @@ def blink_get_current_url(request, username):
                     "blink-summary", kwargs={"pk": latest_round.question.pk}
                 )
             )
-        except:
+        except Exception:
             return HttpResponse("stop")
 
 
@@ -2639,12 +2756,12 @@ def blink_count(request, pk):
         blinkround = BlinkRound.objects.get(
             question=blinkquestion, deactivate_time__isnull=True
         )
-    except:
+    except Exception:
         try:
             blinkround = BlinkRound.objects.filter(
                 question=blinkquestion
             ).latest("deactivate_time")
-        except:
+        except Exception:
             return JsonResponse()
 
     context = {}
@@ -2674,7 +2791,7 @@ def blink_close(request, pk):
                 context["state"] = "success"
             else:
                 context["state"] = "failure"
-        except:
+        except Exception:
             context["state"] = "failure"
 
     return JsonResponse(context)
@@ -2735,12 +2852,11 @@ class BlinkAssignmentCreate(LoginRequiredMixin, CreateView):
         return super(BlinkAssignmentCreate, self).form_valid(form)
 
     def get_success_url(self):
-        try:
-            teacher = Teacher.objects.get(user=self.request.user)
+        if Teacher.objects.filter(user=self.request.user).exists():
             return reverse(
                 "blinkAssignment-update", kwargs={"pk": self.object.id}
             )
-        except:
+        else:
             return reverse("welcome")
 
 
@@ -2760,8 +2876,8 @@ class BlinkAssignmentUpdate(LoginRequiredMixin, DetailView):
             form = forms.RankBlinkForm(request.POST)
             if form.is_valid():
 
-                # Questions can appear in multiple assignments, but only once in each.
-                # Get Q for _this_ assignment.
+                # Questions can appear in multiple assignments, but only once
+                # in each.  Get Q for _this_ assignment.
                 relationship = form.cleaned_data["q"].get(
                     blinkassignment=self.object
                 )
@@ -2800,8 +2916,8 @@ class BlinkAssignmentUpdate(LoginRequiredMixin, DetailView):
                         blinkquestion.save()
 
                         if (
-                            not blinkquestion
-                            in self.object.blinkquestions.all()
+                            blinkquestion
+                            not in self.object.blinkquestions.all()
                         ):
                             relationship = BlinkAssignmentQuestion(
                                 blinkassignment=self.object,
@@ -2809,7 +2925,7 @@ class BlinkAssignmentUpdate(LoginRequiredMixin, DetailView):
                                 rank=self.object.blinkquestions.count(),
                             )
                         relationship.save()
-                    except:
+                    except Exception:
                         return HttpResponse("error")
 
                     return HttpResponseRedirect(
@@ -2823,8 +2939,8 @@ class BlinkAssignmentUpdate(LoginRequiredMixin, DetailView):
                     if form.is_valid():
                         blinkquestion = form.cleaned_data["blink"]
                         if (
-                            not blinkquestion
-                            in self.object.blinkquestions.all()
+                            blinkquestion
+                            not in self.object.blinkquestions.all()
                         ):
                             relationship = BlinkAssignmentQuestion(
                                 blinkassignment=self.object,
@@ -2957,7 +3073,6 @@ def report(request, assignment_id="", group_id=""):
     )
 
     # needs DRY
-    metric_list = ["num_responses", "rr", "rw", "wr", "ww"]
     metric_labels = ["N", "RR", "RW", "WR", "WW"]
     question_list = Question.objects.filter(
         assignment__identifier__in=assignment_list
@@ -2976,7 +3091,8 @@ def report(request, assignment_id="", group_id=""):
 def report_assignment_aggregates(request):
     """
     - wrapper for admin_views.get_question_rationale_aggregates
-    - use student_groups and assignment_list passed through request.GET, and return JsonReponse as data for report
+    - use student_groups and assignment_list passed through request.GET, and
+      return JsonReponse as data for report
     """
 
     student_groups = request.GET.getlist("student_groups")
@@ -2993,7 +3109,7 @@ def report_assignment_aggregates(request):
             d_q["question"] = q.text
             try:
                 d_q["question_image_url"] = q.image.url
-            except ValueError as e:
+            except ValueError:
                 pass
             d_q["influential_rationales"] = []
             sums, output = get_question_rationale_aggregates(
@@ -3021,66 +3137,82 @@ def report_assignment_aggregates(request):
 
     return JsonResponse(j, safe=False)
 
-def csv_gradebook(request,group_hash):
-    response = HttpResponse(content_type='text/csv')
-    filename = 'myDALITE_gradebook_'+str(StudentGroup.get(group_hash))
-    response['Content-Disposition'] = 'attachment; filename=" ' + filename +'.csv"'
+
+def csv_gradebook(request, group_hash):
+    response = HttpResponse(content_type="text/csv")
+    filename = "myDALITE_gradebook_" + str(StudentGroup.get(group_hash))
+    response["Content-Disposition"] = (
+        'attachment; filename=" ' + filename + '.csv"'
+    )
 
     writer = csv.writer(response)
 
     student_group = StudentGroup.get(group_hash)
-    
+
     student_list = get_student_objects_from_group_list(
-        student_groups = [student_group.pk]
-        ).values_list(
-        'student__username',
-        'student__email'
-        )   
-    
-    student_list_sorted=sorted(student_list,key=lambda student: student[1].lower()) 
+        student_groups=[student_group.pk]
+    ).values_list("student__username", "student__email")
+
+    student_list_sorted = sorted(
+        student_list, key=lambda student: student[1].lower()
+    )
 
     assignment_list = student_group.studentgroupassignment_set.all().values(
-        'assignment',
-        'distribution_date'
-        )
-        
-    assignment_list_sorted=sorted(
-        assignment_list,
-        key=lambda assignment: assignment['distribution_date']
-        )
+        "assignment", "distribution_date"
+    )
+
+    assignment_list_sorted = sorted(
+        assignment_list, key=lambda assignment: assignment["distribution_date"]
+    )
 
     answer_qs = subset_answers_by_studentgroup_and_assignment(
-        assignment_list = assignment_list.values_list('assignment__identifier',flat=True),
-        student_groups = [student_group.pk]
-        )
+        assignment_list=assignment_list.values_list(
+            "assignment__identifier", flat=True
+        ),
+        student_groups=[student_group.pk],
+    )
 
     # Header Row
     row = []
-    row.append('Student')
+    if student_group.student_id_needed:
+        row.append("Student ID")
+    row.append("Student Email")
     for d in assignment_list_sorted:
-        question_list = Assignment.objects.get(
-            identifier=d['assignment']
-            ).questions.all().values_list(
-            'title',flat = True
-            )
+        question_list = (
+            Assignment.objects.get(identifier=d["assignment"])
+            .questions.all()
+            .values_list("title", flat=True)
+        )
         row.extend(question_list)
     writer.writerow(row)
-    
-    for user_token,email in student_list_sorted:
-        row=[]
-        row.append(email.split('@')[0])
+
+    for user_token, email in student_list_sorted:
+        row = []
+        student_school_id = (
+            Student.objects.get(student__email=email)
+            .studentgroupmembership_set.get(group=student_group)
+            .student_school_id
+        )
+
+        if student_group.student_id_needed:
+            row.append(student_school_id)
+        row.append(email)
+
         for d in assignment_list_sorted:
-            question_list = Assignment.objects.get(identifier=d['assignment']).questions.all()
+            question_list = Assignment.objects.get(
+                identifier=d["assignment"]
+            ).questions.all()
             for q in question_list:
                 try:
                     row.append(
                         answer_qs.get(
-                            assignment_id=d['assignment'],
-                            question_id=q.pk,user_token=user_token
-                            ).get_grade()
-                        )
+                            assignment_id=d["assignment"],
+                            question_id=q.pk,
+                            user_token=user_token,
+                        ).get_grade()
+                    )
                 except Answer.DoesNotExist:
-                    row.append('-')
+                    row.append("-")
         writer.writerow(row)
 
     return response

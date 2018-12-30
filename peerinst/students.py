@@ -1,8 +1,7 @@
 import base64
 import hashlib
-from datetime import datetime, timedelta
+from datetime import timedelta
 
-import pytz
 from django.conf import settings
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
@@ -30,13 +29,16 @@ def verify_student_token(token):
     assert isinstance(token, basestring), "Precondition failed for `token`"
 
     payload, err = verify_token(token)
-    try:
-        username = payload["username"]
-        email = payload["email"]
-    except KeyError:
-        username = None
-        email = None
-        err = "This wasn't a student token"
+    if err is None:
+        try:
+            username = payload["username"]
+            email = payload["email"]
+        except KeyError:
+            username = None
+            email = None
+            err = "This wasn't a student token"
+    else:
+        username, email = None, None
 
     output = (username, email, err)
     assert (
@@ -91,18 +93,19 @@ def authenticate_student(req, token):
         if user is None:
             resp = TemplateResponse(
                 req,
-                "401.html",
+                "400.html",
                 context={
-                    "message": _("The account hasn't been verified yet.")
+                    "message": _(
+                        "There is no user corresponding to the given link. "
+                        "You may try asking for another one."
+                    )
                 },
             )
-            output = HttpResponse(resp.render(), status=401)
+            output = HttpResponse(resp.render(), status=400)
         else:
             output = user
 
-    assert isinstance(output, HttpResponse) or isinstance(
-        output, User
-    ), "Postcondition failed"
+    assert isinstance(output, (HttpResponse, User)), "Postcondition failed"
     return output
 
 
@@ -150,13 +153,13 @@ def get_lti_passwords(hashed_username):
 
     key = settings.PASSWORD_GENERATOR_NONCE
 
-    if hashed_username.endsWith("++"):
+    if hashed_username.endswith("++"):
         usernames = [
             base64.urlsafe_b64decode(hashed_username[:-2] + i + j).encode()
             for i in ("+", "=")
             for j in ("+", "=")
         ]
-    elif hashed_username.endsWith("+"):
+    elif hashed_username.endswith("+"):
         usernames = [
             base64.urlsafe_b64decode(hashed_username[:-1] + i).encode()
             for i in ("+", "=")
@@ -171,3 +174,15 @@ def get_lti_passwords(hashed_username):
         isinstance(o, basestring) for o in output
     ), "Postcondition failed"
     return output
+
+
+def update_notifications(student):
+    """
+    Updates the notifications for the given student.
+
+    Parameters
+    ----------
+    student : Student
+        Student for whom to update the notifications
+    """
+    pass

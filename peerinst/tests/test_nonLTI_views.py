@@ -1,13 +1,12 @@
 from django.contrib.auth.hashers import make_password
+from django.contrib.auth.models import Group, Permission, User
 from django.core import mail
 from django.core.urlresolvers import reverse
-from django.http import HttpRequest
 from django.test import TestCase, TransactionTestCase
-from django.test.utils import override_settings
 
-from ..models import Discipline, Question, Assignment, Teacher, Student
 from tos.models import Consent, Role, Tos
-from django.contrib.auth.models import User, Permission, Group
+
+from ..models import Assignment, Discipline, Question, Teacher
 
 
 def ready_user(pk):
@@ -186,8 +185,7 @@ class TeacherTest(TestCase):
             follow=True,
         )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context["object"].pk, 1)
-        self.assertTemplateUsed(response, "peerinst/teacher_detail.html")
+        self.assertTemplateUsed(response, "peerinst/browse_database.html")
 
         # Test access to other
         response = self.client.get(reverse("teacher", kwargs={"pk": 2}))
@@ -233,7 +231,7 @@ class TeacherTest(TestCase):
         self.assertEqual(response.status_code, 403)
 
         response = self.client.get(reverse("welcome"))
-        self.assertRedirects(response, reverse("teacher", kwargs={"pk": 1}))
+        self.assertRedirects(response, reverse("browse-database"))
         self.assertIn(self.group, self.validated_teacher.groups.all())
 
         response = self.client.get(reverse("question-create"))
@@ -295,7 +293,7 @@ class TeacherTest(TestCase):
                 "answer_style": 0,
                 "image": "",
                 "video_url": "",
-                "rationale_selection_algorithm": "prefer_expert_and_highly_voted",
+                "rationale_selection_algorithm": "prefer_expert_and_highly_voted",  # noqa
                 "grading_scheme": 0,
             },
             follow=True,
@@ -308,7 +306,7 @@ class TeacherTest(TestCase):
         permission = Permission.objects.get(codename="change_question")
         self.validated_teacher.user_permissions.add(permission)
 
-        ## NB: it is good practice to refresh from db after permissions change
+        # NB: it is good practice to refresh from db after permissions change
         self.validated_teacher = User.objects.get(pk=1)
 
         self.assertTrue(
@@ -328,16 +326,19 @@ class TeacherTest(TestCase):
             {
                 "text": "Text of new question",
                 "title": "New question",
+                "type": "PI",
                 "answer_style": 0,
                 "image": "",
                 "video_url": "",
-                "rationale_selection_algorithm": "prefer_expert_and_highly_voted",
+                "rationale_selection_algorithm": "prefer_expert_and_highly_voted",  # noqa
                 "grading_scheme": 0,
             },
             follow=True,
         )
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "peerinst/answer_choice_form.html")
+        self.assertTemplateUsed(
+            response, "peerinst/question/answer_choice_form.html"
+        )
         self.assertEqual(Question.objects.count(), question_count + 1)
 
     def test_question_update(self):
@@ -366,10 +367,11 @@ class TeacherTest(TestCase):
             {
                 "text": "Text of new question",
                 "title": "New question",
+                "type": "PI",
                 "answer_style": 0,
                 "image": "",
                 "video_url": "",
-                "rationale_selection_algorithm": "prefer_expert_and_highly_voted",
+                "rationale_selection_algorithm": "prefer_expert_and_highly_voted",  # noqa
                 "grading_scheme": 0,
                 "collaborators": 2,
             },
@@ -389,10 +391,11 @@ class TeacherTest(TestCase):
             {
                 "text": "Text of new question",
                 "title": "New title for question 5",
+                "type": "PI",
                 "answer_style": 0,
                 "image": "",
                 "video_url": "",
-                "rationale_selection_algorithm": "prefer_expert_and_highly_voted",
+                "rationale_selection_algorithm": "prefer_expert_and_highly_voted",  # noqa
                 "grading_scheme": 0,
                 "collaborators": 2,
             },
@@ -420,11 +423,13 @@ class TeacherTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(
             response,
-            "Question properties cannot be changed if any students have submitted an answer",
+            "Question properties cannot be changed if any students have "
+            "submitted an answer",
         )
         self.assertNotContains(
             response,
-            '<form id="question-create-form" enctype="multipart/form-data" method="post">',
+            '<form id="question-create-form" enctype="multipart/form-data" '
+            'method="post">',
         )
 
         response = self.client.post(
@@ -435,7 +440,7 @@ class TeacherTest(TestCase):
                 "answer_style": 0,
                 "image": "",
                 "video_url": "",
-                "rationale_selection_algorithm": "prefer_expert_and_highly_voted",
+                "rationale_selection_algorithm": "prefer_expert_and_highly_voted",  # noqa
                 "grading_scheme": 0,
                 "collaborators": 2,
             },
@@ -479,8 +484,11 @@ class TeacherTest(TestCase):
             response, '<form id="answer-choice-form" method="post">'
         )
 
-        # ... test post (to do but need to send formset in POST) -> 302 to step 3
-        # response = self.client.post(reverse('answer-choice-form', kwargs={ 'question_id' : 32 }), {'question' : 32, 'text' : 'Choice 1'}, follow=True)
+        # ... test post (to do but need to send formset in POST) -> 302 to step
+        # 3
+        # response = self.client.post(reverse('answer-choice-form', kwargs={
+        # 'question_id' : 32 }), {'question' : 32, 'text' : 'Choice 1'},
+        # follow=True)
         # self.assertEqual(response.status_code, 200)
 
         # Step 2, access if student answer exists -> Message
@@ -497,7 +505,8 @@ class TeacherTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(
             response,
-            "Answer choices cannot be changed if any students have answered this question",
+            "Answer choices cannot be changed if any students have answered "
+            "this question",
         )
         self.assertNotContains(
             response, '<form id="answer-choice-form" method="post">'
@@ -569,7 +578,8 @@ class TeacherTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn(Question.objects.get(pk=31), assignment.questions.all())
 
-        # Step 3, auto-add to an assignment for different teacher -> Invalid form -> Teacher account page
+        # Step 3, auto-add to an assignment for different teacher -> Invalid
+        # form -> Teacher account page
         self.assertNotIn(
             Question.objects.get(pk=32), assignment.questions.all()
         )
@@ -579,7 +589,7 @@ class TeacherTest(TestCase):
             follow=True,
         )
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "peerinst/teacher_detail.html")
+        self.assertTemplateUsed(response, "peerinst/teacher/details.html")
         self.assertNotIn(
             Question.objects.get(pk=32), assignment.questions.all()
         )
@@ -640,16 +650,19 @@ class TeacherTest(TestCase):
             {
                 "text": "Text of cloned question",
                 "title": "Title for cloned question",
+                "type": "PI",
                 "answer_style": 0,
                 "image": "",
                 "video_url": "",
-                "rationale_selection_algorithm": "prefer_expert_and_highly_voted",
+                "rationale_selection_algorithm": "prefer_expert_and_highly_voted",  # noqa
                 "grading_scheme": 0,
             },
             follow=True,
         )
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "peerinst/answer_choice_form.html")
+        self.assertTemplateUsed(
+            response, "peerinst/question/answer_choice_form.html"
+        )
         self.assertEqual(question, Question.objects.get(pk=43))
         new_question = Question.objects.get(title="Title for cloned question")
         self.assertNotEqual(question.pk, new_question.pk)
@@ -722,7 +735,8 @@ class TeacherTest(TestCase):
             Assignment.objects.get(pk="Assignment4").questions.all(),
         )
 
-        # As teacher, post valid form to add question with student answers -> 403
+        # As teacher, post valid form to add question with student answers ->
+        # 403
         response = self.client.post(
             reverse(
                 "assignment-update", kwargs={"assignment_id": "Assignment1"}
@@ -859,48 +873,16 @@ class TeacherTest(TestCase):
         )
 
         # Check this question is not searchable
-        # response = self.client.get(reverse('question-search')+"?search_string=Question&type=assignment&id=Assignment1")
+        # response =
+        # self.client.get(reverse('question-search')+"?search_string=Question&type=assignment&id=Assignment1")
         # print(response.context['search_results'])
         # self.assertNotIn(q, response.context['search_results'])
-
-    def test_question_undelete(self):
-        pass
-
-    def test_assignment_copy(self):
-        pass
-
-
-class StudentTest(TestCase):
-    fixtures = ["test_users.yaml"]
-
-    def setUp(self):
-        self.user = User.objects.get(pk=10)
-        self.user.text_pwd = self.user.password
-        self.user.password = make_password(self.user.text_pwd)
-        self.user.save()
-
-    def test_login_to_web_app(self):
-        # Login -> 403 & forced logout
-        response = self.client.post(
-            reverse("login"),
-            {"username": self.user.username, "password": self.user.text_pwd},
-            follow=True,
-        )
-        self.assertEqual(response.status_code, 403)
-        self.assertTemplateUsed(response, "403.html")
-        response = self.client.post(reverse("assignment-list"))
-        self.assertRedirects(
-            response, reverse("login") + "?next=/en/assignment-list/"
-        )
-
-    def test_login_and_answer_question(self):
-        pass
 
 
 class CustomMiddlewareTest(TestCase):
     def test_405_response(self):
         response = self.client.post(reverse("landing_page"), follow=True)
-        print(response)
+        # print(response)
 
         self.assertEqual(response.status_code, 405)
         self.assertTemplateUsed(response, "405.html")

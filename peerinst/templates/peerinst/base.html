@@ -1,5 +1,4 @@
-{% load staticfiles i18n compress admin_urls tz %}
-{% load piwik %}
+{% load staticfiles i18n compress admin_urls tz piwik %}
 
 {% get_current_language as LANGUAGE_CODE %}
 
@@ -51,72 +50,32 @@
 
   <!-- Custom header for local instance -->
   <header>
-    <div class="wrapper">
-      <div>
-        <a href="{% url 'landing_page' %}"><img src="{% static 'peerinst/img/SALTISE-favicon.gif' %}" alt="site-logo" id="logo"></a>
-        {% if not user.student and not lti %}
-        <a href="{% url 'browse-database' %}">{% include 'peerinst/custom-instance-header.html' %}</a>
-        {% else %}
-        {% include 'peerinst/custom-instance-header.html' %}
-        {% endif %}
-      </div>
-      <div class="header-right">
+    <div id="header-left">
+      <div class="header">
         {% if user.is_authenticated %}
           {% if user.teacher %}
-            <i class="icon ion-md-menu"></i>
-            <aside class="mdc-drawer mdc-drawer--temporary mdc-typography">
-              <nav class="mdc-drawer__drawer">
-
-                <nav id="icon-with-text-demo" class="mdc-drawer__content mdc-list">
-                  <a class="mdc-list-item" href="{% url 'landing_page' %}">
-                    <i class="material-icons mdc-list-item__graphic mdc-theme--primary" aria-hidden="true">home</i>{% trans 'Home page' %}
-                  </a>
-
-                  <a class="mdc-list-item" href="{% url 'browse-database' %}">
-                    <i class="material-icons mdc-list-item__graphic mdc-theme--primary" aria-hidden="true">search</i>{% trans 'Search database' %}
-                  </a>
-
-                  <a class="mdc-list-item" href="{% url 'student-activity' %}">
-                    <i class="material-icons mdc-list-item__graphic mdc-theme--primary" aria-hidden="true">
-                      {% if user.teacher.student_activity %}
-                        star
-                      {% else %}
-                        star_border
-                      {% endif %}
-                    </i>{% trans 'Student activity ' %}({{ user.teacher.student_activity }})
-                  </a>
-
-                  <a class="mdc-list-item" href="{% url 'question-create' %}">
-                    <i class="material-icons mdc-list-item__graphic mdc-theme--primary" aria-hidden="true">edit</i>{% trans 'Create question' %}
-                  </a>
-
-                  <a class="mdc-list-item" href="{% url 'teacher-assignments' user.teacher.pk %}">
-                    <i class="material-icons mdc-list-item__graphic mdc-theme--primary" aria-hidden="true">assignment</i>{% trans 'Create assignment' %}
-                  </a>
-
-                  <a class="mdc-list-item" href="{% url 'teacher' user.teacher.pk %}">
-                    <i class="material-icons mdc-list-item__graphic mdc-theme--primary" aria-hidden="true">account_circle</i>{% trans 'My account' %}
-                  </a>
-
-                  <a class="mdc-list-item" href="#">
-                    <i class="material-icons mdc-list-item__graphic mdc-theme--primary" aria-hidden="true">help</i>{% trans 'Tutorials (coming soon)' %}
-                  </a>
-
-                  <a class="mdc-list-item" href="{% url 'logout' %}">
-                    <i class="material-icons mdc-list-item__graphic mdc-theme--primary" aria-hidden="true">logout</i>{% trans 'Logout' %}
-                  </a>
-                </nav>
-
-              </nav>
-            </aside>
+            {% include 'peerinst/teacher/header.html' %}
           {% else %}
-            <a href="{% url 'tos:tos_modify' 'student' %}?next={{ request.path }}" title="{% trans 'Terms of Service' %}"><i class="icon ion-md-settings"></i></a>
-            {% if not request.session.LTI %}
-            <a href="{% url 'logout' %}" title="{% trans 'Logout' %}"><i class="icon ion-md-log-out"></i></a>
-            {% endif %}
+            {% include 'peerinst/student/header.html' %}
           {% endif %}
         {% endif %}
       </div>
+      <div class="header">
+        <a href="{% url 'landing_page' %}">
+          <img src="{% static 'peerinst/img/SALTISE-favicon.gif' %}"
+               alt="site-logo"
+               id="logo">
+        </a>
+        {% if not user.student and not lti %}
+        <a href="{% url 'browse-database' %}">
+          {% include 'peerinst/custom-instance-header.html' %}
+        </a>
+        {% else %}
+          {% include 'peerinst/custom-instance-header.html' %}
+        {% endif %}
+      </div>
+    </div>
+    <div id="header-right">
     </div>
   </header>
 
@@ -157,7 +116,7 @@
   <script>
   if (document.querySelector('.mdc-drawer--temporary')){
     var drawer = new bundle.drawer.MDCTemporaryDrawer(document.querySelector('.mdc-drawer--temporary'));
-    document.querySelector('.ion-md-menu').addEventListener('click', function() {
+    document.querySelector('#menu-icon').addEventListener('click', function() {
       drawer.open = true;
     });
   }
@@ -168,6 +127,7 @@
   {% block scripts %}{% endblock %}
   {% piwik %}
 </body>
+
 </html>
 
 {% endtimezone %}

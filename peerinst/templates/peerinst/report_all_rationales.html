@@ -51,7 +51,7 @@ ul {
     <table id='student_gradebook_table' class='display'>
       <thead>
         <tr>
-          <th>Student</th>
+          <th>{% trans 'Student' %}</th>
           {% for label in gradebook_keys %}
           <th>{{ label }}</th>
           {% endfor %}
@@ -90,7 +90,7 @@ ul {
         <h3>{{ forloop.counter }}. {{ assignment.assignment }}</h3>
 
         <span>
-            <h4>Overall Student Transitions</h4>
+            <h4>{% trans 'Overall Student Transitions' %}</h4>
             <ul>
             {% for transition in assignment.transitions %}
                 <li>{{ transition.transition_type }} : {{ transition.count }}</li>
@@ -105,7 +105,7 @@ ul {
                     <span>
                         <h4 id="{{ question.title }}">Question : {{ question.title }}</h4>
                         <div class="admin-link">
-                            <a href="#question_gradebook">Back to top</a>
+                            <a href="#question_gradebook">{% trans 'Back to top' %}</a>
                         </div>
                         {{ question.text|safe }}
                         {% if question.question_image %}
@@ -113,11 +113,18 @@ ul {
                               <img style="display:block;margin:auto;padding-top:10pt;padding-bottom:10pt;"  src="{{ question.question_image.url }}" alt="g.question.image_alt_text">
                             </div>
                         {% endif %}
+
+                        {% if question.question_video %}
+                        <div id="question-video">
+                          <object class="question-image" width="640" height="390" data="{{ question.question_video }}"></object>
+                        </div>
+                        {% endif %}
+
                         <ol type='A'>
                         {% for a in question.answer_choices %}
                         <li>{{ a.text | safe}}
                             {% if a.correct %}
-                              <em>(Correct)</em>
+                              <em>({% trans "Correct" %})</em>
                             {% endif %}
                         </li>
                         {% endfor %}
@@ -126,16 +133,16 @@ ul {
 
                     <span>
                     <h4>Summary</h4>
-                        Total Number Responses: {{ question.num_responses}}
+                        {% trans "Total Number Responses" %}: {{ question.num_responses}}
                         {% for distribution in question.answer_distributions %}
                         <div>
                         <h5>{{ distribution.label }}</h5>
-                        <h6>Count:Answer Choice</h6>
+                        <h6>{% trans "Count" %} : {% trans "Answer Choice"%}</h6>
                             <ul>
                             {% for answer_choice in distribution.data %}
                                 <li> {{ answer_choice.count }} : {{ answer_choice.answer_choice }}
                                     {% if answer_choice.answer_choice_correct %}
-                                    <em>(Correct)</em>
+                                    <em>({% trans "Correct" %})</em>
                                     {% endif %}
                                 </li>
                             {% endfor %}
@@ -146,7 +153,7 @@ ul {
                          <div>
                         {% for transition in question.transitions %}
                         <!-- <h4>{{ distribution.label }}</h4> -->
-                        <h6>Count: Transition Type</h6>
+                        <h6>{% trans "Count" %}: {% trans "Transition Type" %}</h6>
                             <ul>
                             {% for answer_choice in transition.data %}
                                 <li> {{ answer_choice.count }} : {{ answer_choice.transition_type }}</li>
@@ -157,34 +164,48 @@ ul {
 
 
                     </span>
+                    {% if question.confusion_matrix %}
+                      <span>
+                      <h4>{% trans "Confusion Matrix" %}</h4>
+                      <table>
+                          {% for first_ans in question.confusion_matrix %}
+                          <tr>
+                              {% for second_ans in first_ans.second_answer_choice %}
+                              <td>{{second_ans.N}}</td>
+                              {% endfor %}
+                          </tr>
+                          {% endfor %}
+                      </table>
+                      </span>
+                    {% endif %}
 
                     <span>
-                    <h4>Confusion Matrix</h4>
-                    <table>
-                        {% for first_ans in question.confusion_matrix %}
-                        <tr>
-                            {% for second_ans in first_ans.second_answer_choice %}
-                            <td>{{second_ans.N}}</td>
-                            {% endfor %}
-                        </tr>
-                        {% endfor %}
-                    </table>
-                    </span>
-
-                    <span>
-                    <h4>Student Responses</h4>
+                    <h4>{% trans "Student Responses" %}</h4>
                       <div class="admin-link">
-                        <a href="#student_gradebook">Back to top</a></div>
+                        <a href="#student_gradebook">{% trans "Back to top" %}</a></div>
 
                         <table id="student_responses_table" class="display">
                             <thead>
                             <tr>
-                                <th>Student</th>
-                                <th>First Answer</th>
-                                <th>Rationale</th>
-                                <th>Second Answer</th>
-                                <th>Chosen Rationale</th>
-                                <th>Submitted</th>
+                                <th>{% trans "Student" %}</th>
+                                
+                                {% if question.type == "PI" %}                                
+                                  <th>{% trans "1st Ans" %}</th>
+                                {% endif %}                                
+                                
+                                <th>{% trans "Rationale" %} </th>
+                                
+                                {% if question.sequential_review %}                                
+                                  <th>{% trans "Up" %}</th>
+                                  <th>{% trans "Down" %}</th>
+                                {% endif %}                                
+                                
+
+                                {% if question.type == "PI" %}
+                                  <th>{% trans "2nd Ans" %}</th>
+                                  <th>{% trans "Chosen Rationale" %}</th>
+                                {% endif %}
+                                <th>{% trans "Submitted" %}</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -193,10 +214,22 @@ ul {
                             <tr>
                                 <th id="{{student_response.student}}{{ question.title }}" class="mdc-ripple-surface">
                                     <a href="#{{ student_response.student }}">{{ student_response.student }}</a></th>
-                                <td>{{ student_response.first_answer_choice }}</td>
+                                {% if question.type == "PI" %}
+                                  <td>{{ student_response.first_answer_choice }}</td>
+                                {% endif %}
+
                                 <td>{{ student_response.rationale }}</td>
-                                <td>{{ student_response.second_answer_choice }}</td>
-                                <td>{{ student_response.chosen_rationale }}</td>
+
+                                {% if question.sequential_review %}                                
+                                  <th>{{ student_response.upvotes }}</th>
+                                  <th>{{ student_response.downvotes }}</th>
+                                {% endif %} 
+                               
+                                {% if question.type == "PI" %}                                
+                                  <td>{{ student_response.second_answer_choice }}</td>
+                                  <td>{{ student_response.chosen_rationale }}</td>
+                                {% endif %}                                
+                               
                                 <td>{{ student_response.submitted }}</td>
                             </tr>
 

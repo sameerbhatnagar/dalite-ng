@@ -1,13 +1,11 @@
 {% extends 'peerinst/base.html' %}
 
-{% load static compress i18n %}
+{% load static i18n %}
 
 {% block stylesheets %}
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-  {% compress css %}
-  <link href="{% static 'peerinst/css/group/details.min.css' %}" rel="stylesheet">
-  {% endcompress %}
+<link href="{% static 'peerinst/css/group/details.min.css' %}" rel="stylesheet">
 {% endblock %}
 
 {% block body %}
@@ -30,7 +28,6 @@
 
         <div data-update-url="{% url 'group-details-update' group.hash %}">
 
-          {% csrf_token %}
           <ul class="mdc-list mdc-list--two-line mdc-list--non-interactive">
             <li class="mdc-list-divider" role="separator"></li>
 
@@ -91,6 +88,42 @@
                 <span class="mdc-list-item__secondary-text no-icon">
                 {{ group.student_set.count }} {% trans 'students registered' %}
                 </span>
+              </span>
+            </li>
+            <li class="mdc-list-divider" role="separator"></li>
+
+            <li class="mdc-list-item">
+              <span class="mdc-list-item__graphic mdc-theme--primary">
+                <i class="mdc-theme--primary material-icons md-48">
+                  account_balance
+                </i>
+              </span>
+              <span class="mdc-list-item__text mdc-theme--secondary bold no-icon">
+                {% trans 'University ID needed' %}
+                <span class="mdc-list-item__secondary-text no-icon">
+                </span>
+              </span>
+              <span class="mdc-list-item__meta">
+                <div class="switch-button">
+                  {% if group.student_id_needed %}
+                  <input type="checkbox"
+                         class="switch-button__input"
+                         onclick="bundle.toggleStudentIdNeeded(
+                            event,
+                           '{% url 'group-details-update' group.hash %}'
+                         )"
+                         checked>
+                  {% else %}
+                  <input type="checkbox"
+                         class="switch-button__input"
+                         onclick="bundle.toggleStudentIdNeeded(
+                            event,
+                           '{% url 'group-details-update' group.hash %}'
+                         )">
+                  {% endif %}
+                  <div class="switch-button__background"></div>
+                  <div class="switch-button__button"></div>
+                </div>
               </span>
             </li>
             <li class="mdc-list-divider" role="separator"></li>
@@ -205,7 +238,5 @@
 {% endblock %}
 
 {% block scripts %}
-{% compress js inline %}
 <script src="{% static 'peerinst/js/group.min.js' %}"></script>
-{% endcompress %}
 {% endblock %}

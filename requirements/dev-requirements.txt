@@ -1,0 +1,17 @@
+-r requirements.txt
+
+bandit
+# black
+coverage
+ddt
+factory_boy>=2.5.2,<2.6
+flake8
+flake8-docstrings
+mock
+pre-commit
+pytest
+pytest-cov==2.6.0
+pytest-django
+pytz
+pyyaml
+selenium==3.13.0

@@ -1,6 +1,8 @@
 Dalite NG
 =========
 
+[![CircleCI](https://circleci.com/gh/SALTISES4/dalite-ng.svg?style=svg)](https://circleci.com/gh/SALTISES4/dalite-ng)
+
 Dalite NG is a Peer Instruction Tool for online learning platforms such as Open edX. It is implemented in Django as an [LTI](https://en.m.wikipedia.org/wiki/Learning_Tools_Interoperability) tool and should be compatible with most online learning platforms.  Dalite NG is a rewrite of the [Dalite tool][old-dalite] as a cleaner, Django-based LTI tool.
 
 [old-dalite]: https://github.com/open-craft/edu8-dalite/
@@ -39,7 +41,7 @@ Setting up the development server
 
 
 6. Add Sample Consent Form
-  
+
   - Navigate to `127.0.0.1:8000/admin/tos` and add a sample Terms of Service (mark it as current)
   - Login as a Teacher
 
@@ -324,3 +326,9 @@ Bruce][entypo].
 [entypo]: http://www.entypo.com/
 
 
+
+
+Local coverage command
+----------------------
+
+`$ py.test --cov-config .coveragerc --cov-report html --cov=peerinst --cov=dalite --cov=tos ./`

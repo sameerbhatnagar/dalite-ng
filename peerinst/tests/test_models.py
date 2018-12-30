@@ -1,15 +1,9 @@
 # -*- coding: utf-8 -*-
-import hashlib
-from datetime import datetime, timedelta
-from functools import reduce
-from operator import add
 
-import pytz
 from django.test import TestCase
 
 from . import factories
-from ..models import GradingScheme, StudentGroupAssignment
-from .generators import *
+from ..models import GradingScheme
 
 
 class SelectedChoice(object):
@@ -24,7 +18,8 @@ class AnswerModelTestCase(TestCase):
         self.question = factories.QuestionFactory(
             choices=2, choices__correct=[1]
         )
-        # Create answers for question, considering all possible combinations of correctness values:
+        # Create answers for question, considering all possible combinations of
+        # correctness values:
         self.answers = []
         selected_choices = (
             (SelectedChoice.CORRECT, SelectedChoice.CORRECT),
@@ -41,14 +36,18 @@ class AnswerModelTestCase(TestCase):
             self.answers.append(answer)
 
     def _assert_grades(self, expected_grades):
-        """ For each answer in `self.answers`, check if `get_grade` produces correct value. """
+        """
+        For each answer in `self.answers`, check if `get_grade` produces
+        correct value.
+        """
         for index, answer in enumerate(self.answers):
             grade = answer.get_grade()
             self.assertEqual(grade, expected_grades[index])
 
     def test_get_grade_standard(self):
         """
-        Check if `get_grade` produces correct values when using 'Standard' grading scheme.
+        Check if `get_grade` produces correct values when using 'Standard'
+        grading scheme.
 
         | First choice | Second choice | Grade |
         |--------------+---------------+-------|
@@ -61,7 +60,8 @@ class AnswerModelTestCase(TestCase):
 
     def test_get_grade_advanced(self):
         """
-        Check if `get_grade` produces correct values when using 'Advanced' grading scheme.
+        Check if `get_grade` produces correct values when using 'Advanced'
+        grading scheme.
 
         | First choice | Second choice | Grade |
         |--------------+---------------+-------|
@@ -72,247 +72,3 @@ class AnswerModelTestCase(TestCase):
         """
         self.question.grading_scheme = GradingScheme.ADVANCED
         self._assert_grades(expected_grades=[1.0, 0.5, 0.5, 0.0])
-
-
-class TestStudent(TestCase):
-    def test_new_student(self):
-        n = 2
-        max_username_length = 30
-        data = new_students(n)
-
-        for d in data:
-            student = Student.get_or_create(**d)
-            username = hashlib.md5(d["email"].encode()).hexdigest()[
-                :max_username_length
-            ]
-            self.assertIsInstance(student, Student)
-            self.assertEqual(student.student.email, d["email"])
-            self.assertEqual(student.student.username, username)
-
-    def test_get_student_user_exists(self):
-        n = 2
-        max_username_length = 30
-        students = new_students(n)
-        add_students(students)
-
-        for s in students:
-            student = Student.get_or_create(**s)
-            username = hashlib.md5(s["email"].encode()).hexdigest()[
-                :max_username_length
-            ]
-            self.assertIsInstance(student, Student)
-            self.assertEqual(student.student.email, s["email"])
-            self.assertEqual(student.student.username, username)
-
-    def test_send_missing_assignments(self):
-        students = add_students(new_students(1))
-        groups = add_groups(new_groups(1))
-        questions = add_questions(new_questions(10))
-        assignments = add_assignments(new_assignments(2, questions))
-        group_assignments = add_student_group_assignments(
-            new_student_group_assignments(2, groups, assignments)
-        )
-        student_assignment = add_student_assignments(
-            new_student_assignments(1, group_assignments[:-1], students)
-        )
-
-        tests = [{"group": groups[0], "host": "localhost"}]
-        for test in tests:
-            self.assertFalse(
-                StudentAssignment.objects.filter(
-                    student=students[0], group_assignment=group_assignments[-1]
-                ).exists()
-            )
-            students[0].send_missing_assignments(**test)
-            self.assertTrue(
-                StudentAssignment.objects.filter(
-                    student=students[0], group_assignment=group_assignments[-1]
-                ).exists()
-            )
-
-
-class TestStudentGroup(TestCase):
-    def test_new_student_group(self):
-        n_groups = 20
-        data = new_groups(n_groups)
-
-        for d in data:
-            group = StudentGroup.objects.create(**d)
-            self.assertIsInstance(group, StudentGroup)
-            self.assertEqual(group.name, d["name"])
-            self.assertEqual(group.title, d["title"])
-
-    def test_hashing(self):
-        n_groups = 20
-        groups = add_groups(new_groups(n_groups))
-
-        for group in groups:
-            self.assertEqual(group, StudentGroup.get(group.hash))
-
-
-class TestStudentAssignment(TestCase):
-    def setUp(self):
-        n_students = 5
-        n_assignments = 3
-        n_groups = 2
-        n_questions = 10
-        min_questions = 5
-        n_group_assignments = 3
-
-        questions = add_questions(new_questions(n_questions))
-        groups = add_groups(new_groups(n_groups))
-        assignments = add_assignments(
-            new_assignments(
-                n_assignments, questions, min_questions=min_questions
-            )
-        )
-        self.students = add_students(new_students(n_students))
-        self.groups = add_student_group_assignments(
-            new_student_group_assignments(
-                n_group_assignments, groups, assignments
-            )
-        )
-
-    def test_new_student_assignment(self):
-        n = len(self.groups) * len(self.students)
-        data = new_student_assignments(n, self.groups, self.students)
-
-        for d in data:
-            assignment = StudentAssignment.objects.create(**d)
-            self.assertIsInstance(assignment, StudentAssignment)
-            self.assertEqual(assignment.student, d["student"])
-            self.assertEqual(
-                assignment.group_assignment, d["group_assignment"]
-            )
-
-    #  def test_get_current_question_no_answers(self):
-    #  n = 1
-    #  assignment = add_student_assignments(
-    #  new_student_assignments(n, self.groups, self.students)
-    #  )[0]
-
-
-#
-#  correct = assignment.group_assignment.assignment.questions.all()[0]
-#
-#  question = assignment.get_current_question()
-#
-#  self.assertEqual(correct, question)
-#
-#  def test_get_current_question_only_first_answer_choices(self):
-#  n_assignments = 5
-#  assignments = add_student_assignments(
-#  new_student_assignments(n_assignments, self.groups, self.students)
-#  )
-#  answers = [
-#  add_answers(
-#  new_answers(
-#  random.randrange(
-#  1,
-#  len(
-#  assignment.group_assignment.assignment.questions.all()
-#  ),
-#  ),
-#  [assignment],
-#  )
-#  )
-#  for assignment in assignments
-#  ]
-#
-#  for i in range(len(assignments)):
-#  current = assignments[i].get_current_question()
-#  self.assertEqual(
-#  current,
-#  assignments[i].group_assignment.assignment.questions.all()[
-#  len(answers[i])
-#  ],
-#  )
-#
-#  def test_get_current_question_all_first_answer_choices(self):
-#  n_assignments = 1
-#  assignment = add_student_assignments(
-#  new_student_assignments(n_assignments, self.groups, self.students)
-#  )[0]
-#  add_answers(
-#  new_answers(
-#  len(assignment.group_assignment.assignment.questions.all()),
-#  [assignment],
-#  )
-#  )
-#
-#  current = assignment.group_assignment.assignment.questions.all()[0]
-#
-#  question = assignment.get_current_question()
-#
-#  self.assertEqual(current, question)
-#
-#  def test_get_current_question_only_some_second_choices(self):
-#  n_assignments = 3
-#  assignments = add_student_assignments(
-#  new_student_assignments(n_assignments, self.groups, self.students)
-#  )
-#  answers_ = [
-#  (
-#  add_answers(
-#  new_answers(
-#  len(
-#  assignment.group_assignment.assignment.questions.all()
-#  ),
-#  [assignment],
-#  )
-#  ),
-#  assignment,
-#  )
-#  for assignment in assignments
-#  ]
-#
-#  answers = [
-#  [
-#  aa
-#  for aa in add_second_choice_to_answers(a[0], a[1])
-#  if aa.chosen_rationale is not None
-#  ]
-#  for a in answers_
-#  ]
-#
-#  print(assignments)
-#
-#  for i in range(len(assignments)):
-#  current = assignments[i].get_current_question()
-#  self.assertEqual(
-#  current,
-#  assignments[i].group_assignment.assignment.questions.all()[
-#  len(answers[i])
-#  ],
-#  )
-#
-#  def test_get_current_question_all_second_choices(self):
-#  n_assignments = 3
-#  assignments = add_student_assignments(
-#  new_student_assignments(n_assignments, self.groups, self.students)
-#  )
-#  answers_ = [
-#  (
-#  add_answers(
-#  new_answers(
-#  len(
-#  assignment.group_assignment.assignment.questions.all()
-#  ),
-#  [assignment],
-#  )
-#  ),
-#  assignment,
-#  )
-#  for assignment in assignments
-#  ]
-#
-#  answers = [
-#  add_second_choice_to_answers(
-#  a, assignment, n_second_choices=len(a)
-#  )
-#  for a, assignment in answers_
-#  ]
-#
-#  for i in range(len(assignments)):
-#  current = assignments[i].get_current_question()
-#  self.assertIs(current, None)

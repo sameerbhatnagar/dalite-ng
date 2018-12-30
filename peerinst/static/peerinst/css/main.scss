@@ -1,36 +1,33 @@
 /* Load common sass variables */
-@import 'variables';
-
+@import "variables";
 
 /* Load packages */
-@import '@material/button/mdc-button';
-@import '@material/card/mdc-card';
-@import '@material/checkbox/mdc-checkbox';
-@import '@material/chips/mdc-chips';
-@import '@material/dialog/mdc-dialog';
-@import '@material/drawer/mdc-drawer';
-@import '@material/elevation/mdc-elevation';
-@import '@material/floating-label/mdc-floating-label';
-@import '@material/form-field/mdc-form-field';
-@import '@material/icon-toggle/mdc-icon-toggle';
-@import '@material/image-list/mdc-image-list';
-@import '@material/layout-grid/mdc-layout-grid';
-@import '@material/line-ripple/mdc-line-ripple';
-@import '@material/linear-progress/mdc-linear-progress';
-@import '@material/list/mdc-list';
-@import '@material/notched-outline/mdc-notched-outline';
-@import '@material/radio/mdc-radio';
-@import '@material/ripple/mdc-ripple';
-@import '@material/select/mdc-select';
-@import '@material/textfield/mdc-text-field';
-@import '@material/theme/mdc-theme';
-@import '@material/toolbar/mdc-toolbar';
-@import '@material/typography/mdc-typography';
-
+@import "@material/button/mdc-button";
+@import "@material/card/mdc-card";
+@import "@material/checkbox/mdc-checkbox";
+@import "@material/chips/mdc-chips";
+@import "@material/dialog/mdc-dialog";
+@import "@material/drawer/mdc-drawer";
+@import "@material/elevation/mdc-elevation";
+@import "@material/floating-label/mdc-floating-label";
+@import "@material/form-field/mdc-form-field";
+@import "@material/icon-toggle/mdc-icon-toggle";
+@import "@material/image-list/mdc-image-list";
+@import "@material/layout-grid/mdc-layout-grid";
+@import "@material/line-ripple/mdc-line-ripple";
+@import "@material/linear-progress/mdc-linear-progress";
+@import "@material/list/mdc-list";
+@import "@material/notched-outline/mdc-notched-outline";
+@import "@material/radio/mdc-radio";
+@import "@material/ripple/mdc-ripple";
+@import "@material/select/mdc-select";
+@import "@material/textfield/mdc-text-field";
+@import "@material/theme/mdc-theme";
+@import "@material/toolbar/mdc-toolbar";
+@import "@material/typography/mdc-typography";
 
 /* Load other files */
-@import 'utils';
-
+@import "utils";
 
 /* Stylesheet */
 /* - Layout */
@@ -55,16 +52,16 @@ p {
   font-size: 9pt;
 }
 .links-divider {
-  padding-left:0.3em;
-  padding-right:0.5em;
+  padding-left: 0.3em;
+  padding-right: 0.5em;
   color: $mdc-theme-secondary;
 }
-h2 ~.admin-link {
+h2 ~ .admin-link {
   margin-top: -25px;
   margin-bottom: 12pt;
   font-size: 9pt;
 }
-h4 ~.admin-link {
+h4 ~ .admin-link {
   margin-top: -20px;
   margin-bottom: 12pt;
   font-size: 9pt;
@@ -75,11 +72,6 @@ h4 ~.admin-link {
   margin-bottom: 12pt;
   font-size: 9pt;
 }
-.ion-md-menu {
-  cursor: pointer;
-}
-
-
 /* - Theming */
 .fill-primary {
   fill: $mdc-theme-primary;
@@ -93,7 +85,7 @@ h4 ~.admin-link {
 body {
   background-color: $mdc-theme-background;
   color: $mdc-theme-secondary;
-  font-family: 'Montserrat', sans-serif;
+  font-family: "Montserrat", sans-serif;
   font-weight: 400;
   font-size: 12pt;
   margin: 0pt;
@@ -106,7 +98,13 @@ header {
   );
   color: white;
   padding: 4pt;
+  // padding: 7px 10px;
   font-size: 18pt;
+  // width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
 }
 header a {
   color: white;
@@ -115,6 +113,51 @@ header .icon {
   font-size: 28px;
   margin-right: 10px;
 }
+
+#header-left {
+  display: flex;
+  flex-direction: row;
+  justify-content: start;
+}
+
+#header-right {
+  display: flex;
+  flex-direction: row;
+  justify-content: end;
+  padding-right: 20px;
+}
+
+.header {
+  margin-left: 10px;
+}
+
+.header-icon {
+  cursor: pointer;
+  border-radius: 20px;
+  padding: 4px;
+  text-align: center;
+  vertical-align: middle;
+  transition: background 200ms;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.25);
+  }
+  &:active {
+    background: rgba(255, 255, 255, 0.5);
+  }
+
+  &:before {
+    width: 33px;
+    height: 30px;
+  }
+}
+
+.header-right {
+  justify-self: end;
+  font-size: 10pt;
+  line-height: 1.2;
+}
+
 footer {
   background-image: linear-gradient(
     0deg,
@@ -143,7 +186,7 @@ h1 {
   /* Support for Firefox. */
   -moz-osx-font-smoothing: grayscale;
   /* Support for IE. */
-  font-feature-settings: 'liga';
+  font-feature-settings: "liga";
 }
 .material-icons.md-15 {
   font-size: 15px;
@@ -172,9 +215,6 @@ h1 {
 .material-icons.md-96 {
   font-size: 96px;
 }
-
-
-
 
 .mdc-card {
   @include mdc-card-corner-radius($radius);
@@ -206,18 +246,12 @@ h1 {
   }
 }
 
-
-
-
 .corner {
   position: fixed;
   bottom: 0%;
   right: 0%;
   cursor: pointer;
 }
-
-
-
 
 a {
   color: $hint;
@@ -312,11 +346,11 @@ li.first-choice {
 li.second-choice {
   font-style: italic;
 }
-input[type='submit'].thumbs-button {
+input[type="submit"].thumbs-button {
   font-size: 0; /* Make text invisible */
   border-radius: 50%;
   border-style: hidden;
-  margin:10px;
+  margin: 10px;
   width: 50px;
   height: 50px;
   background-size: 25px;
@@ -333,16 +367,6 @@ input[type='submit'].thumbs-button {
 .share-question-answers-summary textarea {
   width: 50%;
   height: 100px;
-}
-.wrapper {
-  display: grid;
-  grid-template-columns: 60% 40%;
-  align-items: center;
-}
-.header-right {
-  text-align: right;
-  font-size: 10pt;
-  line-height: 1.2;
 }
 
 .helptext {
@@ -580,7 +604,7 @@ div.input-ripple-wrapper input {
   border-color: rgba(0, 0, 0, 0.15);
   border-width: 1px;
   border-radius: 4px;
-  font-family: 'Montserrat', sans-serif;
+  font-family: "Montserrat", sans-serif;
   padding: 4px;
   -webkit-appearance: none;
   -moz-appearance: none;
@@ -624,10 +648,6 @@ div.input-ripple-wrapper input {
 }
 .field label {
   padding-right: 10px;
-}
-.add {
-  padding: 10px;
-  cursor: pointer;
 }
 .padded {
   padding: 10px;

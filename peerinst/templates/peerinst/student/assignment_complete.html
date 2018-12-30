@@ -1,14 +1,9 @@
-{% extends 'peerinst/base.html' %}
+{% extends 'peerinst/student/base.html' %}
 
-{% load static compress i18n %}
-
-{% block stylesheets %}
-{% compress css %}
-<link href="{% static 'peerinst/css/student/assignment_complete.min.css' %}" rel="stylesheet">
-{% endcompress %}
-{% endblock %}
+{% load i18n %}
 
 {% block body %}
+
 <main>
   <section id="student-assignment-complete">
 
@@ -48,4 +43,5 @@
 
   </section>
 </main>
+
 {% endblock %}
