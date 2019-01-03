@@ -3189,7 +3189,7 @@ def csv_gradebook(request, group_hash):
     for user_token, email in student_list_sorted:
         row = []
         student_school_id = (
-            Student.objects.get(student__email=email)
+            Student.get_or_create(email=email)[0]
             .studentgroupmembership_set.get(group=student_group)
             .student_school_id
         )
