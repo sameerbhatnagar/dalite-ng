@@ -95,10 +95,10 @@
 
 {% endblock %}
 
-{% if question.type == "RO" %}
 {% block scripts %}
+{% if question.type == "RO" %}
 <script>
 $('#submit-answer-form').remove();
 </script>
-{% endblock %}
 {% endif %}
+{% endblock %}
