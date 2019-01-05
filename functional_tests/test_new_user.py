@@ -446,7 +446,18 @@ class NewUserTests(StaticLiveServerTestCase):
         )
         self.browser.find_element_by_id("assignment-section").click()
         self.browser.find_element_by_link_text("Manage assignments").click()
-        assert "Create a new assignment" in self.browser.page_source
+
+        try:
+            WebDriverWait(self.browser, timeout).until(
+                presence_of_element_located(
+                    (
+                        By.XPATH,
+                        "//h2[contains(text(), 'Create a new assignment')]",
+                    )
+                )
+            )
+        except TimeoutException:
+            assert False
 
         inputbox = self.browser.find_element_by_id("id_identifier")
         inputbox.send_keys("new-unique-assignment-identifier")
