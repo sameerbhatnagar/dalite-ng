@@ -16,10 +16,6 @@ jobs:
           MYSQL_HOST: localhost
 
     working_directory: ~/repo
-    branches:
-      only:
-        - development
-        - ci
     steps:
       - checkout
       - run:
