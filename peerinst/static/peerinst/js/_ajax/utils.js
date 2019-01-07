@@ -14,7 +14,6 @@ export function getCsrfToken() {
 }
 
 export function buildReq(data, method) {
-  console.log(getCsrfToken());
   return {
     method: method.toUpperCase(),
     body: JSON.stringify(data),
