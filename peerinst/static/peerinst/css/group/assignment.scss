@@ -1,5 +1,5 @@
-@import '../utils';
-@import '../variables';
+@import "../custom_elements";
+@import "../variables";
 
 #question-list {
   & > li {
@@ -51,10 +51,10 @@
   }
 
   & #student-progress-legend span {
-    width: 62px;
-    height: 48px;
-    text-align: center;
     font-size: 12px;
+    height: 48px;
     line-height: 16px;
+    text-align: center;
+    width: 62px;
   }
 }

@@ -4,8 +4,8 @@
     margin-bottom: 0;
   }
   & > .foldable--title:before {
-    font-family: "Material Icons";
     content: "chevron_right";
+    font-family: "Material Icons", sans-serif;
     font-feature-settings: "liga" 1;
     font-size: 3rem;
     position: relative;
@@ -35,13 +35,13 @@
 }
 
 .draggable--dragging {
-  opacity: 0.5;
   cursor: grab;
+  opacity: 0.5;
 }
 
 .switch-button {
-  position: relative;
   height: 20px;
+  position: relative;
   width: 40px;
 
   & .switch-button__input {
