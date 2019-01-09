@@ -114,6 +114,10 @@ header .icon {
   margin-right: 10px;
 }
 
+header i {
+  user-select: none;
+}
+
 #header-left {
   display: flex;
   flex-direction: row;
