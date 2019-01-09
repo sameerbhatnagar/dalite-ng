@@ -25,3 +25,7 @@ repos:
       - id: prettier
         types: [scss, javascript]
         exclude: "^.*\\.min\\..*$"
+  - repo: https://github.com/awebdeveloper/pre-commit-stylelint
+    rev: 0.0.2
+    hooks:
+      - id: stylelint

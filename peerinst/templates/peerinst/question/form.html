@@ -1,4 +1,4 @@
-{% extends 'peerinst/base.html' %}
+{% extends user.student|yesno:'peerinst/student/base.html,peerinst/base.html' %}
 
 {% load compress staticfiles add_class i18n %}
 

@@ -1,6 +1,12 @@
 {% extends 'peerinst/base.html' %}
 
-{% load i18n %}
+{% load staticfiles i18n %}
+
+{% block stylesheets %}
+  {% if user.student %}
+  <link href="{% static 'peerinst/css/student.min.css' %}" rel="stylesheet">
+  {% endif %}
+{% endblock %}
 
 {% block body %}
   <main>
@@ -18,4 +24,17 @@
       </p>
     </section>
   </main>
+{% endblock %}
+
+{% block scripts %}
+  {% if user.student %}
+  <script src="{% static 'peerinst/js/student.min.js' %}"></script>
+  <script type="text/javascript">
+    window.addEventListener("load", function() {
+      student.initStudentHeader(
+        "{% url 'student-get-notifications' %}"
+      )
+    });
+  </script>
+  {% endif %}
 {% endblock %}

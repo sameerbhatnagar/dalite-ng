@@ -5,3 +5,5 @@ export {
   toggleJoinGroup,
   handleJoinGroupLinkInput,
 } from "./_student/index.js";
+
+export { initStudentHeader } from "./_student/header.js";

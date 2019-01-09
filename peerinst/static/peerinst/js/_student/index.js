@@ -1,6 +1,7 @@
 "use strict";
 
 import { buildReq } from "../_ajax/utils.js";
+import { clear } from "../utils.js";
 
 /*********/
 /* model */
@@ -44,16 +45,8 @@ function initModel(data) {
       studentId: group.student_id,
       studentIdNeeded: group.student_id_needed,
     })),
-    notifications: data.notifications.map(notification => ({
-      pk: notification.pk,
-      link: notification.link,
-      icon: notification.icon,
-      text: notification.text,
-      hoverText: notification.hover_text,
-    })),
     urls: {
       tosModify: data.urls.tos_modify,
-      removeNotification: data.urls.remove_notification,
       joinGroup: data.urls.join_group,
       leaveGroup: data.urls.leave_group,
       saveStudentId: data.urls.save_student_id,
@@ -93,7 +86,6 @@ function initModel(data) {
 
 function initView() {
   identityView();
-  notificationsView();
   groupsView();
   joinGroupView();
 }
@@ -137,45 +129,6 @@ function identityView() {
       minute: "2-digit",
     },
   );
-}
-
-function notificationsView() {
-  const notificationsDiv = document.getElementById("notifications");
-  if (model.notifications.length) {
-    const notifications = notificationsDiv.querySelector("ul");
-    model.notifications.map(notification =>
-      notifications.appendChild(notificationView(notification)),
-    );
-    notificationsDiv.style.display = "block";
-  } else {
-    notificationsDiv.style.display = "none";
-  }
-}
-
-function notificationView(notification) {
-  const a = document.createElement("a");
-  a.title = notification.hoverText;
-  a.addEventListener("click", () => removeNotification(notification));
-
-  const li = document.createElement("li");
-  li.classList.add("mdc-list-item");
-  a.appendChild(li);
-
-  const iconSpan = document.createElement("span");
-  iconSpan.classList.add("mdc-list-item__graphic", "mdc-theme--primary");
-  li.appendChild(iconSpan);
-
-  const icon = document.createElement("i");
-  icon.classList.add("material-icons", "md-36");
-  icon.textContent = notification.icon;
-  iconSpan.appendChild(icon);
-
-  const textSpan = document.createElement("span");
-  textSpan.classList.add("mdc-list-item__text");
-  textSpan.textContent = notification.text;
-  li.appendChild(textSpan);
-
-  return a;
 }
 
 function joinGroupView() {
@@ -557,33 +510,6 @@ function showCopyBubble(node) {
 /* update */
 /**********/
 
-function removeNotification(notification) {
-  const url = model.urls.removeNotification;
-  const data = {
-    notification_pk: notification.pk,
-  };
-
-  const req = buildReq(data, "post");
-
-  fetch(url, req)
-    .then(function(resp) {
-      if (resp.ok) {
-        if (notification.link) {
-          window.location = notification.link;
-        } else {
-          model.notifications.splice(
-            model.notifications.indexOf(notification),
-            1,
-          );
-          notificationsView();
-        }
-      } else {
-        console.log(resp);
-      }
-    })
-    .catch(err => console.log(err));
-}
-
 function handleStudentIdKeyDown(key, group, node) {
   if (key === "Enter") {
     saveStudentId(group, node);
@@ -769,12 +695,6 @@ function timeuntil(date1, date2) {
     diff_ = diff_ + parseInt(diffMinutes) + " " + model.translations.minutes;
   }
   return diff_;
-}
-
-function clear(node) {
-  while (node.hasChildNodes()) {
-    node.removeChild(node.lastChild);
-  }
 }
 
 /********/

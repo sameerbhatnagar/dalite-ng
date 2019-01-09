@@ -693,6 +693,9 @@ class StudentNotificationType(models.Model):
     type = models.CharField(max_length=32, unique=True)
     icon = models.TextField()
 
+    def __unicode__(self):
+        return self.type
+
 
 class StudentNotification(models.Model):
     student = models.ForeignKey(Student)
@@ -700,8 +703,10 @@ class StudentNotification(models.Model):
     created_on = models.DateTimeField(auto_now=True, null=True)
     link = models.URLField(max_length=500, blank=True, null=True)
     text = models.TextField()
-    hover_text = models.TextField(blank=True, null=True)
     expiration = models.DateTimeField(null=True, blank=True)
+
+    def __unicode__(self):
+        return "{} for {}".format(self.notification, self.student)
 
     @staticmethod
     def create(type_, student, assignment=None, expiration=None):
@@ -750,10 +755,8 @@ class StudentNotification(models.Model):
                         ),
                     },
                 )
-                hover_text = "Go to assignment"
             else:
                 link = ""
-                hover_text = ""
 
             if type_ == "new_assignment":
                 text = "A new assignment {} was added for group {}.".format(
@@ -797,14 +800,12 @@ class StudentNotification(models.Model):
                 notification=notification,
                 link=link,
                 text=text,
-                hover_text=hover_text,
             ).exists():
                 StudentNotification.objects.create(
                     student=student,
                     notification=notification,
                     link=link,
                     text=text,
-                    hover_text=hover_text,
                     expiration=expiration,
                 )
             logger.info(
