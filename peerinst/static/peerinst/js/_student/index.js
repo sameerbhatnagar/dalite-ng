@@ -242,7 +242,6 @@ function groupTitleView(group) {
   const div = document.createElement("div");
   div.classList.add("student-group--title");
 
-  console.log(group.studentIdNeeded);
   if (group.studentIdNeeded) {
     div.appendChild(groupTitleIdView(group));
   }
