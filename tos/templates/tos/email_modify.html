@@ -6,6 +6,9 @@
   {% compress css %}
     <link rel="stylesheet" href="{% static 'tos/css/styles.min.css' %}"></link>
   {% endcompress %}
+  {% if user.student %}
+  <link href="{% static 'peerinst/css/student.min.css' %}" rel="stylesheet">
+  {% endif %}
 {% endblock %}
 
 {% block body %}
@@ -115,4 +118,14 @@
 
 {% block scripts %}
   <script src="{% static 'tos/js/email.min.js' %}" type="text/javascript"></script>
+  {% if user.student %}
+  <script src="{% static 'peerinst/js/student.min.js' %}"></script>
+  <script type="text/javascript">
+    window.addEventListener("load", function() {
+      student.initStudentHeader(
+        "{% url 'student-get-notifications' %}"
+      )
+    });
+  </script>
+  {% endif %}
 {% endblock %}
