@@ -8,6 +8,13 @@
 
 {% block scripts %}
 <script src="{% static 'peerinst/js/student.min.js' %}"></script>
+<script type="text/javascript">
+  window.addEventListener("load", function() {
+    student.initStudentHeader(
+      "{% url 'student-get-notifications' %}"
+    )
+  });
+</script>
 {% endblock %}
 
 {% block header_menu %}

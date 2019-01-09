@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+
 from operator import add
 
 # Backport of django 1.9 password validation
@@ -500,6 +501,16 @@ def student_patterns():
             r"^student/remove-notification/$",
             views.student.remove_notification,
             name="student-remove-notification",
+        ),
+        url(
+            r"^student/remove-notifications/$",
+            views.student.remove_notifications,
+            name="student-remove-notifications",
+        ),
+        url(
+            r"^student/get-notifications/$",
+            views.student.get_notifications,
+            name="student-get-notifications",
         ),
         url(
             r"^student/update/student-id/$",

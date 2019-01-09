@@ -4,22 +4,6 @@ i {
   vertical-align: middle;
 }
 
-#notifications {
-  & a {
-    cursor: pointer;
-    font-size: 16px;
-  }
-
-  & .mdc-list-item__text {
-    max-width: 100%;
-    color: $mdc-theme-secondary;
-
-    &:visited {
-      color: $mdc-theme-secondary;
-    }
-  }
-}
-
 #student-add-group {
   & .admin-link {
     margin-left: 50px;

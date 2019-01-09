@@ -55,7 +55,7 @@
         {% if user.is_authenticated %}
           {% if user.teacher %}
             {% include 'peerinst/teacher/header/menu.html' %}
-          {% else %}
+          {% elif user.student %}
             {% include 'peerinst/student/header/menu.html' %}
           {% endif %}
         {% endif %}
@@ -76,6 +76,11 @@
       </div>
     </div>
     <div id="header-right">
+      {% if user.is_authenticated and user.student %}
+      <div class="header">
+        {% include 'peerinst/student/header/notifications.html' %}
+      </div>
+      {% endif %}
     </div>
   </header>
 

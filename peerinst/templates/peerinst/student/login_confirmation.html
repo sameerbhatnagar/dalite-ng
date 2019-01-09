@@ -1,6 +1,10 @@
-{% extends "peerinst/student/base.html" %}
+{% extends "peerinst/base.html" %}
 
-{% load i18n %}
+{% load staticfiles i18n %}
+
+{% block stylesheets %}
+<link href="{% static 'peerinst/css/student.min.css' %}" rel="stylesheet">
+{% endblock %}
 
 {% block body %}
 
