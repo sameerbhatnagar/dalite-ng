@@ -46,7 +46,7 @@
     border-radius: 20px 0 20px 20px;
     display: grid;
     font-size: 1.1rem;
-    grid-auto-rows: 50px;
+    grid-auto-rows: minmax(50px, min-content);
     grid-template-columns: minmax(300px, 600px);
     padding-top: 20px;
     position: absolute;

@@ -29,3 +29,4 @@ repos:
     rev: 0.0.2
     hooks:
       - id: stylelint
+        exclude: "^.*\\.min\\..*$"
