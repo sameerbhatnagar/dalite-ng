@@ -1,8 +1,11 @@
-from datetime import datetime, timedelta
-import base64
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 
-import pytz
+import base64
+from datetime import datetime, timedelta
+
 import jwt
+import pytz
 from django.conf import settings
 
 
