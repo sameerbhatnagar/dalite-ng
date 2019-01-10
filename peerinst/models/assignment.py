@@ -6,8 +6,8 @@ import logging
 from datetime import datetime, timedelta
 
 import pytz
-from django.core import validators
 from django.contrib.auth.models import User
+from django.core import validators
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils import timezone
@@ -231,7 +231,9 @@ class StudentGroupAssignment(models.Model):
 
     def update_students(self):
         logger.info(
-            "Updating students for student group assignment %d", self.pk
+            "Updating %d students for student group assignment %d",
+            self.group.student_set.count(),
+            self.pk,
         )
 
         for student in self.group.student_set.all():
