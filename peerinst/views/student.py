@@ -328,7 +328,6 @@ def index_page(req):
                 "link": notification.link,
                 "icon": notification.notification.icon,
                 "text": ugettext(notification.text),
-                "hover_text": ugettext(notification.hover_text),
                 "pk": notification.pk,
             }
             for notification in student.notifications
