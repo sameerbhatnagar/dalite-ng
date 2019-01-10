@@ -215,7 +215,7 @@ def old_patterns():
         ),
         url(
             r"^teacher/(?P<pk>[0-9]+)/$",
-            views.TeacherUpdate.as_view(),
+            views.TeacherDetailView.as_view(),
             name="teacher-update",
         ),
         url(
