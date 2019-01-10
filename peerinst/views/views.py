@@ -1839,13 +1839,6 @@ class TeacherDetailView(TeacherBase, DetailView):
         return context
 
 
-class TeacherUpdate(TeacherBase, UpdateView):
-    """View for user to update teacher properties"""
-
-    model = Teacher
-    fields = ["institutions", "disciplines"]
-
-
 class TeacherAssignments(TeacherBase, ListView):
     """View to modify assignments associated to Teacher"""
 
