@@ -6,10 +6,6 @@ import logging
 from django.apps import AppConfig
 from django.db.utils import OperationalError
 from django.utils.translation import ugettext_lazy as _
-from django_lti_tool_provider.views import LTIView
-
-from .lti import ApplicationHookManager
-from .scheduled import start_scheduled_events
 
 
 class PeerinstConfig(AppConfig):
@@ -18,6 +14,10 @@ class PeerinstConfig(AppConfig):
 
     def ready(self):
         import peerinst.signals  # noqa
+        from django_lti_tool_provider.views import LTIView
+
+        from .lti import ApplicationHookManager
+        from .scheduled import start_scheduled_events
 
         LTIView.register_authentication_manager(ApplicationHookManager())
 

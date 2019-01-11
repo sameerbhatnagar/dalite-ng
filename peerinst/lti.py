@@ -5,7 +5,9 @@ import logging
 from django.contrib.auth import get_permission_codename, login
 from django.contrib.auth.models import Permission
 from django.core.urlresolvers import reverse
-from django_lti_tool_provider import AbstractApplicationHookManager
+from django_lti_tool_provider.application_hook_manager import (
+    AbstractApplicationHookManager,
+)
 
 from peerinst.auth import authenticate_student
 

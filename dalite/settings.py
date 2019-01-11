@@ -94,6 +94,7 @@ DATABASES = {
         "PASSWORD": os.environ.get("DALITE_DB_PASSWORD", ""),
         "HOST": os.environ.get("DALITE_DB_HOST", "127.0.0.1"),
         "PORT": os.environ.get("DALITE_DB_PORT", "3306"),
+        "OPTIONS": {"init_command": "set sql_mode='STRICT_TRANS_TABLES'"},
     }
 }
 
