@@ -44,7 +44,7 @@
     align-items: center;
     background: #ffffff;
     border-radius: 20px 0 20px 20px;
-    display: grid;
+    display: none;
     font-size: 1.1rem;
     grid-auto-rows: minmax(50px, min-content);
     grid-template-columns: minmax(300px, 600px);
@@ -113,6 +113,7 @@
   }
 
   & .notifications__list {
+    display: grid;
     transform: scaleY(1);
   }
 }
