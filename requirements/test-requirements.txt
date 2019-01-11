@@ -5,7 +5,7 @@ ddt
 factory_boy>=2.5.2,<2.6
 mock
 pytest
-pytest-cov==2.6.0
+pytest-cov
 pytest-django
 pytz
 pyyaml

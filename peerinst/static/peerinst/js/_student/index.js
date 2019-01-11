@@ -49,7 +49,6 @@ function initModel(data) {
       link: notification.link,
       icon: notification.icon,
       text: notification.text,
-      hoverText: notification.hover_text,
     })),
     urls: {
       tosModify: data.urls.tos_modify,
@@ -154,7 +153,6 @@ function notificationsView() {
 
 function notificationView(notification) {
   const a = document.createElement("a");
-  a.title = notification.hoverText;
   a.addEventListener("click", () => removeNotification(notification));
 
   const li = document.createElement("li");
