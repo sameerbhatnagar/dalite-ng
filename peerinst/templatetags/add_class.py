@@ -5,6 +5,7 @@ from django.utils.safestring import mark_safe
 
 register = Library()
 
+
 @register.filter(needs_autoescape=True)
 @stringfilter
 def add_class(html, css_class, autoescape=True):
@@ -17,21 +18,33 @@ def add_class(html, css_class, autoescape=True):
         css_class = conditional_escape(css_class)
 
     class CustomTagParser(HTMLParser):
-        new_tag = ''
+        new_tag = ""
         class_added = False
 
         def add_class(self, tag, attrs):
 
-            self.new_tag = self.new_tag + '<' + tag
+            self.new_tag = self.new_tag + "<" + tag
             for key, value in attrs:
-                if key == 'class' and not self.class_added:
-                    self.new_tag = self.new_tag + ' ' + key + '=\"' + value + ' ' + css_class + '\" '
-                    self.class_added = True
-                else:
-                    self.new_tag = self.new_tag + ' ' + key + '=\"' + value + '\" '
+                if value:
+                    if key == "class" and not self.class_added:
+                        self.new_tag = (
+                            self.new_tag
+                            + " "
+                            + key
+                            + '="'
+                            + value
+                            + " "
+                            + css_class
+                            + '" '
+                        )
+                        self.class_added = True
+                    else:
+                        self.new_tag = (
+                            self.new_tag + " " + key + '="' + value + '" '
+                        )
 
             if not self.class_added:
-                self.new_tag = self.new_tag + 'class=\"' + css_class + '\" '
+                self.new_tag = self.new_tag + 'class="' + css_class + '" '
                 self.class_added = True
 
             return
@@ -39,14 +52,14 @@ def add_class(html, css_class, autoescape=True):
         def handle_starttag(self, tag, attrs):
             self.add_class(tag, attrs)
 
-            self.new_tag = self.new_tag + '>'
+            self.new_tag = self.new_tag + ">"
 
             return
 
         def handle_startendtag(self, tag, attrs):
             self.add_class(tag, attrs)
 
-            self.new_tag = self.new_tag + '/>'
+            self.new_tag = self.new_tag + "/>"
 
             return
 
@@ -56,7 +69,7 @@ def add_class(html, css_class, autoescape=True):
             return
 
         def handle_endtag(self, tag):
-            self.new_tag = self.new_tag + '</' + tag + '>'
+            self.new_tag = self.new_tag + "</" + tag + ">"
 
             return
 

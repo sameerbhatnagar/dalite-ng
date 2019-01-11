@@ -5,9 +5,9 @@ from django.contrib.auth.models import User
 from django.db import IntegrityError
 from django.test import SimpleTestCase, TestCase
 
-from dalite import ApplicationHookManager, LTIRoles
 from dalite.views import admin_index_wrapper
 from peerinst.auth import get_student_username_and_password
+from peerinst.lti import ApplicationHookManager
 from peerinst.models import Student
 from peerinst.students import get_student_username_and_password
 

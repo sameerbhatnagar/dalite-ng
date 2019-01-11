@@ -19,13 +19,14 @@ urlpatterns = [url(r"^lti/", include("django_lti_tool_provider.urls"))]
 
 # Apps
 urlpatterns += i18n_patterns(
-    url(r"^tos/", include("tos.urls", namespace="tos")),
+    url(r"^tos/", include("tos.urls")),
     url(r"", include("peerinst.urls")),
     url(
         r"^assignment/(?P<assignment_id>[^/]+)/",
         include(
             [
-                # Question table of contents for assignment - Enforce sameorigin to prevent access from LMS
+                # Question table of contents for assignment - Enforce
+                # sameorigin to prevent access from LMS
                 url(
                     r"^$",
                     xframe_options_sameorigin(
@@ -41,7 +42,8 @@ urlpatterns += i18n_patterns(
                             url(
                                 r"^$", peerinst_views.question, name="question"
                             ),
-                            # Question reset (for testing purposes) - Enforce sameorigin to prevent access from LMS
+                            # Question reset (for testing purposes) - Enforce
+                            # sameorigin to prevent access from LMS
                             url(
                                 r"^reset/$",
                                 peerinst_views.reset_question,

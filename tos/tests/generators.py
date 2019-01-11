@@ -6,13 +6,9 @@ from datetime import datetime
 
 import pytz
 from django.contrib.auth.models import User
-from tos.models import (
-    EmailConsent,
-    EmailType,
-    Role,
-    Tos,
-    Consent as TosConsent,
-)
+
+from tos.models import Consent as TosConsent
+from tos.models import EmailConsent, EmailType, Role, Tos
 
 
 def new_users(n):

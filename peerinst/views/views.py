@@ -10,6 +10,7 @@ import re
 import urllib
 
 import pytz
+
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import logout
@@ -1632,7 +1633,7 @@ def question(request, assignment_id, question_id):
     dispatcher loads the session state and relevant database objects. Based on
     the available data, it delegates to the correct view class.
     """
-    if not request.user.is_authenticated():
+    if not request.user.is_authenticated:
         return redirect_to_login_or_show_cookie_help(request)
 
     # Collect common objects required for the view
@@ -2280,7 +2281,7 @@ class BlinkQuestionDetailView(DetailView):
     def get(self, request, *args, **kwargs):
         # Check for an answer... teacher might have refreshed their page and
         # started a new round
-        if not request.user.is_authenticated():
+        if not request.user.is_authenticated:
             try:
                 r = BlinkRound.objects.get(
                     question=self.get_object(), deactivate_time__isnull=True
@@ -2308,7 +2309,7 @@ class BlinkQuestionDetailView(DetailView):
 
         # Check if user is a Teacher
         if (
-            self.request.user.is_authenticated()
+            self.request.user.is_authenticated
             and Teacher.objects.filter(
                 user__username=self.request.user
             ).exists()
@@ -2610,7 +2611,7 @@ def question_search(request):
             )
         )
 
-    if request.method == "GET" and request.user.is_authenticated():
+    if request.method == "GET" and request.user.is_authenticated:
         page = request.GET.get("page", default=1)
         type = request.GET.get("type", default=None)
         id = request.GET.get("id", default=None)
@@ -2769,7 +2770,7 @@ def blink_close(request, pk):
 
     context = {}
 
-    if request.method == "POST" and request.user.is_authenticated():
+    if request.method == "POST" and request.user.is_authenticated:
         form = forms.BlinkQuestionStateForm(request.POST)
         try:
             blinkquestion = BlinkQuestion.objects.get(pk=pk)
@@ -2865,7 +2866,7 @@ class BlinkAssignmentUpdate(LoginRequiredMixin, DetailView):
 
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
-        if request.user.is_authenticated():
+        if request.user.is_authenticated:
             form = forms.RankBlinkForm(request.POST)
             if form.is_valid():
 

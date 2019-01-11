@@ -19,7 +19,7 @@ from .mixins import student_check
 
 
 def not_authenticated(user):
-    return not user.is_authenticated()
+    return not user.is_authenticated
 
 
 def old_patterns():
