@@ -18,7 +18,7 @@
       <div class="admin-link">
         {% if not lti %}
         <a href="{% url 'question-list' assignment_id=assignment.pk %}">{% trans 'Back to assignment' %}</a>
-        {% if question.user = user or user in question.collaborators.all %}
+        {% if question.user == user or user in question.collaborators.all %}
         <span style="padding-left:0.3em;padding-right:0.5em;">|</span><a href="{% url 'question-update' question.id %}">{% trans 'Edit question' %}</a>
         {% endif %}
         {% endif %}
