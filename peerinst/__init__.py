@@ -1,1 +1,1 @@
-default_app_config = 'peerinst.apps.PeerInstConfig'
+default_app_config = "peerinst.apps.PeerinstConfig"
