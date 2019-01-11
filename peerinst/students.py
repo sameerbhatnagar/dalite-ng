@@ -81,17 +81,31 @@ def authenticate_student(req, token):
 
         username_, password = get_student_username_and_password(email)
 
-        if username == username_:
-            user = authenticate(username=username, password=password)
-        else:
-            passwords = get_lti_passwords(username)
-            users_ = [
-                authenticate(username=username, password=p) for p in passwords
-            ]
-            try:
-                user = [u for u in users_ if u is not None][0]
-            except IndexError:
-                user = None
+        try:
+            user = User.objects.get(username=username)
+            if not user.is_active:
+                user.is_active = True
+                user.save()
+        except User.DoesNotExist:
+            user = None
+
+        if user is not None:
+
+            if username == username_:
+                if user is not None:
+                    user = authenticate(
+                        req, username=username, password=password
+                    )
+            else:
+                passwords = get_lti_passwords(username)
+                users_ = [
+                    authenticate(username=username, password=p)
+                    for p in passwords
+                ]
+                try:
+                    user = [u for u in users_ if u is not None][0]
+                except IndexError:
+                    user = None
 
         if user is None:
             resp = TemplateResponse(

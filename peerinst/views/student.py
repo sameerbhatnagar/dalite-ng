@@ -661,7 +661,6 @@ def send_signin_link(req):
 
     if not student:
         student, created = Student.get_or_create(email)
-        print(created)
         logger.info("Student created with email {}.".format(email))
 
     elif len(student) == 1:
