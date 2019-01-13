@@ -676,7 +676,6 @@ class TeacherTest(TestCase):
             )
         )
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, question.answerchoice_set.all())
 
     def test_assignment_update_dispatch(self):
         logged_in = self.client.login(

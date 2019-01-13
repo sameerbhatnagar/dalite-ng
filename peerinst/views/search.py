@@ -1,11 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-import json
-
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.core import serializers
-from django.http import HttpResponseBadRequest, JsonResponse
+from django.http import JsonResponse
 from django.template.response import TemplateResponse
 from django.views.decorators.http import require_GET
 
@@ -32,8 +29,7 @@ def search_users(request):
         )
     else:
         # Bad request
-        response = TemplateResponse(request, "400.html")
-        return HttpResponseBadRequest(response.render())
+        return TemplateResponse(request, "400.html", status=400)
 
 
 @login_required
@@ -52,5 +48,4 @@ def search_categories(request):
         )
     else:
         # Bad request
-        response = TemplateResponse(request, "400.html")
-        return HttpResponseBadRequest(response.render())
+        return TemplateResponse(request, "400.html", status=400)

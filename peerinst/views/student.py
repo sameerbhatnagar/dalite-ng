@@ -9,13 +9,7 @@ from django.conf import settings
 from django.contrib.auth import login, logout
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
-from django.http import (
-    HttpResponse,
-    HttpResponseBadRequest,
-    HttpResponseForbidden,
-    HttpResponseRedirect,
-    JsonResponse,
-)
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.template.response import TemplateResponse
 from django.utils.translation import ugettext
@@ -59,12 +53,12 @@ def validate_group_data(req):
         data = json.loads(req.body)
     except ValueError:
         logger.warning("The sent data wasn't in a valid JSON format.")
-        resp = TemplateResponse(
+        return TemplateResponse(
             req,
             "400.html",
             context={"message": _("Wrong data type was sent.")},
+            status=400,
         )
-        return HttpResponseBadRequest(resp.render())
 
     try:
         group_name = data["group_name"]
@@ -77,12 +71,12 @@ def validate_group_data(req):
             logger.warning(
                 "The arguments 'group_name' or 'group_link' were missing."
             )
-            resp = TemplateResponse(
+            return TemplateResponse(
                 req,
                 "400.html",
                 context={"message": _("There are missing parameters.")},
+                status=400,
             )
-            return HttpResponseBadRequest(resp.render())
 
     if group_name is None:
         try:
@@ -94,7 +88,7 @@ def validate_group_data(req):
             logger.warning(
                 "A student signup was tried with the link %s.", group_link
             )
-            resp = TemplateResponse(
+            return TemplateResponse(
                 req,
                 "400.html",
                 context={
@@ -103,14 +97,14 @@ def validate_group_data(req):
                         "again."
                     )
                 },
+                status=400,
             )
-            return HttpResponseBadRequest(resp.render())
         group = StudentGroup.get(hash_)
         if group is None:
             logger.warning(
                 "There is no group corresponding to the hash %s.", hash_
             )
-            resp = TemplateResponse(
+            return TemplateResponse(
                 req,
                 "400.html",
                 context={
@@ -119,8 +113,8 @@ def validate_group_data(req):
                         "the link. Please try again."
                     )
                 },
+                status=400,
             )
-            return HttpResponseBadRequest(resp.render())
 
     else:
         try:
@@ -129,7 +123,7 @@ def validate_group_data(req):
             logger.warning(
                 "There is no group corresponding to the name %s.", group_name
             )
-            resp = TemplateResponse(
+            return TemplateResponse(
                 req,
                 "400.html",
                 context={
@@ -138,8 +132,8 @@ def validate_group_data(req):
                         "and try again"
                     )
                 },
+                status=400,
             )
-            return HttpResponseBadRequest(resp.render())
 
     return group
 
@@ -160,7 +154,7 @@ def index_page(req):
                 "Student index page accessed without a token or being logged "
                 "in."
             )
-            resp = TemplateResponse(
+            return TemplateResponse(
                 req,
                 "403.html",
                 context={
@@ -169,8 +163,8 @@ def index_page(req):
                         "resource."
                     )
                 },
+                status=403,
             )
-            return HttpResponseForbidden(resp.render())
 
         try:
             student = Student.objects.get(student=req.user)
@@ -178,7 +172,7 @@ def index_page(req):
             logger.warning(
                 "There is no student corresponding to user %d.", req.user.pk
             )
-            resp = TemplateResponse(
+            return TemplateResponse(
                 req,
                 "403.html",
                 context={
@@ -187,8 +181,8 @@ def index_page(req):
                         "resource."
                     )
                 },
+                status=403,
             )
-            return HttpResponseForbidden(resp.render())
         token = create_student_token(
             student.student.username, student.student.email
         )
@@ -213,7 +207,7 @@ def index_page(req):
             logger.warning(
                 "There is no student corresponding to user %d.", user.pk
             )
-            resp = TemplateResponse(
+            return TemplateResponse(
                 req,
                 "403.html",
                 context={
@@ -222,8 +216,8 @@ def index_page(req):
                         "resource."
                     )
                 },
+                status=403,
             )
-            return HttpResponseForbidden(resp.render())
 
     StudentNotification.clean(student)
 
@@ -401,12 +395,12 @@ def join_group(req, student):
         logger.warning(
             "Student {} isn't part of group {}.".format(student.pk, group.pk)
         )
-        resp = TemplateResponse(
+        return TemplateResponse(
             req,
             "400.html",
             context={"message": _("You don't seem to be part of this group.")},
+            status=400,
         )
-        return HttpResponseBadRequest(resp.render())
 
     token = create_student_token(
         student.student.username, student.student.email
@@ -506,23 +500,23 @@ def remove_notification(req, student):
         data = json.loads(req.body)
     except ValueError:
         logger.warning("The sent data wasn't in a valid JSON format.")
-        resp = TemplateResponse(
+        return TemplateResponse(
             req,
             "400.html",
             context={"message": _("Wrong data type was sent.")},
+            status=400,
         )
-        return HttpResponseBadRequest(resp.render())
 
     try:
         notification_pk = data["notification_pk"]
     except KeyError as e:
         logger.warning("The arguments '%s' were missing.", ",".join(e.args))
-        resp = TemplateResponse(
+        return TemplateResponse(
             req,
             "400.html",
             context={"message": _("There are missing parameters.")},
+            status=400,
         )
-        return HttpResponseBadRequest(resp.render())
 
     try:
         StudentNotification.objects.get(pk=notification_pk).delete()
@@ -581,35 +575,35 @@ def update_student_id(req, student):
         data = json.loads(req.body)
     except ValueError:
         logger.warning("The sent data wasn't in a valid JSON format.")
-        resp = TemplateResponse(
+        return TemplateResponse(
             req,
             "400.html",
             context={"message": _("Wrong data type was sent.")},
+            status=400,
         )
-        return HttpResponseBadRequest(resp.render())
 
     try:
         student_id = data["student_id"]
         group_name = data["group_name"]
     except KeyError as e:
         logger.warning("The arguments '%s' were missing.", ",".join(e.args))
-        resp = TemplateResponse(
+        return TemplateResponse(
             req,
             "400.html",
             context={"message": _("There are missing parameters.")},
+            status=400,
         )
-        return HttpResponseBadRequest(resp.render())
 
     try:
         group = StudentGroup.objects.get(name=group_name)
     except StudentGroup.DoesNotExist:
         logger.warning("Group {} doesn't exist.".format(group_name))
-        resp = TemplateResponse(
+        return TemplateResponse(
             req,
             "400.html",
             context={"message": _("The wanted group doesn't seem to exist.")},
+            status=400,
         )
-        return HttpResponseBadRequest(resp.render())
 
     try:
         membership = StudentGroupMembership.objects.get(
@@ -619,12 +613,12 @@ def update_student_id(req, student):
         logger.warning(
             "Student {} isn't part of group {}.".format(student.pk, group.pk)
         )
-        resp = TemplateResponse(
+        return TemplateResponse(
             req,
             "400.html",
             context={"message": _("You don't seem to be part of this group.")},
+            status=400,
         )
-        return HttpResponseBadRequest(resp.render())
 
     membership.student_school_id = student_id
     membership.save()
@@ -650,12 +644,12 @@ def send_signin_link(req):
         email = req.POST["email"]
     except KeyError as e:
         logger.warning("The arguments '%s' were missing.", ",".join(e.args))
-        resp = TemplateResponse(
+        return TemplateResponse(
             req,
             "400.html",
             context={"message": _("There are missing parameters.")},
+            status=400,
         )
-        return HttpResponseBadRequest(resp.render())
 
     student = Student.objects.filter(student__email=email)
 

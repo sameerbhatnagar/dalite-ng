@@ -1,7 +1,7 @@
 from __future__ import unicode_literals
+
 import logging
 
-from django.http import HttpResponseBadRequest, HttpResponseForbidden
 from django.template.response import TemplateResponse
 from django.utils.translation import ugettext_lazy as _
 
@@ -27,14 +27,14 @@ def group_access_required(fct):
                     req.path
                 )
             )
-            resp = TemplateResponse(
+            return TemplateResponse(
                 req,
                 "403.html",
                 context={
                     "message": _("You don't have access to this resource.")
                 },
+                status=403,
             )
-            return HttpResponseForbidden(resp.render())
 
         try:
             teacher = Teacher.objects.get(user=req.user)
@@ -42,14 +42,14 @@ def group_access_required(fct):
             logger.warning(
                 "Access to {} with a non teacher user.".format(req.path)
             )
-            resp = TemplateResponse(
+            return TemplateResponse(
                 req,
                 "403.html",
                 context={
                     "message": _("You don't have access to this resource.")
                 },
+                status=403,
             )
-            return HttpResponseForbidden(resp.render())
 
         if group_hash is not None:
             group = StudentGroup.get(group_hash)
@@ -57,7 +57,7 @@ def group_access_required(fct):
                 logger.warning(
                     "Access to {} with a invalid group hash.".format(req.path)
                 )
-                resp = TemplateResponse(
+                return TemplateResponse(
                     req,
                     "400.html",
                     context={
@@ -67,8 +67,8 @@ def group_access_required(fct):
                             )
                         )
                     },
+                    status=400,
                 )
-                return HttpResponseBadRequest(resp.render())
 
         else:
             assignment = StudentGroupAssignment.get(assignment_hash)
@@ -78,7 +78,7 @@ def group_access_required(fct):
                         req.path
                     )
                 )
-                resp = TemplateResponse(
+                return TemplateResponse(
                     req,
                     "400.html",
                     context={
@@ -88,8 +88,8 @@ def group_access_required(fct):
                             )
                         )
                     },
+                    status=400,
                 )
-                return HttpResponseBadRequest(resp.render())
             group = assignment.group
 
         if teacher not in group.teacher.all():
@@ -98,7 +98,7 @@ def group_access_required(fct):
                     group.pk, teacher.pk
                 )
             )
-            resp = TemplateResponse(
+            return TemplateResponse(
                 req,
                 "403.html",
                 context={
@@ -109,8 +109,8 @@ def group_access_required(fct):
                         )
                     )
                 },
+                status=403,
             )
-            return HttpResponseForbidden(resp.render())
 
         if return_assignment:
             return fct(
@@ -133,14 +133,14 @@ def teacher_required(fct):
             logger.warning(
                 "Access to {} from a non teacher user.".format(req.path)
             )
-            resp = TemplateResponse(
+            return TemplateResponse(
                 req,
                 "403.html",
                 context={
                     "message": _("You don't have access to this resource.")
                 },
+                status=403,
             )
-            return HttpResponseForbidden(resp.render())
         return fct(req, *args, **kwargs)
 
     return wrapper
@@ -154,14 +154,14 @@ def student_required(fct):
             logger.warning(
                 "Access to {} with a non student user.".format(req.path)
             )
-            resp = TemplateResponse(
+            return TemplateResponse(
                 req,
                 "403.html",
                 context={
                     "message": _("You don't have access to this resource.")
                 },
+                status=403,
             )
-            return HttpResponseForbidden(resp.render())
 
         return fct(req, *args, student=student, **kwargs)
 

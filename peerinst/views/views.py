@@ -10,7 +10,6 @@ import re
 import urllib
 
 import pytz
-
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import logout
@@ -30,9 +29,7 @@ from django.forms import Textarea, inlineformset_factory
 from django.http import (
     Http404,
     HttpResponse,
-    HttpResponseBadRequest,
     HttpResponseRedirect,
-    HttpResponseServerError,
     JsonResponse,
 )
 from django.shortcuts import (
@@ -209,8 +206,7 @@ def dashboard(request):
             if not settings.EMAIL_BACKEND.startswith(
                 "django.core.mail.backends"
             ):
-                response = TemplateResponse(request, "500.html")
-                return HttpResponseServerError(response.render())
+                return TemplateResponse(request, "500.html", status=500)
 
             host = request.get_host()
             if host == "localhost" or host == "127.0.0.1":
@@ -263,8 +259,7 @@ def sign_up(request):
             if not settings.EMAIL_BACKEND.startswith(
                 "django.core.mail.backends"
             ):
-                response = TemplateResponse(request, "500.html")
-                return HttpResponseServerError(response.render())
+                return TemplateResponse(request, "500.html", status=500)
 
             host = request.get_host()
             if host == "localhost" or host == "127.0.0.1":
@@ -485,8 +480,7 @@ class AssignmentUpdateView(LoginRequiredMixin, NoStudentsMixin, DetailView):
             )
         else:
             # Bad request
-            response = TemplateResponse(request, "400.html")
-            return HttpResponseBadRequest(response.render())
+            return TemplateResponse(request, "400.html", status=400)
 
 
 class QuestionListView(LoginRequiredMixin, NoStudentsMixin, ListView):
@@ -687,8 +681,7 @@ def question_delete(request):
             return JsonResponse({"action": "restore"})
     else:
         # Bad request
-        response = TemplateResponse(request, "400.html")
-        return HttpResponseBadRequest(response.render())
+        return TemplateResponse(request, "400.html", status=400)
 
 
 @login_required
@@ -775,12 +768,10 @@ def sample_answer_form_done(request, question_id):
             )
         except Exception:
             # Bad request
-            response = TemplateResponse(request, "400.html")
-            return HttpResponseBadRequest(response.render())
+            return TemplateResponse(request, "400.html", status=400)
     else:
         # Bad request
-        response = TemplateResponse(request, "400.html")
-        return HttpResponseBadRequest(response.render())
+        return TemplateResponse(request, "400.html", status=400)
 
 
 class DisciplineCreateView(
@@ -1779,8 +1770,7 @@ class TeacherGroupShare(TeacherBase, DetailView):
 
         else:
             # Bad request
-            response = TemplateResponse(self.request, "400.html")
-            return HttpResponseBadRequest(response.render())
+            return TemplateResponse(self.request, "400.html", status=400)
 
     def get_context_data(self, **kwargs):
         context = super(TeacherGroupShare, self).get_context_data(**kwargs)
@@ -1971,8 +1961,7 @@ def teacher_toggle_favourite(request):
             return JsonResponse({"action": "removed"})
     else:
         # Bad request
-        response = TemplateResponse(request, "400.html")
-        return HttpResponseBadRequest(response.render())
+        return TemplateResponse(request, "400.html", status=400)
 
 
 @login_required

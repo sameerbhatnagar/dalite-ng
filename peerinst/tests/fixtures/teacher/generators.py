@@ -1,5 +1,4 @@
 from django.contrib.auth.models import User
-
 from peerinst.models import Teacher
 
 

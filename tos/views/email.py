@@ -4,15 +4,7 @@ from operator import itemgetter
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.http import (
-    HttpResponse,
-    HttpResponseBadRequest,
-    HttpResponseForbidden,
-    HttpResponseNotAllowed,
-    HttpResponseRedirect,
-    HttpResponseServerError,
-    JsonResponse,
-)
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.template.response import TemplateResponse
 from django.utils.translation import ugettext_lazy as _
@@ -102,29 +94,36 @@ def _get_username_and_role(req, role):
     username = req.user.username
 
     if not User.objects.filter(username=username).exists():
-        resp = TemplateResponse(
-            req,
-            "400.html",
-            context={
-                "message": _('The user "{}" doesn\'t exist.'.format(username))
-            },
+        return (
+            TemplateResponse(
+                req,
+                "400.html",
+                context={
+                    "message": _(
+                        'The user "{}" doesn\'t exist.'.format(username)
+                    )
+                },
+                status=400,
+            ),
+            None,
         )
-        return HttpResponseBadRequest(resp.render()), None
 
     try:
         role_ = Role.objects.get(role=role)
     except Role.DoesNotExist:
-        resp = TemplateResponse(
-            req,
-            "400.html",
-            context={
-                "message": _(
-                    'The role "{}" doesn\'t seem to exist.'.format(role)
-                )
-            },
+        return (
+            TemplateResponse(
+                req,
+                "400.html",
+                context={
+                    "message": _(
+                        'The role "{}" doesn\'t seem to exist.'.format(role)
+                    )
+                },
+                status=400,
+            ),
+            None,
         )
-
-        return HttpResponseBadRequest(resp.render()), None
 
     return username, role_
 

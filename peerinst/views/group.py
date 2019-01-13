@@ -5,12 +5,7 @@ import json
 import logging
 
 from django.contrib.auth.decorators import login_required
-from django.http import (
-    HttpResponse,
-    HttpResponseBadRequest,
-    HttpResponseServerError,
-    JsonResponse,
-)
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.template.response import TemplateResponse
 from django.utils.translation import ugettext_lazy as _
@@ -33,23 +28,23 @@ def validate_update_data(req):
     try:
         data = json.loads(req.body)
     except ValueError:
-        resp = TemplateResponse(
+        return TemplateResponse(
             req,
             "400.html",
             context={"message": _("Wrong data type was sent.")},
+            status=400,
         )
-        return HttpResponseBadRequest(resp.render()), None
 
     try:
         name = data["name"]
         value = data["value"]
     except KeyError:
-        resp = TemplateResponse(
+        return TemplateResponse(
             req,
             "400.html",
             context={"message": _("There are missing parameters.")},
+            status=400,
         )
-        return HttpResponseBadRequest(resp.render()), None
 
     return name, value
 
@@ -98,12 +93,12 @@ def group_details_update(req, group_hash, teacher, group):
             name != group.name
             and StudentGroup.objects.filter(name=name).exists()
         ):
-            resp = TemplateResponse(
+            return TemplateResponse(
                 req,
                 "400.html",
                 context={"message": _("That name already exists.")},
+                status=400,
             )
-            return HttpResponseBadRequest(resp.render())
         group.name = value
         group.save()
         logger.info("Group %d's name was changed to %s.", group.pk, value)
@@ -117,7 +112,7 @@ def group_details_update(req, group_hash, teacher, group):
         try:
             teacher = Teacher.objects.get(user__username=value)
         except Teacher.DoesNotExist:
-            resp = TemplateResponse(
+            return TemplateResponse(
                 req,
                 "400.html",
                 context={
@@ -125,8 +120,8 @@ def group_details_update(req, group_hash, teacher, group):
                         "There is no teacher with username {}.".format(teacher)
                     )
                 },
+                status=400,
             )
-            return HttpResponseBadRequest(resp.render())
         group.teacher.add(teacher)
         group.save()
         logger.info("Teacher %d was added to group %d.", value, group.pk)
@@ -139,12 +134,12 @@ def group_details_update(req, group_hash, teacher, group):
         )
 
     else:
-        resp = TemplateResponse(
+        return TemplateResponse(
             req,
             "400.html",
             context={"message": _("Wrong data type was sent.")},
+            status=400,
         )
-        return HttpResponseBadRequest(resp.render())
 
     return HttpResponse(content_type="text/plain")
 
@@ -187,8 +182,9 @@ def group_assignment_update(req, assignment_hash, teacher, group, assignment):
     err = assignment.update(name, value)
 
     if err is not None:
-        resp = TemplateResponse(req, "400.html", context={"message": err})
-        return HttpResponseBadRequest(resp.render())
+        return TemplateResponse(
+            req, "400.html", context={"message": err}, status=400
+        )
 
     return HttpResponse(content_type="text/plain")
 
@@ -201,29 +197,27 @@ def send_student_assignment(req, assignment_hash, teacher, group, assignment):
     try:
         data = json.loads(req.body)
     except ValueError:
-        print(1)
-        resp = TemplateResponse(
+        return TemplateResponse(
             req,
             "400.html",
             context={"message": _("Wrong data type was sent.")},
+            status=400,
         )
-        return HttpResponseBadRequest(resp.render()), None
 
     try:
         email = data["email"]
     except KeyError:
-        print(2)
-        resp = TemplateResponse(
+        return TemplateResponse(
             req,
             "400.html",
             context={"message": _("There are missing parameters.")},
+            status=400,
         )
-        return HttpResponseBadRequest(resp.render()), None
 
     try:
         student = Student.objects.get(student__email=email)
     except Student.DoesNotExist:
-        resp = TemplateResponse(
+        return TemplateResponse(
             req,
             "400.html",
             context={
@@ -231,8 +225,8 @@ def send_student_assignment(req, assignment_hash, teacher, group, assignment):
                     'There is no student with email "{}".'.format(email)
                 )
             },
+            status=400,
         )
-        return HttpResponseBadRequest(resp.render())
 
     student_assignment, __ = StudentAssignment.objects.get_or_create(
         group_assignment=assignment, student=student
@@ -241,8 +235,9 @@ def send_student_assignment(req, assignment_hash, teacher, group, assignment):
     err = student_assignment.send_email("new_assignment")
 
     if err is not None:
-        resp = TemplateResponse(req, "500.html", context={"message": _(err)})
-        return HttpResponseServerError(resp.render())
+        return TemplateResponse(
+            req, "500.html", context={"message": _(err)}, status=500
+        )
 
     return HttpResponse()
 

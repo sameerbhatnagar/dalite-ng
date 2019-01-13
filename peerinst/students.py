@@ -8,7 +8,7 @@ from datetime import timedelta
 from django.conf import settings
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
-from django.http import HttpRequest, HttpResponse, HttpResponseBadRequest
+from django.http import HttpRequest, HttpResponse
 from django.template.response import TemplateResponse
 from django.utils.translation import ugettext_lazy as _
 
@@ -60,12 +60,10 @@ def authenticate_student(req, token):
     assert isinstance(req, HttpRequest), "Precondition failed for `req`"
     assert isinstance(token, basestring), "Precondition failed for `token`"
 
-    resp = None
-
     username, email, err = verify_student_token(token)
 
     if err is not None:
-        resp = TemplateResponse(
+        output = TemplateResponse(
             req,
             "400.html",
             context={
@@ -74,8 +72,8 @@ def authenticate_student(req, token):
                     "login link."
                 )
             },
+            status=400,
         )
-        output = HttpResponseBadRequest(resp.render())
 
     else:
 
@@ -108,7 +106,7 @@ def authenticate_student(req, token):
                     user = None
 
         if user is None:
-            resp = TemplateResponse(
+            output = TemplateResponse(
                 req,
                 "400.html",
                 context={
@@ -117,8 +115,8 @@ def authenticate_student(req, token):
                         "You may try asking for another one."
                     )
                 },
+                status=400,
             )
-            output = HttpResponse(resp.render(), status=400)
         else:
             output = user
 
@@ -128,6 +126,8 @@ def authenticate_student(req, token):
 
 def get_student_username_and_password(email, max_username_length=30):
     assert isinstance(email, basestring), "Precondition failed for `email`"
+
+    email = email.lower()
 
     key = settings.SECRET_KEY
 

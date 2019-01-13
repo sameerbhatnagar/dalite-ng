@@ -1,4 +1,3 @@
-from django.http import HttpResponseForbidden
 from django.contrib.auth.models import AnonymousUser
 from django.test import RequestFactory, TestCase
 
@@ -27,7 +26,7 @@ class TeacherRequired(TestCase):
         req.user = user
 
         resp = self.teacher_required(req)
-        self.assertIsInstance(resp, HttpResponseForbidden)
+        self.assertEqual(resp.template_name, "403.html")
         self.assertEqual(resp.status_code, 403)
 
 
@@ -46,7 +45,7 @@ def test_student_required__with_teacher(client, rf, teacher):
 
     fct = student_required(lambda req, student: student)
     resp = fct(req)
-    assert isinstance(resp, HttpResponseForbidden)
+    assert resp.template_name == "403.html"
     assert resp.status_code == 403
 
 
@@ -56,7 +55,7 @@ def test_student_required__with_regular_user(client, rf, user):
 
     fct = student_required(lambda req, student: student)
     resp = fct(req)
-    assert isinstance(resp, HttpResponseForbidden)
+    assert resp.template_name == "403.html"
     assert resp.status_code == 403
 
 
@@ -66,5 +65,5 @@ def test_student_required__with_anonymous_user(client, rf, user):
 
     fct = student_required(lambda req, student: student)
     resp = fct(req)
-    assert isinstance(resp, HttpResponseForbidden)
+    assert resp.template_name == "403.html"
     assert resp.status_code == 403
