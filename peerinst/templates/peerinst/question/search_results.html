@@ -4,7 +4,7 @@
 
 {% for r in search_results|dictsortreversed:"count" %}
   {% if forloop.first %}
-    {% if r.count = 0 %}
+    {% if r.count == 0 %}
       <div>{% trans 'No search results' %}</div>
     {% else %}
       <div class="pagination">
@@ -103,7 +103,7 @@
 
           {% if assignment %}
           <button onclick="ajax.updateAssignmentQuestionList('{% url 'assignment-edit-ajax' %}', '{{ g.id }}', '{{ assignment.identifier }}')" class="material-icons small-button mdc-button mdc-card__action mdc-card__action--button mdc-button--raised" style="margin-left:20px;">add</button>
-          {% elif type = None %}
+          {% elif type == None %}
           {% if request.user.teacher %}
           <i class="mdc-icon-toggle material-icons mdc-theme--primary"
               role="button"
