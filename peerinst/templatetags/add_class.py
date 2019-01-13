@@ -43,7 +43,7 @@ def add_class(html, css_class, autoescape=True):
                             self.new_tag + " " + key + '="' + value + '" '
                         )
                 else:
-                    self.new_tag = " {} ".format(key)
+                    self.new_tag = "{} {} ".format(self.new_tag, key)
 
             if not self.class_added:
                 self.new_tag = self.new_tag + 'class="' + css_class + '" '
