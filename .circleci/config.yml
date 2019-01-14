@@ -31,7 +31,8 @@ jobs:
       - run:
           name: Safety
           command:  |
-            sudo pip2 install safety
+            . .venv/bin/activate
+            pip install safety
             safety check
       - run:
           name: Setup local_settings.py
