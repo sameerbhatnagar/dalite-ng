@@ -88,6 +88,7 @@ from ..models import (
     StudentGroup,
     StudentGroupAssignment,
     Teacher,
+    StudentGroupMembership,
 )
 from ..util import (
     SessionStageData,
@@ -3188,31 +3189,35 @@ def csv_gradebook(request, group_hash):
 
     for user_token, email in student_list_sorted:
         row = []
-        student_school_id = (
-            Student.get_or_create(email=email)[0]
-            .studentgroupmembership_set.get(group=student_group)
-            .student_school_id
-        )
+        student_obj = Student.get_or_create(email=email)[0]
+        # Some student objects were created with case-sensitive emails, and hence are obsolete
+        if student_obj:
+            try:
+                student_school_id = (
+                    student_obj.studentgroupmembership_set.get(group=student_group)
+                    .student_school_id
+                )
 
-        if student_group.student_id_needed:
-            row.append(student_school_id)
-        row.append(email)
+                if student_group.student_id_needed:
+                    row.append(student_school_id)
+                row.append(email)
 
-        for d in assignment_list_sorted:
-            question_list = Assignment.objects.get(
-                identifier=d["assignment"]
-            ).questions.all()
-            for q in question_list:
-                try:
-                    row.append(
-                        answer_qs.get(
-                            assignment_id=d["assignment"],
-                            question_id=q.pk,
-                            user_token=user_token,
-                        ).get_grade()
-                    )
-                except Answer.DoesNotExist:
-                    row.append("-")
-        writer.writerow(row)
-
+                for d in assignment_list_sorted:
+                    question_list = Assignment.objects.get(
+                        identifier=d["assignment"]
+                    ).questions.all()
+                    for q in question_list:
+                        try:
+                            row.append(
+                                answer_qs.get(
+                                    assignment_id=d["assignment"],
+                                    question_id=q.pk,
+                                    user_token=user_token,
+                                ).get_grade()
+                            )
+                        except Answer.DoesNotExist:
+                            row.append("-")
+                writer.writerow(row)
+            except StudentGroupMembership.DoesNotExist:
+                pass
     return response
