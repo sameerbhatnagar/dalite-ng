@@ -29,6 +29,11 @@ jobs:
             yarn install
             gulp build
       - run:
+          name: Safety
+          command:  |
+            sudo pip2 install safety
+            safety check
+      - run:
           name: Setup local_settings.py
           command: |
             tools/gen_secret_key.py > dalite/local_settings.py
