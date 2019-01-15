@@ -1,12 +1,26 @@
+const autoprefixer = require("autoprefixer");
+const replace = require("gulp-replace");
+const fs = require("fs");
+const concat = require("gulp-concat");
+const crypto = require("crypto");
+const cssnano = require("cssnano");
 const gulp = require("gulp");
+const merge = require("merge-stream");
+const postcss = require("gulp-postcss");
 const rename = require("gulp-rename");
+const runSequence = require("run-sequence");
 const sass = require("gulp-sass");
 const sourcemaps = require("gulp-sourcemaps");
-const postcss = require("gulp-postcss");
-const cssnano = require("cssnano");
-const autoprefixer = require("autoprefixer");
-const runSequence = require("run-sequence");
-const concat = require("gulp-concat");
+
+const hash = path =>
+  new Promise((resolve, reject) => {
+    fs.createReadStream(path)
+      .on("error", reject)
+      .pipe(crypto.createHash("sha1").setEncoding("hex"))
+      .once("finish", function() {
+        resolve(this.read()); // eslint-disable-line no-invalid-this
+      });
+  });
 
 // Run sass and minify
 gulp.task("sass", function() {
@@ -103,9 +117,14 @@ gulp.task("peerinst-styles-group", function() {
     .pipe(gulp.dest("peerinst/static/peerinst/css"));
 });
 
-gulp.task("peerinst-styles-student", function() {
-  return gulp
-    .src("./peerinst/static/peerinst/css/student/*.scss")
+gulp.task("peerinst-styles-student", async function() {
+  const app = "peerinst";
+  const src = "student/*.scss";
+  const filename = "student.min.css";
+  const templatePath = "student/base.html";
+
+  const build = gulp
+    .src("./" + app + "/static/" + app + "/css/" + src)
     .pipe(sourcemaps.init())
     .pipe(
       sass({
@@ -126,9 +145,29 @@ gulp.task("peerinst-styles-student", function() {
         }),
       ]),
     )
-    .pipe(concat("student.min.css"))
+    .pipe(concat(filename))
     .pipe(sourcemaps.write("."))
-    .pipe(gulp.dest("peerinst/static/peerinst/css"));
+    .pipe(gulp.dest(app + "/static/" + app + "/css"));
+
+  const hash_ = await hash(
+    "./" + app + "/templates/" + app + "/" + templatePath,
+  );
+
+  const updateHash = gulp
+    .src("./" + app + "/templates/" + app + "/" + templatePath)
+    .pipe(
+      replace(
+        new RegExp(
+          "({%\\s*static 'peerinst\\/css\\/" +
+            filename +
+            "'\\s*%})(?:\\?hash=.{8})?",
+        ),
+        "$1?hash=" + hash_.slice(0, 8),
+      ),
+    )
+    .pipe(gulp.dest("./peerinst/templates/peerinst/student"));
+
+  return merge(build, updateHash);
 });
 
 gulp.task("peerinst-scripts-index", function() {
@@ -159,7 +198,11 @@ gulp.task("peerinst-scripts-group", function() {
   );
 });
 
-gulp.task("peerinst-scripts-student", function() {
+gulp.task("peerinst-scripts-student", async function() {
+  const app = "peerinst";
+  const filename = "student.min.js";
+  const templatePath = "student/base.html";
+
   const runCommand = require("child_process").execSync;
   runCommand(
     "./node_modules/.bin/rollup -c ./rollup/peerinst/student-rollup.config.js",
@@ -171,6 +214,24 @@ gulp.task("peerinst-scripts-student", function() {
       }
     },
   );
+
+  const hash_ = await hash(
+    "./" + app + "/templates/" + app + "/" + templatePath,
+  );
+
+  return gulp
+    .src("./" + app + "/templates/" + app + "/" + templatePath)
+    .pipe(
+      replace(
+        new RegExp(
+          "({%\\s*static 'peerinst\\/js\\/" +
+            filename +
+            "'\\s*%})(?:\\?hash=.{8})?",
+        ),
+        "$1?hash=" + hash_.slice(0, 8),
+      ),
+    )
+    .pipe(gulp.dest("./peerinst/templates/peerinst/student"));
 });
 
 gulp.task("peerinst-scripts-ajax", function() {
