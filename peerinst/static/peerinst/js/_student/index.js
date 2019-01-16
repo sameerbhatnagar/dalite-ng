@@ -34,10 +34,9 @@ function initModel(data) {
         link: assignment.link,
         results: {
           n: assignment.results.n,
-          nFirstAnswered: assignment.results.n_first_answered,
-          nSecondAnswered: assignment.results.n_second_answered,
+          nCompleted: assignment.results.n_completed,
           nFirstCorrect: assignment.results.n_first_correct,
-          nSecondCorrect: assignment.results.n_second_correct,
+          nCorrect: assignment.results.n_correct,
         },
         done: assignment.done,
         almostExpired: assignment.almost_expired,
@@ -70,7 +69,7 @@ function initModel(data) {
       leaveGroupTitle: data.translations.leave_group_title,
       minute: data.translations.minute,
       minutes: data.translations.minutes,
-      nQuestionsCompleted: data.translations.n_questions_completed,
+      nAnswersCorrect: data.translations.n_answers_correct,
       noAssignments: data.translations.no_assignments,
       notificationsBell: data.translations.notifications_bell,
       notSharing: data.translations.not_sharing,
@@ -336,7 +335,7 @@ function groupAssignmentView(assignment) {
     iconSpan.title = model.translations.assignmentExpired;
     icon.textContent = "assignment_late";
   } else if (almostExpiredMin <= new Date(Date.now())) {
-    iconSpan.title = model.translations.assignmentaboutToExpire;
+    iconSpan.title = model.translations.assignmentAboutToExpire;
     icon.textContent = "assignment_late";
   } else {
     iconSpan.title = model.translations.goToAssignment;
@@ -346,10 +345,10 @@ function groupAssignmentView(assignment) {
 
   const questionsSpan = document.createElement("span");
   questionsSpan.classList.add("student-group--assignment-questions");
-  questionsSpan.title = model.translations.nQuestionsCompleted;
+  questionsSpan.title = model.translations.nAnswersCorrect;
   li.appendChild(questionsSpan);
   const nSecond = document.createElement("span");
-  nSecond.textContent = assignment.results.nSecondAnswered;
+  nSecond.textContent = assignment.results.nCorrect;
   questionsSpan.appendChild(nSecond);
   const slash = document.createElement("span");
   slash.textContent = "/";

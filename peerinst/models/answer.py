@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-
 from django.db import models
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
@@ -87,6 +86,46 @@ class Answer(models.Model):
             return self.chosen_rationale.rationale
         else:
             return None
+
+    @property
+    def correct(self):
+        """
+        If the second answer is correct in the case where a rationale is
+        presented or the first one if not (not implemented).
+
+        Returns
+        -------
+        bool:
+            Answer is correct or not
+        """
+        if self.second_answer_choice is None:
+            return False
+        else:
+            return self.question.is_correct(self.second_answer_choice)
+
+    @property
+    def first_correct(self):
+        """
+        If the first answer is correct.
+
+        Returns
+        -------
+        bool:
+            First answer is correct or not
+        """
+        return self.question.is_correct(self.first_answer_choice)
+
+    @property
+    def completed(self):
+        """
+        If the answer corresponds to a completed question.
+
+        Returns
+        -------
+        bool:
+            if the answer corresponds to a completed question.
+        """
+        return self.second_answer_choice is not None
 
     show_chosen_rationale.short_description = "Display chosen rationale"
 

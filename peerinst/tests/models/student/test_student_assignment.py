@@ -1,7 +1,7 @@
 import random
 from datetime import datetime, timedelta
-import pytz
 
+import pytz
 from django.core import mail
 
 from peerinst.models import (
@@ -246,284 +246,6 @@ def test_get_current_question__all_second_answers_done(student_assignment):
 
     question = student_assignment.get_current_question()
     assert question is None
-
-
-def test_get_results__no_answers(student_assignment):
-    n = student_assignment.group_assignment.assignment.questions.count()
-
-    correct = {
-        "n_first_answered": 0,
-        "n_second_answered": 0,
-        "n_first_correct": 0,
-        "n_second_correct": 0,
-        "n": n,
-    }
-
-    result = student_assignment.get_results()
-    assert result == correct
-
-
-def test_get_results__all_answered_correct(student_assignment):
-    assignment = student_assignment.group_assignment.assignment
-    questions = assignment.questions.all()
-    student = student_assignment.student
-    n = len(questions)
-
-    add_answers(
-        [
-            {
-                "question": question,
-                "assignment": assignment,
-                "user_token": student.student.username,
-                "first_answer_choice": 1,
-                "rationale": "test",
-                "second_answer_choice": 1,
-                "chosen_rationale": None,
-            }
-            for question in questions
-        ]
-    )
-
-    correct = {
-        "n_first_answered": n,
-        "n_second_answered": n,
-        "n_first_correct": n,
-        "n_second_correct": n,
-        "n": n,
-    }
-
-    result = student_assignment.get_results()
-    assert result == correct
-
-
-def test_get_results__some_answered_correct_second(student_assignment):
-    assignment = student_assignment.group_assignment.assignment
-    questions = assignment.questions.all()
-    student = student_assignment.student
-    n = len(questions)
-    n_second = random.randint(1, n - 1)
-    n_correct_second = random.randint(1, n_second)
-
-    add_answers(
-        [
-            {
-                "question": question,
-                "assignment": assignment,
-                "user_token": student.student.username,
-                "first_answer_choice": 2,
-                "rationale": "test",
-            }
-            for i, question in enumerate(questions[n_second:])
-        ]
-        + [
-            {
-                "question": question,
-                "assignment": assignment,
-                "user_token": student.student.username,
-                "first_answer_choice": 2,
-                "rationale": "test",
-                "second_answer_choice": 1 + (i >= n_correct_second),
-                "chosen_rationale": None,
-            }
-            for i, question in enumerate(questions[:n_second])
-        ]
-    )
-    correct = {
-        "n_first_answered": n,
-        "n_second_answered": n_second,
-        "n_first_correct": 0,
-        "n_second_correct": n_correct_second,
-        "n": n,
-    }
-
-    result = student_assignment.get_results()
-    assert result == correct
-
-
-def test_get_results__some_answered_correct_first_and_second(
-    student_assignment
-):
-    assignment = student_assignment.group_assignment.assignment
-    questions = assignment.questions.all()
-    student = student_assignment.student
-    n = len(questions)
-    n_first = random.randint(1, n - 1)
-    n_second = random.randint(1, n_first)
-    n_correct_first = random.randint(1, n_first)
-    n_correct_second = random.randint(1, n_second)
-
-    add_answers(
-        [
-            {
-                "question": question,
-                "assignment": assignment,
-                "user_token": student.student.username,
-                "first_answer_choice": 1 + (i >= n_correct_first),
-                "rationale": "test",
-                "second_answer_choice": 1 + (i >= n_correct_second),
-                "chosen_rationale": None,
-            }
-            for i, question in enumerate(questions[:n_second])
-        ]
-        + [
-            {
-                "question": question,
-                "assignment": assignment,
-                "user_token": student.student.username,
-                "first_answer_choice": 1 + (i >= n_correct_first - n_second),
-                "rationale": "test",
-            }
-            for i, question in enumerate(questions[n_second:n_first])
-        ]
-    )
-    correct = {
-        "n_first_answered": n_first,
-        "n_second_answered": n_second,
-        "n_first_correct": n_correct_first,
-        "n_second_correct": n_correct_second,
-        "n": n,
-    }
-
-    result = student_assignment.get_results()
-    assert result == correct
-
-
-def test_get_results__all_answered_correct_first_and_none_second(
-    student_assignment
-):
-    assignment = student_assignment.group_assignment.assignment
-    questions = assignment.questions.all()
-    student = student_assignment.student
-    n = len(questions)
-    n_first = random.randint(1, n - 1)
-    n_second = random.randint(1, n_first)
-
-    add_answers(
-        [
-            {
-                "question": question,
-                "assignment": assignment,
-                "user_token": student.student.username,
-                "first_answer_choice": 1,
-                "rationale": "test",
-                "second_answer_choice": 2,
-                "chosen_rationale": None,
-            }
-            for i, question in enumerate(questions[:n_second])
-        ]
-        + [
-            {
-                "question": question,
-                "assignment": assignment,
-                "user_token": student.student.username,
-                "first_answer_choice": 1,
-                "rationale": "test",
-            }
-            for i, question in enumerate(questions[n_second:n_first])
-        ]
-    )
-    correct = {
-        "n_first_answered": n_first,
-        "n_second_answered": n_second,
-        "n_first_correct": n_first,
-        "n_second_correct": 0,
-        "n": n,
-    }
-
-    result = student_assignment.get_results()
-    assert result == correct
-
-
-def test_get_results__none_answered_correct_first_and_all_second(
-    student_assignment
-):
-    assignment = student_assignment.group_assignment.assignment
-    questions = assignment.questions.all()
-    student = student_assignment.student
-    n = len(questions)
-    n_first = random.randint(1, n - 1)
-    n_second = random.randint(1, n_first)
-
-    add_answers(
-        [
-            {
-                "question": question,
-                "assignment": assignment,
-                "user_token": student.student.username,
-                "first_answer_choice": 2,
-                "rationale": "test",
-                "second_answer_choice": 1,
-                "chosen_rationale": None,
-            }
-            for i, question in enumerate(questions[:n_second])
-        ]
-        + [
-            {
-                "question": question,
-                "assignment": assignment,
-                "user_token": student.student.username,
-                "first_answer_choice": 2,
-                "rationale": "test",
-            }
-            for i, question in enumerate(questions[n_second:n_first])
-        ]
-    )
-    correct = {
-        "n_first_answered": n_first,
-        "n_second_answered": n_second,
-        "n_first_correct": 0,
-        "n_second_correct": n_second,
-        "n": n,
-    }
-
-    result = student_assignment.get_results()
-    assert result == correct
-
-
-def test_get_results__none_answered_correct_first_and_second(
-    student_assignment
-):
-    assignment = student_assignment.group_assignment.assignment
-    questions = assignment.questions.all()
-    student = student_assignment.student
-    n = len(questions)
-    n_first = random.randint(1, n - 1)
-    n_second = random.randint(1, n_first)
-
-    add_answers(
-        [
-            {
-                "question": question,
-                "assignment": assignment,
-                "user_token": student.student.username,
-                "first_answer_choice": 2,
-                "rationale": "test",
-                "second_answer_choice": 2,
-                "chosen_rationale": None,
-            }
-            for i, question in enumerate(questions[:n_second])
-        ]
-        + [
-            {
-                "question": question,
-                "assignment": assignment,
-                "user_token": student.student.username,
-                "first_answer_choice": 2,
-                "rationale": "test",
-            }
-            for i, question in enumerate(questions[n_second:n_first])
-        ]
-    )
-    correct = {
-        "n_first_answered": n_first,
-        "n_second_answered": n_second,
-        "n_first_correct": 0,
-        "n_second_correct": 0,
-        "n": n,
-    }
-
-    result = student_assignment.get_results()
-    assert result == correct
 
 
 def test_send_reminder(student_assignment):
@@ -840,3 +562,260 @@ def test_completed__all_first_and_second_answers(student_assignment):
     )
 
     assert student_assignment.completed
+
+
+def test_results__no_answers(student_assignment):
+    n = student_assignment.group_assignment.assignment.questions.count()
+
+    correct = {"n_completed": 0, "n_first_correct": 0, "n_correct": 0, "n": n}
+
+    result = student_assignment.results
+    assert result == correct
+
+
+def test_results__all_answered_correct(student_assignment):
+    assignment = student_assignment.group_assignment.assignment
+    questions = assignment.questions.all()
+    student = student_assignment.student
+    n = len(questions)
+
+    add_answers(
+        [
+            {
+                "question": question,
+                "assignment": assignment,
+                "user_token": student.student.username,
+                "first_answer_choice": 1,
+                "rationale": "test",
+                "second_answer_choice": 1,
+                "chosen_rationale": None,
+            }
+            for question in questions
+        ]
+    )
+
+    correct = {"n_completed": n, "n_first_correct": n, "n_correct": n, "n": n}
+
+    result = student_assignment.results
+    assert result == correct
+
+
+def test_results__some_answered_correct_second(student_assignment):
+    assignment = student_assignment.group_assignment.assignment
+    questions = assignment.questions.all()
+    student = student_assignment.student
+    n = len(questions)
+    n_second = random.randint(1, n - 1)
+    n_correct_second = random.randint(1, n_second)
+
+    add_answers(
+        [
+            {
+                "question": question,
+                "assignment": assignment,
+                "user_token": student.student.username,
+                "first_answer_choice": 2,
+                "rationale": "test",
+            }
+            for i, question in enumerate(questions[n_second:])
+        ]
+        + [
+            {
+                "question": question,
+                "assignment": assignment,
+                "user_token": student.student.username,
+                "first_answer_choice": 2,
+                "rationale": "test",
+                "second_answer_choice": 1 + (i >= n_correct_second),
+                "chosen_rationale": None,
+            }
+            for i, question in enumerate(questions[:n_second])
+        ]
+    )
+    correct = {
+        "n_completed": n_second,
+        "n_first_correct": 0,
+        "n_correct": n_correct_second,
+        "n": n,
+    }
+
+    result = student_assignment.results
+    assert result == correct
+
+
+def test_results__some_answered_correct_first_and_second(student_assignment):
+    assignment = student_assignment.group_assignment.assignment
+    questions = assignment.questions.all()
+    student = student_assignment.student
+    n = len(questions)
+    n_first = random.randint(1, n - 1)
+    n_second = random.randint(1, n_first)
+    n_correct_first = random.randint(1, n_first)
+    n_correct_second = random.randint(1, n_second)
+
+    add_answers(
+        [
+            {
+                "question": question,
+                "assignment": assignment,
+                "user_token": student.student.username,
+                "first_answer_choice": 1 + (i >= n_correct_first),
+                "rationale": "test",
+                "second_answer_choice": 1 + (i >= n_correct_second),
+                "chosen_rationale": None,
+            }
+            for i, question in enumerate(questions[:n_second])
+        ]
+        + [
+            {
+                "question": question,
+                "assignment": assignment,
+                "user_token": student.student.username,
+                "first_answer_choice": 1 + (i >= n_correct_first - n_second),
+                "rationale": "test",
+            }
+            for i, question in enumerate(questions[n_second:n_first])
+        ]
+    )
+    correct = {
+        "n_completed": n_second,
+        "n_first_correct": n_correct_first,
+        "n_correct": n_correct_second,
+        "n": n,
+    }
+
+    result = student_assignment.results
+    assert result == correct
+
+
+def test_results__all_answered_correct_first_and_none_second(
+    student_assignment
+):
+    assignment = student_assignment.group_assignment.assignment
+    questions = assignment.questions.all()
+    student = student_assignment.student
+    n = len(questions)
+    n_first = random.randint(1, n - 1)
+    n_second = random.randint(1, n_first)
+
+    add_answers(
+        [
+            {
+                "question": question,
+                "assignment": assignment,
+                "user_token": student.student.username,
+                "first_answer_choice": 1,
+                "rationale": "test",
+                "second_answer_choice": 2,
+                "chosen_rationale": None,
+            }
+            for i, question in enumerate(questions[:n_second])
+        ]
+        + [
+            {
+                "question": question,
+                "assignment": assignment,
+                "user_token": student.student.username,
+                "first_answer_choice": 1,
+                "rationale": "test",
+            }
+            for i, question in enumerate(questions[n_second:n_first])
+        ]
+    )
+    correct = {
+        "n_completed": n_second,
+        "n_first_correct": n_first,
+        "n_correct": 0,
+        "n": n,
+    }
+
+    result = student_assignment.results
+    assert result == correct
+
+
+def test_results__none_answered_correct_first_and_all_second(
+    student_assignment
+):
+    assignment = student_assignment.group_assignment.assignment
+    questions = assignment.questions.all()
+    student = student_assignment.student
+    n = len(questions)
+    n_first = random.randint(1, n - 1)
+    n_second = random.randint(1, n_first)
+
+    add_answers(
+        [
+            {
+                "question": question,
+                "assignment": assignment,
+                "user_token": student.student.username,
+                "first_answer_choice": 2,
+                "rationale": "test",
+                "second_answer_choice": 1,
+                "chosen_rationale": None,
+            }
+            for i, question in enumerate(questions[:n_second])
+        ]
+        + [
+            {
+                "question": question,
+                "assignment": assignment,
+                "user_token": student.student.username,
+                "first_answer_choice": 2,
+                "rationale": "test",
+            }
+            for i, question in enumerate(questions[n_second:n_first])
+        ]
+    )
+    correct = {
+        "n_completed": n_second,
+        "n_first_correct": 0,
+        "n_correct": n_second,
+        "n": n,
+    }
+
+    result = student_assignment.results
+    assert result == correct
+
+
+def test_results__none_answered_correct_first_and_second(student_assignment):
+    assignment = student_assignment.group_assignment.assignment
+    questions = assignment.questions.all()
+    student = student_assignment.student
+    n = len(questions)
+    n_first = random.randint(1, n - 1)
+    n_second = random.randint(1, n_first)
+
+    add_answers(
+        [
+            {
+                "question": question,
+                "assignment": assignment,
+                "user_token": student.student.username,
+                "first_answer_choice": 2,
+                "rationale": "test",
+                "second_answer_choice": 2,
+                "chosen_rationale": None,
+            }
+            for i, question in enumerate(questions[:n_second])
+        ]
+        + [
+            {
+                "question": question,
+                "assignment": assignment,
+                "user_token": student.student.username,
+                "first_answer_choice": 2,
+                "rationale": "test",
+            }
+            for i, question in enumerate(questions[n_second:n_first])
+        ]
+    )
+    correct = {
+        "n_completed": n_second,
+        "n_first_correct": 0,
+        "n_correct": 0,
+        "n": n,
+    }
+
+    result = student_assignment.results
+    assert result == correct

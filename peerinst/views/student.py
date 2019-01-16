@@ -252,7 +252,7 @@ def index_page(req):
                         },
                     ),
                 ),
-                "results": assignment.get_results(),
+                "results": assignment.results,
             }
             for assignment in StudentAssignment.objects.filter(
                 student=student, group_assignment__group=group.group
@@ -368,7 +368,7 @@ def index_page(req):
             "leave_group_title": ugettext("Leave group"),
             "minute": ugettext("minute"),
             "minutes": ugettext("minutes"),
-            "n_questions_completed": ugettext("Number of questions completed"),
+            "n_answers_correct": ugettext("Number of correct answers"),
             "no_assignments": ugettext("No assignments yet"),
             "notifications_bell": ugettext(
                 "Toggle email reminders for this group"
@@ -438,7 +438,7 @@ def join_group(req, student):
                         },
                     ),
                 ),
-                "results": assignment.get_results(),
+                "results": assignment.results,
             }
             for assignment in StudentAssignment.objects.filter(
                 student=student, group_assignment__group=group

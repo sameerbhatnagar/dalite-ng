@@ -1,25 +1,22 @@
 "use strict";
 
-import {
-  addStudentProgressView,
-  toggleStudentProgressView,
-} from "./student_progress.js";
+import { initStudentProgress } from "./student_progress.js";
 
 function onQuestionListModified() {
-  let btn = document.querySelector("#question-list-save");
+  const btn = document.querySelector("#question-list-save");
   btn.disabled = false;
 }
 
 function saveQuestionList(url) {
-  let questions = Array.from(
+  const questions = Array.from(
     document.querySelectorAll("#question-list .draggable"),
   ).map(x => x.getAttribute("data-draggable-name"));
 
-  let data = { name: "question_list", value: questions };
+  const data = { name: "question_list", value: questions };
 
-  let token = document.getElementsByName("csrfmiddlewaretoken")[0].value;
+  const token = document.getElementsByName("csrfmiddlewaretoken")[0].value;
 
-  let req = {
+  const req = {
     method: "POST",
     body: JSON.stringify(data),
     credentials: "include",
@@ -30,7 +27,7 @@ function saveQuestionList(url) {
   };
 
   fetch(url, req).then(function() {
-    let btn = document.querySelector("#question-list-save");
+    const btn = document.querySelector("#question-list-save");
     btn.disabled = true;
   });
 }
@@ -42,13 +39,13 @@ function addAssignmentEventListeners() {
 }
 
 function sendAssignmentEmail(event, url) {
-  let icon = event.currentTarget;
-  let email = icon.parentNode.parentNode
+  const icon = event.currentTarget;
+  const email = icon.parentNode.parentNode
     .querySelector(".student-list--email")
     .getAttribute("data-email");
-  let data = { email: email };
-  let token = document.getElementsByName("csrfmiddlewaretoken")[0].value;
-  let req = {
+  const data = { email: email };
+  const token = document.getElementsByName("csrfmiddlewaretoken")[0].value;
+  const req = {
     method: "POST",
     body: JSON.stringify(data),
     credentials: "include",
@@ -80,14 +77,9 @@ function sendAssignmentEmail(event, url) {
   });
 }
 
-function setUpAssignmentPage() {
+function initAssignment(studentProgressUrl) {
   addAssignmentEventListeners();
-  addStudentProgressView();
+  initStudentProgress(studentProgressUrl);
 }
 
-export {
-  setUpAssignmentPage,
-  saveQuestionList,
-  sendAssignmentEmail,
-  toggleStudentProgressView,
-};
+export { initAssignment, saveQuestionList, sendAssignmentEmail };
