@@ -87,8 +87,8 @@ from ..models import (
     Student,
     StudentGroup,
     StudentGroupAssignment,
-    Teacher,
     StudentGroupMembership,
+    Teacher,
 )
 from ..util import (
     SessionStageData,
@@ -924,7 +924,7 @@ class QuestionMixin(object):
             __name__,
             user=self.request.user,
             custom_key=self.custom_key,
-            grade=self.answer.get_grade(),
+            grade=self.answer.grade,
         )
 
 
@@ -1311,7 +1311,7 @@ class QuestionReviewView(QuestionReviewBaseView):
         return super(QuestionReviewView, self).form_valid(form)
 
     def emit_check_events(self):
-        grade = self.answer.get_grade()
+        grade = self.answer.grade
         event_data = dict(
             second_answer_choice=self.second_answer_choice,
             switch=self.first_answer_choice != self.second_answer_choice,
@@ -3183,13 +3183,13 @@ def csv_gradebook(request, group_hash):
     for user_token, email in student_list_sorted:
         row = []
         student_obj = Student.get_or_create(email=email)[0]
-        # Some student objects were created with case-sensitive emails, and hence are obsolete
+        # Some student objects were created with case-sensitive emails, and
+        # hence are obsolete
         if student_obj:
             try:
-                student_school_id = (
-                    student_obj.studentgroupmembership_set.get(group=student_group)
-                    .student_school_id
-                )
+                student_school_id = student_obj.studentgroupmembership_set.get(
+                    group=student_group
+                ).student_school_id
 
                 if student_group.student_id_needed:
                     row.append(student_school_id)
@@ -3206,7 +3206,7 @@ def csv_gradebook(request, group_hash):
                                     assignment_id=d["assignment"],
                                     question_id=q.pk,
                                     user_token=user_token,
-                                ).get_grade()
+                                ).grade
                             )
                         except Answer.DoesNotExist:
                             row.append("-")

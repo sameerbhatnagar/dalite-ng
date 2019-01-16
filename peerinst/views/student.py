@@ -356,6 +356,7 @@ def index_page(req):
             "due_on": ugettext("Due on"),
             "expired": ugettext("Expired"),
             "go_to_assignment": ugettext("Go to assignment"),
+            "grade": ugettext("Grade"),
             "hour": ugettext("hour"),
             "hours": ugettext("hours"),
             "leave": ugettext("Leave"),
@@ -368,7 +369,6 @@ def index_page(req):
             "leave_group_title": ugettext("Leave group"),
             "minute": ugettext("minute"),
             "minutes": ugettext("minutes"),
-            "n_answers_correct": ugettext("Number of correct answers"),
             "no_assignments": ugettext("No assignments yet"),
             "notifications_bell": ugettext(
                 "Toggle email reminders for this group"

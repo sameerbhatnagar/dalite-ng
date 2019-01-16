@@ -85,9 +85,11 @@ class QuestionViewTestCase(TestCase):
             "django_lti_tool_provider.signals.Signals.Grade.updated.send"
         )
         self.mock_send_grade_signal = signal_patcher.start()
-        grade_patcher = mock.patch("peerinst.models.Answer.get_grade")
-        self.mock_get_grade = grade_patcher.start()
-        self.mock_get_grade.return_value = Grade.CORRECT
+        grade_patcher = mock.patch(
+            "peerinst.models.Answer.grade", new_callable=mock.PropertyMock
+        )
+        self.mock_grade = grade_patcher.start()
+        self.mock_grade.return_value = Grade.CORRECT
 
     def add_user_to_even_answers(self):
         c = 0
@@ -270,10 +272,10 @@ class QuestionViewTest(QuestionViewTestCase):
 
     def test_standard_review_mode(self):
         """Test answering questions in default mode, with scoring enabled."""
-        self.mock_get_grade.return_value = Grade.INCORRECT
+        self.mock_grade.return_value = Grade.INCORRECT
         self.run_standard_review_mode()
         self.assert_grade_signal()
-        self.assertTrue(self.mock_get_grade.called)
+        self.assertTrue(self.mock_grade.called)
 
     def test_numeric_answer_labels(self):
         """Test answering questions in default mode, using numerical labels."""
@@ -303,13 +305,13 @@ class QuestionViewTest(QuestionViewTestCase):
         self.run_standard_review_mode()
         self.assertFalse(self.mock_send_grade_signal.called)
         self.assertTrue(
-            self.mock_get_grade.called
-        )  # "emit_check_events" still uses "get_grade" to obtain grade data
+            self.mock_grade.called
+        )  # "emit_check_events" still uses "grade" to obtain grade data
 
     def test_sequential_review_mode(self):
         """Test answering questions in sequential review mode."""
 
-        self.mock_get_grade.return_value = Grade.INCORRECT
+        self.mock_grade.return_value = Grade.INCORRECT
 
         self.set_question(
             factories.QuestionFactory(
@@ -399,7 +401,7 @@ class QuestionViewTest(QuestionViewTestCase):
         )
 
         self.assert_grade_signal()
-        self.assertTrue(self.mock_get_grade.called)
+        self.assertTrue(self.mock_grade.called)
 
 
 @ddt.ddt
@@ -483,7 +485,7 @@ class EventLogTest(QuestionViewTestCase):
     @ddt.data(Grade.CORRECT, Grade.INCORRECT, Grade.PARTIAL)
     @mock.patch("peerinst.views.views.LOGGER")
     def test_events_scoring_enabled(self, grade, logger):
-        self.mock_get_grade.return_value = grade
+        self.mock_grade.return_value = grade
         self._test_events(logger, grade=grade)
 
     @mock.patch("peerinst.views.views.LOGGER")

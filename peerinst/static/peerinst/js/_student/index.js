@@ -33,10 +33,8 @@ function initModel(data) {
         dueDate: new Date(assignment.due_date),
         link: assignment.link,
         results: {
+          grade: assignment.results.grade,
           n: assignment.results.n,
-          nCompleted: assignment.results.n_completed,
-          nFirstCorrect: assignment.results.n_first_correct,
-          nCorrect: assignment.results.n_correct,
         },
         done: assignment.done,
         almostExpired: assignment.almost_expired,
@@ -61,6 +59,7 @@ function initModel(data) {
       dueOn: data.translations.due_on,
       expired: data.translations.expired,
       goToAssignment: data.translations.go_to_assignment,
+      grade: data.translations.grade,
       hour: data.translations.hour,
       hours: data.translations.hours,
       leave: data.translations.leave,
@@ -69,7 +68,6 @@ function initModel(data) {
       leaveGroupTitle: data.translations.leave_group_title,
       minute: data.translations.minute,
       minutes: data.translations.minutes,
-      nAnswersCorrect: data.translations.n_answers_correct,
       noAssignments: data.translations.no_assignments,
       notificationsBell: data.translations.notifications_bell,
       notSharing: data.translations.not_sharing,
@@ -345,11 +343,11 @@ function groupAssignmentView(assignment) {
 
   const questionsSpan = document.createElement("span");
   questionsSpan.classList.add("student-group--assignment-questions");
-  questionsSpan.title = model.translations.nAnswersCorrect;
+  questionsSpan.title = model.translations.grade;
   li.appendChild(questionsSpan);
-  const nSecond = document.createElement("span");
-  nSecond.textContent = assignment.results.nCorrect;
-  questionsSpan.appendChild(nSecond);
+  const grade = document.createElement("span");
+  grade.textContent = assignment.results.grade;
+  questionsSpan.appendChild(grade);
   const slash = document.createElement("span");
   slash.textContent = "/";
   questionsSpan.appendChild(slash);

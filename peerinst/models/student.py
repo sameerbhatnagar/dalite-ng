@@ -654,6 +654,7 @@ class StudentAssignment(models.Model):
                 "completed": answer is not None and answer.completed,
                 "first_correct": answer is not None and answer.first_correct,
                 "correct": answer is not None and answer.correct,
+                "grade": 0 if answer is None else answer.grade,
             }
             for answer in answers
         ]
@@ -683,6 +684,7 @@ class StudentAssignment(models.Model):
             "n_completed": sum(map(itemgetter("completed"), results)),
             "n_first_correct": sum(map(itemgetter("first_correct"), results)),
             "n_correct": sum(map(itemgetter("correct"), results)),
+            "grade": sum(map(itemgetter("grade"), results)),
         }
 
 

@@ -66,26 +66,13 @@ class Answer(models.Model):
             _("{} for question {}").format(self.id, self.question.title)
         )
 
-    def get_grade(self):
-        """ Compute grade based on grading scheme of question. """
-        if self.question.grading_scheme == GradingScheme.STANDARD:
-            # Standard grading scheme: Full score if second answer is correct
-            correct = self.question.is_correct(self.second_answer_choice)
-            return float(correct)
-        else:
-            # Advanced grading scheme: Partial scores for individual answers
-            grade = 0.0
-            if self.question.is_correct(self.first_answer_choice):
-                grade += 0.5
-            if self.question.is_correct(self.second_answer_choice):
-                grade += 0.5
-            return grade
-
     def show_chosen_rationale(self):
         if self.chosen_rationale:
             return self.chosen_rationale.rationale
         else:
             return None
+
+    show_chosen_rationale.short_description = "Display chosen rationale"
 
     @property
     def correct(self):
@@ -127,7 +114,23 @@ class Answer(models.Model):
         """
         return self.second_answer_choice is not None
 
-    show_chosen_rationale.short_description = "Display chosen rationale"
+    @property
+    def grade(self):
+        """ Compute grade based on grading scheme of question. """
+        if self.question.grading_scheme == GradingScheme.STANDARD:
+            # Standard grading scheme: Full score if second answer is correct
+            return float(self.correct)
+        elif self.question.grading_scheme == GradingScheme.ADVANCED:
+            if self.correct and self.first_correct:
+                return 1.0
+            elif self.correct or self.first_correct:
+                return 0.5
+            else:
+                return 0.0
+        else:
+            raise NotImplementedError(
+                "This grading scheme has not been implemented."
+            )
 
 
 class AnswerVote(models.Model):
@@ -185,7 +188,7 @@ class RationaleOnlyQuestion(Question):
             "save_problem_success",
             success="correct",
             rationale=rationale,
-            grade=answer.get_grade(),
+            grade=answer.grade,
         )
         view.stage_data.clear()
 

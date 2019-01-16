@@ -567,7 +567,13 @@ def test_completed__all_first_and_second_answers(student_assignment):
 def test_results__no_answers(student_assignment):
     n = student_assignment.group_assignment.assignment.questions.count()
 
-    correct = {"n_completed": 0, "n_first_correct": 0, "n_correct": 0, "n": n}
+    correct = {
+        "n_completed": 0,
+        "n_first_correct": 0,
+        "n_correct": 0,
+        "n": n,
+        "grade": 0,
+    }
 
     result = student_assignment.results
     assert result == correct
@@ -594,7 +600,13 @@ def test_results__all_answered_correct(student_assignment):
         ]
     )
 
-    correct = {"n_completed": n, "n_first_correct": n, "n_correct": n, "n": n}
+    correct = {
+        "n_completed": n,
+        "n_first_correct": n,
+        "n_correct": n,
+        "n": n,
+        "grade": n,
+    }
 
     result = student_assignment.results
     assert result == correct
@@ -637,6 +649,7 @@ def test_results__some_answered_correct_second(student_assignment):
         "n_first_correct": 0,
         "n_correct": n_correct_second,
         "n": n,
+        "grade": float(n_correct_second) / 2,
     }
 
     result = student_assignment.results
@@ -682,6 +695,7 @@ def test_results__some_answered_correct_first_and_second(student_assignment):
         "n_first_correct": n_correct_first,
         "n_correct": n_correct_second,
         "n": n,
+        "grade": n_correct_second + 0.5 * (n_correct_first - n_correct_second),
     }
 
     result = student_assignment.results
@@ -727,6 +741,7 @@ def test_results__all_answered_correct_first_and_none_second(
         "n_first_correct": n_first,
         "n_correct": 0,
         "n": n,
+        "grade": float(n_first) / 2,
     }
 
     result = student_assignment.results
@@ -772,6 +787,7 @@ def test_results__none_answered_correct_first_and_all_second(
         "n_first_correct": 0,
         "n_correct": n_second,
         "n": n,
+        "grade": float(n_second) / 2,
     }
 
     result = student_assignment.results
@@ -815,6 +831,7 @@ def test_results__none_answered_correct_first_and_second(student_assignment):
         "n_first_correct": 0,
         "n_correct": 0,
         "n": n,
+        "grade": 0,
     }
 
     result = student_assignment.results
