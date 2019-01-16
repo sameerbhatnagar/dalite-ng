@@ -1,6 +1,7 @@
 "use strict";
 
 import { buildReq } from "../_ajax/utils.js";
+import { clear } from "../utils.js";
 
 /*********/
 /* model */
@@ -32,11 +33,8 @@ function initModel(data) {
         dueDate: new Date(assignment.due_date),
         link: assignment.link,
         results: {
+          grade: assignment.results.grade,
           n: assignment.results.n,
-          nFirstAnswered: assignment.results.n_first_answered,
-          nSecondAnswered: assignment.results.n_second_answered,
-          nFirstCorrect: assignment.results.n_first_correct,
-          nSecondCorrect: assignment.results.n_second_correct,
         },
         done: assignment.done,
         almostExpired: assignment.almost_expired,
@@ -44,15 +42,8 @@ function initModel(data) {
       studentId: group.student_id,
       studentIdNeeded: group.student_id_needed,
     })),
-    notifications: data.notifications.map(notification => ({
-      pk: notification.pk,
-      link: notification.link,
-      icon: notification.icon,
-      text: notification.text,
-    })),
     urls: {
       tosModify: data.urls.tos_modify,
-      removeNotification: data.urls.remove_notification,
       joinGroup: data.urls.join_group,
       leaveGroup: data.urls.leave_group,
       saveStudentId: data.urls.save_student_id,
@@ -68,6 +59,7 @@ function initModel(data) {
       dueOn: data.translations.due_on,
       expired: data.translations.expired,
       goToAssignment: data.translations.go_to_assignment,
+      grade: data.translations.grade,
       hour: data.translations.hour,
       hours: data.translations.hours,
       leave: data.translations.leave,
@@ -76,7 +68,6 @@ function initModel(data) {
       leaveGroupTitle: data.translations.leave_group_title,
       minute: data.translations.minute,
       minutes: data.translations.minutes,
-      nQuestionsCompleted: data.translations.n_questions_completed,
       noAssignments: data.translations.no_assignments,
       notificationsBell: data.translations.notifications_bell,
       notSharing: data.translations.not_sharing,
@@ -92,7 +83,6 @@ function initModel(data) {
 
 function initView() {
   identityView();
-  notificationsView();
   groupsView();
   joinGroupView();
 }
@@ -136,44 +126,6 @@ function identityView() {
       minute: "2-digit",
     },
   );
-}
-
-function notificationsView() {
-  const notificationsDiv = document.getElementById("notifications");
-  if (model.notifications.length) {
-    const notifications = notificationsDiv.querySelector("ul");
-    model.notifications.map(notification =>
-      notifications.appendChild(notificationView(notification)),
-    );
-    notificationsDiv.style.display = "block";
-  } else {
-    notificationsDiv.style.display = "none";
-  }
-}
-
-function notificationView(notification) {
-  const a = document.createElement("a");
-  a.addEventListener("click", () => removeNotification(notification));
-
-  const li = document.createElement("li");
-  li.classList.add("mdc-list-item");
-  a.appendChild(li);
-
-  const iconSpan = document.createElement("span");
-  iconSpan.classList.add("mdc-list-item__graphic", "mdc-theme--primary");
-  li.appendChild(iconSpan);
-
-  const icon = document.createElement("i");
-  icon.classList.add("material-icons", "md-36");
-  icon.textContent = notification.icon;
-  iconSpan.appendChild(icon);
-
-  const textSpan = document.createElement("span");
-  textSpan.classList.add("mdc-list-item__text");
-  textSpan.textContent = notification.text;
-  li.appendChild(textSpan);
-
-  return a;
 }
 
 function joinGroupView() {
@@ -240,7 +192,6 @@ function groupTitleView(group) {
   const div = document.createElement("div");
   div.classList.add("student-group--title");
 
-  console.log(group.studentIdNeeded);
   if (group.studentIdNeeded) {
     div.appendChild(groupTitleIdView(group));
   }
@@ -382,7 +333,7 @@ function groupAssignmentView(assignment) {
     iconSpan.title = model.translations.assignmentExpired;
     icon.textContent = "assignment_late";
   } else if (almostExpiredMin <= new Date(Date.now())) {
-    iconSpan.title = model.translations.assignmentaboutToExpire;
+    iconSpan.title = model.translations.assignmentAboutToExpire;
     icon.textContent = "assignment_late";
   } else {
     iconSpan.title = model.translations.goToAssignment;
@@ -392,11 +343,11 @@ function groupAssignmentView(assignment) {
 
   const questionsSpan = document.createElement("span");
   questionsSpan.classList.add("student-group--assignment-questions");
-  questionsSpan.title = model.translations.nQuestionsCompleted;
+  questionsSpan.title = model.translations.grade;
   li.appendChild(questionsSpan);
-  const nSecond = document.createElement("span");
-  nSecond.textContent = assignment.results.nSecondAnswered;
-  questionsSpan.appendChild(nSecond);
+  const grade = document.createElement("span");
+  grade.textContent = assignment.results.grade;
+  questionsSpan.appendChild(grade);
   const slash = document.createElement("span");
   slash.textContent = "/";
   questionsSpan.appendChild(slash);
@@ -555,33 +506,6 @@ function showCopyBubble(node) {
 /**********/
 /* update */
 /**********/
-
-function removeNotification(notification) {
-  const url = model.urls.removeNotification;
-  const data = {
-    notification_pk: notification.pk,
-  };
-
-  const req = buildReq(data, "post");
-
-  fetch(url, req)
-    .then(function(resp) {
-      if (resp.ok) {
-        if (notification.link) {
-          window.location = notification.link;
-        } else {
-          model.notifications.splice(
-            model.notifications.indexOf(notification),
-            1,
-          );
-          notificationsView();
-        }
-      } else {
-        console.log(resp);
-      }
-    })
-    .catch(err => console.log(err));
-}
 
 function handleStudentIdKeyDown(key, group, node) {
   if (key === "Enter") {
@@ -768,12 +692,6 @@ function timeuntil(date1, date2) {
     diff_ = diff_ + parseInt(diffMinutes) + " " + model.translations.minutes;
   }
   return diff_;
-}
-
-function clear(node) {
-  while (node.hasChildNodes()) {
-    node.removeChild(node.lastChild);
-  }
 }
 
 /********/

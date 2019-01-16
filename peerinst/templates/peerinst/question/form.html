@@ -1,4 +1,4 @@
-{% extends 'peerinst/base.html' %}
+{% extends user.student|yesno:'peerinst/student/base.html,peerinst/base.html' %}
 
 {% load compress staticfiles add_class i18n %}
 
@@ -421,11 +421,11 @@
               </span>
             {% endif %}
           <span class="padded">
-            <input form="question-create-form" class="mdc-button mdc-button--raised" type="submit" value="{% trans 'Save and next' %}" />
+            <input form="question-create-form" class="mdc-button mdc-button--raised submit_button" type="submit" value="{% trans 'Save and next' %}" />
           </span>
           {% else %}
           <span class="padded">
-            <input form="question-create-form" class="mdc-button mdc-button--raised" type="submit" value="{% trans 'Add' %}" />
+            <input form="question-create-form" class="mdc-button mdc-button--raised submit_button" type="submit" value="{% trans 'Add' %}" />
           </span>
           {% endif %}
         {% else %}

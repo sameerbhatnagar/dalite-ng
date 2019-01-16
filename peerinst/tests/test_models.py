@@ -37,16 +37,16 @@ class AnswerModelTestCase(TestCase):
 
     def _assert_grades(self, expected_grades):
         """
-        For each answer in `self.answers`, check if `get_grade` produces
+        For each answer in `self.answers`, check if `grade` produces
         correct value.
         """
         for index, answer in enumerate(self.answers):
-            grade = answer.get_grade()
+            grade = answer.grade
             self.assertEqual(grade, expected_grades[index])
 
-    def test_get_grade_standard(self):
+    def test_grade_standard(self):
         """
-        Check if `get_grade` produces correct values when using 'Standard'
+        Check if `grade` produces correct values when using 'Standard'
         grading scheme.
 
         | First choice | Second choice | Grade |
@@ -58,9 +58,9 @@ class AnswerModelTestCase(TestCase):
         """
         self._assert_grades(expected_grades=[1.0, 0.0, 1.0, 0.0])
 
-    def test_get_grade_advanced(self):
+    def test_grade_advanced(self):
         """
-        Check if `get_grade` produces correct values when using 'Advanced'
+        Check if `grade` produces correct values when using 'Advanced'
         grading scheme.
 
         | First choice | Second choice | Grade |

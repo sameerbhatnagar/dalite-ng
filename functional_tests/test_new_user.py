@@ -1,11 +1,6 @@
 import os
 import time
 
-from django.conf import settings
-from django.contrib.auth.hashers import make_password
-from django.contrib.auth.models import Group, Permission
-from django.contrib.staticfiles.testing import StaticLiveServerTestCase
-from django.core.urlresolvers import reverse
 from selenium import webdriver
 from selenium.common.exceptions import TimeoutException, WebDriverException
 from selenium.webdriver.common.by import By
@@ -15,10 +10,15 @@ from selenium.webdriver.support.expected_conditions import (
 )
 from selenium.webdriver.support.ui import WebDriverWait
 
+from django.conf import settings
+from django.contrib.auth.hashers import make_password
+from django.contrib.auth.models import Group, Permission
+from django.contrib.staticfiles.testing import StaticLiveServerTestCase
+from django.core.urlresolvers import reverse
 from peerinst.models import Assignment, Question, User
 from tos.models import Role, Tos
 
-timeout = 2
+timeout = 3
 
 
 def ready_user(pk):

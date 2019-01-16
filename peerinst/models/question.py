@@ -162,7 +162,7 @@ class Question(models.Model):
         _("Categories"),
         blank=True,
         help_text=_(
-            "Optional. Select categories for this question.  You can select "
+            "Optional. Select categories for this question. You can select "
             "multiple categories."
         ),
     )

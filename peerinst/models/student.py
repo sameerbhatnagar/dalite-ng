@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 import logging
 import smtplib
 from datetime import datetime
+from operator import itemgetter
 
 import pytz
 
@@ -550,79 +551,6 @@ class StudentAssignment(models.Model):
         ), "Postcondition failed"
         return output
 
-    def get_results(self):
-        """
-        Returns
-        -------
-        {
-            "n" : int
-                number of questions
-            "n_first_answered" : int
-                number of questions answered
-            "n_second_answered" : Optional[int]
-                number of questions answered with a second answer (or None if
-                not applicable)
-            "n_first_correct" : int
-                number of correct first answers
-            "n_second_correct" : Optional[int]
-                number of correct second answers (or None if not applicable)
-
-        }
-        """
-        data = [
-            {
-                "question": question,
-                "answer": (
-                    Answer.objects.filter(
-                        assignment=self.group_assignment.assignment,
-                        user_token=self.student.student.username,
-                        question=question,
-                    )
-                    or [None]
-                )[0],
-                "correct": [
-                    i + 1
-                    for i, _ in enumerate(question.get_choices())
-                    if question.is_correct(i + 1)
-                ],
-            }
-            for question in self.group_assignment.questions
-        ]
-
-        results = {
-            "n": len(data),
-            "n_first_answered": len(
-                [q for q in data if q["answer"] is not None]
-            ),
-            "n_second_answered": len(
-                [
-                    q
-                    for q in data
-                    if q["answer"] is not None
-                    and q["answer"].second_answer_choice is not None
-                ]
-            ),
-            "n_first_correct": len(
-                [
-                    q
-                    for q in data
-                    if q["answer"] is not None
-                    and q["answer"].first_answer_choice in q["correct"]
-                ]
-            ),
-            "n_second_correct": len(
-                [
-                    q
-                    for q in data
-                    if q["answer"] is not None
-                    and q["answer"].second_answer_choice is not None
-                    and q["answer"].second_answer_choice in q["correct"]
-                ]
-            ),
-        }
-
-        return results
-
     def send_reminder(self, last_day):
         """
         Sends a reminder that the assignment is almost due as a reset of the
@@ -691,10 +619,82 @@ class StudentAssignment(models.Model):
             for question in self.group_assignment.questions
         )
 
+    @property
+    def detailed_results(self):
+        """
+        Returns the student's results for each question.
+
+        Returns
+        -------
+        Dict[str, Any]:
+            [
+                {
+                    "completed" : bool
+                        if completed
+                    "first_correct" : Optional[bool]
+                        if first answer correct (or None if not applicable)
+                    "correct" : bool
+                        if answer correct
+                }
+            ]
+        """
+        answers = [
+            (
+                Answer.objects.filter(
+                    assignment=self.group_assignment.assignment,
+                    user_token=self.student.student.username,
+                    question=question,
+                )
+                or [None]
+            )[0]
+            for question in self.group_assignment.questions
+        ]
+
+        return [
+            {
+                "completed": answer is not None and answer.completed,
+                "first_correct": answer is not None and answer.first_correct,
+                "correct": answer is not None and answer.correct,
+                "grade": 0 if answer is None else answer.grade,
+            }
+            for answer in answers
+        ]
+
+    @property
+    def results(self):
+        """
+        Returns the student's results aggregated on all questions.
+
+        Returns
+        -------
+        Dict[str, Any]:
+            {
+                "n" : int
+                    number of questions
+                "n_completed" : int
+                    number of questions completed
+                "n_first_correct" : Optional[int]
+                    number of correct first answers (or None if not applicable)
+                "n_correct" : int
+                    number of correct answers
+            }
+        """
+        results = self.detailed_results
+        return {
+            "n": len(results),
+            "n_completed": sum(map(itemgetter("completed"), results)),
+            "n_first_correct": sum(map(itemgetter("first_correct"), results)),
+            "n_correct": sum(map(itemgetter("correct"), results)),
+            "grade": sum(map(itemgetter("grade"), results)),
+        }
+
 
 class StudentNotificationType(models.Model):
     type = models.CharField(max_length=32, unique=True)
     icon = models.TextField()
+
+    def __unicode__(self):
+        return self.type
 
 
 class StudentNotification(models.Model):
@@ -704,6 +704,9 @@ class StudentNotification(models.Model):
     link = models.URLField(max_length=500, blank=True, null=True)
     text = models.TextField()
     expiration = models.DateTimeField(null=True, blank=True)
+
+    def __unicode__(self):
+        return "{} for {}".format(self.notification, self.student)
 
     @staticmethod
     def create(type_, student, assignment=None, expiration=None):

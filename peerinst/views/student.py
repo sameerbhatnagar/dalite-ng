@@ -252,7 +252,7 @@ def index_page(req):
                         },
                     ),
                 ),
-                "results": assignment.get_results(),
+                "results": assignment.results,
             }
             for assignment in StudentAssignment.objects.filter(
                 student=student, group_assignment__group=group.group
@@ -330,13 +330,14 @@ def index_page(req):
                 "text": ugettext(notification.text),
                 "pk": notification.pk,
             }
-            for notification in student.notifications
+            for notification in student.notifications.order_by("-created_on")
         ],
         "urls": {
             "tos_modify": reverse(
                 "tos:tos_modify", kwargs={"role": "student"}
             ),
             "remove_notification": reverse("student-remove-notification"),
+            "remove_notifications": reverse("student-remove-notifications"),
             "join_group": reverse("student-join-group"),
             "leave_group": reverse("student-leave-group"),
             "save_student_id": reverse("student-change-id"),
@@ -355,6 +356,7 @@ def index_page(req):
             "due_on": ugettext("Due on"),
             "expired": ugettext("Expired"),
             "go_to_assignment": ugettext("Go to assignment"),
+            "grade": ugettext("Grade"),
             "hour": ugettext("hour"),
             "hours": ugettext("hours"),
             "leave": ugettext("Leave"),
@@ -367,7 +369,6 @@ def index_page(req):
             "leave_group_title": ugettext("Leave group"),
             "minute": ugettext("minute"),
             "minutes": ugettext("minutes"),
-            "n_questions_completed": ugettext("Number of questions completed"),
             "no_assignments": ugettext("No assignments yet"),
             "notifications_bell": ugettext(
                 "Toggle email reminders for this group"
@@ -437,7 +438,7 @@ def join_group(req, student):
                         },
                     ),
                 ),
-                "results": assignment.get_results(),
+                "results": assignment.results,
             }
             for assignment in StudentAssignment.objects.filter(
                 student=student, group_assignment__group=group
@@ -527,6 +528,29 @@ def remove_notification(req, student):
         StudentNotification.objects.get(pk=notification_pk).delete()
     except StudentNotification.DoesNotExist:
         pass
+
+    return HttpResponse()
+
+
+@student_required
+@require_http_methods(["POST"])
+def remove_notifications(req, student):
+    """
+    Removes all notifications for the student.
+
+    Parameters
+    ----------
+    req : HttpRequest
+        Request
+    student : Student
+        Returned by @student_required
+
+    Returns
+    -------
+    HttpResponse
+        Empty 200 response if no errors or error response
+    """
+    StudentNotification.objects.filter(student=student).delete()
 
     return HttpResponse()
 
@@ -655,3 +679,39 @@ def send_signin_link(req):
             context = {"error": True}
 
     return render(req, "peerinst/student/login_confirmation.html", context)
+
+
+@student_required
+@require_http_methods(["GET"])
+def get_notifications(req, student):
+    """
+    Returns the notification data for the current student.
+
+    Parameters
+    ----------
+    req ; HttpRequest
+        Request
+    student : Student
+        Student instance returned by @student_required
+
+    Returns
+    -------
+    HttpResponse
+        Empty 200 response if no errors or error response
+    """
+    data = {
+        "notifications": [
+            {
+                "link": notification.link,
+                "icon": notification.notification.icon,
+                "text": ugettext(notification.text),
+                "pk": notification.pk,
+            }
+            for notification in student.notifications.order_by("-created_on")
+        ],
+        "urls": {
+            "remove_notification": reverse("student-remove-notification"),
+            "remove_notifications": reverse("student-remove-notifications"),
+        },
+    }
+    return JsonResponse(data)

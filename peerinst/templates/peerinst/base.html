@@ -54,9 +54,9 @@
       <div class="header">
         {% if user.is_authenticated %}
           {% if user.teacher %}
-            {% include 'peerinst/teacher/header.html' %}
-          {% else %}
-            {% include 'peerinst/student/header.html' %}
+            {% include 'peerinst/teacher/header/menu.html' %}
+          {% elif user.student %}
+            {% include 'peerinst/student/header/menu.html' %}
           {% endif %}
         {% endif %}
       </div>
@@ -76,6 +76,11 @@
       </div>
     </div>
     <div id="header-right">
+      {% if user.is_authenticated and user.student %}
+      <div class="header">
+        {% include 'peerinst/student/header/notifications.html' %}
+      </div>
+      {% endif %}
     </div>
   </header>
 
@@ -121,6 +126,12 @@
     });
   }
   bundle.cornerGraphic('#corner', 'switchLanguage', {% if LANGUAGE_CODE == 'en' %}'FR'{% else %}'EN'{% endif %}, 'fill-primary');
+
+  // IE11 HTML5 form attribute patch
+  $('.submit_button').click(function() {
+    event.preventDefault();
+    $('#'+$(this).attr('form')).submit();
+  })
   </script>
   {% endcompress %}
 

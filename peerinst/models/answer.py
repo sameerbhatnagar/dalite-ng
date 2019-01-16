@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-
 from django.db import models
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
@@ -67,21 +66,6 @@ class Answer(models.Model):
             _("{} for question {}").format(self.id, self.question.title)
         )
 
-    def get_grade(self):
-        """ Compute grade based on grading scheme of question. """
-        if self.question.grading_scheme == GradingScheme.STANDARD:
-            # Standard grading scheme: Full score if second answer is correct
-            correct = self.question.is_correct(self.second_answer_choice)
-            return float(correct)
-        else:
-            # Advanced grading scheme: Partial scores for individual answers
-            grade = 0.0
-            if self.question.is_correct(self.first_answer_choice):
-                grade += 0.5
-            if self.question.is_correct(self.second_answer_choice):
-                grade += 0.5
-            return grade
-
     def show_chosen_rationale(self):
         if self.chosen_rationale:
             return self.chosen_rationale.rationale
@@ -89,6 +73,64 @@ class Answer(models.Model):
             return None
 
     show_chosen_rationale.short_description = "Display chosen rationale"
+
+    @property
+    def correct(self):
+        """
+        If the second answer is correct in the case where a rationale is
+        presented or the first one if not (not implemented).
+
+        Returns
+        -------
+        bool:
+            Answer is correct or not
+        """
+        if self.second_answer_choice is None:
+            return False
+        else:
+            return self.question.is_correct(self.second_answer_choice)
+
+    @property
+    def first_correct(self):
+        """
+        If the first answer is correct.
+
+        Returns
+        -------
+        bool:
+            First answer is correct or not
+        """
+        return self.question.is_correct(self.first_answer_choice)
+
+    @property
+    def completed(self):
+        """
+        If the answer corresponds to a completed question.
+
+        Returns
+        -------
+        bool:
+            if the answer corresponds to a completed question.
+        """
+        return self.second_answer_choice is not None
+
+    @property
+    def grade(self):
+        """ Compute grade based on grading scheme of question. """
+        if self.question.grading_scheme == GradingScheme.STANDARD:
+            # Standard grading scheme: Full score if second answer is correct
+            return float(self.correct)
+        elif self.question.grading_scheme == GradingScheme.ADVANCED:
+            if self.correct and self.first_correct:
+                return 1.0
+            elif self.correct or self.first_correct:
+                return 0.5
+            else:
+                return 0.0
+        else:
+            raise NotImplementedError(
+                "This grading scheme has not been implemented."
+            )
 
 
 class AnswerVote(models.Model):
@@ -146,7 +188,7 @@ class RationaleOnlyQuestion(Question):
             "save_problem_success",
             success="correct",
             rationale=rationale,
-            grade=answer.get_grade(),
+            grade=answer.grade,
         )
         view.stage_data.clear()
 

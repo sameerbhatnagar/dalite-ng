@@ -25,3 +25,12 @@ repos:
       - id: prettier
         types: [scss, javascript]
         exclude: "^.*\\.min\\..*$"
+  - repo: https://github.com/awebdeveloper/pre-commit-stylelint
+    rev: 0.0.2
+    hooks:
+      - id: stylelint
+        exclude: "^.*\\.min\\..*$"
+  - repo: https://github.com/Lucas-C/pre-commit-hooks-safety
+    sha: v1.1.0
+    hooks:
+    -   id: python-safety-dependencies-check

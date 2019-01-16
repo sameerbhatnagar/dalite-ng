@@ -253,5 +253,5 @@ def send_student_assignment(req, assignment_hash, teacher, group, assignment):
 def get_assignment_student_progress(
     req, assignment_hash, teacher, group, assignment
 ):
-    data = assignment.get_student_progress()
+    data = assignment.student_progress
     return JsonResponse(data, safe=False)

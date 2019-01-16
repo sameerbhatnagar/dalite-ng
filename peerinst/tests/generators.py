@@ -11,6 +11,7 @@ from peerinst.models import (
     Answer,
     AnswerChoice,
     Assignment,
+    GradingScheme,
     Question,
     Student,
     StudentAssignment,
@@ -123,6 +124,7 @@ def new_questions(n):
                 "text": "".join(
                     random.choice(chars) for _ in range(random.randint(1, 100))
                 ),
+                "grading_scheme": GradingScheme.ADVANCED,
             }
 
     gen = generator()

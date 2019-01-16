@@ -765,9 +765,7 @@ class StudentGroupAssignmentManagement(StaffMemberRequiredMixin, TemplateView):
                         not student.student.email.endswith("localhost")
                         and not group_assignment.expired
                     ):
-                        assignment_.send_email(
-                            self.request.get_host(), "new_assignment"
-                        )
+                        assignment_.send_email("new_assignment")
                         count_emails_sent += 1
 
             student_assignment_list = models.StudentAssignment.objects.filter(

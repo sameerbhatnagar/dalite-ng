@@ -14,12 +14,25 @@ export function getCsrfToken() {
 }
 
 export function buildReq(data, method) {
-  return {
-    method: method.toUpperCase(),
-    body: JSON.stringify(data),
-    headers: {
-      "Content-Type": "application/json",
-      "X-CSRFToken": getCsrfToken(),
-    },
-  };
+  if (method.toLowerCase() === "get") {
+    return {
+      method: method.toUpperCase(),
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": getCsrfToken(),
+      },
+    };
+  } else if (method.toLowerCase() === "post") {
+    const body = data ? JSON.stringify(data) : "";
+    return {
+      method: method.toUpperCase(),
+      body: body,
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": getCsrfToken(),
+      },
+    };
+  } else {
+    throw Error(`Method ${method} not implemented yet.`);
+  }
 }

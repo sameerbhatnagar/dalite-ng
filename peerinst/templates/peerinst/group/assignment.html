@@ -124,20 +124,20 @@
     </div>
 
     <div class="foldable">
-      <h2 onclick="bundle.toggleStudentProgressView()" class="foldable--title mdc-typography--display1 mdc-theme--secondary">
+      <h2 class="foldable--title mdc-typography--display1 mdc-theme--secondary">
         {% trans 'Student progress' %}
       </h2>
       <div class="foldable--body">
         <div class="admin-link">
           <a href="{% url 'report_selector' %}">{% trans 'Generate report' %}</a>
         </div>
-        <ul id="student-progress" data-url="{% url 'get-assignment-student-progress' assignment.hash %}" data-showing="false" class="mdc-list mdc-list--two-line mdc-list--non-interactive">
+        <ul id="student-progress"
+            class="mdc-list mdc-list--two-line mdc-list--non-interactive">
           <li class="mdc-list-item">
             <span></span>
             <span></span>
             <span id="student-progress-legend" class="mdc-list-item__meta">
-              <span>First answer done</span>
-              <span>Second answer done</span>
+              <span>Question done</span>
               <span>First answer correct</span>
               <span>Second answer correct</span>
             </span>
@@ -196,7 +196,10 @@
 {% compress js inline %}
 <script src="{% static 'peerinst/js/group.min.js' %}"></script>
 <script>
-  bundle.setUpAssignmentPage();
+  window.addEventListener("load", function() {
+    bundle.initAssignment(
+      "{% url 'get-assignment-student-progress' assignment.hash %}"
+    )  });
 </script>
 {% endcompress %}
 {% endblock %}

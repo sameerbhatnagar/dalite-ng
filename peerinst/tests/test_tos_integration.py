@@ -1,9 +1,8 @@
 from django.core.urlresolvers import reverse
+
+from tos.models import Role, Tos
+
 from .test_views import QuestionViewTestCase
-from django.test import TestCase
-from peerinst.models import Student
-from tos.models import Consent, Role, Tos
-from tos.tests.generators import add_roles, new_roles
 
 
 class TOSError(QuestionViewTestCase):
@@ -12,7 +11,8 @@ class TOSError(QuestionViewTestCase):
         tos = Tos.objects.all().first()
         tos.delete()
         response = self.question_get()
-        # This will raise error in tos models.py as no TOS exists and we want custom error page to be rendered with message from app
+        # This will raise error in tos models.py as no TOS exists and we want
+        # custom error page to be rendered with message from app
         self.assertTemplateUsed(response, "500.html")
         self.assertContains(
             response, "There is no terms of service yet.", status_code=500
@@ -33,10 +33,3 @@ class TOSError(QuestionViewTestCase):
             status_code=302,
             target_status_code=200,
         )
-
-
-class GetStudentConsent(QuestionViewTestCase):
-    def test_student_can_change_consent(self):
-        """Test consent form accessible through template"""
-        response = self.question_get()
-        self.assertContains(response, "/tos/student/modify/")

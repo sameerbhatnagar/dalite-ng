@@ -27,7 +27,7 @@
 @import "@material/typography/mdc-typography";
 
 /* Load other files */
-@import "utils";
+@import "custom_elements";
 
 /* Stylesheet */
 /* - Layout */
@@ -112,6 +112,10 @@ header a {
 header .icon {
   font-size: 28px;
   margin-right: 10px;
+}
+
+header i {
+  user-select: none;
 }
 
 #header-left {

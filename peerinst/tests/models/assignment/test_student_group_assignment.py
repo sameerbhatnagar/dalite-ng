@@ -255,10 +255,10 @@ def test_check_reminder_status__expired(
     assert not mail.outbox
 
 
-def test_get_student_progress__no_questions_done(
+def test_student_progress__no_questions_done(
     questions, students_with_assignment, student_group_assignment
 ):
-    progress = student_group_assignment.get_student_progress()
+    progress = student_group_assignment.student_progress
 
     assert not set(map(itemgetter("question_title"), progress)) - set(
         (q.title for q in questions)
@@ -268,14 +268,13 @@ def test_get_student_progress__no_questions_done(
     )
 
     for question in progress:
-        assert len(question["students"]) == len(students_with_assignment)
-        assert question["first"] == 0
-        assert question["first_correct"] == 0
-        assert question["second"] == 0
-        assert question["second_correct"] == 0
+        assert question["n_students"] == len(students_with_assignment)
+        assert question["n_completed"] == 0
+        assert question["n_first_correct"] == 0
+        assert question["n_correct"] == 0
 
 
-def test_get_student_progress__some_first_answers_done(
+def test_student_progress__some_first_answers_done(
     questions, students_with_assignment, student_group_assignment
 ):
     times_answered = {
@@ -301,7 +300,7 @@ def test_get_student_progress__some_first_answers_done(
         ]
     )
 
-    progress = student_group_assignment.get_student_progress()
+    progress = student_group_assignment.student_progress
 
     assert not set(map(itemgetter("question_title"), progress)) - set(
         (q.title for q in questions)
@@ -314,14 +313,13 @@ def test_get_student_progress__some_first_answers_done(
         question_ = next(
             q for q in questions if q.title == question["question_title"]
         )
-        assert len(question["students"]) == len(students_with_assignment)
-        assert question["first"] == times_answered[question_.pk]
-        assert question["first_correct"] == n_correct[question_.pk]
-        assert question["second"] == 0
-        assert question["second_correct"] == 0
+        assert question["n_students"] == len(students_with_assignment)
+        assert question["n_completed"] == 0
+        assert question["n_first_correct"] == n_correct[question_.pk]
+        assert question["n_correct"] == 0
 
 
-def test_get_student_progress__all_first_answers_done(
+def test_student_progress__all_first_answers_done(
     questions, students_with_assignment, student_group_assignment
 ):
     n_correct = {
@@ -342,7 +340,7 @@ def test_get_student_progress__all_first_answers_done(
         ]
     )
 
-    progress = student_group_assignment.get_student_progress()
+    progress = student_group_assignment.student_progress
 
     assert not set(map(itemgetter("question_title"), progress)) - set(
         (q.title for q in questions)
@@ -355,14 +353,13 @@ def test_get_student_progress__all_first_answers_done(
         question_ = next(
             q for q in questions if q.title == question["question_title"]
         )
-        assert len(question["students"]) == len(students_with_assignment)
-        assert question["first"] == len(students_with_assignment)
-        assert question["first_correct"] == n_correct[question_.pk]
-        assert question["second"] == 0
-        assert question["second_correct"] == 0
+        assert question["n_students"] == len(students_with_assignment)
+        assert question["n_completed"] == 0
+        assert question["n_first_correct"] == n_correct[question_.pk]
+        assert question["n_correct"] == 0
 
 
-def test_get_student_progress__some_second_answers_done(
+def test_student_progress__some_second_answers_done(
     questions, students_with_assignment, student_group_assignment
 ):
     times_first_answered = {
@@ -423,7 +420,7 @@ def test_get_student_progress__some_second_answers_done(
         ]
     )
 
-    progress = student_group_assignment.get_student_progress()
+    progress = student_group_assignment.student_progress
 
     assert not set(map(itemgetter("question_title"), progress)) - set(
         (q.title for q in questions)
@@ -436,14 +433,13 @@ def test_get_student_progress__some_second_answers_done(
         question_ = next(
             q for q in questions if q.title == question["question_title"]
         )
-        assert len(question["students"]) == len(students_with_assignment)
-        assert question["first"] == times_first_answered[question_.pk]
-        assert question["first_correct"] == n_first_correct[question_.pk]
-        assert question["second"] == times_second_answered[question_.pk]
-        assert question["second_correct"] == n_second_correct[question_.pk]
+        assert question["n_students"] == len(students_with_assignment)
+        assert question["n_completed"] == times_second_answered[question_.pk]
+        assert question["n_first_correct"] == n_first_correct[question_.pk]
+        assert question["n_correct"] == n_second_correct[question_.pk]
 
 
-def test_get_student_progress__all_second_answers_done(
+def test_student_progress__all_second_answers_done(
     questions, students_with_assignment, student_group_assignment
 ):
     n_first_correct = {
@@ -471,7 +467,7 @@ def test_get_student_progress__all_second_answers_done(
         ]
     )
 
-    progress = student_group_assignment.get_student_progress()
+    progress = student_group_assignment.student_progress
 
     assert not set(map(itemgetter("question_title"), progress)) - set(
         (q.title for q in questions)
@@ -484,21 +480,18 @@ def test_get_student_progress__all_second_answers_done(
         question_ = next(
             q for q in questions if q.title == question["question_title"]
         )
-        assert len(question["students"]) == len(students_with_assignment)
-        assert question["first"] == len(students_with_assignment)
-        assert question["first_correct"] == n_first_correct[question_.pk]
-        assert question["second"] == len(students_with_assignment)
-        assert question["second_correct"] == n_second_correct[question_.pk]
+        assert question["n_students"] == len(students_with_assignment)
+        assert question["n_completed"] == len(students_with_assignment)
+        assert question["n_first_correct"] == n_first_correct[question_.pk]
+        assert question["n_correct"] == n_second_correct[question_.pk]
 
 
-def test_get_student_progress__all_answers_correct_no_questions_all_answers_correct_done(  # noqa
+def test_student_progress__all_answers_correct_no_questions_all_answers_correct_done(  # noqa
     questions_all_answers_correct,
     students_with_assignment_all_answers_correct,
     student_group_assignment_all_answers_correct,
 ):
-    progress = (
-        student_group_assignment_all_answers_correct.get_student_progress()
-    )
+    progress = student_group_assignment_all_answers_correct.student_progress
 
     assert not set(map(itemgetter("question_title"), progress)) - set(
         (q.title for q in questions_all_answers_correct)
@@ -508,16 +501,15 @@ def test_get_student_progress__all_answers_correct_no_questions_all_answers_corr
     )
 
     for question in progress:
-        assert len(question["students"]) == len(
+        assert question["n_students"] == len(
             students_with_assignment_all_answers_correct
         )
-        assert question["first"] == 0
-        assert question["first_correct"] == 0
-        assert question["second"] == 0
-        assert question["second_correct"] == 0
+        assert question["n_completed"] == 0
+        assert question["n_first_correct"] == 0
+        assert question["n_correct"] == 0
 
 
-def test_get_student_progress__all_answers_correct_some_first_answers_done(
+def test_student_progress__all_answers_correct_some_first_answers_done(
     questions_all_answers_correct,
     students_with_assignment_all_answers_correct,
     student_group_assignment_all_answers_correct,
@@ -550,9 +542,7 @@ def test_get_student_progress__all_answers_correct_some_first_answers_done(
         ]
     )
 
-    progress = (
-        student_group_assignment_all_answers_correct.get_student_progress()
-    )
+    progress = student_group_assignment_all_answers_correct.student_progress
 
     assert not set(map(itemgetter("question_title"), progress)) - set(
         (q.title for q in questions_all_answers_correct)
@@ -567,16 +557,15 @@ def test_get_student_progress__all_answers_correct_some_first_answers_done(
             for q in questions_all_answers_correct
             if q.title == question["question_title"]
         )
-        assert len(question["students"]) == len(
+        assert question["n_students"] == len(
             students_with_assignment_all_answers_correct
         )
-        assert question["first"] == times_answered[question_.pk]
-        assert question["first_correct"] == times_answered[question_.pk]
-        assert question["second"] == 0
-        assert question["second_correct"] == 0
+        assert question["n_completed"] == 0
+        assert question["n_first_correct"] == times_answered[question_.pk]
+        assert question["n_correct"] == 0
 
 
-def test_get_student_progress__all_answers_correct_all_first_answers_done(
+def test_student_progress__all_answers_correct_all_first_answers_done(
     questions_all_answers_correct,
     students_with_assignment_all_answers_correct,
     student_group_assignment_all_answers_correct,
@@ -603,9 +592,7 @@ def test_get_student_progress__all_answers_correct_all_first_answers_done(
         ]
     )
 
-    progress = (
-        student_group_assignment_all_answers_correct.get_student_progress()
-    )
+    progress = student_group_assignment_all_answers_correct.student_progress
 
     assert not set(map(itemgetter("question_title"), progress)) - set(
         (q.title for q in questions_all_answers_correct)
@@ -615,20 +602,17 @@ def test_get_student_progress__all_answers_correct_all_first_answers_done(
     )
 
     for question in progress:
-        assert len(question["students"]) == len(
+        assert question["n_students"] == len(
             students_with_assignment_all_answers_correct
         )
-        assert question["first"] == len(
+        assert question["n_completed"] == 0
+        assert question["n_first_correct"] == len(
             students_with_assignment_all_answers_correct
         )
-        assert question["first_correct"] == len(
-            students_with_assignment_all_answers_correct
-        )
-        assert question["second"] == 0
-        assert question["second_correct"] == 0
+        assert question["n_correct"] == 0
 
 
-def test_get_student_progress__all_answers_correct_some_second_answers_done(
+def test_student_progress__all_answers_correct_some_second_answers_done(
     questions_all_answers_correct,
     students_with_assignment_all_answers_correct,
     student_group_assignment_all_answers_correct,
@@ -697,9 +681,7 @@ def test_get_student_progress__all_answers_correct_some_second_answers_done(
         ]
     )
 
-    progress = (
-        student_group_assignment_all_answers_correct.get_student_progress()
-    )
+    progress = student_group_assignment_all_answers_correct.student_progress
 
     assert not set(map(itemgetter("question_title"), progress)) - set(
         (q.title for q in questions_all_answers_correct)
@@ -714,18 +696,17 @@ def test_get_student_progress__all_answers_correct_some_second_answers_done(
             for q in questions_all_answers_correct
             if q.title == question["question_title"]
         )
-        assert len(question["students"]) == len(
+        assert question["n_students"] == len(
             students_with_assignment_all_answers_correct
         )
-        assert question["first"] == times_first_answered[question_.pk]
-        assert question["first_correct"] == times_first_answered[question_.pk]
-        assert question["second"] == times_second_answered[question_.pk]
+        assert question["n_completed"] == times_second_answered[question_.pk]
         assert (
-            question["second_correct"] == times_second_answered[question_.pk]
+            question["n_first_correct"] == times_first_answered[question_.pk]
         )
+        assert question["n_correct"] == times_second_answered[question_.pk]
 
 
-def test_get_student_progress__all_answers_correct_all_second_answers_done(
+def test_student_progress__all_answers_correct_all_second_answers_done(
     questions_all_answers_correct,
     students_with_assignment_all_answers_correct,
     student_group_assignment_all_answers_correct,
@@ -761,9 +742,7 @@ def test_get_student_progress__all_answers_correct_all_second_answers_done(
         ]
     )
 
-    progress = (
-        student_group_assignment_all_answers_correct.get_student_progress()
-    )
+    progress = student_group_assignment_all_answers_correct.student_progress
 
     assert not set(map(itemgetter("question_title"), progress)) - set(
         (q.title for q in questions_all_answers_correct)
@@ -773,19 +752,16 @@ def test_get_student_progress__all_answers_correct_all_second_answers_done(
     )
 
     for question in progress:
-        assert len(question["students"]) == len(
+        assert question["n_students"] == len(
             students_with_assignment_all_answers_correct
         )
-        assert question["first"] == len(
+        assert question["n_completed"] == len(
             students_with_assignment_all_answers_correct
         )
-        assert question["first_correct"] == len(
+        assert question["n_first_correct"] == len(
             students_with_assignment_all_answers_correct
         )
-        assert question["second"] == len(
-            students_with_assignment_all_answers_correct
-        )
-        assert question["second_correct"] == len(
+        assert question["n_correct"] == len(
             students_with_assignment_all_answers_correct
         )
 
