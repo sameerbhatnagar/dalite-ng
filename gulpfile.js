@@ -1,26 +1,26 @@
 const autoprefixer = require("autoprefixer");
-const replace = require("gulp-replace");
-const fs = require("fs");
+// const replace = require("gulp-replace");
+// const fs = require("fs");
 const concat = require("gulp-concat");
-const crypto = require("crypto");
+// const crypto = require("crypto");
 const cssnano = require("cssnano");
 const gulp = require("gulp");
-const merge = require("merge-stream");
+// const merge = require("merge-stream");
 const postcss = require("gulp-postcss");
 const rename = require("gulp-rename");
 const runSequence = require("run-sequence");
 const sass = require("gulp-sass");
 const sourcemaps = require("gulp-sourcemaps");
 
-const hash = path =>
-  new Promise((resolve, reject) => {
-    fs.createReadStream(path)
-      .on("error", reject)
-      .pipe(crypto.createHash("sha1").setEncoding("hex"))
-      .once("finish", function() {
-        resolve(this.read()); // eslint-disable-line no-invalid-this
-      });
-  });
+// const hash = path =>
+// new Promise((resolve, reject) => {
+// fs.createReadStream(path)
+// .on("error", reject)
+// .pipe(crypto.createHash("sha1").setEncoding("hex"))
+// .once("finish", function() {
+// resolve(this.read()); // eslint-disable-line no-invalid-this
+// });
+// });
 
 // Run sass and minify
 gulp.task("sass", function() {
@@ -121,7 +121,7 @@ gulp.task("peerinst-styles-student", async function() {
   const app = "peerinst";
   const src = "student/*.scss";
   const filename = "student.min.css";
-  const templatePath = "student/base.html";
+  // const templatePath = "student/base.html";
 
   const build = gulp
     .src("./" + app + "/static/" + app + "/css/" + src)
@@ -149,25 +149,26 @@ gulp.task("peerinst-styles-student", async function() {
     .pipe(sourcemaps.write("."))
     .pipe(gulp.dest(app + "/static/" + app + "/css"));
 
-  const hash_ = await hash(
-    "./" + app + "/templates/" + app + "/" + templatePath,
-  );
-
-  const updateHash = gulp
-    .src("./" + app + "/templates/" + app + "/" + templatePath)
-    .pipe(
-      replace(
-        new RegExp(
-          "({%\\s*static 'peerinst\\/css\\/" +
-            filename +
-            "'\\s*%})(?:\\?hash=.{8})?",
-        ),
-        "$1?hash=" + hash_.slice(0, 8),
-      ),
-    )
-    .pipe(gulp.dest("./peerinst/templates/peerinst/student"));
-
-  return merge(build, updateHash);
+  // const hash_ = await hash(
+  // "./" + app + "/templates/" + app + "/" + templatePath,
+  // );
+  //
+  // const updateHash = gulp
+  // .src("./" + app + "/templates/" + app + "/" + templatePath)
+  // .pipe(
+  // replace(
+  // new RegExp(
+  // "({%\\s*static 'peerinst\\/css\\/" +
+  // filename +
+  // "'\\s*%})(?:\\?hash=.{8})?",
+  // ),
+  // "$1?hash=" + hash_.slice(0, 8),
+  // ),
+  // )
+  // .pipe(gulp.dest("./peerinst/templates/peerinst/student"));
+  //
+  // return merge(build, updateHash);
+  return build;
 });
 
 gulp.task("peerinst-scripts-index", function() {
@@ -199,9 +200,9 @@ gulp.task("peerinst-scripts-group", function() {
 });
 
 gulp.task("peerinst-scripts-student", async function() {
-  const app = "peerinst";
-  const filename = "student.min.js";
-  const templatePath = "student/base.html";
+  // const app = "peerinst";
+  // const filename = "student.min.js";
+  // const templatePath = "student/base.html";
 
   const runCommand = require("child_process").execSync;
   runCommand(
@@ -215,23 +216,23 @@ gulp.task("peerinst-scripts-student", async function() {
     },
   );
 
-  const hash_ = await hash(
-    "./" + app + "/templates/" + app + "/" + templatePath,
-  );
-
-  return gulp
-    .src("./" + app + "/templates/" + app + "/" + templatePath)
-    .pipe(
-      replace(
-        new RegExp(
-          "({%\\s*static 'peerinst\\/js\\/" +
-            filename +
-            "'\\s*%})(?:\\?hash=.{8})?",
-        ),
-        "$1?hash=" + hash_.slice(0, 8),
-      ),
-    )
-    .pipe(gulp.dest("./peerinst/templates/peerinst/student"));
+  // const hash_ = await hash(
+  // "./" + app + "/templates/" + app + "/" + templatePath,
+  // );
+  //
+  // return gulp
+  // .src("./" + app + "/templates/" + app + "/" + templatePath)
+  // .pipe(
+  // replace(
+  // new RegExp(
+  // "({%\\s*static 'peerinst\\/js\\/" +
+  // filename +
+  // "'\\s*%})(?:\\?hash=.{8})?",
+  // ),
+  // "$1?hash=" + hash_.slice(0, 8),
+  // ),
+  // )
+  // .pipe(gulp.dest("./peerinst/templates/peerinst/student"));
 });
 
 gulp.task("peerinst-scripts-ajax", function() {

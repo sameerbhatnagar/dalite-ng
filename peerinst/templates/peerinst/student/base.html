@@ -1,12 +1,15 @@
 {% extends 'peerinst/base.html' %}
 
-{% load staticfiles i18n %}
+{% load compress staticfiles i18n %}
 
 {% block stylesheets %}
+{% compress css %}
 <link href="{% static 'peerinst/css/student.min.css' %}?hash=423fb838" rel="stylesheet">
+{% endcompress %}
 {% endblock %}
 
 {% block scripts %}
+{% compress js %}
 <script src="{% static 'peerinst/js/student.min.js' %}?hash=a0abf836"></script>
 <script type="text/javascript">
   window.addEventListener("load", function() {
@@ -15,6 +18,7 @@
     )
   });
 </script>
+{% endcompress %}
 {% endblock %}
 
 {% block header_menu %}
