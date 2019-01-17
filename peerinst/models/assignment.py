@@ -61,7 +61,9 @@ class Assignment(models.Model):
 class StudentGroupAssignment(models.Model):
     group = models.ForeignKey(StudentGroup, on_delete=models.CASCADE)
     assignment = models.ForeignKey(Assignment, on_delete=models.CASCADE)
-    distribution_date = models.DateTimeField(editable=False, auto_now_add=True)
+    distribution_date = models.DateTimeField(
+        editable=False, null=True, blank=True
+    )
     due_date = models.DateTimeField(blank=False, default=timezone.now)
     show_correct_answers = models.BooleanField(
         _("Show correct answers"),
@@ -249,6 +251,12 @@ class StudentGroupAssignment(models.Model):
             output, Question
         ), "Postcondition failed"
         return output
+
+    def distribute(self):
+        self.distribution_date = datetime.now(pytz.utc)
+        self.save()
+        logger.info("Student group assignment %d distributed", self.pk)
+        self.update_students()
 
     def update_students(self):
         logger.info(

@@ -463,6 +463,12 @@ def group_patterns():
             views.csv_gradebook,
             name="group-csv-gradebook",
         ),
+        url(
+            r"^group-assignment/(?P<assignment_hash>[0-9A-Za-z=_-]+)/"
+            r"distribute/$",
+            views.distribute_assignment,
+            name="distribute-assignment",
+        ),
     ]
 
 

@@ -369,6 +369,7 @@ gulp.task("watch", function() {
       "!./peerinst/static/peerinst/js/group.js",
       "!./peerinst/static/peerinst/js/student.js",
       "!./peerinst/static/peerinst/js/*.min.js",
+      "!./peerinst/static/peerinst/js/utils.js",
     ],
     ["peerinst-scripts-index"],
   );

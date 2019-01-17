@@ -285,8 +285,6 @@ class StudentGroupAssignmentCreateView(
         )
         self.object = form.save()
 
-        self.object.update_students()
-
         return super(StudentGroupAssignmentCreateView, self).form_valid(form)
 
     def get_success_url(self):
