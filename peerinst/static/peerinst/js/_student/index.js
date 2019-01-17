@@ -341,19 +341,19 @@ function groupAssignmentView(assignment) {
   }
   iconSpan.appendChild(icon);
 
-  const questionsSpan = document.createElement("span");
-  questionsSpan.classList.add("student-group--assignment-questions");
-  questionsSpan.title = model.translations.grade;
-  li.appendChild(questionsSpan);
+  const gradeSpan = document.createElement("span");
+  gradeSpan.classList.add("student-group--assignment-questions");
+  gradeSpan.title = model.translations.grade;
+  li.appendChild(gradeSpan);
   const grade = document.createElement("span");
   grade.textContent = assignment.results.grade;
-  questionsSpan.appendChild(grade);
+  gradeSpan.appendChild(grade);
   const slash = document.createElement("span");
   slash.textContent = "/";
-  questionsSpan.appendChild(slash);
+  gradeSpan.appendChild(slash);
   const n = document.createElement("span");
   n.textContent = assignment.results.n;
-  questionsSpan.appendChild(n);
+  gradeSpan.appendChild(n);
 
   const title = document.createElement("span");
   title.classList.add("student-group--assignment-title");
