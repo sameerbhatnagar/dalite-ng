@@ -290,8 +290,9 @@ class StudentGroupAssignmentCreateView(
         return super(StudentGroupAssignmentCreateView, self).form_valid(form)
 
     def get_success_url(self):
-        teacher = get_object_or_404(Teacher, user=self.request.user)
-        return reverse("group-assignments", kwargs={"teacher_id": teacher.pk})
+        return reverse(
+            "group-assignment", kwargs={"assignment_hash": self.object.hash}
+        )
 
     def get_context_data(self, **kwargs):
         context = super(
