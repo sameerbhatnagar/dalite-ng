@@ -13,7 +13,7 @@ function initModel(data) {
   model = {
     showing: false,
     results: data.map(question => ({
-      question: question.question_title,
+      questionTitle: question.question_title,
       nStudents: question.n_students,
       nCompleted: question.n_completed,
       nFirstCorrect: question.n_first_correct,
@@ -56,7 +56,9 @@ function questionView(question) {
 
   const title = document.createElement("span");
   title.classList.add("mdc-list-item__text", "mdc-theme--secondary", "bold");
-  title.textContent = question.question_title;
+  title.textContent = question.questionTitle;
+  console.log(title.textContent);
+  console.log(question.questionTitle);
   const nStudents = document.createElement("span");
   nStudents.classList.add("mdc-list-item__secondary-text");
   nStudents.textContent = question.nStudents + " students";
