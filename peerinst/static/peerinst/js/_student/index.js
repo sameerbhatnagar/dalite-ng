@@ -33,11 +33,8 @@ function initModel(data) {
         dueDate: new Date(assignment.due_date),
         link: assignment.link,
         results: {
+          grade: assignment.results.grade,
           n: assignment.results.n,
-          nFirstAnswered: assignment.results.n_first_answered,
-          nSecondAnswered: assignment.results.n_second_answered,
-          nFirstCorrect: assignment.results.n_first_correct,
-          nSecondCorrect: assignment.results.n_second_correct,
         },
         done: assignment.done,
         almostExpired: assignment.almost_expired,
@@ -62,6 +59,7 @@ function initModel(data) {
       dueOn: data.translations.due_on,
       expired: data.translations.expired,
       goToAssignment: data.translations.go_to_assignment,
+      grade: data.translations.grade,
       hour: data.translations.hour,
       hours: data.translations.hours,
       leave: data.translations.leave,
@@ -70,7 +68,6 @@ function initModel(data) {
       leaveGroupTitle: data.translations.leave_group_title,
       minute: data.translations.minute,
       minutes: data.translations.minutes,
-      nQuestionsCompleted: data.translations.n_questions_completed,
       noAssignments: data.translations.no_assignments,
       notificationsBell: data.translations.notifications_bell,
       notSharing: data.translations.not_sharing,
@@ -336,7 +333,7 @@ function groupAssignmentView(assignment) {
     iconSpan.title = model.translations.assignmentExpired;
     icon.textContent = "assignment_late";
   } else if (almostExpiredMin <= new Date(Date.now())) {
-    iconSpan.title = model.translations.assignmentaboutToExpire;
+    iconSpan.title = model.translations.assignmentAboutToExpire;
     icon.textContent = "assignment_late";
   } else {
     iconSpan.title = model.translations.goToAssignment;
@@ -344,19 +341,19 @@ function groupAssignmentView(assignment) {
   }
   iconSpan.appendChild(icon);
 
-  const questionsSpan = document.createElement("span");
-  questionsSpan.classList.add("student-group--assignment-questions");
-  questionsSpan.title = model.translations.nQuestionsCompleted;
-  li.appendChild(questionsSpan);
-  const nSecond = document.createElement("span");
-  nSecond.textContent = assignment.results.nSecondAnswered;
-  questionsSpan.appendChild(nSecond);
+  const gradeSpan = document.createElement("span");
+  gradeSpan.classList.add("student-group--assignment-questions");
+  gradeSpan.title = model.translations.grade;
+  li.appendChild(gradeSpan);
+  const grade = document.createElement("span");
+  grade.textContent = assignment.results.grade;
+  gradeSpan.appendChild(grade);
   const slash = document.createElement("span");
   slash.textContent = "/";
-  questionsSpan.appendChild(slash);
+  gradeSpan.appendChild(slash);
   const n = document.createElement("span");
   n.textContent = assignment.results.n;
-  questionsSpan.appendChild(n);
+  gradeSpan.appendChild(n);
 
   const title = document.createElement("span");
   title.classList.add("student-group--assignment-title");

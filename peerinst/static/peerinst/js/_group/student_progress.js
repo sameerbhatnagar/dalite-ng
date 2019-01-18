@@ -1,87 +1,87 @@
 "use strict";
 
 import * as d3 from "d3";
-import { getStudentProgressData } from "../ajax.js";
+import { buildReq } from "../_ajax/utils.js";
 
-export function addStudentProgressView() {
-  let url = document
-    .querySelector("#student-progress")
-    .getAttribute("data-url");
-  getStudentProgressData(url)
-    .then(function(data) {
-      studentProgressView(data);
-    })
-    .catch(function(err) {
-      console.log(err);
-      return;
-    });
+/*********/
+/* model */
+/*********/
+
+let model;
+
+function initModel(data) {
+  model = {
+    showing: false,
+    results: data.map(question => ({
+      questionTitle: question.question_title,
+      nStudents: question.n_students,
+      nCompleted: question.n_completed,
+      nFirstCorrect: question.n_first_correct,
+      nCorrect: question.n_correct,
+    })),
+  };
 }
 
-export function toggleStudentProgressView() {
-  let ul = document.querySelector("#student-progress");
-  let showing = ul.getAttribute("data-showing") === "true";
+/**********/
+/* update */
+/**********/
 
-  let completes = ul.querySelectorAll(".student-progress-complete");
-  let corrects = ul.querySelectorAll(".student-progress-correct");
-
-  completes.forEach(function(svg) {
-    animateComplete(svg, showing);
-  });
-  corrects.forEach(function(svg) {
-    animateCorrect(svg, showing);
-  });
-
-  ul.setAttribute("data-showing", !showing);
+function toggleStudentProgress() {
+  model.showing = !model.showing;
+  toggleStudentProgressView();
 }
 
-function studentProgressView(data) {
-  let ul = document.querySelector("#student-progress");
-  data.forEach(function(question) {
-    ul.append(questionView(question));
+/********/
+/* view */
+/********/
+
+function view() {
+  const progress = document.querySelector("#student-progress");
+  model.results.map(function(question) {
+    progress.append(questionView(question));
   });
 }
 
-function questionView(data) {
-  let li = document.createElement("li");
+function questionView(question) {
+  const li = document.createElement("li");
   li.classList.add("mdc-list-item");
 
-  let image = document.createElement("span");
+  const image = document.createElement("span");
   image.classList.add("mdc-list-item__graphic", "mdc-theme--primary");
-  let i = document.createElement("i");
+  const i = document.createElement("i");
   i.classList.add("mdc-theme--primary", "material-icons", "md-48");
   i.textContent = "question_answer";
   image.append(i);
   li.append(image);
 
-  let title = document.createElement("span");
+  const title = document.createElement("span");
   title.classList.add("mdc-list-item__text", "mdc-theme--secondary", "bold");
-  title.textContent = data.question_title;
-  let nStudents = document.createElement("span");
+  title.textContent = question.questionTitle;
+  const nStudents = document.createElement("span");
   nStudents.classList.add("mdc-list-item__secondary-text");
-  nStudents.textContent = data.students.length + " students";
+  nStudents.textContent = question.nStudents + " students";
   title.append(nStudents);
   li.append(title);
 
-  let progress = document.createElement("span");
+  const progress = document.createElement("span");
   progress.classList.add("mdc-list-item__meta");
   li.append(progress);
 
-  let width = 62;
-  let height = 48;
-  let total = data["students"].length;
+  const width = 62;
+  const height = 48;
+  const total = question.nStudents;
 
-  completeView(progress, data["first"], total, height, width);
-  completeView(progress, data["second"], total, height, width);
-  correctView(progress, data["first_correct"], total, height, width);
-  correctView(progress, data["second_correct"], total, height, width);
+  completeView(progress, question.nCompleted, total, height, width);
+  correctView(progress, question.nFirstCorrect, total, height, width);
+  correctView(progress, question.nCorrect, total, height, width);
 
   return li;
 }
 
 function completeView(container, data, total, height, width) {
-  let radius = Math.min(width, height) / 2;
+  const radius = Math.min(width, height) / 2;
 
-  let svg = d3
+  const svg = d3
     .select(container)
     .append("svg")
     .attr("class", "student-progress-complete")
@@ -90,14 +90,14 @@ function completeView(container, data, total, height, width) {
     .append("g")
     .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
 
-  let arcBackground = d3
+  const arcBackground = d3
     .arc()
     .innerRadius(radius - 5)
     .outerRadius(radius)
     .startAngle(0)
     .endAngle(2 * Math.PI);
 
-  let arcData = d3
+  const arcData = d3
     .arc()
     .innerRadius(radius - 5)
     .outerRadius(radius)
@@ -129,9 +129,9 @@ function completeView(container, data, total, height, width) {
 }
 
 function correctView(container, data, total, height, width) {
-  let radius = Math.min(width, height) / 2;
+  const radius = Math.min(width, height) / 2;
 
-  let svg = d3
+  const svg = d3
     .select(container)
     .append("svg")
     .attr("class", "student-progress-correct")
@@ -140,19 +140,19 @@ function correctView(container, data, total, height, width) {
     .append("g")
     .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
 
-  let colourScale = d3
+  const colourScale = d3
     .scaleQuantile()
     .domain([0, 1])
     .range(["#b30000", "#f17f4d", "#339966"]);
 
-  let arcBackground = d3
+  const arcBackground = d3
     .arc()
     .innerRadius(radius - 5)
     .outerRadius(radius)
     .startAngle(0)
     .endAngle(2 * Math.PI);
 
-  let arcData = d3
+  const arcData = d3
     .arc()
     .innerRadius(radius - 5)
     .outerRadius(radius)
@@ -185,40 +185,57 @@ function correctView(container, data, total, height, width) {
   return svg;
 }
 
+function toggleStudentProgressView() {
+  const progress = document.querySelector("#student-progress");
+  const complete = progress.querySelector(".student-progress-complete");
+  const correct = progress.querySelectorAll(".student-progress-correct");
+
+  animateComplete(complete, !model.showing);
+  Array.from(correct).map(function(svg) {
+    animateCorrect(svg, !model.showing);
+  });
+}
+
 function animateComplete(svg, reverse = false) {
-  let path_ = svg.querySelector(".student-progress__path");
-  let count_ = svg.querySelector(".student-progress__count");
-  let data = count_.getAttribute("data-count");
-  let total = count_.getAttribute("data-total");
+  const path_ = svg.querySelector(".student-progress__path");
+  const count_ = svg.querySelector(".student-progress__count");
+  const data = count_.getAttribute("data-count");
+  const total = count_.getAttribute("data-total");
 
   let start;
   let end;
+  let delay;
+  let duration;
   if (reverse) {
     start = data;
     end = 0;
+    delay = 0;
+    duration = 0;
   } else {
     start = 0;
     end = data;
+    delay = 500;
+    duration = 1500;
   }
 
-  let width = svg.getAttribute("width");
-  let height = svg.getAttribute("height");
-  let radius = Math.min(width, height) / 2;
+  const width = svg.getAttribute("width");
+  const height = svg.getAttribute("height");
+  const radius = Math.min(width, height) / 2;
 
-  let arcData = d3
+  const arcData = d3
     .arc()
     .innerRadius(radius - 5)
     .outerRadius(radius)
     .startAngle(0);
 
-  let path = d3.select(path_).attr("d", arcData);
+  const path = d3.select(path_).attr("d", arcData);
 
-  let count = d3.select(count_);
+  const count = d3.select(count_);
 
   function animation(transition, newAngle) {
     transition.attrTween("d", function(d) {
-      let interpolate = d3.interpolate(d.endAngle, newAngle);
-      let interpolateCount = d3.interpolate(start, end);
+      const interpolate = d3.interpolate(d.endAngle, newAngle);
+      const interpolateCount = d3.interpolate(start, end);
       return function(t) {
         d.endAngle = interpolate(t);
         count.text(Math.floor(interpolateCount(t)));
@@ -230,8 +247,8 @@ function animateComplete(svg, reverse = false) {
   function animate() {
     path
       .transition()
-      .delay(500 * Math.random())
-      .duration(2000)
+      .delay(delay * Math.random())
+      .duration(duration)
       .ease(d3.easeCubicInOut)
       .call(animation, (2 * Math.PI * end) / total);
   }
@@ -240,47 +257,53 @@ function animateComplete(svg, reverse = false) {
 }
 
 function animateCorrect(svg, reverse = false) {
-  let path_ = svg.querySelector(".student-progress__path");
-  let count_ = svg.querySelector(".student-progress__count");
-  let data = count_.getAttribute("data-count");
-  let total = count_.getAttribute("data-total");
+  const path_ = svg.querySelector(".student-progress__path");
+  const count_ = svg.querySelector(".student-progress__count");
+  const data = count_.getAttribute("data-count");
+  const total = count_.getAttribute("data-total");
 
-  let colourScale = d3
+  const colourScale = d3
     .scaleQuantile()
     .domain([0, 1])
     .range(["#b30000", "#f17f4d", "#339966"]);
 
   let start;
   let end;
+  let delay;
+  let duration;
   if (reverse) {
     start = data;
     end = 0;
+    delay = 0;
+    duration = 0;
   } else {
     start = 0;
     end = data;
+    delay = 500;
+    duration = 1500;
   }
 
-  let width = svg.getAttribute("width");
-  let height = svg.getAttribute("height");
-  let radius = Math.min(width, height) / 2;
+  const width = svg.getAttribute("width");
+  const height = svg.getAttribute("height");
+  const radius = Math.min(width, height) / 2;
 
-  let arcData = d3
+  const arcData = d3
     .arc()
     .innerRadius(radius - 5)
     .outerRadius(radius)
     .startAngle(0);
 
-  let path = d3.select(path_).attr("d", arcData);
+  const path = d3.select(path_).attr("d", arcData);
 
-  let count = d3.select(count_);
+  const count = d3.select(count_);
 
   function animation(transition, newAngle) {
     transition.attrTween("d", function(d) {
-      let interpolate = d3.interpolate(d.endAngle, newAngle);
-      let interpolateCount = d3.interpolate(start, end);
+      const interpolate = d3.interpolate(d.endAngle, newAngle);
+      const interpolateCount = d3.interpolate(start, end);
       return function(t) {
         d.endAngle = interpolate(t);
-        let newCount = interpolateCount(t);
+        const newCount = interpolateCount(t);
         path.style("fill", colourScale(newCount / total));
         count.text(Math.floor(newCount));
         count.style("fill", colourScale(newCount / total));
@@ -292,11 +315,42 @@ function animateCorrect(svg, reverse = false) {
   function animate() {
     path
       .transition()
-      .delay(500 * Math.random())
-      .duration(2000)
+      .delay(delay * Math.random())
+      .duration(duration)
       .ease(d3.easeCubicInOut)
       .call(animation, (2 * Math.PI * end) / total);
   }
 
   setTimeout(animate, 0);
+}
+
+/*************/
+/* listeners */
+/*************/
+
+function initListeners() {
+  addToggleStudentProgressListener();
+}
+
+function addToggleStudentProgressListener() {
+  document
+    .querySelector("#student-progress")
+    .parentNode.parentNode.querySelector(".foldable--title")
+    .addEventListener("click", toggleStudentProgress);
+}
+
+/********/
+/* init */
+/********/
+
+export function initStudentProgress(url) {
+  const req = buildReq(null, "get");
+  fetch(url, req)
+    .then(resp => resp.json())
+    .then(function(data) {
+      initModel(data.progress);
+      initListeners();
+      view();
+    })
+    .catch(err => console.log(err));
 }

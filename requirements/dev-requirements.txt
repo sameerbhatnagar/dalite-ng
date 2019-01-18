@@ -6,6 +6,7 @@ coverage
 ddt
 factory_boy>=2.5.2,<2.6
 flake8
+flake8-docstrings
 mock
 pre-commit
 pytest

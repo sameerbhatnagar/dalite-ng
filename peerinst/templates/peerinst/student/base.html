@@ -1,13 +1,16 @@
 {% extends 'peerinst/base.html' %}
 
-{% load staticfiles i18n %}
+{% load compress staticfiles i18n %}
 
 {% block stylesheets %}
-<link href="{% static 'peerinst/css/student.min.css' %}?hash=423fb838" rel="stylesheet">
+{% compress css %}
+<link href="{% static 'peerinst/css/student.min.css' %}" rel="stylesheet">
+{% endcompress %}
 {% endblock %}
 
 {% block scripts %}
-<script src="{% static 'peerinst/js/student.min.js' %}?hash=7fdd829f"></script>
+{% compress js %}
+<script src="{% static 'peerinst/js/student.min.js' %}"></script>
 <script type="text/javascript">
   window.addEventListener("load", function() {
     student.initStudentHeader(
@@ -15,6 +18,7 @@
     )
   });
 </script>
+{% endcompress %}
 {% endblock %}
 
 {% block header_menu %}

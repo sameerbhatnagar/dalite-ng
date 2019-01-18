@@ -1,1 +1,1 @@
-default_app_config = "tos.apps.TosConfig"
+default_app_config = "tos.app.ConsentConfig"

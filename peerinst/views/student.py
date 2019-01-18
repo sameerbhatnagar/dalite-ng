@@ -246,7 +246,7 @@ def index_page(req):
                         },
                     ),
                 ),
-                "results": assignment.get_results(),
+                "results": assignment.results,
             }
             for assignment in StudentAssignment.objects.filter(
                 student=student, group_assignment__group=group.group
@@ -350,6 +350,7 @@ def index_page(req):
             "due_on": ugettext("Due on"),
             "expired": ugettext("Expired"),
             "go_to_assignment": ugettext("Go to assignment"),
+            "grade": ugettext("Grade"),
             "hour": ugettext("hour"),
             "hours": ugettext("hours"),
             "leave": ugettext("Leave"),
@@ -362,7 +363,6 @@ def index_page(req):
             "leave_group_title": ugettext("Leave group"),
             "minute": ugettext("minute"),
             "minutes": ugettext("minutes"),
-            "n_questions_completed": ugettext("Number of questions completed"),
             "no_assignments": ugettext("No assignments yet"),
             "notifications_bell": ugettext(
                 "Toggle email reminders for this group"
@@ -432,7 +432,7 @@ def join_group(req, student):
                         },
                     ),
                 ),
-                "results": assignment.get_results(),
+                "results": assignment.results,
             }
             for assignment in StudentAssignment.objects.filter(
                 student=student, group_assignment__group=group

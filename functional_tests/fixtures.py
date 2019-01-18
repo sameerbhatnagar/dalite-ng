@@ -1,8 +1,9 @@
 import os
+
 import pytest
+from django.conf import settings
 from selenium import webdriver
 from selenium.common.exceptions import WebDriverException
-from django.conf import settings
 
 from peerinst.tests.fixtures import *  # noqa
 

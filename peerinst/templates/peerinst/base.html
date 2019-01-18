@@ -126,6 +126,12 @@
     });
   }
   bundle.cornerGraphic('#corner', 'switchLanguage', {% if LANGUAGE_CODE == 'en' %}'FR'{% else %}'EN'{% endif %}, 'fill-primary');
+
+  // IE11 HTML5 form attribute patch
+  $('.submit_button').click(function() {
+    event.preventDefault();
+    $('#'+$(this).attr('form')).submit();
+  })
   </script>
   {% endcompress %}
 

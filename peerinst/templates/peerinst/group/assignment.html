@@ -38,11 +38,8 @@
               <span class="mdc-list-item__graphic mdc-theme--primary">
                 <i class="mdc-theme--primary material-icons md-48">calendar_today</i>
               </span>
-              <span class="mdc-list-item__text mdc-theme--secondary bold">
-                {% trans 'Distributed' %}
-                <span class="mdc-list-item__secondary-text">
-                  {{ assignment.distribution_date|date:"Y-m-d H:i" }}
-                </span>
+              <span id="assignment-distribution"
+                    class="mdc-list-item__text mdc-theme--secondary bold">
               </span>
             </li>
             <li class="mdc-list-divider" role="separator"></li>
@@ -117,27 +114,29 @@
 
           {% endfor %}
         </ul>
-        <button onclick="bundle.saveQuestionList('{% url 'group-assignment-update' assignment.hash %}')" id="question-list-save" disabled class="mdc-button mdc-button--raised padded-top">
+        <button id="question-list-save"
+                class="mdc-button mdc-button--raised padded-top"
+                disabled>
           {% trans 'Save' %}
         </button>
       </div>
     </div>
 
     <div class="foldable">
-      <h2 onclick="bundle.toggleStudentProgressView()" class="foldable--title mdc-typography--display1 mdc-theme--secondary">
+      <h2 class="foldable--title mdc-typography--display1 mdc-theme--secondary">
         {% trans 'Student progress' %}
       </h2>
       <div class="foldable--body">
         <div class="admin-link">
           <a href="{% url 'report_selector' %}">{% trans 'Generate report' %}</a>
         </div>
-        <ul id="student-progress" data-url="{% url 'get-assignment-student-progress' assignment.hash %}" data-showing="false" class="mdc-list mdc-list--two-line mdc-list--non-interactive">
+        <ul id="student-progress"
+            class="mdc-list mdc-list--two-line mdc-list--non-interactive">
           <li class="mdc-list-item">
-            <span></span>
+              <span class="mdc-list-item__graphic mdc-theme--primary"></span>
             <span></span>
             <span id="student-progress-legend" class="mdc-list-item__meta">
-              <span>First answer done</span>
-              <span>Second answer done</span>
+              <span>Question done</span>
               <span>First answer correct</span>
               <span>Second answer correct</span>
             </span>
@@ -171,7 +170,9 @@
             </span>
             {% if student.student.email %}
             <span class="mdc-list-item__meta">
-              <i onclick="bundle.sendAssignmentEmail(event, '{% url 'send-student-assignment' assignment.hash %}')" class="material-icons md-24 icon-list mdc-ripple-surface">email</i>
+              <i class="email-btn material-icons md-24 icon-list mdc-ripple-surface">
+                email
+              </i>
             </span>
             {% endif %}
 
@@ -196,7 +197,11 @@
 {% compress js inline %}
 <script src="{% static 'peerinst/js/group.min.js' %}"></script>
 <script>
-  bundle.setUpAssignmentPage();
+  window.addEventListener("load", function() {
+    bundle.initAssignment(
+      {{ data|safe }}
+    )
+  });
 </script>
 {% endcompress %}
 {% endblock %}

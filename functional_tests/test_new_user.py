@@ -223,15 +223,9 @@ class NewUserTests(StaticLiveServerTestCase):
 
         inputbox.submit()
 
-        try:
-            account_link = WebDriverWait(self.browser, timeout).until(
-                presence_of_element_located(
-                    (By.XPATH, "//a[text()='Go to My Account']")
-                )
-            )
-        except TimeoutException:
-            assert False
-
+        account_link = self.browser.find_element_by_xpath(
+            "//a[text()='Go to My Account']"
+        )
         self.browser.get(account_link.get_attribute("href"))
 
         try:
