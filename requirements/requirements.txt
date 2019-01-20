@@ -4,7 +4,7 @@ django-grappelli
 django-htmlmin
 django-password-validation
 django
-mysqlclient
+mysqlclient==1.3.14
 pillow
 pyjwt
 python-memcached==1.59

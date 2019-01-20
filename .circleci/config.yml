@@ -7,7 +7,7 @@ jobs:
           DALITE_DB_PASSWORD: test key
           DALITE_DB_HOST: 127.0.0.1
           DALITE_DB_PORT: 3306
-      - image: mariadb
+      - image: mariadb:10.1.37
         environment:
           MYSQL_ALLOW_EMPTY_PASSWORD: true
           MYSQL_DATABASE: dalite_ng
