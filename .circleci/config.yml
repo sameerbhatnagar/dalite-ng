@@ -54,7 +54,7 @@ jobs:
       - run:
           name: Setup db
           command: |
-            echo "grant all privileges on test_dalite_ng.* to 'dalite'@'localhost' | mysql -u root -pmariadb"
+            echo "grant all privileges on test_dalite_ng.* to 'dalite'@'%' | mysql -u root -pmariadb"
             . .venv/bin/activate
             ./manage.py migrate
       - run:
