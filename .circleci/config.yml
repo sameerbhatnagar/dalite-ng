@@ -14,6 +14,7 @@ jobs:
           MYSQL_USER: dalite
           MYSQL_PASSWORD: test key
           MYSQL_HOST: localhost
+          MYSQL_ROOT_PASSWORD: test root password
 
     working_directory: ~/repo
     steps:
@@ -53,6 +54,7 @@ jobs:
       - run:
           name: Setup db
           command: |
+            echo "grant all privileges on test_dalite_ng.* to 'dalite'@'localhost' | mysql -u root -p$MYSQL_ROOT_PASSWORD"
             . .venv/bin/activate
             ./manage.py migrate
       - run:
