@@ -2,46 +2,21 @@ from __future__ import unicode_literals
 
 import random
 import string
-from datetime import datetime
 
-import pytz
 from django.contrib.auth.models import User
-from tos.models import (
-    EmailConsent,
-    EmailType,
-    Role,
-    Tos,
-    Consent as TosConsent,
-)
+
+from tos.models import Consent as TosConsent
+from tos.models import EmailConsent, EmailType, Role, Tos
 
 
 def new_users(n):
     def generator():
-        chars = string.ascii_letters + string.digits + "_-."
-        gen = _extra_chars_gen()
+        i = 0
         while True:
+            i += 1
             yield {
-                "username": "{}{}".format(
-                    "".join(
-                        random.choice(chars)
-                        for _ in range(random.randint(1, 12))
-                    ),
-                    next(gen),
-                ),
-                "email": "{}@{}.{}".format(
-                    "".join(
-                        random.choice(chars)
-                        for _ in range(random.randint(1, 32))
-                    ),
-                    "".join(
-                        random.choice(chars)
-                        for _ in range(random.randint(1, 10))
-                    ),
-                    "".join(
-                        random.choice(chars)
-                        for _ in range(random.randint(2, 3))
-                    ),
-                ),
+                "username": "user{}".format(i),
+                "email": "test{}@test.com".format(i),
                 "password": "test",
             }
 
@@ -51,18 +26,10 @@ def new_users(n):
 
 def new_roles(n):
     def generator():
-        chars = string.ascii_lowercase
-        gen = _extra_chars_gen()
-        #  max_length = 32
-        max_length = 2
+        i = 0
         while True:
-            yield {
-                "role": "".join(
-                    random.choice(chars)
-                    for _ in range(random.randint(1, max_length))
-                )
-                + next(gen)
-            }
+            i += 1
+            yield {"role": "role{}".format(i)}
 
     gen = generator()
 
@@ -71,23 +38,20 @@ def new_roles(n):
 
 def new_tos(n, roles, all_roles_present=False, random_current=True):
     def generator(roles):
-        chars = string.ascii_letters
         roles = [roles] if isinstance(roles, Role) else roles
         versions = {role: 0 for role in roles}
-        gens = {role: _extra_chars_gen() for role in roles}
+        gens = {role: 0 for role in roles}
         while True:
             role = random.choice(roles)
             tos = {
                 "role": role,
                 "version": versions[role],
-                "text": "".join(
-                    random.choice(chars) for _ in range(random.randint(1, 100))
-                )
-                + next(gens[role]),
+                "text": "text{}".format(gens[role]),
                 "current": False,
             }
             yield tos
             versions[role] += 1
+            gens[role] += 1
 
     if all_roles_present:
         if n < len(roles):
@@ -145,24 +109,14 @@ def new_email_types(
     n_per_role, roles, type_for_every_role=False, n_overlapping_types=0
 ):
     def generator(role):
-        chars = string.ascii_lowercase
-        #  max_length = 32
-        max_length = 2
-        gen = _extra_chars_gen()
+        i = 0
         while True:
+            i += 0
             yield {
                 "role": role,
-                "type": "".join(
-                    random.choice(chars)
-                    for _ in range(random.randint(1, max_length))
-                )
-                + next(gen),
-                "title": "".join(
-                    random.choice(chars) for _ in range(random.randint(1, 32))
-                ),
-                "description": "".join(
-                    random.choice(chars) for _ in range(random.randint(1, 100))
-                ),
+                "type": "type{}".format(i),
+                "title": "title{}".format(i),
+                "description": "description{}".format(i),
             }
 
     gen = generator(roles[0])
