@@ -60,5 +60,6 @@ jobs:
       - run:
           name: Tests
           command: |
+            echo "show grants for 'dalite'@'%' | mysql -u root -pmariadb"
             . .venv/bin/activate
             pytest --cov --create-db
