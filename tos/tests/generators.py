@@ -29,7 +29,7 @@ def new_roles(n):
         i = 0
         while True:
             i += 1
-            yield {"role": "role{}".format(i)}
+            yield {"role": "r{}".format(string.ascii_lowercase[i])}
 
     gen = generator()
 
@@ -79,6 +79,8 @@ def new_tos(n, roles, all_roles_present=False, random_current=True):
 
 def new_tos_consents(n, users, toss, all_combinations_present=False):
     def generator(users, toss):
+        users = [users] if isinstance(users, User) else users
+        toss = [toss] if isinstance(toss, Tos) else toss
         while True:
             user = random.choice(users)
             tos = random.choice(toss)
@@ -108,10 +110,12 @@ def new_tos_consents(n, users, toss, all_combinations_present=False):
 def new_email_types(
     n_per_role, roles, type_for_every_role=False, n_overlapping_types=0
 ):
+    roles = [roles] if isinstance(roles, Role) else roles
+
     def generator(role):
         i = 0
         while True:
-            i += 0
+            i += 1
             yield {
                 "role": role,
                 "type": "type{}".format(i),
@@ -146,6 +150,11 @@ def new_email_types(
 def new_email_consents(n, users, email_types, all_combinations_present=False):
     if all_combinations_present and n < len(email_types) * len(users):
         raise ValueError("Not enough consents for all email types")
+
+    users = [users] if isinstance(users, User) else users
+    email_types = (
+        [email_types] if isinstance(email_types, EmailType) else email_types
+    )
 
     def generator(users, email_types):
         while True:
