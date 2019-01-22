@@ -7,7 +7,7 @@ jobs:
           DALITE_DB_PASSWORD: test key
           DALITE_DB_HOST: 127.0.0.1
           DALITE_DB_PORT: 3306
-      - image: mariadb:10.1.37
+      - image: mariadb
         environment:
           MYSQL_ALLOW_EMPTY_PASSWORD: true
           MYSQL_DATABASE: dalite_ng
@@ -54,7 +54,6 @@ jobs:
       - run:
           name: Setup db
           command: |
-            echo "grant all privileges on test_dalite_ng.* to 'dalite'@'%'" | mysql -u root -pmariadb
             . .venv/bin/activate
             ./manage.py migrate
       - run:
