@@ -54,12 +54,11 @@ jobs:
       - run:
           name: Setup db
           command: |
-            echo "grant all privileges on test_dalite_ng.* to 'dalite'@'%' | mysql -u root -pmariadb"
+            echo "grant all privileges on test_dalite_ng.* to 'dalite'@'%'" | mysql -u root -pmariadb
             . .venv/bin/activate
             ./manage.py migrate
       - run:
           name: Tests
           command: |
-            echo "show grants for 'dalite'@'%' | mysql -u root -pmariadb"
             . .venv/bin/activate
             pytest --cov --create-db
