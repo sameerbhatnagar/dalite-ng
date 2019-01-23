@@ -13,7 +13,7 @@ from django_lti_tool_provider.models import LtiUserData
 from django_lti_tool_provider.views import LTIView
 
 from . import factories
-from ..models import LtiEvent, Question
+from ..models import Answer, LtiEvent, Question, ShownRationale
 from ..util import SessionStageData
 
 
@@ -250,6 +250,25 @@ class QuestionViewTest(QuestionViewTestCase):
             response.context["chosen_rationale"].id, chosen_rationale
         )
 
+        answer = Answer.objects.get(
+            question=self.question,
+            assignment=self.assignment,
+            first_answer_choice=first_answer_choice,
+            rationale=rationale,
+        )
+        shown_rationales = [
+            Answer.objects.get(id=_rationale[0]) if _rationale[0] else None
+            for _, _, rationales in rationale_choices
+            for _rationale in rationales
+        ]
+        for _rationale in shown_rationales:
+            try:
+                ShownRationale.objects.get(
+                    shown_for_answer=answer, shown_answer=_rationale
+                )
+            except ShownRationale.DoesNotExist:
+                assert False
+
         response = self.get_results_view()
         self.assertTemplateUsed(
             response, "peerinst/question/answers_summary.html"
@@ -399,6 +418,25 @@ class QuestionViewTest(QuestionViewTestCase):
         self.assertEqual(
             response.context["chosen_rationale"].id, chosen_rationale
         )
+
+        answer = Answer.objects.get(
+            question=self.question,
+            assignment=self.assignment,
+            first_answer_choice=first_answer_choice,
+            rationale=rationale,
+        )
+        shown_rationales = [
+            Answer.objects.get(id=_rationale[0]) if _rationale[0] else None
+            for _, _, rationales in rationale_choices
+            for _rationale in rationales
+        ]
+        for _rationale in shown_rationales:
+            try:
+                ShownRationale.objects.get(
+                    shown_for_answer=answer, shown_answer=_rationale
+                )
+            except ShownRationale.DoesNotExist:
+                assert False
 
         self.assert_grade_signal()
         self.assertTrue(self.mock_grade.called)

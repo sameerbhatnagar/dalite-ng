@@ -214,4 +214,6 @@ class ShownRationale(models.Model):
     shown_for_answer = models.ForeignKey(
         Answer, related_name="shown_for_answer"
     )
-    shown_answer = models.ForeignKey(Answer, related_name="shown_answer")
+    shown_answer = models.ForeignKey(
+        Answer, related_name="shown_answer", null=True
+    )

@@ -84,6 +84,7 @@ from ..models import (
     LtiEvent,
     Question,
     RationaleOnlyQuestion,
+    ShownRationale,
     Student,
     StudentGroup,
     StudentGroupAssignment,
@@ -1308,6 +1309,7 @@ class QuestionReviewView(QuestionReviewBaseView):
         self.save_votes()
         self.stage_data.clear()
         self.send_grade()
+        self.save_shown_rationales()
         return super(QuestionReviewView, self).form_valid(form)
 
     def emit_check_events(self):
@@ -1419,6 +1421,24 @@ class QuestionReviewView(QuestionReviewBaseView):
             fake_country=fake_country,
             vote_type=vote_type,
         ).save()
+
+    def save_shown_rationales(self):
+        """
+        Saves in the databse which rationales were shown to the student. These
+        are linked to the answer.
+        """
+        rationale_ids = [
+            rationale[0]
+            for _, _, rationales in self.rationale_choices
+            for rationale in rationales
+        ]
+        shown_answers = list(Answer.objects.filter(id__in=rationale_ids))
+        if None in rationale_ids:
+            shown_answers += [None]
+        for answer in shown_answers:
+            ShownRationale.objects.create(
+                shown_for_answer=self.answer, shown_answer=answer
+            )
 
 
 class QuestionSummaryView(QuestionMixin, TemplateView):

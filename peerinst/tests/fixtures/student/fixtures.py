@@ -1,6 +1,7 @@
 import pytest
-from .generators import add_students, new_students
+
 from ..tos import consent_to_tos, tos_student  # noqa
+from .generators import add_students, new_students
 
 
 @pytest.fixture
@@ -14,7 +15,7 @@ def student(tos_student):
 
 @pytest.fixture
 def students(tos_student):
-    students = add_students(new_students(2))
+    students = add_students(new_students(10))
     for student in students:
         student.student.is_active = True
         student.student.save()
