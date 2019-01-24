@@ -5,6 +5,7 @@ from selenium import webdriver
 from selenium.common.exceptions import TimeoutException, WebDriverException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.expected_conditions import (
+    element_to_be_clickable,
     presence_of_element_located,
     text_to_be_present_in_element,
 )
@@ -385,7 +386,7 @@ class NewUserTests(StaticLiveServerTestCase):
         # Teacher can edit their questions
         try:
             WebDriverWait(self.browser, timeout).until(
-                presence_of_element_located((By.ID, "question-section"))
+                element_to_be_clickable((By.ID, "question-section"))
             ).click()
         except TimeoutException:
             assert False
@@ -393,7 +394,7 @@ class NewUserTests(StaticLiveServerTestCase):
 
         try:
             WebDriverWait(self.browser, timeout).until(
-                presence_of_element_located(
+                element_to_be_clickable(
                     (By.ID, "edit-question-{}".format(question.id))
                 )
             ).click()

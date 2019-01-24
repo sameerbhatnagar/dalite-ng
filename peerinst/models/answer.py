@@ -33,6 +33,13 @@ class Answer(models.Model):
     second_answer_choice = models.PositiveSmallIntegerField(
         _("Second answer choice"), blank=True, null=True
     )
+    shown_rationales = models.ManyToManyField(
+        "self",
+        blank=True,
+        through="ShownRationale",
+        symmetrical=False,
+        related_name="shown_rationales_all",
+    )
     chosen_rationale = models.ForeignKey("self", blank=True, null=True)
     user_token = models.CharField(
         max_length=100,
@@ -201,3 +208,12 @@ class RationaleOnlyQuestion(Question):
         from ..forms import RationaleOnlyForm
 
         return RationaleOnlyForm
+
+
+class ShownRationale(models.Model):
+    shown_for_answer = models.ForeignKey(
+        Answer, related_name="shown_for_answer"
+    )
+    shown_answer = models.ForeignKey(
+        Answer, related_name="shown_answer", null=True
+    )

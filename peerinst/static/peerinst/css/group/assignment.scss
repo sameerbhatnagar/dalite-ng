@@ -1,6 +1,13 @@
 @import "../custom_elements";
 @import "../variables";
 
+#assignment-distribution {
+  & button {
+    border-radius: 20px;
+    box-shadow: none;
+  }
+}
+
 #question-list {
   & > li {
     border-top: 1px solid rgba(0, 0, 0, 0.12);

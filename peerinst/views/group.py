@@ -5,6 +5,7 @@ import json
 import logging
 
 from django.contrib.auth.decorators import login_required
+from django.core.urlresolvers import reverse
 from django.http import (
     HttpResponse,
     HttpResponseBadRequest,
@@ -13,6 +14,7 @@ from django.http import (
 )
 from django.shortcuts import render
 from django.template.response import TemplateResponse
+from django.utils.translation import ugettext
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_http_methods
 
@@ -62,7 +64,6 @@ def group_details_page(req, group_hash, teacher, group):
     assignments = StudentGroupAssignment.objects.filter(group=group)
 
     context = {"group": group, "assignments": assignments, "teacher": teacher}
-    print(group.student_id_needed)
 
     return render(req, "peerinst/group/details.html", context)
 
@@ -162,6 +163,38 @@ def group_assignment_page(req, assignment_hash, teacher, group, assignment):
         "students_with_answers": assignment.assignment.answer_set.values_list(
             "user_token", flat=True
         ),
+        "data": json.dumps(
+            {
+                "assignment": {
+                    "hash": assignment.hash,
+                    "distribution_date": assignment.distribution_date.isoformat()  # noqa
+                    if assignment.distribution_date
+                    else None,
+                },
+                "urls": {
+                    "get_assignment_student_progress": reverse(
+                        "get-assignment-student-progress",
+                        kwargs={"assignment_hash": assignment.hash},
+                    ),
+                    "send_student_assignment": reverse(
+                        "send-student-assignment",
+                        kwargs={"assignment_hash": assignment.hash},
+                    ),
+                    "group_assignment_update": reverse(
+                        "group-assignment-update",
+                        kwargs={"assignment_hash": assignment.hash},
+                    ),
+                    "distribute_assignment": reverse(
+                        "distribute-assignment",
+                        kwargs={"assignment_hash": assignment.hash},
+                    ),
+                },
+                "translations": {
+                    "distribute": ugettext("Distribute"),
+                    "distributed": ugettext("Distributed"),
+                },
+            }
+        ),
     }
 
     return render(req, "peerinst/group/assignment.html", context)
@@ -253,5 +286,22 @@ def send_student_assignment(req, assignment_hash, teacher, group, assignment):
 def get_assignment_student_progress(
     req, assignment_hash, teacher, group, assignment
 ):
-    data = assignment.student_progress
-    return JsonResponse(data, safe=False)
+    data = {"progress": assignment.student_progress}
+    return JsonResponse(data)
+
+
+@login_required
+@require_http_methods(["POST"])
+@group_access_required
+def distribute_assignment(req, assignment_hash, teacher, group, assignment):
+    """
+    Distributes the assignment to students.
+    """
+    assignment.distribute()
+    data = {
+        "hash": assignment.hash,
+        "distribution_date": assignment.distribution_date.isoformat()  # noqa
+        if assignment.distribution_date
+        else None,
+    }
+    return JsonResponse(data)

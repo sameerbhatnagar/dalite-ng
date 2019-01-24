@@ -38,11 +38,8 @@
               <span class="mdc-list-item__graphic mdc-theme--primary">
                 <i class="mdc-theme--primary material-icons md-48">calendar_today</i>
               </span>
-              <span class="mdc-list-item__text mdc-theme--secondary bold">
-                {% trans 'Distributed' %}
-                <span class="mdc-list-item__secondary-text">
-                  {{ assignment.distribution_date|date:"Y-m-d H:i" }}
-                </span>
+              <span id="assignment-distribution"
+                    class="mdc-list-item__text mdc-theme--secondary bold">
               </span>
             </li>
             <li class="mdc-list-divider" role="separator"></li>
@@ -117,7 +114,9 @@
 
           {% endfor %}
         </ul>
-        <button onclick="bundle.saveQuestionList('{% url 'group-assignment-update' assignment.hash %}')" id="question-list-save" disabled class="mdc-button mdc-button--raised padded-top">
+        <button id="question-list-save"
+                class="mdc-button mdc-button--raised padded-top"
+                disabled>
           {% trans 'Save' %}
         </button>
       </div>
@@ -171,7 +170,9 @@
             </span>
             {% if student.student.email %}
             <span class="mdc-list-item__meta">
-              <i onclick="bundle.sendAssignmentEmail(event, '{% url 'send-student-assignment' assignment.hash %}')" class="material-icons md-24 icon-list mdc-ripple-surface">email</i>
+              <i class="email-btn material-icons md-24 icon-list mdc-ripple-surface">
+                email
+              </i>
             </span>
             {% endif %}
 
@@ -198,8 +199,9 @@
 <script>
   window.addEventListener("load", function() {
     bundle.initAssignment(
-      "{% url 'get-assignment-student-progress' assignment.hash %}"
-    )  });
+      {{ data|safe }}
+    )
+  });
 </script>
 {% endcompress %}
 {% endblock %}
