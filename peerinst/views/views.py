@@ -33,6 +33,7 @@ from django.http import (
     HttpResponseRedirect,
     HttpResponseServerError,
     JsonResponse,
+    StreamingHttpResponse,
 )
 from django.shortcuts import (
     get_object_or_404,
@@ -3151,15 +3152,26 @@ def report_assignment_aggregates(request):
 
     return JsonResponse(j, safe=False)
 
+class Echo:
+    """
+    https://docs.djangoproject.com/en/1.8/howto/outputting-csv/#streaming-large-csv-files
+    An object that implements just the write method of a file-like interface
+    """
+    def write(self,value):
+        """
+        Write the value by returning it, instead of storing in buffer
+        """
+        return value
+
 
 def csv_gradebook(request, group_hash):
-    response = HttpResponse(content_type="text/csv")
+    response = StreamingHttpResponse(content_type="text/csv")
     filename = "myDALITE_gradebook_" + str(StudentGroup.get(group_hash))
     response["Content-Disposition"] = (
         'attachment; filename=" ' + filename + '.csv"'
     )
-
-    writer = csv.writer(response)
+    pseudo_buffer = Echo()
+    writer = csv.writer(pseudo_buffer)
 
     student_group = StudentGroup.get(group_hash)
 
