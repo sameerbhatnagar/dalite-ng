@@ -3152,12 +3152,14 @@ def report_assignment_aggregates(request):
 
     return JsonResponse(j, safe=False)
 
+
 class Echo:
     """
     https://docs.djangoproject.com/en/1.8/howto/outputting-csv/#streaming-large-csv-files
     An object that implements just the write method of a file-like interface
     """
-    def write(self,value):
+
+    def write(self, value):
         """
         Write the value by returning it, instead of storing in buffer
         """
