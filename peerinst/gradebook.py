@@ -24,7 +24,9 @@ def group_gradebook(group):
     )
 
     # TODO handle not distributed assignments
-    assignments = group.studentgroupassignment_set.all().order_by(
+    assignments = group.studentgroupassignment_set.filter(
+    distribution_date__isnull=False
+    ).order_by(
         "distribution_date"
     )
 
