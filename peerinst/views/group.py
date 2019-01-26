@@ -338,10 +338,13 @@ def csv_gradebook(req, group_hash, teacher, group):
     resp["Content-Disposition"] = 'attachment; filename="{}"'.format(filename)
     return resp
 
+
 @login_required
 @require_http_methods(["GET"])
 @group_access_required
-def csv_assignment_gradebook(req, group_hash, assignment_hash,teacher, group):
+def csv_assignment_gradebook(
+    req, group_hash, assignment_hash, teacher, group, assignment
+):
     """
     Returns the csv gradebook for the given `group_assignment` in a stream.
 
@@ -366,9 +369,8 @@ def csv_assignment_gradebook(req, group_hash, assignment_hash,teacher, group):
         Either a streaming 200 response with the csv data if everything worked
         or an error response
     """
-    assignment = StudentAssignment.get(assignment_hash)
-    filename = "myDALITE_gradebook_{}_{}.csv".format(group,assignment)
-    gradebook_gen = groupassignment_gradebook(group,assignment)
+    filename = "myDALITE_gradebook_{}_{}.csv".format(group, assignment)
+    gradebook_gen = groupassignment_gradebook(group, assignment)
     resp = StreamingHttpResponse(gradebook_gen, content_type="text/csv")
     resp["Content-Disposition"] = 'attachment; filename="{}"'.format(filename)
     return resp

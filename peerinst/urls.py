@@ -464,7 +464,8 @@ def group_patterns():
             name="group-csv-gradebook",
         ),
         url(
-            r"^group/(?P<group_hash>[0-9A-Za-z=_-]+)/csv_gradebook/(?P<assignment_hash>[0-9A-Za-z=_-]+)/$",
+            r"^group/(?P<group_hash>[0-9A-Za-z=_-]+)/csv_gradebook/"
+            "(?P<assignment_hash>[0-9A-Za-z=_-]+)/$",
             views.csv_assignment_gradebook,
             name="group-assignment-gradebook",
         ),

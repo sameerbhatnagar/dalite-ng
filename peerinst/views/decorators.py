@@ -1,4 +1,5 @@
 from __future__ import unicode_literals
+
 import logging
 
 from django.http import HttpResponseBadRequest, HttpResponseForbidden
@@ -51,26 +52,7 @@ def group_access_required(fct):
             )
             return HttpResponseForbidden(resp.render())
 
-        if group_hash is not None:
-            group = StudentGroup.get(group_hash)
-            if group is None:
-                logger.warning(
-                    "Access to {} with a invalid group hash.".format(req.path)
-                )
-                resp = TemplateResponse(
-                    req,
-                    "400.html",
-                    context={
-                        "message": _(
-                            'There is no group with hash "{}".'.format(
-                                group_hash
-                            )
-                        )
-                    },
-                )
-                return HttpResponseBadRequest(resp.render())
-
-        else:
+        if assignment_hash is not None:
             assignment = StudentGroupAssignment.get(assignment_hash)
             if assignment is None:
                 logger.warning(
@@ -91,6 +73,24 @@ def group_access_required(fct):
                 )
                 return HttpResponseBadRequest(resp.render())
             group = assignment.group
+        else:
+            group = StudentGroup.get(group_hash)
+            if group is None:
+                logger.warning(
+                    "Access to {} with a invalid group hash.".format(req.path)
+                )
+                resp = TemplateResponse(
+                    req,
+                    "400.html",
+                    context={
+                        "message": _(
+                            'There is no group with hash "{}".'.format(
+                                group_hash
+                            )
+                        )
+                    },
+                )
+                return HttpResponseBadRequest(resp.render())
 
         if teacher not in group.teacher.all():
             logger.warning(
