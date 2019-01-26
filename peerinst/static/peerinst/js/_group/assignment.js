@@ -36,6 +36,8 @@ function initModel(data) {
 /**********/
 
 function distributeAssignment() {
+  const button = document.querySelector("#assignment-distribution button");
+  button.disabled = true;
   const req = buildReq({}, "post");
   fetch(model.urls.distributeAssignment, req)
     .then(resp => resp.json())
@@ -50,6 +52,7 @@ function distributeAssignment() {
     })
     .catch(function(err) {
       console.log(err);
+      button.disabled = null;
     });
 }
 

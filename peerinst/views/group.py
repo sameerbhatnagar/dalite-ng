@@ -11,6 +11,7 @@ from django.http import (
     HttpResponseBadRequest,
     HttpResponseServerError,
     JsonResponse,
+    StreamingHttpResponse,
 )
 from django.shortcuts import render
 from django.template.response import TemplateResponse
@@ -26,6 +27,7 @@ from peerinst.models import (
     Teacher,
 )
 
+from ..gradebook import group_gradebook, groupassignment_gradebook
 from .decorators import group_access_required
 
 logger = logging.getLogger("peerinst-views")
@@ -305,3 +307,70 @@ def distribute_assignment(req, assignment_hash, teacher, group, assignment):
         else None,
     }
     return JsonResponse(data)
+
+
+@login_required
+@require_http_methods(["GET"])
+@group_access_required
+def csv_gradebook(req, group_hash, teacher, group):
+    """
+    Returns the csv gradebook for the given `group` in a stream.
+
+    Parameters
+    ----------
+    group_hash : str
+        Hash of the group
+    teacher : Teacher
+        Teacher corresponding to the requested (returned by
+        `group_access_required`) (not used)
+    group : StudentGroup
+        Group corresponding to the hash (returned by `group_access_required`)
+
+    Returns
+    -------
+    HttpResponse
+        Either a streaming 200 response with the csv data if everything worked
+        or an error response
+    """
+    filename = "myDALITE_gradebook_{}.csv".format(group)
+    gradebook_gen = group_gradebook(group)
+    resp = StreamingHttpResponse(gradebook_gen, content_type="text/csv")
+    resp["Content-Disposition"] = 'attachment; filename="{}"'.format(filename)
+    return resp
+
+
+@login_required
+@require_http_methods(["GET"])
+@group_access_required
+def csv_assignment_gradebook(
+    req, group_hash, assignment_hash, teacher, group, assignment
+):
+    """
+    Returns the csv gradebook for the given `group_assignment` in a stream.
+
+    Parameters
+    ----------
+    group_hash : str
+        Hash of the group
+    assignment_hash : str
+        Hash of the group_assignment
+    teacher : Teacher
+        Teacher corresponding to the requested (returned by
+        `group_access_required`) (not used)
+    group : StudentGroup
+        Group corresponding to the hash (returned by `group_access_required`)
+    assignment : StudentGroupAssignment
+        group_assignment corresponding to the hash
+        (`returned by group_access_required`)
+
+    Returns
+    -------
+    HttpResponse
+        Either a streaming 200 response with the csv data if everything worked
+        or an error response
+    """
+    filename = "myDALITE_gradebook_{}_{}.csv".format(group, assignment)
+    gradebook_gen = groupassignment_gradebook(group, assignment)
+    resp = StreamingHttpResponse(gradebook_gen, content_type="text/csv")
+    resp["Content-Disposition"] = 'attachment; filename="{}"'.format(filename)
+    return resp

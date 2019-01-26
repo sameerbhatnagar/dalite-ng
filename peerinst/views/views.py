@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-import csv
 import datetime
 import json
 import logging
@@ -33,7 +32,6 @@ from django.http import (
     HttpResponseRedirect,
     HttpResponseServerError,
     JsonResponse,
-    StreamingHttpResponse,
 )
 from django.shortcuts import (
     get_object_or_404,
@@ -89,20 +87,17 @@ from ..models import (
     Student,
     StudentGroup,
     StudentGroupAssignment,
-    StudentGroupMembership,
     Teacher,
 )
 from ..util import (
     SessionStageData,
     get_object_or_none,
-    get_student_objects_from_group_list,
     int_or_none,
     question_search_function,
     report_data_by_assignment,
     report_data_by_question,
     report_data_by_student,
     roundrobin,
-    subset_answers_by_studentgroup_and_assignment,
 )
 
 LOGGER = logging.getLogger(__name__)
@@ -3151,100 +3146,3 @@ def report_assignment_aggregates(request):
         j.append(d_a)
 
     return JsonResponse(j, safe=False)
-
-
-class Echo:
-    """
-    https://docs.djangoproject.com/en/1.8/howto/outputting-csv/#streaming-large-csv-files
-    An object that implements just the write method of a file-like interface
-    """
-
-    def write(self, value):
-        """
-        Write the value by returning it, instead of storing in buffer
-        """
-        return value
-
-
-def csv_gradebook(request, group_hash):
-    response = StreamingHttpResponse(content_type="text/csv")
-    filename = "myDALITE_gradebook_" + str(StudentGroup.get(group_hash))
-    response["Content-Disposition"] = (
-        'attachment; filename=" ' + filename + '.csv"'
-    )
-    pseudo_buffer = Echo()
-    writer = csv.writer(pseudo_buffer)
-
-    student_group = StudentGroup.get(group_hash)
-
-    student_list = get_student_objects_from_group_list(
-        student_groups=[student_group.pk]
-    ).values_list("student__username", "student__email")
-
-    student_list_sorted = sorted(
-        student_list, key=lambda student: student[1].lower()
-    )
-
-    assignment_list = student_group.studentgroupassignment_set.all().values(
-        "assignment", "distribution_date"
-    )
-
-    assignment_list_sorted = sorted(
-        assignment_list, key=lambda assignment: assignment["distribution_date"]
-    )
-
-    answer_qs = subset_answers_by_studentgroup_and_assignment(
-        assignment_list=assignment_list.values_list(
-            "assignment__identifier", flat=True
-        ),
-        student_groups=[student_group.pk],
-    )
-
-    # Header Row
-    row = []
-    if student_group.student_id_needed:
-        row.append("Student ID")
-    row.append("Student Email")
-    for d in assignment_list_sorted:
-        question_list = (
-            Assignment.objects.get(identifier=d["assignment"])
-            .questions.all()
-            .values_list("title", flat=True)
-        )
-        row.extend(question_list)
-    writer.writerow(row)
-
-    for user_token, email in student_list_sorted:
-        row = []
-        student_obj = Student.get_or_create(email=email)[0]
-        # Some student objects were created with case-sensitive emails, and
-        # hence are obsolete
-        if student_obj:
-            try:
-                student_school_id = student_obj.studentgroupmembership_set.get(
-                    group=student_group
-                ).student_school_id
-
-                if student_group.student_id_needed:
-                    row.append(student_school_id)
-                row.append(email)
-
-                for d in assignment_list_sorted:
-                    question_list = Assignment.objects.get(
-                        identifier=d["assignment"]
-                    ).questions.all()
-                    for q in question_list:
-                        try:
-                            row.append(
-                                answer_qs.get(
-                                    assignment_id=d["assignment"],
-                                    question_id=q.pk,
-                                    user_token=user_token,
-                                ).grade
-                            )
-                        except Answer.DoesNotExist:
-                            row.append("-")
-                writer.writerow(row)
-            except StudentGroupMembership.DoesNotExist:
-                pass
-    return response
