@@ -356,6 +356,9 @@ def csv_assignment_gradebook(req, group_hash, assignment_hash,teacher, group):
         `group_access_required`) (not used)
     group : StudentGroup
         Group corresponding to the hash (returned by `group_access_required`)
+    assignment : StudentGroupAssignment
+        group_assignment corresponding to the hash
+        (`returned by group_access_required`)
 
     Returns
     -------

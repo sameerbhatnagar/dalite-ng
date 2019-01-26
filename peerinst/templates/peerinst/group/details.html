@@ -182,6 +182,9 @@
               <a href="{% url 'group-assignment' a.hash %}">
               <i class="material-icons md-24 mdc-ripple-surface icon-list">edit</i>
               </a>
+              <a href="{% url 'group-assignment-gradebook' group_hash=group.hash assignment_hash=a.hash %}">
+              <i class="material-icons md-24 mdc-ripple-surface icon-list">bar_chart</i>
+              </a>
             </span>
           </li>
           {% empty %}
