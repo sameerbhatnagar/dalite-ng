@@ -102,10 +102,9 @@ def groupassignment_gradebook(group,assignment):
         Lower("student__student__email")
     )
 
-
     answers = Answer.objects.filter(
-        assignment__in=assignments.values_list("assignment", flat=True),
-        user_token__in=memberships.values_list(
+        assignment = assignment.assignment,
+        user_token__in = memberships.values_list(
             "student__student__username", flat=True
         ),
     )
@@ -117,8 +116,7 @@ def groupassignment_gradebook(group,assignment):
     if group.student_id_needed:
         header.append("Student ID")
     header.append("Student Email")
-    for assignment in assignments:
-        header.extend([q.title for q in assignment.questions])
+    header.extend([q.title for q in assignment.questions])
     yield writer.writerow(header)
 
     for membership in memberships:
@@ -127,17 +125,18 @@ def groupassignment_gradebook(group,assignment):
         if group.student_id_needed:
             row.append(membership.student_school_id)
 
-        for assignment in assignments:
-            for question in assignment.questions:
-                try:
-                    row.append(
-                        answers.get(
-                            assignment=assignment.assignment,
-                            question=question,
-                            user_token=membership.student.student.username,
-                        ).grade
-                    )
-                except Answer.DoesNotExist:
-                    row.append("-")
+        row.append(membership.student.student.email)
+
+        for question in assignment.questions:
+            try:
+                row.append(
+                    answers.get(
+                        assignment=assignment.assignment,
+                        question=question,
+                        user_token=membership.student.student.username,
+                    ).grade
+                )
+            except Answer.DoesNotExist:
+                row.append("-")
 
         yield writer.writerow(row)
