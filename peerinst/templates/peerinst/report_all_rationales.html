@@ -133,7 +133,7 @@ https://datatables.net/extensions/buttons/examples/styling/jqueryui.html
             </div>
 
             <h4>{% trans 'Statistics' %}</h4>
-            <p>{% trans 'Historical performance (all students in database)' %}</p>
+            <h5>{% trans 'Historical performance (all students in database)' %}</h5>
             <div id="analytics-{{ assignment.assignment|slugify }}-{{ question.answer_choices.first.question.pk }}" style="width:fit-content;margin:auto;">
               <svg id="first-frequency-{{ assignment.assignment|slugify }}-{{ question.answer_choices.first.question.pk }}" width="300" height="80" style="vertical-align:middle"></svg>
               <svg id="matrix-{{ assignment.assignment|slugify }}-{{ question.answer_choices.first.question.pk }}" width="60" height="60" style="vertical-align:middle"></svg>
@@ -141,7 +141,7 @@ https://datatables.net/extensions/buttons/examples/styling/jqueryui.html
             </div>
 
 
-            <p>{% trans 'Performance of this group ' %}({{ question.num_responses}} {% trans 'students' %})</p>
+            <h5>{% trans 'Performance of this group ' %}({{ question.num_responses}} {% trans 'students' %})</h5>
             <div id="analytics-group-{{ assignment.assignment|slugify }}-{{ question.answer_choices.first.question.pk }}" style="width:fit-content;margin:auto;">
               <svg id="first-frequency-group-{{ assignment.assignment|slugify }}-{{ question.answer_choices.first.question.pk }}" width="300" height="80" style="vertical-align:middle"></svg>
               <svg id="matrix-group-{{ assignment.assignment|slugify }}-{{ question.answer_choices.first.question.pk }}" width="60" height="60" style="vertical-align:middle"></svg>
@@ -149,9 +149,8 @@ https://datatables.net/extensions/buttons/examples/styling/jqueryui.html
             </div>
 
               {% for distribution in question.answer_distributions %}
-              <div>
+              <div style="display:inline-block;width:175px;vertical-align:top;">
               <h5>{{ distribution.label }}</h5>
-              <h6>{% trans "Count" %} : {% trans "Answer Choice"%}</h6>
                   <ul>
                   {% for answer_choice in distribution.data %}
                       <li> {{ answer_choice.count }} : {{ answer_choice.answer_choice }}
@@ -164,10 +163,9 @@ https://datatables.net/extensions/buttons/examples/styling/jqueryui.html
               </div>
               {% endfor %}
 
-              <div>
+              <div style="display:inline-block;width:175px;vertical-align:top;">
               {% for transition in question.transitions %}
-              <!-- <h4>{{ distribution.label }}</h4> -->
-              <h6>{% trans "Count" %}: {% trans "Transition Type" %}</h6>
+              <h5>{% trans "Transitions" %}</h5>
                   <ul>
                   {% for answer_choice in transition.data %}
                       <li> {{ answer_choice.count }} : {{ answer_choice.transition_type }}</li>
@@ -177,8 +175,8 @@ https://datatables.net/extensions/buttons/examples/styling/jqueryui.html
               </div>
 
               {% if question.confusion_matrix %}
-                <span>
-                <h4>{% trans "Confusion Matrix" %}</h4>
+              <div style="display:inline-block;width:175px;vertical-align:top;">
+                <h5>{% trans "Confusion Matrix" %}</h5>
                 <table>
                     {% for first_ans in question.confusion_matrix %}
                     <tr>
@@ -188,7 +186,7 @@ https://datatables.net/extensions/buttons/examples/styling/jqueryui.html
                     </tr>
                     {% endfor %}
                 </table>
-                </span>
+              </div>
               {% endif %}
 
               <h4>{% trans "Student Responses" %}</h4>
