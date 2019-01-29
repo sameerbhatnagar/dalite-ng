@@ -362,16 +362,39 @@ export function plot(matrix, freq, id) {
   }
 
   const matrixSvg = bundle.select("#matrix-" + id);
+  matrixSvg.style("overflow", "visible");
   let size = matrixSvg.attr("width");
   const g = matrixSvg.append("g");
 
-  g.append("rect")
+  g.append("text")
+    .attr("class", "legend")
+    .attr("x", size / 2)
+    .attr("y", -6)
+    .style("font-size", "7pt")
+    .attr("text-anchor", "middle")
+    .style("opacity", 0)
+    .text();
+
+  const easy = g.append("rect")
     .attr("x", 0)
     .attr("y", 0)
     .attr("width", size / 2)
     .attr("height", size / 2)
     .attr("fill", colour["easy"])
     .style("opacity", 0.5 + 0.5 * matrix["easy"]);
+
+  easy.on("mousemove", () => {
+    g.select(".legend")
+      .style("opacity", 1)
+      .style("fill", colour["easy"])
+      .text("Right > Right");
+  });
+  easy.on("mouseout", () => {
+    g.select(".legend")
+      .transition()
+      .duration(100)
+      .style("opacity", 0);
+  });
 
   g.append("text")
     .attr("x", size / 4)
@@ -382,13 +405,26 @@ export function plot(matrix, freq, id) {
     .style("text-anchor", "middle")
     .text(parseInt(100 * matrix["easy"]) + "%");
 
-  g.append("rect")
+  const hard = g.append("rect")
     .attr("x", size / 2)
     .attr("y", size / 2)
     .attr("width", size / 2)
     .attr("height", size / 2)
     .attr("fill", colour["hard"])
     .style("opacity", 0.5 + 0.5 * matrix["hard"]);
+
+  hard.on("mousemove", () => {
+    g.select(".legend")
+      .style("opacity", 1)
+      .style("fill", colour["hard"])
+      .text("Wrong > Wrong");
+  });
+  hard.on("mouseout", () => {
+    g.select(".legend")
+      .transition()
+      .duration(100)
+      .style("opacity", 0);
+  });
 
   g.append("text")
     .attr("x", (3 * size) / 4)
@@ -399,13 +435,26 @@ export function plot(matrix, freq, id) {
     .style("text-anchor", "middle")
     .text(parseInt(100 * matrix["hard"]) + "%");
 
-  g.append("rect")
+  const peer = g.append("rect")
     .attr("x", 0)
     .attr("y", size / 2)
     .attr("width", size / 2)
     .attr("height", size / 2)
     .attr("fill", colour["peer"])
     .style("opacity", 0.5 + 0.5 * matrix["peer"]);
+
+  peer.on("mousemove", () => {
+    g.select(".legend")
+      .style("opacity", 1)
+      .style("fill", colour["peer"])
+      .text("Wrong > Right");
+  });
+  peer.on("mouseout", () => {
+    g.select(".legend")
+      .transition()
+      .duration(100)
+      .style("opacity", 0);
+  });
 
   g.append("text")
     .attr("x", size / 4)
@@ -416,13 +465,26 @@ export function plot(matrix, freq, id) {
     .style("text-anchor", "middle")
     .text(parseInt(100 * matrix["peer"]) + "%");
 
-  g.append("rect")
+  const tricky = g.append("rect")
     .attr("x", size / 2)
     .attr("y", 0)
     .attr("width", size / 2)
     .attr("height", size / 2)
     .attr("fill", colour["tricky"])
     .style("opacity", 0.5 + 0.5 * matrix["tricky"]);
+
+  tricky.on("mousemove", () => {
+    g.select(".legend")
+      .style("opacity", 1)
+      .style("fill", colour["tricky"])
+      .text("Right > Wrong");
+  });
+  tricky.on("mouseout", () => {
+    g.select(".legend")
+      .transition()
+      .duration(100)
+      .style("opacity", 0);
+  });
 
   g.append("text")
     .attr("x", (3 * size) / 4)
