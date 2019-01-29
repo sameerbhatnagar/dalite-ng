@@ -9,7 +9,7 @@ from collections import defaultdict, Counter
 
 from django.utils.safestring import mark_safe
 from django.db.models import Count, Value, Case, Q, When, CharField
-from peerinst.models import Question, AnswerChoice, Assignment, Student, Answer
+from peerinst.models import Question, Assignment, Student, Answer
 
 
 def get_object_or_none(model_class, *args, **kwargs):
@@ -55,7 +55,9 @@ def make_percent_function(total):
 
 
 class SessionStageData(object):
-    """Manages the data to be kept in the session between different question stages."""
+    """
+    Manages data to be kept in the session between different question stages
+    """
 
     SESSION_KEY = "dalite_stage_data"
 
@@ -68,12 +70,15 @@ class SessionStageData(object):
     def store(self):
         if self.data is None:
             return
-        # There is a race condition here:  Django loads the session before calling the view, and
-        # stores it after returning.  Two concurrent request can result in changes being lost.
-        # This only happens if the same user sends POST requests for two different questions at
-        # exactly the same time, which doesn't seem likely (or useful to support).
+        # There is a race condition here:  Django loads the session before
+        # calling the view, and stores it after returning.  Two concurrent
+        # request can result in changes being lost.
+        # This only happens if the same user sends POST requests for two
+        # different questions at exactly the same time, which doesn't seem
+        # likely (or useful to support).
         self.data_dict[self.custom_key] = self.data
-        # Explicitly mark the session as modified since it can't detect nested modifications.
+        # Explicitly mark the session as modified since it can't detect
+        # nested modifications.
         self.session.modified = True
 
     def update(self, **kwargs):
@@ -136,7 +141,9 @@ def load_log_archive(json_log_archive):
         json.dump(students,f)
 
     """
-    import os, json
+    import json
+    import os
+
     from django.contrib.auth.models import User
     from peerinst.models import Student, StudentGroup
     from django.conf import settings
@@ -175,7 +182,8 @@ def load_log_archive(json_log_archive):
 
 def load_timestamps_from_logs(log_filename_list):
     """
-    function to parse log files and add timestamps to previous records in Answer model with newly added time field
+    function to parse log files and add timestamps to previous records in
+    Answer model with newly added time field
     argument: list of filenames in log directory
     return: none
 
@@ -184,7 +192,8 @@ def load_timestamps_from_logs(log_filename_list):
     In [2]: load_timestamps_from_logs(['student.log','student2.log'])
 
     """
-    import os, json
+    import json
+    import os
     from django.utils import dateparse, timezone
     from peerinst.models import Answer
     from django.conf import settings
@@ -232,12 +241,12 @@ def load_timestamps_from_logs(log_filename_list):
 
     print("End time: {}".format(timezone.now()))
     print(
-        "{} total answer table records in db updated with time field from logs".format(
+        "{} total answer table records in db updated with time field from logs".format(  # noqa
             records_updated
         )
     )
     print(
-        "{} total answer table records in db not found in logs; likely seed rationales from teacher backend".format(
+        "{} total answer table records in db not found in logs; likely seed rationales from teacher backend".format(  # noqa
             records_updated
         )
     )
@@ -246,25 +255,29 @@ def load_timestamps_from_logs(log_filename_list):
 
 def rename_groups():
     """
-    go through LtiUserData table and build translation dict between context_id and context_title;
+    go through LtiUserData table and build translation dict between context_id
+    and context_title;
     go through StudentGroup table, and rename with context_title (if not none)
 
     Usage from shell:
     [1]: from peerinst.util import rename_groups
     [2]: rename_groups()
 
-    NOTE: on production server, this should be *immediately* followed by update of views.py code,
-    in QuestionFormView, at end of emit_event method, so that ongoing groups are not seen as new
+    NOTE: on production server, this should be *immediately* followed by update
+    of views.py code, in QuestionFormView, at end of emit_event method, so that
+    ongoing groups are not seen as new
 
-        CURRENT:
-            group, created_group = StudentGroup.objects.get_or_create(name=course_id)
+    CURRENT:
+    group, created_group = StudentGroup.objects.get_or_create(name=course_id)
 
-        CHANGE TO:
-            course_title = self.lti_data.edx_lti_parameters.get('context_title')
-            if not course_title:
-                group, created_group = StudentGroup.objects.get_or_create(name=course_id+':'+course_title)
-            else:
-                group, created_group = StudentGroup.objects.get_or_create(name=course_id)
+    CHANGE TO:
+    course_title = self.lti_data.edx_lti_parameters.get('context_title')
+    if not course_title:
+        group, created_group =
+            StudentGroup.objects.get_or_create(name=course_id+':'+course_title)
+    else:
+        group, created_group =
+            StudentGroup.objects.get_or_create(name=course_id)
 
     """
     from django_lti_tool_provider.models import LtiUserData
@@ -287,6 +300,7 @@ def rename_groups():
                 g.save()
                 print(g.title)
         except KeyError as e:
+            print(e)
             pass
 
     return
@@ -309,8 +323,8 @@ def student_list_from_student_groups(group_list):
 
 def question_search_function(search_string):
     """
-    given a search_string, return query_set of question objects that have that string in either
-     question text, title, or categories
+    given a search_string, return query_set of question objects that have that
+    string in either question text, title, or categories
     """
     query_term = (
         Question.objects.filter(
@@ -343,7 +357,8 @@ def subset_answers_by_studentgroup_and_assignment(
 ):
     """
     given list of student groups
-    return student objects, filtering on special cases of students generated by lti/teacher interface
+    return student objects, filtering on special cases of students generated by
+    lti/teacher interface
     """
 
     student_obj_qs = get_student_objects_from_group_list(student_groups)
@@ -485,8 +500,8 @@ def report_data_by_assignment(assignment_list, student_groups):
         d_a["assignment"] = a.title
         d_a["questions"] = []
 
-        metric_list = ["num_responses", "rr", "rw", "wr", "ww"]
-        metric_labels = ["N", "RR", "RW", "WR", "WW"]
+        # metric_list = ["num_responses", "rr", "rw", "wr", "ww"]
+        # metric_labels = ["N", "RR", "RW", "WR", "WW"]
 
         student_gradebook_transitions = {}
         question_list = []
@@ -501,10 +516,12 @@ def report_data_by_assignment(assignment_list, student_groups):
             try:
                 d_q["question_image"] = q.image
             except ValueError as e:
+                print(e)
                 pass
             try:
                 d_q["question_video"] = q.video_url
             except ValueError as e:
+                print(e)
                 pass
 
             d_q["num_responses"] = answer_qs.filter(question_id=q.id).count()
@@ -514,19 +531,18 @@ def report_data_by_assignment(assignment_list, student_groups):
 
             d_q["type"] = q.type
             d_q["sequential_review"] = q.sequential_review
-            
-            question_list.append(q)                 
-            
-            ## PI questions
+
+            question_list.append(q)
+
+            # PI questions
             if q.answerchoice_set.all().count() > 0:
                 d_q["answer_choices"] = q.answerchoice_set.all()
 
+                # answer_choices_texts = q.answerchoice_set.values_list(
+                #    "text", flat=True
+                # )
 
-                answer_choices_texts = q.answerchoice_set.values_list(
-                    "text", flat=True
-                )
-
-                answer_style = q.answer_style
+                # answer_style = q.answer_style
 
                 correct_answer_choices = get_correct_answer_choices(q)
 
@@ -559,12 +575,14 @@ def report_data_by_assignment(assignment_list, student_groups):
                     d_q_a_d["data"] = []
                     for c in counts:
                         d_q_a_c = {}
-                        d_q_a_c["answer_choice"] = list(string.ascii_uppercase)[
-                            c[0] - 1
-                        ]
+                        d_q_a_c["answer_choice"] = list(
+                            string.ascii_uppercase
+                        )[c[0] - 1]
                         d_q_a_c[
                             "answer_choice_correct"
-                        ] = q.answerchoice_set.values_list("correct", flat=True)[
+                        ] = q.answerchoice_set.values_list(
+                            "correct", flat=True
+                        )[
                             c[0] - 1
                         ]
                         d_q_a_c["count"] = c[1]
@@ -595,8 +613,46 @@ def report_data_by_assignment(assignment_list, student_groups):
                             student_gradebook_transitions[c[0]] += c[1]
                         else:
                             student_gradebook_transitions[c[0]] = c[1]
-                ###
+
                 d_q["transitions"].append(d_q_a_d)
+
+                # For plot()
+                d_q["matrix"] = {}
+                for entry in d_q_a_d["data"]:
+                    if entry["transition_type"] == "rr":
+                        d_q["matrix"].update(
+                            easy=entry["count"] / d_q["num_responses"]
+                        )
+                    if entry["transition_type"] == "ww":
+                        d_q["matrix"].update(
+                            hard=entry["count"] / d_q["num_responses"]
+                        )
+                    if entry["transition_type"] == "rw":
+                        d_q["matrix"].update(
+                            tricky=entry["count"] / d_q["num_responses"]
+                        )
+                    if entry["transition_type"] == "wr":
+                        d_q["matrix"].update(
+                            peer=entry["count"] / d_q["num_responses"]
+                        )
+
+                first_choice = {}
+                second_choice = {}
+                for entry in d_q["answer_distributions"]:
+                    if entry["label"] == "First Answer Choice":
+                        for choice in entry["data"]:
+                            first_choice[choice["answer_choice"]] = (
+                                choice["count"] / d_q["num_responses"]
+                            )
+                    if entry["label"] == "Second Answer Choice":
+                        for choice in entry["data"]:
+                            second_choice[choice["answer_choice"]] = (
+                                choice["count"] / d_q["num_responses"]
+                            )
+                d_q["choices"] = {}
+                d_q["choices"].update(first_choice=first_choice)
+                d_q["choices"].update(second_choice=second_choice)
+                # End plot()
 
                 d3_data_dict = {}
                 d3_data_dict["question"] = q.title
@@ -643,11 +699,13 @@ def report_data_by_assignment(assignment_list, student_groups):
                 d_q_a["rationale"] = student_response.rationale
                 ##
                 if student_response.second_answer_choice:
-                    d_q_a["second_answer_choice"] = list(string.ascii_uppercase)[
-                        student_response.second_answer_choice - 1
-                    ]
+                    d_q_a["second_answer_choice"] = list(
+                        string.ascii_uppercase
+                    )[student_response.second_answer_choice - 1]
                 else:
-                    d_q_a["second_answer_choice"] = student_response.second_answer_choice
+                    d_q_a[
+                        "second_answer_choice"
+                    ] = student_response.second_answer_choice
                 ##
                 if student_response.chosen_rationale_id:
                     d_q_a["chosen_rationale"] = Answer.objects.get(
@@ -680,8 +738,7 @@ def report_data_transitions_dict(assignment_list, student_groups):
 
     student_transitions_by_q = {}
     for q in Question.objects.filter(
-        assignment__identifier__in = assignment_list,
-        type = 'PI'
+        assignment__identifier__in=assignment_list, type="PI"
     ):
 
         correct_answer_choices = get_correct_answer_choices(q)
@@ -716,7 +773,7 @@ def report_data_by_student(assignment_list, student_groups):
         assignment_list, student_groups
     )
 
-    ## student level gradebook
+    # student level gradebook
     num_responses_by_student = (
         answer_qs.values("user_token")
         .order_by("user_token")
@@ -743,8 +800,9 @@ def report_data_by_student(assignment_list, student_groups):
                 student__username=student_entry["user_token"]
             )
 
-            # build student_gradebook_dict: keys are student_objects, and values are counters
-            # keeping track of how often that student made each transition type
+            # build student_gradebook_dict: keys are student_objects, and
+            # values are counters keeping track of how often that student made
+            # each transition type
             student_gradebook_dict[student_obj][
                 student_entry["transition"]
             ] += 1
@@ -771,6 +829,7 @@ def report_data_by_student(assignment_list, student_groups):
                 ]
 
             except KeyError as e:
+                print(e)
                 d_g[question] = "-"
 
         gradebook_student.append(d_g)
@@ -828,107 +887,115 @@ def report_data_by_question(assignment_list, student_groups):
 
     return gradebook_question
 
-def filter_ltievents(start_date,stop_date=datetime.datetime.now(),username=None):
+
+def filter_ltievents(
+    start_date, stop_date=datetime.datetime.now(), username=None
+):
     """
-    given a start date and stop date (as datetime objects), and optional username
-    return all LtiEvents that match the criteria
+    given a start date and stop date (as datetime objects), and optional
+    username return all LtiEvents that match the criteria
     """
     from peerinst.models import LtiEvent
-    import json
 
-    events = LtiEvent.objects.filter(timestamp__gte=start_date,timestamp__lte=stop_date)
+    events = LtiEvent.objects.filter(
+        timestamp__gte=start_date, timestamp__lte=stop_date
+    )
 
     if username:
-        rejected_pks, event_pks = [],[]
+        rejected_pks, event_pks = [], []
         for e in events:
             try:
-                if e.event_log['username']==username:
+                if e.event_log["username"] == username:
                     event_pks.append(e.pk)
             except TypeError as error:
+                print(error)
                 rejected_pks.append(e.pk)
         events = events.filter(pk__in=event_pks)
         rejected = events.filter(pk__in=rejected_pks)
     else:
         rejected = []
 
-    return rejected,events
+    return rejected, events
 
-def build_event_dict(e,columns,event_columns):
+
+def build_event_dict(e, columns, event_columns):
     """
     given and LtiEvent
     return flattened dict with specified columns
     """
     try:
-        event_dict1 = {c:e.event_log['event'].get(c) for c in event_columns}
-        event_dict2 = {c:e.event_log.get(c) for c in columns}
+        event_dict1 = {c: e.event_log["event"].get(c) for c in event_columns}
+        event_dict2 = {c: e.event_log.get(c) for c in columns}
         event_dict = event_dict1.copy()
         event_dict.update(event_dict2)
-        event_dict['event_type'] = e.event_type
-        event_dict['timestamp'] = e.timestamp
+        event_dict["event_type"] = e.event_type
+        event_dict["timestamp"] = e.timestamp
     except TypeError:
         event_dict = {}
-        event_dict['event_type'] = e.event_type
-        event_dict['timestamp'] = e.timestamp
+        event_dict["event_type"] = e.event_type
+        event_dict["timestamp"] = e.timestamp
 
     return event_dict
+
 
 def serialize_events_to_dataframe(events):
     """
     given a queryset of LtiEvent objects
-    return a pandas dataframe with columns username,event_type,assignment_id,question_id,timestamp
+    return a pandas dataframe with columns username,event_type,assignment_id,
+    question_id,timestamp
     """
     import pandas as pd
 
-    columns = ['username','course_id','referer','agent','accept_language']
+    columns = ["username", "course_id", "referer", "agent", "accept_language"]
 
     event_columns = [
-    'event_type',
-    'assignment_id',
-    'question_text',
-    'question_id',
-    'timestamp',
-    'rationales',
-    'success',
-    'assignment_title',
-    'rationale_algorithm',
-    'chosen_rationale_id',
-    'second_answer_choice',
-    'first_answer_choice',
-    'rationale'
+        "event_type",
+        "assignment_id",
+        "question_text",
+        "question_id",
+        "timestamp",
+        "rationales",
+        "success",
+        "assignment_title",
+        "rationale_algorithm",
+        "chosen_rationale_id",
+        "second_answer_choice",
+        "first_answer_choice",
+        "rationale",
     ]
 
-    df=pd.DataFrame(columns=columns+event_columns)
+    df = pd.DataFrame(columns=columns + event_columns)
 
-    for i,e in enumerate(events):
-        df.loc[i] = pd.Series(build_event_dict(e,columns,event_columns))
+    for i, e in enumerate(events):
+        df.loc[i] = pd.Series(build_event_dict(e, columns, event_columns))
 
     return df
 
-def get_lti_data_as_csv(weeks_ago_start,weeks_ago_stop=0,username=None):
-    import os, datetime
+
+def get_lti_data_as_csv(weeks_ago_start, weeks_ago_stop=0, username=None):
+    import datetime
+    import os
     from django.conf import settings
 
-    print('start')
+    print("start")
     print(datetime.datetime.now())
 
-    start = datetime.datetime.now()-datetime.timedelta(weeks=weeks_ago_start)
-    end = datetime.datetime.now()-datetime.timedelta(weeks=weeks_ago_stop)
+    start = datetime.datetime.now() - datetime.timedelta(weeks=weeks_ago_start)
+    end = datetime.datetime.now() - datetime.timedelta(weeks=weeks_ago_stop)
 
-    rejected,events = filter_ltievents(
-        start_date = start,
-        stop_date = end,
-        username = username
-        )
-    print('events filtered')
+    rejected, events = filter_ltievents(
+        start_date=start, stop_date=end, username=username
+    )
+    print("events filtered")
     print(datetime.datetime.now())
 
-    df=serialize_events_to_dataframe(events)
+    df = serialize_events_to_dataframe(events)
 
-    print('serialied df')
+    print("serialied df")
     print(datetime.datetime.now())
 
-    fname = os.path.join(settings.BASE_DIR,'data.csv')
-    with open(fname,'w') as f:
-        df.to_csv(path_or_buf=f,encoding='utf-8')
+    fname = os.path.join(settings.BASE_DIR, "data.csv")
+    with open(fname, "w") as f:
+        df.to_csv(path_or_buf=f, encoding="utf-8")
 
     return df

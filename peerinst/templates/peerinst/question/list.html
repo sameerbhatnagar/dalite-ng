@@ -180,10 +180,12 @@ function showAnalytics(id){
   return;
 }
 </script>
-{% for obj in object_list %}
+
 <script>
-bundle.plot({{ obj.get_matrix|safe }},{{ obj.get_frequency|safe|striptags }},{{ obj.id }});
-</script>
+{% for obj in object_list %}
+  bundle.plot({{ obj.get_matrix|safe }},{{ obj.get_frequency|safe|striptags }},{{ obj.id }});
 {% endfor %}
+</script>
+
 {% endcompress %}
 {% endblock %}
