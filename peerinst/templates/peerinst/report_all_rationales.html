@@ -3,11 +3,24 @@
 {% load i18n get_value %}
 
 {% block stylesheets %}
-<link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css">
+<!--
+DataTables
+https://datatables.net/extensions/buttons/examples/styling/jqueryui.html
+-->
+<link rel="stylesheet" type="text/css" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.19/css/dataTables.jqueryui.min.css">
+<link rel="stylesheet" type="text/css" href="//cdn.datatables.net/buttons/1.5.2/css/buttons.jqueryui.min.css">
+
 <style>
-ul {
-  padding-left:0px;
-}
+  .dataTables_wrapper {
+    font-size: smaller;
+  }
+  .dt-button {
+    font-family: inherit;
+  }
+  ul {
+    padding-left:0px;
+  }
 </style>
 {% endblock %}
 
@@ -188,18 +201,18 @@ ul {
                             <thead>
                             <tr>
                                 <th>{% trans "Student" %}</th>
-                                
-                                {% if question.type == "PI" %}                                
+
+                                {% if question.type == "PI" %}
                                   <th>{% trans "1st Ans" %}</th>
-                                {% endif %}                                
-                                
+                                {% endif %}
+
                                 <th>{% trans "Rationale" %} </th>
-                                
-                                {% if question.sequential_review %}                                
+
+                                {% if question.sequential_review %}
                                   <th>{% trans "Up" %}</th>
                                   <th>{% trans "Down" %}</th>
-                                {% endif %}                                
-                                
+                                {% endif %}
+
 
                                 {% if question.type == "PI" %}
                                   <th>{% trans "2nd Ans" %}</th>
@@ -220,16 +233,16 @@ ul {
 
                                 <td>{{ student_response.rationale }}</td>
 
-                                {% if question.sequential_review %}                                
+                                {% if question.sequential_review %}
                                   <th>{{ student_response.upvotes }}</th>
                                   <th>{{ student_response.downvotes }}</th>
-                                {% endif %} 
-                               
-                                {% if question.type == "PI" %}                                
+                                {% endif %}
+
+                                {% if question.type == "PI" %}
                                   <td>{{ student_response.second_answer_choice }}</td>
                                   <td>{{ student_response.chosen_rationale }}</td>
-                                {% endif %}                                
-                               
+                                {% endif %}
+
                                 <td>{{ student_response.submitted }}</td>
                             </tr>
 
@@ -254,13 +267,24 @@ ul {
 {% endblock %}
 
 {% block scripts %}
-<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.js"></script>
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.19/js/dataTables.jqueryui.min.js"></script>
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/1.5.2/js/dataTables.buttons.min.js"></script>
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/1.5.2/js/buttons.jqueryui.min.js"></script>
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/1.5.2/js/buttons.html5.min.js"></script>
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/1.5.2/js/buttons.colVis.min.js"></script>
 
 <script>
 $(document).ready( function () {
-  $('table.display').DataTable(
-    );
+  $('table.display').each(function() {
+    var table = $(this).DataTable({
+      pageLength: 20,
+      dom: '<"fg-toolbar ui-toolbar ui-widget-header ui-helper-clearfix ui-corner-tl ui-corner-tr"Bf>t<"fg-toolbar ui-toolbar ui-widget-header ui-helper-clearfix ui-corner-bl ui-corner-br"ip>',
+      buttons: ['csv', 'colvis']
+    });
+  });
 });
+
 
 // var json = {{ json|safe }}
 
