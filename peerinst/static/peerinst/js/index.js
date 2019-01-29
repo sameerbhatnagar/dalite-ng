@@ -90,9 +90,9 @@ export function csrfSafeMethod(method) {
 export function getCookie(name) {
   let cookieValue = null;
   if (document.cookie && document.cookie != "") {
-    let cookies = document.cookie.split(";");
+    const cookies = document.cookie.split(";");
     for (let i = 0; i < cookies.length; i++) {
-      let cookie = jQuery.trim(cookies[i]);
+      const cookie = jQuery.trim(cookies[i]);
       // Does this cookie string begin with the name we want?
       if (cookie.substring(0, name.length + 1) == name + "=") {
         cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
@@ -110,7 +110,7 @@ export function getCookie(name) {
  * @param {String} url
  */
 export function bindAjaxTextInputForm(idToBind, formToReplace, url) {
-  let d = document.getElementById(idToBind);
+  const d = document.getElementById(idToBind);
   if (d) {
     d.onclick = function() {
       /** The callback
@@ -119,7 +119,7 @@ export function bindAjaxTextInputForm(idToBind, formToReplace, url) {
        */
       function callback() {
         bundle.autoInit();
-        let input = this.querySelector(".mdc-text-field__input");
+        const input = this.querySelector(".mdc-text-field__input");
         input.focus();
       }
       $("#" + formToReplace).load(url, callback);
@@ -136,15 +136,15 @@ export function bindAjaxTextInputForm(idToBind, formToReplace, url) {
  * @param {String} className
  */
 export function cornerGraphic(svgSelector, formID, lang, className) {
-  let svg = d3.select(svgSelector);
-  let w = +svg.attr("width");
-  let h = +svg.attr("height");
+  const svg = d3.select(svgSelector);
+  const w = +svg.attr("width");
+  const h = +svg.attr("height");
 
   const g = svg.append("g");
   g.append("path")
     .attr("class", className)
     .attr("d", () => {
-      let path = d3.path();
+      const path = d3.path();
       path.moveTo(0, h);
       path.lineTo(w, 0);
       path.lineTo(w, h);
@@ -176,19 +176,19 @@ export function cornerGraphic(svgSelector, formID, lang, className) {
 export function wrap(text, width) {
   text.each(
     /* @this */ function() {
-      let text = bundle.select(this);
-      let words = text
+      const text = bundle.select(this);
+      const words = text
         .text()
         .split(/\s+/)
         .reverse();
       let word;
       let line = [];
       let lineNumber = 0;
-      let lineHeight = 16; // px
-      let x = text.attr("x");
-      let dx = text.attr("dx");
-      let y = text.attr("y");
-      let dy = parseFloat(text.attr("dy"));
+      const lineHeight = 16; // px
+      const x = text.attr("x");
+      const dx = text.attr("dx");
+      const y = text.attr("y");
+      const dy = parseFloat(text.attr("dy"));
       let tspan = text
         .text(null)
         .append("tspan")
@@ -223,11 +223,11 @@ function underlines() {
   "use strict";
 
   // Decorate h1 headers
-  let lines = d3.selectAll(".underline");
+  const lines = d3.selectAll(".underline");
   lines.selectAll("g").remove();
-  let w = document.querySelector("main").offsetWidth;
+  const w = document.querySelector("main").offsetWidth;
 
-  let gradientX = lines
+  const gradientX = lines
     .append("linearGradient")
     .attr("id", "underlineGradientX")
     .attr("x1", 0)
@@ -245,7 +245,7 @@ function underlines() {
     .attr("offset", "100%")
     .attr("stop-color", "#004266");
 
-  let gradientY = lines
+  const gradientY = lines
     .append("linearGradient")
     .attr("id", "underlineGradientY")
     .attr("x1", 0)
@@ -263,7 +263,7 @@ function underlines() {
     .attr("offset", "100%")
     .attr("stop-color", "#54c0db");
 
-  let g = lines.append("g");
+  const g = lines.append("g");
   g.append("rect")
     .attr("x", -10)
     .attr("y", 0)
@@ -294,9 +294,9 @@ export function difficulty(matrix, id) {
   };
   let max = -0;
   let label = "";
-  for (let entry in bundle.entries(matrix)) {
+  for (const entry in bundle.entries(matrix)) {
     if ({}.hasOwnProperty.call(bundle.entries(matrix), entry)) {
-      let item = bundle.entries(matrix)[entry];
+      const item = bundle.entries(matrix)[entry];
       if (item.value > max) {
         max = item.value;
         label = item.key;
@@ -320,6 +320,18 @@ export function difficulty(matrix, id) {
  *  @param {string} id
  */
 export function plot(matrix, freq, id) {
+  if (!matrix["easy"]) {
+    matrix["easy"]=0;
+  }
+  if (!matrix["hard"]) {
+    matrix["hard"]=0;
+  }
+  if (!matrix["tricky"]) {
+    matrix["tricky"]=0;
+  }
+  if (!matrix["peer"]) {
+    matrix["peer"]=0;
+  }
   const colour = {
     easy: "rgb(30, 142, 62)",
     hard: "rgb(237, 69, 40)",
@@ -328,9 +340,9 @@ export function plot(matrix, freq, id) {
   };
   let max = -0;
   let label = "";
-  for (let entry in bundle.entries(matrix)) {
+  for (const entry in bundle.entries(matrix)) {
     if ({}.hasOwnProperty.call(bundle.entries(matrix), entry)) {
-      let item = bundle.entries(matrix)[entry];
+      const item = bundle.entries(matrix)[entry];
       if (item.value > max) {
         max = item.value;
         label = item.key;
@@ -339,24 +351,50 @@ export function plot(matrix, freq, id) {
   }
   if (max > 0) {
     const rating = document.getElementById("rating-" + id);
-    rating.innerHTML =
-      label.substring(0, 1).toUpperCase() + label.substring(1);
-
+    if (rating) {
+      rating.innerHTML =
+        label.substring(0, 1).toUpperCase() + label.substring(1);
+    }
     const stats = document.getElementById("stats-" + id);
-    stats.style.color = colour[label];
+    if (stats) {
+      stats.style.color = colour[label];
+    }
   }
 
   const matrixSvg = bundle.select("#matrix-" + id);
+  matrixSvg.style("overflow", "visible");
   let size = matrixSvg.attr("width");
   const g = matrixSvg.append("g");
 
-  g.append("rect")
+  g.append("text")
+    .attr("class", "legend")
+    .attr("x", size / 2)
+    .attr("y", -6)
+    .style("font-size", "7pt")
+    .attr("text-anchor", "middle")
+    .style("opacity", 0)
+    .text();
+
+  const easy = g.append("rect")
     .attr("x", 0)
     .attr("y", 0)
     .attr("width", size / 2)
     .attr("height", size / 2)
     .attr("fill", colour["easy"])
     .style("opacity", 0.5 + 0.5 * matrix["easy"]);
+
+  easy.on("mousemove", () => {
+    g.select(".legend")
+      .style("opacity", 1)
+      .style("fill", colour["easy"])
+      .text("Right > Right");
+  });
+  easy.on("mouseout", () => {
+    g.select(".legend")
+      .transition()
+      .duration(100)
+      .style("opacity", 0);
+  });
 
   g.append("text")
     .attr("x", size / 4)
@@ -367,13 +405,26 @@ export function plot(matrix, freq, id) {
     .style("text-anchor", "middle")
     .text(parseInt(100 * matrix["easy"]) + "%");
 
-  g.append("rect")
+  const hard = g.append("rect")
     .attr("x", size / 2)
     .attr("y", size / 2)
     .attr("width", size / 2)
     .attr("height", size / 2)
     .attr("fill", colour["hard"])
     .style("opacity", 0.5 + 0.5 * matrix["hard"]);
+
+  hard.on("mousemove", () => {
+    g.select(".legend")
+      .style("opacity", 1)
+      .style("fill", colour["hard"])
+      .text("Wrong > Wrong");
+  });
+  hard.on("mouseout", () => {
+    g.select(".legend")
+      .transition()
+      .duration(100)
+      .style("opacity", 0);
+  });
 
   g.append("text")
     .attr("x", (3 * size) / 4)
@@ -384,13 +435,26 @@ export function plot(matrix, freq, id) {
     .style("text-anchor", "middle")
     .text(parseInt(100 * matrix["hard"]) + "%");
 
-  g.append("rect")
+  const peer = g.append("rect")
     .attr("x", 0)
     .attr("y", size / 2)
     .attr("width", size / 2)
     .attr("height", size / 2)
     .attr("fill", colour["peer"])
     .style("opacity", 0.5 + 0.5 * matrix["peer"]);
+
+  peer.on("mousemove", () => {
+    g.select(".legend")
+      .style("opacity", 1)
+      .style("fill", colour["peer"])
+      .text("Wrong > Right");
+  });
+  peer.on("mouseout", () => {
+    g.select(".legend")
+      .transition()
+      .duration(100)
+      .style("opacity", 0);
+  });
 
   g.append("text")
     .attr("x", size / 4)
@@ -401,13 +465,26 @@ export function plot(matrix, freq, id) {
     .style("text-anchor", "middle")
     .text(parseInt(100 * matrix["peer"]) + "%");
 
-  g.append("rect")
+  const tricky = g.append("rect")
     .attr("x", size / 2)
     .attr("y", 0)
     .attr("width", size / 2)
     .attr("height", size / 2)
     .attr("fill", colour["tricky"])
     .style("opacity", 0.5 + 0.5 * matrix["tricky"]);
+
+  tricky.on("mousemove", () => {
+    g.select(".legend")
+      .style("opacity", 1)
+      .style("fill", colour["tricky"])
+      .text("Right > Wrong");
+  });
+  tricky.on("mouseout", () => {
+    g.select(".legend")
+      .transition()
+      .duration(100)
+      .style("opacity", 0);
+  });
 
   g.append("text")
     .attr("x", (3 * size) / 4)
@@ -418,17 +495,17 @@ export function plot(matrix, freq, id) {
     .style("text-anchor", "middle")
     .text(parseInt(100 * matrix["tricky"]) + "%");
 
-  let firstFreqSvg = bundle.select("#first-frequency-" + id);
-  let secondFreqSvg = bundle.select("#second-frequency-" + id);
-  let margin = { left: 30, right: 30 };
+  const firstFreqSvg = bundle.select("#first-frequency-" + id);
+  const secondFreqSvg = bundle.select("#second-frequency-" + id);
+  const margin = { left: 30, right: 30 };
 
   let sum = 0;
-  for (let entry in freq["first_choice"]) {
+  for (const entry in freq["first_choice"]) {
     if ({}.hasOwnProperty.call(freq["first_choice"], entry)) {
       sum += freq["first_choice"][entry];
     }
   }
-  for (let entry in freq["first_choice"]) {
+  for (const entry in freq["first_choice"]) {
     if ({}.hasOwnProperty.call(freq["first_choice"], entry)) {
       freq["first_choice"][entry] /= sum;
       freq["second_choice"][entry] /= sum;
@@ -437,20 +514,20 @@ export function plot(matrix, freq, id) {
 
   size = secondFreqSvg.attr("width") - margin.left;
 
-  let x = bundle
+  const x = bundle
     .scaleLinear()
     .domain([0, 1])
     .rangeRound([0, size]);
-  let y = bundle
+  const y = bundle
     .scaleBand()
     .domain(bundle.keys(freq["first_choice"]).sort())
     .rangeRound([0, firstFreqSvg.attr("height")]);
 
-  let gg = secondFreqSvg
+  const gg = secondFreqSvg
     .append("g")
     .attr("transform", "translate(" + margin.left + ",0)");
 
-  let ggg = firstFreqSvg.append("g");
+  const ggg = firstFreqSvg.append("g");
 
   gg.append("g")
     .attr("class", "axis axis--x")
@@ -577,7 +654,7 @@ export function plot(matrix, freq, id) {
  *  @function
  */
 export function search(className, searchBar) {
-  let items = document.querySelectorAll(className);
+  const items = document.querySelectorAll(className);
   for (let i = 0; i < items.length; i++) {
     if (
       items[i].innerText.toLowerCase().indexOf(searchBar.value.toLowerCase()) <
@@ -618,9 +695,9 @@ export function handleQuestionDelete(url) {
 
   // Delete/undelete
   $("[class*=delete-question]").click(event => {
-    let el = event.target;
-    let pk = $(el).attr("question");
-    let posting = $.post(url, { pk: pk });
+    const el = event.target;
+    const pk = $(el).attr("question");
+    const posting = $.post(url, { pk: pk });
     posting.done(data => {
       if (data["action"] == "restore") {
         $(".list-item-question-" + pk).removeClass("deleted");
@@ -713,30 +790,30 @@ export function bindCheckbox() {
  *  @param {String} d
  */
 export function plotTimeSeries(el, d) {
-  let svg = d3.select(el);
+  const svg = d3.select(el);
 
-  let width = 0.8 * $("main").innerWidth();
+  const width = 0.8 * $("main").innerWidth();
   svg.attr("width", width);
-  let height = +svg.attr("height");
+  const height = +svg.attr("height");
 
   svg.selectAll("g").remove();
 
-  let x = d3
+  const x = d3
     .scaleTime()
     .domain([
       new Date(d3.timeParse(d.distribution_date)),
       new Date(d3.timeParse(d.due_date)),
     ])
     .range([0, width]);
-  let y = d3
+  const y = d3
     .scaleLinear()
     .domain([0, d.total])
     .range([height, 0]);
 
-  let xAxis = d3.axisBottom(x);
-  let xAxisTop = d3.axisTop(x).ticks("");
+  const xAxis = d3.axisBottom(x);
+  const xAxisTop = d3.axisTop(x).ticks("");
 
-  let g = svg.append("g");
+  const g = svg.append("g");
 
   g.append("rect")
     .attr("fill", "white")
@@ -750,9 +827,9 @@ export function plotTimeSeries(el, d) {
     .call(xAxis);
   g.append("g").call(xAxisTop);
 
-  let format = d3.timeFormat("%c");
+  const format = d3.timeFormat("%c");
 
-  let f = d3
+  const f = d3
     .line()
     .x(function(d) {
       return x(new Date(d3.timeParse(d)));
@@ -774,7 +851,7 @@ export function plotTimeSeries(el, d) {
     .attr("d", f);
 
   if (d.due_date > d.last_login) {
-    let endDate = Math.min(
+    const endDate = Math.min(
       new Date(d3.timeParse(d.now)),
       new Date(d3.timeParse(d.due_date)),
     );
@@ -800,7 +877,7 @@ export function plotTimeSeries(el, d) {
     .attr("stroke", "gray")
     .attr("stroke-width", "0.5px")
     .attr("d", function() {
-      let path = d3.path();
+      const path = d3.path();
       path.moveTo(0, height + 30);
       path.lineTo(0, -6);
       return path;
@@ -830,7 +907,7 @@ export function plotTimeSeries(el, d) {
     .attr("stroke-dasharray", 4)
     .attr("stroke-width", "0.5px")
     .attr("d", function() {
-      let path = d3.path();
+      const path = d3.path();
       path.moveTo(0, height);
       path.lineTo(0, -30);
       return path;
@@ -842,7 +919,7 @@ export function plotTimeSeries(el, d) {
     .attr("stroke-dasharray", 4)
     .attr("stroke-width", "0.5px")
     .attr("d", function() {
-      let path = d3.path();
+      const path = d3.path();
       path.moveTo(width, height);
       path.lineTo(width, -30);
       return path;
@@ -869,7 +946,7 @@ export function plotTimeSeries(el, d) {
     .style("font-family", "sans-serif")
     .text();
 
-  let area = d3
+  const area = d3
     .area()
     .x0(f.x())
     .y0(height)
@@ -880,13 +957,13 @@ export function plotTimeSeries(el, d) {
   svg.on(
     "mousemove",
     /* @this */ function() {
-      let xValue = Math.min(
+      const xValue = Math.min(
         d3.mouse(this)[0],
         1 + x(d3.max(d.answers.map(x => new Date(d3.timeParse(x))))),
       );
 
       g.select(".slider").attr("d", function() {
-        let path = d3.path();
+        const path = d3.path();
         path.moveTo(xValue, height + 30);
         path.lineTo(xValue, -6);
         return path;
@@ -924,7 +1001,7 @@ export function plotTimeSeries(el, d) {
         );
 
       let data = d.answers.map(x => new Date(d3.timeParse(x)));
-      let index = d3.bisectLeft(data, x.invert(xValue));
+      const index = d3.bisectLeft(data, x.invert(xValue));
 
       data = data.slice(0, index);
 
