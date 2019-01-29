@@ -28,7 +28,7 @@
       </div>
 
       {% if g.image %}
-      <img class="question-image" src="{{ g.image.url }}" alt="g.image_alt_text">
+      <img class="question-image" src="{{ g.image.url }}" alt="{{ g.image_alt_text }}">
       {% endif %}
 
       {% if g.video_url %}
