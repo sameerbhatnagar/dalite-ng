@@ -10,6 +10,7 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Q
 from django.utils.encoding import smart_bytes
+from django.utils.html import escape, strip_tags
 from django.utils.translation import ugettext_lazy as _
 
 from .. import rationale_choice
@@ -345,7 +346,13 @@ class Question(models.Model):
         )
         c = 1
         for answerChoice in self.answerchoice_set.all():
-            label = self.get_choice_label(c) + ". " + answerChoice.text
+            label = (
+                self.get_choice_label(c)
+                + ". "
+                + escape(strip_tags(answerChoice.text)).replace(
+                    "&amp;nbsp;", " "
+                )
+            )
             if len(label) > 50:
                 label = label[0:50] + "..."
             choice1[smart_bytes(label)] = student_answers.filter(
