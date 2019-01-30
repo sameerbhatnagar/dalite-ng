@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 import base64
 import hashlib
+import logging
 from datetime import timedelta
 
 from django.conf import settings
@@ -13,6 +14,8 @@ from django.template.response import TemplateResponse
 from django.utils.translation import ugettext_lazy as _
 
 from .utils import create_token, verify_token
+
+logger = logging.getLogger("peerinst-auth")
 
 
 def create_student_token(username, email, exp=timedelta(weeks=16)):
@@ -156,19 +159,24 @@ def get_lti_passwords(hashed_username):
 
     key = settings.PASSWORD_GENERATOR_NONCE
 
-    if hashed_username.endswith("++"):
-        usernames = [
-            base64.urlsafe_b64decode(hashed_username[:-2] + i + j).encode()
-            for i in ("+", "=")
-            for j in ("+", "=")
-        ]
-    elif hashed_username.endswith("+"):
-        usernames = [
-            base64.urlsafe_b64decode(hashed_username[:-1] + i).encode()
-            for i in ("+", "=")
-        ]
-    else:
-        usernames = [base64.urlsafe_b64decode(hashed_username).encode()]
+    try:
+        if hashed_username.endswith("++"):
+            usernames = [
+                base64.urlsafe_b64decode(hashed_username[:-2] + i + j).encode()
+                for i in ("+", "=")
+                for j in ("+", "=")
+            ]
+        elif hashed_username.endswith("+"):
+            usernames = [
+                base64.urlsafe_b64decode(hashed_username[:-1] + i).encode()
+                for i in ("+", "=")
+            ]
+        else:
+            usernames = [base64.urlsafe_b64decode(hashed_username).encode()]
+    except TypeError:
+        logger.error(
+            "Error trying to encode hashed username %s.", hashed_username
+        )
 
     passwords = [hashlib.md5(u + key).digest() for u in usernames]
 
