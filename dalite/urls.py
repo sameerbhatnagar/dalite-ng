@@ -25,7 +25,8 @@ urlpatterns += i18n_patterns(
         r"^assignment/(?P<assignment_id>[^/]+)/",
         include(
             [
-                # Question table of contents for assignment - Enforce sameorigin to prevent access from LMS
+                # Question table of contents for assignment - Enforce
+                # sameorigin to prevent access from LMS
                 url(
                     r"^$",
                     xframe_options_sameorigin(
@@ -41,7 +42,8 @@ urlpatterns += i18n_patterns(
                             url(
                                 r"^$", peerinst_views.question, name="question"
                             ),
-                            # Question reset (for testing purposes) - Enforce sameorigin to prevent access from LMS
+                            # Question reset (for testing purposes) - Enforce
+                            # sameorigin to prevent access from LMS
                             url(
                                 r"^reset/$",
                                 peerinst_views.reset_question,
@@ -72,3 +74,9 @@ urlpatterns += [url(r"^i18n/", include("django.conf.urls.i18n"))]
 
 # Media
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+# Errors
+#  handler400 = views.errors.response_400
+#  handler403 = views.errors.response_403
+handler404 = "dalite.views.errors.response_404"
+#  handler500 = "dalite.views.errors.response_500"

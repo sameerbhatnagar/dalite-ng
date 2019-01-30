@@ -9,19 +9,13 @@ from django.conf import settings
 from django.contrib.auth import login, logout
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
-from django.http import (
-    HttpResponse,
-    HttpResponseBadRequest,
-    HttpResponseForbidden,
-    HttpResponseRedirect,
-    JsonResponse,
-)
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
-from django.template.response import TemplateResponse
 from django.utils.translation import ugettext
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_http_methods
 
+from dalite.views.errors import response_400, response_403
 from tos.models import Consent
 
 from ..models import (
@@ -58,13 +52,12 @@ def validate_group_data(req):
     try:
         data = json.loads(req.body)
     except ValueError:
-        logger.warning("The sent data wasn't in a valid JSON format.")
-        resp = TemplateResponse(
+        return response_400(
             req,
-            "400.html",
-            context={"message": _("Wrong data type was sent.")},
+            msg=_("Wrong data type was sent."),
+            logger_msg=("The sent data wasn't in a valid JSON format."),
+            log=logger.warning,
         )
-        return HttpResponseBadRequest(resp.render())
 
     try:
         group_name = data["group_name"]
@@ -74,15 +67,14 @@ def validate_group_data(req):
             group_link = data["group_link"]
             group_name = None
         except KeyError:
-            logger.warning(
-                "The arguments 'group_name' or 'group_link' were missing."
-            )
-            resp = TemplateResponse(
+            return response_400(
                 req,
-                "400.html",
-                context={"message": _("There are missing parameters.")},
+                msg=_("There are missing parameters."),
+                logger_msg=(
+                    "The arguments 'group_name' or 'group_link' were missing."
+                ),
+                log=logger.warning,
             )
-            return HttpResponseBadRequest(resp.render())
 
     if group_name is None:
         try:
@@ -91,55 +83,49 @@ def validate_group_data(req):
                 group_link,
             ).group(1)
         except AttributeError:
-            logger.warning(
-                "A student signup was tried with the link %s.", group_link
-            )
-            resp = TemplateResponse(
+            return response_400(
                 req,
-                "400.html",
-                context={
-                    "message": _(
-                        "There pas an error parsing the sent link. Please try "
-                        "again."
-                    )
-                },
+                msg=_(
+                    "There pas an error parsing the sent link. Please try "
+                    "again."
+                ),
+                logger_msg=(
+                    "A student signup was tried with the link %s.",
+                    group_link,
+                ),
+                log=logger.warning,
             )
-            return HttpResponseBadRequest(resp.render())
         group = StudentGroup.get(hash_)
         if group is None:
-            logger.warning(
-                "There is no group corresponding to the hash %s.", hash_
-            )
-            resp = TemplateResponse(
+            return response_400(
                 req,
-                "400.html",
-                context={
-                    "message": _(
-                        "There doesn't seem to be any group corresponding to"
-                        "the link. Please try again."
-                    )
-                },
+                msg=_(
+                    "There doesn't seem to be any group corresponding to"
+                    "the link. Please try again."
+                ),
+                logger_msg=(
+                    "There is no group corresponding to the hash %s.",
+                    hash_,
+                ),
+                log=logger.warning,
             )
-            return HttpResponseBadRequest(resp.render())
 
     else:
         try:
             group = StudentGroup.objects.get(name=group_name)
         except StudentGroup.DoesNotExist:
-            logger.warning(
-                "There is no group corresponding to the name %s.", group_name
-            )
-            resp = TemplateResponse(
+            return response_403(
                 req,
-                "400.html",
-                context={
-                    "message": _(
-                        "The group doesn't seem to exist. Refresh the page "
-                        "and try again"
-                    )
-                },
+                msg=_(
+                    "The group doesn't seem to exist. Refresh the page "
+                    "and try again"
+                ),
+                logger_msg=(
+                    "There is no group corresponding to the name %s.",
+                    group_name,
+                ),
+                log=logger.warning,
             )
-            return HttpResponseBadRequest(resp.render())
 
     return group
 
@@ -156,39 +142,35 @@ def index_page(req):
     # get student from token or from logged in user
     if token is None:
         if not isinstance(req.user, User):
-            logger.warning(
-                "Student index page accessed without a token or being logged "
-                "in."
-            )
-            resp = TemplateResponse(
+            return response_403(
                 req,
-                "403.html",
-                context={
-                    "message": _(
-                        "You must be a logged in student to access this "
-                        "resource."
-                    )
-                },
+                msg=_(
+                    "You must be a logged in student to access this "
+                    "resource."
+                ),
+                logger_msg=(
+                    "Student index page accessed without a token or being "
+                    "logged in."
+                ),
+                log=logger.warning,
             )
-            return HttpResponseForbidden(resp.render())
 
         try:
             student = Student.objects.get(student=req.user)
         except Student.DoesNotExist:
-            logger.warning(
-                "There is no student corresponding to user %d.", req.user.pk
-            )
-            resp = TemplateResponse(
+            return response_403(
                 req,
-                "403.html",
-                context={
-                    "message": _(
-                        "You must be a logged in student to access this "
-                        "resource."
-                    )
-                },
+                msg=_(
+                    "You must be a logged in student to access this "
+                    "resource."
+                ),
+                logger_msg=(
+                    "There is no student corresponding to user %d.",
+                    req.user.pk,
+                ),
+                log=logger.warning,
             )
-            return HttpResponseForbidden(resp.render())
+
         token = create_student_token(
             student.student.username, student.student.email
         )
@@ -210,20 +192,18 @@ def index_page(req):
         try:
             student = Student.objects.get(student=user)
         except Student.DoesNotExist:
-            logger.warning(
-                "There is no student corresponding to user %d.", user.pk
-            )
-            resp = TemplateResponse(
+            return response_403(
                 req,
-                "403.html",
-                context={
-                    "message": _(
-                        "You must be a logged in student to access this "
-                        "resource."
-                    )
-                },
+                msg=_(
+                    "You must be a logged in student to access this "
+                    "resource."
+                ),
+                logger_msg=(
+                    "There is no student corresponding to user %d.",
+                    user.pk,
+                ),
+                log=logger.warning,
             )
-            return HttpResponseForbidden(resp.render())
 
     StudentNotification.clean(student)
 
@@ -398,15 +378,16 @@ def join_group(req, student):
             student=student, group=group
         )
     except StudentGroupMembership.DoesNotExist:
-        logger.warning(
-            "Student {} isn't part of group {}.".format(student.pk, group.pk)
-        )
-        resp = TemplateResponse(
+        return response_400(
             req,
-            "400.html",
-            context={"message": _("You don't seem to be part of this group.")},
+            msg=_("You don't seem to be part of this group."),
+            logger_msg=(
+                "Student {} isn't part of group {}.".format(
+                    student.pk, group.pk
+                )
+            ),
+            log=logger.warning,
         )
-        return HttpResponseBadRequest(resp.render())
 
     token = create_student_token(
         student.student.username, student.student.email
@@ -505,24 +486,22 @@ def remove_notification(req, student):
     try:
         data = json.loads(req.body)
     except ValueError:
-        logger.warning("The sent data wasn't in a valid JSON format.")
-        resp = TemplateResponse(
+        return response_400(
             req,
-            "400.html",
-            context={"message": _("Wrong data type was sent.")},
+            msg=_("Wrong data type was sent."),
+            logger_msg=("The sent data wasn't in a valid JSON format."),
+            log=logger.warning,
         )
-        return HttpResponseBadRequest(resp.render())
 
     try:
         notification_pk = data["notification_pk"]
     except KeyError as e:
-        logger.warning("The arguments '%s' were missing.", ",".join(e.args))
-        resp = TemplateResponse(
+        return response_400(
             req,
-            "400.html",
-            context={"message": _("There are missing parameters.")},
+            msg=_("There are missing parameters."),
+            logger_msg=("The arguments '%s' were missing.", ",".join(e.args)),
+            log=logger.warning,
         )
-        return HttpResponseBadRequest(resp.render())
 
     try:
         StudentNotification.objects.get(pk=notification_pk).delete()
@@ -580,51 +559,49 @@ def update_student_id(req, student):
     try:
         data = json.loads(req.body)
     except ValueError:
-        logger.warning("The sent data wasn't in a valid JSON format.")
-        resp = TemplateResponse(
+        return response_400(
             req,
-            "400.html",
-            context={"message": _("Wrong data type was sent.")},
+            msg=_("Wrong data type was sent."),
+            logger_msg=("The sent data wasn't in a valid JSON format."),
+            log=logger.warning,
         )
-        return HttpResponseBadRequest(resp.render())
 
     try:
         student_id = data["student_id"]
         group_name = data["group_name"]
     except KeyError as e:
-        logger.warning("The arguments '%s' were missing.", ",".join(e.args))
-        resp = TemplateResponse(
+        return response_400(
             req,
-            "400.html",
-            context={"message": _("There are missing parameters.")},
+            msg=_("There are missing parameters."),
+            logger_msg=("The arguments '%s' were missing.", ",".join(e.args)),
+            log=logger.warning,
         )
-        return HttpResponseBadRequest(resp.render())
 
     try:
         group = StudentGroup.objects.get(name=group_name)
     except StudentGroup.DoesNotExist:
-        logger.warning("Group {} doesn't exist.".format(group_name))
-        resp = TemplateResponse(
+        return response_400(
             req,
-            "400.html",
-            context={"message": _("The wanted group doesn't seem to exist.")},
+            msg=_("The wanted group doesn't seem to exist."),
+            logger_msg=("Group {} doesn't exist.".format(group_name)),
+            log=logger.warning,
         )
-        return HttpResponseBadRequest(resp.render())
 
     try:
         membership = StudentGroupMembership.objects.get(
             student=student, group=group
         )
     except StudentGroupMembership.DoesNotExist:
-        logger.warning(
-            "Student {} isn't part of group {}.".format(student.pk, group.pk)
-        )
-        resp = TemplateResponse(
+        return response_400(
             req,
-            "400.html",
-            context={"message": _("You don't seem to be part of this group.")},
+            msg=_("You don't seem to be part of this group."),
+            logger_msg=(
+                "Student {} isn't part of group {}.".format(
+                    student.pk, group.pk
+                )
+            ),
+            log=logger.warning,
         )
-        return HttpResponseBadRequest(resp.render())
 
     membership.student_school_id = student_id
     membership.save()
@@ -649,13 +626,12 @@ def send_signin_link(req):
     try:
         email = req.POST["email"]
     except KeyError as e:
-        logger.warning("The arguments '%s' were missing.", ",".join(e.args))
-        resp = TemplateResponse(
+        return response_400(
             req,
-            "400.html",
-            context={"message": _("There are missing parameters.")},
+            msg=_("There are missing parameters."),
+            logger_msg=("The arguments '%s' were missing.", ",".join(e.args)),
+            log=logger.warning,
         )
-        return HttpResponseBadRequest(resp.render())
 
     student = Student.objects.filter(student__email=email)
 

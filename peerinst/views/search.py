@@ -2,9 +2,10 @@
 from __future__ import unicode_literals
 
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.http import HttpResponseBadRequest, JsonResponse
-from django.template.response import TemplateResponse
+from django.http import JsonResponse
 from django.views.decorators.http import require_GET
+
+from dalite.views.errors import response_400
 
 from ..mixins import student_check
 from ..models import Category, Teacher
@@ -28,9 +29,7 @@ def search_users(request):
             [{"label": str(u[0]), "value": u[1]} for u in users], safe=False
         )
     else:
-        # Bad request
-        response = TemplateResponse(request, "400.html")
-        return HttpResponseBadRequest(response.render())
+        return response_400(request, msg="")
 
 
 @login_required
@@ -47,6 +46,4 @@ def search_categories(request):
             [{"label": c[0], "value": c[1]} for c in categories], safe=False
         )
     else:
-        # Bad request
-        response = TemplateResponse(request, "400.html")
-        return HttpResponseBadRequest(response.render())
+        return response_400(request, msg="")

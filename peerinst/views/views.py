@@ -25,14 +25,7 @@ from django.db.models.expressions import Func
 from django.forms import Textarea, inlineformset_factory
 
 # blink
-from django.http import (
-    Http404,
-    HttpResponse,
-    HttpResponseBadRequest,
-    HttpResponseRedirect,
-    HttpResponseServerError,
-    JsonResponse,
-)
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import (
     get_object_or_404,
     redirect,
@@ -55,6 +48,8 @@ from django_lti_tool_provider.models import LtiUserData
 from django_lti_tool_provider.signals import Signals
 from opaque_keys import InvalidKeyError
 from opaque_keys.edx.keys import CourseKey
+
+from dalite.views.errors import response_400, response_404, response_500
 
 # tos
 from tos.models import Consent, Tos
@@ -206,8 +201,7 @@ def dashboard(request):
             if not settings.EMAIL_BACKEND.startswith(
                 "django.core.mail.backends"
             ):
-                response = TemplateResponse(request, "500.html")
-                return HttpResponseServerError(response.render())
+                return response_500(request)
 
             host = request.get_host()
             if host == "localhost" or host == "127.0.0.1":
@@ -260,8 +254,7 @@ def sign_up(request):
             if not settings.EMAIL_BACKEND.startswith(
                 "django.core.mail.backends"
             ):
-                response = TemplateResponse(request, "500.html")
-                return HttpResponseServerError(response.render())
+                return response_500(request)
 
             host = request.get_host()
             if host == "localhost" or host == "127.0.0.1":
@@ -481,9 +474,7 @@ class AssignmentUpdateView(LoginRequiredMixin, NoStudentsMixin, DetailView):
                 )
             )
         else:
-            # Bad request
-            response = TemplateResponse(request, "400.html")
-            return HttpResponseBadRequest(response.render())
+            return response_400(request)
 
 
 class QuestionListView(LoginRequiredMixin, NoStudentsMixin, ListView):
@@ -683,9 +674,7 @@ def question_delete(request):
             teacher.deleted_questions.remove(question)
             return JsonResponse({"action": "restore"})
     else:
-        # Bad request
-        response = TemplateResponse(request, "400.html")
-        return HttpResponseBadRequest(response.render())
+        return response_400(request)
 
 
 @login_required
@@ -771,13 +760,9 @@ def sample_answer_form_done(request, question_id):
                 reverse("teacher", kwargs={"pk": teacher.pk})
             )
         except Exception:
-            # Bad request
-            response = TemplateResponse(request, "400.html")
-            return HttpResponseBadRequest(response.render())
+            return response_400(request)
     else:
-        # Bad request
-        response = TemplateResponse(request, "400.html")
-        return HttpResponseBadRequest(response.render())
+        return response_400(request)
 
 
 class DisciplineCreateView(
@@ -1789,14 +1774,12 @@ class TeacherGroupShare(TeacherBase, DetailView):
             obj = StudentGroup.get(hash)
 
             if obj is None:
-                raise Http404()
+                return response_404(self.request)
 
             return obj
 
         else:
-            # Bad request
-            response = TemplateResponse(self.request, "400.html")
-            return HttpResponseBadRequest(response.render())
+            return response_400(self.request)
 
     def get_context_data(self, **kwargs):
         context = super(TeacherGroupShare, self).get_context_data(**kwargs)
@@ -1986,9 +1969,7 @@ def teacher_toggle_favourite(request):
             teacher.favourite_questions.remove(question)
             return JsonResponse({"action": "removed"})
     else:
-        # Bad request
-        response = TemplateResponse(request, "400.html")
-        return HttpResponseBadRequest(response.render())
+        return response_400(request)
 
 
 @login_required
