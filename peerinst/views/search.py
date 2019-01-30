@@ -26,7 +26,7 @@ def search_users(request):
         )
 
         return JsonResponse(
-            [{"label": str(u[0]), "value": u[1]} for u in users], safe=False
+            [{"label": u[0], "value": u[1]} for u in users], safe=False
         )
     else:
         return response_400(request, msg="")

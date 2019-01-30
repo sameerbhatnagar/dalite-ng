@@ -123,7 +123,7 @@
     {% endfor %}
     </div>
 
-    <div id="favourite-questions" class="foldable">
+    <div id="favourite-questions" class="foldable foldable__unfolded">
       <h2 class="foldable--title mdc-typography--display1 mdc-theme--secondary">{% trans 'My favourite questions' %}</h2>
       <div class="foldable--body" style="margin-top:20px;">
       {% for g in teacher.favourite_questions.all %}
