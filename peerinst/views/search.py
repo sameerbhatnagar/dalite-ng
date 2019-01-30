@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-import json
-
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import HttpResponseBadRequest, JsonResponse
 from django.template.response import TemplateResponse
@@ -46,11 +44,7 @@ def search_categories(request):
         ).values_list("title", "id")
 
         return JsonResponse(
-            json.dumps(
-                [{"label": str(c[0]), "value": c[1]} for c in categories],
-                ensure_ascii=False,
-            ),
-            safe=False,
+            [{"label": c[0], "value": c[1]} for c in categories], safe=False
         )
     else:
         # Bad request
