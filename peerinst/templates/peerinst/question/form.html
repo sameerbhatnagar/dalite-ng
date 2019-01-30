@@ -166,7 +166,7 @@
             </div>
           </div>
 
-          <section class='peerinst'>
+          <div class='peerinst'>
             <div class='field-container'>
               <div class='number-box'><span class='number'></span></div>
               <div class='field'>
@@ -183,7 +183,7 @@
                 {{ form.answer_style.errors }}
               </div>
             </div>
-          </section>
+          </div>
 
           <h3>{% trans 'Indexing' %}</h3>
 
@@ -229,7 +229,7 @@
             </div>
           </div>
 
-          <section class='peerinst'>
+          <div class='peerinst'>
             <h3>{% trans 'Options' %}</h3>
 
             <div class='field-container'>
@@ -317,7 +317,7 @@
                 {{ form.grading_scheme.errors }}
               </div>
             </div>
-          </section>
+          </div>
 
           {% if not object or object.user == request.user %}
           <div>
