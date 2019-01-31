@@ -17,7 +17,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
 
@@ -213,6 +213,17 @@ LOGGING = {
             "formatter": "complete",
             "stream": "ext://sys.stdout",
         },
+        "dalite_file_log": {
+            "level": "INFO",
+            "class": "logging.FileHandler",
+            "filename": os.path.join(BASE_DIR, "log/dalite.log"),
+        },
+        "dalite_console_log": {
+            "level": "DEBUG" if DEBUG else "INFO",
+            "class": "logging.StreamHandler",
+            "formatter": "complete",
+            "stream": "ext://sys.stdout",
+        },
     },
     "loggers": {
         "django.request": {
@@ -257,6 +268,11 @@ LOGGING = {
         },
         "peerinst-scheduled": {
             "handlers": ["peerinst_file_log", "peerinst_console_log"],
+            "level": "DEBUG" if DEBUG else "INFO",
+            "propagate": True,
+        },
+        "dalite": {
+            "handlers": ["dalite_file_log", "dalite_console_log"],
             "level": "DEBUG" if DEBUG else "INFO",
             "propagate": True,
         },

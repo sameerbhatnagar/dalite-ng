@@ -2,10 +2,9 @@ from __future__ import unicode_literals
 
 import logging
 
-from django.http import HttpResponseBadRequest, HttpResponseForbidden
-from django.template.response import TemplateResponse
 from django.utils.translation import ugettext_lazy as _
 
+from dalite.views.errors import response_400, response_403
 from peerinst.models import (
     Student,
     StudentGroup,
@@ -23,94 +22,79 @@ def group_access_required(fct):
         return_assignment = assignment_hash is not None
 
         if group_hash is None and assignment_hash is None:
-            logger.warning(
-                "Access to {} without a group or assignment hash.".format(
-                    req.path
-                )
-            )
-            resp = TemplateResponse(
+            return response_403(
                 req,
-                "403.html",
-                context={
-                    "message": _("You don't have access to this resource.")
-                },
+                msg=_("You don't have access to this resource."),
+                logger_msg=(
+                    "Access to {} without a group or assignment hash.".format(
+                        req.path
+                    )
+                ),
+                log=logger.warning,
             )
-            return HttpResponseForbidden(resp.render())
 
         try:
             teacher = Teacher.objects.get(user=req.user)
         except Teacher.DoesNotExist:
-            logger.warning(
-                "Access to {} with a non teacher user.".format(req.path)
-            )
-            resp = TemplateResponse(
+            return response_403(
                 req,
-                "403.html",
-                context={
-                    "message": _("You don't have access to this resource.")
-                },
+                msg=_("You don't have access to this resource."),
+                logger_msg=(
+                    "Access to {} with a non teacher user.".format(req.path)
+                ),
+                log=logger.warning,
             )
-            return HttpResponseForbidden(resp.render())
 
         if assignment_hash is not None:
             assignment = StudentGroupAssignment.get(assignment_hash)
             if assignment is None:
-                logger.warning(
-                    "Access to {} with a invalid assignment hash.".format(
-                        req.path
-                    )
-                )
-                resp = TemplateResponse(
+                return response_400(
                     req,
-                    "400.html",
-                    context={
-                        "message": _(
-                            'There is no assignment with hash "{}".'.format(
-                                assignment_hash
-                            )
+                    msg=_(
+                        'There is no assignment with hash "{}".'.format(
+                            assignment_hash
                         )
-                    },
+                    ),
+                    logger_msg=(
+                        "Access to {} with a invalid assignment hash.".format(
+                            req.path
+                        )
+                    ),
+                    log=logger.warning,
                 )
-                return HttpResponseBadRequest(resp.render())
             group = assignment.group
         else:
             group = StudentGroup.get(group_hash)
             if group is None:
-                logger.warning(
-                    "Access to {} with a invalid group hash.".format(req.path)
-                )
-                resp = TemplateResponse(
+                return response_400(
                     req,
-                    "400.html",
-                    context={
-                        "message": _(
-                            'There is no group with hash "{}".'.format(
-                                group_hash
-                            )
+                    msg=_(
+                        'There is no group with hash "{}".'.format(group_hash)
+                    ),
+                    logger_msg=(
+                        "Access to {} with a invalid group hash.".format(
+                            req.path
                         )
-                    },
+                    ),
+                    log=logger.warning,
                 )
-                return HttpResponseBadRequest(resp.render())
 
         if teacher not in group.teacher.all():
-            logger.warning(
-                "Invalid access to group {} from teacher {}.".format(
-                    group.pk, teacher.pk
-                )
-            )
-            resp = TemplateResponse(
+            return response_403(
                 req,
-                "403.html",
-                context={
-                    "message": _(
-                        "You don't have access to this resource. You must be "
-                        "registered as a teacher for the group {}.".format(
-                            group.name
-                        )
+                msg=_(
+                    "You don't have access to this resource. You must be "
+                    "registered as a teacher for the group {}.".format(
+                        group.name
                     )
-                },
+                ),
+                logger_msg=(
+                    "Invalid access to group {} from teacher {}.".format(
+                        group.pk, teacher.pk
+                    )
+                ),
+                log=logger.warning,
             )
-            return HttpResponseForbidden(resp.render())
 
         if return_assignment:
             return fct(
@@ -130,17 +114,14 @@ def group_access_required(fct):
 def teacher_required(fct):
     def wrapper(req, *args, **kwargs):
         if not Teacher.objects.filter(user=req.user).exists():
-            logger.warning(
-                "Access to {} from a non teacher user.".format(req.path)
-            )
-            resp = TemplateResponse(
+            return response_403(
                 req,
-                "403.html",
-                context={
-                    "message": _("You don't have access to this resource.")
-                },
+                msg=_("You don't have access to this resource."),
+                logger_msg=(
+                    "Access to {} from a non teacher user.".format(req.path)
+                ),
+                log=logger.warning,
             )
-            return HttpResponseForbidden(resp.render())
         return fct(req, *args, **kwargs)
 
     return wrapper
@@ -151,17 +132,14 @@ def student_required(fct):
         try:
             student = Student.objects.get(student=req.user)
         except (Student.DoesNotExist, TypeError):
-            logger.warning(
-                "Access to {} with a non student user.".format(req.path)
-            )
-            resp = TemplateResponse(
+            return response_403(
                 req,
-                "403.html",
-                context={
-                    "message": _("You don't have access to this resource.")
-                },
+                msg=_("You don't have access to this resource."),
+                logger_msg=(
+                    "Access to {} with a non student user.".format(req.path)
+                ),
+                log=logger.warning,
             )
-            return HttpResponseForbidden(resp.render())
 
         return fct(req, *args, student=student, **kwargs)
 

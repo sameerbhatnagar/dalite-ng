@@ -4,12 +4,7 @@ from __future__ import unicode_literals
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
-from django.http import (
-    HttpResponse,
-    HttpResponseBadRequest,
-    HttpResponseNotFound,
-    HttpResponseRedirect,
-)
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.template.response import TemplateResponse
 from django.utils.translation import ugettext_lazy as _
@@ -17,6 +12,7 @@ from django.views.decorators.http import require_http_methods, require_safe
 from django.views.generic import ListView
 from django.views.generic.edit import CreateView
 
+from dalite.views.errors import response_400, response_404
 from tos.models import Tos
 
 from ..forms import EmailForm, StudentGroupAssignmentForm
@@ -41,45 +37,32 @@ def signup_through_link(request, group_hash):
     group = StudentGroup.get(group_hash)
 
     if group is None:
-        resp = TemplateResponse(
+        return response_404(
             request,
-            "404.html",
-            context={
-                "message": _(
-                    "The group couldn't be found. Bear in mind that the URL "
-                    "is case-sensitive."
-                )
-            },
+            msg=_(
+                "The group couldn't be found. Bear in mind that the URL "
+                "is case-sensitive."
+            ),
         )
-        return HttpResponseNotFound(resp.render())
 
     if request.method == "POST":
 
         form = EmailForm(request.POST)
         if not form.is_valid():
-            resp = TemplateResponse(
-                request,
-                "400.html",
-                context={
-                    "message": _("There was a problem with the values sent.")
-                },
+            return response_400(
+                request, msg=_("There was a problem with the values sent.")
             )
-            return HttpResponseBadRequest(resp.render())
 
         student, created = Student.get_or_create(form.cleaned_data["email"])
 
         if student is None:
-            resp = TemplateResponse(
+            return response_400(
                 request,
-                "400.html",
-                context={
-                    "message": _(
-                        "There already exists a user with this "
-                        "username. Try a different email address."
-                    )
-                },
+                msg=_(
+                    "There already exists a user with this username. Try a "
+                    "different email address."
+                ),
             )
-            return HttpResponseBadRequest(resp.render())
 
         if created:
             student.join_group(group, mail_type="confirmation")
@@ -160,17 +143,13 @@ def navigate_assignment(request, assignment_id, question_id, direction, index):
     if hash is None:
 
         if not Teacher.objects.filter(user=request.user).exists():
-            resp = TemplateResponse(
+            return response_400(
                 request,
-                "400.html",
-                context={
-                    "message": _(
-                        "Try logging in again using the link to this "
-                        "assignment sent via email."
-                    )
-                },
+                msg=_(
+                    "Try logging in again using the link to this "
+                    "assignment sent via email."
+                ),
             )
-            return HttpResponseBadRequest(resp.render())
 
         assignment = get_object_or_404(Assignment, pk=assignment_id)
         questions = list(assignment.questions.all())
