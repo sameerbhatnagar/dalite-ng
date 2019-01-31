@@ -1,6 +1,11 @@
 import os
 import time
 
+from django.conf import settings
+from django.contrib.auth.hashers import make_password
+from django.contrib.auth.models import Group, Permission
+from django.contrib.staticfiles.testing import StaticLiveServerTestCase
+from django.core.urlresolvers import reverse
 from selenium import webdriver
 from selenium.common.exceptions import TimeoutException, WebDriverException
 from selenium.webdriver.common.by import By
@@ -11,11 +16,6 @@ from selenium.webdriver.support.expected_conditions import (
 )
 from selenium.webdriver.support.ui import WebDriverWait
 
-from django.conf import settings
-from django.contrib.auth.hashers import make_password
-from django.contrib.auth.models import Group, Permission
-from django.contrib.staticfiles.testing import StaticLiveServerTestCase
-from django.core.urlresolvers import reverse
 from peerinst.models import Assignment, Question, User
 from tos.models import Role, Tos
 
@@ -85,7 +85,7 @@ class NewUserTests(StaticLiveServerTestCase):
         new_TOS.save()
 
     def tearDown(self):
-        self.browser.quit()
+        self.browser.close()
 
     def test_new_user(self):
         # Hit landing page
