@@ -7,6 +7,7 @@ jobs:
           DALITE_DB_PASSWORD: test key
           DALITE_DB_HOST: 127.0.0.1
           DALITE_DB_PORT: 3306
+          DJANGO_LIVE_TEST_SERVER_ADDRESS: "localhost:8080-8090"
       - image: mariadb
         environment:
           MYSQL_ALLOW_EMPTY_PASSWORD: true
