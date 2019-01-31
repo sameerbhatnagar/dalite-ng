@@ -20,7 +20,7 @@ def authenticate_student(email, user_id=None):
 
     username, password = get_student_username_and_password(email)
 
-    if User.objects.filter(username=username).exists():
+    if User.objects.filter(username__exact=username).exists():
         user = authenticate(username=username, password=password)
         if (
             user
@@ -37,7 +37,7 @@ def authenticate_student(email, user_id=None):
             user_id
         )
 
-        if User.objects.filter(username=old_username).exists():
+        if User.objects.filter(username__exact=old_username).exists():
             user = authenticate(username=old_username, password=old_password)
             if (
                 user
