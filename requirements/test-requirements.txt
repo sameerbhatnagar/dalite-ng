@@ -4,9 +4,9 @@ coverage
 ddt
 factory_boy>=2.5.2,<2.6
 mock
-pytest
-pytest-cov
-pytest-django
+pytest==4.1.1
+pytest-cov==2.6.1
+pytest-django==3.4.5
 pytz
 pyyaml
 selenium==3.13.0
