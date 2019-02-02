@@ -9,7 +9,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 
 from functional_tests.fixtures import *  # noqa
 
-timeout = 2
+timeout = 3
 
 
 def login(browser, teacher):
@@ -161,17 +161,12 @@ def create_assignment(browser, teacher):
 
 def create_group(browser):
     try:
-        link = (
-            WebDriverWait(browser, timeout)
-            .until(
-                presence_of_element_located((By.LINK_TEXT, "Manage groups"))
-            )
-            .get_attribute("href")
-        )
+        WebDriverWait(browser, timeout).until(
+            presence_of_element_located((By.XPATH, "//h2[text()='Groups']"))
+        ).click()
     except TimeoutException:
         assert False
-
-    browser.get(link)
+    browser.find_element_by_link_text("Manage groups").click()
 
     try:
         title = WebDriverWait(browser, timeout).until(
