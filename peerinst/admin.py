@@ -189,6 +189,7 @@ publish_answers.short_description = _("Show selected answers to students")
 @admin.register(Answer)
 class AnswerAdmin(admin.ModelAdmin):
     list_display = [
+        "id",
         "question",
         "user_token",
         "first_answer_choice_label",
@@ -204,7 +205,7 @@ class AnswerAdmin(admin.ModelAdmin):
     list_editable = ["show_to_others", "expert"]
     list_filter = ["question"]
     actions = [publish_answers]
-    search_fields = ["question__title", "rationale"]
+    search_fields = ["question__title", "rationale", "user_token", "id"]
 
 
 @admin.register(Teacher)
@@ -239,12 +240,20 @@ class BlinkAssignmentQuestionAdmin(admin.ModelAdmin):
 
 @admin.register(Student)
 class StudentAdmin(admin.ModelAdmin):
-    search_fields = ["student__email"]
+    def student_username(self):
+        return self.student.username
+
+    def student_email(self):
+        return self.student.email
+
+    list_display = [student_username, student_email]
+    search_fields = ["student__email", "student__username"]
 
 
 @admin.register(StudentGroup)
 class StudentGroupAdmin(admin.ModelAdmin):
-    pass
+    list_display = ["id", "name"]
+    search_fields = ["name"]
 
 
 @admin.register(StudentNotification)

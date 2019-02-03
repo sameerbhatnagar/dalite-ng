@@ -346,9 +346,11 @@ def question_search_function(search_string):
 
 
 def get_student_objects_from_group_list(student_groups):
-    student_obj_qs = Student.objects.filter(
-        groups__pk__in=student_groups
-    ).exclude(student__username__in=["student", ""])
+    student_obj_qs = (
+        Student.objects.filter(groups__pk__in=student_groups)
+        .exclude(student__username__in=["student", ""])
+        .distinct()
+    )
     return student_obj_qs
 
 

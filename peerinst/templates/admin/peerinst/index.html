@@ -42,6 +42,11 @@
             {% trans 'Question categories' %}
         </a></p>
       </div>
+      <div class="grp-row">
+        <p><a href="{% url 'admin:peerinst_answer_changelist' %}">
+            {% trans 'Answers' %}
+        </a></p>
+      </div>
       {% if "auth.add_user" in perms %}
       <div class="grp-row">
         <p><a href="{% url 'admin:app_list' app_label='auth' %}">
