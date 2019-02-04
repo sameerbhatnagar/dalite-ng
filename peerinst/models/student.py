@@ -73,7 +73,6 @@ class Student(models.Model):
         except Student.DoesNotExist:
 
             try:
-                email = email.lower()
                 user = User.objects.create_user(
                     username=username, email=email, password=password
                 )
