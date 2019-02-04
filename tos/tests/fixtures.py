@@ -48,7 +48,7 @@ def toss_single_role(role):
 
 @pytest.fixture
 def toss_multiple_roles(roles):
-    return add_tos(new_tos(4, roles))
+    return add_tos(new_tos(4, roles, all_roles_present=True))
 
 
 @pytest.fixture
