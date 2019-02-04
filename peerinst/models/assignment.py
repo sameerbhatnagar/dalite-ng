@@ -78,7 +78,6 @@ class StudentGroupAssignment(models.Model):
 
     @staticmethod
     def get(hash_):
-        assert isinstance(hash_, basestring), "Precondition failed for `hash_`"
         try:
             id_ = int(base64.urlsafe_b64decode(hash_.encode()).decode())
         except UnicodeDecodeError:
@@ -91,18 +90,12 @@ class StudentGroupAssignment(models.Model):
         else:
             assignment = None
 
-        output = assignment
-        assert output is None or isinstance(
-            output, StudentGroupAssignment
-        ), "Postcondition failed"
-        return output
+        return assignment
 
     def __unicode__(self):
         return "{} for {}".format(self.assignment, self.group)
 
     def _verify_order(self, order):
-        assert isinstance(order, basestring), "Precondition failed for `order`"
-
         n = len(self.assignment.questions.all())
 
         err = None
@@ -124,11 +117,7 @@ class StudentGroupAssignment(models.Model):
         if err is None and len(set(order_)) != len(order_):
             err = "There are duplicate values in `order`."
 
-        output = err
-        assert (output is None) or isinstance(
-            output, basestring
-        ), "Postcondition failed"
-        return output
+        return err
 
     def _modify_due_date(self, due_date):
         """
@@ -164,9 +153,6 @@ class StudentGroupAssignment(models.Model):
                     self.due_date, prev_due_date
                 )
             )
-        assert (err is None) or isinstance(
-            err, basestring
-        ), "Postcondition failed"
         return err
 
     def _modify_order(self, order):
@@ -197,24 +183,9 @@ class StudentGroupAssignment(models.Model):
         else:
             logger.error(err)
 
-        assert (err is None) or isinstance(
-            err, basestring
-        ), "Postcondition failed"
         return err
 
     def get_question(self, idx=None, current_question=None, after=True):
-        # Assertions to be revised based on updated template logic
-        # assert idx is None or isinstance(
-        #     idx, int
-        # ), "Precondition failed for `idx`"
-        # assert current_question is None or isinstance(
-        #     current_question, Question
-        # ), "Precondition failed for `current_question`"
-        # assert isinstance(after, bool), "Precondition failed for `after`"
-        # assert (idx is None) != (
-        #     current_question is None
-        # ), "Either the `idx` or the `current_question` must be given"
-
         question = None
 
         if idx is None:
@@ -246,11 +217,7 @@ class StudentGroupAssignment(models.Model):
             else:
                 question = None
 
-        output = question
-        assert (output is None) or isinstance(
-            output, Question
-        ), "Postcondition failed"
-        return output
+        return question
 
     def distribute(self):
         self.distribution_date = datetime.now(pytz.utc)
@@ -295,7 +262,6 @@ class StudentGroupAssignment(models.Model):
             Error message if there is any
         """
         name = str(name)
-        assert isinstance(name, str), "Precondtion failed for `name`"
         err = None
         if name == "due_date":
             self._modify_due_date(value)
@@ -396,9 +362,7 @@ class StudentGroupAssignment(models.Model):
 
     @property
     def hash(self):
-        output = base64.urlsafe_b64encode(str(self.id).encode()).decode()
-        assert isinstance(output, basestring), "Postcondition failed"
-        return output
+        return base64.urlsafe_b64encode(str(self.id).encode()).decode()
 
     @property
     def expired(self):

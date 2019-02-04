@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+
 import base64
+
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
@@ -25,7 +27,6 @@ class StudentGroup(models.Model):
 
     @staticmethod
     def get(hash_):
-        assert isinstance(hash_, basestring), "Precondition failed for `hash_`"
         try:
             id_ = int(base64.urlsafe_b64decode(hash_.encode()).decode())
         except UnicodeDecodeError:
@@ -38,17 +39,11 @@ class StudentGroup(models.Model):
         else:
             group = None
 
-        output = group
-        assert output is None or isinstance(
-            output, StudentGroup
-        ), "Postcondition failed"
-        return output
+        return group
 
     @property
     def hash(self):
-        output = base64.urlsafe_b64encode(str(self.id).encode()).decode()
-        assert isinstance(output, basestring), "Postcondition failed"
-        return output
+        return base64.urlsafe_b64encode(str(self.id).encode()).decode()
 
     @property
     def students(self):

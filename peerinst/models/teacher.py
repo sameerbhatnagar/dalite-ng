@@ -67,7 +67,6 @@ class Teacher(models.Model):
 
     @staticmethod
     def get(hash_):
-        assert isinstance(hash_, basestring), "Precondition failed for `hash_`"
         try:
             username = str(base64.urlsafe_b64decode(hash_.encode()).decode())
         except UnicodeDecodeError:
@@ -80,19 +79,13 @@ class Teacher(models.Model):
         else:
             teacher = None
 
-        output = teacher
-        assert output is None or isinstance(
-            output, Teacher
-        ), "Postcondition failed"
-        return output
+        return teacher
 
     @property
     def hash(self):
-        output = base64.urlsafe_b64encode(
+        return base64.urlsafe_b64encode(
             str(self.user.username).encode()
         ).decode()
-        assert isinstance(output, basestring), "Postcondition failed"
-        return output
 
     def __unicode__(self):
         return self.user.username

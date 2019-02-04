@@ -280,7 +280,9 @@ class Question(models.Model):
             return iter(string.ascii_uppercase)
         elif self.answer_style == Question.NUMERIC:
             return itertools.imap(str, itertools.count(1))
-        assert False, "The field Question.answer_style has an invalid value."
+        raise ValueError(
+            "The field Question.answer_style has an invalid value."
+        )
 
     def get_choice_label(self, index):
         """
@@ -294,7 +296,9 @@ class Question(models.Model):
             return string.ascii_uppercase[index - 1]
         elif self.answer_style == Question.NUMERIC:
             return str(index)
-        assert False, "The field Question.answer_style has an invalid value."
+        raise ValueError(
+            "The field Question.answer_style has an invalid value."
+        )
 
     def get_choices(self):
         """Return a list of pairs (answer label, answer choice text)."""

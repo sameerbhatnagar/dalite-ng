@@ -7,7 +7,6 @@ from datetime import datetime
 from operator import itemgetter
 
 import pytz
-
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
@@ -20,7 +19,6 @@ from ..students import create_student_token, get_student_username_and_password
 from .answer import Answer
 from .assignment import StudentGroupAssignment
 from .group import StudentGroup
-from .question import Question
 
 logger = logging.getLogger("peerinst-models")
 
@@ -61,8 +59,6 @@ class Student(models.Model):
         created : bool
             If the student was created or not
         """
-        assert isinstance(email, basestring), "Precondition failed for `email`"
-
         student = None
 
         email = email.lower()
@@ -114,16 +110,6 @@ class Student(models.Model):
         err : Optional[str]
             Error message if there is any
         """
-        assert isinstance(
-            mail_type, basestring
-        ), "Precondition failed for `mail_type`"
-        assert (
-            isinstance(group, StudentGroup) or group is None
-        ), "Precondition failed for `group`"
-        assert (
-            "group" not in mail_type or group is not None
-        ), "Precondition failed for `group`"
-
         err = None
 
         if not self.student.email.endswith("localhost"):
@@ -199,10 +185,6 @@ class Student(models.Model):
                     except smtplib.SMTPException:
                         err = "There was an error sending the email."
                         logger.error(err)
-
-        assert err is None or isinstance(
-            err, basestring
-        ), "Postcondition failed"
         return err
 
     def join_group(self, group, mail_type=None):
@@ -372,10 +354,6 @@ class StudentAssignment(models.Model):
         err : Optional[str]
             Error message if there is any
         """
-        assert isinstance(
-            mail_type, basestring
-        ), "Precondition failed for `mail_type`"
-
         err = None
 
         if not self.student.student.email.endswith("localhost"):
@@ -510,9 +488,6 @@ class StudentAssignment(models.Model):
                         err = "There was an error sending the email."
                         logger.error(err)
 
-        assert err is None or isinstance(
-            err, basestring
-        ), "Postcondition failed"
         return err
 
     def get_current_question(self):
@@ -546,9 +521,6 @@ class StudentAssignment(models.Model):
             else:
                 output = None
 
-        assert output is None or isinstance(
-            output, Question
-        ), "Postcondition failed"
         return output
 
     def send_reminder(self, last_day):
@@ -725,16 +697,6 @@ class StudentNotification(models.Model):
         expiration : Optional[datetime.datetime] (default : None)
             Expiration time
         """
-        assert isinstance(
-            student, Student
-        ), "Precondition failed for `student`"
-        assert (
-            isinstance(assignment, StudentAssignment) or assignment is None
-        ), "Precondition failed for `assignment`"
-        assert isinstance(type_, basestring) and (
-            "assignment" not in type_ or assignment is not None
-        ), "Precondition failed for `type_`"
-
         try:
             notification = StudentNotificationType.objects.get(type=type_)
         except StudentNotificationType.DoesNotExist:
