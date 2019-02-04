@@ -261,7 +261,7 @@ def get_question_rationale_aggregates(
 
 
 class QuestionRationaleView(StaffMemberRequiredMixin, TemplateView):
-    template_name = "admin/peerinst/question_rationales.html"
+    template_name = "admin/peerinst/question/rationales.html"
 
     @staticmethod
     def prepare_summary_data(sums):
