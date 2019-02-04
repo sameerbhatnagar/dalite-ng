@@ -27,9 +27,6 @@ def verify_assignment_due_dates(check_every=1):
         Days or fraction of days after which to recheck the assignment due
         dates
     """
-    assert isinstance(
-        check_every, (int, float)
-    ), "Precondition failed for `check_every`"
     #  for assignment in StudentGroupAssignment.objects.all():
     #  assignment.check_reminder_status()
     #

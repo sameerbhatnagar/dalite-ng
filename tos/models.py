@@ -3,9 +3,7 @@ from __future__ import unicode_literals
 import hashlib
 
 from django.contrib.auth.models import User
-from django.db import models, transaction
-from django.core.urlresolvers import reverse
-from django.http import HttpResponseRedirect
+from django.db import models
 
 
 class Role(models.Model):
@@ -46,15 +44,6 @@ class Tos(models.Model):
 
     @staticmethod
     def get(role, version=None):
-        assert (
-            isinstance(role, basestring)
-            and Role.objects.filter(role=role).exists()
-        ), "Precondition failed for `role`"
-
-        assert version is None or (
-            isinstance(version, int) and version >= 0
-        ), "Precondition failed for `version`"
-
         tos = None
         err = None
 
@@ -74,13 +63,7 @@ class Tos(models.Model):
                     '{} for role "{}"'.format(version, role)
                 )
 
-        output = (tos, err)
-        assert (
-            isinstance(output, tuple)
-            and len(output) == 2
-            and (output[0] is None) != (output[1] is None)
-        ), "Postcondition failed"
-        return output
+        return tos, err
 
 
 class Consent(models.Model):
@@ -91,22 +74,6 @@ class Consent(models.Model):
 
     @staticmethod
     def get(username, role, version=None, latest=False):
-        assert isinstance(
-            username, basestring
-        ), "Precondition failed for `username`"
-        assert (
-            isinstance(role, basestring)
-            and Role.objects.filter(role=role).exists()
-        ), "Precondition failed for `role`"
-
-        assert version is None or (
-            isinstance(version, int) and version >= 0
-        ), "Precondition failed for `version`"
-        assert isinstance(latest, bool), "Precondition failed for `version`"
-        assert (
-            version is None or not latest
-        ), "If `version` is given, `latest` must be False"
-
         consent = None
 
         try:
@@ -145,11 +112,7 @@ class Consent(models.Model):
             except IndexError:
                 consent = None
 
-        output = consent
-        assert output is None or isinstance(
-            output, bool
-        ), "Postcondition failed"
-        return output
+        return consent
 
     def __unicode__(self):
         return (
@@ -203,17 +166,6 @@ class EmailConsent(models.Model):
 
     @staticmethod
     def get(username, role, email_type, default=None, ignore_all=False):
-        assert isinstance(
-            username, basestring
-        ), "Precondition failed for `username`"
-        assert isinstance(role, basestring), "Precondition failed for `role`"
-        assert isinstance(
-            email_type, basestring
-        ), "Precondition failed for `email_type`"
-        assert EmailType.objects.filter(
-            role=role, type=email_type
-        ).exists(), "Precondition failed: there is no matching email_type for the given type and role"
-
         consent = None
 
         try:
@@ -245,21 +197,14 @@ class EmailConsent(models.Model):
             except IndexError:
                 pass
 
-        output = consent
-        assert output is None or isinstance(
-            output, bool
-        ), "Postcondition failed"
-        return output
+        return consent
 
     def __unicode__(self):
         return "{} for {}".format(self.email_type, self.user)
 
 
 def _compute_hash(text):
-    assert isinstance(text, basestring)
-    output = hashlib.md5(text.encode()).hexdigest()
-    assert isinstance(output, basestring) and len(output) == 32
-    return output
+    return hashlib.md5(text.encode()).hexdigest()
 
 
 def _create_email_type_all(role):
