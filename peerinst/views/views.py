@@ -1984,7 +1984,8 @@ def student_activity(request):
     # Standalone
     standalone_assignments = StudentGroupAssignment.objects.filter(
         group__in=current_groups
-    )  # .filter(due_date__gt=datetime.datetime.now(pytz.utc))
+    ).filter(distribution_date__isnull=False)
+      # .filter(due_date__gt=datetime.datetime.now(pytz.utc))
 
     standalone_answers = Answer.objects.filter(
         assignment__in=standalone_assignments.values("assignment")
