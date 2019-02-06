@@ -196,10 +196,17 @@ LOGGING = {
             "class": "logging.FileHandler",
             "filename": os.path.join(BASE_DIR, "log/teacher_activity.log"),
         },
-        "file_tos_log": {
+        "tos_file_log": {
             "level": "INFO",
             "class": "logging.FileHandler",
+            "formatter": "complete",
             "filename": os.path.join(BASE_DIR, "log/tos.log"),
+        },
+        "tos_console_log": {
+            "level": "DEBUG" if DEBUG else "INFO",
+            "class": "logging.StreamHandler",
+            "formatter": "complete",
+            "stream": "ext://sys.stdout",
         },
         "peerinst_file_log": {
             "level": "DEBUG" if DEBUG else "INFO",
@@ -236,8 +243,13 @@ LOGGING = {
             "level": "INFO",
             "propagate": True,
         },
-        "tos.views": {
-            "handlers": ["file_tos_log"],
+        "tos-views": {
+            "handlers": ["tos_file_log", "tos_console_log"],
+            "level": "INFO",
+            "propagate": True,
+        },
+        "tos-models": {
+            "handlers": ["tos_file_log", "tos_console_log"],
             "level": "INFO",
             "propagate": True,
         },
