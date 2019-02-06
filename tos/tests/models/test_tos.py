@@ -93,7 +93,7 @@ def test_get_tos__no_version(role):
         tos_, err = Tos.get(**test)
         assert tos_ is None
         assert err == (
-            'No terms of service exist yet for role "{}".'.format(test["role"])
+            "No terms of service exist yet for role {}.".format(test["role"])
         )
 
 
@@ -105,5 +105,5 @@ def test_get_tos_version_doesnt_exist(tos):
         assert tos_ is None
         assert err == (
             "There is no terms of service with version "
-            '{} for role "{}"'.format(test["version"], test["role"])
+            "{} for role {}".format(test["version"], test["role"])
         )

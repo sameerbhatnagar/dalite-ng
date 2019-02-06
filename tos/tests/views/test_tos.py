@@ -3,22 +3,15 @@ from __future__ import unicode_literals
 import json
 import random
 
-from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.client import Client
 
-from tos.models import Tos, Role
-
 from ..generators import (
-    add_email_consents,
-    add_email_types,
     add_roles,
     add_tos,
     add_tos_consents,
     add_users,
-    new_email_consents,
-    new_email_types,
     new_roles,
     new_tos,
     new_tos_consents,
@@ -95,7 +88,7 @@ class TestTosConsentView(TestCase):
             self.assertEqual(resp.status_code, 400)
             self.assertIn(
                 "There is no terms of service with version "
-                '{} for role "{}"'.format(test["version"], test["role"]),
+                "{} for role {}".format(test["version"], test["role"]),
                 resp.content,
             )
 
@@ -164,7 +157,7 @@ class TestTosConsentModifyView(TestCase):
             self.assertEqual(resp.status_code, 400)
             self.assertIn(
                 "There is no terms of service with version "
-                '{} for role "{}"'.format(test["version"], test["role"]),
+                "{} for role {}".format(test["version"], test["role"]),
                 resp.content,
             )
 
@@ -279,7 +272,7 @@ class TestTosConsentUpdateView(TestCase):
             self.assertEqual(resp.status_code, 400)
             self.assertIn(
                 "There is no terms of service with version "
-                '{} for role "{}"'.format(test[0]["version"], test[0]["role"]),
+                "{} for role {}".format(test[0]["version"], test[0]["role"]),
                 resp.content,
             )
 

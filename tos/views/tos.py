@@ -6,8 +6,6 @@ from django.http import (
     HttpResponse,
     HttpResponseBadRequest,
     HttpResponseForbidden,
-    HttpResponseNotAllowed,
-    HttpResponseNotFound,
     HttpResponseRedirect,
     HttpResponseServerError,
     JsonResponse,
@@ -17,7 +15,7 @@ from django.template.response import TemplateResponse
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_http_methods
 
-from ..models import Consent, Tos, Role
+from ..models import Consent, Role, Tos
 
 
 @login_required
@@ -92,7 +90,7 @@ def tos_consent_update(req, role, version):
             context={
                 "message": _(
                     "There is no terms of service with version "
-                    '{} for role "{}"'.format(version, role)
+                    "{} for role {}".format(version, role)
                 )
             },
         )

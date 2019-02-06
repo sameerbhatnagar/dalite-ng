@@ -1,9 +1,12 @@
 from __future__ import unicode_literals
 
 import hashlib
+import logging
 
 from django.contrib.auth.models import User
 from django.db import models
+
+logger = logging.getLogger("tos-models")
 
 
 class Role(models.Model):
@@ -51,16 +54,14 @@ class Tos(models.Model):
             try:
                 tos = Tos.objects.get(role__role=role, current=True)
             except Tos.DoesNotExist:
-                err = 'No terms of service exist yet for role "{}".'.format(
-                    role
-                )
+                err = "No terms of service exist yet for role {}.".format(role)
         else:
             try:
                 tos = Tos.objects.get(role__role=role, version=version)
             except Tos.DoesNotExist:
                 err = (
                     "There is no terms of service with version "
-                    '{} for role "{}"'.format(version, role)
+                    "{} for role {}".format(version, role)
                 )
 
         return tos, err
@@ -79,9 +80,9 @@ class Consent(models.Model):
         try:
             role_ = Role.objects.get(role=role)
         except Role.DoesNotExist:
-            raise RuntimeError(
-                "This should have been catched in the precondition"
-            )
+            msg = "The role {} doesn't exist yet.".format(role)
+            logger.error(msg)
+            raise ValueError(msg)
 
         if version is None:
             try:
