@@ -85,8 +85,11 @@ gulp.task("peerinst-styles", function(callback) {
 });
 
 gulp.task("peerinst-styles-group", function() {
-  return gulp
-    .src("./peerinst/static/peerinst/css/group/*.scss")
+  const app = "peerinst";
+  const module = "group";
+
+  const build = gulp
+    .src("./" + app + "/static/" + app + "/css/" + module + "/*.scss")
     .pipe(sourcemaps.init())
     .pipe(
       sass({
@@ -107,24 +110,20 @@ gulp.task("peerinst-styles-group", function() {
         }),
       ]),
     )
-    .pipe(
-      rename(function(path) {
-        path.dirname += "/group";
-        path.extname = ".min.css";
-      }),
-    )
+    .pipe(concat(module + ".min.css"))
     .pipe(sourcemaps.write("."))
-    .pipe(gulp.dest("peerinst/static/peerinst/css"));
+    .pipe(gulp.dest(app + "/static/" + app + "/css"));
+
+  return build;
 });
 
 gulp.task("peerinst-styles-student", async function() {
   const app = "peerinst";
-  const src = "student/*.scss";
-  const filename = "student.min.css";
-  // const templatePath = "student/base.html";
+  const module = "student";
+  // const templates = ["student/base.html"];
 
   const build = gulp
-    .src("./" + app + "/static/" + app + "/css/" + src)
+    .src("./" + app + "/static/" + app + "/css/" + module + "/*.scss")
     .pipe(sourcemaps.init())
     .pipe(
       sass({
@@ -145,12 +144,12 @@ gulp.task("peerinst-styles-student", async function() {
         }),
       ]),
     )
-    .pipe(concat(filename))
+    .pipe(concat(module + ".min.css"))
     .pipe(sourcemaps.write("."))
     .pipe(gulp.dest(app + "/static/" + app + "/css"));
 
   // const hash_ = await hash(
-  // "./" + app + "/templates/" + app + "/" + templatePath,
+  // "./" + app + "/static/" + app + "/css" + module + ".min.css",
   // );
   //
   // const updateHash = gulp

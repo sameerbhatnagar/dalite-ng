@@ -1,14 +1,6 @@
-{% extends 'peerinst/base.html' %}
+{% extends 'peerinst/group/base.html' %}
 
-{% load static compress i18n %}
-
-{% block stylesheets %}
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-{% compress css %}
-<link href="{% static 'peerinst/css/group/details.min.css' %}" rel="stylesheet">
-{% endcompress %}
-{% endblock %}
+{% load i18n %}
 
 {% block body %}
 <main>
@@ -240,10 +232,4 @@
 
   </section>
 </main>
-{% endblock %}
-
-{% block scripts %}
-{% compress js %}
-<script src="{% static 'peerinst/js/group.min.js' %}"></script>
-{% endcompress %}
 {% endblock %}
