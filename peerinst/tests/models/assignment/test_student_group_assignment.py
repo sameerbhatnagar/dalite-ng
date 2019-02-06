@@ -2,7 +2,6 @@ import random
 from datetime import datetime, timedelta
 from operator import itemgetter
 
-import pytest
 import pytz
 from django.core import mail
 
@@ -92,10 +91,6 @@ def test__modify_order(student_group_assignment):
 
 
 def test__modify_order__wrong_type(student_group_assignment):
-    new_order = [1, 2, 3]
-    with pytest.raises(AssertionError):
-        student_group_assignment._modify_order(new_order)
-
     new_order = "abc"
     err = student_group_assignment._modify_order(new_order)
     assert err == "Given `order` isn't a comma separated list of integers."

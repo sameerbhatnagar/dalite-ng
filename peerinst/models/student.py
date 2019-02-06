@@ -109,6 +109,11 @@ class Student(models.Model):
         err : Optional[str]
             Error message if there is any
         """
+        if group is None and "group" in mail_type:
+            msg = "A group is needed for the `mail_type` {}.".format(mail_type)
+            logger.error(msg)
+            raise ValueError(msg)
+
         err = None
 
         if not self.student.email.endswith("localhost"):
@@ -695,6 +700,13 @@ class StudentNotification(models.Model):
             Assignment corresponding to the notification if needed
         expiration : Optional[datetime.datetime] (default : None)
             Expiration time
+
+        Raises
+        ------
+        ValueError
+            If the assignment is needed by the current `type_` and isn't given
+        NotImplementedError
+            If the branch for the given `type_` isn't implemented
         """
         try:
             notification = StudentNotificationType.objects.get(type=type_)
@@ -706,6 +718,12 @@ class StudentNotification(models.Model):
             )
 
         else:
+
+            if assignment is None and "assignment" in type_:
+                msg = "An assignment is needed for type {}.".format(type_)
+                logger.error(msg)
+                raise ValueError(msg)
+
             if assignment is not None:
                 link = reverse(
                     "live",
@@ -750,11 +768,12 @@ class StudentNotification(models.Model):
                 )
 
             else:
-                logger.error(
+                msg = (
                     "There's a missing branch for notification "
                     "type {}.".format(type_)
                 )
-                return
+                logger.error(msg)
+                raise NotImplementedError(msg)
 
             if not StudentNotification.objects.filter(
                 student=student,

@@ -107,7 +107,7 @@ def test_send_email__new_group_with_localhost(student, group):
 
 
 def test_send_email__new_group_missing_group(student, group):
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError):
         student.send_email(mail_type="new_group")
 
 
