@@ -3,7 +3,7 @@ import hashlib
 import logging
 
 from django.contrib.auth import get_permission_codename, login
-from django.contrib.auth.models import Permission
+from django.contrib.auth.models import Permission, User
 from django.core.urlresolvers import reverse
 from django_lti_tool_provider.application_hook_manager import (
     AbstractApplicationHookManager,
@@ -118,7 +118,7 @@ class ApplicationHookManager(AbstractApplicationHookManager):
 
         user = authenticate_student(email, user_id)
 
-        if user:
+        if isinstance(user, User):
             login(request, user)
 
         # LTI sessions are created implicitly, and are not terminated when

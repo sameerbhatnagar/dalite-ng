@@ -54,43 +54,50 @@ def authenticate_student(req, token):
             status=400,
         )
 
-    username_, password = get_student_username_and_password(email)
-
     try:
         user = User.objects.get(username=username)
         if not user.is_active:
             user.is_active = True
             user.save()
     except User.DoesNotExist:
-        user = None
+        return TemplateResponse(
+            req,
+            "400.html",
+            context={
+                "message": _(
+                    "There is no user corresponding to the given link. "
+                    "You may try asking for another one."
+                )
+            },
+            status=400,
+        )
 
-    if user is not None:
+    username_, password = get_student_username_and_password(email)
 
-        if username == username_:
-            if user is not None:
-                user = authenticate(req, username=username, password=password)
-        else:
-            passwords = get_lti_passwords(username)
-            users_ = [
-                authenticate(username=username, password=p) for p in passwords
-            ]
-            try:
-                user = [u for u in users_ if u is not None][0]
-            except IndexError:
-                user = None
+    if username == username_:
+        user = authenticate(req, username=username, password=password)
+    else:
+        passwords = get_lti_passwords(username)
+        users_ = [
+            authenticate(username=username, password=p) for p in passwords
+        ]
+        try:
+            user = [u for u in users_ if u is not None][0]
+        except IndexError:
+            user = None
 
-        if user is None:
-            return TemplateResponse(
-                req,
-                "400.html",
-                context={
-                    "message": _(
-                        "There is no user corresponding to the given link. "
-                        "You may try asking for another one."
-                    )
-                },
-                status=400,
-            )
+    if user is None:
+        return TemplateResponse(
+            req,
+            "400.html",
+            context={
+                "message": _(
+                    "There is no user corresponding to the given link. "
+                    "You may try asking for another one."
+                )
+            },
+            status=400,
+        )
 
     return user
 
