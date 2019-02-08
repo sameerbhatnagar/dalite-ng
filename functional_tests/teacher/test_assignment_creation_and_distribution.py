@@ -9,7 +9,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 
 from functional_tests.fixtures import *  # noqa
 
-timeout = 3
+timeout = 4
 
 
 def login(browser, teacher):
