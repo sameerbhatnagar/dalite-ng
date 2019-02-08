@@ -5,7 +5,6 @@ import json
 import logging
 import re
 
-from dalite.views.errors import response_400, response_403
 from django.conf import settings
 from django.contrib.auth import login, logout
 from django.contrib.auth.models import User
@@ -15,6 +14,8 @@ from django.shortcuts import render
 from django.utils.translation import ugettext
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_http_methods
+
+from dalite.views.errors import response_400, response_403
 from tos.models import Consent
 
 from ..models import (
@@ -623,7 +624,7 @@ def login_page(req):
 @require_http_methods(["POST"])
 def send_signin_link(req):
     try:
-        email = req.POST["email"]
+        email = req.POST["email"].lower()
     except KeyError as e:
         return response_400(
             req,
