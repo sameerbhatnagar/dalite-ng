@@ -5,14 +5,14 @@
 {% block body %}
 <!-- Show the summary table-->
 <div class="question-answers-summary">
-{% include 'peerinst/_answers_summary.html' %}
+{% include 'peerinst/question/_answers_summary.html' %}
 </div>
 
 <!-- Show the HTML itself in a non-editable textarea, so course teams can copy-paste and share it.-->
 <div class="share-question-answers-summary">
 <label>Click below to select the HTML table, and copy to share the results.</br>
 <textarea readonly="readonly">
-{% include 'peerinst/_answers_summary.html' %}
+{% include 'peerinst/question/_answers_summary.html' %}
 </textarea></label>
 </div>
 {% endblock %}

@@ -3,11 +3,11 @@ import mock
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import IntegrityError
-from django.test import SimpleTestCase, TestCase
+from django.test import TestCase
 
-from dalite import ApplicationHookManager, LTIRoles
 from dalite.views import admin_index_wrapper
 from peerinst.auth import get_student_username_and_password
+from peerinst.lti import ApplicationHookManager
 from peerinst.models import Student
 from peerinst.students import get_student_username_and_password
 
@@ -15,7 +15,7 @@ from peerinst.students import get_student_username_and_password
 @ddt.ddt
 @mock.patch("peerinst.auth.User.objects")
 @mock.patch("peerinst.auth.Student.objects")
-class TestApplicationHookManager(SimpleTestCase):
+class TestApplicationHookManager(TestCase):
     def setUp(self):
         self.manager = ApplicationHookManager()
 
@@ -68,7 +68,7 @@ class TestApplicationHookManager(SimpleTestCase):
 
         with mock.patch(
             "peerinst.auth.authenticate"
-        ) as authenticate_mock, mock.patch("dalite.login") as login_mock:
+        ) as authenticate_mock, mock.patch("peerinst.lti.login") as login_mock:
             authenticate_mock.return_value = auth_result
             self.manager.authentication_hook(
                 request, user_id, "irrelevant", email
@@ -299,10 +299,12 @@ class TestViews(TestCase):
 
     def test_admin_index_wrapper_not_authenticated(self):
         request = mock.Mock()
-        request.user.is_authenticated.return_value = False
+        request.user.is_authenticated = False
         response = admin_index_wrapper(request)
         self.assertEqual(response.status_code, 200)
         self.assertContains(
             response,
-            "This component cannot be shown either because your browser does not seem to accept third-party cookies or your session has expired",
+            "This component cannot be shown either because your browser does "
+            "not seem to accept third-party cookies or your session has "
+            "expired",
         )

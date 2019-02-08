@@ -41,7 +41,7 @@ INSTALLED_APPS = (
     "analytical",
 )
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE = (
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.locale.LocaleMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -50,7 +50,7 @@ MIDDLEWARE_CLASSES = (
     "django.contrib.auth.middleware.SessionAuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.security.SecurityMiddleware",
-    "dalite.custom_middleware.Handler405Middleware",
+    "dalite.custom_middleware.resp_405_middleware",
     # Minify html
     "htmlmin.middleware.HtmlMinifyMiddleware",
     "htmlmin.middleware.MarkRequestMiddleware",
@@ -94,6 +94,7 @@ DATABASES = {
         "PASSWORD": os.environ.get("DALITE_DB_PASSWORD", ""),
         "HOST": os.environ.get("DALITE_DB_HOST", "127.0.0.1"),
         "PORT": os.environ.get("DALITE_DB_PORT", "3306"),
+        "OPTIONS": {"init_command": "set sql_mode='STRICT_TRANS_TABLES'"},
     }
 }
 

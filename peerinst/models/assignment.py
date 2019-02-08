@@ -371,8 +371,11 @@ class StudentGroupAssignment(models.Model):
     @property
     def questions(self):
         questions_ = self.assignment.questions.all()
-        questions = [questions_[i] for i in map(int, self.order.split(","))]
-        return questions
+        if questions_:
+            questions_ = [
+                questions_[i] for i in map(int, self.order.split(","))
+            ]
+        return questions_
 
     @property
     def days_to_expiry(self):

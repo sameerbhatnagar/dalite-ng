@@ -4,7 +4,7 @@
 - fields: {username: 'other_teacher', password: 'sssdfDSASDdfga89', is_active: True}
   model: auth.user
   pk: 2
-- fields: {username: 'inactive_user', password: 'sssdfDSASDdfga89', is_active: False}
+- fields: {username: 'inactive_user', email: "user@localhost", password: 'sssdfDSASDdfga89', is_active: False}
   model: auth.user
   pk: 3
 - fields: {username: 'student', password: 'asdfvfare4w3', is_active: True}

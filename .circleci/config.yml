@@ -15,6 +15,7 @@ jobs:
           MYSQL_USER: dalite
           MYSQL_PASSWORD: test key
           MYSQL_HOST: localhost
+          MYSQL_ROOT_PASSWORD: mariadb
 
     working_directory: ~/repo
     steps:

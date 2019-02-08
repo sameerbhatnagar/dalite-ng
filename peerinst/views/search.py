@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+from dalite.views.errors import response_400
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import JsonResponse
 from django.views.decorators.http import require_GET
-
-from dalite.views.errors import response_400
 
 from ..mixins import student_check
 from ..models import Category, Teacher

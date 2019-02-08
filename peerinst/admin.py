@@ -1,35 +1,35 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.contrib.admin.models import LogEntry, DELETION
-from django.core import exceptions
-from django.core.urlresolvers import reverse
 from django import forms
 from django.contrib import admin
-from django.contrib.admin.models import LogEntry
+from django.contrib.admin.models import DELETION, LogEntry
+from django.core import exceptions
+from django.core.urlresolvers import reverse
 from django.utils.html import escape
 from django.utils.translation import ugettext_lazy as _
+
 from .models import (
     Answer,
     AnswerChoice,
     Assignment,
-    Question,
+    BlinkAnswer,
+    BlinkAssignment,
+    BlinkAssignmentQuestion,
+    BlinkQuestion,
+    BlinkRound,
     Category,
     Discipline,
     Institution,
-    Teacher,
-    Student,
-    StudentGroup,
-    BlinkQuestion,
-    BlinkAnswer,
-    BlinkRound,
-    BlinkAssignment,
-    BlinkAssignmentQuestion,
     LtiEvent,
-    StudentGroupAssignment,
+    Question,
+    Student,
     StudentAssignment,
+    StudentGroup,
+    StudentGroupAssignment,
     StudentNotification,
     StudentNotificationType,
+    Teacher,
 )
 
 
@@ -300,7 +300,7 @@ class LogEntryAdmin(admin.ModelAdmin):
 
     date_hierarchy = "action_time"
 
-    readonly_fields = LogEntry._meta.get_all_field_names()
+    readonly_fields = [f.name for f in LogEntry._meta.get_fields()]
 
     list_filter = ["user", "content_type", "action_flag"]
 

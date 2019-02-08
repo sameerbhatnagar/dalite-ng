@@ -3,19 +3,23 @@ from __future__ import unicode_literals
 
 import logging
 
-from django import apps
+from django.apps import AppConfig
 from django.db.utils import OperationalError
 from django.utils.translation import ugettext_lazy as _
 
-from .scheduled import start_scheduled_events
 
-
-class PeerInstConfig(apps.AppConfig):
+class PeerinstConfig(AppConfig):
     name = "peerinst"
     verbose_name = _("Dalite Peer Instruction")
 
     def ready(self):
         import peerinst.signals  # noqa
+        from django_lti_tool_provider.views import LTIView  # noqa
+
+        from .lti import ApplicationHookManager  # noqa
+        from .scheduled import start_scheduled_events
+
+        LTIView.register_authentication_manager(ApplicationHookManager())
 
         try:
             start_scheduled_events()

@@ -17,6 +17,7 @@ logger = logging.getLogger("peerinst-auth")
 
 
 def authenticate_student(email, user_id=None):
+    email = email.lower()
 
     username, password = get_student_username_and_password(email)
 

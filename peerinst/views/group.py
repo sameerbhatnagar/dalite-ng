@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 import json
 import logging
 
+from dalite.views.errors import response_400, response_500
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, JsonResponse, StreamingHttpResponse
@@ -11,8 +12,6 @@ from django.shortcuts import render
 from django.utils.translation import ugettext
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_http_methods
-
-from dalite.views.errors import response_400, response_500
 from peerinst.models import (
     Student,
     StudentAssignment,

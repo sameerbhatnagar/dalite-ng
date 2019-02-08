@@ -2,9 +2,8 @@ from __future__ import unicode_literals
 
 import logging
 
-from django.utils.translation import ugettext_lazy as _
-
 from dalite.views.errors import response_400, response_403
+from django.utils.translation import ugettext_lazy as _
 from peerinst.models import (
     Student,
     StudentGroup,

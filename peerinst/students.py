@@ -8,7 +8,7 @@ from datetime import timedelta
 
 from django.conf import settings
 from django.contrib.auth import authenticate
-from django.http import HttpResponse, HttpResponseBadRequest
+from django.contrib.auth.models import User
 from django.template.response import TemplateResponse
 from django.utils.translation import ugettext_lazy as _
 
@@ -39,12 +39,10 @@ def verify_student_token(token):
 
 
 def authenticate_student(req, token):
-    resp = None
-
     username, email, err = verify_student_token(token)
 
     if err is not None:
-        resp = TemplateResponse(
+        return TemplateResponse(
             req,
             "400.html",
             context={
@@ -53,35 +51,46 @@ def authenticate_student(req, token):
                     "login link."
                 )
             },
+            status=400,
         )
-        return HttpResponseBadRequest(resp.render())
 
     username_, password = get_student_username_and_password(email)
 
-    if username == username_:
-        user = authenticate(username=username, password=password)
-    else:
-        passwords = get_lti_passwords(username)
-        users_ = [
-            authenticate(username=username, password=p) for p in passwords
-        ]
-        try:
-            user = [u for u in users_ if u is not None][0]
-        except IndexError:
-            user = None
+    try:
+        user = User.objects.get(username=username)
+        if not user.is_active:
+            user.is_active = True
+            user.save()
+    except User.DoesNotExist:
+        user = None
 
-    if user is None:
-        resp = TemplateResponse(
-            req,
-            "400.html",
-            context={
-                "message": _(
-                    "There is no user corresponding to the given link. "
-                    "You may try asking for another one."
-                )
-            },
-        )
-        return HttpResponse(resp.render(), status=400)
+    if user is not None:
+
+        if username == username_:
+            if user is not None:
+                user = authenticate(req, username=username, password=password)
+        else:
+            passwords = get_lti_passwords(username)
+            users_ = [
+                authenticate(username=username, password=p) for p in passwords
+            ]
+            try:
+                user = [u for u in users_ if u is not None][0]
+            except IndexError:
+                user = None
+
+        if user is None:
+            return TemplateResponse(
+                req,
+                "400.html",
+                context={
+                    "message": _(
+                        "There is no user corresponding to the given link. "
+                        "You may try asking for another one."
+                    )
+                },
+                status=400,
+            )
 
     return user
 
@@ -138,15 +147,3 @@ def get_lti_passwords(hashed_username):
     passwords = [hashlib.md5(u + key).digest() for u in usernames]
 
     return passwords
-
-
-def update_notifications(student):
-    """
-    Updates the notifications for the given student.
-
-    Parameters
-    ----------
-    student : Student
-        Student for whom to update the notifications
-    """
-    pass
