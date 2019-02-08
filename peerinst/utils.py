@@ -38,6 +38,8 @@ def verify_token(token):
             audience="dalite",
             algorithms="HS256",
         )
+    except TypeError:
+        err = "Invalid token"
     except KeyError:
         err = "Token was incorrectly created."
     except jwt.exceptions.ExpiredSignatureError:
