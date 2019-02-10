@@ -373,7 +373,10 @@ class StudentAssignment(models.Model):
                     self.student.student.username
                 )
                 logger.error(err)
-            elif group_membership.send_emails:
+            elif (
+                group_membership.send_emails
+                and group_membership.current_member
+            ):
 
                 host = settings.ALLOWED_HOSTS[0]
 
