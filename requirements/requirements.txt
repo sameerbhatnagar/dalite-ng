@@ -14,4 +14,4 @@ pytz
 -e git+https://github.com/tophatmonocle/ims_lti_py.git@979244d83c2e6420d2c1941f58e52f641c56ad12#egg=ims_lti_py
 -e git+https://github.com/SALTISES4/django-lti-tool-provider#egg=django_lti_tool_provider
 -e git+https://github.com/edx/opaque-keys@27dc382ea587483b1e3889a3d19cbd90b9023a06#egg=opaque-keys
--e git+https://github.com/pinax/pinax-forums@c57b095eccd1aef7db26985e2803c54fb5a1b1d8#egg=pinax-forums
+-e git+https://github.com/SALTISES4/pinax-forums@fa3063c46b8a696cf6631a9b06e553d6b57876cb#egg=pinax_forums

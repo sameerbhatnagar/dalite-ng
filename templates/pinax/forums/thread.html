@@ -12,7 +12,19 @@
 
 {% block content %}
 <h2>{{ thread.title }}</h2>
-<a href="{% url 'pinax_forums:post_edit' 'thread' thread.pk %}">{% trans 'Edit' %}</a>
+<a href="{% url 'pinax_forums:post_edit_thread' thread.pk %}">{% trans 'Edit' %}</a>
+
+{% if subscribed %}
+<form action="{% url 'pinax_forums:unsubscribe' thread.pk %}" method="post">
+  {% csrf_token %}
+  <input type="submit" value="{% trans 'Unfollow' %}"/>
+</form>
+{% else %}
+<form action="{% url 'pinax_forums:subscribe' thread.pk %}" method="post">
+  {% csrf_token %}
+  <input type="submit" value="{% trans 'Follow' %}"/>
+</form>
+{% endif %}
 
 <p>{{ thread.content }}</p>
 <span>{{ thread.author }}</span> <span>{{ thread.created }}</span>
@@ -23,7 +35,7 @@
   <p>{{ p.content }}</p>
   <span>{{ p.author }}</span>
   <span>{{ p.created }}</span>
-  <a href="{% url 'pinax_forums:post_edit' 'reply' thread.pk %}">{% trans 'Edit' %}</a>
+  <a href="{% url 'pinax_forums:post_edit_reply' thread.pk %}">{% trans 'Edit' %}</a>
 {% endfor %}
 
 {% if can_create_reply %}

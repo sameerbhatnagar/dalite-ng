@@ -1,0 +1,24 @@
+{% extends './base.html' %}
+
+{% load i18n %}
+
+{% block heading %}
+{% trans 'Subscriptions' %}
+{% endblock %}
+
+{% block content %}
+<h2>{% trans 'Threads you are following' %}</h2>
+<ul>
+{% for s in subscriptions %}
+  <li>
+    <a href="{% url 'pinax_forums:thread' s.thread.pk %}">{{ s.thread }}</a>
+    <form method="post">
+      {% csrf_token %}
+      <input type="hidden" name="thread_id" value="{{ s.thread.pk }}"/>
+      <input type="submit" value="{% trans 'Unfollow' %}"/>
+    </form>
+  </li>
+{% empty %}
+<p>{% trans 'You are not currently following any threads.' %}</p>
+{% endfor %}
+{% endblock %}
