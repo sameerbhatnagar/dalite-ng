@@ -1,0 +1,39 @@
+{% extends './base.html' %}
+
+{% load i18n %}
+
+{% block heading %}
+{{ thread.forum }}
+{% endblock %}
+
+{% block breadcrumbs %}
+<a href="{% url 'pinax_forums:forum' thread.forum.pk %}">{% trans 'Back to forum' %}</a>
+{% endblock %}
+
+{% block content %}
+<h2>{{ thread.title }}</h2>
+<a href="{% url 'pinax_forums:post_edit' 'thread' thread.pk %}">{% trans 'Edit' %}</a>
+
+<p>{{ thread.content }}</p>
+<span>{{ thread.author }}</span> <span>{{ thread.created }}</span>
+
+<h3>{% trans 'Replies' %}</h3>
+
+{% for p in posts %}
+  <p>{{ p.content }}</p>
+  <span>{{ p.author }}</span>
+  <span>{{ p.created }}</span>
+  <a href="{% url 'pinax_forums:post_edit' 'reply' thread.pk %}">{% trans 'Edit' %}</a>
+{% endfor %}
+
+{% if can_create_reply %}
+<form method="post">
+  {% csrf_token %}
+  {{ reply_form.errors }}
+  <div>
+    {{ reply_form.content }}
+  </div>
+  <input type="submit"/>
+</form>
+{% endif %}
+{% endblock %}

@@ -21,6 +21,7 @@ urlpatterns = [url(r"^lti/", include("django_lti_tool_provider.urls"))]
 urlpatterns += i18n_patterns(
     url(r"^tos/", include("tos.urls")),
     url(r"", include("peerinst.urls")),
+    url(r"^forums/", include("pinax.forums.urls", namespace="pinax_forums")),
     url(
         r"^assignment/(?P<assignment_id>[^/]+)/",
         include(

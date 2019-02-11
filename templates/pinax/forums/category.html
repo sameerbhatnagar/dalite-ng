@@ -1,0 +1,19 @@
+{% extends './base.html' %}
+
+{% load i18n %}
+
+{% block heading %}
+{% trans 'Category: ' %}{{ category }}
+{% endblock %}
+
+{% block content %}
+<h2>{% trans 'Forums' %}</h2>
+
+<ul>
+{% for f in forums %}
+  <li>
+    <a href="{% url 'pinax_forums:forum' f.pk %}">{{ f }}</a>
+  </li>
+{% endfor %}
+</ul>
+{% endblock %}

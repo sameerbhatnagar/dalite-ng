@@ -1,0 +1,80 @@
+{% extends './base.html' %}
+
+{% load i18n %}
+
+{% block heading %}
+{% trans 'myDALITE forums' %}
+{% endblock %}
+
+{% block content %}
+<h2>{% trans 'Forum categories' %}</h2>
+<ul>
+{% for c in categories %}
+  <li>
+    <a href="{% url 'pinax_forums:category' c.pk %}">{{ c }}</a>
+  </li>
+{% endfor %}
+</ul>
+
+<h2>{% trans 'Most active forums' %}</h2>
+<ul>
+{% for f in most_active_forums %}
+  <li>
+    <a href="{% url 'pinax_forums:forum' f.pk %}">{{ f }}</a>
+  </li>
+{% endfor %}
+</ul>
+
+<h2>{% trans 'Most viewed forums' %}</h2>
+<ul>
+{% for f in most_viewed_forums %}
+  <li>
+    <a href="{% url 'pinax_forums:forum' f.pk %}">{{ f }}</a>
+  </li>
+{% endfor %}
+</ul>
+
+<h2>{% trans 'Most active members' %}</h2>
+<ul>
+{% for u in most_active_members %}
+  <li>{{ u.user }}: {{ u.count }} {% trans 'posts' %}</li>
+{% endfor %}
+</ul>
+
+<h2>{% trans 'Latest posts' %}</h2>
+<ul>
+{% for p in latest_posts %}
+  <li>
+    <a href="{% url 'pinax_forums:thread' p.thread.pk %}">{{ p.content }}</a>
+  </li>
+{% endfor %}
+</ul>
+
+<h2>{% trans 'Latest threads' %}</h2>
+<ul>
+{% for t in latest_threads %}
+  <li>
+    <a href="{% url 'pinax_forums:thread' t.pk %}">{{ t.title }}</a>
+  </li>
+{% endfor %}
+</ul>
+
+<h2>{% trans 'Most active threads' %}</h2>
+<ul>
+{% for t in most_active_threads %}
+  <li>
+    <a href="{% url 'pinax_forums:thread' t.pk %}">{{ t.title }}</a>
+  </li>
+{% endfor %}
+</ul>
+
+<h2>{% trans 'Most viewed threads' %}</h2>
+<ul>
+{% for t in most_viewed_threads %}
+  <li>
+    <a href="{% url 'pinax_forums:thread' t.pk %}">{{ t.title }}</a>
+  </li>
+{% endfor %}
+
+{% endblock %}
+</ul>

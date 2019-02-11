@@ -1,0 +1,12 @@
+{% load i18n %}
+
+<body>
+  <h1>
+    {% block heading %}{% endblock %}
+  </h1>
+  <a href="{% url 'pinax_forums:forums' %}">{% trans 'Home' %}</a>
+  <a href="{% url 'pinax_forums:thread_updates' %}">{% trans 'Notifications' %}</a>
+  {% block breadcrumbs %}{% endblock %}
+
+  {% block content %}{% endblock %}
+</body>

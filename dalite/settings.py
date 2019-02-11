@@ -39,6 +39,7 @@ INSTALLED_APPS = (
     "django_lti_tool_provider",
     "compressor",
     "analytical",
+    "pinax.forums",
 )
 
 MIDDLEWARE = (
