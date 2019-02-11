@@ -30,6 +30,7 @@ from .models import (
     StudentAssignment,
     StudentNotification,
     StudentNotificationType,
+    StudentGroupMembership,
 )
 
 
@@ -288,6 +289,23 @@ class StudentAssignmentAdmin(admin.ModelAdmin):
         "group_assignment__group__name",
         "group_assignment__group__title",
     ]
+
+
+@admin.register(StudentGroupMembership)
+class StudentGroupMembershipAdmin(admin.ModelAdmin):
+    list_display = (
+        "student",
+        "get_student_email",
+        "group",
+        "student_school_id",
+    )
+    search_fields = ["student__student__email"]
+
+    def get_student_email(self, obj):
+        return obj.student.student.email
+
+    get_student_email.short_description = "Student"
+    get_student_email.order_field = "student__student_email"
 
 
 @admin.register(LtiEvent)
