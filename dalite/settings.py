@@ -314,6 +314,7 @@ PASSWORD_GENERATOR_NONCE = os.environ.get("PASSWORD_GENERATOR_NONCE", None)
 # this url for file contents.
 HEARTBEAT_REQUIRED_FREE_SPACE_PERCENTAGE = 20
 
+PINAX_FORUMS_EDIT_TIMEOUT = dict(minutes=2)
 
 # NB: Object level permissions are checked for certain models, including
 # Question

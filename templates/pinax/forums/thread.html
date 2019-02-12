@@ -12,7 +12,9 @@
 
 {% block content %}
 <h2>{{ thread.title }}</h2>
+{% if request.user == thread.author and thread.editable %}
 <a href="{% url 'pinax_forums:post_edit_thread' thread.pk %}">{% trans 'Edit' %}</a>
+{% endif %}
 
 {% if subscribed %}
 <form action="{% url 'pinax_forums:unsubscribe' thread.pk %}" method="post">
@@ -35,7 +37,9 @@
   <p>{{ p.content }}</p>
   <span>{{ p.author }}</span>
   <span>{{ p.created }}</span>
-  <a href="{% url 'pinax_forums:post_edit_reply' thread.pk %}">{% trans 'Edit' %}</a>
+  {% if request.user == p.author and p.editable %}
+    <a href="{% url 'pinax_forums:post_edit_reply' p.pk %}">{% trans 'Edit' %}</a>
+  {% endif %}
 {% endfor %}
 
 {% if can_create_reply %}
