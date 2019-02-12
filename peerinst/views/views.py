@@ -1071,9 +1071,9 @@ class QuestionFormView(QuestionMixin, FormView):
             ),
         )
 
-    def form_invalid(self, form):
-        self.submission_error()
-        return super(QuestionFormView, self).form_invalid(form)
+    # def form_invalid(self, form):
+    #     self.submission_error()
+    #     return super(QuestionFormView, self).form_invalid(form)
 
     def get_success_url(self):
         # We always redirect to the same HTTP endpoint.  The actual view is
@@ -1985,7 +1985,7 @@ def student_activity(request):
     standalone_assignments = StudentGroupAssignment.objects.filter(
         group__in=current_groups
     ).filter(distribution_date__isnull=False)
-      # .filter(due_date__gt=datetime.datetime.now(pytz.utc))
+    # .filter(due_date__gt=datetime.datetime.now(pytz.utc))
 
     standalone_answers = Answer.objects.filter(
         assignment__in=standalone_assignments.values("assignment")

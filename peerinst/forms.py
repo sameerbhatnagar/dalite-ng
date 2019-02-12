@@ -7,6 +7,7 @@ import password_validation
 from django import forms
 from django.contrib.auth.forms import PasswordResetForm, UserCreationForm
 from django.contrib.auth.models import User
+from django.core.validators import MinLengthValidator
 from django.db.models import Count, Q
 from django.forms import ModelForm
 from django.utils.safestring import mark_safe
@@ -45,7 +46,14 @@ class FirstAnswerForm(forms.Form):
         label=_("Choose one of these answers:"), widget=forms.RadioSelect
     )
     rationale = forms.CharField(
-        widget=forms.Textarea(attrs={"cols": 100, "rows": 7})
+        widget=forms.Textarea(attrs={"cols": 100, "rows": 7}),
+        validators=[MinLengthValidator(4)],
+        error_messages={
+            "min_length": _(
+                """That does not seem like a valid rationale.
+                Please explain your reasoning in more detail."""
+            )
+        },
     )
 
     def __init__(self, answer_choices, *args, **kwargs):
