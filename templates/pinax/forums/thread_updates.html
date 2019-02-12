@@ -14,7 +14,7 @@
     <a href="{% url 'pinax_forums:thread' s.thread.pk %}">{{ s.thread }}</a>
     <form method="post">
       {% csrf_token %}
-      <input type="hidden" name="thread_id" value="{{ s.thread.pk }}"/>
+      <input type="hidden" name="subscription_id" value="{{ s.pk }}"/>
       <input type="submit" value="{% trans 'Unfollow' %}"/>
     </form>
   </li>
