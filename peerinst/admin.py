@@ -310,7 +310,23 @@ class StudentGroupMembershipAdmin(admin.ModelAdmin):
 
 @admin.register(LtiEvent)
 class LtiEventAdmin(admin.ModelAdmin):
-    readonly_fields = ["event_type", "event_log", "timestamp"]
+    search_fields = ["username", "assignment_id"]
+    list_display = (
+        "timestamp",
+        "username",
+        "event_type",
+        "question_id",
+        "assignment_id",
+    )
+    list_filter = (("question_id"), ("timestamp", admin.DateFieldListFilter))
+    readonly_fields = (
+        "timestamp",
+        "username",
+        "event_type",
+        "question_id",
+        "assignment_id",
+        "event_log",
+    )
 
 
 # https://djangosnippets.org/snippets/2484/
