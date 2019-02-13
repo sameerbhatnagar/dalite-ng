@@ -43,7 +43,11 @@ class FirstAnswerForm(forms.Form):
     error_css_class = "validation-error"
 
     first_answer_choice = forms.ChoiceField(
-        label=_("Choose one of these answers:"), widget=forms.RadioSelect
+        label=_("Choose one of these answers:"),
+        widget=forms.RadioSelect,
+        error_messages={
+            "required": _("Please make sure to select an answer choice.")
+        },
     )
     rationale = forms.CharField(
         widget=forms.Textarea(attrs={"cols": 100, "rows": 7}),
