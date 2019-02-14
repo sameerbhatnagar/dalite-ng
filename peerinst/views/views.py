@@ -1071,9 +1071,9 @@ class QuestionFormView(QuestionMixin, FormView):
             ),
         )
 
-    def form_invalid(self, form):
-        self.submission_error()
-        return super(QuestionFormView, self).form_invalid(form)
+    # def form_invalid(self, form):
+    #     self.submission_error()
+    #     return super(QuestionFormView, self).form_invalid(form)
 
     def get_success_url(self):
         # We always redirect to the same HTTP endpoint.  The actual view is
