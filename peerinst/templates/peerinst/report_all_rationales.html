@@ -277,6 +277,7 @@ var id;
 {% for obj in assignment.questions %}
 id = "{{ assignment.assignment|slugify }}-{{ obj.answer_choices.first.question.pk }}";
 
+{% if obj.answer_choices %}
 bundle.plot({{ obj.answer_choices.first.question.get_matrix|safe }},{{ obj.answer_choices.first.question.get_frequency|safe|striptags }}, id);
 bundle.selectAll("#first_choice-"+id).transition().duration(1000).attr("x",function(d){return bundle.select(this).attr("finalx");}).attr("width",function(d){return bundle.select(this).attr("finalwidth");});
 bundle.selectAll("#second_choice-"+id).transition().delay(1000).duration(1000).attr("width",function(d){return bundle.select(this).attr("finalwidth");});
@@ -284,6 +285,8 @@ bundle.selectAll("#second_choice-"+id).transition().delay(1000).duration(1000).a
 bundle.plot({{ obj.matrix|safe }},{{ obj.choices|safe }}, "group-"+id);
 bundle.selectAll("#first_choice-group-"+id).transition().duration(1000).attr("x",function(d){return bundle.select(this).attr("finalx");}).attr("width",function(d){return bundle.select(this).attr("finalwidth");});
 bundle.selectAll("#second_choice-group-"+id).transition().delay(1000).duration(1000).attr("width",function(d){return bundle.select(this).attr("finalwidth");});
+{% endif %}
+
 {% endfor %}
 {% endfor %}
 
