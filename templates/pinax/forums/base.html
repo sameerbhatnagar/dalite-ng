@@ -1,12 +1,61 @@
+{% extends 'peerinst/base.html' %}
+
 {% load i18n %}
 
-<body>
-  <h1>
-    {% block heading %}{% endblock %}
-  </h1>
-  <a href="{% url 'pinax_forums:forums' %}">{% trans 'Home' %}</a>
-  <a href="{% url 'pinax_forums:thread_updates' %}">{% trans 'Notifications' %}</a>
-  {% block breadcrumbs %}{% endblock %}
+{% block stylesheets %}
+<style>
+.credits {
+  font-size: 9pt;
+  color: darkgray;
+}
+.mdc-list-item__text {
+  max-width: 100%;
+}
+.mdc-text-field__input {
+  width: 100%;
+}
+.mdc-card .mdc-typography--body1 {
+  font-size: small;
+  line-height: 1.1rem;
+}
+.mdc-card__actions {
+  padding: 0px;
+}
+.mdc-typography--caption {
+  color: gray;
+}
+main {
+  margin-bottom: 20px;
+}
+.centered {
+  width: fit-content;
+  margin: auto;
+}
+#break {
+  color: lightgray;
+  border-style: solid;
+  border-width: 0.5px;
+  margin-top:20px;
+  margin-bottom:20px;
+}
+</style>
+{% endblock %}
 
-  {% block content %}{% endblock %}
-</body>
+{% block body %}
+<main>
+  <section>
+    <h1 class="mdc-typography--display3">
+      {% block heading %}{% endblock %}
+      <svg class="underline" width=150 height=4></svg>
+    </h1>
+
+    <div class="admin-link">
+      <a href="{% url 'pinax_forums:thread_updates' %}">{% trans 'Follows' %}</a>
+      <span class="links-divider">|</span><a href="{% url 'teacher' request.user.teacher.id %}">{% trans 'Back to My Account' %}</a>
+      {% block breadcrumbs %}{% endblock %}
+    </div>
+
+    {% block content %}{% endblock %}
+  </section>
+</main>
+{% endblock %}

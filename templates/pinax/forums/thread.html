@@ -1,55 +1,88 @@
 {% extends './base.html' %}
 
-{% load i18n %}
+{% load i18n add_class %}
 
 {% block heading %}
 {{ thread.forum }}
 {% endblock %}
 
 {% block breadcrumbs %}
-<a href="{% url 'pinax_forums:forum' thread.forum.pk %}">{% trans 'Back to forum' %}</a>
+<span class="links-divider">|</span><a href="{% url 'pinax_forums:forum' thread.forum.pk %}">{% trans 'Back to forum' %}</a>
 {% endblock %}
 
-{% block content %}
-<h2>{{ thread.title }}</h2>
-{% if request.user == thread.author and thread.editable %}
-<a href="{% url 'pinax_forums:post_edit_thread' thread.pk %}">{% trans 'Edit' %}</a>
-{% endif %}
+<div class="admin-link">
+  <a href="{% url 'teacher-groups' teacher.id %}">{% trans 'Manage groups' %}</a>
+  <span style="padding-left:0.3em;padding-right:0.5em;">|</span><a href="{% url 'group-assignments' teacher.id %}">{% trans 'Homework list' %}</a>
+</div>
 
-{% if subscribed %}
-<form action="{% url 'pinax_forums:unsubscribe' thread.pk %}" method="post">
-  {% csrf_token %}
-  <input type="submit" value="{% trans 'Unfollow' %}"/>
-</form>
-{% else %}
-<form action="{% url 'pinax_forums:subscribe' thread.pk %}" method="post">
-  {% csrf_token %}
-  <input type="submit" value="{% trans 'Follow' %}"/>
-</form>
-{% endif %}
+{% block content %}
+<h2 class="mdc-typography--display1 mdc-theme--secondary">{{ thread.title }}</h2>
 
 <p>{{ thread.content }}</p>
-<span>{{ thread.author }}</span> <span>{{ thread.created }}</span>
+<div>
+  <p class="mdc-typography--caption">{% trans 'By:' %} {{ thread.author }} {% trans 'on' %} {{ thread.created }}</p>
 
-<h3>{% trans 'Replies' %}</h3>
+  {% if request.user == thread.author and thread.editable %}
+  <a class="mdc-typography--caption" href="{% url 'pinax_forums:post_edit_thread' thread.pk %}">{% trans 'Edit' %}</a>
+  {% endif %}
+</div>
+
+<hr id='break'>
 
 {% for p in posts %}
-  <p>{{ p.content }}</p>
-  <span>{{ p.author }}</span>
-  <span>{{ p.created }}</span>
-  {% if request.user == p.author and p.editable %}
-    <a href="{% url 'pinax_forums:post_edit_reply' p.pk %}">{% trans 'Edit' %}</a>
-  {% endif %}
+<div class="mdc-card">
+
+  <div class="mdc-typography--body1" >
+    {{p.content|safe}}
+  </div>
+
+  <div class="mdc-card__actions">
+    <div class="mdc-card__action-buttons" style="color:gray;">
+      <div class="mdc-typography--caption">
+        <div>
+          {{ p.author }}
+        </div>
+        <div>
+          {{ p.created }}
+        </div>
+      </div>
+    </div>
+
+    <div class="mdc-card__action-icons">
+      {% if request.user == p.author and p.editable %}
+        <a class="mdc-theme--primary" href="{% url 'pinax_forums:post_edit_reply' p.pk %}"><i class="material-icons md-24 mdc-ripple-surface icon-list edit-question mdc-theme--primary">mode_edit</i></a>
+      {% endif %}
+    </div>
+  </div>
+</div>
 {% endfor %}
 
 {% if can_create_reply %}
 <form method="post">
   {% csrf_token %}
   {{ reply_form.errors }}
-  <div>
-    {{ reply_form.content }}
+  <div class="mdc-text-field mdc-text-field--textarea mdc-theme--background" data-mdc-auto-init="MDCTextField">
+    {{ reply_form.content|add_class:"mdc-text-field__input" }}
+    <label for="id_content" class="mdc-floating-label">{% trans 'Reply' %}</label>
   </div>
-  <input type="submit"/>
+  <input type="submit" class="mdc-button mdc-button--raised" value="{% trans 'Post' %}"/>
 </form>
 {% endif %}
+
+<!--
+<div class="centered">
+{% if subscribed %}
+<form id="follow" action="{% url 'pinax_forums:unsubscribe' thread.pk %}" method="post">
+  {% csrf_token %}
+  <button form="follow" type="submit" class="padded-top mdc-button mdc-button--raised">{% trans 'Unfollow' %}</button>
+</form>
+{% else %}
+<form id="follow" action="{% url 'pinax_forums:subscribe' thread.pk %}" method="post">
+  {% csrf_token %}
+  <button form="follow" type="submit" class="padded-top mdc-button mdc-button--raised">{% trans 'Follow' %}</button>
+</form>
+{% endif %}
+</div>
+-->
+
 {% endblock %}

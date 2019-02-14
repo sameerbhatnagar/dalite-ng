@@ -3,22 +3,41 @@
 {% load i18n %}
 
 {% block heading %}
-{% trans 'Subscriptions' %}
+{% trans 'Follows' %}
+{% endblock %}
+
+{% block breadcrumbs %}
+    <span class="links-divider">|</span><a href="{% url 'pinax_forums:forums' %}">{% trans 'Back to Forums' %}</a>
 {% endblock %}
 
 {% block content %}
-<h2>{% trans 'Threads you are following' %}</h2>
-<ul>
+<h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Threads you are following' %}</h2>
+<ul class="mdc-list mdc-list--two-line">
 {% for s in subscriptions %}
-  <li>
-    <a href="{% url 'pinax_forums:thread' s.thread.pk %}">{{ s.thread }}</a>
-    <form method="post">
-      {% csrf_token %}
-      <input type="hidden" name="subscription_id" value="{{ s.pk }}"/>
-      <input type="submit" value="{% trans 'Unfollow' %}"/>
-    </form>
+  <li role="separator" class="mdc-list-divider"></li>
+  <li class="mdc-list-item" onclick="window.location.href='{% url 'pinax_forums:thread' s.thread.pk %}'" style="cursor:pointer;">
+    <span class="mdc-list-item__graphic mdc-theme--primary">
+      <i class="mdc-theme--primary material-icons md-48">forum</i>
+    </span>
+    <span class="mdc-list-item__text mdc-theme--secondary bold">
+      {{ s.thread }}
+      <span class="mdc-list-item__secondary-text">
+        {% trans "Latest reply: " %} {{ s.thread.last_modified  }}
+      </span>
+      <span class="mdc-list-item__secondary-text">
+        {{ s.thread.view_count }} {% trans "views" %}, {{ s.thread.reply_count }} {% trans "replies" %}, {{ s.thread.subscriber_count }} {% trans "following" %}
+      </span>
+    </span>
+    <span class="mdc-list-item__meta">
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="subscription_id" value="{{ s.pk }}"/>
+        <input type="submit" class="mdc-button material-icons" style="color: #54c0db !important;" value="clear"/>
+      </form>
+    </span>
   </li>
 {% empty %}
 <p>{% trans 'You are not currently following any threads.' %}</p>
 {% endfor %}
+<li role="separator" class="mdc-list-divider"></li>
 {% endblock %}

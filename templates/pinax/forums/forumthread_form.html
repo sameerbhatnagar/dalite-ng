@@ -1,11 +1,33 @@
+{% extends './base.html' %}
+
+{% load i18n add_class %}
+
+{% block heading %}
+{% trans 'Edit Post' %}
+{% endblock %}
+
+{% block breadcrumbs %}
+  <span class="links-divider">|</span><a href="{% url 'pinax_forums:forums' %}">{% trans 'Back to Forums' %}</a>
+{% endblock %}
+
+{% block content %}
 <form method="post">
   {% csrf_token %}
   {{ form.errors }}
-  <div>
-    {{ form.title.label }}: {{ form.title }}
+  <div class="mdc-text-field mdc-text-field--outlined mdc-text-field--dense" data-mdc-auto-init="MDCTextField">
+    {{ form.title|add_class:"mdc-text-field__input" }}
+    {{ form.title.label_tag|add_class:"mdc-floating-label"|cut:":" }}
+    <div class="mdc-notched-outline">
+      <svg>
+        <path class="mdc-notched-outline__path"/>
+      </svg>
+    </div>
+    <div class="mdc-notched-outline__idle"></div>
   </div>
-  <div>
-    {{ form.content.label }}: {{ form.content }}
+  <div class="mdc-text-field mdc-text-field--textarea mdc-theme--background" data-mdc-auto-init="MDCTextField">
+    {{ form.content|add_class:"mdc-text-field__input" }}
+    <label for="id_content" class="mdc-floating-label">{% trans 'Content' %}</label>
   </div>
-  <input type="submit"/>
+  <input type="submit" class="mdc-button mdc-button--raised" value="{% trans 'Update' %}"/>
 </form>
+{% endblock %}

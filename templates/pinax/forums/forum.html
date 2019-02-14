@@ -7,18 +7,40 @@
 {% endblock %}
 
 {% block breadcrumbs %}
-{% if can_create_thread %}
-  <a href="{% url 'pinax_forums:post_create' forum.id %}">{% trans 'Create a new post' %}</a>
-{% endif %}
+    <span class="links-divider">|</span><a href="{% url 'pinax_forums:forums' %}">{% trans 'Back to Forums' %}</a>
 {% endblock %}
 
 {% block content %}
-<h2>{% trans 'Posts' %}</h2>
-<ul>
-{% for t in threads %}
-  <li>
-    <a href="{% url 'pinax_forums:thread' t.pk %}">{{ t }}</a>
+<h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Posts' %}</h2>
+
+{% if can_create_thread %}
+<div class="admin-link">
+  <a href="{% url 'pinax_forums:post_create' forum.id %}">{% trans 'Create a new post' %}</a>
+</div>
+{% endif %}
+
+{% if not threads %}
+<p class='mdc-typography--body1'>{% blocktrans %}There are no posts in this forum.{% endblocktrans %}</p>
+{% endif %}
+<ul class="mdc-list mdc-list--two-line">
+  {% for t in threads %}
+  <li role="separator" class="mdc-list-divider"></li>
+  <li class="mdc-list-item" onclick="window.location.href='{% url 'pinax_forums:thread' t.pk %}'" style="cursor:pointer;">
+    <span class="mdc-list-item__graphic mdc-theme--primary">
+      <i class="mdc-theme--primary material-icons md-48">forum</i>
+    </span>
+    <span class="mdc-list-item__text mdc-theme--secondary bold">
+      {{ t.title }}
+      <span class="mdc-list-item__secondary-text">
+        {% trans "Latest reply: " %} {{ t.last_modified  }}
+      </span>
+      <span class="mdc-list-item__secondary-text">
+        {{ t.view_count }} {% trans "views" %}, {{ t.reply_count }} {% trans "replies" %}, {{ t.subscriber_count }} {% trans "following" %}
+      </span>
+    </span>
   </li>
-{% endfor %}
+  {% endfor %}
+  <li role="separator" class="mdc-list-divider"></li>
 </ul>
+
 {% endblock %}
