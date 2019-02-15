@@ -11,9 +11,8 @@
 {% endblock %}
 
 {% block content %}
-<form method="post">
+<form enctype="multipart/form-data" method="post">
   {% csrf_token %}
-  {{ form.errors }}
   <div class="mdc-text-field mdc-text-field--outlined mdc-text-field--dense" data-mdc-auto-init="MDCTextField">
     {{ form.title|add_class:"mdc-text-field__input" }}
     {{ form.title.label_tag|add_class:"mdc-floating-label"|cut:":" }}
@@ -28,6 +27,20 @@
     {{ form.content|add_class:"mdc-text-field__input" }}
     <label for="id_content" class="mdc-floating-label">{% trans 'Content' %}</label>
   </div>
-  <input type="submit" class="mdc-button mdc-button--raised" value="{% trans 'Update' %}"/>
+  <div class="mdc-text-field mdc-text-field--outlined mdc-text-field--dense" data-mdc-auto-init="MDCTextField">
+    {{ form.url|add_class:"mdc-text-field__input" }}
+    {{ form.url.label_tag|add_class:"mdc-floating-label"|cut:":" }}
+    <div class="mdc-notched-outline">
+      <svg>
+        <path class="mdc-notched-outline__path"/>
+      </svg>
+    </div>
+    <div class="mdc-notched-outline__idle"></div>
+  </div>
+  {{ form.pdf.errors }}
+  <div>
+  {{ form.pdf }}
+  </div>
+  <input type="submit" class="padded-top mdc-button mdc-button--raised" value="{% trans 'Update' %}"/>
 </form>
 {% endblock %}

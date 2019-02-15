@@ -35,8 +35,14 @@ main {
   color: lightgray;
   border-style: solid;
   border-width: 0.5px;
+  margin-top:10px;
+  margin-bottom:10px;
+}
+.external-content {
+  background-color: white;
+  margin: auto;
   margin-top:20px;
-  margin-bottom:20px;
+  width:fit-content;
 }
 </style>
 {% endblock %}
@@ -58,4 +64,8 @@ main {
     {% block content %}{% endblock %}
   </section>
 </main>
+{% endblock %}
+
+{% block scripts %}
+{% block extrascripts %}{% endblock %}
 {% endblock %}

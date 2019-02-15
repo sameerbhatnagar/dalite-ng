@@ -19,6 +19,18 @@
 <h2 class="mdc-typography--display1 mdc-theme--secondary">{{ thread.title }}</h2>
 
 <p>{{ thread.content }}</p>
+{% if thread.url %}
+<div class="external-content">
+  <object class="embedded-object" width="640" height="390" data="{{ thread.url }}"></object>
+</div>
+{% endif %}
+
+{% if thread.pdf %}
+<div class="external-content">
+  <object class="embedded-object" type="application/pdf" data="{{ thread.pdf.url }}" width="700" height="905" typemustmatch></object>
+</div>
+{% endif %}
+
 <div>
   <p class="mdc-typography--caption">{% trans 'By:' %} {{ thread.author }} {% trans 'on' %} {{ thread.created }}</p>
 
@@ -85,4 +97,21 @@
 </div>
 -->
 
+{% endblock %}
+
+{% block extrascripts %}
+<script>
+function sizeEmbeddedContent() {
+  document.querySelectorAll('.embedded-object').forEach(function(el) {
+    var aspectRatio = +el.getAttribute('width') / +el.getAttribute('height');
+    var w = Math.min(700,document.querySelector("section").offsetWidth-30);
+    el.setAttribute("width", w);
+    el.setAttribute("height", w/aspectRatio);
+  });
+}
+
+sizeEmbeddedContent();
+
+window.addEventListener("resize", sizeEmbeddedContent);
+</script>
 {% endblock %}
