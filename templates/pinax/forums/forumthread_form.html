@@ -40,11 +40,40 @@
 
   <div class='file-upload'>
     {{ form.pdf.errors }}
-    <p class="file-upload-label">{% trans 'Upload a pdf' %}</p>
-    {{ form.pdf }}
+    <p class="file-upload-label">{% trans 'Upload a pdf (max 1MB)' %}</p>
+    {{ form.pdf }}<span class='mdc-typography--body1 bold' id='warning' style='display:none;color:red;'>{% trans 'Max file size exceeded.' %}</span>
     <p class="mdc-typography--caption">{% trans 'You are responsible for content you post to the site.  <strong>Do not upload copyrighted materials.</strong>' %}</p>
   </div>
-  
+
   <input type="submit" class="padded-top mdc-button mdc-button--raised" value="{% trans 'Update' %}"/>
 </form>
+{% endblock %}
+
+{% block extrascripts %}
+<script>
+  function limitFileSize() {
+    var pdfForm = document.getElementById('id_pdf');
+    var warning = document.getElementById('warning');
+    pdfForm.setAttribute('accept', '.pdf');
+    pdfForm.onchange = function() {
+      var fileSize = pdfForm.files[0].size;
+      if (fileSize > 1000000) {
+        window.alert('File too big: '+fileSize/1000+'kB');
+        warning.style.display = 'inline';
+        $('.mdc-button').each(function() {
+          $(this).attr('disabled',true);
+        });
+      }
+      else {
+        warning.style.display = 'none';
+        $('.mdc-button').each(function() {
+          $(this).attr('disabled',false);
+        });
+      }
+      return;
+    }
+  }
+
+  limitFileSize();
+</script>
 {% endblock %}
