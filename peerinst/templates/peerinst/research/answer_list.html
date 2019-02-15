@@ -1,0 +1,13 @@
+{% extends 'peerinst/base.html' %}
+
+{% load staticfiles compress i18n %}
+
+
+{% block body %}
+  <ul>
+    {% for a in answers %}
+      <li>{{ a.rationale }}</li>
+    {% endfor %}
+  </ul>
+
+{% endblock %}

@@ -3128,3 +3128,26 @@ def report_assignment_aggregates(request):
         j.append(d_a)
 
     return JsonResponse(j, safe=False)
+
+
+def research_index(request):
+    template = "peerinst/research/index.html"
+    context = {"disciplines": Discipline.objects.all()}
+    return render(request, template, context)
+
+
+def research_discipline_question_index(request, discipline_title):
+    template = "peerinst/research/question_index.html"
+    context = {
+        "questions": Question.objects.filter(
+            discipline__title=discipline_title
+        ),
+        "discipline_title": discipline_title,
+    }
+    return render(request, template, context)
+
+
+def research_question_answer_list(request, discipline_title, question_pk):
+    template = "peerinst/research/answer_list.html"
+    context = {"answers": Answer.objects.filter(question_id=question_pk)}
+    return render(request, template, context)

@@ -545,7 +545,17 @@ def search_patterns():
 
 def researcher_patterns():
     return [
-        url(r"^research/index$", views.research_index, name="research-index")
+        url(r"^research/index$", views.research_index, name="research-index"),
+        url(
+            r"^research/(?P<discipline_title>[^/]+)$",
+            views.research_discipline_question_index,
+            name="research-discipline-question-index",
+        ),
+        url(
+            r"^research/(?P<discipline_title>[^/]+)/(?P<question_pk>[^/]+)$",
+            views.research_question_answer_list,
+            name="research-question-answer-list",
+        ),
     ]
 
 

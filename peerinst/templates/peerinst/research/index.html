@@ -4,5 +4,11 @@
 
 
 {% block body %}
-<p>Hello</p>
+
+  <ul>
+    {% for d in disciplines %}
+      <li><a href = "{% url 'research-discipline-question-index' discipline_title=d.title %}">{{ d.title }}</a></li>
+    {% endfor %}
+  </ul>
+
 {% endblock %}
