@@ -37,10 +37,14 @@
     </div>
     <div class="mdc-notched-outline__idle"></div>
   </div>
-  {{ form.pdf.errors }}
-  <div>
-  {{ form.pdf }}
+
+  <div class='file-upload'>
+    {{ form.pdf.errors }}
+    <p class="file-upload-label">{% trans 'Upload a pdf' %}</p>
+    {{ form.pdf }}
+    <p class="mdc-typography--caption">{% trans 'You are responsible for content you post to the site.  <strong>Do not upload copyrighted materials.</strong>' %}</p>
   </div>
+  
   <input type="submit" class="padded-top mdc-button mdc-button--raised" value="{% trans 'Update' %}"/>
 </form>
 {% endblock %}
