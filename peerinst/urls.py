@@ -543,7 +543,19 @@ def search_patterns():
     ]
 
 
+def researcher_patterns():
+    return [
+        url(r"^research/index$", views.research_index, name="research-index")
+    ]
+
+
 urlpatterns = reduce(
     add,
-    [old_patterns(), group_patterns(), student_patterns(), search_patterns()],
+    [
+        old_patterns(),
+        group_patterns(),
+        student_patterns(),
+        search_patterns(),
+        researcher_patterns(),
+    ],
 )
