@@ -18,14 +18,9 @@
   </div>
 
   <div class="mdc-card__actions">
-    <div class="mdc-card__action-buttons" style="color:gray;">
+    <div class="mdc-card__action-buttons">
       <div class="mdc-typography--caption">
-        <div>
-          {{ object.author }}
-        </div>
-        <div>
-          {{ object.created }}
-        </div>
+        {{ object.author }} &middot; {{ object.created|date:"SHORT_DATE_FORMAT" }}
       </div>
     </div>
   </div>

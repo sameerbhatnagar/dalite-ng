@@ -10,12 +10,9 @@
 <span class="links-divider">|</span><a href="{% url 'pinax_forums:forum' thread.forum.pk %}">{% trans 'Back to forum' %}</a>
 {% endblock %}
 
-<div class="admin-link">
-  <a href="{% url 'teacher-groups' teacher.id %}">{% trans 'Manage groups' %}</a>
-  <span style="padding-left:0.3em;padding-right:0.5em;">|</span><a href="{% url 'group-assignments' teacher.id %}">{% trans 'Homework list' %}</a>
-</div>
-
 {% block content %}
+{% now "d M" as right_now %}
+
 <h2 class="mdc-typography--display1 mdc-theme--secondary">{{ thread.title }}</h2>
 
 <p>{{ thread.content }}</p>
@@ -32,7 +29,7 @@
 {% endif %}
 
 <div>
-  <p class="mdc-typography--caption">{% trans 'By:' %} {{ thread.author }} {% trans 'on' %} {{ thread.created }}</p>
+  <p class="mdc-typography--caption">{{ thread.author }} &middot; {{ thread.created }}</p>
 
   {% if request.user == thread.author and thread.editable %}
   <a class="mdc-typography--caption" href="{% url 'pinax_forums:post_edit_thread' thread.pk %}">{% trans 'Edit' %}</a>
@@ -49,20 +46,19 @@
   </div>
 
   <div class="mdc-card__actions">
-    <div class="mdc-card__action-buttons" style="color:gray;">
+    <div class="mdc-card__action-buttons">
       <div class="mdc-typography--caption">
-        <div>
-          {{ p.author }}
-        </div>
-        <div>
-          {{ p.created }}
-        </div>
+        {% if p.created|date:"d M" != right_now %}
+          {{ p.author }} &middot; {{ p.created|date:"SHORT_DATE_FORMAT" }}
+        {% else %}
+          {{ p.author }} &middot; {{ p.created|timesince }}
+        {% endif %}
       </div>
     </div>
 
     <div class="mdc-card__action-icons">
       {% if request.user == p.author and p.editable %}
-        <a class="mdc-theme--primary" href="{% url 'pinax_forums:post_edit_reply' p.pk %}"><i class="material-icons md-24 mdc-ripple-surface icon-list edit-question mdc-theme--primary">mode_edit</i></a>
+        <a class="mdc-theme--primary" href="{% url 'pinax_forums:post_edit_reply' p.pk %}"><i class="material-icons md-18 mdc-ripple-surface mdc-theme--primary">mode_edit</i></a>
       {% endif %}
     </div>
   </div>
