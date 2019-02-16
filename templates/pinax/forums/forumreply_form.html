@@ -3,7 +3,7 @@
 {% load i18n add_class %}
 
 {% block heading %}
-{% trans 'Edit Post' %}
+{% trans 'Edit Reply' %}
 {% endblock %}
 
 {% block breadcrumbs %}
@@ -19,5 +19,6 @@
     <label for="id_content" class="mdc-floating-label">{% trans 'Edit' %}</label>
   </div>
   <input type="submit" class="mdc-button mdc-button--raised" value="{% trans 'Update' %}"/>
+  <a class="mdc-button mdc-button--raised delete" href="{% url 'pinax_forums:post_delete_reply' post.pk %}">{% trans 'Delete' %}</a>
 </form>
 {% endblock %}

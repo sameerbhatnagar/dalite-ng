@@ -1,0 +1,39 @@
+{% extends './base.html' %}
+
+{% load i18n %}
+
+{% block heading %}
+{% trans 'Confirm Delete' %}
+{% endblock %}
+
+{% block breadcrumbs %}
+<span class="links-divider">|</span><a href="{% url 'pinax_forums:thread' object.thread.id %}">{% trans 'Back to post' %}</a>
+{% endblock %}
+
+{% block content %}
+<div class="mdc-card">
+
+  <div class="mdc-typography--body1" >
+    {{object.content|safe}}
+  </div>
+
+  <div class="mdc-card__actions">
+    <div class="mdc-card__action-buttons" style="color:gray;">
+      <div class="mdc-typography--caption">
+        <div>
+          {{ object.author }}
+        </div>
+        <div>
+          {{ object.created }}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<form method="post">
+  {% csrf_token %}
+  <a class="padded-top mdc-button mdc-button--raised" href="{% url 'pinax_forums:thread' object.thread.id %}">{% trans 'Cancel' %}</a>
+  <input type="submit" class="padded-top mdc-button mdc-button--raised delete" value="{% trans 'Delete' %}"/>
+</form>
+{% endblock %}
