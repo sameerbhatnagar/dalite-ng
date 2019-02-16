@@ -13,7 +13,21 @@
 {% block content %}
 {% now "d M" as right_now %}
 
-<h2 class="mdc-typography--display1 mdc-theme--secondary">{{ thread.title }}</h2>
+<h2 class="mdc-typography--display1 mdc-theme--secondary with-follow">{{ thread.title }}
+  <i class="mdc-icon-toggle material-icons mdc-theme--primary follow"
+      role="button"
+      aria-label="{% trans 'Follow' %}" tabindex="0"
+      data-toggle-on='{"label": "{% trans 'Unfollow' %}", "content": "favorite"}'
+      data-toggle-off='{"label": "{% trans 'Follow' %}", "content": "favorite_border"}'
+      {% if subscribed %}
+      aria-pressed="true"
+      {% else %}
+      aria-pressed="false"
+      {% endif %}
+      onclick="toggleFollow(this);">
+      favorite_border
+  </i>
+</h2>
 
 <p>{{ thread.content }}</p>
 {% if thread.url %}
@@ -76,38 +90,55 @@
   <input type="submit" class="mdc-button mdc-button--raised" value="{% trans 'Post' %}"/>
 </form>
 {% endif %}
-
-<!--
-<div class="centered">
-{% if subscribed %}
-<form id="follow" action="{% url 'pinax_forums:unsubscribe' thread.pk %}" method="post">
-  {% csrf_token %}
-  <button form="follow" type="submit" class="padded-top mdc-button mdc-button--raised">{% trans 'Unfollow' %}</button>
-</form>
-{% else %}
-<form id="follow" action="{% url 'pinax_forums:subscribe' thread.pk %}" method="post">
-  {% csrf_token %}
-  <button form="follow" type="submit" class="padded-top mdc-button mdc-button--raised">{% trans 'Follow' %}</button>
-</form>
-{% endif %}
-</div>
--->
-
 {% endblock %}
 
 {% block extrascripts %}
 <script>
-function sizeEmbeddedContent() {
-  document.querySelectorAll('.embedded-object').forEach(function(el) {
-    var aspectRatio = +el.getAttribute('width') / +el.getAttribute('height');
-    var w = Math.min(700,document.querySelector("section").offsetWidth-30);
-    el.setAttribute("width", w);
-    el.setAttribute("height", w/aspectRatio);
+  // Setup ajax call and attach a submit handler to the form
+  $.ajaxSetup({
+      beforeSend: function(xhr, settings) {
+          if (!bundle.csrfSafeMethod(settings.type) && !this.crossDomain) {
+              xhr.setRequestHeader("X-CSRFToken", bundle.getCookie('csrftoken'));
+          }
+      }
   });
-}
 
-sizeEmbeddedContent();
+  function toggleFollow(el) {
+    console.info(el.getAttribute('aria-pressed')=="false");
+    if (el.getAttribute('aria-pressed')=="false") {
+      console.info("Subscribing to thread");
+      var posting = $.post("{% url 'pinax_forums:subscribe' thread.id %}");
+      posting.done(function(data){
+        //console.info(data);
+      })
+    } else {
+      console.info("Unsubscribing from thread");
+      var posting = $.post("{% url 'pinax_forums:unsubscribe' thread.id %}");
+      posting.done(function(data){
+        //console.info(data);
+      })
+    }
+  }
 
-window.addEventListener("resize", sizeEmbeddedContent);
+  function initFollows() {
+    [].forEach.call(document.querySelectorAll(".mdc-icon-toggle"), el => {
+      bundle.iconToggle.MDCIconToggle.attachTo(el);
+    });
+  }
+
+  initFollows();
+
+  function sizeEmbeddedContent() {
+    document.querySelectorAll('.embedded-object').forEach(function(el) {
+      var aspectRatio = +el.getAttribute('width') / +el.getAttribute('height');
+      var w = Math.min(700,document.querySelector("section").offsetWidth-30);
+      el.setAttribute("width", w);
+      el.setAttribute("height", w/aspectRatio);
+    });
+  }
+
+  sizeEmbeddedContent();
+
+  window.addEventListener("resize", sizeEmbeddedContent);
 </script>
 {% endblock %}
