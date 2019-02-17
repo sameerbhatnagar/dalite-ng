@@ -1,0 +1,13 @@
+{% extends 'peerinst/base.html' %}
+
+{% load staticfiles compress i18n %}
+
+
+{% block body %}
+  <ul>
+    {% for q in questions %}
+      <li><a href="{% url 'research-question-answer-list' discipline_title=discipline_title question_pk=q.pk %}">{{q.title}}</a></li>
+    {% endfor %}
+  </ul>
+
+{% endblock %}

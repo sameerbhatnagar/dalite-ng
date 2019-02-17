@@ -1,0 +1,14 @@
+{% extends 'peerinst/base.html' %}
+
+{% load staticfiles compress i18n %}
+
+
+{% block body %}
+
+  <ul>
+    {% for d in disciplines %}
+      <li><a href = "{% url 'research-discipline-question-index' discipline_title=d.title %}">{{ d.title }}</a></li>
+    {% endfor %}
+  </ul>
+
+{% endblock %}

@@ -24,7 +24,7 @@ from django.core.urlresolvers import reverse
 # reports
 from django.db.models import Count
 from django.db.models.expressions import Func
-from django.forms import Textarea, inlineformset_factory
+from django.forms import Textarea, inlineformset_factory, modelformset_factory
 
 # blink
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
@@ -66,6 +66,7 @@ from ..mixins import (
 )
 from ..models import (
     Answer,
+    AnswerAnnotation,
     AnswerChoice,
     Assignment,
     BlinkAnswer,
@@ -3080,6 +3081,8 @@ def report(request, assignment_id="", group_id=""):
     return render(request, template_name, context)
 
 
+@login_required
+@user_passes_test(student_check, login_url="/access_denied_and_logout/")
 def report_assignment_aggregates(request):
     """
     - wrapper for admin_views.get_question_rationale_aggregates
@@ -3128,3 +3131,70 @@ def report_assignment_aggregates(request):
         j.append(d_a)
 
     return JsonResponse(j, safe=False)
+
+
+@login_required
+@user_passes_test(student_check, login_url="/access_denied_and_logout/")
+def research_index(request):
+    template = "peerinst/research/index.html"
+    context = {"disciplines": Discipline.objects.all()}
+    return render(request, template, context)
+
+
+@login_required
+@user_passes_test(student_check, login_url="/access_denied_and_logout/")
+def research_discipline_question_index(request, discipline_title):
+    template = "peerinst/research/question_index.html"
+    context = {
+        "questions": Question.objects.filter(
+            discipline__title=discipline_title
+        ),
+        "discipline_title": discipline_title,
+    }
+    return render(request, template, context)
+
+
+def research_question_answer_list(request, discipline_title, question_pk):
+    template = "peerinst/research/answer_list.html"
+
+    annotator = get_object_or_404(User, username=request.user)
+    if not annotator:
+        access_denied_and_logout(request)
+
+    answer_qs = Answer.objects.filter(question_id=question_pk)
+    for a in answer_qs:
+        annotation, created = AnswerAnnotation.objects.get_or_create(
+            answer=a, annotator=annotator
+        )
+
+    queryset = AnswerAnnotation.objects.filter(
+        answer__question_id=question_pk, annotator=annotator
+    ).order_by("answer__first_answer_choice", "answer__time")
+
+    AnswerAnnotationFormset = modelformset_factory(
+        AnswerAnnotation, fields=("score",), extra=0
+    )
+
+    if request.method == "POST":
+        formset = AnswerAnnotationFormset(request.POST)
+        if formset.is_valid():
+            instances = formset.save()
+            return HttpResponseRedirect(
+                reverse(
+                    "research-question-answer-list",
+                    kwargs={
+                        "discipline_title": discipline_title,
+                        "question_pk": question_pk,
+                    },
+                )
+            )
+    else:
+        formset = AnswerAnnotationFormset(queryset=queryset)
+
+    context = {
+        "formset": formset,
+        "question": Question.objects.get(id=question_pk),
+        "discipline_title": discipline_title,
+        "question_pk": question_pk,
+    }
+    return render(request, template, context)
