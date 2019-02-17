@@ -7,7 +7,7 @@
 {% endblock %}
 
 {% block breadcrumbs %}
-  <span class="links-divider">|</span><a href="{% url 'pinax_forums:forums' %}">{% trans 'Back to Forums' %}</a>
+<span class="links-divider">|</span><a href="{% url 'pinax_forums:thread' object.thread.id %}">{% trans 'Back to post' %}</a>
 {% endblock %}
 
 {% block content %}

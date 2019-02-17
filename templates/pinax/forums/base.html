@@ -32,12 +32,21 @@ main {
   width: fit-content;
   margin: auto;
 }
-#break {
+.break {
   color: lightgray;
   border-style: solid;
   border-width: 0.5px;
   margin-top:10px;
   margin-bottom:10px;
+}
+.reply-to-reply{
+  width:95%;
+  margin-left:5%;
+  background-color: lightgray;
+  padding: 10px 20px 6px;
+}
+.reply-form {
+  display: none;
 }
 .external-content {
   background-color: white;
@@ -61,11 +70,12 @@ main {
   margin-left: 20px;
 }
 .with-follow {
+  position: relative;
   width: calc(100% - 48px);
 }
 .follow {
   position: absolute;
-  right: 48px;
+  right: -48px;
 }
 </style>
 {% endblock %}

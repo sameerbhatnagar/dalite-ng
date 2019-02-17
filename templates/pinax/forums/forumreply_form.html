@@ -7,7 +7,7 @@
 {% endblock %}
 
 {% block breadcrumbs %}
-  <span class="links-divider">|</span><a href="{% url 'pinax_forums:forums' %}">{% trans 'Back to Forums' %}</a>
+<span class="links-divider">|</span><a href="{% url 'pinax_forums:thread' object.thread.id %}">{% trans 'Back to post' %}</a>
 {% endblock %}
 
 {% block content %}
@@ -18,6 +18,9 @@
     {{ form.content|add_class:"mdc-text-field__input" }}
     <label for="id_content" class="mdc-floating-label">{% trans 'Edit' %}</label>
   </div>
+  {% if post.reply %}
+  <input type="hidden" name="reply" value="{{post.reply.id}}"/>
+  {% endif %}
   <input type="submit" class="mdc-button mdc-button--raised" value="{% trans 'Update' %}"/>
   <a class="mdc-button mdc-button--raised delete" href="{% url 'pinax_forums:post_delete_reply' post.pk %}">{% trans 'Delete' %}</a>
 </form>

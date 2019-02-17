@@ -13,21 +13,23 @@
 {% block content %}
 {% now "d M" as right_now %}
 
-<h2 class="mdc-typography--display1 mdc-theme--secondary with-follow">{{ thread.title }}
-  <i class="mdc-icon-toggle material-icons mdc-theme--primary follow"
-      role="button"
-      aria-label="{% trans 'Follow' %}" tabindex="0"
-      data-toggle-on='{"label": "{% trans 'Unfollow' %}", "content": "favorite"}'
-      data-toggle-off='{"label": "{% trans 'Follow' %}", "content": "favorite_border"}'
-      {% if subscribed %}
-      aria-pressed="true"
-      {% else %}
-      aria-pressed="false"
-      {% endif %}
-      onclick="toggleFollow(this);">
-      favorite_border
-  </i>
-</h2>
+<div>
+  <h2 class="mdc-typography--display1 mdc-theme--secondary with-follow">{{ thread.title }}
+    <i class="mdc-icon-toggle material-icons mdc-theme--primary follow"
+        role="button"
+        aria-label="{% trans 'Follow' %}" tabindex="0"
+        data-toggle-on='{"label": "{% trans 'Unfollow' %}", "content": "favorite"}'
+        data-toggle-off='{"label": "{% trans 'Follow' %}", "content": "favorite_border"}'
+        {% if subscribed %}
+        aria-pressed="true"
+        {% else %}
+        aria-pressed="false"
+        {% endif %}
+        onclick="toggleFollow(this);">
+        favorite_border
+    </i>
+  </h2>
+</div>
 
 <p>{{ thread.content }}</p>
 {% if thread.url %}
@@ -50,9 +52,10 @@
   {% endif %}
 </div>
 
-<hr id='break'>
+<hr class='break'>
 
 {% for p in posts %}
+{% if not p.reply %}
 <div class="mdc-card">
 
   <div class="mdc-typography--body1" >
@@ -71,12 +74,61 @@
     </div>
 
     <div class="mdc-card__action-icons">
+      {% if can_create_reply %}
+        <i class="material-icons md-18 icon-list mdc-ripple-surface mdc-theme--primary" onclick="showReplyForm('reply-{{p.id}}')">reply</i>
+      {% endif %}
       {% if request.user == p.author and p.editable %}
-        <a class="mdc-theme--primary" href="{% url 'pinax_forums:post_edit_reply' p.pk %}"><i class="material-icons md-18 mdc-ripple-surface mdc-theme--primary">mode_edit</i></a>
+        <a class="mdc-theme--primary" href="{% url 'pinax_forums:post_edit_reply' p.pk %}"><i class="material-icons md-18 icon-list mdc-ripple-surface mdc-theme--primary">mode_edit</i></a>
       {% endif %}
     </div>
   </div>
 </div>
+
+{% for r in p.reply_replies.all %}
+<div class="mdc-card reply-to-reply">
+
+  <div class="mdc-typography--body1">
+    {{r.content|safe}}
+  </div>
+
+  <div class="mdc-card__actions">
+    <div class="mdc-card__action-buttons">
+        <div class="mdc-typography--caption" style="color:white;">
+        {% if r.created|date:"d M" != right_now %}
+          {{ r.author }} &middot; {{ r.created|date:"SHORT_DATE_FORMAT" }}
+        {% else %}
+          {{ r.author }} &middot; {{ r.created|timesince }}
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="mdc-card__action-icons">
+      {% if request.user == r.author and r.editable %}
+        <a class="mdc-theme--primary" href="{% url 'pinax_forums:post_edit_reply' r.pk %}"><i class="material-icons md-18 icon-list mdc-ripple-surface" style="color: white;">mode_edit</i></a>
+      {% endif %}
+    </div>
+  </div>
+
+</div>
+{% endfor %}
+
+<div class="reply-form" id="reply-{{p.id}}">
+  {% if can_create_reply %}
+  <form method="post">
+    {% csrf_token %}
+    {{ reply_form.errors }}
+    <div class="mdc-text-field mdc-text-field--textarea mdc-theme--background" data-mdc-auto-init="MDCTextField">
+      {{ reply_form.content|add_class:"mdc-text-field__input" }}
+      <label for="id_content" class="mdc-floating-label">{% trans 'Reply' %}</label>
+    </div>
+    <input type="hidden" name="reply" value="{{p.id}}"/>
+    <input type="submit" class="mdc-button mdc-button--raised" value="{% trans 'Reply' %}"/>
+  </form>
+  {% endif %}
+</div>
+
+<hr class='break'>
+{% endif %}
 {% endfor %}
 
 {% if can_create_reply %}
@@ -85,7 +137,7 @@
   {{ reply_form.errors }}
   <div class="mdc-text-field mdc-text-field--textarea mdc-theme--background" data-mdc-auto-init="MDCTextField">
     {{ reply_form.content|add_class:"mdc-text-field__input" }}
-    <label for="id_content" class="mdc-floating-label">{% trans 'Reply' %}</label>
+    <label for="id_content" class="mdc-floating-label">{% trans 'Post' %}</label>
   </div>
   <input type="submit" class="mdc-button mdc-button--raised" value="{% trans 'Post' %}"/>
 </form>
@@ -94,6 +146,10 @@
 
 {% block extrascripts %}
 <script>
+  function showReplyForm(id) {
+    $('#'+id).toggle();
+  }
+
   // Setup ajax call and attach a submit handler to the form
   $.ajaxSetup({
       beforeSend: function(xhr, settings) {
