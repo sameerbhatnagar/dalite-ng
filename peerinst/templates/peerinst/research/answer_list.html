@@ -2,30 +2,8 @@
 
 {% load staticfiles compress i18n %}
 
-<style>
-
-.header {
-  padding: 10px 16px;
-}
-
-.content {
-  padding: 16px;
-}
-
-.sticky {
-  position: fixed;
-  top: 0;
-  width: 100%;
-}
-
-.sticky + .content {
-  padding-top: 102px;
-}
-</style>
 
 {% block body %}
-
-<div class="header" id="myHeader">
 
     <h4 id="{{ question.title }}" class="mdc-typography--title bold">{% trans 'Question' %}: {{ question.title|safe }}</h4>
 
@@ -68,7 +46,6 @@
         {% endfor %}
       </div>
     </div>
-</div>
 
 <div class="content">
   <form action="" method="post">
@@ -95,22 +72,6 @@
 
 {% block scripts %}
 <script>
-  // When the user scrolls the page, execute myFunction
-  window.onscroll = function() {myFunction()};
 
-  // Get the header
-  var header = document.getElementById("myHeader");
-
-  // Get the offset position of the navbar
-  var sticky = header.offsetTop;
-
-  // Add the sticky class to the header when you reach its scroll position. Remove "sticky" when you leave the scroll position
-  function myFunction() {
-    if (window.pageYOffset > sticky) {
-      header.classList.add("sticky");
-    } else {
-      header.classList.remove("sticky");
-    }
-  }
 </script>
 {% endblock %}
