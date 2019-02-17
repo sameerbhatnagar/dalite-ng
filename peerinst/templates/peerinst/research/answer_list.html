@@ -2,6 +2,12 @@
 
 {% load staticfiles compress i18n %}
 
+{% block stylesheets %}
+<style>
+  table {
+  }
+</style>
+{% endblock %}
 
 {% block body %}
 
@@ -53,17 +59,21 @@
   <input type="submit" value="Update"/><br>
   {{ formset.management_form }}
 
-  {% for form in formset %}
   <table>
-    <tr>
-      {{ form }}
-    </tr>
+    <th>
+      <td>Answer Choice</td>
+      <td>Score</td>
+      <td>Rationale</td>
+    </th>
+
+  {% for form in formset %}
     <tr>
       <td>{{form.instance.answer.first_answer_choice}}</td>
+      <td>{{ form.score }}</td>
       <td>{{form.instance.answer.rationale}}
     </tr>
-  </table>
   {% endfor %}
+  </table>
 </form>
 </div>
 
