@@ -1,83 +1,11 @@
 {% extends 'peerinst/base.html' %}
 
-{% load i18n %}
+{% load compress i18n staticfiles %}
 
 {% block stylesheets %}
-<style>
-.credits {
-  font-size: 9pt;
-  color: darkgray;
-}
-.mdc-list-item__text {
-  max-width: 100%;
-}
-.mdc-text-field__input {
-  width: 100%;
-}
-.mdc-card .mdc-typography--body1 {
-  font-size: small;
-  line-height: 1.1rem;
-}
-.mdc-card__actions {
-  padding: 0px;
-  min-height: 0px;
-}
-.mdc-typography--caption {
-  color: gray;
-}
-main {
-  margin-bottom: 20px;
-}
-.centered {
-  width: fit-content;
-  margin: auto;
-}
-.break {
-  color: lightgray;
-  border-style: solid;
-  border-width: 0.5px;
-  margin-top:10px;
-  margin-bottom:10px;
-}
-.reply-to-reply{
-  width:95%;
-  margin-left:5%;
-  background-color: lightgray;
-  padding: 10px 20px 6px;
-}
-.reply-form {
-  display: none;
-}
-.external-content {
-  background-color: white;
-  margin: auto;
-  margin-top:20px;
-  width:fit-content;
-}
-.file-upload {
-  border-left-style: solid;
-  border-left-color: lightgray;
-  border-left-width: 1px;
-  padding-left: 14px;
-  margin-top: 16px;
-  margin-bottom: 4px;
-}
-.file-upload-label {
-  font-size: 13px;
-}
-.mdc-button.delete {
-  background-color: red !important;
-  margin-left: 20px;
-}
-.with-follow {
-  position: relative;
-  width: calc(100% - 48px);
-}
-.follow {
-  position: absolute;
-  right: -48px;
-}
-</style>
+{% compress css %}
+<link href="{% static 'pinax/forums/css/forums.min.css' %}" rel="stylesheet">
+{% endcompress %}
 {% endblock %}
 
 {% block body %}
