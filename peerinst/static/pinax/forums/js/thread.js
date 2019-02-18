@@ -11,17 +11,17 @@ $.ajaxSetup({
   },
 });
 
-export function toggleFollow(el) {
+export function toggleFollow(el, subscribe, unsubscribe) {
   console.info(el.getAttribute("aria-pressed")=="false");
   if (el.getAttribute("aria-pressed")=="false") {
     console.info("Subscribing to thread");
-    const posting = $.post("{% url 'pinax_forums:subscribe' thread.id %}");
+    const posting = $.post(subscribe);
     posting.done(function(data) {
       //console.info(data);
     });
   } else {
     console.info("Unsubscribing from thread");
-    const posting = $.post("{% url 'pinax_forums:unsubscribe' thread.id %}");
+    const posting = $.post(unsubscribe);
     posting.done(function(data) {
       //console.info(data);
     });

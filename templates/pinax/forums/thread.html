@@ -25,7 +25,7 @@
         {% else %}
         aria-pressed="false"
         {% endif %}
-        onclick="thread.toggleFollow(this);">
+        onclick="thread.toggleFollow(this, '{% url 'pinax_forums:subscribe' thread.id %}', '{% url 'pinax_forums:unsubscribe' thread.id %}');">
         favorite_border
     </i>
   </h2>
