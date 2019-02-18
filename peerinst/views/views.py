@@ -10,6 +10,8 @@ import urllib
 
 import pytz
 
+from collections import Counter
+
 from dalite.views.errors import response_400, response_404, response_500
 from django.conf import settings
 from django.contrib import messages
@@ -3145,12 +3147,18 @@ def research_index(request):
 @user_passes_test(student_check, login_url="/access_denied_and_logout/")
 def research_discipline_question_index(request, discipline_title):
     template = "peerinst/research/question_index.html"
-    context = {
-        "questions": Question.objects.filter(
-            discipline__title=discipline_title
-        ),
-        "discipline_title": discipline_title,
-    }
+
+    annotation_counts = Counter(
+        AnswerAnnotation.objects.filter(score__isnull=False).values_list(
+            "answer__question_id", flat=True
+        )
+    )
+
+    questions_qs = Question.objects.filter(discipline__title=discipline_title)
+
+    question_qs = [(q, annotation_counts[q.pk]) for q in questions_qs]
+
+    context = {"questions": question_qs, "discipline_title": discipline_title}
     return render(request, template, context)
 
 

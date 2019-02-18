@@ -4,9 +4,10 @@
 
 
 {% block body %}
+Question ID (Number of Researcher Annotations / Number of Student Rationales)
   <ul>
-    {% for q in questions %}
-      <li><a href="{% url 'research-question-answer-list' discipline_title=discipline_title question_pk=q.pk %}">{{q.title}}</a></li>
+    {% for q,annotation_count in questions %}
+      <li><a href="{% url 'research-question-answer-list' discipline_title=discipline_title question_pk=q.pk %}">{{ q.title }}</a> ({{ annotation_count }} / {{ q.answer_set.count }})</li>
     {% endfor %}
   </ul>
 
