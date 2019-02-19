@@ -6,8 +6,12 @@
 {% trans 'Category: ' %}{{ category }}
 {% endblock %}
 
+{% block breadcrumbs %}
+    <span class="links-divider">|</span><a href="{% url 'pinax_forums:forums' %}">{% trans 'Back to Forums' %}</a>
+{% endblock %}
+
 {% block content %}
-<h2>{% trans 'Forums' %}</h2>
+<h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Forums' %}</h2>
 
 <ul>
 {% for f in forums %}

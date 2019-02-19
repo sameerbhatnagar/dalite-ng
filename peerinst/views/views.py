@@ -1842,6 +1842,14 @@ class TeacherDetailView(TeacherBase, DetailView):
         return context
 
 
+class TeacherUpdate(TeacherBase, UpdateView):
+    """View for user to update teacher properties"""
+
+    model = Teacher
+    fields = ["institutions", "disciplines"]
+    template_name = "peerinst/teacher/form.html"
+
+
 class TeacherAssignments(TeacherBase, ListView):
     """View to modify assignments associated to Teacher"""
 
