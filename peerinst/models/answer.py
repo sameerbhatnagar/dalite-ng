@@ -52,7 +52,9 @@ class Answer(models.Model):
         default=False,
         help_text=_("Whether this answer is a pre-seeded expert rationale."),
     )
+    datetime_start = models.DateTimeField(blank=True, null=True)
     datetime_first = models.DateTimeField(blank=True, null=True)
+    datetime_second = models.DateTimeField(blank=True, null=True)
     upvotes = models.PositiveIntegerField(default=0)
     downvotes = models.PositiveIntegerField(default=0)
 
