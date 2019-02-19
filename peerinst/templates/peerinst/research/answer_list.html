@@ -4,19 +4,27 @@
 
 {% block stylesheets %}
 <style>
-  table {
+  .sticky-header {
+    position: -webkit-sticky;
+    position: sticky;
+    top: 10px;
+    background: lightgray;
   }
+
 </style>
 {% endblock %}
 
 {% block body %}
-
+<main>
+<section>
+  <div class="sticky-header">
     <h4 id="{{ question.title }}" class="mdc-typography--title bold">{% trans 'Question' %}: {{ question.title|safe }}</h4>
 
     <div class="admin-link">
       <a href="{% url 'research-discipline-question-index' discipline_title=discipline_title %}">{% trans 'Back to Question List' %}</a>
       <span style="padding-left:0.3em;padding-right:0.5em;">|</span><a href="{% url 'browse-database' %}">{% trans 'Back to Browse' %}</a>
     </div>
+    <input form="annotate-form" type="submit" value="Update Scores"/><br>
 
     <div class="mdc-card">
       <div class="mdc-typography--body1">
@@ -53,30 +61,41 @@
       </div>
     </div>
 
+    </div>
+
 <div class="content">
-  <form action="" method="post">
+  <form action="" method="post" id="annotate-form">
   {% csrf_token %}
-  <input type="submit" value="Update"/><br>
+
   {{ formset.management_form }}
 
-  <table>
-    <th>
-      <td>Answer Choice</td>
-      <td>Score</td>
-      <td>Rationale</td>
-    </th>
+<table>
+<thead>
+  <tr>
+    <td>Answer</td>
+    <td>Score</td>
+    <td>Show?</td>
+    <td>Rationale</td>
+  </tr>
+</thead>
+<tbody>
 
   {% for form in formset %}
+  {{ form.id }}
     <tr>
-      <td>{{form.instance.answer.first_answer_choice}}</td>
+      <td>{{ form.instance.answer.first_answer_choice_label }}</td>
       <td>{{ form.score }}</td>
-      <td>{{form.instance.answer.rationale}}
+      <td>{{ form.instance.answer.show_to_others }}</td>
+      <td>{{ form.instance.answer.rationale }}</td>
     </tr>
   {% endfor %}
-  </table>
+</tbody>
+</table>
 </form>
 </div>
 
+</section>
+</main>
 
 {% endblock %}
 
