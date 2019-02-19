@@ -86,7 +86,7 @@
     <tr>
       <td>{{ form.instance.answer.first_answer_choice_label }}</td>
       <td>{{ form.score }}</td>
-      <td>{{ form.instance.answer.show_to_others }}</td>
+      <td title="{{form.instance.answer.pk}}">{{ form.instance.answer.show_to_others }}</td>
       <td>{{ form.instance.answer.rationale }}</td>
     </tr>
   {% endfor %}
