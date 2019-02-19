@@ -80,8 +80,9 @@ def delete_forum_notifications(sender, instance, **kwargs):
 
 @receiver(user_logged_out)
 def last_logout(sender, request, user, **kwargs):
-    try:
-        last_logout = LastLogout.objects.get(user=user)
-        last_logout.save()
-    except ObjectDoesNotExist:
-        last_logout = LastLogout.objects.create(user=user)
+    if user and user.is_authenticated():
+        try:
+            last_logout = LastLogout.objects.get(user=user)
+            last_logout.save()
+        except ObjectDoesNotExist:
+            last_logout = LastLogout.objects.create(user=user)
