@@ -6,6 +6,7 @@ import base64
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.db import models
+from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
 
 from .answer import Answer
@@ -59,7 +60,11 @@ class Teacher(models.Model):
         activity = (
             Answer.objects.filter(assignment__in=all_assignments)
             .filter(user_token__in=all_current_students)
-            .filter(time__gt=last_login)
+            .filter(
+                Q(datetime_start__gt=last_login)
+                | Q(datetime_first__gt=last_login)
+                | Q(datetime_second__gt=last_login)
+            )
             .count()
         )
 

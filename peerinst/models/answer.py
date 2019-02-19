@@ -141,6 +141,31 @@ class Answer(models.Model):
                 "This grading scheme has not been implemented."
             )
 
+    @property
+    def time_first_answer(self):
+        """
+        Returns the time between the first time the question is shown and the
+        first answer.
+
+        Returns
+        -------
+        timedelta
+            Time taken to answer first part
+        """
+        return self.datetime_first - self.datetime_start
+
+    @property
+    def time_second_answer(self):
+        """
+        Returns the time between the second and first answers.
+
+        Returns
+        -------
+        timedelta
+            Time taken to answer second part
+        """
+        return self.datetime_second - self.datetime_first
+
 
 class AnswerVote(models.Model):
     """Vote on a rationale with attached fake attribution."""

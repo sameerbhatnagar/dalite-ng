@@ -2025,7 +2025,11 @@ def student_activity(request):
                         for a in standalone_answers
                         if a.user_token in student_list
                         and a.assignment == ga.assignment
-                        and a.time > request.user.last_login
+                        and (
+                            a.datetime_start > request.user.last_login
+                            or a.datetime_first > request.user.last_login
+                            or a.datetime_second > request.user.last_login
+                        )
                     ]
                     all_answers_by_group[g][ga]["percent_complete"] = int(
                         100.0
@@ -2047,7 +2051,11 @@ def student_activity(request):
                         for a in lti_answers
                         if a.user_token in student_list
                         and a.assignment == l
-                        and a.time > request.user.last_login
+                        and (
+                            a.datetime_start > request.user.last_login
+                            or a.datetime_first > request.user.last_login
+                            or a.datetime_second > request.user.last_login
+                        )
                     ]
                     all_answers_by_group[g][l]["percent_complete"] = int(
                         100.0
@@ -2097,7 +2105,7 @@ def student_activity(request):
                 json_data[group_key.name][id]["answers"] = []
                 for answer in value_list["answers"]:
                     json_data[group_key.name][id]["answers"].append(
-                        str(answer.time)
+                        str(answer.datetime_first)
                     )
 
     return TemplateResponse(
