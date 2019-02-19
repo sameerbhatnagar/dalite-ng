@@ -20,7 +20,7 @@
       <i class="mdc-theme--primary material-icons md-48">forum</i>
     </span>
     <span class="mdc-list-item__text mdc-theme--secondary bold">
-      {{ s.thread }}
+      {{ s.thread.title }}
       <span class="mdc-list-item__secondary-text">
         {% trans "Latest reply: " %} {{ s.thread.last_modified  }}
       </span>
@@ -29,7 +29,10 @@
       </span>
     </span>
     <span class="mdc-list-item__meta">
-      <form method="post">
+      {% if s.pk in request.session.forum_notifications %}
+      <i class="material-icons mdc-theme--primary">new_releases</i>
+      {% endif %}
+      <form method="post" style="display:inline;">
         {% csrf_token %}
         <input type="hidden" name="subscription_id" value="{{ s.pk }}"/>
         <input type="submit" class="mdc-button material-icons" style="color: #54c0db !important;" value="clear"/>

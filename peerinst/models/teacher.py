@@ -95,6 +95,14 @@ class Teacher(models.Model):
         verbose_name_plural = _("teachers")
 
 
+class LastLogout(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    last_logout = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        get_latest_by = ["last_logout"]
+
+
 class VerifiedDomain(models.Model):
     domain = models.CharField(
         max_length=100,

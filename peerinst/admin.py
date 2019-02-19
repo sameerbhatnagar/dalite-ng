@@ -21,6 +21,7 @@ from .models import (
     Category,
     Discipline,
     Institution,
+    LastLogout,
     LtiEvent,
     Question,
     Student,
@@ -212,6 +213,12 @@ class AnswerAdmin(admin.ModelAdmin):
 @admin.register(Teacher)
 class TeacherAdmin(admin.ModelAdmin):
     pass
+
+
+@admin.register(LastLogout)
+class LastLogoutAdmin(admin.ModelAdmin):
+    list_display = ["user", "last_logout"]
+    readonly_fields = ["user", "last_logout"]
 
 
 @admin.register(BlinkQuestion)

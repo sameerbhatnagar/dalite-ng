@@ -1,9 +1,12 @@
+from django.contrib.auth.signals import user_logged_in, user_logged_out
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.signals import request_started
 from django.db.models.signals import post_migrate
 from django.dispatch import receiver
 from django.utils import timezone
 
-from .models import StudentNotificationType
+from .models import LastLogout, StudentNotificationType, Teacher
+from pinax.forums.models import ThreadSubscription
 
 
 @receiver(request_started)
@@ -41,3 +44,44 @@ def student_notification_type_init_signal(sender, **kwargs):
             type=notification["type"]
         ).exists():
             StudentNotificationType.objects.create(**notification)
+
+
+@receiver(user_logged_in)
+def prepare_session(sender, request, user, **kwargs):
+    """ Post log in signal used to set up any special session variables, like
+        notifications. """
+    try:
+        teacher = Teacher.objects.get(user=user)
+        # Check for forum notifications
+        request.session["forum_notifications"] = []
+        follows = ThreadSubscription.objects.filter(user=user).order_by(
+            "thread__last_reply"
+        )
+        for i in follows.all():
+            print(i.thread.last_post.created)
+        try:
+            last_logout = LastLogout.objects.get(user=user)
+        except ObjectDoesNotExist:
+            if follows:
+                request.session["forum_notifications"] = True
+        else:
+            if (
+                follows.last().thread.last_post.created
+                > last_logout.last_logout
+            ):
+                request.session["forum_notifications"] = list(
+                    follows.filter(
+                        thread__last_reply__created__gt=last_logout.last_logout
+                    ).values_list("id", flat=True)
+                )
+    except ObjectDoesNotExist:
+        pass
+
+
+@receiver(user_logged_out)
+def last_logout(sender, request, user, **kwargs):
+    try:
+        last_logout = LastLogout.objects.get(user=user)
+        last_logout.save()
+    except ObjectDoesNotExist:
+        last_logout = LastLogout.objects.create(user=user)
