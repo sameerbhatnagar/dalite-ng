@@ -52,9 +52,7 @@ def add_forum_notifications(sender, instance, created, **kwargs):
     notification_type = ContentType.objects.get(
         app_label="pinax_forums", model="ThreadSubscription"
     )
-    print(instance)
     for s in ThreadSubscription.objects.filter(thread=instance.thread):
-        print(s)
         try:
             notification = TeacherNotification.objects.create(
                 teacher=s.user.teacher,
