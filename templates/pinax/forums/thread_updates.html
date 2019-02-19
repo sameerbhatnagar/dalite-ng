@@ -29,7 +29,7 @@
       </span>
     </span>
     <span class="mdc-list-item__meta">
-      {% if s.pk in request.session.forum_notifications %}
+      {% if s.id in request.session.forum_notifications %}
       <i class="material-icons mdc-theme--primary">new_releases</i>
       {% endif %}
       <form method="post" style="display:inline;">

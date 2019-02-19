@@ -32,6 +32,7 @@ from .models import (
     StudentNotification,
     StudentNotificationType,
     Teacher,
+    TeacherNotification,
 )
 
 
@@ -212,6 +213,11 @@ class AnswerAdmin(admin.ModelAdmin):
 
 @admin.register(Teacher)
 class TeacherAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(TeacherNotification)
+class TeacherNotificationAdmin(admin.ModelAdmin):
     pass
 
 

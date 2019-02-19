@@ -1,12 +1,13 @@
-from django.contrib.auth.signals import user_logged_in, user_logged_out
+from django.contrib.auth.signals import user_logged_out
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.signals import request_started
-from django.db.models.signals import post_migrate
+from django.db.models.signals import post_delete, post_migrate, post_save
 from django.dispatch import receiver
 from django.utils import timezone
 
-from .models import LastLogout, StudentNotificationType, Teacher
-from pinax.forums.models import ThreadSubscription
+from .models import LastLogout, StudentNotificationType, TeacherNotification
+from pinax.forums.models import ForumReply, ThreadSubscription
 
 
 @receiver(request_started)
@@ -46,35 +47,36 @@ def student_notification_type_init_signal(sender, **kwargs):
             StudentNotificationType.objects.create(**notification)
 
 
-@receiver(user_logged_in)
-def prepare_session(sender, request, user, **kwargs):
-    """ Post log in signal used to set up any special session variables, like
-        notifications. """
-    try:
-        teacher = Teacher.objects.get(user=user)
-        # Check for forum notifications
-        request.session["forum_notifications"] = []
-        follows = ThreadSubscription.objects.filter(user=user).order_by(
-            "thread__last_reply"
-        )
-        for i in follows.all():
-            print(i.thread.last_post.created)
+@receiver(post_save, sender=ForumReply)
+def add_forum_notifications(sender, instance, created, **kwargs):
+    notification_type = ContentType.objects.get(
+        app_label="pinax_forums", model="ThreadSubscription"
+    )
+    print(instance)
+    for s in ThreadSubscription.objects.filter(thread=instance.thread):
+        print(s)
         try:
-            last_logout = LastLogout.objects.get(user=user)
-        except ObjectDoesNotExist:
-            if follows:
-                request.session["forum_notifications"] = True
-        else:
-            if (
-                follows.last().thread.last_post.created
-                > last_logout.last_logout
-            ):
-                request.session["forum_notifications"] = list(
-                    follows.filter(
-                        thread__last_reply__created__gt=last_logout.last_logout
-                    ).values_list("id", flat=True)
-                )
-    except ObjectDoesNotExist:
+            notification = TeacherNotification.objects.create(
+                teacher=s.user.teacher,
+                notification_type=notification_type,
+                object_id=s.id,
+            )
+            notification.save()
+        except Exception:
+            pass
+
+
+@receiver(post_delete, sender=ThreadSubscription)
+def delete_forum_notifications(sender, instance, **kwargs):
+    notification_type = ContentType.objects.get(
+        app_label="pinax_forums", model="ThreadSubscription"
+    )
+    try:
+        notification = TeacherNotification.objects.get(
+            notification_type=notification_type, object_id=instance.pk
+        )
+        notification.delete()
+    except Exception:
         pass
 
 
