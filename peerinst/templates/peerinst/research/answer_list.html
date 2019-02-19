@@ -7,8 +7,8 @@
   .sticky-header {
     position: -webkit-sticky;
     position: sticky;
-    top: 10px;
-    background: lightgray;
+    top: 0px;
+    background: #f4f4f4;
   }
 
 </style>
@@ -24,7 +24,8 @@
       <a href="{% url 'research-discipline-question-index' discipline_title=discipline_title %}">{% trans 'Back to Question List' %}</a>
       <span style="padding-left:0.3em;padding-right:0.5em;">|</span><a href="{% url 'browse-database' %}">{% trans 'Back to Browse' %}</a>
     </div>
-    <input form="annotate-form" type="submit" value="Update Scores"/><br>
+
+    <input form="annotate-form" type="submit" value="Update Scores" id="button"><br>
 
     <div class="mdc-card">
       <div class="mdc-typography--body1">
