@@ -181,6 +181,7 @@ class RationaleOnlyQuestion(Question):
 
     def start_form_valid(request, view, form):
         rationale = form.cleaned_data["rationale"]
+        datetime_start = form.cleaned_data["datetime_start"]
 
         # Set first_answer_choice to 0 to indicate null
         answer = Answer(
@@ -189,7 +190,8 @@ class RationaleOnlyQuestion(Question):
             first_answer_choice=0,
             rationale=rationale,
             user_token=view.user_token,
-            time=timezone.now(),
+            datetime_start=datetime_start,
+            datetime_first=timezone.now(),
         )
         answer.save()
 

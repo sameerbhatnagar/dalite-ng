@@ -9,8 +9,6 @@ import re
 import urllib
 
 import pytz
-
-from dalite.views.errors import response_400, response_404, response_500
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import logout
@@ -50,6 +48,8 @@ from django_lti_tool_provider.models import LtiUserData
 from django_lti_tool_provider.signals import Signals
 from opaque_keys import InvalidKeyError
 from opaque_keys.edx.keys import CourseKey
+
+from dalite.views.errors import response_400, response_404, response_500
 
 # tos
 from tos.models import Consent, Tos
@@ -1356,8 +1356,9 @@ class QuestionReviewView(QuestionReviewBaseView):
             second_answer_choice=self.second_answer_choice,
             chosen_rationale=chosen_rationale,
             user_token=self.user_token,
-            #  time=datetime.datetime.now().isoformat(),
-            time=timezone.now(),
+            datetime_start=self.datetime_start,
+            datetime_first=self.datetime_first,
+            datetime_second=datetime.now(pytz.utc),
         )
         self.answer.save()
         if chosen_rationale is not None:

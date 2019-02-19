@@ -3,7 +3,9 @@ from __future__ import unicode_literals
 
 import itertools
 import string
+from datetime import datetime
 
+import pytz
 from django.contrib.auth.models import User
 from django.core import exceptions
 from django.core.exceptions import ValidationError
@@ -236,9 +238,13 @@ class Question(models.Model):
         first_answer_choice = int(form.cleaned_data["first_answer_choice"])
         correct = view.question.is_correct(first_answer_choice)
         rationale = form.cleaned_data["rationale"]
+        datetime_start = form.cleaned_data["datetime_start"]
+        datetime_first = datetime.now(pytz.utc)
         view.stage_data.update(
             first_answer_choice=first_answer_choice,
             rationale=rationale,
+            datetime_start=datetime_start,
+            datetime_first=datetime_first,
             completed_stage="start",
         )
         view.emit_event(
