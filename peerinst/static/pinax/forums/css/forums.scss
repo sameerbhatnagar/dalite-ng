@@ -35,12 +35,17 @@ main {
 }
 .reply {
   margin-right:5%;
+  padding: 10px 20px 6px;
   width:95%;
 }
 .reply-to-reply{
   background-color: lightgray;
   margin-left:5%;
   padding: 10px 20px 6px;
+  width:95%;
+}
+.post-form {
+  margin-right:5%;
   width:95%;
 }
 .reply-form {

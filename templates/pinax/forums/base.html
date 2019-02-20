@@ -18,7 +18,7 @@
 
     <div class="admin-link">
       <a href="{% url 'pinax_forums:thread_updates' %}">{% trans 'Follows' %}</a>
-      <span class="links-divider">|</span><a href="{% url 'teacher' request.user.teacher.id %}">{% trans 'Back to My Account' %}</a>
+      {% if request.user.teacher %}<span class="links-divider">|</span><a href="{% url 'teacher' request.user.teacher.id %}">{% trans 'Back to My Account' %}</a>{% endif %}
       {% block breadcrumbs %}{% endblock %}
     </div>
 

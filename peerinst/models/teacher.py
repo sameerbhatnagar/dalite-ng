@@ -3,6 +3,8 @@ from __future__ import unicode_literals
 
 import base64
 
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.db import models
@@ -93,6 +95,34 @@ class Teacher(models.Model):
     class Meta:
         verbose_name = _("teacher")
         verbose_name_plural = _("teachers")
+
+
+class LastLogout(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    last_logout = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        get_latest_by = ["last_logout"]
+
+
+class TeacherNotification(models.Model):
+    """ Generic framework for notifications based on ContentType """
+
+    teacher = models.ForeignKey(Teacher)
+    notification_type = models.ForeignKey(
+        ContentType, on_delete=models.CASCADE
+    )
+    object_id = models.PositiveIntegerField()
+    content_object = GenericForeignKey("notification_type", "object_id")
+    created_on = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ("teacher", "notification_type", "object_id")
+
+    def __unicode__(self):
+        return "{}-{} for {}".format(
+            self.notification_type.model, self.object_id, self.teacher
+        )
 
 
 class VerifiedDomain(models.Model):

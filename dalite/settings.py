@@ -51,6 +51,7 @@ MIDDLEWARE = (
     "django.contrib.auth.middleware.SessionAuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.security.SecurityMiddleware",
+    "peerinst.middleware.NotificationMiddleware",
     "dalite.custom_middleware.resp_405_middleware",
     # Minify html
     "htmlmin.middleware.HtmlMinifyMiddleware",
