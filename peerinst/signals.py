@@ -8,6 +8,7 @@ from django.utils import timezone
 
 from .models import LastLogout, StudentNotificationType, TeacherNotification
 from pinax.forums.models import ForumReply, ThreadSubscription
+from pinax.forums.views import thread_visited
 
 
 @receiver(request_started)
@@ -52,7 +53,9 @@ def add_forum_notifications(sender, instance, created, **kwargs):
     notification_type = ContentType.objects.get(
         app_label="pinax_forums", model="ThreadSubscription"
     )
-    for s in ThreadSubscription.objects.filter(thread=instance.thread):
+    for s in ThreadSubscription.objects.filter(thread=instance.thread).filter(
+        kind="onsite"
+    ):
         try:
             notification = TeacherNotification.objects.create(
                 teacher=s.user.teacher,
@@ -72,6 +75,26 @@ def delete_forum_notifications(sender, instance, **kwargs):
     try:
         notification = TeacherNotification.objects.get(
             notification_type=notification_type, object_id=instance.pk
+        )
+        notification.delete()
+    except Exception:
+        pass
+
+
+@receiver(thread_visited)
+def update_forum_notifications(sender, user, thread, **kwarsg):
+    notification_type = ContentType.objects.get(
+        app_label="pinax_forums", model="ThreadSubscription"
+    )
+
+    try:
+        thread_subscription = ThreadSubscription.objects.get(
+            user=user, thread=thread, kind="onsite"
+        )
+        notification = TeacherNotification.objects.get(
+            teacher=user.teacher,
+            notification_type=notification_type,
+            object_id=thread_subscription.pk,
         )
         notification.delete()
     except Exception:

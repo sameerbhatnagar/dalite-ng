@@ -132,7 +132,7 @@
 {% endfor %}
 
 {% if can_create_reply %}
-<div class="reply">
+<div class="post-form">
   <form method="post">
     {% csrf_token %}
     {{ reply_form.errors }}
