@@ -1,0 +1,26 @@
+{% extends 'peerinst/base.html' %}
+
+{% load staticfiles compress i18n %}
+
+
+{% block body %}
+<main>
+  <section>
+
+<h4 id="title" class="mdc-typography--title bold">{% trans 'Questions in ' %} {{ discipline_title|safe }}</h4>
+
+<div class="admin-link">
+  <a href="{% url 'research-index' %}">{% trans 'Back to List of Disciplines' %}</a>
+  <span style="padding-left:0.3em;padding-right:0.5em;">|</span><a href="{% url 'browse-database' %}">{% trans 'Back to Browse' %}</a>
+</div>
+
+Question ID (Number of Researcher Annotations / Number of Student Rationales)
+  <ul>
+    {% for q,annotation_count in questions %}
+      <li><a href="{% url 'research-question-answer-list' discipline_title=discipline_title question_pk=q.pk %}">{{ q.title }}</a> ({{ annotation_count }} / {{ q.answer_set.count }})</li>
+    {% endfor %}
+  </ul>
+
+  </section>
+  </main>
+{% endblock %}

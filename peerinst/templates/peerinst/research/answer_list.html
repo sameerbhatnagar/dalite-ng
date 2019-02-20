@@ -1,0 +1,124 @@
+{% extends 'peerinst/base.html' %}
+
+{% load staticfiles compress i18n %}
+
+{% block stylesheets %}
+<style>
+  .sticky-header {
+    position: -webkit-sticky;
+    position: sticky;
+    top: 0px;
+  }
+  .padded-bottom {
+    margin-bottom: 20px;
+  }
+</style>
+{% endblock %}
+
+{% block body %}
+<main>
+<section>
+  <div class="sticky-header mdc-theme--background">
+    <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Question' %}: {{ question.title|safe }}</h2>
+
+    <div class="admin-link">
+      <a href="{% url 'research-discipline-question-index' discipline_title=discipline_title %}">{% trans 'Back to Question List' %}</a>
+      <span style="padding-left:0.3em;padding-right:0.5em;">|</span><a href="{% url 'browse-database' %}">{% trans 'Back to Browse' %}</a>
+    </div>
+
+    <input form="annotate-form" type="submit" class="mdc-button mdc-button--raised padded-bottom" value="Update Scores">
+
+    <i class="mdc-icon-toggle material-icons mdc-theme--primary"
+        role="button"
+        title="{% trans 'Show/Hide' %}"
+        aria-label="{% trans 'Show/Hide' %}" tabindex="0"
+        aria-pressed="false"
+        data-toggle-on='{"label": "{% trans 'Show' %}", "content": "unfold_more"}'
+        data-toggle-off='{"label": "{% trans 'Hide' %}", "content": "unfold_less"}'
+        onclick="$('.hidable').toggle();">
+        unfold_less
+    </i>
+
+    <div class="mdc-card">
+      <div class="mdc-typography--body1">
+        {{question.text|safe}}
+      </div>
+
+      <div class="hidable">
+        {% if question.image %}
+        <img class="question-image" src="{{ question.image.url }}" height="{{ question.image.height }}"
+             width="{{ question.image.width }}" alt="question.image_alt_text">
+        {% endif %}
+        {% if question.video_url %}
+        <div id="question-video">
+          <object class="question-image" width="640" height="390" data="{{ question.video_url }}"></object>
+        </div>
+        {% endif %}
+
+        <ul id="answer-choices">
+          {% for label, choice in question.get_choices %}
+          <li class="dense-list">{{ label }}. {{ choice|safe }}</li>
+          {% endfor %}
+        </ul>
+
+        <div class="question-answers">
+          Correct answer(s):
+          {% for label, choice in question.get_choices %}
+            {% for c in question.answerchoice_set.all %}
+              {% if forloop.counter == forloop.parentloop.counter %}
+                {% if c.correct %}
+                  <blockquote><strong>{{ label }}. {{ choice|safe }}</strong></blockquote>
+                {% endif %}
+              {% endif %}
+            {% endfor %}
+          {% endfor %}
+        </div>
+
+      </div>
+  </div>
+
+</div>
+
+<div class="content">
+  <form action="" method="post" id="annotate-form">
+  {% csrf_token %}
+
+  {{ formset.management_form }}
+
+<table>
+<thead>
+  <tr>
+    <td>Answer</td>
+    <td>Score</td>
+    <td>Show?</td>
+    <td>Rationale</td>
+  </tr>
+</thead>
+<tbody>
+
+  {% for form in formset %}
+  {{ form.id }}
+    <tr>
+      <td>{{ form.instance.answer.first_answer_choice_label }}</td>
+      <td>{{ form.score }}</td>
+      <td title="{{form.instance.answer.pk}}">{{ form.instance.answer.show_to_others }}</td>
+      <td>{{ form.instance.answer.rationale }}</td>
+    </tr>
+  {% endfor %}
+</tbody>
+</table>
+</form>
+</div>
+
+</section>
+</main>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+  $(".mdc-icon-toggle").each(function() {
+      bundle.iconToggle.MDCIconToggle.attachTo(this);
+  });
+</script>
+{% endblock %}

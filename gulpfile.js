@@ -42,6 +42,25 @@ gulp.task("sass", function() {
     .pipe(gulp.dest("./peerinst/static/peerinst/css/"));
 });
 
+gulp.task("pinax-sass", function() {
+  return gulp
+    .src("./peerinst/static/pinax/forums/css/*.scss")
+    .pipe(
+      rename(function(path) {
+        path.extname = ".min.css";
+      }),
+    )
+    .pipe(sourcemaps.init())
+    .pipe(
+      sass({
+        outputStyle: "compressed",
+        includePaths: "./node_modules/",
+      }),
+    )
+    .pipe(sourcemaps.write("."))
+    .pipe(gulp.dest("./peerinst/static/pinax/forums/css/"));
+});
+
 // Process native css files not minified already
 gulp.task("css", function() {
   return gulp
@@ -81,7 +100,7 @@ gulp.task("autoprefixer", function() {
 });
 
 gulp.task("peerinst-styles", function(callback) {
-  runSequence("sass", "css", "autoprefixer", callback);
+  runSequence("sass", "pinax-sass", "css", "autoprefixer", callback);
 });
 
 gulp.task("peerinst-styles-group", function() {
@@ -262,6 +281,21 @@ gulp.task("peerinst-scripts-search", function() {
   );
 });
 
+gulp.task("pinax-forums-scripts-forums", function() {
+  const runCommand = require("child_process").execSync;
+  runCommand(
+    "./node_modules/.bin/rollup -c ./rollup/peerinst/pinax/forums/forums-rollup.config.js", // eslint-disable-line max-len
+    function(err, stdout, stderr) {
+      console.log("Output: " + stdout);
+      console.log("Error: " + stderr);
+      if (err) {
+        console.log("Error: " + err);
+      }
+    },
+  );
+});
+
+
 gulp.task("peerinst-scripts", function(callback) {
   runSequence(
     "peerinst-scripts-index",
@@ -269,6 +303,7 @@ gulp.task("peerinst-scripts", function(callback) {
     "peerinst-scripts-student",
     "peerinst-scripts-ajax",
     "peerinst-scripts-search",
+    "pinax-forums-scripts-forums",
     callback,
   );
 });

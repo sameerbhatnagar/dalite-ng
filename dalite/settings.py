@@ -39,6 +39,7 @@ INSTALLED_APPS = (
     "django_lti_tool_provider",
     "compressor",
     "analytical",
+    "pinax.forums",
 )
 
 MIDDLEWARE = (
@@ -50,6 +51,7 @@ MIDDLEWARE = (
     "django.contrib.auth.middleware.SessionAuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.security.SecurityMiddleware",
+    "peerinst.middleware.NotificationMiddleware",
     "dalite.custom_middleware.resp_405_middleware",
     # Minify html
     "htmlmin.middleware.HtmlMinifyMiddleware",
@@ -157,7 +159,7 @@ STATICFILES_FINDERS = (
 
 COMPRESS_ENABLED = True
 KEEP_COMMENTS_ON_MINIFYING = False
-HTML_MINIFY = True
+HTML_MINIFY = not DEBUG
 
 COMPRESS_URL = STATIC_URL
 COMPRESS_ROOT = STATIC_ROOT
@@ -313,6 +315,7 @@ PASSWORD_GENERATOR_NONCE = os.environ.get("PASSWORD_GENERATOR_NONCE", None)
 # this url for file contents.
 HEARTBEAT_REQUIRED_FREE_SPACE_PERCENTAGE = 20
 
+PINAX_FORUMS_EDIT_TIMEOUT = dict(days=120)
 
 # NB: Object level permissions are checked for certain models, including
 # Question

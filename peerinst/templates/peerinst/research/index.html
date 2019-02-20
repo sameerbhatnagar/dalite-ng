@@ -1,0 +1,22 @@
+{% extends 'peerinst/base.html' %}
+
+{% load staticfiles compress i18n %}
+
+
+{% block body %}
+<main>
+  <section>
+<h4 id="title" class="mdc-typography--title bold">{% trans 'Disciplines' %}</h4>
+
+<div class="admin-link">
+  <a href="{% url 'browse-database' %}">{% trans 'Back to Browse' %}</a>
+</div>
+  <ul>
+    {% for d in disciplines %}
+      <li><a href = "{% url 'research-discipline-question-index' discipline_title=d.title %}">{{ d.title }}</a></li>
+    {% endfor %}
+  </ul>
+</section>
+</main>
+
+{% endblock %}

@@ -1,0 +1,46 @@
+{% extends './base.html' %}
+
+{% load i18n %}
+
+{% block heading %}
+{% trans 'Follows' %}
+{% endblock %}
+
+{% block breadcrumbs %}
+    <span class="links-divider">|</span><a href="{% url 'pinax_forums:forums' %}">{% trans 'Back to Forums' %}</a>
+{% endblock %}
+
+{% block content %}
+<h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Threads you are following' %}</h2>
+<ul class="mdc-list mdc-list--two-line">
+{% for s in subscriptions %}
+  <li role="separator" class="mdc-list-divider"></li>
+  <li class="mdc-list-item" onclick="window.location.href='{% url 'pinax_forums:thread' s.thread.pk %}'" style="cursor:pointer;">
+    <span class="mdc-list-item__graphic mdc-theme--primary">
+      <i class="mdc-theme--primary material-icons md-48">forum</i>
+    </span>
+    <span class="mdc-list-item__text mdc-theme--secondary bold">
+      {{ s.thread.title }}
+      <span class="mdc-list-item__secondary-text">
+        {% trans "Latest reply: " %} {{ s.thread.last_modified  }}
+      </span>
+      <span class="mdc-list-item__secondary-text">
+        {{ s.thread.view_count }} {% trans "views" %}, {{ s.thread.reply_count }} {% trans "replies" %}, {{ s.thread.subscriber_count }} {% trans "following" %}
+      </span>
+    </span>
+    <span class="mdc-list-item__meta">
+      {% if s.id in request.session.forum_notifications %}
+      <i class="material-icons mdc-theme--primary">new_releases</i>
+      {% endif %}
+      <form method="post" style="display:inline;">
+        {% csrf_token %}
+        <input type="hidden" name="subscription_id" value="{{ s.pk }}"/>
+        <input type="submit" class="mdc-button material-icons" style="color: #54c0db !important;" value="clear"/>
+      </form>
+    </span>
+  </li>
+{% empty %}
+<p>{% trans 'You are not currently following any threads.' %}</p>
+{% endfor %}
+<li role="separator" class="mdc-list-divider"></li>
+{% endblock %}

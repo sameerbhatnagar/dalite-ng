@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+from django.contrib.auth.models import User
 from django.db import models
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
@@ -246,3 +247,20 @@ class ShownRationale(models.Model):
     shown_answer = models.ForeignKey(
         Answer, related_name="shown_answer", null=True
     )
+
+
+class AnswerAnnotation(models.Model):
+    SCORE_CHOICES = (
+        (1, _("1-Very Weak")),
+        (2, _("2-Weak")),
+        (3, _("3-Neutral")),
+        (4, _("4-Strong")),
+        (5, _("5-Very Strong")),
+    )
+    answer = models.ForeignKey(Answer)
+    annotator = models.ForeignKey(User)
+    timestamp = models.DateTimeField(auto_now=True)
+    score = models.PositiveIntegerField(
+        null=True, default=None, blank=True, choices=SCORE_CHOICES
+    )
+    note = models.CharField(max_length=500, null=True, blank=True)
