@@ -1670,6 +1670,8 @@ def question(request, assignment_id, question_id):
         ),
     )
 
+    print(request.GET.get("completed_stage"))
+
     # Determine stage and view class
     if request.GET.get("show_results_view") == "true":
         stage_class = AnswerSummaryChartView
@@ -2083,19 +2085,22 @@ def student_activity(request):
                     assignment = key.assignment
                     id = key.assignment.identifier
 
-                    if key.distribution_date < value_list["answers"][0].time:
+                    if (
+                        key.distribution_date
+                        < value_list["answers"][0].datetime_first
+                    ):
                         start_date = key.distribution_date
                     else:
-                        start_date = value_list["answers"][0].time
-                    if key.due_date > value_list["answers"][-1].time:
+                        start_date = value_list["answers"][0].datetime_first
+                    if key.due_date > value_list["answers"][-1].datetime_first:
                         end_date = key.due_date
                     else:
-                        end_date = value_list["answers"][-1].time
+                        end_date = value_list["answers"][-1].datetime_first
                 except Exception:
                     assignment = key
                     id = key.identifier
-                    start_date = value_list["answers"][0].time
-                    end_date = value_list["answers"][-1].time
+                    start_date = value_list["answers"][0].datetime_first
+                    end_date = value_list["answers"][-1].datetime_first
 
                 json_data[group_key.name][id] = {}
                 json_data[group_key.name][id]["distribution_date"] = str(
@@ -2982,7 +2987,7 @@ def assignment_timeline_data(request, assignment_id, question_id):
     qs = (
         models.Answer.objects.filter(assignment_id=assignment_id)
         .filter(question_id=question_id)
-        .annotate(date=DateExtractFunc("time"))
+        .annotate(date=DateExtractFunc("datetime_first"))
         .values("date")
         .annotate(N=Count("id"))
     )
