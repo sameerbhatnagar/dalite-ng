@@ -239,7 +239,9 @@ class Question(models.Model):
         correct = view.question.is_correct(first_answer_choice)
         rationale = form.cleaned_data["rationale"]
         datetime_start = form.cleaned_data["datetime_start"]
-        datetime_first = datetime.now(pytz.utc)
+        datetime_first = datetime.now(pytz.utc).strftime(
+            "%Y-%m-%d %H:%M:%S.%f"
+        )
         view.stage_data.update(
             first_answer_choice=first_answer_choice,
             rationale=rationale,

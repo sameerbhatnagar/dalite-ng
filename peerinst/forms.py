@@ -63,7 +63,8 @@ class FirstAnswerForm(forms.Form):
     )
 
     datetime_start = forms.CharField(
-        widget=forms.HiddenInput(), initial=datetime.now(pytz.utc)
+        widget=forms.HiddenInput(),
+        initial=datetime.now(pytz.utc).strftime("%Y-%m-%d %H:%M:%S.%f"),
     )
 
     def __init__(self, answer_choices, *args, **kwargs):

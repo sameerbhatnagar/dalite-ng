@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-import datetime
 import json
 import logging
 import random
 import re
 import urllib
 from collections import Counter
+from datetime import datetime
 
 import pytz
 from django.conf import settings
@@ -1018,7 +1018,7 @@ class QuestionFormView(QuestionMixin, FormView):
             host=META.get("SERVER_NAME"),
             ip=META.get("HTTP_X_REAL_IP", META.get("REMOTE_ADDR")),
             referer=META.get("HTTP_REFERER"),
-            time=datetime.datetime.now().isoformat(),
+            time=datetime.now().isoformat(),
             username=self.user_token,
         )
 
@@ -1188,6 +1188,12 @@ class QuestionReviewBaseView(QuestionFormView):
         kwargs = super(QuestionReviewBaseView, self).get_form_kwargs()
         self.first_answer_choice = self.stage_data.get("first_answer_choice")
         self.rationale = self.stage_data.get("rationale")
+        self.datetime_start = datetime.strptime(
+            self.stage_data.get("datetime_start"), "%Y-%m-%d %H:%M:%S.%f"
+        ).replace(tzinfo=pytz.UTC)
+        self.datetime_first = datetime.strptime(
+            self.stage_data.get("datetime_first"), "%Y-%m-%d %H:%M:%S.%f"
+        ).replace(tzinfo=pytz.UTC)
         return kwargs
 
     def get_context_data(self, **kwargs):
@@ -1670,8 +1676,6 @@ def question(request, assignment_id, question_id):
         ),
     )
 
-    print(request.GET.get("completed_stage"))
-
     # Determine stage and view class
     if request.GET.get("show_results_view") == "true":
         stage_class = AnswerSummaryChartView
@@ -1998,7 +2002,6 @@ def student_activity(request):
     standalone_assignments = StudentGroupAssignment.objects.filter(
         group__in=current_groups
     ).filter(distribution_date__isnull=False)
-    # .filter(due_date__gt=datetime.datetime.now(pytz.utc))
 
     standalone_answers = Answer.objects.filter(
         assignment__in=standalone_assignments.values("assignment")
@@ -2111,7 +2114,7 @@ def student_activity(request):
                     request.user.last_login
                 )
                 json_data[group_key.name][id]["now"] = str(
-                    datetime.datetime.utcnow().replace(tzinfo=pytz.utc)
+                    datetime.utcnow().replace(tzinfo=pytz.utc)
                 )
                 json_data[group_key.name][id]["total"] = (
                     group_key.student_set.count()
@@ -2364,7 +2367,7 @@ class BlinkQuestionDetailView(DetailView):
 
                 # Create round
                 r = BlinkRound(
-                    question=self.object, activate_time=datetime.datetime.now()
+                    question=self.object, activate_time=datetime.now()
                 )
                 r.save()
             else:
