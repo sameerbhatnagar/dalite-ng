@@ -4,11 +4,11 @@ function toggleFoldable(event) {
   const foldable = event.currentTarget.parentNode;
   if (foldable.classList.contains("foldable__unfolded")) {
     foldable.classList.remove("foldable__unfolded");
-    foldable.childNodes[1].style.overflow = "hidden";
+    foldable.querySelector(".foldable--body").style.overflow = "hidden";
   } else {
     foldable.classList.add("foldable__unfolded");
     setTimeout(function() {
-      foldable.childNodes[1].style.overflow = "auto";
+      foldable.querySelector(".foldable--body").style.overflow = "auto";
     }, 300);
   }
 }
