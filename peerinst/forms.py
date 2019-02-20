@@ -117,6 +117,10 @@ class ReviewAnswerForm(forms.Form):
         answer_choices = []
         rationale_choice_fields = []
         for i, (choice, label, rationales) in enumerate(rationale_choices):
+            rationales = [
+                (id_ if id_ is not None else "None", rationale)
+                for id_, rationale in rationales
+            ]
             field_name = "{}_{}".format(self.RATIONALE_CHOICE, i)
             self.fields[field_name] = forms.ChoiceField(
                 label="",
