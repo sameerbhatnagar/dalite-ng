@@ -104,7 +104,7 @@ class TestTosConsentView(TestCase):
             resp = self.client.get(reverse("tos:tos_consent", kwargs=test))
             self.assertEqual(resp.status_code, 400)
             self.assertIn(
-                '"{}" isn\'t a valid role.'.format(test["role"]), resp.content
+                "{} isn't a valid role.".format(test["role"]), resp.content
             )
 
 
@@ -173,7 +173,7 @@ class TestTosConsentModifyView(TestCase):
             resp = self.client.get(reverse("tos:tos_modify", kwargs=test))
             self.assertEqual(resp.status_code, 400)
             self.assertIn(
-                '"{}" isn\'t a valid role.'.format(test["role"]), resp.content
+                "{} isn't a valid role.".format(test["role"]), resp.content
             )
 
 
@@ -297,6 +297,5 @@ class TestTosConsentUpdateView(TestCase):
             )
             self.assertEqual(resp.status_code, 400)
             self.assertIn(
-                '"{}" isn\'t a valid role.'.format(test[0]["role"]),
-                resp.content,
+                "{} isn't a valid role.".format(test[0]["role"]), resp.content
             )

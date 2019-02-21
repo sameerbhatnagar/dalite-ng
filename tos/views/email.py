@@ -117,7 +117,7 @@ def _get_username_and_role(req, role):
                 "400.html",
                 context={
                     "message": _(
-                        'The role "{}" doesn\'t seem to exist.'.format(role)
+                        "The role {} doesn't seem to exist.".format(role)
                     )
                 },
                 status=400,

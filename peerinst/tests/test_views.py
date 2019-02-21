@@ -3,9 +3,11 @@ from __future__ import unicode_literals
 
 import json
 import random
+from datetime import datetime
 
 import ddt
 import mock
+import pytz
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.test import TestCase
@@ -161,6 +163,9 @@ class QuestionViewTestCase(TestCase):
         return response
 
     def question_post(self, **form_data):
+        form_data["datetime_start"] = datetime.now(pytz.utc).strftime(
+            "%Y-%m-%d %H:%M:%S.%f"
+        )
         response = self.client.post(self.question_url, form_data, follow=True)
         self.assertEqual(response.status_code, 200)
         return response
