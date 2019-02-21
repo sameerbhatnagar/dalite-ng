@@ -25,7 +25,9 @@
   {% block body %}{% endblock %}
 
   <p>
+    {% autoescape off %}
     {{ message }}
+    {% endautoescape %}
   </p>
   
   <div class="corner_graphic" id="outer"></div>

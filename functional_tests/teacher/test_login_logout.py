@@ -1,6 +1,14 @@
 from django.core.urlresolvers import reverse
+from selenium.common.exceptions import TimeoutException
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.expected_conditions import (
+    presence_of_element_located,
+)
+from selenium.webdriver.support.ui import WebDriverWait
 
 from functional_tests.fixtures import *  # noqa
+
+timeout = 3
 
 
 def login(browser, teacher):
@@ -40,8 +48,14 @@ def logout(browser):
     icon = browser.find_element_by_xpath("//i[contains(text(), 'menu')]")
     icon.click()
 
-    link = browser.find_element_by_xpath("//a[contains(text(), 'Logout')]")
-    link.click()
+    try:
+        WebDriverWait(browser, timeout).until(
+            presence_of_element_located(
+                (By.XPATH, "//a[contains(text(), 'Logout')]")
+            )
+        ).click()
+    except TimeoutException:
+        assert False
 
     assert browser.current_url == browser.server_url + "/en/"
 
