@@ -1,18 +1,15 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-import datetime
 import json
 import logging
 import random
 import re
 import urllib
+from collections import Counter
+from datetime import datetime
 
 import pytz
-
-from collections import Counter
-
-from dalite.views.errors import response_400, response_404, response_500
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import logout
@@ -52,6 +49,8 @@ from django_lti_tool_provider.models import LtiUserData
 from django_lti_tool_provider.signals import Signals
 from opaque_keys import InvalidKeyError
 from opaque_keys.edx.keys import CourseKey
+
+from dalite.views.errors import response_400, response_404, response_500
 
 # tos
 from tos.models import Consent, Tos
@@ -1019,7 +1018,7 @@ class QuestionFormView(QuestionMixin, FormView):
             host=META.get("SERVER_NAME"),
             ip=META.get("HTTP_X_REAL_IP", META.get("REMOTE_ADDR")),
             referer=META.get("HTTP_REFERER"),
-            time=datetime.datetime.now().isoformat(),
+            time=datetime.now().isoformat(),
             username=self.user_token,
         )
 
@@ -1189,6 +1188,12 @@ class QuestionReviewBaseView(QuestionFormView):
         kwargs = super(QuestionReviewBaseView, self).get_form_kwargs()
         self.first_answer_choice = self.stage_data.get("first_answer_choice")
         self.rationale = self.stage_data.get("rationale")
+        self.datetime_start = datetime.strptime(
+            self.stage_data.get("datetime_start"), "%Y-%m-%d %H:%M:%S.%f"
+        ).replace(tzinfo=pytz.UTC)
+        self.datetime_first = datetime.strptime(
+            self.stage_data.get("datetime_first"), "%Y-%m-%d %H:%M:%S.%f"
+        ).replace(tzinfo=pytz.UTC)
         return kwargs
 
     def get_context_data(self, **kwargs):
@@ -1359,8 +1364,9 @@ class QuestionReviewView(QuestionReviewBaseView):
             second_answer_choice=self.second_answer_choice,
             chosen_rationale=chosen_rationale,
             user_token=self.user_token,
-            #  time=datetime.datetime.now().isoformat(),
-            time=timezone.now(),
+            datetime_start=self.datetime_start,
+            datetime_first=self.datetime_first,
+            datetime_second=datetime.now(pytz.utc),
         )
         self.answer.save()
         if chosen_rationale is not None:
@@ -1996,7 +2002,6 @@ def student_activity(request):
     standalone_assignments = StudentGroupAssignment.objects.filter(
         group__in=current_groups
     ).filter(distribution_date__isnull=False)
-    # .filter(due_date__gt=datetime.datetime.now(pytz.utc))
 
     standalone_answers = Answer.objects.filter(
         assignment__in=standalone_assignments.values("assignment")
@@ -2035,7 +2040,11 @@ def student_activity(request):
                         for a in standalone_answers
                         if a.user_token in student_list
                         and a.assignment == ga.assignment
-                        and a.time > request.user.last_login
+                        and (
+                            a.datetime_start > request.user.last_login
+                            or a.datetime_first > request.user.last_login
+                            or a.datetime_second > request.user.last_login
+                        )
                     ]
                     all_answers_by_group[g][ga]["percent_complete"] = int(
                         100.0
@@ -2057,7 +2066,11 @@ def student_activity(request):
                         for a in lti_answers
                         if a.user_token in student_list
                         and a.assignment == l
-                        and a.time > request.user.last_login
+                        and (
+                            a.datetime_start > request.user.last_login
+                            or a.datetime_first > request.user.last_login
+                            or a.datetime_second > request.user.last_login
+                        )
                     ]
                     all_answers_by_group[g][l]["percent_complete"] = int(
                         100.0
@@ -2075,19 +2088,22 @@ def student_activity(request):
                     assignment = key.assignment
                     id = key.assignment.identifier
 
-                    if key.distribution_date < value_list["answers"][0].time:
+                    if (
+                        key.distribution_date
+                        < value_list["answers"][0].datetime_first
+                    ):
                         start_date = key.distribution_date
                     else:
-                        start_date = value_list["answers"][0].time
-                    if key.due_date > value_list["answers"][-1].time:
+                        start_date = value_list["answers"][0].datetime_first
+                    if key.due_date > value_list["answers"][-1].datetime_first:
                         end_date = key.due_date
                     else:
-                        end_date = value_list["answers"][-1].time
+                        end_date = value_list["answers"][-1].datetime_first
                 except Exception:
                     assignment = key
                     id = key.identifier
-                    start_date = value_list["answers"][0].time
-                    end_date = value_list["answers"][-1].time
+                    start_date = value_list["answers"][0].datetime_first
+                    end_date = value_list["answers"][-1].datetime_first
 
                 json_data[group_key.name][id] = {}
                 json_data[group_key.name][id]["distribution_date"] = str(
@@ -2098,7 +2114,7 @@ def student_activity(request):
                     request.user.last_login
                 )
                 json_data[group_key.name][id]["now"] = str(
-                    datetime.datetime.utcnow().replace(tzinfo=pytz.utc)
+                    datetime.utcnow().replace(tzinfo=pytz.utc)
                 )
                 json_data[group_key.name][id]["total"] = (
                     group_key.student_set.count()
@@ -2107,7 +2123,7 @@ def student_activity(request):
                 json_data[group_key.name][id]["answers"] = []
                 for answer in value_list["answers"]:
                     json_data[group_key.name][id]["answers"].append(
-                        str(answer.time)
+                        str(answer.datetime_first)
                     )
 
     return TemplateResponse(
@@ -2351,7 +2367,7 @@ class BlinkQuestionDetailView(DetailView):
 
                 # Create round
                 r = BlinkRound(
-                    question=self.object, activate_time=datetime.datetime.now()
+                    question=self.object, activate_time=datetime.now()
                 )
                 r.save()
             else:
@@ -2974,7 +2990,7 @@ def assignment_timeline_data(request, assignment_id, question_id):
     qs = (
         models.Answer.objects.filter(assignment_id=assignment_id)
         .filter(question_id=question_id)
-        .annotate(date=DateExtractFunc("time"))
+        .annotate(date=DateExtractFunc("datetime_first"))
         .values("date")
         .annotate(N=Count("id"))
     )
@@ -3185,7 +3201,7 @@ def research_question_answer_list(request, discipline_title, question_pk):
 
     queryset = AnswerAnnotation.objects.filter(
         answer__question_id=question_pk, annotator=annotator
-    ).order_by("answer__first_answer_choice", "answer__time")
+    ).order_by("answer__first_answer_choice", "answer__datetime_second")
 
     AnswerAnnotationFormset = modelformset_factory(
         AnswerAnnotation, fields=("score",), extra=0

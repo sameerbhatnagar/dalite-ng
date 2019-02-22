@@ -715,7 +715,7 @@ def report_data_by_assignment(assignment_list, student_groups):
                     ).rationale
                 else:
                     d_q_a["chosen_rationale"] = "Stick to my own rationale"
-                d_q_a["submitted"] = student_response.time
+                d_q_a["submitted"] = student_response.datetime_first
 
                 if q.sequential_review:
                     d_q_a["upvotes"] = student_response.upvotes

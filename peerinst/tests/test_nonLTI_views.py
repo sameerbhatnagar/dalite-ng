@@ -1,3 +1,6 @@
+from datetime import datetime
+
+import pytz
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import Group, Permission, User
 from django.core import mail
@@ -83,7 +86,8 @@ class SignUpTest(TestCase):
             },
         )
         self.assertIn(
-            "The two password fields didn't match", response.content.decode()
+            "The two password fields didn't match",
+            response.content.replace("&#39;", "'"),
         )
 
     def test_email_error(self):
@@ -527,7 +531,13 @@ class TeacherTest(TestCase):
         )
         response = self.client.post(
             reverse("sample-answer-form", kwargs={"question_id": 29}),
-            {"first_answer_choice": 1, "rationale": "Test sample rationale"},
+            {
+                "first_answer_choice": 1,
+                "rationale": "Test sample rationale",
+                "datetime_start": datetime.now(pytz.utc).strftime(
+                    "%Y-%m-%d %H:%M:%S.%f"
+                ),
+            },
             follow=True,
         )
         self.assertEqual(response.status_code, 200)

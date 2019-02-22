@@ -53,7 +53,9 @@ class Answer(models.Model):
         default=False,
         help_text=_("Whether this answer is a pre-seeded expert rationale."),
     )
-    time = models.DateTimeField(blank=True, null=True)
+    datetime_start = models.DateTimeField(blank=True, null=True)
+    datetime_first = models.DateTimeField(blank=True, null=True)
+    datetime_second = models.DateTimeField(blank=True, null=True)
     upvotes = models.PositiveIntegerField(default=0)
     downvotes = models.PositiveIntegerField(default=0)
 
@@ -140,6 +142,31 @@ class Answer(models.Model):
                 "This grading scheme has not been implemented."
             )
 
+    @property
+    def time_first_answer(self):
+        """
+        Returns the time between the first time the question is shown and the
+        first answer.
+
+        Returns
+        -------
+        timedelta
+            Time taken to answer first part
+        """
+        return self.datetime_first - self.datetime_start
+
+    @property
+    def time_second_answer(self):
+        """
+        Returns the time between the second and first answers.
+
+        Returns
+        -------
+        timedelta
+            Time taken to answer second part
+        """
+        return self.datetime_second - self.datetime_first
+
 
 class AnswerVote(models.Model):
     """Vote on a rationale with attached fake attribution."""
@@ -180,6 +207,7 @@ class RationaleOnlyQuestion(Question):
 
     def start_form_valid(request, view, form):
         rationale = form.cleaned_data["rationale"]
+        datetime_start = form.cleaned_data["datetime_start"]
 
         # Set first_answer_choice to 0 to indicate null
         answer = Answer(
@@ -188,7 +216,8 @@ class RationaleOnlyQuestion(Question):
             first_answer_choice=0,
             rationale=rationale,
             user_token=view.user_token,
-            time=timezone.now(),
+            datetime_start=datetime_start,
+            datetime_first=timezone.now(),
         )
         answer.save()
 
@@ -222,11 +251,9 @@ class ShownRationale(models.Model):
 
 class AnswerAnnotation(models.Model):
     SCORE_CHOICES = (
-        (1, _("1-Very Weak")),
-        (2, _("2-Weak")),
-        (3, _("3-Neutral")),
-        (4, _("4-Strong")),
-        (5, _("5-Very Strong")),
+        (1, _("1-Never Show")),
+        (2, _("2-Maybe Show")),
+        (3, _("3-Show")),
     )
     answer = models.ForeignKey(Answer)
     annotator = models.ForeignKey(User)

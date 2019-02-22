@@ -64,6 +64,7 @@
       {% block form %}
       <form id="submit-answer-form" method="post">
         {% csrf_token %}
+        {{ form.datetime_start }}
         {% block inner_form %}
         <!--
         <span class="mdc-typography--body1">{{ form.first_answer_choice.label }}</span>

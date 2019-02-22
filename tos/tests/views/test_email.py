@@ -1,17 +1,12 @@
 from __future__ import unicode_literals
 
-import json
 import random
 
-from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.client import Client
 
-from tos.models import EmailConsent, EmailType, Role
-
 from ..generators import (
-    add_email_consents,
     add_email_types,
     add_roles,
     add_users,
@@ -63,7 +58,7 @@ class TestEmailConsentModifyView(TestCase):
             resp = self.client.get(reverse("tos:email_modify", kwargs=test))
             self.assertEqual(resp.status_code, 400)
             self.assertIn(
-                'The role "{}" doesn\'t seem to exist.'.format(test["role"]),
+                "The role {} doesn't seem to exist.".format(test["role"]),
                 resp.content,
             )
 
@@ -123,6 +118,6 @@ class TestEmailConsentUpdateView(TestCase):
             resp = self.client.post(reverse("tos:email_update", kwargs=test))
             self.assertEqual(resp.status_code, 400)
             self.assertIn(
-                'The role "{}" doesn\'t seem to exist.'.format(test["role"]),
+                "The role {} doesn't seem to exist.".format(test["role"]),
                 resp.content,
             )

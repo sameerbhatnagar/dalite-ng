@@ -2,8 +2,10 @@
 from __future__ import unicode_literals
 
 import re
+from datetime import datetime
 
 import password_validation
+import pytz
 from django import forms
 from django.contrib.auth.forms import PasswordResetForm, UserCreationForm
 from django.contrib.auth.models import User
@@ -60,6 +62,11 @@ class FirstAnswerForm(forms.Form):
         },
     )
 
+    datetime_start = forms.CharField(
+        widget=forms.HiddenInput(),
+        initial=datetime.now(pytz.utc).strftime("%Y-%m-%d %H:%M:%S.%f"),
+    )
+
     def __init__(self, answer_choices, *args, **kwargs):
         choice_texts = [
             mark_safe(
@@ -86,6 +93,9 @@ class RationaleOnlyForm(forms.Form):
     rationale = forms.CharField(
         widget=forms.Textarea(attrs={"cols": 100, "rows": 7})
     )
+    datetime_start = forms.CharField(
+        widget=forms.HiddenInput(), initial=datetime.now(pytz.utc)
+    )
 
     def __init__(self, answer_choices, *args, **kwargs):
         forms.Form.__init__(self, *args, **kwargs)
@@ -107,6 +117,10 @@ class ReviewAnswerForm(forms.Form):
         answer_choices = []
         rationale_choice_fields = []
         for i, (choice, label, rationales) in enumerate(rationale_choices):
+            rationales = [
+                (id_ if id_ is not None else "None", rationale)
+                for id_, rationale in rationales
+            ]
             field_name = "{}_{}".format(self.RATIONALE_CHOICE, i)
             self.fields[field_name] = forms.ChoiceField(
                 label="",
