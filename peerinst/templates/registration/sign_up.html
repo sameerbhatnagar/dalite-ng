@@ -46,7 +46,7 @@
         {% trans "By clicking on 'Register' you agree to the " %}<a href="{% url 'terms_teacher' %}">{% trans 'Terms of Service' %}</a>.
       </p>
       <div>
-        <input class="mdc-button mdc-button--raised padded-top" onclick="this.form.submit();this.disabled=true;" type="submit" value="{% trans 'Register' %}"/>
+        <input class="mdc-button mdc-button--raised padded-top" onclick="this.form.submit();if (this.form.reportValidity()){this.disabled=true;}" type="submit" value="{% trans 'Register' %}"/>
       </div>
     </form>
     <br>
