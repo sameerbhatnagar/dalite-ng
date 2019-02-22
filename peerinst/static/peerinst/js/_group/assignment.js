@@ -167,7 +167,7 @@ function addQuestionListDragListeners() {
 }
 
 function addSendAssignmentEmailListeners() {
-  Array.from(document.querySelectorAll("email-btn")).map(x =>
+  Array.from(document.querySelectorAll(".email-btn")).map(x =>
     x.addEventListener("click", event => sendAssignmentEmail(event)),
   );
 }

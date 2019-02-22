@@ -5,7 +5,7 @@ export function getCsrfToken() {
   if (document.cookie && document.cookie !== "") {
     return document.cookie
       .split(";")
-      .map(c => c.replace(/^\s+/, "").replace(/\s+$/, ""))
+      .map(c => c.trim())
       .filter(c => c.substring(0, name.length + 1) === name + "=")
       .map(c => decodeURIComponent(c.substring(name.length + 1)))[0];
   } else {
