@@ -1,431 +1,310 @@
 const autoprefixer = require("autoprefixer");
-// const replace = require("gulp-replace");
-// const fs = require("fs");
+const babel = require("rollup-plugin-babel");
+const buffer = require("vinyl-buffer");
+const commonjs = require("rollup-plugin-commonjs");
 const concat = require("gulp-concat");
-// const crypto = require("crypto");
-const cssnano = require("cssnano");
 const gulp = require("gulp");
-// const merge = require("merge-stream");
+const merge = require("merge-stream");
 const postcss = require("gulp-postcss");
 const rename = require("gulp-rename");
-const runSequence = require("run-sequence");
+const rollup = require("rollup-stream");
+const resolve = require("rollup-plugin-node-resolve");
 const sass = require("gulp-sass");
+const source = require("vinyl-source-stream");
 const sourcemaps = require("gulp-sourcemaps");
+const { eslint } = require("rollup-plugin-eslint");
+const { uglify } = require("rollup-plugin-uglify");
 
-// const hash = path =>
-// new Promise((resolve, reject) => {
-// fs.createReadStream(path)
-// .on("error", reject)
-// .pipe(crypto.createHash("sha1").setEncoding("hex"))
-// .once("finish", function() {
-// resolve(this.read()); // eslint-disable-line no-invalid-this
-// });
-// });
+const styleBuilds = [
+  {
+    app: "peerinst",
+    modules: ["group", "student"],
+  },
+];
 
-// Run sass and minify
-gulp.task("sass", function() {
-  return gulp
-    .src("./peerinst/static/peerinst/css/*.scss")
-    .pipe(
-      rename(function(path) {
-        path.extname = ".min.css";
-      }),
-    )
+const scriptBuilds = [
+  {
+    app: "peerinst",
+    modules: ["group", "student", "ajax", "search", "index"],
+  },
+];
+
+const babelConfig = {
+  presets: [
+    [
+      "@babel/env",
+      {
+        targets: {
+          browsers: [
+            "last 3 versions",
+            "iOS>=8",
+            "ie 11",
+            "Safari 9.1",
+            "not dead",
+          ],
+        },
+        modules: false,
+      },
+    ],
+  ],
+  exclude: "node_modules/**",
+  babelrc: false,
+};
+
+function buildStyle(app, module) {
+  const build = gulp
+    .src("./" + app + "/static/" + app + "/css/" + module + "/*.scss")
     .pipe(sourcemaps.init())
     .pipe(
       sass({
         outputStyle: "compressed",
-        includePaths: "./node_modules/",
+        includePaths: "./node_modules",
+      }),
+    )
+    .pipe(
+      postcss([
+        autoprefixer({
+          browsers: [
+            "last 3 versions",
+            "iOS>=8",
+            "ie 11",
+            "Safari 9.1",
+            "not dead",
+          ],
+        }),
+      ]),
+    )
+    .pipe(concat(module + ".min.css"))
+    .pipe(sourcemaps.write("."))
+    .pipe(gulp.dest("./" + app + "/static/" + app + "/css"));
+
+  return build;
+}
+
+function watchStyle(app, module) {
+  gulp.watch(
+    "./" + app + "/static/" + app + "/css/" + module + "/*.scss",
+    () => buildStyle(app, module),
+  );
+}
+
+function buildScript(app, module) {
+  const name = module === "index" ? "bundle" : module;
+  const build = rollup({
+    input: "./" + app + "/static/" + app + "/js/" + module + ".js",
+    sourcemap: true,
+    format: "iife",
+    name: name,
+    globals: {
+      flatpickr: "flatpickr", // eslint-disable-line
+      // d3: "d3", // eslint-disable-line
+      "@material/auto-init": "@material/auto-init",
+      "@material/checkbox": "@material/checkbox",
+      "@material/chips": "@material/chips",
+      "@material/dialog": "@material/dialog",
+      "@material/drawer": "@material/drawer",
+      "@material/icon-toggle": "@material/icon-toggle",
+      "@material/radio": "@material/radio",
+      "@material/ripple": "@material/ripple",
+      "@material/select": "@material/select",
+      "@material/textfield": "@material/textfield",
+      "@material/toolbar": "@material/toolbar",
+    },
+    plugins: [
+      resolve({
+        jsnext: true,
+        main: true,
+        browser: true,
+      }),
+      commonjs(),
+      eslint({
+        exclude: ["**.css"],
+      }),
+      babel(babelConfig),
+      uglify(),
+    ],
+    external: [
+      "flatpickr",
+      // "d3",
+      "@material/auto-init",
+      "@material/checkbox",
+      "@material/chips",
+      "@material/dialog",
+      "@material/drawer",
+      "@material/icon-toggle",
+      "@material/radio",
+      "@material/ripple",
+      "@material/select",
+      "@material/textfield",
+      "@material/toolbar",
+    ],
+  })
+    .pipe(source(module + ".min.js"))
+    .pipe(buffer())
+    .pipe(sourcemaps.init({ loadMaps: true }))
+    .pipe(sourcemaps.write("."))
+    .pipe(gulp.dest("./" + app + "/static/" + app + "/js"));
+
+  return build;
+}
+
+function watchScript(app, module) {
+  gulp.watch(
+    [
+      "./" + app + "/static/" + app + "/js/_" + module + "/*.js",
+      "./" + app + "/static/" + app + "/js/" + module + ".js",
+    ],
+    () => buildScript(app, module),
+  );
+}
+
+function stylesPeerinstMain() {
+  const build = gulp
+    .src("./peerinst/static/peerinst/css/*.scss")
+    .pipe(sourcemaps.init())
+    .pipe(
+      sass({
+        outputStyle: "compressed",
+        includePaths: "./node_modules",
+      }),
+    )
+    .pipe(
+      postcss([
+        autoprefixer({
+          browsers: [
+            "last 3 versions",
+            "iOS>=8",
+            "ie 11",
+            "Safari 9.1",
+            "not dead",
+          ],
+        }),
+      ]),
+    )
+    .pipe(
+      rename(path => {
+        path.extname = ".min.css";
       }),
     )
     .pipe(sourcemaps.write("."))
     .pipe(gulp.dest("./peerinst/static/peerinst/css/"));
-});
 
-gulp.task("pinax-sass", function() {
-  return gulp
+  return build;
+}
+
+function stylesPeerinstPinax() {
+  const build = gulp
     .src("./peerinst/static/pinax/forums/css/*.scss")
-    .pipe(
-      rename(function(path) {
-        path.extname = ".min.css";
-      }),
-    )
     .pipe(sourcemaps.init())
     .pipe(
       sass({
         outputStyle: "compressed",
         includePaths: "./node_modules/",
+      }),
+    )
+    .pipe(
+      rename(path => {
+        path.extname = "min.css";
       }),
     )
     .pipe(sourcemaps.write("."))
     .pipe(gulp.dest("./peerinst/static/pinax/forums/css/"));
-});
-
-// Process native css files not minified already
-gulp.task("css", function() {
-  return gulp
-    .src([
-      "./peerinst/static/peerinst/css/*.css",
-      "!./peerinst/static/peerinst/css/*.min.css",
-    ])
-    .pipe(
-      rename(function(path) {
-        path.extname = ".min.css";
-      }),
-    )
-    .pipe(postcss([cssnano()]))
-    .pipe(gulp.dest("./peerinst/static/peerinst/css/"));
-});
-
-// Run autoprefixer on minified css files
-gulp.task("autoprefixer", function() {
-  return gulp
-    .src("./peerinst/static/peerinst/css/*.min.css")
-    .pipe(sourcemaps.init())
-    .pipe(
-      postcss([
-        autoprefixer({
-          browsers: [
-            "last 3 versions",
-            "iOS>=8",
-            "ie 11",
-            "Safari 9.1",
-            "not dead",
-          ],
-        }),
-      ]),
-    )
-    .pipe(sourcemaps.write("."))
-    .pipe(gulp.dest("./peerinst/static/peerinst/css/"));
-});
-
-gulp.task("peerinst-styles", function(callback) {
-  runSequence("sass", "pinax-sass", "css", "autoprefixer", callback);
-});
-
-gulp.task("peerinst-styles-group", function() {
-  const app = "peerinst";
-  const module = "group";
-
-  const build = gulp
-    .src("./" + app + "/static/" + app + "/css/" + module + "/*.scss")
-    .pipe(sourcemaps.init())
-    .pipe(
-      sass({
-        outputStyle: "compressed",
-        includePaths: "./node_modules",
-      }),
-    )
-    .pipe(
-      postcss([
-        autoprefixer({
-          browsers: [
-            "last 3 versions",
-            "iOS>=8",
-            "ie 11",
-            "Safari 9.1",
-            "not dead",
-          ],
-        }),
-      ]),
-    )
-    .pipe(concat(module + ".min.css"))
-    .pipe(sourcemaps.write("."))
-    .pipe(gulp.dest(app + "/static/" + app + "/css"));
 
   return build;
-});
+}
 
-gulp.task("peerinst-styles-student", async function() {
-  const app = "peerinst";
-  const module = "student";
-  // const templates = ["student/base.html"];
-
-  const build = gulp
-    .src("./" + app + "/static/" + app + "/css/" + module + "/*.scss")
-    .pipe(sourcemaps.init())
-    .pipe(
-      sass({
-        outputStyle: "compressed",
-        includePaths: "./node_modules",
-      }),
-    )
-    .pipe(
-      postcss([
-        autoprefixer({
-          browsers: [
-            "last 3 versions",
-            "iOS>=8",
-            "ie 11",
-            "Safari 9.1",
-            "not dead",
-          ],
+function scriptsPeerinstPinax() {
+  const build = merge([
+    rollup({
+      input: "./peerinst/static/pinax/forums/js/thread.js",
+      sourcemap: true,
+      format: "iife",
+      name: "bundle",
+      globals: {
+        flatpickr: "flatpickr",
+        d3: "d3",
+      },
+      plugins: [
+        eslint({
+          exclude: ["**.css"],
         }),
-      ]),
-    )
-    .pipe(concat(module + ".min.css"))
-    .pipe(sourcemaps.write("."))
-    .pipe(gulp.dest(app + "/static/" + app + "/css"));
+        babel(babelConfig),
+        uglify(),
+      ],
+      external: ["flatpickr", "d3"],
+    })
+      .pipe(source("thread.min.js"))
+      .pipe(buffer())
+      .pipe(sourcemaps.init({ loadMaps: true }))
+      .pipe(sourcemaps.write("."))
+      .pipe(gulp.dest("./peerinst/static/pinax/forums/js")),
+    rollup({
+      input: "./peerinst/static/pinax/forums/js/limit.js",
+      sourcemap: true,
+      format: "iife",
+      name: "bundle",
+      globals: {
+        flatpickr: "flatpickr",
+        d3: "d3",
+      },
+      plugins: [
+        eslint({
+          exclude: ["**.css"],
+        }),
+        babel(babelConfig),
+        uglify(),
+      ],
+      external: ["flatpickr", "d3"],
+    })
+      .pipe(source("limit.min.js"))
+      .pipe(buffer())
+      .pipe(sourcemaps.init({ loadMaps: true }))
+      .pipe(sourcemaps.write("."))
+      .pipe(gulp.dest("./peerinst/static/pinax/forums/js")),
+  ]);
 
-  // const hash_ = await hash(
-  // "./" + app + "/static/" + app + "/css" + module + ".min.css",
-  // );
-  //
-  // const updateHash = gulp
-  // .src("./" + app + "/templates/" + app + "/" + templatePath)
-  // .pipe(
-  // replace(
-  // new RegExp(
-  // "({%\\s*static 'peerinst\\/css\\/" +
-  // filename +
-  // "'\\s*%})(?:\\?hash=.{8})?",
-  // ),
-  // "$1?hash=" + hash_.slice(0, 8),
-  // ),
-  // )
-  // .pipe(gulp.dest("./peerinst/templates/peerinst/student"));
-  //
-  // return merge(build, updateHash);
   return build;
-});
+}
 
-gulp.task("peerinst-scripts-index", function() {
-  const runCommand = require("child_process").execSync;
-  runCommand(
-    "./node_modules/.bin/rollup -c ./rollup/peerinst/index-rollup.config.js",
-    function(err, stdout, stderr) {
-      console.log("Output: " + stdout);
-      console.log("Error: " + stderr);
-      if (err) {
-        console.log("Error: " + err);
-      }
-    },
-  );
-});
-
-gulp.task("peerinst-scripts-group", function() {
-  const runCommand = require("child_process").execSync;
-  runCommand(
-    "./node_modules/.bin/rollup -c ./rollup/peerinst/group-rollup.config.js",
-    function(err, stdout, stderr) {
-      console.log("Output: " + stdout);
-      console.log("Error: " + stderr);
-      if (err) {
-        console.log("Error: " + err);
-      }
-    },
-  );
-});
-
-gulp.task("peerinst-scripts-student", async function() {
-  // const app = "peerinst";
-  // const filename = "student.min.js";
-  // const templatePath = "student/base.html";
-
-  const runCommand = require("child_process").execSync;
-  runCommand(
-    "./node_modules/.bin/rollup -c ./rollup/peerinst/student-rollup.config.js",
-    function(err, stdout, stderr) {
-      console.log("Output: " + stdout);
-      console.log("Error: " + stderr);
-      if (err) {
-        console.log("Error: " + err);
-      }
-    },
-  );
-
-  // const hash_ = await hash(
-  // "./" + app + "/templates/" + app + "/" + templatePath,
-  // );
-  //
-  // return gulp
-  // .src("./" + app + "/templates/" + app + "/" + templatePath)
-  // .pipe(
-  // replace(
-  // new RegExp(
-  // "({%\\s*static 'peerinst\\/js\\/" +
-  // filename +
-  // "'\\s*%})(?:\\?hash=.{8})?",
-  // ),
-  // "$1?hash=" + hash_.slice(0, 8),
-  // ),
-  // )
-  // .pipe(gulp.dest("./peerinst/templates/peerinst/student"));
-});
-
-gulp.task("peerinst-scripts-ajax", function() {
-  const runCommand = require("child_process").execSync;
-  runCommand(
-    "./node_modules/.bin/rollup -c ./rollup/peerinst/ajax-rollup.config.js",
-    function(err, stdout, stderr) {
-      console.log("Output: " + stdout);
-      console.log("Error: " + stderr);
-      if (err) {
-        console.log("Error: " + err);
-      }
-    },
-  );
-});
-
-gulp.task("peerinst-scripts-search", function() {
-  const runCommand = require("child_process").execSync;
-  runCommand(
-    "./node_modules/.bin/rollup -c ./rollup/peerinst/search-rollup.config.js",
-    function(err, stdout, stderr) {
-      console.log("Output: " + stdout);
-      console.log("Error: " + stderr);
-      if (err) {
-        console.log("Error: " + err);
-      }
-    },
-  );
-});
-
-gulp.task("pinax-forums-scripts-forums", function() {
-  const runCommand = require("child_process").execSync;
-  runCommand(
-    "./node_modules/.bin/rollup -c ./rollup/peerinst/pinax/forums/forums-rollup.config.js", // eslint-disable-line max-len
-    function(err, stdout, stderr) {
-      console.log("Output: " + stdout);
-      console.log("Error: " + stderr);
-      if (err) {
-        console.log("Error: " + err);
-      }
-    },
-  );
-});
-
-
-gulp.task("peerinst-scripts", function(callback) {
-  runSequence(
-    "peerinst-scripts-index",
-    "peerinst-scripts-group",
-    "peerinst-scripts-student",
-    "peerinst-scripts-ajax",
-    "peerinst-scripts-search",
-    "pinax-forums-scripts-forums",
-    callback,
-  );
-});
-
-gulp.task("peerinst-build", function(callback) {
-  runSequence(
-    "peerinst-styles",
-    "peerinst-styles-group",
-    "peerinst-styles-student",
-    "peerinst-scripts",
-    callback,
-  );
-});
-
-gulp.task("tos-styles", function() {
-  return gulp
-    .src("./tos/static/tos/css/*.scss")
-    .pipe(sourcemaps.init())
-    .pipe(
-      sass({
-        outputStyle: "compressed",
-        includePaths: "./node_modules",
-      }),
-    )
-    .pipe(
-      postcss([
-        autoprefixer({
-          browsers: [
-            "last 3 versions",
-            "iOS>=8",
-            "ie 11",
-            "Safari 9.1",
-            "not dead",
-          ],
-        }),
-      ]),
-    )
-    .pipe(concat("styles.min.css"))
-    .pipe(sourcemaps.write("."))
-    .pipe(gulp.dest("tos/static/tos/css"));
-});
-
-gulp.task("tos-scripts-tos", function() {
-  const runCommand = require("child_process").execSync;
-  runCommand(
-    "./node_modules/.bin/rollup -c ./rollup/tos/tos-rollup.config.js",
-    function(err, stdout, stderr) {
-      console.log("Output: " + stdout);
-      console.log("Error: " + stderr);
-      if (err) {
-        console.log("Error: " + err);
-      }
-    },
-  );
-});
-
-gulp.task("tos-scripts-email", function() {
-  const runCommand = require("child_process").execSync;
-  runCommand(
-    "./node_modules/.bin/rollup -c ./rollup/tos/email-rollup.config.js",
-    function(err, stdout, stderr) {
-      console.log("Output: " + stdout);
-      console.log("Error: " + stderr);
-      if (err) {
-        console.log("Error: " + err);
-      }
-    },
-  );
-});
-
-gulp.task("tos-scripts", function(callback) {
-  runSequence("tos-scripts-tos", "tos-scripts-email", callback);
-});
-
-gulp.task("tos-build", function(callback) {
-  runSequence("tos-styles", "tos-scripts", callback);
-});
-
-gulp.task("build", function(callback) {
-  runSequence("peerinst-build", "tos-build", callback);
-});
-
-gulp.task("watch", function() {
-  gulp.watch("./tos/static/tos/css/*.scss", ["tos-styles"]);
-  gulp.watch("./tos/static/tos/js/tos.js", ["tos-scripts-tos"]);
-  gulp.watch("./tos/static/tos/js/email.js", ["tos-scripts-email"]);
-  gulp.watch("./peerinst/static/peerinst/css/*.scss", ["peerinst-styles"]);
-  gulp.watch("./peerinst/static/peerinst/css/group/*.scss", [
-    "peerinst-styles-group",
-  ]);
-  gulp.watch("./peerinst/static/peerinst/css/student/*.scss", [
-    "peerinst-styles-student",
-  ]);
+function watch() {
+  gulp.watch("./peerinst/static/peerinst/css/*.scss", stylesPeerinstMain);
+  gulp.watch("./peerinst/static/pinax/forums/css/*.scss", stylesPeerinstPinax);
+  styleBuilds.forEach(s => s.modules.forEach(m => watchStyle(s.app, m)));
+  scriptBuilds.forEach(s => s.modules.forEach(m => watchScript(s.app, m)));
   gulp.watch(
     [
       "./peerinst/static/peerinst/js/*.js",
-      "!./peerinst/static/peerinst/js/group.js",
-      "!./peerinst/static/peerinst/js/student.js",
-      "!./peerinst/static/peerinst/js/*.min.js",
+      "!./peerinst/static/peerinst/js/*.min.js*",
       "!./peerinst/static/peerinst/js/utils.js",
-    ],
-    ["peerinst-scripts-index"],
+    ].concat(
+      scriptBuilds
+        .filter(s => s.app === "peerinst")
+        .map(s => s.modules)
+        .filter(m => m !== "index")
+        .map(m => "./peerinst/static/peerinst/js/" + m + ".js"),
+    ),
+    () => buildScript("peerinst", "index"),
   );
-  gulp.watch(
-    [
-      "./peerinst/static/peerinst/js/_group/*.js",
-      "./peerinst/static/peerinst/js/group.js",
-    ],
-    ["peerinst-scripts-group"],
-  );
-  gulp.watch(
-    [
-      "./peerinst/static/peerinst/js/_student/*.js",
-      "./peerinst/static/peerinst/js/student.js",
-    ],
-    ["peerinst-scripts-student"],
-  );
-  gulp.watch(
-    [
-      "./peerinst/static/peerinst/js/_ajax/*.js",
-      "./peerinst/static/peerinst/js/ajax.js",
-    ],
-    ["peerinst-scripts-ajax", "peerinst-scripts-group"],
-  );
-});
+}
+
+const styles = gulp.parallel(
+  stylesPeerinstMain,
+  stylesPeerinstPinax,
+  ...[].concat(
+    ...styleBuilds.map(s => s.modules.map(m => () => buildStyle(s.app, m))),
+  ),
+);
+
+const scripts = gulp.parallel(
+  scriptsPeerinstPinax,
+  ...[].concat(
+    ...scriptBuilds.map(s => s.modules.map(m => () => buildScript(s.app, m))),
+  ),
+);
+
+const build = gulp.parallel(styles, scripts);
+
+exports.build = build;
+exports.watch = watch;
+exports.styles = styles;
+exports.scripts = scripts;
