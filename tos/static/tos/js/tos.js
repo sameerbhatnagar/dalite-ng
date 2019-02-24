@@ -1,5 +1,5 @@
-'use strict';
+"use strict";
 
-import {MDCRipple} from '@material/ripple';
+import { MDCRipple } from "@material/ripple";
 
-new MDCRipple(document.querySelector('.mdc-button'));
+new MDCRipple(document.querySelector(".mdc-button"));

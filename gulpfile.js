@@ -20,12 +20,20 @@ const styleBuilds = [
     app: "peerinst",
     modules: ["group", "student"],
   },
+  {
+    app: "tos",
+    modules: ["styles"],
+  },
 ];
 
 const scriptBuilds = [
   {
     app: "peerinst",
     modules: ["group", "student", "ajax", "search", "index"],
+  },
+  {
+    app: "tos",
+    modules: ["tos", "email"],
   },
 ];
 

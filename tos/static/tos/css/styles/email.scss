@@ -1,33 +1,33 @@
 /* Load common sass variables */
-@import '../../../../peerinst/static/peerinst/css/variables';
+@import "../../../../../peerinst/static/peerinst/css/variables";
 
-.email-consent input[type='checkbox'] {
+.email-consent input[type="checkbox"] {
   display: none;
 }
 .btn-toggle {
-  display: inline-flex;
-  flex-direction: row;
   align-self: center;
-  justify-self: end;
-  color: $mdc-theme-primary;
   border: 1px solid $mdc-theme-primary;
   border-radius: 5px;
+  color: $mdc-theme-primary;
   cursor: pointer;
+  display: inline-flex;
+  flex-direction: row;
+  justify-self: end;
   opacity: 1;
   transition-duration: 300ms;
   user-select: none;
 }
 .btn-toggle div {
-  width: 40px;
+  font-size: 14px;
   height: 25px;
   line-height: 25px;
-  font-size: 14px;
   text-align: center;
+  width: 40px;
 }
 .btn-toggle--selected {
-  font-weight:bold;
   background: $mdc-theme-primary;
   color: white;
+  font-weight: bold;
 }
 
 .btn-toggle--disabled {

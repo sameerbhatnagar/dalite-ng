@@ -1,5 +1,5 @@
 // MDC
-import mdcAutoInit from "@material/auto-init/index";
+import autoInit from "@material/auto-init/index";
 import * as checkbox from "@material/checkbox/index";
 import * as chips from "@material/chips/index";
 import * as dialog from "@material/dialog/index";
@@ -12,24 +12,21 @@ import * as selectbox from "@material/select/index";
 import * as textField from "@material/textfield/index";
 import * as toolbar from "@material/toolbar/index";
 
-mdcAutoInit.register("MDCCheckbox", checkbox.MDCCheckbox);
-mdcAutoInit.register("MDCChip", chips.MDCChip);
-mdcAutoInit.register("MDCChipSet", chips.MDCChipSet);
-mdcAutoInit.register("MDCDialog", dialog.MDCDialog);
-mdcAutoInit.register("MDCDrawer", drawer.MDCDrawer);
-mdcAutoInit.register("MDCIconToggle", iconToggle.MDCIconToggle);
-mdcAutoInit.register("MDCRadio", radio.MDCRadio);
-mdcAutoInit.register("MDCRipple", ripple.MDCRipple);
-mdcAutoInit.register("MDCSelect", selectbox.MDCSelect);
-mdcAutoInit.register("MDCTextField", textField.MDCTextField);
-mdcAutoInit.register(
-  "MDCTextFieldHelperText",
-  helperText.MDCTextFieldHelperText,
-);
-mdcAutoInit.register("MDCToolbar", toolbar.MDCToolbar);
+autoInit.register("MDCCheckbox", checkbox.MDCCheckbox);
+autoInit.register("MDCChip", chips.MDCChip);
+autoInit.register("MDCChipSet", chips.MDCChipSet);
+autoInit.register("MDCDialog", dialog.MDCDialog);
+autoInit.register("MDCDrawer", drawer.MDCTemporaryDrawer);
+autoInit.register("MDCIconToggle", iconToggle.MDCIconToggle);
+autoInit.register("MDCRadio", radio.MDCRadio);
+autoInit.register("MDCRipple", ripple.MDCRipple);
+autoInit.register("MDCSelect", selectbox.MDCSelect);
+autoInit.register("MDCTextField", textField.MDCTextField);
+autoInit.register("MDCTextFieldHelperText", helperText.MDCTextFieldHelperText);
+autoInit.register("MDCToolbar", toolbar.MDCToolbar);
 
 export {
-  mdcAutoInit,
+  autoInit,
   checkbox,
   chips,
   dialog,
@@ -123,7 +120,7 @@ export function bindAjaxTextInputForm(idToBind, formToReplace, url) {
        * @this Callback
        */
       function callback() {
-        bundle.mdcAutoInit();
+        bundle.autoInit();
         const input = this.querySelector(".mdc-text-field__input");
         input.focus();
       }
@@ -1034,4 +1031,4 @@ underlines();
 window.addEventListener("resize", underlines);
 
 // MDC
-mdcAutoInit();
+autoInit();

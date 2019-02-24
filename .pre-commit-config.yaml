@@ -23,7 +23,7 @@ repos:
     rev: 1.15.2
     hooks:
       - id: prettier
-        files: \.(scss|js)$
+        files: \.js$
         exclude: "^.*\\.min\\..*$"
   - repo: https://github.com/awebdeveloper/pre-commit-stylelint
     rev: 0.0.2

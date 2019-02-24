@@ -1,41 +1,41 @@
 #tos-container {
-  margin: 40px auto 0 auto;
-  width: 90%;
+  align-items: center;
   display: grid;
+  grid-row-gap: 20px;
   grid-template-columns: 1fr 1fr;
   grid-template-rows: 10fr 1fr 2fr;
-  grid-row-gap: 20px;
-  align-items: center;
   justify-items: center;
+  margin: 40px auto 0 auto;
+  width: 90%;
 }
 
 #tos-text {
-  grid-column: 1 / -1;
   border: 1px solid #999999;
   border-radius: 3px;
-  width: 100%;
+  grid-column: 1 / -1;
   height: 100%;
-  padding: 10px;
   overflow-y: scroll;
+  padding: 10px;
+  width: 100%;
 }
 
 #tos-version {
   grid-column: 1 / -1;
-  width: 50%;
   max-width: 300px;
   text-align: center;
+  width: 50%;
 }
 
 #tos-container button {
-  font-size: 16pt;
-  width: 75%;
-  max-width: 200px;
   align-self: start;
+  font-size: 16pt;
+  max-width: 200px;
+  width: 75%;
 }
 
 #tos-accept {
-  color: #d9f2e6;
   background: #339966;
+  color: #d9f2e6;
 }
 
 #tos-refuse {
