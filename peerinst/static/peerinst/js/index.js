@@ -1,9 +1,10 @@
 // MDC
-import autoInit from "@material/auto-init/index";
+import mdcAutoInit from "@material/auto-init/index";
 import * as checkbox from "@material/checkbox/index";
 import * as chips from "@material/chips/index";
 import * as dialog from "@material/dialog/index";
 import * as drawer from "@material/drawer/index";
+import * as helperText from "@material/textfield/helper-text/index";
 import * as iconToggle from "@material/icon-toggle/index";
 import * as radio from "@material/radio/index";
 import * as ripple from "@material/ripple/index";
@@ -11,20 +12,24 @@ import * as selectbox from "@material/select/index";
 import * as textField from "@material/textfield/index";
 import * as toolbar from "@material/toolbar/index";
 
-autoInit.register("MDCCheckbox", checkbox.MDCCheckbox);
-autoInit.register("MDCChip", chips.MDCChip);
-autoInit.register("MDCChipSet", chips.MDCChipSet);
-autoInit.register("MDCDialog", dialog.MDCDialog);
-autoInit.register("MDCDrawer", drawer.MDCTemporaryDrawer);
-autoInit.register("MDCIconToggle", iconToggle.MDCIconToggle);
-autoInit.register("MDCRadio", radio.MDCRadio);
-autoInit.register("MDCRipple", ripple.MDCRipple);
-autoInit.register("MDCSelect", selectbox.MDCSelect);
-autoInit.register("MDCTextField", textField.MDCTextField);
-autoInit.register("MDCToolbar", toolbar.MDCToolbar);
+mdcAutoInit.register("MDCCheckbox", checkbox.MDCCheckbox);
+mdcAutoInit.register("MDCChip", chips.MDCChip);
+mdcAutoInit.register("MDCChipSet", chips.MDCChipSet);
+mdcAutoInit.register("MDCDialog", dialog.MDCDialog);
+mdcAutoInit.register("MDCDrawer", drawer.MDCDrawer);
+mdcAutoInit.register("MDCIconToggle", iconToggle.MDCIconToggle);
+mdcAutoInit.register("MDCRadio", radio.MDCRadio);
+mdcAutoInit.register("MDCRipple", ripple.MDCRipple);
+mdcAutoInit.register("MDCSelect", selectbox.MDCSelect);
+mdcAutoInit.register("MDCTextField", textField.MDCTextField);
+mdcAutoInit.register(
+  "MDCTextFieldHelperText",
+  helperText.MDCTextFieldHelperText,
+);
+mdcAutoInit.register("MDCToolbar", toolbar.MDCToolbar);
 
 export {
-  autoInit,
+  mdcAutoInit,
   checkbox,
   chips,
   dialog,
@@ -118,7 +123,7 @@ export function bindAjaxTextInputForm(idToBind, formToReplace, url) {
        * @this Callback
        */
       function callback() {
-        bundle.autoInit();
+        bundle.mdcAutoInit();
         const input = this.querySelector(".mdc-text-field__input");
         input.focus();
       }
@@ -144,12 +149,12 @@ export function cornerGraphic(svgSelector, formID, lang, className) {
   g.append("path")
     .attr("class", className)
     .attr("d", () => {
-      const path = d3.path();
-      path.moveTo(0, h);
-      path.lineTo(w, 0);
-      path.lineTo(w, h);
-      path.closePath();
-      return path;
+      const path_ = d3.path();
+      path_.moveTo(0, h);
+      path_.lineTo(w, 0);
+      path_.lineTo(w, h);
+      path_.closePath();
+      return path_;
     });
 
   g.append("text")
@@ -321,16 +326,16 @@ export function difficulty(matrix, id) {
  */
 export function plot(matrix, freq, id) {
   if (!matrix["easy"]) {
-    matrix["easy"]=0;
+    matrix["easy"] = 0;
   }
   if (!matrix["hard"]) {
-    matrix["hard"]=0;
+    matrix["hard"] = 0;
   }
   if (!matrix["tricky"]) {
-    matrix["tricky"]=0;
+    matrix["tricky"] = 0;
   }
   if (!matrix["peer"]) {
-    matrix["peer"]=0;
+    matrix["peer"] = 0;
   }
   const colour = {
     easy: "rgb(30, 142, 62)",
@@ -375,7 +380,8 @@ export function plot(matrix, freq, id) {
     .style("opacity", 0)
     .text();
 
-  const easy = g.append("rect")
+  const easy = g
+    .append("rect")
     .attr("x", 0)
     .attr("y", 0)
     .attr("width", size / 2)
@@ -405,7 +411,8 @@ export function plot(matrix, freq, id) {
     .style("text-anchor", "middle")
     .text(parseInt(100 * matrix["easy"]) + "%");
 
-  const hard = g.append("rect")
+  const hard = g
+    .append("rect")
     .attr("x", size / 2)
     .attr("y", size / 2)
     .attr("width", size / 2)
@@ -435,7 +442,8 @@ export function plot(matrix, freq, id) {
     .style("text-anchor", "middle")
     .text(parseInt(100 * matrix["hard"]) + "%");
 
-  const peer = g.append("rect")
+  const peer = g
+    .append("rect")
     .attr("x", 0)
     .attr("y", size / 2)
     .attr("width", size / 2)
@@ -465,7 +473,8 @@ export function plot(matrix, freq, id) {
     .style("text-anchor", "middle")
     .text(parseInt(100 * matrix["peer"]) + "%");
 
-  const tricky = g.append("rect")
+  const tricky = g
+    .append("rect")
     .attr("x", size / 2)
     .attr("y", 0)
     .attr("width", size / 2)
@@ -1025,4 +1034,4 @@ underlines();
 window.addEventListener("resize", underlines);
 
 // MDC
-autoInit();
+mdcAutoInit();

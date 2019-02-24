@@ -1,20 +1,24 @@
-'use strict';
+"use strict";
 
-import {getCsrfToken} from './utils.js';
+import { getCsrfToken } from "./utils.js";
 
-export function updateAssignmentQuestionList(url, questionId, assignmentIdentifier) {
-  let token = getCsrfToken();
-  let data = {
+export function updateAssignmentQuestionList(
+  url,
+  questionId,
+  assignmentIdentifier,
+) {
+  const token = getCsrfToken();
+  const data = {
     question_id: questionId,
     assignment_identifier: assignmentIdentifier,
   };
-  let req = {
-    method: 'POST',
+  const req = {
+    method: "POST",
     body: JSON.stringify(data),
-    credentials: 'include',
+    credentials: "include",
     headers: {
-      'Content-Type': 'application/json',
-      'X-CSRFToken': token,
+      "Content-Type": "application/json",
+      "X-CSRFToken": token,
     },
   };
   fetch(url, req)
@@ -23,21 +27,29 @@ export function updateAssignmentQuestionList(url, questionId, assignmentIdentifi
         console.log(resp);
       } else {
         // Manipulate DOM
-        let list = document.getElementById('question-list');
-        let card = document.getElementById(questionId);
+        const list = document.getElementById("question-list");
+        const card = document.getElementById(questionId);
         if ($.contains(list, card)) {
-          $('#'+questionId).remove();
+          $("#" + questionId).remove();
         } else {
-          $('#'+questionId).find($( "button" )).html('clear');
-          $('#'+questionId).find($('.stats').remove());
-          let q = $('#'+questionId).detach();
-          q.appendTo($('#question-list'));
-          $('#empty-assignment-list').remove();
-          $('.search-set').each(function() {
-            $(this).find('.filter-count').empty().append($(this).find('.mdc-card:visible').length);
+          $("#" + questionId)
+            .find($("button"))
+            .html("clear");
+          $("#" + questionId).find($(".stats").remove());
+          const q = $("#" + questionId).detach();
+          q.appendTo($("#question-list"));
+          $("#empty-assignment-list").remove();
+          $(".search-set").each(function() {
+            $(this) // eslint-disable-line no-invalid-this
+              .find(".filter-count")
+              .empty()
+              .append($(this).find(".mdc-card:visible").length); // eslint-disable-line no-invalid-this,max-len
           });
-          $('.search-set').each(function() {
-            $(this).find('.filter-count-total').empty().append($(this).find('.mdc-card').length);
+          $(".search-set").each(function() {
+            $(this) // eslint-disable-line no-invalid-this
+              .find(".filter-count-total")
+              .empty()
+              .append($(this).find(".mdc-card").length); // eslint-disable-line no-invalid-this,max-len
           });
         }
       }

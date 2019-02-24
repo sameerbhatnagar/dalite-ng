@@ -3,7 +3,10 @@
  */
 export function recountResults() {
   $(".search-set").each(function() {
-    $(this).find(".filter-count").empty().append($(this).find(".mdc-card:visible").length);
+    $(this) // eslint-disable-line
+      .find(".filter-count")
+      .empty()
+      .append($(this).find(".mdc-card:visible").length); // eslint-disable-line
   });
 }
 
@@ -25,20 +28,34 @@ export function filter(el) {
   $("#search_results .mdc-card").css("display", "block");
 
   $("#search_results .mdc-card").each(function() {
-    let card = this;
-    $("#filter-on-category").find(".mdc-chip--selected").each(function() {
-      if (card.getAttribute("category").toLowerCase().indexOf(this.getAttribute("c").toLowerCase()) < 0 ) {
-        $(card).css("display", "none");
-        $("#reset-filters").attr("disabled", false);
-      }
-    });
+    const card = this; // eslint-disable-line
+    $("#filter-on-category")
+      .find(".mdc-chip--selected")
+      .each(function() {
+        if (
+          card
+            .getAttribute("category")
+            .toLowerCase()
+            .indexOf(this.getAttribute("c").toLowerCase()) < 0 // eslint-disable-line
+        ) {
+          $(card).css("display", "none");
+          $("#reset-filters").attr("disabled", false);
+        }
+      });
 
-    $("#filter-on-discipline").find(".mdc-chip--selected").each(function() {
-      if (card.getAttribute("discipline").slice(1, -1).toLowerCase() != this.getAttribute("d").toLowerCase()) {
-        $(card).css("display", "none");
-        $("#reset-filters").attr("disabled", false);
-      }
-    });
+    $("#filter-on-discipline")
+      .find(".mdc-chip--selected")
+      .each(function() {
+        if (
+          card
+            .getAttribute("discipline")
+            .slice(1, -1)
+            .toLowerCase() != this.getAttribute("d").toLowerCase() // eslint-disable-line
+        ) {
+          $(card).css("display", "none");
+          $("#reset-filters").attr("disabled", false);
+        }
+      });
   });
 
   recountResults();
@@ -49,7 +66,7 @@ export function filter(el) {
  */
 export function reset() {
   $("#search_results .mdc-card").each(function() {
-    $(this).css("display", "block");
+    $(this).css("display", "block"); // eslint-disable-line
     $(".mdc-chip").removeClass("mdc-chip--selected");
     $("#reset-filters").attr("disabled", true);
   });
@@ -71,48 +88,72 @@ export function processResponse() {
   $("#filter-on-discipline").empty();
   $("#filter-on-category").empty();
 
-  let disciplineList = [];
-  $("#filter-on-discipline").append("<div class='mdc-chip-set mdc-chip-set--filter' data-mdc-auto-init='MDCChipSet'></div>");
+  const disciplineList = [];
+  $("#filter-on-discipline").append(
+    "<div class='mdc-chip-set mdc-chip-set--filter' " +
+      "data-mdc-auto-init='MDCChipSet'></div>",
+  );
   $("#search_results .mdc-card").each(function(index) {
-    let d = this.getAttribute("discipline");
-    if (!disciplineList.includes(d) & d.slice(1, -1) != "None") {
+    const d = this.getAttribute("discipline"); // eslint-disable-line
+    if (!disciplineList.includes(d) & (d.slice(1, -1) != "None")) {
       disciplineList.push(d);
-      $("#filter-on-discipline .mdc-chip-set").append("<div d="+d+" class='mdc-chip' onclick='search.filter(this)' tabindex='0' data-mdc-auto-init='MDCChip'>\
-        <div class='mdc-chip__checkmark' >\
-          <svg class='mdc-chip__checkmark-svg' viewBox='-2 -3 30 30'>\
-            <path class='mdc-chip__checkmark-path' fill='none' stroke='black'\
-              d='M1.73,12.91 8.1,19.28 22.79,4.59'/>\
-          </svg>\
-        </div>\
-        <div class='mdc-chip__text'>"+d.slice(1, -1)+"</div>\
-        </div>");
+      $("#filter-on-discipline .mdc-chip-set").append(
+        "<div d=" +
+          d +
+          " class='mdc-chip' onclick='search.filter(this)' " +
+          "tabindex='0' data-mdc-auto-init='MDCChip'>" +
+          "<div class='mdc-chip__checkmark' >" +
+          "<svg class='mdc-chip__checkmark-svg' viewBox='-2 -3 30 30'>" +
+          "<path class='mdc-chip__checkmark-path' fill='none' stroke='black'" +
+          "d='M1.73,12.91 8.1,19.28 22.79,4.59'/>" +
+          "</svg>" +
+          "</div>" +
+          "<div class='mdc-chip__text'>" +
+          "d.slice(1, -1)" +
+          "</div>" +
+          "</div>",
+      );
     }
   });
   console.info(disciplineList);
 
-  let categoryList = [];
-  $("#filter-on-category").append("<div class='mdc-chip-set mdc-chip-set--filter'  data-mdc-auto-init='MDCChipSet'></div>");
+  const categoryList = [];
+  $("#filter-on-category").append(
+    "<div class='mdc-chip-set mdc-chip-set--filter' " +
+      "data-mdc-auto-init='MDCChipSet'></div>",
+  );
   $("#search_results .mdc-card").each(function() {
-    let c = this.getAttribute("category");
-    let list = c.split(" ");
+    const c = this.getAttribute("category"); // eslint-disable-line
+    const list = c.split(" ");
     $(list).each(function(i) {
-      if (!categoryList.includes(list[i].toLowerCase()) & list[i] != "") {
+      if (!categoryList.includes(list[i].toLowerCase()) & (list[i] != "")) {
         categoryList.push(list[i].toLowerCase());
-        $("#filter-on-category .mdc-chip-set").append("<div c="+list[i]+" class='mdc-chip' onclick='search.filter(this)' tabindex='0' data-mdc-auto-init='MDCChip'>\
-          <div class='mdc-chip__checkmark' >\
-            <svg class='mdc-chip__checkmark-svg' viewBox='-2 -3 30 30'>\
-              <path class='mdc-chip__checkmark-path' fill='none' stroke='black'\
-                d='M1.73,12.91 8.1,19.28 22.79,4.59'/>\
-            </svg>\
-          </div>\
-          <div class='mdc-chip__text'>"+list[i]+"</div>\
-          </div>");
+        $("#filter-on-category .mdc-chip-set").append(
+          "<div c=" +
+            list[i] +
+            " class='mdc-chip' onclick='search.filter(this)' tabindex='0' " +
+            "data-mdc-auto-init='MDCChip'>" +
+            "<div class='mdc-chip__checkmark' >" +
+            "<svg class='mdc-chip__checkmark-svg' viewBox='-2 -3 30 30'>" +
+            "<path class='mdc-chip__checkmark-path' fill='none' " +
+            "stroke='black'" +
+            "d='M1.73,12.91 8.1,19.28 22.79,4.59'/>" +
+            "</svg>" +
+            "</div>" +
+            "<div class='mdc-chip__text'>" +
+            "list[i]" +
+            "</div>" +
+            "</div>",
+        );
       }
     });
   });
   console.info(categoryList);
 
-  if ((disciplineList.length > 1 || categoryList.length > 1) && $("#search_results .mdc-card").length > 1) {
+  if (
+    (disciplineList.length > 1 || categoryList.length > 1) &&
+    $("#search_results .mdc-card").length > 1
+  ) {
     $("#filters").css("display", "block");
     window.location.href = "#filters";
   } else {
@@ -137,9 +178,12 @@ export function processResponse() {
     bundle.iconToggle.MDCIconToggle.attachTo(el);
   });
 
-  [].forEach.call(document.querySelectorAll("#search_results .mdc-card"), el => {
-    bundle.difficulty(el.getAttribute("matrix").replace(/'/g, "\""), el.id);
-  });
+  [].forEach.call(
+    document.querySelectorAll("#search_results .mdc-card"),
+    el => {
+      bundle.difficulty(el.getAttribute("matrix").replace(/'/g, '"'), el.id); // eslint-disable-line
+    },
+  );
 
   $(".analytics-tags").css("cursor", "default");
 }

@@ -2,9 +2,9 @@
 import flatpickr from "flatpickr";
 
 function editField(event, type, className) {
-  let iconContainer = event.currentTarget.parentNode.parentNode;
-  let container = event.currentTarget.parentNode.previousElementSibling;
-  let field =
+  const iconContainer = event.currentTarget.parentNode.parentNode;
+  const container = event.currentTarget.parentNode.previousElementSibling;
+  const field =
     event.currentTarget.parentNode.previousElementSibling.firstElementChild;
 
   let newField;
@@ -24,8 +24,8 @@ function editField(event, type, className) {
 
   container.replaceChild(newField, field);
 
-  let iconsDiv = event.currentTarget.parentNode;
-  let newIconsDiv = iconsDiv.cloneNode(false);
+  const iconsDiv = event.currentTarget.parentNode;
+  const newIconsDiv = iconsDiv.cloneNode(false);
 
   newIconsDiv = toggleIcons(newIconsDiv, type, false, className);
 
@@ -33,11 +33,11 @@ function editField(event, type, className) {
 }
 
 function saveField(event, type, save, className) {
-  let iconContainer = event.currentTarget.parentNode.parentNode;
-  let container = event.currentTarget.parentNode.previousElementSibling;
-  let field =
+  const iconContainer = event.currentTarget.parentNode.parentNode;
+  const container = event.currentTarget.parentNode.previousElementSibling;
+  const field =
     event.currentTarget.parentNode.previousElementSibling.firstElementChild;
-  let url = container.parentNode.parentNode.parentNode.getAttribute(
+  const url = container.parentNode.parentNode.parentNode.getAttribute(
     "data-update-url",
   );
   if (type == "text") {
@@ -59,8 +59,8 @@ function saveField(event, type, save, className) {
     return;
   }
 
-  let iconsDiv = event.currentTarget.parentNode;
-  let newIconsDiv = iconsDiv.cloneNode(false);
+  const iconsDiv = event.currentTarget.parentNode;
+  const newIconsDiv = iconsDiv.cloneNode(false);
 
   newIconsDiv = toggleIcons(newIconsDiv, type, true, className);
 
@@ -68,10 +68,10 @@ function saveField(event, type, save, className) {
 }
 
 function editTextField(field) {
-  let newField = document.createElement("div");
-  let name = field.getAttribute("name");
+  const newField = document.createElement("div");
+  const name = field.getAttribute("name");
   newField.setAttribute("name", name);
-  let input = document.createElement("input");
+  const input = document.createElement("input");
   input.type = "text";
   input.value = field.textContent;
   input.setAttribute("data-old-content", field.textContent);
@@ -80,12 +80,12 @@ function editTextField(field) {
 }
 
 function editTextListField(field) {
-  let newField = document.createElement("div");
-  let name = field.getAttribute("name");
+  const newField = document.createElement("div");
+  const name = field.getAttribute("name");
   newField.setAttribute("name", name);
-  let ul = field.childNodes[0].cloneNode(true);
-  let li_ = document.createElement("li");
-  let input = document.createElement("input");
+  const ul = field.childNodes[0].cloneNode(true);
+  const li_ = document.createElement("li");
+  const input = document.createElement("input");
   input.type = "text";
   input.value = "";
   input.setAttribute("data-old-content", "");
@@ -97,14 +97,14 @@ function editTextListField(field) {
 }
 
 function editDateTimeField(field) {
-  let newField = document.createElement("div");
-  let name = field.getAttribute("name");
+  const newField = document.createElement("div");
+  const name = field.getAttribute("name");
   newField.setAttribute("name", name);
-  let input = document.createElement("input");
+  const input = document.createElement("input");
   input.type = "text";
   input.setAttribute("data-old-content", field.textContent);
   newField.append(input);
-  let datetime = field.textContent
+  const datetime = field.textContent
     .match(/(\d{4})-(\d{2})-(\d{2})\s+(\d{2}):(\d{2})/)
     .slice(1)
     .map(x => parseInt(x));
@@ -122,7 +122,7 @@ function editDateTimeField(field) {
 
 function toggleIcons(newIconsDiv, type, toEdit, className) {
   if (toEdit) {
-    let editIcon = document.createElement("i");
+    const editIcon = document.createElement("i");
     editIcon.classList.add(
       "material-icons",
       "md-24",
@@ -138,11 +138,11 @@ function toggleIcons(newIconsDiv, type, toEdit, className) {
     }
     editIcon.setAttribute(
       "onclick",
-      'bundle.editField(event, "' + type + '", "' + className + '")',
+      "bundle.editField(event, '" + type + "', '" + className + "')",
     );
     newIconsDiv.append(editIcon);
   } else {
-    let saveIcon = document.createElement("i");
+    const saveIcon = document.createElement("i");
     saveIcon.classList.add(
       "material-icons",
       "md-24",
@@ -153,9 +153,9 @@ function toggleIcons(newIconsDiv, type, toEdit, className) {
     saveIcon.title = "Save";
     saveIcon.setAttribute(
       "onclick",
-      'bundle.saveField(event, "' + type + '", true, "' + className + '")',
+      "bundle.saveField(event, '" + type + "', true, '" + className + "')",
     );
-    let cancelIcon = document.createElement("i");
+    const cancelIcon = document.createElement("i");
     cancelIcon.classList.add(
       "material-icons",
       "md-24",
@@ -166,7 +166,7 @@ function toggleIcons(newIconsDiv, type, toEdit, className) {
     cancelIcon.title = "Cancel";
     cancelIcon.setAttribute(
       "onclick",
-      'bundle.saveField(event, "' + type + '", false, "' + className + '")',
+      "bundle.saveField(event, '" + type + "', false, '" + className + "')",
     );
     newIconsDiv.append(saveIcon);
     newIconsDiv.append(cancelIcon);
@@ -176,13 +176,13 @@ function toggleIcons(newIconsDiv, type, toEdit, className) {
 }
 
 async function saveTextField(field, save, className, url) {
-  let newField = document.createElement("span");
-  let name = field.getAttribute("name");
+  const newField = document.createElement("span");
+  const name = field.getAttribute("name");
   newField.setAttribute("name", name);
   newField.setAttribute("class", className);
   if (save) {
-    let newValue = field.firstChild.value;
-    let err = await updateDetails(name, newValue, url);
+    const newValue = field.firstChild.value;
+    const err = await updateDetails(name, newValue, url);
     if (err) {
       newField.textContent = field.firstChild.getAttribute("data-old-content");
     } else {
@@ -195,17 +195,17 @@ async function saveTextField(field, save, className, url) {
 }
 
 async function saveTextListField(field, save, className, url) {
-  let newField = document.createElement("span");
-  let name = field.getAttribute("name");
+  const newField = document.createElement("span");
+  const name = field.getAttribute("name");
   newField.setAttribute("name", name);
-  let ul = field.firstChild.cloneNode(true);
-  let li = field.firstChild.lastChild;
+  const ul = field.firstChild.cloneNode(true);
+  const li = field.firstChild.lastChild;
   ul.removeChild(ul.lastChild);
   if (save) {
-    let newValue = li.firstChild.value;
-    let err = await updateDetails(name, newValue, url);
+    const newValue = li.firstChild.value;
+    const err = await updateDetails(name, newValue, url);
     if (!err) {
-      let li_ = document.createElement("li");
+      const li_ = document.createElement("li");
       li_.textContent = newValue;
       li_.setAttribute("class", className);
       ul.append(li_);
@@ -216,14 +216,14 @@ async function saveTextListField(field, save, className, url) {
 }
 
 async function saveDateTimeField(field, save, className, url) {
-  let newField = document.createElement("span");
-  let name = field.getAttribute("name");
+  const newField = document.createElement("span");
+  const name = field.getAttribute("name");
   newField.setAttribute("name", name);
   newField.setAttribute("class", className);
   if (save) {
-    let sentValue = field.firstChild.value;
-    let newValue = flatpickr.formatDate(new Date(sentValue), "Y-m-d H:i");
-    let err = await updateDetails(name, sentValue, url);
+    const sentValue = field.firstChild.value;
+    const newValue = flatpickr.formatDate(new Date(sentValue), "Y-m-d H:i");
+    const err = await updateDetails(name, sentValue, url);
     if (err) {
       newField.textContent = field.firstChild.getAttribute("data-old-content");
     } else {
@@ -236,9 +236,9 @@ async function saveDateTimeField(field, save, className, url) {
 }
 
 async function updateDetails(name, value, url) {
-  let data = { name: name, value: value };
-  let token = document.getElementsByName("csrfmiddlewaretoken")[0].value;
-  let req = {
+  const data = { name: name, value: value };
+  const token = document.getElementsByName("csrfmiddlewaretoken")[0].value;
+  const req = {
     method: "POST",
     body: JSON.stringify(data),
     credentials: "include",
@@ -248,8 +248,8 @@ async function updateDetails(name, value, url) {
     },
   };
 
-  let resp = await fetch(url, req);
-  let err = await resp.text();
+  const resp = await fetch(url, req);
+  const err = await resp.text();
 
   return err;
 }
