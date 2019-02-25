@@ -21,7 +21,7 @@ export function removeAssignment(event, url) {
       container.removeChild(li.nextSibling);
       container.removeChild(li);
 
-      if (container.childNodes.length == 1) {
+      if (container.children.length == 1) {
         location.reload();
       }
     }

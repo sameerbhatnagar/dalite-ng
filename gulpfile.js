@@ -55,6 +55,16 @@ const babelConfig = {
       },
     ],
   ],
+  plugins: [
+    [
+      "@babel/plugin-transform-runtime",
+      {
+        helpers: false,
+        regenerator: true,
+      },
+    ],
+  ],
+
   exclude: "node_modules/**",
   babelrc: false,
 };
@@ -105,7 +115,7 @@ function buildScript(app, module) {
     name: name,
     globals: {
       flatpickr: "flatpickr", // eslint-disable-line
-      // d3: "d3", // eslint-disable-line
+      "@babel/runtime": "@babel/runtime",
       "@material/auto-init": "@material/auto-init",
       "@material/checkbox": "@material/checkbox",
       "@material/chips": "@material/chips",
@@ -118,6 +128,21 @@ function buildScript(app, module) {
       "@material/textfield": "@material/textfield",
       "@material/toolbar": "@material/toolbar",
     },
+    external: [
+      "flatpickr",
+      "@babel/runtime",
+      "@material/auto-init",
+      "@material/checkbox",
+      "@material/chips",
+      "@material/dialog",
+      "@material/drawer",
+      "@material/icon-toggle",
+      "@material/radio",
+      "@material/ripple",
+      "@material/select",
+      "@material/textfield",
+      "@material/toolbar",
+    ],
     plugins: [
       resolve({
         jsnext: true,
@@ -130,21 +155,6 @@ function buildScript(app, module) {
       }),
       babel(babelConfig),
       uglify(),
-    ],
-    external: [
-      "flatpickr",
-      // "d3",
-      "@material/auto-init",
-      "@material/checkbox",
-      "@material/chips",
-      "@material/dialog",
-      "@material/drawer",
-      "@material/icon-toggle",
-      "@material/radio",
-      "@material/ripple",
-      "@material/select",
-      "@material/textfield",
-      "@material/toolbar",
     ],
   })
     .pipe(source(module + ".min.js"))
@@ -212,7 +222,7 @@ function stylesPeerinstPinax() {
     )
     .pipe(
       rename(path => {
-        path.extname = "min.css";
+        path.extname = ".min.css";
       }),
     )
     .pipe(sourcemaps.write("."))

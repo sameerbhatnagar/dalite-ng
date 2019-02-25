@@ -25,7 +25,7 @@ function editField(event, type, className) {
   container.replaceChild(newField, field);
 
   const iconsDiv = event.currentTarget.parentNode;
-  const newIconsDiv = iconsDiv.cloneNode(false);
+  let newIconsDiv = iconsDiv.cloneNode(false);
 
   newIconsDiv = toggleIcons(newIconsDiv, type, false, className);
 
@@ -60,7 +60,7 @@ function saveField(event, type, save, className) {
   }
 
   const iconsDiv = event.currentTarget.parentNode;
-  const newIconsDiv = iconsDiv.cloneNode(false);
+  let newIconsDiv = iconsDiv.cloneNode(false);
 
   newIconsDiv = toggleIcons(newIconsDiv, type, true, className);
 
@@ -73,7 +73,7 @@ function editTextField(field) {
   newField.setAttribute("name", name);
   const input = document.createElement("input");
   input.type = "text";
-  input.value = field.textContent;
+  input.value = field.textContent.trim();
   input.setAttribute("data-old-content", field.textContent);
   newField.append(input);
   return newField;
@@ -83,7 +83,7 @@ function editTextListField(field) {
   const newField = document.createElement("div");
   const name = field.getAttribute("name");
   newField.setAttribute("name", name);
-  const ul = field.childNodes[0].cloneNode(true);
+  const ul = field.querySelector("ul").cloneNode(true);
   const li_ = document.createElement("li");
   const input = document.createElement("input");
   input.type = "text";
@@ -138,7 +138,7 @@ function toggleIcons(newIconsDiv, type, toEdit, className) {
     }
     editIcon.setAttribute(
       "onclick",
-      "bundle.editField(event, '" + type + "', '" + className + "')",
+      "group.editField(event, '" + type + "', '" + className + "')",
     );
     newIconsDiv.append(editIcon);
   } else {
@@ -153,7 +153,7 @@ function toggleIcons(newIconsDiv, type, toEdit, className) {
     saveIcon.title = "Save";
     saveIcon.setAttribute(
       "onclick",
-      "bundle.saveField(event, '" + type + "', true, '" + className + "')",
+      "group.saveField(event, '" + type + "', true, '" + className + "')",
     );
     const cancelIcon = document.createElement("i");
     cancelIcon.classList.add(
@@ -166,7 +166,7 @@ function toggleIcons(newIconsDiv, type, toEdit, className) {
     cancelIcon.title = "Cancel";
     cancelIcon.setAttribute(
       "onclick",
-      "bundle.saveField(event, '" + type + "', false, '" + className + "')",
+      "group.saveField(event, '" + type + "', false, '" + className + "')",
     );
     newIconsDiv.append(saveIcon);
     newIconsDiv.append(cancelIcon);

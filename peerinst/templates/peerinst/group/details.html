@@ -36,7 +36,7 @@
                 </span>
               </span>
               <span class="mdc-list-item__meta">
-                <i onclick="bundle.editField(event, 'text', 'mdc-list-item__secondary-text')" title="Edit" class="material-icons md-24 mdc-ripple-surface icon-list">edit</i>
+                <i onclick="group.editField(event, 'text', 'mdc-list-item__secondary-text')" title="Edit" class="material-icons md-24 mdc-ripple-surface icon-list">edit</i>
               </span>
             </li>
             <li class="mdc-list-divider" role="separator"></li>
@@ -52,7 +52,7 @@
                 </span>
               </span>
               <span class="mdc-list-item__meta">
-                <i onclick="bundle.editField(event, 'text', 'mdc-list-item__secondary-text')" title="Edit" class="material-icons md-24 mdc-ripple-surface icon-list">edit</i>
+                <i onclick="group.editField(event, 'text', 'mdc-list-item__secondary-text')" title="Edit" class="material-icons md-24 mdc-ripple-surface icon-list">edit</i>
               </span>
             </li>
             <li class="mdc-list-divider" role="separator"></li>
@@ -102,7 +102,7 @@
                   {% if group.student_id_needed %}
                   <input type="checkbox"
                          class="switch-button__input"
-                         onclick="bundle.toggleStudentIdNeeded(
+                         onclick="group.toggleStudentIdNeeded(
                             event,
                            '{% url 'group-details-update' group.hash %}'
                          )"
@@ -110,7 +110,7 @@
                   {% else %}
                   <input type="checkbox"
                          class="switch-button__input"
-                         onclick="bundle.toggleStudentIdNeeded(
+                         onclick="group.toggleStudentIdNeeded(
                             event,
                            '{% url 'group-details-update' group.hash %}'
                          )">
@@ -137,7 +137,7 @@
               </div>
               </span>
               <span class="mdc-list-item__meta">
-                <i onclick="bundle.editField(event, 'textList', 'mdc-list-item__secondary-text')" title="Add" class="material-icons md-24 mdc-ripple-surface icon-list">add</i>
+                <i onclick="group.editField(event, 'textList', 'mdc-list-item__secondary-text')" title="Add" class="material-icons md-24 mdc-ripple-surface icon-list">add</i>
               </span>
             </li>
             <li class="mdc-list-divider" role="separator"></li>
@@ -170,7 +170,7 @@
               </span>
             </span>
             <span class="mdc-list-item__meta">
-              <i onclick="bundle.removeAssignment(event, '{% url 'group-assignment' a.hash %}')" class="material-icons md-24 mdc-ripple-surface icon-list">delete</i>
+              <i onclick="group.removeAssignment(event, '{% url 'group-assignment' a.hash %}')" class="material-icons md-24 mdc-ripple-surface icon-list">delete</i>
               <a href="{% url 'group-assignment' a.hash %}">
               <i class="material-icons md-24 mdc-ripple-surface icon-list">edit</i>
               </a>

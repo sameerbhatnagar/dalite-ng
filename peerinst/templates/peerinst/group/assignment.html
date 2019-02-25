@@ -47,7 +47,7 @@
                 </span>
               </span>
               <span class="mdc-list-item__meta">
-                <i onclick="bundle.editField(event, 'datetime', 'mdc-list-item__secondary-text')" title="Edit" class="material-icons md-24 mdc-ripple-surface icon-list">edit</i>
+                <i onclick="group.editField(event, 'datetime', 'mdc-list-item__secondary-text')" title="Edit" class="material-icons md-24 mdc-ripple-surface icon-list">edit</i>
               </span>
             </li>
             <li class="mdc-list-divider" role="separator"></li>
@@ -188,7 +188,7 @@
 {% block init-scripts %}
 <script>
   window.addEventListener("load", function() {
-    bundle.initAssignment(
+    group.initAssignment(
       {{ data|safe }}
     )
   });

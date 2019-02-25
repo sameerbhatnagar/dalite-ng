@@ -38,11 +38,11 @@ function handleDragEnter(event) {
   const container = elem.parentNode;
   const title =
     event.dataTransfer.getData("title") || window.currentDraggedName;
-  const oldElem = Array.from(container.childNodes).filter(
+  const oldElem = Array.from(container.children).filter(
     x => x.getAttribute("data-draggable-name") == title,
   )[0];
-  const oldIdx = Array.from(container.childNodes).indexOf(oldElem);
-  const idx = Array.from(container.childNodes).indexOf(elem);
+  const oldIdx = Array.from(container.children).indexOf(oldElem);
+  const idx = Array.from(container.children).indexOf(elem);
   if (idx > oldIdx) {
     container.insertBefore(oldElem, elem.nextSibling);
   } else if (idx < oldIdx) {
