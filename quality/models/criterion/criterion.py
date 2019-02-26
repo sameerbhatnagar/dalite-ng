@@ -10,7 +10,7 @@ class Criterion(models.Model):
     class Meta:
         abstract = True
 
-    def __call__(self, answer):
+    def evaluate(self, answer):
         raise NotImplementedError("This property has to be implemented.")
 
     def save(self, *args, **kwargs):
