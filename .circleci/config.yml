@@ -60,4 +60,4 @@ jobs:
           name: Tests
           command: |
             . .venv/bin/activate
-            pytest --cov --create-db
+            pytest --cov --create-db --ignore=functional_tests
