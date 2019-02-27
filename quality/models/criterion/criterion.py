@@ -29,6 +29,6 @@ class Criterion(models.Model):
 
 class CriterionExistsError(Exception):
     def __init__(self):
-        super(Exception, self).save(
+        super(Exception, self).__init__(
             "A criterion with the same options already exists."
         )

@@ -9,19 +9,19 @@ from .criterion import Criterion, CriterionExistsError
 
 class MinWordsCriterion(Criterion):
     name = models.CharField(max_length=32, default="min_words", editable=False)
-    min_words = models.PositiveIntegerField()
+    min_words = models.PositiveIntegerField(unique=True)
 
     def evaluate(self, answer):
         return answer.rationale.split().length >= self.min_words
 
     @staticmethod
-    def create(self, min_words):
+    def create(min_words):
         """
         Creates the criterion version.
 
         Parameters
         ----------
-        min_words : int
+        min_words : int >= 0
             Minimum number of words for the quality to evaluate to True.
 
         Returns
@@ -31,9 +31,13 @@ class MinWordsCriterion(Criterion):
 
         Raises
         ------
+        ValueError
+            If the arguments have invalid values
         CriterionExistsError
             If a criterion with the same options already exists
         """
+        if min_words < 0:
+            raise ValueError("The minmum number of words can't be negative.")
         try:
             criterion = MinWordsCriterion.objects.create(
                 name="min_words", min_words=min_words
