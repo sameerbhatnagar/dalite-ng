@@ -3,7 +3,6 @@
 coverage
 ddt
 factory_boy
-hypothesis
 mock
 pytest
 pytest-cov
