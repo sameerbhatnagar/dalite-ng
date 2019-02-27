@@ -5,9 +5,9 @@ ddt
 factory_boy>=2.5.2,<2.6
 hypothesis
 mock
-pytest==4.1.1
-pytest-cov==2.6.1
-pytest-django==3.4.5
+pytest
+pytest-cov
+pytest-django
 pytz
 pyyaml
 selenium==3.13.0
