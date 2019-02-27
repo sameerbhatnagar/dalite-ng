@@ -1,7 +1,4 @@
-from .answer import answer  # noqa
-from .answer import answer_choices  # noqa
-from .answer import answers  # noqa
-from .answer import first_answers_no_shown  # noqa
+from .answer import answer_choices, answers, first_answers_no_shown  # noqa
 from .assignment import assignment  # noqa
 from .auth import user  # noqa
 from .group import group  # noqa

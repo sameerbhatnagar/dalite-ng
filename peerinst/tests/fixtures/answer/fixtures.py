@@ -34,10 +34,3 @@ def first_answers_no_shown(students, question, assignment, answer_choices):
 def answers(first_answers_no_shown):
     add_shown_and_second(first_answers_no_shown)
     return first_answers_no_shown
-
-
-@pytest.fixture
-def answer(student, question, assignment, answer_choices):
-    return add_first_answers_no_shown(
-        1, student, question, assignment, answer_choices
-    )

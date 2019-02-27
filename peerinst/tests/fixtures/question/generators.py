@@ -16,4 +16,4 @@ def new_questions(n):
 
 
 def add_questions(questions):
-    return [Question.objects.create(**q) for q in questions]
+    return [Question.objects.get_or_create(**q)[0] for q in questions]
