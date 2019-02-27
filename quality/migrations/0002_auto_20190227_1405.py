@@ -7,14 +7,12 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('quality', '0001_initial'),
-    ]
+    dependencies = [("quality", "0001_initial")]
 
     operations = [
         migrations.AlterField(
-            model_name='minwordscriterion',
-            name='min_words',
+            model_name="minwordscriterion",
+            name="min_words",
             field=models.PositiveIntegerField(unique=True),
-        ),
+        )
     ]
