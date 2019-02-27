@@ -2,7 +2,7 @@
 
 coverage
 ddt
-factory_boy>=2.5.2,<2.6
+factory_boy
 hypothesis
 mock
 pytest
