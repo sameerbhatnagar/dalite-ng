@@ -77,7 +77,7 @@ from ..models import (
     BlinkRound,
     Category,
     Discipline,
-    LtiEvent,
+    # LtiEvent,
     Question,
     RationaleOnlyQuestion,
     ShownRationale,
@@ -1027,14 +1027,14 @@ class QuestionFormView(QuestionMixin, FormView):
 
         # Write JSON to log file
         LOGGER.info(json.dumps(event))
-        lti_event = LtiEvent(
-            event_type=name,
-            event_log=json.dumps(event),
-            username=self.user_token,
-            assignment_id=self.assignment.identifier,
-            question_id=self.question.pk,
-        )
-        lti_event.save()
+        # lti_event = LtiEvent(
+        #     event_type=name,
+        #     event_log=json.dumps(event),
+        #     username=self.user_token,
+        #     assignment_id=self.assignment.identifier,
+        #     question_id=self.question.pk,
+        # )
+        # lti_event.save()
 
         if self.lti_data:
             course_title = self.lti_data.edx_lti_parameters.get(
@@ -3196,8 +3196,14 @@ def research_question_answer_list(request, discipline_title, question_pk):
     answer_qs = Answer.objects.filter(question_id=question_pk)
     for a in answer_qs:
         annotation, created = AnswerAnnotation.objects.get_or_create(
-            answer=a, annotator=annotator
+            answer=a, annotator=annotator, score__isnull=True
         )
+        if created:
+            # need to drop null scored objects if scored ones exist
+            if AnswerAnnotation.objects.filter(
+                answer=a, annotator=annotator, score__isnull=False
+            ).exists():
+                annotation.delete()
 
     queryset = AnswerAnnotation.objects.filter(
         answer__question_id=question_pk, annotator=annotator
@@ -3229,4 +3235,28 @@ def research_question_answer_list(request, discipline_title, question_pk):
         "discipline_title": discipline_title,
         "question_pk": question_pk,
     }
+    return render(request, template, context)
+
+
+def research_all_annotations_for_question(
+    request, discipline_title, question_pk
+):
+    """
+    Returns:
+    ====================
+    All answer annotations for a question, ordered for
+    comparison by researchers
+    """
+    template = "peerinst/research/all_annotations.html"
+    context = {
+        "question": Question.objects.get(id=question_pk),
+        "question_pk": question_pk,
+    }
+
+    annotations = AnswerAnnotation.objects.filter(
+        score__isnull=False, answer__question_id=question_pk
+    ).order_by("answer__first_answer_choice", "score")
+
+    context["annotations"] = annotations
+
     return render(request, template, context)
