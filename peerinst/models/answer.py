@@ -213,7 +213,7 @@ class RationaleOnlyQuestion(Question):
         answer = Answer(
             question=view.question,
             assignment=view.assignment,
-            first_answer_choice=0,
+            first_answer_choice=1,
             rationale=rationale,
             user_token=view.user_token,
             datetime_start=datetime_start,
