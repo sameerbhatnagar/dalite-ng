@@ -95,6 +95,10 @@ class Answer(models.Model):
         bool:
             Answer is correct or not
         """
+        # rationale only
+        if self.first_answer_choice == 0:
+            return True
+
         if self.second_answer_choice is None:
             return False
         else:
@@ -110,6 +114,10 @@ class Answer(models.Model):
         bool:
             First answer is correct or not
         """
+        # rationale only
+        if self.first_answer_choice == 0:
+            return True
+
         return self.question.is_correct(self.first_answer_choice)
 
     @property
@@ -122,13 +130,20 @@ class Answer(models.Model):
         bool:
             if the answer corresponds to a completed question.
         """
+
+        # rationale only
+        if self.first_answer_choice == 0:
+            return True
+
         return self.second_answer_choice is not None
 
     @property
     def grade(self):
         """ Compute grade based on grading scheme of question. """
-        if self.question.grading_scheme == GradingScheme.STANDARD:
-            # Standard grading scheme: Full score if second answer is correct
+        if (
+            self.question.grading_scheme == GradingScheme.STANDARD
+            or isinstance(self.question, RationaleOnlyQuestion)
+        ):
             return float(self.correct)
         elif self.question.grading_scheme == GradingScheme.ADVANCED:
             if self.correct and self.first_correct:
@@ -230,9 +245,6 @@ class RationaleOnlyQuestion(Question):
         view.stage_data.clear()
 
         return
-
-    def is_correct(*args):
-        return True
 
     def get_start_form_class(self):
         from ..forms import RationaleOnlyForm
