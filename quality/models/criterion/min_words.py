@@ -12,7 +12,7 @@ class MinWordsCriterion(Criterion):
     min_words = models.PositiveIntegerField(unique=True)
 
     def evaluate(self, answer):
-        return answer.rationale.split().length >= self.min_words
+        return len(answer.rationale.split()) >= self.min_words
 
     @staticmethod
     def create(min_words):

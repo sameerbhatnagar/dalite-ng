@@ -26,7 +26,8 @@ def test_create__already_exists(min_words_criterion):
         MinWordsCriterion.create(min_words_criterion.min_words)
 
 
-def test_evaluate__less_than_min(min_words_criterion, answer):
+def test_evaluate__less_than_min(min_words_criterion, answers):
+    answer = answers[0]
     answer.rationale = ". ."
     answer.save()
 
@@ -36,9 +37,23 @@ def test_evaluate__less_than_min(min_words_criterion, answer):
     assert not min_words_criterion.evaluate(answer)
 
 
-def test_evaluate__more_than_min(min_words_criterion, answer):
-    pass
+def test_evaluate__more_than_min(min_words_criterion, answers):
+    answer = answers[0]
+    answer.rationale = ". . . ."
+    answer.save()
+
+    min_words_criterion.min_words = 3
+    min_words_criterion.save()
+
+    assert min_words_criterion.evaluate(answer)
 
 
-def test_evaluate__same_as_min(min_words_criterion, answer):
-    pass
+def test_evaluate__same_as_min(min_words_criterion, answers):
+    answer = answers[0]
+    answer.rationale = ". . ."
+    answer.save()
+
+    min_words_criterion.min_words = 3
+    min_words_criterion.save()
+
+    assert min_words_criterion.evaluate(answer)
