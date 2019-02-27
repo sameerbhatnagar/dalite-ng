@@ -251,9 +251,10 @@ class ShownRationale(models.Model):
 
 class AnswerAnnotation(models.Model):
     SCORE_CHOICES = (
-        (1, _("1-Never Show")),
-        (2, _("2-Maybe Show")),
-        (3, _("3-Show")),
+        (0, _("0-Never Show")),
+        (1, _("1-Not Convincing")),
+        (2, _("2-Somewhat Convincing")),
+        (3, _("3-Very Convincing")),
     )
     answer = models.ForeignKey(Answer)
     annotator = models.ForeignKey(User)
