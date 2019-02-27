@@ -68,7 +68,7 @@ from ..mixins import (
 from ..models import (
     Answer,
     AnswerAnnotation,
-    AnswerChoice,
+    AnswerChoice,  # LtiEvent,
     Assignment,
     BlinkAnswer,
     BlinkAssignment,
@@ -77,9 +77,7 @@ from ..models import (
     BlinkRound,
     Category,
     Discipline,
-    # LtiEvent,
     Question,
-    RationaleOnlyQuestion,
     ShownRationale,
     Student,
     StudentGroup,
@@ -1649,10 +1647,6 @@ def question(request, assignment_id, question_id):
     # Collect common objects required for the view
     assignment = get_object_or_404(models.Assignment, pk=assignment_id)
     question = get_object_or_404(models.Question, pk=question_id)
-
-    # Reload question through proxy based on type, if needed
-    if question.type == "RO":
-        question = get_object_or_404(RationaleOnlyQuestion, pk=question_id)
 
     custom_key = unicode(assignment.pk) + ":" + unicode(question.pk)
     stage_data = SessionStageData(request.session, custom_key)

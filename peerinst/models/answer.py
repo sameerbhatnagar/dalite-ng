@@ -95,14 +95,13 @@ class Answer(models.Model):
         bool:
             Answer is correct or not
         """
-        # rationale only
-        if self.first_answer_choice == 0:
-            return True
-
-        if self.second_answer_choice is None:
-            return False
+        if self.question.second_answer_needed:
+            if self.second_answer_choice is None:
+                return False
+            else:
+                return self.question.is_correct(self.second_answer_choice)
         else:
-            return self.question.is_correct(self.second_answer_choice)
+            return self.first_correct
 
     @property
     def first_correct(self):
@@ -114,9 +113,8 @@ class Answer(models.Model):
         bool:
             First answer is correct or not
         """
-        # rationale only
-        if self.first_answer_choice == 0:
-            return True
+        if self.question.type == "RO":
+            return RationaleOnlyQuestion.is_correct(self.first_answer_choice)
 
         return self.question.is_correct(self.first_answer_choice)
 
@@ -131,11 +129,10 @@ class Answer(models.Model):
             if the answer corresponds to a completed question.
         """
 
-        # rationale only
-        if self.first_answer_choice == 0:
-            return True
-
-        return self.second_answer_choice is not None
+        if self.question.second_answer_needed:
+            return self.second_answer_choice is not None
+        else:
+            return self.first_answer_choice is not None
 
     @property
     def grade(self):
@@ -220,6 +217,11 @@ class RationaleOnlyQuestion(Question):
     class Meta:
         proxy = True
 
+    def save(self, *args, **kwargs):
+        self.question.second_answer_needed = False
+        self.question.save()
+        super(RationaleOnlyQuestion, self).save(*args, **kwargs)
+
     def start_form_valid(request, view, form):
         rationale = form.cleaned_data["rationale"]
         datetime_start = form.cleaned_data["datetime_start"]
@@ -250,6 +252,10 @@ class RationaleOnlyQuestion(Question):
         from ..forms import RationaleOnlyForm
 
         return RationaleOnlyForm
+
+    @staticmethod
+    def is_correct(*args, **kwargs):
+        return True
 
 
 class ShownRationale(models.Model):
