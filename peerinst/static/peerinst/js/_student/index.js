@@ -54,6 +54,7 @@ function initModel(data) {
       assignmentAboutToExpire: data.translations.assignment_about_to_expire,
       assignmentExpired: data.translations.assignment_expired,
       cancel: data.translations.cancel,
+      completed: data.translations.completed,
       day: data.translations.day,
       days: data.translations.days,
       dueOn: data.translations.due_on,
@@ -311,7 +312,7 @@ function groupAssignmentView(assignment) {
 
   const li = document.createElement("li");
   li.classList.add("student-group--assignment");
-  if (assignment.results.nSecondAnswered == assignment.results.n) {
+  if (assignment.done) {
     li.classList.add("student-group--assignment-complete");
   }
   a.appendChild(li);
@@ -326,7 +327,7 @@ function groupAssignmentView(assignment) {
   li.appendChild(iconSpan);
   const icon = document.createElement("i");
   icon.classList.add("material-icons", "md-28");
-  if (assignment.results.nSecondAnswered == assignment.results.n) {
+  if (assignment.done) {
     iconSpan.title = model.translations.goToAssignment;
     icon.textContent = "assignment_turned_in";
   } else if (assignment.dueDate <= new Date(Date.now())) {
@@ -363,7 +364,10 @@ function groupAssignmentView(assignment) {
 
   const date = document.createElement("span");
   date.classList.add("student-group--assignment-date");
-  if (assignment.dueDate <= new Date(Date.now())) {
+  if (assignment.done) {
+    date.title = null;
+    date.textContent = model.translations.completed;
+  } else if (assignment.dueDate <= new Date(Date.now())) {
     date.title = model.translations.assignmentExpired;
     date.textContent = model.translations.expired;
   } else {
@@ -643,10 +647,7 @@ export function joinGroup() {
             link: assignment.link,
             results: {
               n: assignment.results.n,
-              nFirstAnswered: assignment.results.nFirstAnswered,
-              nSecondAnswered: assignment.results.nSecondAnswered,
-              nFirstCorrect: assignment.results.nFirstCorrect,
-              nSecondCorrect: assignment.results.nSecondCorrect,
+              grade: assignment.results.grade,
             },
             done: assignment.done,
             almostExpired: assignment.almost_expired,

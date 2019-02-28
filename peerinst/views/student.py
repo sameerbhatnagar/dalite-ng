@@ -233,6 +233,7 @@ def index_page(req):
                     ),
                 ),
                 "results": assignment.results,
+                "done": assignment.completed,
             }
             for assignment in StudentAssignment.objects.filter(
                 student=student, group_assignment__group=group.group
@@ -248,6 +249,7 @@ def index_page(req):
                 "due_date": assignment["due_date"],
                 "link": assignment["link"],
                 "results": assignment["results"],
+                "done": assignment["done"],
             }
             for assignment in assignments
         ]
@@ -295,6 +297,7 @@ def index_page(req):
                         "due_date": assignment["due_date"].isoformat(),
                         "link": assignment["link"],
                         "results": assignment["results"],
+                        "done": assignment["done"],
                     }
                     for assignment in assignments[group]
                 ],
@@ -331,6 +334,7 @@ def index_page(req):
             ),
             "assignment_expired": ugettext("Past due date"),
             "cancel": ugettext("Cancel"),
+            "completed": ugettext("Completed"),
             "day": ugettext("day"),
             "days": ugettext("days"),
             "due_on": ugettext("Due on"),
@@ -420,6 +424,7 @@ def join_group(req, student):
                     ),
                 ),
                 "results": assignment.results,
+                "done": assignment.completed,
             }
             for assignment in StudentAssignment.objects.filter(
                 student=student, group_assignment__group=group
