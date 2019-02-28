@@ -46,7 +46,7 @@
     </div>
     <div class="grp-row">
       <input type="hidden" name="group_assignment" value="{{ group_assignment.pk }}">
-      <input type="submit" value="{% trans 'Send all missing' %}" {% if student_list.count = student_assignment_list.count %}disabled{% endif %} />
+      <input type="submit" value="{% trans 'Send all missing' %}" {% if student_list.count == student_assignment_list.count %}disabled{% endif %} />
     </div>
   </fieldset>
 </form>
