@@ -2289,6 +2289,7 @@ class BlinkQuestionFormView(SingleObjectMixin, FormView):
         return kwargs
 
     def get_context_data(self, **kwargs):
+        self.object = self.get_object()
         context = super(BlinkQuestionFormView, self).get_context_data(**kwargs)
         context["object"] = self.object
 
