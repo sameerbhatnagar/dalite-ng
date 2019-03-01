@@ -203,6 +203,9 @@ class AnswerAdmin(admin.ModelAdmin):
         "show_chosen_rationale",
         "upvotes",
         "downvotes",
+        "datetime_start",
+        "datetime_first",
+        "datetime_second",
     ]
     list_display_links = None
     list_editable = ["show_to_others", "expert"]

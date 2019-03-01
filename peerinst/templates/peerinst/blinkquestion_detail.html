@@ -28,7 +28,7 @@
         <ul>
         {% for label, choice in object.question.get_choices %}
           <li class="dense-list">
-            {% if not request.user.is_authenticated and label = latest_answer_choice %}
+            {% if not request.user.is_authenticated and label == latest_answer_choice %}
             <span class="bold">{{label}}. {{choice|safe}}</span>
             {% else %}
             {{label}}. {{choice|safe}}
