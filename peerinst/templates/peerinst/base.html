@@ -76,7 +76,7 @@
       </div>
     </div>
     <div id="header-right">
-      {% if user.is_authenticated and user.student %}
+      {% if user.is_authenticated and user.student and not lti%}
       <div class="header">
         {% include 'peerinst/student/header/notifications.html' %}
       </div>
