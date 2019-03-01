@@ -1,5 +1,3 @@
-import os
-
 from django.contrib.auth.models import User
 from django.test import TestCase, override_settings
 
@@ -16,8 +14,9 @@ class TestAuthenticateStudent(TestCase):
     def test_user_doesnt_exist(self):
         test = {"email": "test@localhost"}
 
-        user = authenticate_student(**test)
+        user, is_lti = authenticate_student(**test)
         self.assertIsInstance(user, User)
+        self.assertFalse(is_lti)
         self.assertTrue(User.objects.filter(email=test["email"]).exists())
         self.assertTrue(
             Student.objects.filter(student__email=test["email"]).exists()
@@ -33,7 +32,7 @@ class TestAuthenticateStudent(TestCase):
             )
         )
 
-        user = authenticate_student(**test)
+        user, is_lti = authenticate_student(**test)
         self.assertIsInstance(user, User)
 
     @override_settings(PASSWORD_GENERATOR_NONCE="key")
@@ -44,8 +43,9 @@ class TestAuthenticateStudent(TestCase):
             username=username, email=test["email"], password=password
         )
 
-        user = authenticate_student(**test)
+        user, is_lti = authenticate_student(**test)
         self.assertIsInstance(user, User)
+        self.assertFalse(is_lti)
         self.assertTrue(
             Student.objects.filter(student__email=test["email"]).exists()
         )
@@ -62,8 +62,9 @@ class TestAuthenticateStudent(TestCase):
         )
         new_username, _ = get_student_username_and_password(test["email"])
 
-        user = authenticate_student(**test)
+        user, is_lti = authenticate_student(**test)
         self.assertIsInstance(user, User)
+        self.assertTrue(is_lti)
         self.assertEqual(len(User.objects.filter(email=test["email"])), 1)
         self.assertEqual(
             len(Student.objects.filter(student__email=test["email"])), 1
@@ -83,8 +84,9 @@ class TestAuthenticateStudent(TestCase):
         )
         new_username, _ = get_student_username_and_password(test["email"])
 
-        user = authenticate_student(**test)
+        user, is_lti = authenticate_student(**test)
         self.assertIsInstance(user, User)
+        self.assertTrue(is_lti)
         self.assertEqual(len(User.objects.filter(email=test["email"])), 1)
         self.assertTrue(
             Student.objects.filter(student__email=test["email"]).exists()
@@ -107,8 +109,9 @@ class TestAuthenticateStudent(TestCase):
             )
         )
 
-        user = authenticate_student(**test)
+        user, is_lti = authenticate_student(**test)
         self.assertIsInstance(user, User)
+        self.assertFalse(is_lti)
         self.assertFalse(
             Student.objects.filter(student__email=test["email"]).exists()
         )
@@ -124,8 +127,9 @@ class TestAuthenticateStudent(TestCase):
             )
         )
 
-        user = authenticate_student(**test)
+        user, is_lti = authenticate_student(**test)
         self.assertIsInstance(user, User)
+        self.assertTrue(is_lti)
         self.assertFalse(
             Student.objects.filter(student__email=test["email"]).exists()
         )

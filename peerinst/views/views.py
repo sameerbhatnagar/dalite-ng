@@ -68,7 +68,7 @@ from ..mixins import (
 from ..models import (
     Answer,
     AnswerAnnotation,
-    AnswerChoice,
+    AnswerChoice,  # LtiEvent,
     Assignment,
     BlinkAnswer,
     BlinkAssignment,
@@ -77,7 +77,6 @@ from ..models import (
     BlinkRound,
     Category,
     Discipline,
-    LtiEvent,
     Question,
     RationaleOnlyQuestion,
     ShownRationale,
@@ -1027,14 +1026,14 @@ class QuestionFormView(QuestionMixin, FormView):
 
         # Write JSON to log file
         LOGGER.info(json.dumps(event))
-        lti_event = LtiEvent(
-            event_type=name,
-            event_log=json.dumps(event),
-            username=self.user_token,
-            assignment_id=self.assignment.identifier,
-            question_id=self.question.pk,
-        )
-        lti_event.save()
+        # lti_event = LtiEvent(
+        #     event_type=name,
+        #     event_log=json.dumps(event),
+        #     username=self.user_token,
+        #     assignment_id=self.assignment.identifier,
+        #     question_id=self.question.pk,
+        # )
+        # lti_event.save()
 
         if self.lti_data:
             course_title = self.lti_data.edx_lti_parameters.get(
@@ -2041,9 +2040,18 @@ def student_activity(request):
                         if a.user_token in student_list
                         and a.assignment == ga.assignment
                         and (
-                            a.datetime_start > request.user.last_login
-                            or a.datetime_first > request.user.last_login
-                            or a.datetime_second > request.user.last_login
+                            (
+                                a.datetime_start
+                                and a.datetime_start > request.user.last_login
+                            )
+                            or (
+                                a.datetime_first
+                                and a.datetime_first > request.user.last_login
+                            )
+                            or (
+                                a.datetime_second
+                                and a.datetime_second > request.user.last_login
+                            )
                         )
                     ]
                     all_answers_by_group[g][ga]["percent_complete"] = int(
@@ -2067,9 +2075,18 @@ def student_activity(request):
                         if a.user_token in student_list
                         and a.assignment == l
                         and (
-                            a.datetime_start > request.user.last_login
-                            or a.datetime_first > request.user.last_login
-                            or a.datetime_second > request.user.last_login
+                            (
+                                a.datetime_start
+                                and a.datetime_start > request.user.last_login
+                            )
+                            or (
+                                a.datetime_first
+                                and a.datetime_first > request.user.last_login
+                            )
+                            or (
+                                a.datetime_second
+                                and a.datetime_second > request.user.last_login
+                            )
                         )
                     ]
                     all_answers_by_group[g][l]["percent_complete"] = int(
@@ -2088,17 +2105,27 @@ def student_activity(request):
                     assignment = key.assignment
                     id = key.assignment.identifier
 
-                    if (
-                        key.distribution_date
-                        < value_list["answers"][0].datetime_first
-                    ):
+                    date = (
+                        value_list["answers"][0].datetime_first
+                        if value_list["answers"][0].datetime_first
+                        else value_list["answers"][0].datetime_second
+                    )
+
+                    if key.distribution_date < date:
                         start_date = key.distribution_date
                     else:
-                        start_date = value_list["answers"][0].datetime_first
-                    if key.due_date > value_list["answers"][-1].datetime_first:
+                        start_date = date
+
+                    date = (
+                        value_list["answers"][-1].datetime_first
+                        if value_list["answers"][-1].datetime_first
+                        else value_list["answers"][-1].datetime_second
+                    )
+
+                    if key.due_date > date:
                         end_date = key.due_date
                     else:
-                        end_date = value_list["answers"][-1].datetime_first
+                        end_date = date
                 except Exception:
                     assignment = key
                     id = key.identifier
@@ -2123,7 +2150,11 @@ def student_activity(request):
                 json_data[group_key.name][id]["answers"] = []
                 for answer in value_list["answers"]:
                     json_data[group_key.name][id]["answers"].append(
-                        str(answer.datetime_first)
+                        str(
+                            answer.datetime_first
+                            if answer.datetime_first
+                            else answer.datetime_second
+                        )
                     )
 
     return TemplateResponse(
@@ -2290,6 +2321,7 @@ class BlinkQuestionFormView(SingleObjectMixin, FormView):
         return kwargs
 
     def get_context_data(self, **kwargs):
+        self.object = self.get_object()
         context = super(BlinkQuestionFormView, self).get_context_data(**kwargs)
         context["object"] = self.object
 
@@ -3196,8 +3228,14 @@ def research_question_answer_list(request, discipline_title, question_pk):
     answer_qs = Answer.objects.filter(question_id=question_pk)
     for a in answer_qs:
         annotation, created = AnswerAnnotation.objects.get_or_create(
-            answer=a, annotator=annotator
+            answer=a, annotator=annotator, score__isnull=True
         )
+        if created:
+            # need to drop null scored objects if scored ones exist
+            if AnswerAnnotation.objects.filter(
+                answer=a, annotator=annotator, score__isnull=False
+            ).exists():
+                annotation.delete()
 
     queryset = AnswerAnnotation.objects.filter(
         answer__question_id=question_pk, annotator=annotator
@@ -3229,4 +3267,28 @@ def research_question_answer_list(request, discipline_title, question_pk):
         "discipline_title": discipline_title,
         "question_pk": question_pk,
     }
+    return render(request, template, context)
+
+
+def research_all_annotations_for_question(
+    request, discipline_title, question_pk
+):
+    """
+    Returns:
+    ====================
+    All answer annotations for a question, ordered for
+    comparison by researchers
+    """
+    template = "peerinst/research/all_annotations.html"
+    context = {
+        "question": Question.objects.get(id=question_pk),
+        "question_pk": question_pk,
+    }
+
+    annotations = AnswerAnnotation.objects.filter(
+        score__isnull=False, answer__question_id=question_pk
+    ).order_by("answer__first_answer_choice", "score")
+
+    context["annotations"] = annotations
+
     return render(request, template, context)

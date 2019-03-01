@@ -19,6 +19,11 @@ class BlinkQuestion(models.Model):
     def __unicode__(self):
         return self.question.text
 
+    def save(self, *args, **kwargs):
+        self.question.second_answer_needed = False
+        self.question.save()
+        super(BlinkQuestion, self).save(*args, **kwargs)
+
 
 class BlinkRound(models.Model):
     question = models.ForeignKey(BlinkQuestion)
@@ -63,7 +68,7 @@ class BlinkAssignmentQuestion(models.Model):
     blinkquestion = models.ForeignKey(BlinkQuestion, on_delete=models.CASCADE)
     rank = models.IntegerField()
 
-    ## https://djangosnippets.org/snippets/998/
+    # https://djangosnippets.org/snippets/998/
     def move_down_rank(self):
         try:
             next_q = (

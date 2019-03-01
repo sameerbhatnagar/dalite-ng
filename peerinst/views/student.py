@@ -130,6 +130,102 @@ def validate_group_data(req):
     return group
 
 
+def login_student(req, token=None):
+    """
+    Logs in the user depending on the given token and req.user. For lti users,
+    the student corresponding to the email is used, creating it if necessary.
+
+    Parameters
+    ----------
+    req : HttpRequest
+        Request with a logged in user or not
+    token : Optional[str] (default : None)
+        Student token
+
+    Parameters
+    ----------
+    Either
+        Student
+            Logged in student
+        HttpResponse
+            Error response
+    bool
+        If this is a new student
+    """
+
+    if token is None:
+        if not isinstance(req.user, User):
+            return (
+                response_403(
+                    req,
+                    msg=_(
+                        "You must be a logged in student to access this "
+                        "resource."
+                    ),
+                    logger_msg=(
+                        "Student index page accessed without a token or being "
+                        "logged in."
+                    ),
+                    log=logger.warning,
+                ),
+                None,
+            )
+
+        user = req.user
+        username, password = get_student_username_and_password(user.email)
+
+        is_lti = user.username != username
+
+    else:
+        user, is_lti = authenticate_student(req, token)
+        if isinstance(user, HttpResponse):
+            return user, None
+
+        if is_lti:
+            username, password = get_student_username_and_password(user.email)
+
+    if is_lti:
+        try:
+            user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            user = User.objects.create_user(
+                username=username, password=password, email=user.email
+            )
+
+    try:
+        student = Student.objects.get(student=user)
+        new_student = False
+    except Student.DoesNotExist:
+        if is_lti:
+            return (
+                response_403(
+                    req,
+                    msg=_(
+                        "You must be a logged in student to access this "
+                        "resource."
+                    ),
+                    logger_msg=(
+                        "Student index page accessed without a token or being "
+                        "logged in."
+                    ),
+                    log=logger.warning,
+                ),
+                None,
+            )
+        student = Student.objects.create(student=user)
+        new_student = True
+
+    if not user.is_active or new_student:
+        user.is_active = True
+        user.save()
+        new_student = True
+
+    logout(req)
+    login(req, user)
+
+    return student, new_student
+
+
 @require_http_methods(["GET"])
 def index_page(req):
     """
@@ -139,71 +235,13 @@ def index_page(req):
 
     token = req.GET.get("token")
 
-    # get student from token or from logged in user
-    if token is None:
-        if not isinstance(req.user, User):
-            return response_403(
-                req,
-                msg=_(
-                    "You must be a logged in student to access this "
-                    "resource."
-                ),
-                logger_msg=(
-                    "Student index page accessed without a token or being "
-                    "logged in."
-                ),
-                log=logger.warning,
-            )
+    student, new_student = login_student(req, token)
+    if isinstance(student, HttpResponse):
+        return student
 
-        try:
-            student = Student.objects.get(student=req.user)
-        except Student.DoesNotExist:
-            return response_403(
-                req,
-                msg=_(
-                    "You must be a logged in student to access this "
-                    "resource."
-                ),
-                logger_msg=(
-                    "There is no student corresponding to user %d.",
-                    req.user.pk,
-                ),
-                log=logger.warning,
-            )
-
-        token = create_student_token(
-            student.student.username, student.student.email
-        )
-        new_student = False
-    else:
-        user = authenticate_student(req, token)
-        if isinstance(user, HttpResponse):
-            return user
-
-        if not user.is_active:
-            user.is_active = True
-            user.save()
-            new_student = True
-        else:
-            new_student = False
-
-        logout(req)
-        login(req, user)
-        try:
-            student = Student.objects.get(student=user)
-        except Student.DoesNotExist:
-            return response_403(
-                req,
-                msg=_(
-                    "You must be a logged in student to access this "
-                    "resource."
-                ),
-                logger_msg=(
-                    "There is no student corresponding to user %d.",
-                    user.pk,
-                ),
-                log=logger.warning,
-            )
+    token = create_student_token(
+        student.student.username, student.student.email
+    )
 
     StudentNotification.clean(student)
 
@@ -233,6 +271,7 @@ def index_page(req):
                     ),
                 ),
                 "results": assignment.results,
+                "done": assignment.completed,
             }
             for assignment in StudentAssignment.objects.filter(
                 student=student, group_assignment__group=group.group
@@ -248,6 +287,7 @@ def index_page(req):
                 "due_date": assignment["due_date"],
                 "link": assignment["link"],
                 "results": assignment["results"],
+                "done": assignment["done"],
             }
             for assignment in assignments
         ]
@@ -295,6 +335,7 @@ def index_page(req):
                         "due_date": assignment["due_date"].isoformat(),
                         "link": assignment["link"],
                         "results": assignment["results"],
+                        "done": assignment["done"],
                     }
                     for assignment in assignments[group]
                 ],
@@ -331,6 +372,7 @@ def index_page(req):
             ),
             "assignment_expired": ugettext("Past due date"),
             "cancel": ugettext("Cancel"),
+            "completed": ugettext("Completed"),
             "day": ugettext("day"),
             "days": ugettext("days"),
             "due_on": ugettext("Due on"),
@@ -420,6 +462,7 @@ def join_group(req, student):
                     ),
                 ),
                 "results": assignment.results,
+                "done": assignment.completed,
             }
             for assignment in StudentAssignment.objects.filter(
                 student=student, group_assignment__group=group

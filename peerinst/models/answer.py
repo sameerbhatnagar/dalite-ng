@@ -95,10 +95,13 @@ class Answer(models.Model):
         bool:
             Answer is correct or not
         """
-        if self.second_answer_choice is None:
-            return False
+        if self.question.second_answer_needed:
+            if self.second_answer_choice is None:
+                return False
+            else:
+                return self.question.is_correct(self.second_answer_choice)
         else:
-            return self.question.is_correct(self.second_answer_choice)
+            return self.first_correct
 
     @property
     def first_correct(self):
@@ -110,6 +113,9 @@ class Answer(models.Model):
         bool:
             First answer is correct or not
         """
+        if self.question.type == "RO":
+            return RationaleOnlyQuestion.is_correct(self.first_answer_choice)
+
         return self.question.is_correct(self.first_answer_choice)
 
     @property
@@ -122,13 +128,19 @@ class Answer(models.Model):
         bool:
             if the answer corresponds to a completed question.
         """
-        return self.second_answer_choice is not None
+
+        if self.question.second_answer_needed:
+            return self.second_answer_choice is not None
+        else:
+            return self.first_answer_choice is not None
 
     @property
     def grade(self):
         """ Compute grade based on grading scheme of question. """
-        if self.question.grading_scheme == GradingScheme.STANDARD:
-            # Standard grading scheme: Full score if second answer is correct
+        if (
+            self.question.grading_scheme == GradingScheme.STANDARD
+            or isinstance(self.question, RationaleOnlyQuestion)
+        ):
             return float(self.correct)
         elif self.question.grading_scheme == GradingScheme.ADVANCED:
             if self.correct and self.first_correct:
@@ -205,6 +217,11 @@ class RationaleOnlyQuestion(Question):
     class Meta:
         proxy = True
 
+    def save(self, *args, **kwargs):
+        self.question.second_answer_needed = False
+        self.question.save()
+        super(RationaleOnlyQuestion, self).save(*args, **kwargs)
+
     def start_form_valid(request, view, form):
         rationale = form.cleaned_data["rationale"]
         datetime_start = form.cleaned_data["datetime_start"]
@@ -231,13 +248,14 @@ class RationaleOnlyQuestion(Question):
 
         return
 
-    def is_correct(*args):
-        return True
-
     def get_start_form_class(self):
         from ..forms import RationaleOnlyForm
 
         return RationaleOnlyForm
+
+    @staticmethod
+    def is_correct(*args, **kwargs):
+        return True
 
 
 class ShownRationale(models.Model):
@@ -251,9 +269,10 @@ class ShownRationale(models.Model):
 
 class AnswerAnnotation(models.Model):
     SCORE_CHOICES = (
-        (1, _("1-Never Show")),
-        (2, _("2-Maybe Show")),
-        (3, _("3-Show")),
+        (0, _("0-Never Show")),
+        (1, _("1-Not Convincing")),
+        (2, _("2-Somewhat Convincing")),
+        (3, _("3-Very Convincing")),
     )
     answer = models.ForeignKey(Answer)
     annotator = models.ForeignKey(User)

@@ -107,6 +107,8 @@ class Question(models.Model):
         User, blank=True, null=True, on_delete=models.SET_NULL
     )
 
+    second_answer_needed = models.BooleanField(default=True, editable=False)
+
     def teachers_only():
         return Q(teacher__isnull=False)
 
