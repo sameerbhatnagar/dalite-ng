@@ -2040,9 +2040,18 @@ def student_activity(request):
                         if a.user_token in student_list
                         and a.assignment == ga.assignment
                         and (
-                            a.datetime_start > request.user.last_login
-                            or a.datetime_first > request.user.last_login
-                            or a.datetime_second > request.user.last_login
+                            (
+                                a.datetime_start
+                                and a.datetime_start > request.user.last_login
+                            )
+                            or (
+                                a.datetime_first
+                                and a.datetime_first > request.user.last_login
+                            )
+                            or (
+                                a.datetime_second
+                                and a.datetime_second > request.user.last_login
+                            )
                         )
                     ]
                     all_answers_by_group[g][ga]["percent_complete"] = int(
@@ -2066,9 +2075,18 @@ def student_activity(request):
                         if a.user_token in student_list
                         and a.assignment == l
                         and (
-                            a.datetime_start > request.user.last_login
-                            or a.datetime_first > request.user.last_login
-                            or a.datetime_second > request.user.last_login
+                            (
+                                a.datetime_start
+                                and a.datetime_start > request.user.last_login
+                            )
+                            or (
+                                a.datetime_first
+                                and a.datetime_first > request.user.last_login
+                            )
+                            or (
+                                a.datetime_second
+                                and a.datetime_second > request.user.last_login
+                            )
                         )
                     ]
                     all_answers_by_group[g][l]["percent_complete"] = int(
@@ -2087,17 +2105,27 @@ def student_activity(request):
                     assignment = key.assignment
                     id = key.assignment.identifier
 
-                    if (
-                        key.distribution_date
-                        < value_list["answers"][0].datetime_first
-                    ):
+                    date = (
+                        value_list["answers"][0].datetime_first
+                        if value_list["answers"][0].datetime_first
+                        else value_list["answers"][0].datetime_second
+                    )
+
+                    if key.distribution_date < date:
                         start_date = key.distribution_date
                     else:
-                        start_date = value_list["answers"][0].datetime_first
-                    if key.due_date > value_list["answers"][-1].datetime_first:
+                        start_date = date
+
+                    date = (
+                        value_list["answers"][-1].datetime_first
+                        if value_list["answers"][-1].datetime_first
+                        else value_list["answers"][-1].datetime_second
+                    )
+
+                    if key.due_date > date:
                         end_date = key.due_date
                     else:
-                        end_date = value_list["answers"][-1].datetime_first
+                        end_date = date
                 except Exception:
                     assignment = key
                     id = key.identifier
@@ -2122,7 +2150,11 @@ def student_activity(request):
                 json_data[group_key.name][id]["answers"] = []
                 for answer in value_list["answers"]:
                     json_data[group_key.name][id]["answers"].append(
-                        str(answer.datetime_first)
+                        str(
+                            answer.datetime_first
+                            if answer.datetime_first
+                            else answer.datetime_second
+                        )
                     )
 
     return TemplateResponse(
