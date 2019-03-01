@@ -1,6 +1,6 @@
-from views import *
-from standalone_views import *
-from group import *
-from assignment import *
-from search import *
-from . import student
+from assignment import *  # noqa
+from group import *  # noqa
+from search import *  # noqa
+from standalone_views import *  # noqa
+from views import *  # noqa
+from . import student  # noqa
