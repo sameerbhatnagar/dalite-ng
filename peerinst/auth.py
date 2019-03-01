@@ -17,6 +17,25 @@ logger = logging.getLogger("peerinst-auth")
 
 
 def authenticate_student(email, user_id=None):
+    """
+    Authenticates the student either with the username, password created from
+    the email and SECRET_KEY or with the old lti way using the user_id and
+    PASSWORD_GENERATOR_NONCE.
+
+    Parameters
+    ----------
+    email : str
+        Student email
+    user_id : str
+        Id returned by the lti consummer
+
+    Returns
+    -------
+    User
+        User corresponding to the student
+    bool
+        If the user was authenticated using the lti way or not
+    """
     username, password = get_student_username_and_password(email)
 
     if (
@@ -31,6 +50,8 @@ def authenticate_student(email, user_id=None):
             and not Student.objects.filter(student=user).exists()
         ):
             Student.objects.create(student=user)
+
+        lti = False
 
     else:
         # old way of generating student login
@@ -53,6 +74,8 @@ def authenticate_student(email, user_id=None):
             ):
                 Student.objects.create(student=user)
 
+            lti = True
+
         else:
             try:
                 User.objects.create_user(
@@ -64,6 +87,7 @@ def authenticate_student(email, user_id=None):
                     and not Teacher.objects.filter(user__email=email).exists()
                 ):
                     Student.objects.create(student=user)
+                lti = False
             except IntegrityError as e:
                 logger.error(
                     "IntegrityError creating user - assuming result of "
@@ -71,8 +95,9 @@ def authenticate_student(email, user_id=None):
                     e.message,
                 )
                 user = None
+                lti = False
 
     if user is None:
         logger.error("The user couldn't be authenticated.")
 
-    return user
+    return user, lti

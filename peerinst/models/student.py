@@ -294,6 +294,7 @@ class Student(models.Model):
 
     @property
     def current_groups(self):
+        # TODO add lti_student groups
         return [
             g.group
             for g in StudentGroupMembership.objects.filter(
@@ -303,6 +304,7 @@ class Student(models.Model):
 
     @property
     def old_groups(self):
+        # TODO add lti_student groups
         return [
             g.group
             for g in StudentGroupMembership.objects.filter(

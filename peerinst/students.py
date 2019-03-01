@@ -24,6 +24,8 @@ def create_student_token(username, email, exp=timedelta(weeks=16)):
 
 def verify_student_token(token):
     payload, err = verify_token(token)
+    print(token)
+    print(payload)
     if err is None:
         try:
             username = payload["username"]
@@ -76,8 +78,26 @@ def authenticate_student(req, token):
 
     if username == username_:
         user = authenticate(req, username=username, password=password)
+        is_lti = False
     else:
-        passwords = get_lti_passwords(username)
+        # to prevent errors from old invalid tokens
+        try:
+            passwords = get_lti_passwords(username)
+        except UnboundLocalError:
+            return (
+                TemplateResponse(
+                    req,
+                    "400.html",
+                    context={
+                        "message": _(
+                            "This page isn't valid. You can try asking for a "
+                            "new login link."
+                        )
+                    },
+                    status=400,
+                ),
+                False,
+            )
         users_ = [
             authenticate(username=username, password=p) for p in passwords
         ]
@@ -86,20 +106,25 @@ def authenticate_student(req, token):
         except IndexError:
             user = None
 
+        is_lti = True
+
     if user is None:
-        return TemplateResponse(
-            req,
-            "400.html",
-            context={
-                "message": _(
-                    "There is no user corresponding to the given link. "
-                    "You may try asking for another one."
-                )
-            },
-            status=400,
+        return (
+            TemplateResponse(
+                req,
+                "400.html",
+                context={
+                    "message": _(
+                        "There is no user corresponding to the given link. "
+                        "You may try asking for another one."
+                    )
+                },
+                status=400,
+            ),
+            False,
         )
 
-    return user
+    return user, is_lti
 
 
 def get_student_username_and_password(email, max_username_length=30):
@@ -131,6 +156,7 @@ def get_old_lti_student_username_and_password(user_id):
 
 def get_lti_passwords(hashed_username):
     key = settings.PASSWORD_GENERATOR_NONCE
+    print(hashed_username)
 
     try:
         if hashed_username.endswith("++"):
