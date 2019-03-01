@@ -196,6 +196,22 @@ def login_student(req, token=None):
         student = Student.objects.get(student=user)
         new_student = False
     except Student.DoesNotExist:
+        if is_lti:
+            return (
+                response_403(
+                    req,
+                    msg=_(
+                        "You must be a logged in student to access this "
+                        "resource."
+                    ),
+                    logger_msg=(
+                        "Student index page accessed without a token or being "
+                        "logged in."
+                    ),
+                    log=logger.warning,
+                ),
+                None,
+            )
         student = Student.objects.create(student=user)
         new_student = True
 
