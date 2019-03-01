@@ -6,5 +6,5 @@ ignore = D100 \  # missing docstring in module
          E203 \  # whitespace before ':'
          F811 \  # redefining unused variable (thrown with pytest)
          W503 \  # linebreak before binary operator
-         W504    # linebreak after binary operator
+         W504 \  # linebreak after binary operator
          F841 \  # local variable 'instances' is assigned to but never used
