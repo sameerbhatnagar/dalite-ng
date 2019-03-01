@@ -24,8 +24,6 @@ def create_student_token(username, email, exp=timedelta(weeks=16)):
 
 def verify_student_token(token):
     payload, err = verify_token(token)
-    print(token)
-    print(payload)
     if err is None:
         try:
             username = payload["username"]
@@ -156,7 +154,6 @@ def get_old_lti_student_username_and_password(user_id):
 
 def get_lti_passwords(hashed_username):
     key = settings.PASSWORD_GENERATOR_NONCE
-    print(hashed_username)
 
     try:
         if hashed_username.endswith("++"):
