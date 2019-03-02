@@ -552,7 +552,7 @@ def researcher_patterns():
             name="research-discipline-question-index",
         ),
         url(
-            r"^research/(?P<discipline_title>[^/]+)/(?P<question_pk>[^/]+)$",
+            r"^research/(?P<discipline_title>[^/]+)/(?P<question_pk>[^/]+)/(?P<answerchoice_value>[^/]+)$",  # noqa
             views.research_question_answer_list,
             name="research-question-answer-list",
         ),

@@ -382,6 +382,13 @@ class Question(models.Model):
 
         return frequency
 
+    def get_frequency_json(self, choice_index_name):
+        frequency_dict = self.get_frequency()[choice_index_name]
+        return [
+            {"answer_label": key, "frequency": value}
+            for key, value in frequency_dict.items()
+        ]
+
     class Meta:
         verbose_name = _("question")
         verbose_name_plural = _("questions")

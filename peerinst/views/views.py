@@ -3213,7 +3213,7 @@ def research_discipline_question_index(request, discipline_title):
     questions_qs = Question.objects.filter(discipline__title=discipline_title)
 
     question_qs = [
-        (q, annotation_counts[q.pk], q.get_frequency()["first_choice"])
+        (q, annotation_counts[q.pk], q.get_frequency_json("first_choice"))
         for q in questions_qs
     ]
 
@@ -3221,14 +3221,23 @@ def research_discipline_question_index(request, discipline_title):
     return render(request, template, context)
 
 
-def research_question_answer_list(request, discipline_title, question_pk):
+def research_question_answer_list(
+    request, discipline_title, question_pk, answerchoice_value
+):
     template = "peerinst/research/answer_list.html"
 
     annotator = get_object_or_404(User, username=request.user)
     if not annotator:
         access_denied_and_logout(request)
 
-    answer_qs = Answer.objects.filter(question_id=question_pk)
+    # needs fix
+    answerchoice_id = {"A": 1, "B": 2, "C": 3, "D": 4, "E": 5, "F": 6}[
+        answerchoice_value
+    ]
+
+    answer_qs = Answer.objects.filter(
+        question_id=question_pk, first_answer_choice=answerchoice_id
+    )
     for a in answer_qs:
         annotation, created = AnswerAnnotation.objects.get_or_create(
             answer=a, annotator=annotator, score__isnull=True
@@ -3236,12 +3245,17 @@ def research_question_answer_list(request, discipline_title, question_pk):
         if created:
             # need to drop null scored objects if scored ones exist
             if AnswerAnnotation.objects.filter(
-                answer=a, annotator=annotator, score__isnull=False
+                answer=a,
+                annotator=annotator,
+                answer__first_answer_choice=answerchoice_id,
+                score__isnull=False,
             ).exists():
                 annotation.delete()
 
     queryset = AnswerAnnotation.objects.filter(
-        answer__question_id=question_pk, annotator=annotator
+        answer__question_id=question_pk,
+        annotator=annotator,
+        answer__first_answer_choice=answerchoice_id,
     ).order_by("answer__first_answer_choice", "answer__datetime_second")
 
     AnswerAnnotationFormset = modelformset_factory(
@@ -3258,6 +3272,7 @@ def research_question_answer_list(request, discipline_title, question_pk):
                     kwargs={
                         "discipline_title": discipline_title,
                         "question_pk": question_pk,
+                        "answerchoice_value": answerchoice_value,
                     },
                 )
             )

@@ -17,13 +17,13 @@
 Question ID (Number of Researcher Annotations / Number of Student Rationales)
   <ul>
     {% for q,annotation_count,frequencies in questions %}
-      <li><a href="{% url 'research-question-answer-list' discipline_title=discipline_title question_pk=q.pk %}">{{ q.title }}</a>
+      <li>{{ q.title }}: {{ q.text|safe }}
         <ul>
           <li> ({{ annotation_count }} / {{ q.answer_set.count }}) </li>
           <li>
             <ul>
-              {% for answer,count in frequencies.items %}
-              <li>{{ count }} - {{ answer }}</li>
+              {% for counts in frequencies|dictsort:"answer_label" %}
+              <li><a href="{% url 'research-question-answer-list' discipline_title=discipline_title question_pk=q.pk answerchoice_value=counts.answer_label|make_list|first%}">{{ counts.frequency }} - {{ counts.answer_label|safe }}</a></li>
               {% endfor %}
             </ul>
           </li>
