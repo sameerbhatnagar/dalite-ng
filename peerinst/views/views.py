@@ -3212,7 +3212,10 @@ def research_discipline_question_index(request, discipline_title):
 
     questions_qs = Question.objects.filter(discipline__title=discipline_title)
 
-    question_qs = [(q, annotation_counts[q.pk]) for q in questions_qs]
+    question_qs = [
+        (q, annotation_counts[q.pk], q.get_frequency()["first_choice"])
+        for q in questions_qs
+    ]
 
     context = {"questions": question_qs, "discipline_title": discipline_title}
     return render(request, template, context)
