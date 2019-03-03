@@ -557,7 +557,7 @@ def researcher_patterns():
             name="research-question-answer-list",
         ),
         url(
-            r"^research/(?P<discipline_title>[^/]+)/(?P<question_pk>[^/]+)/all_scores$",  # noqa
+            r"^research/(?P<discipline_title>[^/]+)/all_scores/(?P<question_pk>[^/]+)$",  # noqa
             views.research_all_annotations_for_question,
             name="research-all-annotations-for-question",
         ),

@@ -6,7 +6,7 @@ import logging
 import random
 import re
 import urllib
-from collections import Counter
+import string
 from datetime import datetime
 
 import pytz
@@ -3199,25 +3199,53 @@ def research_index(request):
     return render(request, template, context)
 
 
+def get_question_annotation_counts(discipline_title):
+    """
+    Returns:
+    ========
+    list of dicts, one for eacu question in discipline, and the counts of
+    Answers and AnswerAnnotations for each
+    """
+    questions_qs = Question.objects.filter(discipline__title=discipline_title)
+
+    # FIXME:
+    translation_table = string.maketrans("ABCDEFG", "1234567")
+
+    question_annotation_counts = []
+    for q in questions_qs:
+        d1 = {}
+        d1["question"] = q
+        answer_frequencies = q.get_frequency_json("first_choice")
+        for d2 in answer_frequencies:
+            a_choice = d2["answer_label"][0].translate(translation_table)
+            d2.update(
+                {
+                    "annotation_count": AnswerAnnotation.objects.filter(
+                        score__isnull=False,
+                        answer__question_id=q.pk,
+                        answer__first_answer_choice=a_choice,
+                    ).count()
+                }
+            )
+        d1["answerchoices"] = answer_frequencies
+        question_annotation_counts.append(d1)
+
+    return question_annotation_counts
+
+
 @login_required
 @user_passes_test(student_check, login_url="/access_denied_and_logout/")
 def research_discipline_question_index(request, discipline_title):
     template = "peerinst/research/question_index.html"
 
-    annotation_counts = Counter(
-        AnswerAnnotation.objects.filter(score__isnull=False).values_list(
-            "answer__question_id", flat=True
-        )
+    question_annotation_counts = get_question_annotation_counts(
+        discipline_title=discipline_title
     )
 
-    questions_qs = Question.objects.filter(discipline__title=discipline_title)
-
-    question_qs = [
-        (q, annotation_counts[q.pk], q.get_frequency_json("first_choice"))
-        for q in questions_qs
-    ]
-
-    context = {"questions": question_qs, "discipline_title": discipline_title}
+    context = {
+        "questions": question_annotation_counts,
+        "discipline_title": discipline_title,
+    }
     return render(request, template, context)
 
 
@@ -3230,10 +3258,13 @@ def research_question_answer_list(
     if not annotator:
         access_denied_and_logout(request)
 
-    # needs fix
-    answerchoice_id = {"A": 1, "B": 2, "C": 3, "D": 4, "E": 5, "F": 6}[
-        answerchoice_value
-    ]
+    # FIXME
+    if answerchoice_value.isdigit():
+        answerchoice_id = answerchoice_value
+    else:
+        answerchoice_id = {"A": 1, "B": 2, "C": 3, "D": 4, "E": 5, "F": 6}[
+            answerchoice_value
+        ]
 
     answer_qs = Answer.objects.filter(
         question_id=question_pk, first_answer_choice=answerchoice_id

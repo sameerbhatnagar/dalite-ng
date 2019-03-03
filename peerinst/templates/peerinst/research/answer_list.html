@@ -26,7 +26,7 @@
     <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Question' %}: {{ question.title|safe }}</h2>
 
     <div class="admin-link">
-      <a href="{% url 'research-discipline-question-index' discipline_title=discipline_title %}">{% trans 'Back to Question List' %}</a>
+      <a href="{% url 'research-discipline-question-index' discipline_title=discipline_title %}#{{ question.pk }}">{% trans 'Back to Question List' %}</a>
       <span style="padding-left:0.3em;padding-right:0.5em;">|</span><a href="{% url 'browse-database' %}">{% trans 'Back to Browse' %}</a>
     </div>
 
