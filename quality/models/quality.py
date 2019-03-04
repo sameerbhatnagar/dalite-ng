@@ -10,40 +10,7 @@ from .criterion.criterion_list import get_criterion
 logger = logging.getLogger("quality")
 
 
-class UsesCriterion(models.Model):
-    name = models.CharField(max_length=32)
-    version = models.PositiveIntegerField()
-    use_latest = models.BooleanField()
-    weight = models.PositiveIntegerField()
-
-    def save(self, *args, **kwargs):
-        """
-        Saves the new criterion making sure only one exists for each criterion
-        `name` and the given `name` and version correspond to a criterion.
-
-        Raises
-        ------
-        ValueError
-            If either the `name` or `version` correspond to a non-existing
-            criterion
-        """
-        criterion = get_criterion(self.name)
-        if self.version >= criterion.objects.count():
-            logger.error(
-                "The criterion %s doesn't have a version %d.",
-                self.name,
-                self.version,
-            )
-            raise ValueError(
-                "The used criterion has an invalid name or version."
-            )
-        UsesCriterion.objects.filter(name=self.name).delete()
-        super(UsesCriterion, self).save(*args, **kwargs)
-
-
 class Quality(models.Model):
-    criterions = models.ManyToManyField(UsesCriterion)
-
     def evaluate(self, answer, *args, **kwargs):
         """
         Returns the quality as a tuple of the quality and the different
@@ -73,16 +40,14 @@ class Quality(models.Model):
                 ),
                 "weight": c.weight,
             }
-            for c in self.criterions
+            for c in self.criterions.all()
         ]
         qualities = [
             {
                 "name": c["criterion"].name,
                 "version": c["criterion"].version,
                 "weight": c["weight"],
-                "quality": c["criterion"].evaluate(
-                    self.answer, *args, **kwargs
-                ),
+                "quality": c["criterion"].evaluate(answer, *args, **kwargs),
             }
             for c in criterions_
         ]
@@ -90,3 +55,37 @@ class Quality(models.Model):
             q["weight"] for q in qualities
         )
         return quality, qualities
+
+
+class UsesCriterion(models.Model):
+    quality = models.ForeignKey(Quality, related_name="criterions")
+    name = models.CharField(max_length=32)
+    version = models.PositiveIntegerField()
+    use_latest = models.BooleanField()
+    weight = models.PositiveIntegerField()
+
+    def save(self, *args, **kwargs):
+        """
+        Saves the new criterion making sure only one exists for each criterion
+        `name` and the given `name` and version correspond to a criterion.
+
+        Raises
+        ------
+        ValueError
+            If either the `name` or `version` correspond to a non-existing
+            criterion
+        """
+        criterion = get_criterion(self.name)
+        if self.version >= criterion.objects.count():
+            logger.error(
+                "The criterion %s doesn't have a version %d.",
+                self.name,
+                self.version,
+            )
+            raise ValueError(
+                "The used criterion has an invalid name or version."
+            )
+        UsesCriterion.objects.filter(
+            quality=self.quality, name=self.name
+        ).delete()
+        super(UsesCriterion, self).save(*args, **kwargs)

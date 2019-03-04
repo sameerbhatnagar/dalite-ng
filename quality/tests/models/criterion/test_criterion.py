@@ -6,6 +6,10 @@ from django.db import models
 from mixer.backend.django import mixer
 
 from quality.models import Criterion
+from quality.models.criterion.criterion import (
+    CriterionDoesNotExistError,
+    CriterionExistsError,
+)
 
 
 @pytest.mark.filterwarnings("ignore::RuntimeWarning")
@@ -40,3 +44,32 @@ def test_criterion_needs_name():
 
         with pytest.raises(NotImplementedError):
             fake_criterion.save()
+
+
+def test_criterion_exists__no_msg():
+    with pytest.raises(CriterionExistsError) as e:
+        raise CriterionExistsError()
+    assert "A criterion with the same options already exists." in str(e.value)
+
+
+def test_criterion_exists__msg():
+    msg = "error msg"
+    with pytest.raises(CriterionExistsError) as e:
+        raise CriterionExistsError(msg)
+    assert msg in str(e.value)
+
+
+def test_criterion_does_not_exists__no_msg():
+    with pytest.raises(CriterionDoesNotExistError) as e:
+        raise CriterionDoesNotExistError()
+    assert (
+        "There is no criterion corresponding to that name or version."
+        in str(e.value)
+    )
+
+
+def test_criterion_does_not_exists__msg():
+    msg = "error msg"
+    with pytest.raises(CriterionDoesNotExistError) as e:
+        raise CriterionDoesNotExistError(msg)
+    assert msg in str(e.value)
