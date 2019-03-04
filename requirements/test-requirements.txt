@@ -3,6 +3,7 @@
 coverage
 ddt
 factory_boy
+mixer
 mock
 pytest
 pytest-cov

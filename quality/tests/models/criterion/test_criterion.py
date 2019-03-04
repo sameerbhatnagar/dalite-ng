@@ -1,16 +1,26 @@
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+
 import pytest
 from django.db import models
+from mixer.backend.django import mixer
 
 from quality.models import Criterion
 
 
-def test_doesn_t_implement_evaluate():
+def test_criterion_needs_evaluate_method():
     class FakeCriterion(Criterion):
-        name = models.CharField(max_length=32, default="fake", editable=False)
+        name = models.CharField(max_length=32)
 
         class Meta:
             app_label = "quality"
 
-    criterion = FakeCriterion.objects.create()
-    with pytest.raises(NotImplementedError):
-        criterion.evaluate(None)
+        def save(self, *args, **kwargs):
+            self.name = "fake"
+            super(FakeCriterion, self).save(self, *args, **kwargs)
+
+    with mixer.ctx(commit=False):
+        fake_criterion = mixer.blend(FakeCriterion)
+
+        with pytest.raises(NotImplementedError):
+            fake_criterion.evaluate(None)
