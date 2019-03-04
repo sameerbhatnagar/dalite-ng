@@ -18,7 +18,7 @@ class Criterion(models.Model):
         Saves the new criterion making sure only one exists for each criterion
         name.
         """
-        if self.name is None:
+        if not hasattr(self, "name"):
             raise NotImplementedError(
                 "Your criterion needs to have a `name` field. Make sure it's "
                 "different from the others or it may lead to some trouble "
