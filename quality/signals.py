@@ -7,7 +7,7 @@ from .models import Quality, UsesCriterion, criterion
 @receiver(post_migrate)
 def add_default_quality_signal(sender, **kwargs):
 
-    if not Quality.objects.all().exists():
+    if not Quality.objects.exists():
         try:
             min_words_criterion = criterion.MinWordsCriterion.create(
                 min_words=4

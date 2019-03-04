@@ -5,7 +5,7 @@ import logging
 
 from django.db import models
 
-from .criterion.criterion_list import criterions
+from .criterion.criterion_list import get_criterion
 
 logger = logging.getLogger("quality")
 
@@ -14,7 +14,7 @@ class UsesCriterion(models.Model):
     name = models.CharField(max_length=32)
     version = models.PositiveIntegerField()
     use_latest = models.BooleanField()
-    weigth = models.PositiveIntegerField()
+    weight = models.PositiveIntegerField()
 
     def save(self, *args, **kwargs):
         """
@@ -27,13 +27,7 @@ class UsesCriterion(models.Model):
             If either the `name` or `version` correspond to a non-existing
             criterion
         """
-        try:
-            criterion = criterions[self.name]
-        except KeyError:
-            logger.error("There is no criterion named %s.", self.name)
-            raise ValueError(
-                "The used criterion has an invalid name or version."
-            )
+        criterion = get_criterion(self.name)
         if self.version >= criterion.objects.count():
             logger.error(
                 "The criterion %s doesn't have a version %d.",
@@ -71,11 +65,11 @@ class Quality(models.Model):
         criterions_ = [
             {
                 "criterion": (
-                    criterions[c.name].objects.get(
-                        version=criterions[c.name].objects.count() - 1
+                    get_criterion(c.name).objects.get(
+                        version=get_criterion(c.name).objects.count() - 1
                     )
                     if c.use_latest
-                    else criterions[c.name].objects.get(version=c.version)
+                    else get_criterion(c.name).objects.get(version=c.version)
                 ),
                 "weight": c.weight,
             }

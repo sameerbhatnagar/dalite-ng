@@ -32,3 +32,10 @@ class CriterionExistsError(Exception):
         super(Exception, self).__init__(
             "A criterion with the same options already exists."
         )
+
+
+class CriterionDoesNotExistError(Exception):
+    def __init__(self):
+        super(Exception, self).__init__(
+            "There is no criterion corresponding to that name or version."
+        )
