@@ -19,20 +19,27 @@ score1, score2, etc...<br>
 
 (Hover on a score to see the username of annotator)
 
-  <ul>
-    {% for a in annotations %}
-      <li>{{ a.answer.rationale }}:
-        <table>
-        <tr>
-          {% for s in a.scores %}
-          <td title="{{ s.annotator__username }}">{{ s.score }} </td>
-          {% endfor %}
-        </tr>
-        </table>
+<ul>
+{% for answerchoice_data in all_annotations %}
+<li>{{ answerchoice_data.answerchoice }}</li>
+<li>
+    <ul>
+      {% for a in answerchoice_data.annotations %}
+        <li>{{ a.answer.rationale }}:
+          <table>
+          <tr>
+            {% for s in a.scores %}
+            <td title="{{ s.annotator__username }}">{{ s.score }} </td>
+            {% endfor %}
+          </tr>
+          </table>
 
-      </li>
-    {% endfor %}
-  </ul>
+        </li>
+      {% endfor %}
+    </ul>
+</li>
+{% endfor %}
+</ul>
 
   </section>
   </main>

@@ -3333,31 +3333,49 @@ def research_all_annotations_for_question(
     comparison by researchers
     """
     template = "peerinst/research/all_annotations.html"
+    question = Question.objects.get(id=question_pk)
     context = {
-        "question": Question.objects.get(id=question_pk),
+        "question": question,
         "question_pk": question_pk,
         "discipline_title": discipline_title,
     }
 
-    a_list = list(
-        set(
-            AnswerAnnotation.objects.filter(
-                score__isnull=False, answer__question_id=question_pk
-            ).values_list("answer", flat=True)
-        )
-    )
-
-    a_list.sort()
-
     all_annotations = []
-    for a in a_list:
-        d = {}
-        d["answer"] = Answer.objects.get(pk=a)
-        d["scores"] = AnswerAnnotation.objects.filter(
-            answer=a, score__isnull=False
-        ).values("score", "annotator__username")
-        all_annotations.append(d)
+    for label, answerchoice_text in question.get_choices():
+        d1 = {}
+        d1["answerchoice"] = label
+        d1["annotations"] = []
 
-    context["annotations"] = all_annotations
+        # FIXME
+        if label.isdigit():
+            answerchoice_id = label
+        else:
+            answerchoice_id = {"A": 1, "B": 2, "C": 3, "D": 4, "E": 5, "F": 6}[
+                label
+            ]
+
+        a_list = list(
+            set(
+                AnswerAnnotation.objects.filter(
+                    score__isnull=False,
+                    answer__question_id=question_pk,
+                    answer__first_answer_choice=answerchoice_id,
+                ).values_list("answer", flat=True)
+            )
+        )
+
+        a_list.sort()
+
+        for a in a_list:
+            d2 = {}
+            d2["answer"] = Answer.objects.get(pk=a)
+            d2["scores"] = AnswerAnnotation.objects.filter(
+                answer=a, score__isnull=False
+            ).values("score", "annotator__username")
+            d1["annotations"].append(d2)
+
+        all_annotations.append(d1)
+
+    context["all_annotations"] = all_annotations
 
     return render(request, template, context)
