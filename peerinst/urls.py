@@ -552,14 +552,14 @@ def researcher_patterns():
             name="research-discipline-question-index",
         ),
         url(
+            r"^research/all_scores/(?P<discipline_title>[^/]+)/(?P<question_pk>[^/]+)$",  # noqa
+            views.research_all_annotations_for_question,
+            name="research-all-annotations-for-question",
+        ),
+        url(
             r"^research/(?P<discipline_title>[^/]+)/(?P<question_pk>[^/]+)/(?P<answerchoice_value>[^/]+)$",  # noqa
             views.research_question_answer_list,
             name="research-question-answer-list",
-        ),
-        url(
-            r"^research/(?P<discipline_title>[^/]+)/all_scores/(?P<question_pk>[^/]+)$",  # noqa
-            views.research_all_annotations_for_question,
-            name="research-all-annotations-for-question",
         ),
     ]
 

@@ -18,7 +18,7 @@ Question ID (Number of Researcher Annotations / Number of Student Rationales)
 
   <ul>
     {% for item in questions %}
-      <li id="{{ item.question.pk }}">({{ item.total_annotations }}/{{ item.question.answer_set.count }}) - {{ item.question.title }}
+      <li id="{{ item.question.pk }}">({{ item.total_annotations }}/{{ item.question.answer_set.count }}) - {{ item.question.title }} <a href="{% url 'research-all-annotations-for-question' discipline_title=discipline_title question_pk=item.question.pk %}">see all?</a>
         <ul>
           <li>
             <ul>
@@ -27,7 +27,6 @@ Question ID (Number of Researcher Annotations / Number of Student Rationales)
               {% endfor %}
             </ul>
           </li>
-          {% comment %}<li><a href="{% url 'research-all-annotations-for-question' discipline_title=discipline_title question_pk=item.question.pk %}">all?</a></li>{% endcomment %}
         </ul>
       </li>
     {% endfor %}

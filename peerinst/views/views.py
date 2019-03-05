@@ -3336,12 +3336,28 @@ def research_all_annotations_for_question(
     context = {
         "question": Question.objects.get(id=question_pk),
         "question_pk": question_pk,
+        "discipline_title": discipline_title,
     }
 
-    annotations = AnswerAnnotation.objects.filter(
-        score__isnull=False, answer__question_id=question_pk
-    ).order_by("answer__first_answer_choice", "score")
+    a_list = list(
+        set(
+            AnswerAnnotation.objects.filter(
+                score__isnull=False, answer__question_id=question_pk
+            ).values_list("answer", flat=True)
+        )
+    )
 
-    context["annotations"] = annotations
+    a_list.sort()
+
+    all_annotations = []
+    for a in a_list:
+        d = {}
+        d["answer"] = Answer.objects.get(pk=a)
+        d["scores"] = AnswerAnnotation.objects.filter(
+            answer=a, score__isnull=False
+        ).values("score", "annotator__username")
+        all_annotations.append(d)
+
+    context["annotations"] = all_annotations
 
     return render(request, template, context)
