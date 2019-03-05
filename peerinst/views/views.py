@@ -3215,6 +3215,10 @@ def get_question_annotation_counts(discipline_title):
     for q in questions_qs:
         d1 = {}
         d1["question"] = q
+        d1["total_annotations"] = AnswerAnnotation.objects.filter(
+            score__isnull=False, answer__question_id=q.pk
+        ).count()
+
         answer_frequencies = q.get_frequency_json("first_choice")
         for d2 in answer_frequencies:
             a_choice = d2["answer_label"][0].translate(translation_table)
