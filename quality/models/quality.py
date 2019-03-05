@@ -18,8 +18,8 @@ class Quality(models.Model):
 
         Returns
         -------
-        float
-            Quality of the answer
+        Optional[float]
+            Quality of the answer or None of no criterions present
         List[Dict[str, Any]]
             Individual criterions under the format
                 [{
@@ -29,6 +29,9 @@ class Quality(models.Model):
                     quality: float
                 }]
         """
+        if not self.criterions.exists():
+            return None, []
+
         criterions_ = [
             {
                 "criterion": (
@@ -51,9 +54,9 @@ class Quality(models.Model):
             }
             for c in criterions_
         ]
-        quality = sum(q["quality"] * q["weight"] for q in qualities) / sum(
-            q["weight"] for q in qualities
-        )
+        quality = float(
+            sum(q["quality"] * q["weight"] for q in qualities)
+        ) / sum(q["weight"] for q in qualities)
         return quality, qualities
 
 

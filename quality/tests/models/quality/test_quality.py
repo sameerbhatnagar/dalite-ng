@@ -2,29 +2,32 @@
 from __future__ import unicode_literals
 
 import mock
-import pytest
-from django.db import models
-from mixer.backend.django import mixer
 
-from quality.models import Criterion, Quality, UsesCriterion
-from quality.models.criterion.criterion import (
-    CriterionDoesNotExistError,
-    CriterionExistsError,
-)
+from quality.models import Quality, UsesCriterion
 
 
-def test_evaluate_all_equal():
+def test_evaluate__no_criterions():
     quality = Quality.objects.create()
     answer = mock.Mock()
 
-    with mock.patch(
-        "quality.models.quality.get_criterion", return_value=mock.Mock()
-    ) as criterion_:
+    quality_, qualities = quality.evaluate(answer)
+
+    assert quality_ is None
+    assert qualities == []
+
+
+def test_evaluate__all_equal():
+    quality = Quality.objects.create()
+    answer = mock.Mock()
+
+    with mock.patch("quality.models.quality.get_criterion") as get_criterion:
+        criterion_ = mock.Mock()
         criterion_.objects.count.return_value = 1
-        criterions = [mock.Mock() for _ in range(3)]
-        for i, criterion in enumerate(criterions):
-            criterion.evaluate.return_value = i + 1
-        criterion_.objects.get = mock.Mock(return_value=criterions)
+        get_criterion.return_value = criterion_
+        criterion = mock.Mock()
+        evaluations = (i + 1 for i in range(3))
+        criterion.evaluate = lambda answer: next(evaluations)
+        criterion_.objects.get.return_value = criterion
         for i in range(3):
             UsesCriterion.objects.create(
                 quality=quality,
@@ -35,3 +38,37 @@ def test_evaluate_all_equal():
             )
 
         quality_, qualities = quality.evaluate(answer)
+
+        assert quality_ == (1.0 + 2 + 3) / 3
+        for i, q in enumerate(qualities):
+            assert q["quality"] == i + 1
+            assert q["weight"] == 1
+
+
+def test_evaluate__different_weights():
+    quality = Quality.objects.create()
+    answer = mock.Mock()
+
+    with mock.patch("quality.models.quality.get_criterion") as get_criterion:
+        criterion_ = mock.Mock()
+        criterion_.objects.count.return_value = 1
+        get_criterion.return_value = criterion_
+        criterion = mock.Mock()
+        evaluations = (i + 1 for i in range(3))
+        criterion.evaluate = lambda answer: next(evaluations)
+        criterion_.objects.get.return_value = criterion
+        for i in range(3):
+            UsesCriterion.objects.create(
+                quality=quality,
+                name="fake_{}".format(i + 1),
+                version=0,
+                use_latest=True,
+                weight=i + 1,
+            )
+
+        quality_, qualities = quality.evaluate(answer)
+
+        assert quality_ == ((1.0 * 1 + 2 * 2 + 3 * 3) / (1 + 2 + 3))
+        for i, q in enumerate(qualities):
+            assert q["quality"] == i + 1
+            assert q["weight"] == i + 1
