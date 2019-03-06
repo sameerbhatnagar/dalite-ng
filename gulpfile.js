@@ -24,6 +24,10 @@ const styleBuilds = [
     app: "tos",
     modules: ["styles"],
   },
+  {
+    app: "quality",
+    modules: ["edit"],
+  },
 ];
 
 const scriptBuilds = [
