@@ -95,19 +95,11 @@
                 </div>
               </span>
               <span class="mdc-list-item__meta">
-                {% if assignment.quality %}
-                <a href="{% url 'quality-edit' %}?assignment={{ assignment.quality.pk }}&next={{ request.path }}">
+                <a href="{% url 'quality-edit' %}?assignment={{ assignment.pk }}&next={{ request.path }}">
                   <i class="material-icons md-24 mdc-ripple-surface icon-list">
                     edit
                   </i>
                 </a>
-                {% else %}
-                <a href="{% url 'quality-edit' %}?next={{ request.path }}">
-                  <i class="material-icons md-24 mdc-ripple-surface icon-list">
-                    edit
-                  </i>
-                </a>
-                {% endif %}
               </span>
             </li>
             <li class="mdc-list-divider" role="separator"></li>
