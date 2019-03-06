@@ -130,11 +130,13 @@
                 {% trans 'Teachers with access' %}
                 <div name="teacher" class="mdc-list-item__secondary-text">
                   <ul style="padding-left:0px;">
-                  {% for t in group.teacher.all %}
-                  <li class="mdc-list-item__secondary-text">{{ t.user.username }}</li>
-                  {% endfor %}
-                </ul>
-              </div>
+                    {% for t in group.teacher.all %}
+                    <li class="mdc-list-item__secondary-text">
+                      {{ t.user.username }}
+                    </li>
+                    {% endfor %}
+                  </ul>
+                </div>
               </span>
               <span class="mdc-list-item__meta">
                 <i onclick="group.editField(event, 'textList', 'mdc-list-item__secondary-text')" title="Add" class="material-icons md-24 mdc-ripple-surface icon-list">add</i>

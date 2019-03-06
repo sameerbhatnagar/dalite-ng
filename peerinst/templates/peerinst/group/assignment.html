@@ -25,7 +25,6 @@
           {% csrf_token %}
           <ul class="mdc-list mdc-list--two-line mdc-list--non-interactive">
             <li class="mdc-list-divider" role="separator"></li>
-
             <li class="mdc-list-item">
               <span class="mdc-list-item__graphic mdc-theme--primary">
                 <i class="mdc-theme--primary material-icons md-48">calendar_today</i>
@@ -35,7 +34,6 @@
               </span>
             </li>
             <li class="mdc-list-divider" role="separator"></li>
-
             <li class="mdc-list-item">
               <span class="mdc-list-item__graphic mdc-theme--primary">
                 <i class="mdc-theme--primary material-icons md-48">calendar_today</i>
@@ -51,8 +49,6 @@
               </span>
             </li>
             <li class="mdc-list-divider" role="separator"></li>
-
-
             <li class="mdc-list-item">
               {% if assignment.show_correct_answers %}
               <span class="mdc-list-item__graphic mdc-theme--primary">
@@ -75,6 +71,44 @@
                 </span>
               </span>
               {% endif %}
+            </li>
+            <li class="mdc-list-divider" role="separator"></li>
+            <li class="mdc-list-item"
+                title="{% trans 'Quality evaluation for allowing rationale submission' %}">
+              <span class="mdc-list-item__graphic mdc-theme--primary">
+                <i class="mdc-theme--primary material-icons md-48">
+                  assistant
+                </i>
+              </span>
+              <span class="mdc-list-item__text mdc-theme--secondary bold">
+                {% trans 'Submission quality' %}
+                <div class="mdc-list-item__secondary-text">
+                  {% if assignment.quality %}
+                  <ul style="padding-left:0px;">
+                    {% for criterion in assignment.quality.criterions %}
+                    <li class="mdc-list-item__secondary-text">
+                      {{ criterion.name }} v{{ criterion.version }}
+                    </li>
+                    {% endfor %}
+                  </ul>
+                  {% endif %}
+                </div>
+              </span>
+              <span class="mdc-list-item__meta">
+                {% if assignment.quality %}
+                <a href="{% url 'quality-edit' %}?assignment={{ assignment.quality.pk }}&next={{ request.path }}">
+                  <i class="material-icons md-24 mdc-ripple-surface icon-list">
+                    edit
+                  </i>
+                </a>
+                {% else %}
+                <a href="{% url 'quality-edit' %}?next={{ request.path }}">
+                  <i class="material-icons md-24 mdc-ripple-surface icon-list">
+                    edit
+                  </i>
+                </a>
+                {% endif %}
+              </span>
             </li>
             <li class="mdc-list-divider" role="separator"></li>
           </ul>

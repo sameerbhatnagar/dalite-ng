@@ -19,6 +19,7 @@ urlpatterns = [url(r"^lti/", include("django_lti_tool_provider.urls"))]
 
 # Apps
 urlpatterns += i18n_patterns(
+    url(r"^quality/", include("quality.urls")),
     url(r"^tos/", include("tos.urls")),
     url(r"", include("peerinst.urls")),
     url(r"^forums/", include("pinax.forums.urls", namespace="pinax_forums")),

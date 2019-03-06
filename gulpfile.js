@@ -35,6 +35,10 @@ const scriptBuilds = [
     app: "tos",
     modules: ["tos", "email"],
   },
+  {
+    app: "quality",
+    modules: ["edit"],
+  },
 ];
 
 const babelConfig = {
