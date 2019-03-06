@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 import logging
+from pprint import pprint
 
 from django.db import models
 
@@ -52,6 +53,7 @@ class Quality(models.Model):
             }
             for c in criterions_
         ]
+        pprint(qualities)
         quality = float(
             sum(q["quality"] * q["weight"] for q in qualities)
         ) / sum(q["weight"] for q in qualities)
