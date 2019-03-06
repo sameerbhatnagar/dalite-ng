@@ -10,15 +10,36 @@
 <h4 id="title" class="mdc-typography--title bold">{% trans 'All Scores for ' %} {{ question.title|safe }}</h4>
 
 <div class="admin-link">
-  <a href="{% url 'research-index' %}">{% trans 'Back to List of Disciplines' %}</a>
+  <a href="{% url 'research-discipline-question-index' discipline_title=discipline_title %}#{{ question.pk }}">{% trans 'Back to Question List' %}</a>
   <span style="padding-left:0.3em;padding-right:0.5em;">|</span><a href="{% url 'browse-database' %}">{% trans 'Back to Browse' %}</a>
 </div>
 
-  <ul>
-    {% for a in annotations %}
-      <li>{{ a.answer.first_answer_choice_label }},{{ a.score }},{{ a.annotator.username }},{{ a.answer.rationale }}</li>
-    {% endfor %}
-  </ul>
+Rationale<br>
+score1, score2, etc...<br>
+
+(Hover on a score to see the username of annotator)
+
+<ul>
+{% for answerchoice_data in all_annotations %}
+<li>{{ answerchoice_data.answerchoice }}</li>
+<li>
+    <ul>
+      {% for a in answerchoice_data.annotations %}
+        <li>{{ a.answer.rationale }}:
+          <table>
+          <tr>
+            {% for s in a.scores %}
+            <td title="{{ s.annotator__username }}">{{ s.score }} </td>
+            {% endfor %}
+          </tr>
+          </table>
+
+        </li>
+      {% endfor %}
+    </ul>
+</li>
+{% endfor %}
+</ul>
 
   </section>
   </main>

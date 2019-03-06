@@ -3215,6 +3215,10 @@ def get_question_annotation_counts(discipline_title):
     for q in questions_qs:
         d1 = {}
         d1["question"] = q
+        d1["total_annotations"] = AnswerAnnotation.objects.filter(
+            score__isnull=False, answer__question_id=q.pk
+        ).count()
+
         answer_frequencies = q.get_frequency_json("first_choice")
         for d2 in answer_frequencies:
             a_choice = d2["answer_label"][0].translate(translation_table)
@@ -3329,15 +3333,49 @@ def research_all_annotations_for_question(
     comparison by researchers
     """
     template = "peerinst/research/all_annotations.html"
+    question = Question.objects.get(id=question_pk)
     context = {
-        "question": Question.objects.get(id=question_pk),
+        "question": question,
         "question_pk": question_pk,
+        "discipline_title": discipline_title,
     }
 
-    annotations = AnswerAnnotation.objects.filter(
-        score__isnull=False, answer__question_id=question_pk
-    ).order_by("answer__first_answer_choice", "score")
+    all_annotations = []
+    for label, answerchoice_text in question.get_choices():
+        d1 = {}
+        d1["answerchoice"] = label
+        d1["annotations"] = []
 
-    context["annotations"] = annotations
+        # FIXME
+        if label.isdigit():
+            answerchoice_id = label
+        else:
+            answerchoice_id = {"A": 1, "B": 2, "C": 3, "D": 4, "E": 5, "F": 6}[
+                label
+            ]
+
+        a_list = list(
+            set(
+                AnswerAnnotation.objects.filter(
+                    score__isnull=False,
+                    answer__question_id=question_pk,
+                    answer__first_answer_choice=answerchoice_id,
+                ).values_list("answer", flat=True)
+            )
+        )
+
+        a_list.sort()
+
+        for a in a_list:
+            d2 = {}
+            d2["answer"] = Answer.objects.get(pk=a)
+            d2["scores"] = AnswerAnnotation.objects.filter(
+                answer=a, score__isnull=False
+            ).values("score", "annotator__username")
+            d1["annotations"].append(d2)
+
+        all_annotations.append(d1)
+
+    context["all_annotations"] = all_annotations
 
     return render(request, template, context)
