@@ -56,7 +56,7 @@ def authenticate_student(email, user_id=None):
     else:
         # old way of generating student login
         if user_id is None:
-            user_id = "@".join(email.split("@")[:-1])
+            user_id = email.split("@")[0]
         old_username, old_password = get_old_lti_student_username_and_password(
             user_id
         )
