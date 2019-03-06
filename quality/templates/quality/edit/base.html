@@ -1,0 +1,18 @@
+{% extends 'quality/base.html' %}
+
+{% load compress staticfiles %}
+
+{% block stylesheets %}
+{% compress css %}
+<link href="{% static 'quality/css/edit.min.css' %}" rel="stylesheet">
+{% endcompress %}
+{% endblock %}
+
+{% block scripts %}
+{% compress js %}
+<script src="{% static 'quality/js/edit.min.js' %}"></script>
+<script type="text/javascript">
+  edit.init()
+</script>
+{% endcompress %}
+{% endblock %}
