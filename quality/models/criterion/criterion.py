@@ -26,6 +26,12 @@ class Criterion(models.Model):
             )
         super(Criterion, self).save(*args, **kwargs)
 
+    def __iter__(self):
+        return (
+            (field.name, getattr(self, field.name))
+            for field in self.__class__._meta.get_fields()
+        )
+
 
 class CriterionExistsError(Exception):
     def __init__(self, msg="", *args, **kwargs):

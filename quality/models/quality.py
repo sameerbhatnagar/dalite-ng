@@ -5,7 +5,7 @@ import logging
 
 from django.db import models
 
-from .criterion.criterion_list import get_criterion
+from .criterion.criterion_list import criterions, get_criterion
 
 logger = logging.getLogger("quality")
 
@@ -35,9 +35,7 @@ class Quality(models.Model):
         criterions_ = [
             {
                 "criterion": (
-                    get_criterion(c.name).objects.get(
-                        version=get_criterion(c.name).objects.count() - 1
-                    )
+                    get_criterion(c.name).objects.latest()
                     if c.use_latest
                     else get_criterion(c.name).objects.get(version=c.version)
                 ),
@@ -58,6 +56,10 @@ class Quality(models.Model):
             sum(q["quality"] * q["weight"] for q in qualities)
         ) / sum(q["weight"] for q in qualities)
         return quality, qualities
+
+    @staticmethod
+    def available():
+        return [criterion.info() for criterion in criterions.values()]
 
 
 class UsesCriterion(models.Model):
@@ -92,3 +94,14 @@ class UsesCriterion(models.Model):
             quality=self.quality, name=self.name
         ).delete()
         super(UsesCriterion, self).save(*args, **kwargs)
+
+    def __iter__(self):
+        if self.use_latest:
+            criterion = get_criterion(self.name).objects.latest()
+        else:
+            criterion = get_criterion(self.name).objects.get(
+                version=self.version
+            )
+        data = {"use_latest": self.use_latest, "weight": self.weight}
+        data.update(dict(criterion))
+        return ((field, value) for field, value in data.items())

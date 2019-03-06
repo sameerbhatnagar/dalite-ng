@@ -1,9 +1,12 @@
 import logging
 
 from .criterion import CriterionDoesNotExistError
+from .min_chars import MinCharsCriterion
 from .min_words import MinWordsCriterion
 
 logger = logging.getLogger("quality")
+
+criterions = {"min_words": MinWordsCriterion, "min_chars": MinCharsCriterion}
 
 
 def get_criterion(criterion):
@@ -25,7 +28,6 @@ def get_criterion(criterion):
     CriterionDoesNotExistError
         If there is not criterion corresponding to the name `criterion`
     """
-    criterions = {"min_words": MinWordsCriterion}
     try:
         return criterions[criterion]
     except KeyError:

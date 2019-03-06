@@ -7,15 +7,15 @@ from django.db.utils import IntegrityError
 from .criterion import Criterion, CriterionExistsError
 
 
-class MinWordsCriterion(Criterion):
-    name = models.CharField(max_length=32, default="min_words", editable=False)
-    min_words = models.PositiveIntegerField(unique=True)
+class MinCharsCriterion(Criterion):
+    name = models.CharField(max_length=32, default="min_chars", editable=False)
+    min_chars = models.PositiveIntegerField(unique=True)
 
     def evaluate(self, answer):
-        return len(answer.rationale.split()) >= self.min_words
+        return len(answer.rationale) >= self.min_chars
 
     @staticmethod
-    def create(min_words):
+    def create(min_chars):
         """
         Creates the criterion version.
 
@@ -36,11 +36,13 @@ class MinWordsCriterion(Criterion):
         CriterionExistsError
             If a criterion with the same options already exists
         """
-        if min_words < 0:
-            raise ValueError("The minmum number of words can't be negative.")
+        if min_chars < 0:
+            raise ValueError(
+                "The minmum number of characters can't be negative."
+            )
         try:
-            criterion = MinWordsCriterion.objects.create(
-                name="min_words", min_words=min_words
+            criterion = MinCharsCriterion.objects.create(
+                name="min_chars", min_chars=min_chars
             )
         except IntegrityError:
             raise CriterionExistsError()
@@ -49,8 +51,8 @@ class MinWordsCriterion(Criterion):
     @staticmethod
     def info():
         return {
-            "name": "min_words",
-            "full_name": "Min words",
-            "description": "Imposes a minium number of words for each "
+            "name": "min_chars",
+            "full_name": "Min characters",
+            "description": "Imposes a minium number of characters for each "
             "rationale.",
         }
