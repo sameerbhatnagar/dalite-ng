@@ -11,7 +11,7 @@ def add_default_quality_signal(sender, **kwargs):
         if not criterion.MinWordsCriterion.objects.exists():
             criterion.MinWordsCriterion.objects.create(uses_rules="min_words")
         if not criterion.MinWordsCriterionRules.objects.exists():
-            criterion.MinWordsCriterionRules.create(min_words=4)
+            criterion.MinWordsCriterionRules.get_or_create(min_words=4)
 
         quality = Quality.objects.create()
         UsesCriterion.objects.create(

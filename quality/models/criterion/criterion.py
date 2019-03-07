@@ -55,15 +55,8 @@ class CriterionRules(models.Model):
         )
 
     @staticmethod
-    def create():
+    def get_or_create(*args, **kwargs):
         raise NotImplementedError("This property has to be implemented.")
-
-
-class CriterionExistsError(Exception):
-    def __init__(self, msg="", *args, **kwargs):
-        if not msg:
-            msg = "A criterion with the same options already exists."
-        super(Exception, self).__init__(msg, *args, **kwargs)
 
 
 class CriterionDoesNotExistError(Exception):

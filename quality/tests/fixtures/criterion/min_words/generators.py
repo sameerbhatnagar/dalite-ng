@@ -28,4 +28,4 @@ def add_min_words_criterion(data):
 
 def add_min_words_rules(data):
     data = data if hasattr(data, "__iter__") else [data]
-    return [MinWordsCriterionRules.create(**d) for d in data]
+    return [MinWordsCriterionRules.get_or_create(**d) for d in data]

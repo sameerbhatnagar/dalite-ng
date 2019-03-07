@@ -28,4 +28,4 @@ def add_min_chars_criterion(data):
 
 def add_min_chars_rules(data):
     data = data if hasattr(data, "__iter__") else [data]
-    return [MinCharsCriterionRules.create(**d) for d in data]
+    return [MinCharsCriterionRules.get_or_create(**d) for d in data]

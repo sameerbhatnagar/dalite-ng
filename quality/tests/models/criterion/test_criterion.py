@@ -6,11 +6,8 @@ import pytest
 from django.db import models
 from mixer.backend.django import mixer
 
-from quality.models import Criterion
-from quality.models.criterion.criterion import (
-    CriterionDoesNotExistError,
-    CriterionExistsError,
-)
+from quality.models import Criterion, CriterionRules
+from quality.models.criterion.criterion import CriterionDoesNotExistError
 
 
 @pytest.mark.filterwarnings("ignore::RuntimeWarning")
@@ -97,17 +94,19 @@ def test_criterion_rules():
         assert fake_criterion.rules == ["i", "j", "k", "l"]
 
 
-def test_criterion_exists__no_msg():
-    with pytest.raises(CriterionExistsError) as e:
-        raise CriterionExistsError()
-    assert "A criterion with the same options already exists." in str(e.value)
+@pytest.mark.filterwarnings("ignore::RuntimeWarning")
+def test_criterion_rules_needs_get_or_create_method():
+    class FakeCriterionRules(CriterionRules):
+        name = models.CharField(max_length=32, default="fake", editable=False)
 
+        class Meta:
+            app_label = "quality"
 
-def test_criterion_exists__msg():
-    msg = "error msg"
-    with pytest.raises(CriterionExistsError) as e:
-        raise CriterionExistsError(msg)
-    assert msg in str(e.value)
+    with mixer.ctx(commit=False):
+        fake_criterion_rules = mixer.blend(FakeCriterionRules)
+
+        with pytest.raises(NotImplementedError):
+            fake_criterion_rules.get_or_create()
 
 
 def test_criterion_does_not_exists__no_msg():

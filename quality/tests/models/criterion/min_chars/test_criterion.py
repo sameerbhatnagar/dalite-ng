@@ -1,7 +1,7 @@
 import mock
 
 from peerinst.tests.fixtures import *  # noqa
-from quality.models.criterion import MinCharsCriterion
+from quality.models.criterion import MinCharsCriterion, MinCharsCriterionRules
 from quality.tests.fixtures import *  # noqa
 
 
@@ -45,6 +45,16 @@ def test_evaluate__same_as_min(min_chars_criterion, min_chars_rules, answers):
 
     min_chars_rules.min_chars = 3
     min_chars_rules.save()
+
+    assert min_chars_criterion.evaluate(answer, min_chars_rules.pk)
+
+
+def test_evaluate__default(min_chars_criterion, answers):
+    answer = answers[0]
+    answer.rationale = ""
+    answer.save()
+
+    min_chars_rules = MinCharsCriterionRules.get_or_create()
 
     assert min_chars_criterion.evaluate(answer, min_chars_rules.pk)
 

@@ -1,7 +1,7 @@
 import mock
 
 from peerinst.tests.fixtures import *  # noqa
-from quality.models.criterion import MinWordsCriterion
+from quality.models.criterion import MinWordsCriterion, MinWordsCriterionRules
 from quality.tests.fixtures import *  # noqa
 
 
@@ -45,6 +45,16 @@ def test_evaluate__same_as_min(min_words_criterion, min_words_rules, answers):
 
     min_words_rules.min_words = 3
     min_words_rules.save()
+
+    assert min_words_criterion.evaluate(answer, min_words_rules.pk)
+
+
+def test_evaluate__default(min_words_criterion, answers):
+    answer = answers[0]
+    answer.rationale = ""
+    answer.save()
+
+    min_words_rules = MinWordsCriterionRules.get_or_create()
 
     assert min_words_criterion.evaluate(answer, min_words_rules.pk)
 

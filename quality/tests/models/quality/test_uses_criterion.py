@@ -68,3 +68,26 @@ def test_save__previous_version_removed():
         assert UsesCriterion.objects.filter(
             quality=quality_2, name="test", version=0
         ).exists()
+
+
+def test_dict():
+    with mock.patch("quality.models.quality.get_criterion") as get_criterion:
+        criterion_ = mock.Mock()
+        criterion_.serialize.return_value = {"a": 1, "b": 2, "c": 3}
+        criterion_class = mock.Mock()
+        get_criterion.return_value = criterion_class
+        criterion_class.objects.get.return_value = criterion_
+        criterion_class.objects.count.return_value = 1
+
+        criterion = UsesCriterion.objects.create(
+            quality=Quality.objects.create(),
+            name="fake",
+            version=0,
+            rules=0,
+            weight=1,
+        )
+        data = dict(criterion)
+        assert data["a"] == 1
+        assert data["b"] == 2
+        assert data["c"] == 3
+        assert data["weight"] == 1

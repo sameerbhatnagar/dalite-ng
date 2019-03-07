@@ -2,9 +2,8 @@
 from __future__ import unicode_literals
 
 from django.db import models
-from django.db.utils import IntegrityError
 
-from .criterion import Criterion, CriterionExistsError, CriterionRules
+from .criterion import Criterion, CriterionRules
 
 
 class MinCharsCriterion(Criterion):
@@ -32,38 +31,33 @@ class MinCharsCriterion(Criterion):
 
 
 class MinCharsCriterionRules(CriterionRules):
-    min_chars = models.PositiveIntegerField(unique=True)
+    min_chars = models.PositiveIntegerField()
 
     @staticmethod
-    def create(min_chars):
+    def get_or_create(min_chars=0):
         """
-        Creates the criterion version.
+        Creates or get the criterion rules.
 
         Parameters
         ----------
-        min_words : int >= 0
+        min_words : int >= 0 (default : 0)
             Minimum number of words for the quality to evaluate to True.
 
         Returns
         -------
-        MinWordsCriterion
-            Created instance
+        MinWordsCriterionRules
+            Instance
 
         Raises
         ------
         ValueError
             If the arguments have invalid values
-        CriterionExistsError
-            If a criterion with the same options already exists
         """
         if min_chars < 0:
             raise ValueError(
                 "The minmum number of characters can't be negative."
             )
-        try:
-            criterion = MinCharsCriterionRules.objects.create(
-                min_chars=min_chars
-            )
-        except IntegrityError:
-            raise CriterionExistsError()
+        criterion, __ = MinCharsCriterionRules.objects.get_or_create(
+            min_chars=min_chars
+        )
         return criterion

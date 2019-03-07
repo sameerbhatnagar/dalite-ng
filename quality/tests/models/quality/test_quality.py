@@ -72,3 +72,15 @@ def test_evaluate__different_weights():
         for i, q in enumerate(qualities):
             assert q["quality"] == i + 1
             assert q["weight"] == i + 1
+
+
+def test_available():
+    quality = Quality.objects.create()
+
+    with mock.patch("quality.models.quality.criterions") as criterions:
+        criterions_ = [mock.Mock() for _ in range(3)]
+        for criterion in criterions_:
+            criterion.info.return_value = None
+        criterions.values.return_value = criterions_
+        available = quality.available()
+        assert len(available) == 3
