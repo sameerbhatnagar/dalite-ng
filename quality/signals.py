@@ -15,9 +15,15 @@ def add_default_qualities(sender, **kwargs):
     for quality_type in QualityType.objects.all():
         if not Quality.objects.filter(quality_type=quality_type).exists():
             if not criterion.MinWordsCriterion.objects.exists():
-                criterion.MinWordsCriterion.objects.create(
+                criterion_ = criterion.MinWordsCriterion.objects.create(
                     uses_rules="min_words"
                 )
+                criterion_.for_quality_types.add(
+                    QualityType.objects.get(type="assignment"),
+                    QualityType.objects.get(type="group"),
+                    QualityType.objects.get(type="teacher"),
+                )
+                criterion_.save()
             if not criterion.MinWordsCriterionRules.objects.exists():
                 criterion.MinWordsCriterionRules.get_or_create(min_words=4)
 

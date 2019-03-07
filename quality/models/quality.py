@@ -66,8 +66,8 @@ class Quality(models.Model):
             criterion.info()
             for criterion in criterions.values()
             if criterion.objects.filter(
-                for_quality_types__contains=self.quality_type
-            )
+                for_quality_types=self.quality_type
+            ).exists()
         ]
 
 

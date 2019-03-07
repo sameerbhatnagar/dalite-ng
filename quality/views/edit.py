@@ -13,7 +13,7 @@ from django.views.decorators.http import require_POST, require_safe
 from dalite.views.errors import response_400, response_403
 from peerinst.models import StudentGroupAssignment, Teacher
 
-from ..models import Quality
+from ..models import Quality, QualityType
 from .decorators import logged_in_non_student_required
 
 logger = logging.getLogger("quality")
@@ -64,6 +64,11 @@ def verify_assignment(req, assignment_pk):
             log=logger.warning,
         )
 
+    quality_type = QualityType.objects.get(type="assignment")
+    if assignment.quality is None:
+        assignment.quality = Quality.objects.create(quality_type=quality_type)
+        assignment.save()
+
     return assignment
 
 
@@ -105,15 +110,11 @@ def index(req):
         assignment = verify_assignment(req, assignment_pk)
         if isinstance(assignment, HttpResponse):
             return assignment
-        quality_type = "assignment"
-        if assignment.quality is None:
-            assignment.quality = Quality.objects.create()
-            assignment.save()
 
     data = {
-        "quality_type": quality_type,
+        "quality_type": assignment.quality.quality_type.type,
         "next": next_,
-        "available": Quality.available(),
+        "available": assignment.quality.available,
         "criterions": [
             dict(criterion)
             for criterion in assignment.quality.criterions.all()
