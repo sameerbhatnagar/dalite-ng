@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 from django.db import models
 
-from .criterion import Criterion, CriterionRules
+from ..criterion import Criterion, CriterionRules
 
 
 class MinCharsCriterion(Criterion):

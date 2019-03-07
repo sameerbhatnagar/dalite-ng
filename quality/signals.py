@@ -1,19 +1,27 @@
 from django.db.models.signals import post_migrate
 from django.dispatch import receiver
 
-from .models import Quality, UsesCriterion, criterion
+from .models import Quality, QualityType, UsesCriterion, criterion
 
 
 @receiver(post_migrate)
-def add_default_quality_signal(sender, **kwargs):
+def add_quality_types(sender, **kwargs):
+    for quality_type in ("assignment", "group", "teacher"):
+        QualityType.objects.get_or_create(type=quality_type)
 
-    if not Quality.objects.exists():
-        if not criterion.MinWordsCriterion.objects.exists():
-            criterion.MinWordsCriterion.objects.create(uses_rules="min_words")
-        if not criterion.MinWordsCriterionRules.objects.exists():
-            criterion.MinWordsCriterionRules.get_or_create(min_words=4)
 
-        quality = Quality.objects.create()
-        UsesCriterion.objects.create(
-            quality=quality, name="min_words", version=0, rules=0, weight=1
-        )
+@receiver(post_migrate)
+def add_default_qualities(sender, **kwargs):
+    for quality_type in QualityType.objects.all():
+        if not Quality.objects.filter(quality_type=quality_type).exists():
+            if not criterion.MinWordsCriterion.objects.exists():
+                criterion.MinWordsCriterion.objects.create(
+                    uses_rules="min_words"
+                )
+            if not criterion.MinWordsCriterionRules.objects.exists():
+                criterion.MinWordsCriterionRules.get_or_create(min_words=4)
+
+            quality = Quality.objects.create(quality_type=quality_type)
+            UsesCriterion.objects.create(
+                quality=quality, name="min_words", version=0, rules=0, weight=1
+            )

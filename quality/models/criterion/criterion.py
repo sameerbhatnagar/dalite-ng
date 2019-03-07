@@ -5,6 +5,8 @@ import re
 
 from django.db import models
 
+from ..quality_type import QualityType
+
 
 class Criterion(models.Model):
     version = models.AutoField(primary_key=True)
@@ -14,6 +16,7 @@ class Criterion(models.Model):
         "found as the fields of the associated rules object.",
     )
     is_beta = models.BooleanField(default=False)
+    for_quality_types = models.ManyToManyField(QualityType)
 
     class Meta:
         abstract = True
@@ -57,12 +60,3 @@ class CriterionRules(models.Model):
     @staticmethod
     def get_or_create(*args, **kwargs):
         raise NotImplementedError("This property has to be implemented.")
-
-
-class CriterionDoesNotExistError(Exception):
-    def __init__(self, msg="", *args, **kwargs):
-        if not msg:
-            msg = (
-                "There is no criterion corresponding to that name or version."
-            )
-        super(Exception, self).__init__(msg, *args, **kwargs)

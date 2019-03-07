@@ -1,8 +1,7 @@
 import logging
 
-from .criterion import CriterionDoesNotExistError
-from .min_chars import MinCharsCriterion
-from .min_words import MinWordsCriterion
+from .criterions import MinCharsCriterion, MinWordsCriterion
+from .errors import CriterionDoesNotExistError
 
 logger = logging.getLogger("quality")
 

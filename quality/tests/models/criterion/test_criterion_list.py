@@ -2,7 +2,7 @@ import pytest
 
 from quality.models import Criterion
 from quality.models.criterion import get_criterion
-from quality.models.criterion.criterion import CriterionDoesNotExistError
+from quality.models.criterion.errors import CriterionDoesNotExistError
 
 
 def test_get_criterion():

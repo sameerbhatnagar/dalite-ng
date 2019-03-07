@@ -64,7 +64,8 @@ def test_serialize(min_words_criterion):
     min_words_criterion.save()
 
     with mock.patch(
-        "quality.models.criterion.min_words.MinWordsCriterionRules.objects.get"
+        "quality.models.criterion.criterions.min_words."
+        "MinWordsCriterionRules.objects.get"
     ) as rules_get:
         rules_get.return_value = iter([("a", 1), ("b", 2), ("c", 3)])
         data = min_words_criterion.serialize(0)
@@ -80,7 +81,8 @@ def test_serialize__subset_of_rules(min_words_criterion):
     min_words_criterion.save()
 
     with mock.patch(
-        "quality.models.criterion.min_words.MinWordsCriterionRules.objects.get"
+        "quality.models.criterion.criterions.min_words."
+        "MinWordsCriterionRules.objects.get"
     ) as rules_get:
         rules_get.return_value = iter([("a", 1), ("b", 2), ("c", 3)])
         data = min_words_criterion.serialize(0)

@@ -6,11 +6,14 @@ import logging
 from django.db import models
 
 from .criterion.criterion_list import criterions, get_criterion
+from .quality_type import QualityType
 
 logger = logging.getLogger("quality")
 
 
 class Quality(models.Model):
+    quality_type = models.ForeignKey(QualityType)
+
     def evaluate(self, answer, *args, **kwargs):
         """
         Returns the quality as a tuple of the quality and the different
@@ -57,9 +60,15 @@ class Quality(models.Model):
         ) / sum(q["weight"] for q in qualities)
         return quality, qualities
 
-    @staticmethod
-    def available():
-        return [criterion.info() for criterion in criterions.values()]
+    @property
+    def available(self):
+        return [
+            criterion.info()
+            for criterion in criterions.values()
+            if criterion.objects.filter(
+                for_quality_types__contains=self.quality_type
+            )
+        ]
 
 
 class UsesCriterion(models.Model):

@@ -3,21 +3,20 @@ from __future__ import unicode_literals
 
 import mock
 
-from quality.models import Quality, UsesCriterion
+from quality.models import UsesCriterion
+from quality.tests.fixtures import *  # noqa
 
 
-def test_evaluate__no_criterions():
-    quality = Quality.objects.create()
+def test_evaluate__no_criterions(assignment_quality):
     answer = mock.Mock()
 
-    quality_, qualities = quality.evaluate(answer)
+    quality_, qualities = assignment_quality.evaluate(answer)
 
     assert quality_ is None
     assert qualities == []
 
 
-def test_evaluate__all_equal():
-    quality = Quality.objects.create()
+def test_evaluate__all_equal(assignment_quality):
     answer = mock.Mock()
 
     with mock.patch("quality.models.quality.get_criterion") as get_criterion:
@@ -30,14 +29,14 @@ def test_evaluate__all_equal():
         criterion_.objects.get.return_value = criterion
         for i in range(3):
             UsesCriterion.objects.create(
-                quality=quality,
+                quality=assignment_quality,
                 name="fake_{}".format(i + 1),
                 version=0,
                 rules=0,
                 weight=1,
             )
 
-        quality_, qualities = quality.evaluate(answer)
+        quality_, qualities = assignment_quality.evaluate(answer)
 
         assert quality_ == (1.0 + 2 + 3) / 3
         for i, q in enumerate(qualities):
@@ -45,8 +44,7 @@ def test_evaluate__all_equal():
             assert q["weight"] == 1
 
 
-def test_evaluate__different_weights():
-    quality = Quality.objects.create()
+def test_evaluate__different_weights(assignment_quality):
     answer = mock.Mock()
 
     with mock.patch("quality.models.quality.get_criterion") as get_criterion:
@@ -59,14 +57,14 @@ def test_evaluate__different_weights():
         criterion_.objects.get.return_value = criterion
         for i in range(3):
             UsesCriterion.objects.create(
-                quality=quality,
+                quality=assignment_quality,
                 name="fake_{}".format(i + 1),
                 version=0,
                 rules=0,
                 weight=i + 1,
             )
 
-        quality_, qualities = quality.evaluate(answer)
+        quality_, qualities = assignment_quality.evaluate(answer)
 
         assert quality_ == ((1.0 * 1 + 2 * 2 + 3 * 3) / (1 + 2 + 3))
         for i, q in enumerate(qualities):
@@ -74,13 +72,12 @@ def test_evaluate__different_weights():
             assert q["weight"] == i + 1
 
 
-def test_available():
-    quality = Quality.objects.create()
+def test_available(assignment_quality):
 
     with mock.patch("quality.models.quality.criterions") as criterions:
         criterions_ = [mock.Mock() for _ in range(3)]
         for criterion in criterions_:
             criterion.info.return_value = None
         criterions.values.return_value = criterions_
-        available = quality.available()
+        available = assignment_quality.available
         assert len(available) == 3
