@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 from django.db import models
 from django.db.utils import IntegrityError
 
-from .criterion import Criterion, CriterionExistsError
+from .criterion import Criterion, CriterionExistsError, CriterionRules
 
 
 class MinCharsCriterion(Criterion):
@@ -31,7 +31,7 @@ class MinCharsCriterion(Criterion):
         return data
 
 
-class MinCharsCriterionRules(models.Model):
+class MinCharsCriterionRules(CriterionRules):
     min_chars = models.PositiveIntegerField(unique=True)
 
     @staticmethod
