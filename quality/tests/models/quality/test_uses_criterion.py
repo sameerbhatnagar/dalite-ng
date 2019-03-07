@@ -12,7 +12,7 @@ def test_save():
         get_criterion.return_value = criterion
 
         UsesCriterion.objects.create(
-            quality=quality, name="test", version=0, use_latest=True, weight=1
+            quality=quality, name="test", version=0, rules=0, weight=1
         )
 
         assert UsesCriterion.objects.filter(
@@ -29,11 +29,7 @@ def test_save__invalid_version():
 
         with pytest.raises(ValueError):
             UsesCriterion.objects.create(
-                quality=quality,
-                name="test",
-                version=1,
-                use_latest=True,
-                weight=1,
+                quality=quality, name="test", version=1, rules=0, weight=1
             )
 
 
@@ -46,18 +42,10 @@ def test_save__previous_version_removed():
         get_criterion.return_value = criterion
 
         UsesCriterion.objects.create(
-            quality=quality_1,
-            name="test",
-            version=0,
-            use_latest=True,
-            weight=1,
+            quality=quality_1, name="test", version=0, rules=0, weight=1
         )
         UsesCriterion.objects.create(
-            quality=quality_2,
-            name="test",
-            version=0,
-            use_latest=True,
-            weight=1,
+            quality=quality_2, name="test", version=0, rules=0, weight=1
         )
 
         assert UsesCriterion.objects.filter(
@@ -68,11 +56,7 @@ def test_save__previous_version_removed():
         ).exists()
 
         UsesCriterion.objects.create(
-            quality=quality_1,
-            name="test",
-            version=1,
-            use_latest=True,
-            weight=1,
+            quality=quality_1, name="test", version=1, rules=0, weight=1
         )
 
         assert not UsesCriterion.objects.filter(
