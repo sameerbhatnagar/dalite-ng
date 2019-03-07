@@ -3199,7 +3199,7 @@ def research_index(request):
     return render(request, template, context)
 
 
-def get_question_annotation_counts(discipline_title):
+def get_question_annotation_counts(discipline_title, annotator):
     """
     Returns:
     ========
@@ -3218,6 +3218,9 @@ def get_question_annotation_counts(discipline_title):
         d1["total_annotations"] = AnswerAnnotation.objects.filter(
             score__isnull=False, answer__question_id=q.pk
         ).count()
+        d1["total_annotations_by_user"] = AnswerAnnotation.objects.filter(
+            score__isnull=False, answer__question_id=q.pk, annotator=annotator
+        ).count()
 
         answer_frequencies = q.get_frequency_json("first_choice")
         for d2 in answer_frequencies:
@@ -3228,7 +3231,15 @@ def get_question_annotation_counts(discipline_title):
                         score__isnull=False,
                         answer__question_id=q.pk,
                         answer__first_answer_choice=a_choice,
-                    ).count()
+                    ).count(),
+                    "annotation_count_by_user": (
+                        AnswerAnnotation.objects.filter(
+                            score__isnull=False,
+                            answer__question_id=q.pk,
+                            answer__first_answer_choice=a_choice,
+                            annotator=annotator,
+                        ).count(),
+                    ),
                 }
             )
         d1["answerchoices"] = answer_frequencies
@@ -3243,7 +3254,7 @@ def research_discipline_question_index(request, discipline_title):
     template = "peerinst/research/question_index.html"
 
     question_annotation_counts = get_question_annotation_counts(
-        discipline_title=discipline_title
+        discipline_title=discipline_title, annotator=request.user
     )
 
     context = {
@@ -3270,7 +3281,7 @@ def research_question_answer_list(
             answerchoice_value
         ]
 
-    answer_qs = Answer.objects.filter(
+    answer_qs = Question.objects.get(pk=question_pk).answer_set.filter(
         question_id=question_pk, first_answer_choice=answerchoice_id
     )
     for a in answer_qs:
