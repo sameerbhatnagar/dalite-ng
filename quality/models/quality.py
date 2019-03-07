@@ -2,7 +2,6 @@
 from __future__ import unicode_literals
 
 import logging
-from pprint import pprint
 
 from django.db import models
 
@@ -36,9 +35,7 @@ class Quality(models.Model):
         criterions_ = [
             {
                 "criterion": (
-                    get_criterion(c.name).objects.latest()
-                    if c.use_latest
-                    else get_criterion(c.name).objects.get(version=c.version)
+                    get_criterion(c.name).objects.get(version=c.version)
                 ),
                 "weight": c.weight,
             }
@@ -49,11 +46,12 @@ class Quality(models.Model):
                 "name": c["criterion"].name,
                 "version": c["criterion"].version,
                 "weight": c["weight"],
-                "quality": c["criterion"].evaluate(answer, *args, **kwargs),
+                "quality": c["criterion"].evaluate(
+                    answer, c["criterion"].rules, *args, **kwargs
+                ),
             }
             for c in criterions_
         ]
-        pprint(qualities)
         quality = float(
             sum(q["quality"] * q["weight"] for q in qualities)
         ) / sum(q["weight"] for q in qualities)
@@ -68,7 +66,7 @@ class UsesCriterion(models.Model):
     quality = models.ForeignKey(Quality, related_name="criterions")
     name = models.CharField(max_length=32)
     version = models.PositiveIntegerField()
-    use_latest = models.BooleanField()
+    rules = models.PositiveIntegerField()
     weight = models.PositiveIntegerField()
 
     def save(self, *args, **kwargs):
@@ -98,12 +96,7 @@ class UsesCriterion(models.Model):
         super(UsesCriterion, self).save(*args, **kwargs)
 
     def __iter__(self):
-        if self.use_latest:
-            criterion = get_criterion(self.name).objects.latest()
-        else:
-            criterion = get_criterion(self.name).objects.get(
-                version=self.version
-            )
-        data = {"use_latest": self.use_latest, "weight": self.weight}
-        data.update(dict(criterion))
+        criterion = get_criterion(self.name).objects.get(version=self.version)
+        data = criterion.serialize(self.rules)
+        data.update({"weight": self.weight})
         return ((field, value) for field, value in data.items())

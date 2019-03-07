@@ -1,10 +1,10 @@
 import pytest
 
 from .generators import (
-    add_min_chars_criterion,
     add_min_words_criterion,
-    new_min_chars_criterion,
+    add_min_words_rules,
     new_min_words_criterion,
+    new_min_words_rules,
 )
 
 
@@ -14,5 +14,5 @@ def min_words_criterion():
 
 
 @pytest.fixture
-def min_chars_criterion():
-    return add_min_chars_criterion(new_min_chars_criterion(1))[0]
+def min_words_rules():
+    return add_min_words_rules(new_min_words_rules(1))[0]

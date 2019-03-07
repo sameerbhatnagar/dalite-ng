@@ -8,17 +8,12 @@ from .models import Quality, UsesCriterion, criterion
 def add_default_quality_signal(sender, **kwargs):
 
     if not Quality.objects.exists():
-        try:
-            min_words_criterion = criterion.MinWordsCriterion.create(
-                min_words=4
-            )
-        except criterion.CriterionExistsError:
-            pass
+        if not criterion.MinWordsCriterion.objects.exists():
+            criterion.MinWordsCriterion.objects.create(uses_rules="min_words")
+        if not criterion.MinWordsCriterionRules.objects.exists():
+            criterion.MinWordsCriterionRules.create(min_words=4)
+
         quality = Quality.objects.create()
         UsesCriterion.objects.create(
-            quality=quality,
-            name="min_words",
-            version=0,
-            use_latest=True,
-            weight=1,
+            quality=quality, name="min_words", version=0, rules=0, weight=1
         )

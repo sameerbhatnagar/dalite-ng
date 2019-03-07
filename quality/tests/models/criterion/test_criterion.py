@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import mock
 import pytest
 from django.db import models
 from mixer.backend.django import mixer
@@ -15,20 +16,46 @@ from quality.models.criterion.criterion import (
 @pytest.mark.filterwarnings("ignore::RuntimeWarning")
 def test_criterion_needs_evaluate_method():
     class FakeCriterion(Criterion):
-        name = models.CharField(max_length=32)
+        name = models.CharField(max_length=32, default="fake", editable=False)
 
         class Meta:
             app_label = "quality"
-
-        def save(self, *args, **kwargs):
-            self.name = "fake"
-            super(FakeCriterion, self).save(self, *args, **kwargs)
 
     with mixer.ctx(commit=False):
         fake_criterion = mixer.blend(FakeCriterion)
 
         with pytest.raises(NotImplementedError):
-            fake_criterion.evaluate(None)
+            fake_criterion.evaluate(None, None)
+
+
+@pytest.mark.filterwarnings("ignore::RuntimeWarning")
+def test_criterion_needs_info_method():
+    class FakeCriterion(Criterion):
+        name = models.CharField(max_length=32, default="fake", editable=False)
+
+        class Meta:
+            app_label = "quality"
+
+    with mixer.ctx(commit=False):
+        fake_criterion = mixer.blend(FakeCriterion)
+
+        with pytest.raises(NotImplementedError):
+            fake_criterion.info()
+
+
+@pytest.mark.filterwarnings("ignore::RuntimeWarning")
+def test_criterion_needs_serialize_method():
+    class FakeCriterion(Criterion):
+        name = models.CharField(max_length=32, default="fake", editable=False)
+
+        class Meta:
+            app_label = "quality"
+
+    with mixer.ctx(commit=False):
+        fake_criterion = mixer.blend(FakeCriterion)
+
+        with pytest.raises(NotImplementedError):
+            fake_criterion.serialize(None)
 
 
 @pytest.mark.filterwarnings("ignore::RuntimeWarning")
@@ -37,13 +64,37 @@ def test_criterion_needs_name():
         class Meta:
             app_label = "quality"
 
-        pass
-
     with mixer.ctx(commit=False):
         fake_criterion = mixer.blend(FakeCriterion)
 
         with pytest.raises(NotImplementedError):
             fake_criterion.save()
+
+
+@pytest.mark.filterwarnings("ignore::RuntimeWarning")
+def test_criterion_rules():
+    class FakeCriterion(Criterion):
+        name = models.CharField(max_length=32, default="fake", editable=False)
+
+        class Meta:
+            app_label = "quality"
+
+    with mixer.ctx(commit=False), mock.patch(
+        "quality.models.criterion.criterion.models.Model.save"
+    ):
+        fake_criterion = mixer.blend(FakeCriterion)
+
+        fake_criterion.uses_rules = "a,b,c,d"
+        fake_criterion.save()
+        assert fake_criterion.rules == ["a", "b", "c", "d"]
+
+        fake_criterion.uses_rules = "e, f, g, h"
+        fake_criterion.save()
+        assert fake_criterion.rules == ["e", "f", "g", "h"]
+
+        fake_criterion.uses_rules = "i , j , k , l"
+        fake_criterion.save()
+        assert fake_criterion.rules == ["i", "j", "k", "l"]
 
 
 def test_criterion_exists__no_msg():

@@ -9,10 +9,30 @@ from .criterion import Criterion, CriterionExistsError
 
 class MinCharsCriterion(Criterion):
     name = models.CharField(max_length=32, default="min_chars", editable=False)
-    min_chars = models.PositiveIntegerField(unique=True)
 
-    def evaluate(self, answer):
-        return len(answer.rationale) >= self.min_chars
+    @staticmethod
+    def info():
+        return {
+            "name": "min_chars",
+            "full_name": "Min characters",
+            "description": "Imposes a minium number of characters for each "
+            "rationale.",
+        }
+
+    def evaluate(self, answer, rules_pk):
+        rules = MinCharsCriterionRules.objects.get(pk=rules_pk)
+        return len(answer.rationale) >= rules.min_chars
+
+    def serialize(self, rules_pk):
+        rules = MinCharsCriterionRules.objects.get(pk=rules_pk)
+        data = dict(rules)
+        data = {rule: data[rule] for rule in self.rules}
+        data.update({"version": self.version, "is_beta": self.is_beta})
+        return data
+
+
+class MinCharsCriterionRules(models.Model):
+    min_chars = models.PositiveIntegerField(unique=True)
 
     @staticmethod
     def create(min_chars):
@@ -41,18 +61,9 @@ class MinCharsCriterion(Criterion):
                 "The minmum number of characters can't be negative."
             )
         try:
-            criterion = MinCharsCriterion.objects.create(
-                name="min_chars", min_chars=min_chars
+            criterion = MinCharsCriterionRules.objects.create(
+                min_chars=min_chars
             )
         except IntegrityError:
             raise CriterionExistsError()
         return criterion
-
-    @staticmethod
-    def info():
-        return {
-            "name": "min_chars",
-            "full_name": "Min characters",
-            "description": "Imposes a minium number of characters for each "
-            "rationale.",
-        }
