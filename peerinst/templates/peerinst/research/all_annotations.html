@@ -10,8 +10,12 @@
 <h4 id="title" class="mdc-typography--title bold">{% trans 'All Scores for ' %} {{ question.title|safe }}</h4>
 
 <div class="admin-link">
-  <a href="{% url 'research-discipline-question-index' discipline_title=discipline_title %}#{{ question.pk }}">{% trans 'Back to Question List' %}</a>
-  <span style="padding-left:0.3em;padding-right:0.5em;">|</span><a href="{% url 'browse-database' %}">{% trans 'Back to Browse' %}</a>
+    {% if discipline_title %}
+      <a href="{% url 'research-discipline-question-index-by-discipline' discipline_title=discipline_title %}#{{ question.pk }}">{% trans 'Back to Question List' %}</a>
+    {% elif assignment_id %}
+      <a href="{% url 'research-assignment-question-index-by-assignment' assignment_id=assignment_id%}#{{ question.pk }}">{% trans 'Back to Question List' %}</a>
+      <span style="padding-left:0.3em;padding-right:0.5em;">|</span><a href="{% url 'question-list' assignment_id=assignment_id %}">{% trans 'Back to Assignment' %}</a>
+    {% endif %}
 </div>
 
 Rationale<br>

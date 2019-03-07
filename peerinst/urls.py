@@ -547,19 +547,34 @@ def researcher_patterns():
     return [
         url(r"^research/$", views.research_index, name="research-index"),
         url(
-            r"^research/(?P<discipline_title>[^/]+)$",
+            r"^research/discipline/(?P<discipline_title>[^/]+)$",
             views.research_discipline_question_index,
-            name="research-discipline-question-index",
+            name="research-discipline-question-index-by-discipline",
         ),
         url(
-            r"^research/all_scores/(?P<discipline_title>[^/]+)/(?P<question_pk>[^/]+)$",  # noqa
+            r"^research/assignment/(?P<assignment_id>[^/]+)$",
+            views.research_discipline_question_index,
+            name="research-assignment-question-index-by-assignment",
+        ),
+        url(
+            r"^research/all_scores/discipline/(?P<discipline_title>[^/]+)/(?P<question_pk>[^/]+)$",  # noqa
             views.research_all_annotations_for_question,
-            name="research-all-annotations-for-question",
+            name="research-all-annotations-for-question-by-discipline",
         ),
         url(
-            r"^research/(?P<discipline_title>[^/]+)/(?P<question_pk>[^/]+)/(?P<answerchoice_value>[^/]+)$",  # noqa
+            r"^research/all_scores/assignment/(?P<assignment_id>[^/]+)/(?P<question_pk>[^/]+)$",  # noqa
+            views.research_all_annotations_for_question,
+            name="research-all-annotations-for-question-by-assignment",
+        ),
+        url(
+            r"^research/discipline/(?P<discipline_title>[^/]+)/(?P<question_pk>[^/]+)/(?P<answerchoice_value>[^/]+)$",  # noqa
             views.research_question_answer_list,
-            name="research-question-answer-list",
+            name="research-question-answer-list-by-discipline",
+        ),
+        url(
+            r"^research/assignment/(?P<assignment_id>[^/]+)/(?P<question_pk>[^/]+)/(?P<answerchoice_value>[^/]+)$",  # noqa
+            views.research_question_answer_list,
+            name="research-question-answer-list-by-assignment",
         ),
     ]
 

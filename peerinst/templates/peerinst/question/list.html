@@ -15,6 +15,11 @@
     </div>
     {% endif %}
 
+    <div class="admin-link">
+      <a href="{% url 'research-assignment-question-index-by-assignment' assignment_id=assignment.identifier%}">{% trans 'Score Rationales' %}</a>
+    </div>
+
+
     <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Questions' %}</h2>
 
     {% for g in object_list %}

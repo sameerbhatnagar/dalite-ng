@@ -3199,14 +3199,21 @@ def research_index(request):
     return render(request, template, context)
 
 
-def get_question_annotation_counts(discipline_title, annotator):
+def get_question_annotation_counts(discipline_title, annotator, assignment_id):
     """
     Returns:
     ========
     list of dicts, one for eacu question in discipline, and the counts of
     Answers and AnswerAnnotations for each
     """
-    questions_qs = Question.objects.filter(discipline__title=discipline_title)
+    if discipline_title:
+        questions_qs = Question.objects.filter(
+            discipline__title=discipline_title
+        )
+    elif assignment_id:
+        questions_qs = Assignment.objects.get(
+            identifier=assignment_id
+        ).questions.all()
 
     # FIXME:
     translation_table = string.maketrans("ABCDEFG", "1234567")
@@ -3248,24 +3255,37 @@ def get_question_annotation_counts(discipline_title, annotator):
 
 @login_required
 @user_passes_test(student_check, login_url="/access_denied_and_logout/")
-def research_discipline_question_index(request, discipline_title):
+def research_discipline_question_index(
+    request, discipline_title=None, assignment_id=None
+):
     template = "peerinst/research/question_index.html"
 
     question_annotation_counts = get_question_annotation_counts(
-        discipline_title=discipline_title, annotator=request.user
+        discipline_title=discipline_title,
+        annotator=request.user,
+        assignment_id=assignment_id,
     )
 
     context = {
         "questions": question_annotation_counts,
         "discipline_title": discipline_title,
+        "assignment_id": assignment_id,
     }
     return render(request, template, context)
 
 
 def research_question_answer_list(
-    request, discipline_title, question_pk, answerchoice_value
+    request,
+    question_pk,
+    answerchoice_value,
+    discipline_title=None,
+    assignment_id=None,
 ):
     template = "peerinst/research/answer_list.html"
+    if discipline_title:
+        reverse_url_name = "research-question-answer-list-by-discipline"
+    elif assignment_id:
+        reverse_url_name = "research-question-answer-list-by-assignment"
 
     annotator = get_object_or_404(User, username=request.user)
     if not annotator:
@@ -3310,30 +3330,21 @@ def research_question_answer_list(
         formset = AnswerAnnotationFormset(request.POST)
         if formset.is_valid():
             instances = formset.save()
-            return HttpResponseRedirect(
-                reverse(
-                    "research-question-answer-list",
-                    kwargs={
-                        "discipline_title": discipline_title,
-                        "question_pk": question_pk,
-                        "answerchoice_value": answerchoice_value,
-                    },
-                )
-            )
-    else:
-        formset = AnswerAnnotationFormset(queryset=queryset)
+
+    formset = AnswerAnnotationFormset(queryset=queryset)
 
     context = {
         "formset": formset,
         "question": Question.objects.get(id=question_pk),
         "discipline_title": discipline_title,
         "question_pk": question_pk,
+        "assignment_id": assignment_id,
     }
     return render(request, template, context)
 
 
 def research_all_annotations_for_question(
-    request, discipline_title, question_pk
+    request, question_pk, discipline_title=None, assignment_id=None
 ):
     """
     Returns:
@@ -3347,6 +3358,7 @@ def research_all_annotations_for_question(
         "question": question,
         "question_pk": question_pk,
         "discipline_title": discipline_title,
+        "assignment_id": assignment_id,
     }
 
     all_annotations = []
