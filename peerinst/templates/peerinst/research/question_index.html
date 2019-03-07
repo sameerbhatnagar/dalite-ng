@@ -14,7 +14,18 @@
   <span style="padding-left:0.3em;padding-right:0.5em;">|</span><a href="{% url 'browse-database' %}">{% trans 'Back to Browse' %}</a>
 </div>
 
-Question ID (Number of Researcher Annotations / Number of Student Rationales)
+Below is a list of questions, and their answer choices. The numbers in the
+brackets are meant to give you an idea of the state of the database as it stands right now.
+The numbers are, in order:
+
+<ul>
+  <li>Total number of rationales that have been scored by you for this question</li>
+  <li>Total number of rationales that have been scored by all teachers, including yourself</li>
+  <li>Total number of rationales that there are for this question</li>
+</ul>
+
+These numbers are then broken down by answer choice below the Question ID. Click on the Answer Choice to add/update your scoring of the rationales.
+
 
   <ul>
     {% for item in questions %}

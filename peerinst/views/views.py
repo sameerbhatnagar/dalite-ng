@@ -3232,14 +3232,12 @@ def get_question_annotation_counts(discipline_title, annotator):
                         answer__question_id=q.pk,
                         answer__first_answer_choice=a_choice,
                     ).count(),
-                    "annotation_count_by_user": (
-                        AnswerAnnotation.objects.filter(
-                            score__isnull=False,
-                            answer__question_id=q.pk,
-                            answer__first_answer_choice=a_choice,
-                            annotator=annotator,
-                        ).count(),
-                    ),
+                    "annotation_count_by_user": AnswerAnnotation.objects.filter(  # noqa
+                        score__isnull=False,
+                        answer__question_id=q.pk,
+                        answer__first_answer_choice=a_choice,
+                        annotator=annotator,
+                    ).count(),
                 }
             )
         d1["answerchoices"] = answer_frequencies
