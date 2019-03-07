@@ -75,6 +75,10 @@
           border-radius: 0 0 32px 32px;
         }
 
+        &:only-child {
+          border-radius: 32px;
+        }
+
         &:hover {
           background: $mdc-theme-primary;
           transition: background 250ms;
