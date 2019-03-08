@@ -89,9 +89,9 @@ class Quality(models.Model):
         return [
             criterion
             for criterion in criterions.values()
-            if criterion.objects.filter(
-                for_quality_types=self.quality_type
-            ).exists()
+            if criterion["criterion"]
+            .objects.filter(for_quality_types=self.quality_type)
+            .exists()
         ]
 
     @property
