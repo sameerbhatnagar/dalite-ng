@@ -89,9 +89,10 @@ def test_add_criterion(assignment_quality):
         "quality.models.quality.criterions"
     ) as criterions:
 
-        criterions_ = [mock.Mock()]
-        criterions_[0].objects.filter.exists.return_value = True
-        criterions_[0].name = "test"
+        criterion_class = mock.Mock()
+        criterion_class.objects.filter.exists.return_value = True
+        criterion_class.info.return_value = {"name": "test"}
+        criterions_ = [{"criterion": criterion_class, "rules": mock.Mock()}]
         criterions.values.return_value = criterions_
 
         criterion = mock.Mock()
@@ -120,23 +121,14 @@ def test_add_criterion__invalid_name(assignment_quality):
 def test_available(assignment_quality):
 
     with mock.patch("quality.models.quality.criterions") as criterions:
-        criterions_ = [mock.Mock() for _ in range(3)]
+        criterions_ = [
+            {"criterion": mock.Mock(), "rules": mock.Mock()} for _ in range(3)
+        ]
         for criterion in criterions_:
-            criterion.objects.filter.exists.return_value = True
+            criterion["criterion"].objects.filter.exists.return_value = True
+            criterion["criterion"].info.return_value = {"name": "a"}
         criterions.values.return_value = criterions_
-        available = assignment_quality.available
-        assert len(available) == 3
-
-
-def test_available_info(assignment_quality):
-
-    with mock.patch("quality.models.quality.criterions") as criterions:
-        criterions_ = [mock.Mock() for _ in range(3)]
-        for criterion in criterions_:
-            criterion.objects.filter.exists.return_value = True
-            criterion.info.return_value = {"a": 1}
-        criterions.values.return_value = criterions_
-        available_info = assignment_quality.available_info
+        available_info = assignment_quality.available
         assert len(available_info) == 3
         for criterion_ in available_info:
             assert isinstance(criterion_, dict)

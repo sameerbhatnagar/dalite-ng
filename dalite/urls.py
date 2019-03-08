@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import views
 from django.conf import settings
 from django.conf.urls import include, url
 from django.conf.urls.i18n import i18n_patterns
@@ -8,8 +9,6 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.clickjacking import xframe_options_sameorigin
-
-import views
 from peerinst import views as peerinst_views
 
 admin.site.site_header = admin.site.site_title = _("Dalite NG administration")
@@ -19,7 +18,7 @@ urlpatterns = [url(r"^lti/", include("django_lti_tool_provider.urls"))]
 
 # Apps
 urlpatterns += i18n_patterns(
-    url(r"^quality/", include("quality.urls")),
+    url(r"^quality/", include("quality.urls", namespace="quality")),
     url(r"^tos/", include("tos.urls")),
     url(r"", include("peerinst.urls")),
     url(r"^forums/", include("pinax.forums.urls", namespace="pinax_forums")),

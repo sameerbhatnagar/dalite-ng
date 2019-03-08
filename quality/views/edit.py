@@ -5,7 +5,8 @@ import json
 import logging
 
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse
+from django.core.urlresolvers import reverse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_POST, require_safe
@@ -111,14 +112,19 @@ def index(req):
         if isinstance(assignment, HttpResponse):
             return assignment
 
+    print(
+        [dict(criterion) for criterion in assignment.quality.criterions.all()]
+    )
+
     data = {
-        "quality_type": assignment.quality.quality_type.type,
+        "quality": dict(assignment.quality),
         "next": next_,
         "available": assignment.quality.available,
         "criterions": [
             dict(criterion)
             for criterion in assignment.quality.criterions.all()
         ],
+        "urls": {"add_criterion": reverse("quality:add-criterion")},
     }
 
     return render(req, "quality/edit/index.html", {"data": json.dumps(data)})
@@ -136,12 +142,49 @@ def add_criterion(req):
         Either a JsonResponse with the criterion data or an error response
     """
     try:
-        quality_pk = req.JSON["quality"]
-        criterion_name = req.JSON["criterion"]
+        data = json.loads(req.body)
+    except ValueError:
+        return response_400(
+            req,
+            msg=_("Wrong data type was sent."),
+            logger_msg=("The sent data wasn't in a valid JSON format."),
+            log=logger.warning,
+        )
+    try:
+        quality_pk = data["quality"]
+        criterion_name = data["criterion"]
     except KeyError as e:
         return response_400(
             req,
             msg=_("There are missing parameters."),
-            logger_msg=("The arguments '%s' were missing.", ",".join(e.args)),
+            logger_msg=(
+                "The arguments {} were missing.".format(", ".join(e.args))
+            ),
             log=logger.warning,
         )
+
+    try:
+        quality = Quality.objects.get(pk=quality_pk)
+    except Quality.DoesNotExist:
+        return response_400(
+            req,
+            msg=_("Some of the parameters were wrong."),
+            logger_msg=(
+                "There isn't any quality with key {}.".format(quality_pk)
+            ),
+            log=logger.warning,
+        )
+
+    try:
+        criterion = quality.add_criterion(criterion_name)
+    except ValueError:
+        return response_400(
+            req,
+            msg=_("Some of the parameters were wrong."),
+            logger_msg=(
+                "There isn't any quality with key {}.".format(quality_pk)
+            ),
+            log=logger.warning,
+        )
+
+    return JsonResponse(dict(criterion))

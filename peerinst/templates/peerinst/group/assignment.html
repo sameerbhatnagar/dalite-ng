@@ -85,7 +85,7 @@
                 <div class="mdc-list-item__secondary-text">
                   {% if assignment.quality %}
                   <ul style="padding-left:0px;">
-                    {% for criterion in assignment.quality.criterions %}
+                    {% for criterion in assignment.quality.criterions.all %}
                     <li class="mdc-list-item__secondary-text">
                       {{ criterion.name }} v{{ criterion.version }}
                     </li>
@@ -95,7 +95,7 @@
                 </div>
               </span>
               <span class="mdc-list-item__meta">
-                <a href="{% url 'quality-edit' %}?assignment={{ assignment.pk }}&next={{ request.path }}">
+                <a href="{% url 'quality:edit' %}?assignment={{ assignment.pk }}&next={{ request.path }}">
                   <i class="material-icons md-24 mdc-ripple-surface icon-list">
                     edit
                   </i>

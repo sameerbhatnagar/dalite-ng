@@ -32,6 +32,15 @@
       background: darken($mdc-theme-primary, 20%);
     }
 
+    &:disabled {
+      cursor: default;
+      opacity: 0.8;
+
+      &:hover {
+        background: $mdc-theme-primary;
+      }
+    }
+
     & .material-icons {
       font-size: 45px;
       transition: transform 250ms;

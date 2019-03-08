@@ -16,7 +16,11 @@ def test_dict(assignment_quality):
         del criterion_.keys
         criterion_.__iter__.return_value = {
             "version": 0,
+            "versions": 1,
             "is_beta": False,
+            "name": "a",
+            "full_name": "a",
+            "description": "a",
         }.items()
         criterion_.rules = ["a", "b", "c"]
 
@@ -45,8 +49,12 @@ def test_dict(assignment_quality):
         assert data["c"] == 3
         assert data["weight"] == 1
         assert "version" in data
+        assert "versions" in data
         assert "is_beta" in data
-        assert len(data) == 6
+        assert "name" in data
+        assert "full_name" in data
+        assert "description" in data
+        assert len(data) == 10
 
 
 def test_dict__subset_of_rules(assignment_quality):
@@ -61,7 +69,11 @@ def test_dict__subset_of_rules(assignment_quality):
         del criterion_.keys
         criterion_.__iter__.return_value = {
             "version": 0,
+            "versions": 1,
             "is_beta": False,
+            "name": "a",
+            "full_name": "a",
+            "description": "a",
         }.items()
         criterion_.rules = ["a", "c"]
 
@@ -90,5 +102,9 @@ def test_dict__subset_of_rules(assignment_quality):
         assert data["c"] == 3
         assert data["weight"] == 1
         assert "version" in data
+        assert "versions" in data
         assert "is_beta" in data
-        assert len(data) == 5
+        assert "name" in data
+        assert "full_name" in data
+        assert "description" in data
+        assert len(data) == 9

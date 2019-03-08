@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 import re
+from itertools import chain
 
 from django.db import models
 
@@ -26,7 +27,23 @@ class Criterion(models.Model):
         raise NotImplementedError("This property has to be implemented.")
 
     def __iter__(self):
-        raise NotImplementedError("This property has to be implemented.")
+        """
+        Any attribute specific to the criterion version (not in rules) should
+        be added in the __iter__ method of the child model.
+        You can use
+        return itertools.chain(`child_iter`, Super(`Class`, self).__iter__())`
+        to combine them.
+        """
+        return chain(
+            self.__class__.info().items(),
+            iter(
+                (
+                    ("version", self.version),
+                    ("versions", self.__class__.objects.count()),
+                    ("is_beta", self.is_beta),
+                )
+            ),
+        )
 
     def evaluate(self, answer, rules_pk):
         raise NotImplementedError("This property has to be implemented.")

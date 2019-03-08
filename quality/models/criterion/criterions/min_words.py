@@ -18,9 +18,6 @@ class MinWordsCriterion(Criterion):
             "rationale.",
         }
 
-    def __iter__(self):
-        return iter((("version", self.version), ("is_beta", self.is_beta)))
-
     def evaluate(self, answer, rules_pk):
         rules = MinWordsCriterionRules.objects.get(pk=rules_pk)
         return len(answer.rationale.split()) >= rules.min_words

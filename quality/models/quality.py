@@ -14,6 +14,14 @@ logger = logging.getLogger("quality")
 class Quality(models.Model):
     quality_type = models.ForeignKey(QualityType)
 
+    def __str__(self):
+        return "{} for type {}".format(self.pk, self.quality_type)
+
+    def __iter__(self):
+        return iter(
+            (("pk", self.pk), ("quality_type", self.quality_type.type))
+        )
+
     def evaluate(self, answer, *args, **kwargs):
         """
         Returns the quality as a tuple of the quality and the different
@@ -63,7 +71,27 @@ class Quality(models.Model):
         return quality, qualities
 
     def add_criterion(self, name):
-        if name not in [c.name for c in self.available]:
+        """
+        Adds the given criterion with latest version and default rules to the
+        quality.
+
+        Parameters
+        ----------
+        name : str
+            Name of the criterion
+
+        Returns
+        -------
+        UsesCriterion
+            Created criterion
+
+        Raises
+        ------
+        ValueError
+            If the given criterion doesn't exist or isn't available for this
+            quality type
+        """
+        if name not in [c["name"] for c in self.available]:
             msg = "The criterion {} isn't available for quality {}.".format(
                 name, self.pk
             )
@@ -72,31 +100,31 @@ class Quality(models.Model):
 
         criterion_class = get_criterion(name)
 
+        version = (
+            criterion_class["criterion"]
+            .objects.filter(for_quality_types=self.quality_type)
+            .last()
+            .version
+        )
+
         rules = criterion_class["rules"].get_or_create()
 
-        UsesCriterion.objects.create(
-            quality=self,
-            name=name,
-            version=criterion_class["criterion"]
-            .objects.filter(for_quality_types=self.quality_type)
-            .last(),
-            rules=rules.pk,
-            weight=1,
+        return UsesCriterion.objects.create(
+            quality=self, name=name, version=version, rules=rules.pk, weight=1
         )
 
     @property
     def available(self):
         return [
-            criterion
+            criterion["criterion"].info()
             for criterion in criterions.values()
             if criterion["criterion"]
             .objects.filter(for_quality_types=self.quality_type)
             .exists()
+            and not UsesCriterion.objects.filter(
+                quality=self, name=criterion["criterion"].info()["name"]
+            ).exists()
         ]
-
-    @property
-    def available_info(self):
-        return [criterion.info() for criterion in self.available]
 
 
 class UsesCriterion(models.Model):
@@ -113,6 +141,7 @@ class UsesCriterion(models.Model):
         )
         rules = criterion_class["rules"].objects.get(pk=self.rules)
         data = dict(criterion)
+        print(data)
         data.update(
             {
                 key: value

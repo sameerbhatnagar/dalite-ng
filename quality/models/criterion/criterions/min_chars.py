@@ -18,9 +18,6 @@ class MinCharsCriterion(Criterion):
             "rationale.",
         }
 
-    def __iter__(self):
-        return iter((("version", self.version), ("is_beta", self.is_beta)))
-
     def evaluate(self, answer, rules_pk):
         rules = MinCharsCriterionRules.objects.get(pk=rules_pk)
         return len(answer.rationale) >= rules.min_chars
