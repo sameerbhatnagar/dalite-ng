@@ -25,10 +25,10 @@ class Criterion(models.Model):
     def info():
         raise NotImplementedError("This property has to be implemented.")
 
-    def evaluate(self, answer, rules_pk):
+    def __iter__(self):
         raise NotImplementedError("This property has to be implemented.")
 
-    def serialize(self, rules_pk):
+    def evaluate(self, answer, rules_pk):
         raise NotImplementedError("This property has to be implemented.")
 
     def save(self, *args, **kwargs):
@@ -51,12 +51,13 @@ class Criterion(models.Model):
 
 
 class CriterionRules(models.Model):
-    def __iter__(self):
-        return (
-            (field.name, getattr(self, field.name))
-            for field in self.__class__._meta.get_fields()
-        )
-
     @staticmethod
     def get_or_create(*args, **kwargs):
         raise NotImplementedError("This property has to be implemented.")
+
+    def __iter__(self):
+        return iter(
+            (field.name, getattr(self, field.name))
+            for field in self.__class__._meta.get_fields()
+            if field.name != "id" and not field.name.endswith("ptr")
+        )

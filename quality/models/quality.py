@@ -38,7 +38,9 @@ class Quality(models.Model):
         criterions_ = [
             {
                 "criterion": (
-                    get_criterion(c.name).objects.get(version=c.version)
+                    get_criterion(c.name)["criterion"].objects.get(
+                        version=c.version
+                    )
                 ),
                 "weight": c.weight,
             }
@@ -60,15 +62,41 @@ class Quality(models.Model):
         ) / sum(q["weight"] for q in qualities)
         return quality, qualities
 
+    def add_criterion(self, name):
+        if name not in [c.name for c in self.available]:
+            msg = "The criterion {} isn't available for quality {}.".format(
+                name, self.pk
+            )
+            logger.error(msg)
+            raise ValueError(msg)
+
+        criterion_class = get_criterion(name)
+
+        rules = criterion_class["rules"].get_or_create()
+
+        UsesCriterion.objects.create(
+            quality=self,
+            name=name,
+            version=criterion_class["criterion"]
+            .objects.filter(for_quality_types=self.quality_type)
+            .last(),
+            rules=rules.pk,
+            weight=1,
+        )
+
     @property
     def available(self):
         return [
-            criterion.info()
+            criterion
             for criterion in criterions.values()
             if criterion.objects.filter(
                 for_quality_types=self.quality_type
             ).exists()
         ]
+
+    @property
+    def available_info(self):
+        return [criterion.info() for criterion in self.available]
 
 
 class UsesCriterion(models.Model):
@@ -78,34 +106,19 @@ class UsesCriterion(models.Model):
     rules = models.PositiveIntegerField()
     weight = models.PositiveIntegerField()
 
-    def save(self, *args, **kwargs):
-        """
-        Saves the new criterion making sure only one exists for each criterion
-        `name` and the given `name` and version correspond to a criterion.
-
-        Raises
-        ------
-        ValueError
-            If either the `name` or `version` correspond to a non-existing
-            criterion
-        """
-        criterion = get_criterion(self.name)
-        if self.version >= criterion.objects.count():
-            logger.error(
-                "The criterion %s doesn't have a version %d.",
-                self.name,
-                self.version,
-            )
-            raise ValueError(
-                "The used criterion has an invalid name or version."
-            )
-        UsesCriterion.objects.filter(
-            quality=self.quality, name=self.name
-        ).delete()
-        super(UsesCriterion, self).save(*args, **kwargs)
-
     def __iter__(self):
-        criterion = get_criterion(self.name).objects.get(version=self.version)
-        data = criterion.serialize(self.rules)
+        criterion_class = get_criterion(self.name)
+        criterion = criterion_class["criterion"].objects.get(
+            version=self.version
+        )
+        rules = criterion_class["rules"].objects.get(pk=self.rules)
+        data = dict(criterion)
+        data.update(
+            {
+                key: value
+                for key, value in dict(rules).items()
+                if key in criterion.rules
+            }
+        )
         data.update({"weight": self.weight})
         return ((field, value) for field, value in data.items())

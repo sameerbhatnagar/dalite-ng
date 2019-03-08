@@ -1,11 +1,25 @@
 import logging
 
-from .criterions import MinCharsCriterion, MinWordsCriterion
+from .criterions import (
+    MinCharsCriterion,
+    MinCharsCriterionRules,
+    MinWordsCriterion,
+    MinWordsCriterionRules,
+)
 from .errors import CriterionDoesNotExistError
 
 logger = logging.getLogger("quality")
 
-criterions = {"min_words": MinWordsCriterion, "min_chars": MinCharsCriterion}
+criterions = {
+    "min_words": {
+        "criterion": MinWordsCriterion,
+        "rules": MinWordsCriterionRules,
+    },
+    "min_chars": {
+        "criterion": MinCharsCriterion,
+        "rules": MinCharsCriterionRules,
+    },
+}
 
 
 def get_criterion(criterion):

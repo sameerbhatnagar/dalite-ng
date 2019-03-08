@@ -33,3 +33,4 @@ def test_dict(min_words_rules):
 
     data = dict(min_words_rules)
     assert data["min_words"] == 3
+    assert len(data) == 1

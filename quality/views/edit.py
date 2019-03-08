@@ -127,4 +127,21 @@ def index(req):
 @login_required
 @require_POST
 def add_criterion(req):
-    pass
+    """
+    Adds the given criterion to the quality with the given parameters.
+
+    Returns
+    -------
+    HttpResponse
+        Either a JsonResponse with the criterion data or an error response
+    """
+    try:
+        quality_pk = req.JSON["quality"]
+        criterion_name = req.JSON["criterion"]
+    except KeyError as e:
+        return response_400(
+            req,
+            msg=_("There are missing parameters."),
+            logger_msg=("The arguments '%s' were missing.", ",".join(e.args)),
+            log=logger.warning,
+        )

@@ -33,3 +33,4 @@ def test_dict(min_chars_rules):
 
     data = dict(min_chars_rules)
     assert data["min_chars"] == 3
+    assert len(data) == 1

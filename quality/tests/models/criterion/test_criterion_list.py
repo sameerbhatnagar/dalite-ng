@@ -1,17 +1,18 @@
 import pytest
 
-from quality.models import Criterion
+from quality.models import Criterion, CriterionRules
 from quality.models.criterion import get_criterion
 from quality.models.criterion.errors import CriterionDoesNotExistError
 
 
 def test_get_criterion():
-    criterions = ("min_words",)
+    criterions = ("min_words", "min_chars")
     for criterion in criterions:
         criterion_ = get_criterion(criterion)
-        assert issubclass(criterion_, Criterion)
-        assert hasattr(criterion_, "name")
-        assert hasattr(criterion_, "evaluate")
+        assert issubclass(criterion_["criterion"], Criterion)
+        assert hasattr(criterion_["criterion"], "name")
+        assert hasattr(criterion_["criterion"], "evaluate")
+        assert issubclass(criterion_["rules"], CriterionRules)
 
 
 def test_get_criterion__wrong():
