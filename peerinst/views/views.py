@@ -3260,9 +3260,11 @@ def research_discipline_question_index(
 ):
     template = "peerinst/research/question_index.html"
 
+    annotator = get_object_or_404(User, username=request.user)
+
     question_annotation_counts = get_question_annotation_counts(
         discipline_title=discipline_title,
-        annotator=request.user,
+        annotator=annotator,
         assignment_id=assignment_id,
     )
 
@@ -3270,6 +3272,10 @@ def research_discipline_question_index(
         "questions": question_annotation_counts,
         "discipline_title": discipline_title,
         "assignment_id": assignment_id,
+        "annotations_count": AnswerAnnotation.objects.filter(
+            annotator=annotator, score__isnull=False
+        ).count(),
+        "annotator": annotator,
     }
     return render(request, template, context)
 
@@ -3339,6 +3345,13 @@ def research_question_answer_list(
         "discipline_title": discipline_title,
         "question_pk": question_pk,
         "assignment_id": assignment_id,
+        "annotations_count": AnswerAnnotation.objects.filter(
+            annotator=annotator,
+            score__isnull=False,
+            answer__question_id=question_pk,
+            answer__first_answer_choice=answerchoice_id,
+        ).count(),
+        "annotator": annotator,
     }
     return render(request, template, context)
 

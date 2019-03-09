@@ -2,7 +2,14 @@
 
 {% load staticfiles compress i18n %}
 
-
+{% block stylesheets %}
+<style>
+  td {
+    border: 1px solid rgb(190,190,190);
+    padding: 10px;
+  }
+</style>
+{% endblock %}
 {% block body %}
 <main>
   <section>
@@ -18,7 +25,7 @@
     {% endif %}
 </div>
 
-Rationale<br>
+ID - Rationale<br>
 score1, score2, etc...<br>
 
 (Hover on a score to see the username of annotator)
@@ -29,7 +36,7 @@ score1, score2, etc...<br>
 <li>
     <ul>
       {% for a in answerchoice_data.annotations %}
-        <li>{{ a.answer.rationale }}:
+        <li>{{ a.answer.pk}} : {{ a.answer.rationale }}:
           <table>
           <tr>
             {% for s in a.scores %}
