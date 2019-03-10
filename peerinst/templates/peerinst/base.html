@@ -66,7 +66,7 @@
                alt="site-logo"
                id="logo">
         </a>
-        {% if not user.student and not lti %}
+        {% if not user.student and not request.session.LTI  %}
         <a href="{% url 'browse-database' %}">
           {% include 'peerinst/custom-instance-header.html' %}
         </a>
@@ -76,7 +76,7 @@
       </div>
     </div>
     <div id="header-right">
-      {% if user.is_authenticated and user.student and not lti%}
+      {% if user.is_authenticated and user.student and not request.session.LTI %}
       <div class="header">
         {% include 'peerinst/student/header/notifications.html' %}
       </div>
