@@ -109,7 +109,7 @@ export function processResponse() {
           "</svg>" +
           "</div>" +
           "<div class='mdc-chip__text'>" +
-          "d.slice(1, -1)" +
+          d.slice(1, -1) +
           "</div>" +
           "</div>",
       );
@@ -141,7 +141,7 @@ export function processResponse() {
             "</svg>" +
             "</div>" +
             "<div class='mdc-chip__text'>" +
-            "list[i]" +
+            list[i] +
             "</div>" +
             "</div>",
         );
