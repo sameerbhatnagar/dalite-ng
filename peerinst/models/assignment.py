@@ -26,7 +26,8 @@ class Assignment(models.Model):
         max_length=100,
         help_text=_(
             "A unique identifier for this assignment used for inclusion in a "
-            "course."
+            "course.  Only use letters, numbers and/or the underscore for the "
+            "identifier."
         ),
         validators=[validators.validate_slug],
     )
