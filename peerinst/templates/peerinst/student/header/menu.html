@@ -2,10 +2,37 @@
 
 {% if request.session.LTI %}
 
-<a href="{% url 'tos:tos_modify' 'student' %}?next={{ request.path }}"
-   title="{% trans 'Terms of Service' %}">
-  <i class="icon ion-md-settings"></i>
-</a>
+<i id="menu-icon" class="material-icons md-32 header-icon">menu</i>
+<aside class="mdc-drawer mdc-drawer--temporary mdc-typography">
+  <nav class="mdc-drawer__drawer">
+
+    <nav id="icon-with-text-demo" class="mdc-drawer__content mdc-list">
+      <a class="mdc-list-item" href="{% url 'tos:tos_modify' 'student' %}?next={{ request.path }}">
+        <i class="material-icons mdc-list-item__graphic mdc-theme--primary"
+           aria-hidden="true">
+          settings
+        </i>
+        {% trans 'Terms of service' %}
+      </a>
+
+
+      <a style='visibility: hidden;' class="mdc-list-item" href="{% url 'logout' %}" id='logout-no-iframe'>
+        <i class="material-icons mdc-list-item__graphic mdc-theme--primary"
+           aria-hidden="true">
+          logout
+        </i>
+        {% trans 'Logout' %}
+      </a>
+    </nav>
+
+  </nav>
+</aside>
+
+<script>
+if (parent == window) {
+  document.getElementById('logout-no-iframe').style.visibility = 'visible';
+}
+</script>
 
 {% else %}
 
