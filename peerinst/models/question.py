@@ -165,9 +165,8 @@ class Question(models.Model):
     category = models.ManyToManyField(
         Category,
         _("Categories"),
-        blank=True,
         help_text=_(
-            "Optional. Select categories for this question. You can select "
+            "Select at least one category for this question. You can select "
             "multiple categories."
         ),
     )
