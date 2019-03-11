@@ -134,3 +134,25 @@
   </div>
   {% endif %}
 {% endfor %}
+
+{% for r in search_results|dictsortreversed:"count" %}
+  {% if forloop.first %}
+    {% if r.count > 0 %}
+      <div class="pagination">
+          <span>
+              {% if paginator.has_previous %}
+                  <span class="search-nav" onclick="pageNav({{ paginator.previous_page_number }})"><i class="icon ion-ios-arrow-back"></i></span>
+              {% endif %}
+
+              <span class="current">
+                  {% trans 'Page' %} {{ paginator.number }} / {{ paginator.paginator.num_pages }}
+              </span>
+
+              {% if paginator.has_next %}
+                  <span class="search-nav" onclick="pageNav({{ paginator.next_page_number }})"><i class="icon ion-ios-arrow-forward"></i></span>
+              {% endif %}
+          </span>
+      </div>
+    {% endif %}
+  {% endif %}
+{% endfor %}

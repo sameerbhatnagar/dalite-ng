@@ -205,6 +205,7 @@ class AssignmentMultiselectForm(forms.Form):
 
         self.fields["assignments"] = forms.ModelMultipleChoiceField(
             queryset=queryset,
+            required=False,
             label=_("Assignments"),
             help_text=_(
                 "Optional. Select assignments to add this question. You can "

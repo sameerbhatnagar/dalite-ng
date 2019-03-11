@@ -165,9 +165,8 @@ class Question(models.Model):
     category = models.ManyToManyField(
         Category,
         _("Categories"),
-        blank=True,
         help_text=_(
-            "Optional. Select categories for this question. You can select "
+            "Select at least one category for this question. You can select "
             "multiple categories."
         ),
     )
@@ -349,15 +348,20 @@ class Question(models.Model):
 
         return matrix
 
-    def get_frequency(self):
+    def get_frequency(self, all_rationales=False):
         choice1 = {}
         choice2 = {}
         frequency = {}
-        student_answers = (
-            self.answer_set.filter(expert=False)
-            .filter(first_answer_choice__gt=0)
-            .filter(second_answer_choice__gt=0)
-        )
+        if all_rationales:
+            # all rationales, including those enetered as samples by teachers
+            student_answers = self.answer_set.filter(first_answer_choice__gt=0)
+        else:
+            # only rationales enetered by students
+            student_answers = (
+                self.answer_set.filter(expert=False)
+                .filter(first_answer_choice__gt=0)
+                .filter(second_answer_choice__gt=0)
+            )
         c = 1
         for answerChoice in self.answerchoice_set.all():
             label = (
@@ -381,6 +385,15 @@ class Question(models.Model):
         frequency[str("second_choice")] = choice2
 
         return frequency
+
+    def get_frequency_json(self, choice_index_name):
+        frequency_dict = self.get_frequency(all_rationales=True)[
+            choice_index_name
+        ]
+        return [
+            {"answer_label": key, "frequency": value}
+            for key, value in frequency_dict.items()
+        ]
 
     class Meta:
         verbose_name = _("question")
