@@ -1,6 +1,7 @@
 "use strict";
 
 import { buildReq } from "../../../../../peerinst/static/peerinst/js/_ajax/utils.js"; // eslint-disable-line
+import { createInput } from "../utils.js";
 
 /*********/
 /* model */
@@ -77,14 +78,67 @@ function criterionView(criterion) {
 
   const name = document.createElement("div");
   name.classList.add("criterion--name");
-  name.textContent = criterion.name;
+  name.textContent = criterion.full_name;
+  name.addEventListener("click", () => toggleCriterionOptions(div));
   div.appendChild(name);
 
   const options = document.createElement("div");
   options.classList.add("criterion--options");
   div.appendChild(options);
 
+  // const versionLabel = document.createElement("label");
+  // versionLabel.textContent = "Version:";
+  // const version = document.createElement("select");
+  // const versions = [document.createElement("option")];
+  // versions[0].value = 0;
+  // versions[0].textContent = "0 (latest)";
+  // versions.forEach(v => {
+  // version.appendChild(v);
+  // });
+  // options.appendChild(versionLabel);
+  // options.appendChild(version);
+  //
+  const weightLabel = document.createElement("label");
+  weightLabel.textContent = "Weight:";
+  const weight = document.createElement("input");
+  weight.type = "number";
+  weight.min = 0;
+  weight.value = criterion.weight;
+  options.appendChild(weightLabel);
+  options.appendChild(weight);
+
+  const otherOptions = Object.keys(criterion).filter(
+    o =>
+      ![
+        "description",
+        "full_name",
+        "is_beta",
+        "name",
+        "version",
+        "versions",
+        "weight",
+      ].includes(o),
+  );
+  otherOptions.forEach(o => {
+    const option = criterion[o];
+    const label = document.createElement("label");
+    label.textContent = `${option.full_name}:`;
+    label.title = option.description;
+    const input = createInput(option.type);
+    input.value = option.value;
+    options.appendChild(label);
+    options.appendChild(input);
+  });
+
   return div;
+}
+
+function toggleCriterionOptions(criterion) {
+  if (criterion.classList.contains("criterion__showing")) {
+    criterion.classList.remove("criterion__showing");
+  } else {
+    criterion.classList.add("criterion__showing");
+  }
 }
 
 function newCriterionsView() {

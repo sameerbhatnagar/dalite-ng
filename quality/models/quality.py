@@ -141,7 +141,7 @@ class UsesCriterion(models.Model):
         )
         rules = criterion_class["rules"].objects.get(pk=self.rules)
         data = dict(criterion)
-        print(data)
+        print(dict(rules))
         data.update(
             {
                 key: value

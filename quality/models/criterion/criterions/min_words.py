@@ -24,7 +24,10 @@ class MinWordsCriterion(Criterion):
 
 
 class MinWordsCriterionRules(CriterionRules):
-    min_words = models.PositiveIntegerField()
+    min_words = models.PositiveIntegerField(
+        verbose_name="Min words",
+        help_text="The minimum number of words needed by a rationale.",
+    )
 
     @staticmethod
     def get_or_create(min_words=0):

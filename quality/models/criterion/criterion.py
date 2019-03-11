@@ -14,7 +14,8 @@ class Criterion(models.Model):
     uses_rules = models.TextField(
         blank=True,
         help_text="Comma separated list of used rules for the criterion "
-        "found as the fields of the associated rules object.",
+        "found as the fields of the associated rules object. Make sure to use "
+        "the verbose_name",
     )
     is_beta = models.BooleanField(default=False)
     for_quality_types = models.ManyToManyField(QualityType)
@@ -35,14 +36,14 @@ class Criterion(models.Model):
         to combine them.
         """
         return chain(
-            self.__class__.info().items(),
-            iter(
-                (
-                    ("version", self.version),
-                    ("versions", self.__class__.objects.count()),
-                    ("is_beta", self.is_beta),
-                )
-            ),
+            self.__class__.info().iteritems(),
+            {
+                "version": self.version,
+                "versions": [
+                    {"version": version.version, "is_beta": version.is_beta}
+                    for version in self.__class__.objects.all()
+                ],
+            }.iteritems(),
         )
 
     def evaluate(self, answer, rules_pk):
@@ -73,8 +74,27 @@ class CriterionRules(models.Model):
         raise NotImplementedError("This property has to be implemented.")
 
     def __iter__(self):
-        return iter(
-            (field.name, getattr(self, field.name))
+        print(
+            {
+                field.name: {
+                    "name": field.name,
+                    "full_name": field.verbose_name,
+                    "description": field.help_text,
+                    "value": getattr(self, field.name),
+                    "type": field.get_internal_type(),
+                }
+                for field in self.__class__._meta.get_fields()
+                if field.name != "id" and not field.name.endswith("ptr")
+            }.iteritems()
+        )
+        return {
+            field.name: {
+                "name": field.name,
+                "full_name": field.verbose_name,
+                "description": field.help_text,
+                "value": getattr(self, field.name),
+                "type": field.get_internal_type(),
+            }
             for field in self.__class__._meta.get_fields()
             if field.name != "id" and not field.name.endswith("ptr")
-        )
+        }.iteritems()

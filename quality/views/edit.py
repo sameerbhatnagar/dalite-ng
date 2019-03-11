@@ -112,10 +112,6 @@ def index(req):
         if isinstance(assignment, HttpResponse):
             return assignment
 
-    print(
-        [dict(criterion) for criterion in assignment.quality.criterions.all()]
-    )
-
     data = {
         "quality": dict(assignment.quality),
         "next": next_,

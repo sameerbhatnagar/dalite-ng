@@ -2,7 +2,69 @@
 @import "../../../../../peerinst/static/peerinst/css/functions";
 
 #criterions {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
   min-height: 100px;
+}
+
+.criterion {
+  border-radius: 20px;
+
+  & .criterion--name {
+    align-items: center;
+    background: $mdc-theme-primary;
+    border-radius: 20px;
+    color: text-color(light, primary);
+    cursor: pointer;
+    display: flex;
+    font-size: 20px;
+    height: 40px;
+    justify-content: center;
+    padding: 0 20px;
+    transition: border-radius 300ms;
+  }
+  & .criterion--options {
+    align-items: center;
+    background: rgba($mdc-theme-primary, 0.1);
+    border: 1px solid $mdc-theme-primary;
+    border-radius: 0 0 20px 20px;
+    display: grid;
+    font-size: 16px;
+    grid-auto-rows: 40px;
+    grid-template-columns: repeat(2, max-content);
+    padding: 10px 20px;
+    transform: scale(0.75, 0);
+    transform-origin: center top;
+    transition: transform 300ms;
+
+    & label {
+      margin-right: 10px;
+    }
+
+    & input {
+      border: 1px solid #dddddd;
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: inherit;
+      height: 20px;
+      padding: 2px 10px;
+    }
+
+    & input[type="number"] {
+      width: 50px;
+    }
+  }
+
+  &.criterion__showing {
+    & .criterion--name {
+      border-radius: 20px 20px 0 0;
+    }
+
+    & .criterion--options {
+      transform: scale(1, 1);
+    }
+  }
 }
 
 .add-criterion {
@@ -34,7 +96,7 @@
 
     &:disabled {
       cursor: default;
-      opacity: 0.8;
+      opacity: 0.5;
 
       &:hover {
         background: $mdc-theme-primary;
