@@ -3322,11 +3322,15 @@ def research_question_answer_list(
             ).exists():
                 annotation.delete()
 
-    queryset = AnswerAnnotation.objects.filter(
-        answer__question_id=question_pk,
-        annotator=annotator,
-        answer__first_answer_choice=answerchoice_id,
-    ).order_by("answer__first_answer_choice", "answer__datetime_second")
+    queryset = (
+        AnswerAnnotation.objects.filter(
+            answer__question_id=question_pk,
+            annotator=annotator,
+            answer__first_answer_choice=answerchoice_id,
+        )
+        .annotate(times_shown=Count("answer__shown_answer"))
+        .order_by("answer__first_answer_choice", "-times_shown")
+    )
 
     AnswerAnnotationFormset = modelformset_factory(
         AnswerAnnotation, fields=("score",), extra=0
