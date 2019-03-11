@@ -22,12 +22,47 @@
 {% block body %}
 <main>
 <section>
+
   <div class="sticky-header mdc-theme--background">
     <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Question' %}: {{ question.title|safe }}</h2>
 
+
     <div class="admin-link">
-      <a href="{% url 'research-discipline-question-index' discipline_title=discipline_title %}">{% trans 'Back to Question List' %}</a>
-      <span style="padding-left:0.3em;padding-right:0.5em;">|</span><a href="{% url 'browse-database' %}">{% trans 'Back to Browse' %}</a>
+      {% if discipline_title %}
+          <a href="{% url 'research-discipline-question-index-by-discipline' discipline_title=discipline_title %}#{{ question.pk }}">{% trans 'Back to Question List' %}</a>
+      {% elif assignment_id %}
+          <a href="{% url 'research-assignment-question-index-by-assignment' assignment_id=assignment_id %}#{{ question.pk }}">{% trans 'Back to Question List' %}</a>
+          <span style="padding-left:0.3em;padding-right:0.5em;">|</span><a href="{% url 'question-list' assignment_id=assignment_id %}">{% trans 'Back to Assignment' %}</a>
+      {% endif %}
+      <span style="padding-left:0.3em;padding-right:0.5em;">|</span> Number of rationales scored for this answer choice by {{ annotator }}: {{ annotations_count }}
+      <i id="activate-dialog" class="material-icons md-24 mdc-ripple-surface icon-list">info</i>
+        <aside id="dialog"
+          class="mdc-dialog"
+          role="alertdialog"
+          aria-labelledby="assignment-parameters-label"
+          aria-describedby="assignment-parameters-description">
+          <div class="mdc-dialog__surface">
+            <header class="mdc-dialog__header">
+              <h2 id="assignment-parameters-label" class="mdc-dialog__header__title">
+                {% trans 'Scoring Rationales' %}
+              </h2>
+            </header>
+            <section id="assignment-parameters-description" class="mdc-dialog__body mdc-dialog__body--scrollable">
+              <p class="mdc-typography--body1">{% blocktrans %}Please use the table below to score the rationales for this answer choice to this question.<br><br>
+                These rationales will be shown to students (hover on the text to see how many times they have already been shown).<br><br>
+                The goal here is to score based on how <em>convincing</em> the rationale is, <em>even if it is for the wrong answer!</em><br><br>
+                As a subject matter expert, your scores will help determine what rationales get shown to future students.<br><br>
+                Thank you for your contribution in helping maintain the database!<br><br>
+                - The SALTISE/S4 Team{% endblocktrans %}</p>
+
+            </section>
+            <footer class="mdc-dialog__footer">
+              <button type="button" class="mdc-button mdc-dialog__footer__button mdc-dialog__footer__button--accept">Ok</button>
+            </footer>
+          </div>
+          <div class="mdc-dialog__backdrop"></div>
+        </aside>
+
     </div>
 
     <input form="annotate-form" type="submit" class="mdc-button mdc-button--raised padded-bottom" value="Update Scores">
@@ -94,7 +129,6 @@
   <tr>
     <td>Answer</td>
     <td>Score</td>
-    <td>Show?</td>
     <td>Rationale</td>
   </tr>
 </thead>
@@ -105,8 +139,7 @@
     <tr>
       <td>{{ form.instance.answer.first_answer_choice_label }}</td>
       <td>{{ form.score }}</td>
-      <td title="{{form.instance.answer.pk}}">{{ form.instance.answer.show_to_others }}</td>
-      <td>{{ form.instance.answer.rationale }}</td>
+      <td title="id:{{ form.instance.answer.pk }};  times shown: {{ form.instance.times_shown }} ">{{ form.instance.answer.rationale }}</td>
     </tr>
   {% endfor %}
 </tbody>
@@ -124,5 +157,6 @@
   $(".mdc-icon-toggle").each(function() {
       bundle.iconToggle.MDCIconToggle.attachTo(this);
   });
+  bundle.addDialog();
 </script>
 {% endblock %}
