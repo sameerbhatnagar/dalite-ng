@@ -32,12 +32,12 @@ class Command(BaseCommand):
 
         event_logs = LtiEvent.objects.filter(
             timestamp__gte=min_date, timestamp__lte=max_date
-        ).values_list("event_log", flat=True)
-        print(len(event_logs))
+        )
+        # print(len(event_logs))
         print("start loading shown rationales")
         print(str(datetime.datetime.now()))
         for e in event_logs.iterator():
-            e_json = json.loads(e)
+            e_json = json.loads(e["event_log"])
             if e_json["event_type"] == "save_problem_success":
 
                 try:
@@ -61,7 +61,8 @@ class Command(BaseCommand):
                                 shown_for_answer=shown_for_answer,
                             )
                             if created:
-                                print(obj.shown_for_answer, obj.shown_answer)
+                                pass
+                                # print(obj.shown_for_answer, obj.shown_answer)
                     except KeyError:
                         print("No Rationales")
                         print(e_json)
