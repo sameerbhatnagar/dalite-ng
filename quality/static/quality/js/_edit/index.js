@@ -134,6 +134,7 @@ function criterionView(criterion) {
   const name = document.createElement("div");
   name.classList.add("criterion--name");
   name.textContent = criterion.full_name;
+  name.title = criterion.description;
   name.addEventListener("click", () => toggleCriterionOptions(div));
   div.appendChild(name);
 
