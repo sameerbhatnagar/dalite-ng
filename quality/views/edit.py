@@ -14,7 +14,7 @@ from django.views.decorators.http import require_POST, require_safe
 from dalite.views.errors import response_400, response_403
 from peerinst.models import StudentGroupAssignment, Teacher
 
-from ..models import Quality, QualityType
+from ..models import Quality, QualityType, UsesCriterion
 from .decorators import logged_in_non_student_required
 
 logger = logging.getLogger("quality")
@@ -130,7 +130,12 @@ def index(req):
 @require_POST
 def add_criterion(req):
     """
-    Adds the given criterion to the quality with the given parameters.
+    Adds the given criterion to the quality with the given parameters. The
+    request must have parameters:
+        quality : int
+            Primary key of the quality
+        criterion : str
+            Name of the criterion
 
     Returns
     -------
@@ -184,3 +189,69 @@ def add_criterion(req):
         )
 
     return JsonResponse(dict(criterion))
+
+
+@login_required
+@require_POST
+def update_criterion(req):
+    """
+    Mofieds the criterion for the quality. The request must have parameters:
+        quality : int
+            Primary key of the quality
+        criterion : str
+            Name of the criterion
+        field : str
+            Name of the field to update
+        value : Any
+            New value for the field
+
+    Returns
+    -------
+    HttpResponse
+        Either a JsonResponse with the criterion data or an error response
+    """
+    try:
+        data = json.loads(req.body)
+    except ValueError:
+        return response_400(
+            req,
+            msg=_("Wrong data type was sent."),
+            logger_msg=("The sent data wasn't in a valid JSON format."),
+            log=logger.warning,
+        )
+    try:
+        quality_pk = data["quality"]
+        criterion_name = data["criterion"]
+        field = data["field"]
+        value = data["value"]
+    except KeyError as e:
+        return response_400(
+            req,
+            msg=_("There are missing parameters."),
+            logger_msg=(
+                "The arguments {} were missing.".format(", ".join(e.args))
+            ),
+            log=logger.warning,
+        )
+
+    try:
+        quality = Quality.objects.get(pk=quality_pk)
+    except Quality.DoesNotExist:
+        return response_400(
+            req,
+            msg=_("Some of the parameters were wrong."),
+            logger_msg=(
+                "There isn't any quality with key {}.".format(quality_pk)
+            ),
+            log=logger.warning,
+        )
+
+    try:
+        criterion = quality.update_criterion(criterion_name, field, value)
+    except Exception as e:
+        return response_400(
+            req,
+            msg=_("There was an error updating the criterion."),
+            logger_msg=(e.message),
+            log=logger.warning,
+        )

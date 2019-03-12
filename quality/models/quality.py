@@ -113,6 +113,48 @@ class Quality(models.Model):
             quality=self, name=name, version=version, rules=rules.pk, weight=1
         )
 
+    def update_criterion(self, name, field, value):
+        """
+        Modifies the given criterion field with value.
+
+        Parameters
+        ----------
+        name : str
+            Name of the criterion
+        field : str
+            Field to modify
+        value : Any
+            New value
+
+        Returns
+        -------
+        UsesCriterion
+            Updated criterion
+
+        Raises
+        ------
+        ValueError
+            If the given field doesn't exist
+        UsesCriterion.DoesNotExist
+            If there is no used criterio with the given name
+        """
+        try:
+            criterion = UsesCriterion.objects.get(quality=self, name=name)
+        except UsesCriterion.DoesNotExist:
+            raise UsesCriterion.DoesNotExist(
+                "There is no criterion with name {}.".format(name)
+            )
+
+        if field in ("version", "weight"):
+            setattr(criterion, field, value)
+        else:
+            rules = get_criterion(name)["rules"].objects.get(
+                pk=criterion.rules
+            )
+            setattr(rules, field, value)
+
+        return criterion
+
     @property
     def available(self):
         return [
