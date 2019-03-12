@@ -36,10 +36,10 @@ class Command(BaseCommand):
 
         event_logs = LtiEvent.objects.filter(
             timestamp__gte=min_date, timestamp__lte=max_date
-        ).values_list("event_log", flat=True)
+        )
         print("Start loading shown rationales")
         for i, e in enumerate(event_logs.iterator()):
-            e_json = json.loads(e)
+            e_json = json.loads(e["event_log"])
             if e_json["event_type"] == "save_problem_success":
 
                 try:
