@@ -21,3 +21,4 @@ tags
 pytest-logs.txt
 *.ipynb_checkpoints/
 *.ipynb
+scripts/
