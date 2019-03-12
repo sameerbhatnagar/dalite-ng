@@ -1,10 +1,10 @@
-import json
 import datetime
+import json
 import logging
 
 from django.core.management.base import BaseCommand
 
-from peerinst.models import Answer, ShownRationale, LtiEvent
+from peerinst.models import Answer, LtiEvent, ShownRationale
 
 LOGGER = logging.getLogger("peerinst")
 
@@ -36,7 +36,7 @@ class Command(BaseCommand):
         print(len(event_logs))
         print("start loading shown rationales")
         print(str(datetime.datetime.now()))
-        for e in event_logs:
+        for e in event_logs.iterator():
             e_json = json.loads(e)
             if e_json["event_type"] == "save_problem_success":
 
