@@ -87,7 +87,7 @@ function get(url,callback) {
       }
       else {
         // Strip any html
-        callback(jQuery(request.responseText).text());
+        callback(request.responseText);
       }
     }
   }
