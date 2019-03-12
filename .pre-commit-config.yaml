@@ -1,4 +1,4 @@
-exclude: "^$"
+exclude: "/tinymce/*"
 fail_fast: false
 repos:
   - repo: https://github.com/ambv/black
