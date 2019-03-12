@@ -87,7 +87,7 @@ function get(url,callback) {
       }
       else {
         // Strip any html
-        callback(jQuery(request.responseText).text());
+        callback(request.responseText);
       }
     }
   }
@@ -179,7 +179,7 @@ function update_time(){
       bundle.select("#reset_button").style('display','inline');
       bundle.select("#next_button").style('display','inline');
       // Close the question if authenticated, otherwise get results and start checking for redirect
-      if ({{request.user.is_authenticated|lower}}){
+      if ({{request.user.is_authenticated|yesno:"true,false"}}){
         changeQuestionState("{% url 'blink-close' pk=object.pk %}",false,getResults);
       }
       else {
@@ -261,7 +261,7 @@ function showResults(data){
   .attr("width",x.bandwidth())
   .attr("height",0)
   .attr("opacity",function(d){
-    if ({{request.user.is_authenticated|lower}}) {
+    if ({{request.user.is_authenticated|yesno:"true,false"}}) {
       return 1;
     }
     else {

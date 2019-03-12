@@ -50,10 +50,12 @@
 {% if not request.user.is_authenticated %}
 <script>
 function processResponse(text, status, obj) {
-  var response = jQuery(text).text();
-  console.info(response);
+  console.info(text);
   console.info(status);
   console.info(obj);
+
+  var response = text;
+  console.info(response);
 
   if (response != 'stop') {
     if (status == 'success' & window.location.pathname != response) {
