@@ -74,19 +74,6 @@ class CriterionRules(models.Model):
         raise NotImplementedError("This property has to be implemented.")
 
     def __iter__(self):
-        print(
-            {
-                field.name: {
-                    "name": field.name,
-                    "full_name": field.verbose_name,
-                    "description": field.help_text,
-                    "value": getattr(self, field.name),
-                    "type": field.get_internal_type(),
-                }
-                for field in self.__class__._meta.get_fields()
-                if field.name != "id" and not field.name.endswith("ptr")
-            }.iteritems()
-        )
         return {
             field.name: {
                 "name": field.name,

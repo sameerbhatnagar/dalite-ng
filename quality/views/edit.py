@@ -14,7 +14,7 @@ from django.views.decorators.http import require_POST, require_safe
 from dalite.views.errors import response_400, response_403
 from peerinst.models import StudentGroupAssignment, Teacher
 
-from ..models import Quality, QualityType, UsesCriterion
+from ..models import Quality, QualityType
 from .decorators import logged_in_non_student_required
 
 logger = logging.getLogger("quality")
@@ -120,7 +120,11 @@ def index(req):
             dict(criterion)
             for criterion in assignment.quality.criterions.all()
         ],
-        "urls": {"add_criterion": reverse("quality:add-criterion")},
+        "urls": {
+            "add_criterion": reverse("quality:add-criterion"),
+            "update_criterion": reverse("quality:update-criterion"),
+            "remove_criterion": reverse("quality:remove-criterion"),
+        },
     }
 
     return render(req, "quality/edit/index.html", {"data": json.dumps(data)})
@@ -188,6 +192,10 @@ def add_criterion(req):
             log=logger.warning,
         )
 
+    logger.info(
+        "Criterion %s was added to quality %d.", criterion_name, quality_pk
+    )
+
     return JsonResponse(dict(criterion))
 
 
@@ -247,7 +255,9 @@ def update_criterion(req):
         )
 
     try:
-        criterion = quality.update_criterion(criterion_name, field, value)
+        criterion, old_value = quality.update_criterion(
+            criterion_name, field, value
+        )
     except Exception as e:
         return response_400(
             req,
@@ -255,3 +265,73 @@ def update_criterion(req):
             logger_msg=(e.message),
             log=logger.warning,
         )
+
+    logger.info(
+        "Field %s for criterion %s in quality %d updated from %s to %s.",
+        field,
+        criterion_name,
+        quality_pk,
+        old_value,
+        value,
+    )
+
+    return JsonResponse(dict(criterion))
+
+
+@login_required
+@require_POST
+def remove_criterion(req):
+    """
+    REmoves the given criterion to the quality with the given parameters. The
+    request must have parameters:
+        quality : int
+            Primary key of the quality
+        criterion : str
+            Name of the criterion
+
+    Returns
+    -------
+    HttpResponse
+        Either an empty HttpResponse or an error response
+    """
+    try:
+        data = json.loads(req.body)
+    except ValueError:
+        return response_400(
+            req,
+            msg=_("Wrong data type was sent."),
+            logger_msg=("The sent data wasn't in a valid JSON format."),
+            log=logger.warning,
+        )
+    try:
+        quality_pk = data["quality"]
+        criterion_name = data["criterion"]
+    except KeyError as e:
+        return response_400(
+            req,
+            msg=_("There are missing parameters."),
+            logger_msg=(
+                "The arguments {} were missing.".format(", ".join(e.args))
+            ),
+            log=logger.warning,
+        )
+
+    try:
+        quality = Quality.objects.get(pk=quality_pk)
+    except Quality.DoesNotExist:
+        return response_400(
+            req,
+            msg=_("Some of the parameters were wrong."),
+            logger_msg=(
+                "There isn't any quality with key {}.".format(quality_pk)
+            ),
+            log=logger.warning,
+        )
+
+    quality.remove_criterion(criterion_name)
+
+    logger.info(
+        "Criterion %s was removed from quality %d.", criterion_name, quality_pk
+    )
+
+    return HttpResponse()

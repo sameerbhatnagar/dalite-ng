@@ -130,10 +130,12 @@ class Quality(models.Model):
         -------
         UsesCriterion
             Updated criterion
+        Any
+            Previous value of the field
 
         Raises
         ------
-        ValueError
+        AttributeError
             If the given field doesn't exist
         UsesCriterion.DoesNotExist
             If there is no used criterio with the given name
@@ -146,14 +148,21 @@ class Quality(models.Model):
             )
 
         if field in ("version", "weight"):
+            old_value = getattr(criterion, field)
             setattr(criterion, field, value)
+            criterion.save()
         else:
             rules = get_criterion(name)["rules"].objects.get(
                 pk=criterion.rules
             )
+            old_value = getattr(rules, field)
             setattr(rules, field, value)
+            rules.save()
 
-        return criterion
+        return criterion, old_value
+
+    def remove_criterion(self, name):
+        UsesCriterion.objects.filter(quality=self, name=name).delete()
 
     @property
     def available(self):
@@ -183,7 +192,6 @@ class UsesCriterion(models.Model):
         )
         rules = criterion_class["rules"].objects.get(pk=self.rules)
         data = dict(criterion)
-        print(dict(rules))
         data.update(
             {
                 key: value
