@@ -172,9 +172,6 @@ class Quality(models.Model):
             if criterion["criterion"]
             .objects.filter(for_quality_types=self.quality_type)
             .exists()
-            and not UsesCriterion.objects.filter(
-                quality=self, name=criterion["criterion"].info()["name"]
-            ).exists()
         ]
 
 
