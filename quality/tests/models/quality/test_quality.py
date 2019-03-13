@@ -4,8 +4,21 @@ from __future__ import unicode_literals
 import mock
 import pytest
 
-from quality.models import UsesCriterion
+from quality.models import MinWordsCriterionRules, UsesCriterion
 from quality.tests.fixtures import *  # noqa
+
+
+def test_str(assignment_quality):
+    assert str(assignment_quality) == "{} for type assignment".format(
+        assignment_quality.pk
+    )
+
+
+def test_dict(assignment_quality):
+    data = dict(assignment_quality)
+    assert len(data) == 2
+    assert "pk" in data
+    assert "quality_type" in data
 
 
 def test_evaluate__no_criterions(assignment_quality):
@@ -116,6 +129,110 @@ def test_add_criterion__invalid_name(assignment_quality):
 
         with pytest.raises(ValueError):
             assignment_quality.add_criterion("test")
+
+
+def test_update_criterion__general_rule(assignment_quality):
+    UsesCriterion.objects.create(
+        quality=assignment_quality, name="test", version=0, rules=0, weight=1
+    )
+
+    criterion, old_value = assignment_quality.update_criterion(
+        "test", "version", 1
+    )
+    assert criterion.version == 1
+    assert (
+        UsesCriterion.objects.get(
+            quality=assignment_quality, name="test"
+        ).version
+        == 1
+    )
+    assert old_value == 0
+
+    criterion, old_value = assignment_quality.update_criterion(
+        "test", "weight", 2
+    )
+    assert criterion.weight == 2
+    assert (
+        UsesCriterion.objects.get(
+            quality=assignment_quality, name="test"
+        ).weight
+        == 2
+    )
+    assert old_value == 1
+
+
+def test_update_criterion__specific_rule(
+    assignment_quality, min_words_criterion, min_words_rules
+):
+    UsesCriterion.objects.create(
+        quality=assignment_quality,
+        name="min_words",
+        version=min_words_criterion.pk,
+        rules=min_words_rules.pk,
+        weight=1,
+    )
+    old_value_ = MinWordsCriterionRules.objects.get(
+        pk=min_words_rules.pk
+    ).min_words
+    criterion, old_value = assignment_quality.update_criterion(
+        "min_words", "min_words", old_value_ + 1
+    )
+
+    data = dict(criterion)
+    assert data["min_words"]["value"] == old_value_ + 1
+    assert (
+        MinWordsCriterionRules.objects.get(pk=min_words_rules.pk).min_words
+        == old_value_ + 1
+    )
+    assert old_value == old_value_
+
+
+def test_update_criterion__invalid_name(assignment_quality):
+    with pytest.raises(UsesCriterion.DoesNotExist):
+        assignment_quality.update_criterion("fake", "fake", None)
+
+
+def test_update_criterion__invalid_field(
+    assignment_quality, min_words_criterion, min_words_rules
+):
+    UsesCriterion.objects.create(
+        quality=assignment_quality,
+        name="min_words",
+        version=min_words_criterion.pk,
+        rules=min_words_rules.pk,
+        weight=1,
+    )
+    with pytest.raises(AttributeError):
+        assignment_quality.update_criterion("min_words", "fake", None)
+
+
+def test_remove_criterion(assignment_quality):
+    UsesCriterion.objects.create(
+        quality=assignment_quality, name="test", version=0, rules=0, weight=1
+    )
+    UsesCriterion.objects.create(
+        quality=assignment_quality, name="test2", version=0, rules=0, weight=1
+    )
+    assert (
+        UsesCriterion.objects.filter(quality=assignment_quality).count() == 2
+    )
+    assignment_quality.remove_criterion("test")
+    assert (
+        UsesCriterion.objects.filter(quality=assignment_quality).count() == 1
+    )
+
+
+def test_remove_criterion__doesnt_exist(assignment_quality):
+    UsesCriterion.objects.create(
+        quality=assignment_quality, name="test", version=0, rules=0, weight=1
+    )
+    assert (
+        UsesCriterion.objects.filter(quality=assignment_quality).count() == 1
+    )
+    assignment_quality.remove_criterion("fake")
+    assert (
+        UsesCriterion.objects.filter(quality=assignment_quality).count() == 1
+    )
 
 
 def test_available(assignment_quality):
