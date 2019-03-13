@@ -8,7 +8,18 @@ from collections import defaultdict, Counter
 
 
 from django.utils.safestring import mark_safe
-from django.db.models import Count, Value, Case, Q, When, CharField
+from django.db.models import (
+    Count,
+    Value,
+    Case,
+    Q,
+    When,
+    CharField,
+    DurationField,
+    F,
+    ExpressionWrapper,
+    Avg,
+)
 from peerinst.models import (
     Question,
     Assignment,
@@ -1059,3 +1070,20 @@ def load_shown_rationales_from_ltievent_logs(day_of_logs):
                     e_json["event"]["assignment_id"],
                 )
     return
+
+
+def get_average_time_spent_on_all_question_start(question_id):
+    expression = F("datetime_second") - F("datetime_start")
+    wrapped_expression = ExpressionWrapper(expression, DurationField())
+    try:
+        result = (
+            Answer.objects.filter(question_id=question_id)
+            .annotate(time_spent=wrapped_expression)
+            .values("time_spent")
+            .aggregate(Avg("time_spent"))["time_spent__avg"]
+            .seconds
+        )
+    except AttributeError:
+        result = None
+
+    return result
