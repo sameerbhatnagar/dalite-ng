@@ -14,7 +14,7 @@ from django.views.decorators.http import require_POST, require_safe
 from dalite.views.errors import response_400, response_403
 from peerinst.models import StudentGroupAssignment, Teacher
 
-from ..models import Quality, QualityType
+from ..models import Quality, QualityType, UsesCriterion
 from .decorators import logged_in_non_student_required
 
 logger = logging.getLogger("quality")
@@ -56,6 +56,16 @@ def verify_assignment(req, assignment_pk):
     try:
         teacher = Teacher.objects.get(user=req.user)
     except Teacher.DoesNotExist:
+        return response_403(
+            req,
+            msg=_("You don't have access to this resource."),
+            logger_msg=(
+                "Access to {} from user {}.".format(req.path, req.user.pk)
+            ),
+            log=logger.warning,
+        )
+
+    if not assignment.group.teacher.filter(pk=teacher.pk).exists():
         return response_403(
             req,
             msg=_("You don't have access to this resource."),
@@ -258,11 +268,11 @@ def update_criterion(req):
         criterion, old_value = quality.update_criterion(
             criterion_name, field, value
         )
-    except Exception as e:
+    except (AttributeError, UsesCriterion.DoesNotExist) as e:
         return response_400(
             req,
             msg=_("There was an error updating the criterion."),
-            logger_msg=(e.message),
+            logger_msg=str(e),
             log=logger.warning,
         )
 

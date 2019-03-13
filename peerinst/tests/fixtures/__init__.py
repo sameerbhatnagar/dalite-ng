@@ -1,5 +1,5 @@
 from .answer import answer_choices, answers, first_answers_no_shown  # noqa
-from .assignment import assignment  # noqa
+from .assignment import assignment, student_group_assignment  # noqa
 from .auth import user  # noqa
 from .group import group  # noqa
 from .question import question, questions  # noqa

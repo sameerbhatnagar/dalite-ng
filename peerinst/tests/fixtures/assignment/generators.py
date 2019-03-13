@@ -1,5 +1,9 @@
 import random
-from peerinst.models import Assignment
+from datetime import datetime, timedelta
+
+import pytz
+
+from peerinst.models import Assignment, StudentGroupAssignment
 
 
 def new_assignments(n, questions, min_questions=1):
@@ -31,3 +35,31 @@ def add_assignments(assignments):
     for assignment, a in zip(assignments_, assignments):
         assignment.questions.add(*a["questions"])
     return assignments_
+
+
+def new_student_group_assignments(n, groups, assignments, due_date=None):
+    groups = [groups] if not isinstance(groups, list) else groups
+    assignments = (
+        [assignments] if not isinstance(assignments, list) else assignments
+    )
+
+    def generator(groups, assignments, due_date):
+        while True:
+            if due_date is None:
+                due_date = datetime.now(pytz.utc) + timedelta(
+                    days=random.randint(1, 60)
+                )
+            yield {
+                "group": random.choice(groups),
+                "assignment": random.choice(assignments),
+                "due_date": due_date,
+            }
+
+    gen = generator(groups, assignments, due_date)
+    return [next(gen) for _ in range(n)]
+
+
+def add_student_group_assignments(group_assignments):
+    return [
+        StudentGroupAssignment.objects.create(**g) for g in group_assignments
+    ]

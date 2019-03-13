@@ -9,14 +9,14 @@ from . import views
 def edit_patterns():
     return [
         url(r"^edit/$", views.edit.index, name="edit"),
-        url(r"^edit/add$", views.edit.add_criterion, name="add-criterion"),
+        url(r"^edit/add/$", views.edit.add_criterion, name="add-criterion"),
         url(
-            r"^edit/update$",
+            r"^edit/update/$",
             views.edit.update_criterion,
             name="update-criterion",
         ),
         url(
-            r"^edit/remove$",
+            r"^edit/remove/$",
             views.edit.remove_criterion,
             name="remove-criterion",
         ),
