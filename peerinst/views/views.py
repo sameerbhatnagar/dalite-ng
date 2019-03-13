@@ -5,8 +5,8 @@ import json
 import logging
 import random
 import re
-import urllib
 import string
+import urllib
 from datetime import datetime
 
 import pytz
@@ -65,10 +65,10 @@ from ..mixins import (
     student_check,
     teacher_tos_accepted_check,
 )
+from ..models import AnswerChoice  # LtiEvent,
 from ..models import (
     Answer,
     AnswerAnnotation,
-    AnswerChoice,  # LtiEvent,
     Assignment,
     BlinkAnswer,
     BlinkAssignment,
