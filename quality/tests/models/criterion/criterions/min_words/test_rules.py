@@ -32,5 +32,13 @@ def test_dict(min_words_rules):
     min_words_rules.save()
 
     data = dict(min_words_rules)
-    assert data["min_words"] == 3
     assert len(data) == 1
+    assert data["min_words"]["name"] == "min_words"
+    assert data["min_words"]["full_name"] == "Min words"
+    assert (
+        data["min_words"]["description"]
+        == "The minimum number of words needed by a rationale."
+    )
+    assert data["min_words"]["value"] == 3
+    assert data["min_words"]["type"] == "PositiveIntegerField"
+    assert len(data["min_words"]) == 5

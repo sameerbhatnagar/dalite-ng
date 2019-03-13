@@ -24,7 +24,10 @@ class MinCharsCriterion(Criterion):
 
 
 class MinCharsCriterionRules(CriterionRules):
-    min_chars = models.PositiveIntegerField(verbose_name="Min characters")
+    min_chars = models.PositiveIntegerField(
+        verbose_name="Min characters",
+        help_text="The minimum number of characters needed by a rationale.",
+    )
 
     @staticmethod
     def get_or_create(min_chars=0):

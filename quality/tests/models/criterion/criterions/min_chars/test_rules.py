@@ -32,5 +32,13 @@ def test_dict(min_chars_rules):
     min_chars_rules.save()
 
     data = dict(min_chars_rules)
-    assert data["min_chars"] == 3
     assert len(data) == 1
+    assert data["min_chars"]["name"] == "min_chars"
+    assert data["min_chars"]["full_name"] == "Min characters"
+    assert (
+        data["min_chars"]["description"]
+        == "The minimum number of characters needed by a rationale."
+    )
+    assert data["min_chars"]["value"] == 3
+    assert data["min_chars"]["type"] == "PositiveIntegerField"
+    assert len(data["min_chars"]) == 5

@@ -59,10 +59,13 @@ def test_evaluate__default(min_chars_criterion, answers):
 
 def test_dict(min_chars_criterion):
     data = dict(min_chars_criterion)
-    assert "version" in data
-    assert "versions" in data
-    assert "is_beta" in data
     assert "name" in data
     assert "full_name" in data
     assert "description" in data
-    assert len(data) == 6
+    assert "version" in data
+    assert "versions" in data
+    for version in data["versions"]:
+        assert "version" in version
+        assert "is_beta" in version
+        assert len(version) == 2
+    assert len(data) == 5
