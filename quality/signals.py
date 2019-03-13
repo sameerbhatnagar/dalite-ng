@@ -6,7 +6,7 @@ from .models import Quality, QualityType, UsesCriterion, criterion
 
 @receiver(post_migrate)
 def add_quality_types(sender, **kwargs):
-    for quality_type in ("assignment", "group", "teacher"):
+    for quality_type in ("assignment", "group", "teacher", "global"):
         QualityType.objects.get_or_create(type=quality_type)
 
 
@@ -22,6 +22,7 @@ def add_default_qualities(sender, **kwargs):
                     QualityType.objects.get(type="assignment"),
                     QualityType.objects.get(type="group"),
                     QualityType.objects.get(type="teacher"),
+                    QualityType.objects.get(type="global"),
                 )
                 criterion_.save()
             if not criterion.MinWordsCriterionRules.objects.exists():

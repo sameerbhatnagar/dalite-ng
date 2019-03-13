@@ -7,5 +7,5 @@ def test_default_quality():
 
 
 def test_quality_types_exist():
-    for type_ in ("assignment", "group", "teacher"):
+    for type_ in ("assignment", "group", "teacher", "global"):
         assert QualityType.objects.filter(type=type_).exists()
