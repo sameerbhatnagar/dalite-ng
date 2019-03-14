@@ -6,6 +6,8 @@ from django.db import models
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
+from quality.models import Quality
+
 from .assignment import Assignment
 from .question import GradingScheme, Question
 
@@ -58,6 +60,21 @@ class Answer(models.Model):
     datetime_second = models.DateTimeField(blank=True, null=True)
     upvotes = models.PositiveIntegerField(default=0)
     downvotes = models.PositiveIntegerField(default=0)
+
+    checked_by_quality = models.ForeignKey(
+        Quality,
+        blank=True,
+        null=True,
+        help_text="Which quality was used to check if rationale is accepted",
+        related_name="checking_quality",
+    )
+    filtered_with_quality = models.ForeignKey(
+        Quality,
+        blank=True,
+        null=True,
+        help_text="Chich quality was used to filter shown rationales.",
+        related_name="filtering_quality",
+    )
 
     def first_answer_choice_label(self):
         return self.question.get_choice_label(self.first_answer_choice)
