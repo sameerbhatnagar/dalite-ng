@@ -1073,6 +1073,11 @@ def load_shown_rationales_from_ltievent_logs(day_of_logs):
 
 
 def get_average_time_spent_on_all_question_start(question_id):
+    """
+    Given a question id, return average time taken by all students to
+    submit answer. If not enough data, return None
+    """
+
     expression = F("datetime_second") - F("datetime_start")
     wrapped_expression = ExpressionWrapper(expression, DurationField())
     try:
@@ -1087,3 +1092,53 @@ def get_average_time_spent_on_all_question_start(question_id):
         result = None
 
     return result
+
+
+def populate_answer_start_time_from_ltievent_logs(day_of_logs):
+    """
+    Given a date, filter event logs to populate Answer.datetime_start field for
+    answer instances already in database
+    """
+
+    event_logs = LtiEvent.objects.filter(
+        timestamp__gte=day_of_logs,
+        timestamp__lte=day_of_logs + datetime.timedelta(hours=24),
+    )
+    i = 0
+    for e in event_logs.iterator():
+        e_json = e.event_log
+        if e_json["event_type"] == "problem_show":
+
+            try:
+
+                answer_obj = Answer.objects.get(
+                    user_token=e_json["username"],
+                    question_id=e_json["event"]["question_id"],
+                    assignment_id=e_json["event"]["assignment_id"],
+                )
+
+                # keep the latest time at which student accessed
+                # problem start page
+                if answer_obj.datetime_start:
+                    if answer_obj.datetime_start < e.timestamp:
+                        answer_obj.datetime_start = e.timestamp
+                        answer_obj.save()
+                        i += 1
+                    else:
+                        pass
+                else:
+                    answer_obj.datetime_start = e.timestamp
+                    answer_obj.save()
+                    i += 1
+
+            except Answer.DoesNotExist:
+                pass
+                # print(
+                #     "Not found : ",
+                #     e_json["username"],
+                #     e_json["event"]["question_id"],
+                #     e_json["event"]["assignment_id"],
+                # )
+
+    print("{} answer start times updated".format(i))
+    return
