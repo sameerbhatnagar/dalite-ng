@@ -239,7 +239,7 @@ msgstr "À {index}"
 #: peerinst/templates/peerinst/blinkassignment_detail.html:38
 #: peerinst/templates/peerinst/browse_database.html:68
 msgid "Show answers"
-msgstr "Montrer les réponses"
+msgstr "Montrer les choix de réponses"
 
 #: peerinst/admin_views.py:521
 msgid "Expert answer"
@@ -293,7 +293,7 @@ msgstr "Veuillez voter positivement ou négativement."
 #: peerinst/templates/peerinst/question/list.html:88
 #: peerinst/templates/peerinst/teacher/details.html:62
 msgid "Assignments"
-msgstr "Exercices"
+msgstr "Questionnaires"
 
 #: peerinst/forms.py:211
 msgid ""
@@ -326,10 +326,9 @@ msgid "Choose which groups to include in report:"
 msgstr "Choisissez quels groupes vous souhaitez inclure dans votre rapport :"
 
 #: peerinst/forms.py:387
-#, fuzzy
 #| msgid "Choose which assignments you would like your report to include:"
 msgid "Choose which assignments to include in report:"
-msgstr "Choisissez quels exercices vous souhaitez inclure dans votre rapport :"
+msgstr "Choisissez quels questionnaires vous souhaitez inclure dans votre rapport :"
 
 #: peerinst/models/answer.py:15
 msgid "Text"
@@ -401,14 +400,13 @@ msgid "identifier"
 msgstr "identifiant"
 
 #: peerinst/models/assignment.py:28
-#, fuzzy
 #| msgid ""
 #| "A unique identifier for this assignment used for inclusion in a course."
 msgid ""
 "A unique identifier for this assignment used for inclusion in a course.  "
 "Only use letters, numbers and/or the underscore for the identifier."
 msgstr ""
-"Identifiant unique, pour cet exercice, utilisé pour s'inscrire au cours."
+"Identifiant unique, pour ce questionnaire, utilisé pour s'inscrire au cours."
 
 #: peerinst/models/assignment.py:34 peerinst/models/blink.py:42
 #: peerinst/templates/peerinst/group/details.html:49
@@ -425,24 +423,23 @@ msgstr "Questions"
 
 #: peerinst/models/assignment.py:49
 msgid "assignment"
-msgstr "exercice"
+msgstr "questionnaire"
 
 #: peerinst/models/assignment.py:50
 msgid "assignments"
-msgstr "exercices"
+msgstr "questionnaire"
 
 #: peerinst/models/assignment.py:70
 #: peerinst/templates/peerinst/group/assignment.html:62
-#, fuzzy
 #| msgid "Show answers"
 msgid "Show correct answers"
-msgstr "Montrer les réponses"
+msgstr "Montrer la réponse correcte"
 
 #: peerinst/models/assignment.py:73
 msgid ""
 "Check if students should be shown correct answer after completing the "
 "question."
-msgstr ""
+msgstr "Choisissez si vous vouliez que la bonne réponse soit montré vos étudiants"
 
 #: peerinst/models/blink.py:16
 msgid "Time limit"
@@ -1033,10 +1030,9 @@ msgstr "Choix définitifs"
 
 #: peerinst/templates/admin/peerinst/group_assignment_management.html:13
 #: peerinst/templates/admin/peerinst/group_assignment_management.html:18
-#, fuzzy
 #| msgid "No assignments defined."
 msgid "Group assignment distribution"
-msgstr "Aucun exercice défini."
+msgstr "Aucun questionnaire défini."
 
 #: peerinst/templates/admin/peerinst/group_assignment_management.html:29
 #, fuzzy
@@ -1075,7 +1071,6 @@ msgstr ""
 #: peerinst/templates/admin/peerinst/group_assignment_management.html:59
 #: peerinst/templates/peerinst/report_all_rationales.html:70
 #: peerinst/templates/peerinst/report_all_rationales.html:200
-#, fuzzy
 #| msgid "Student"
 msgid "Student"
 msgstr "Étudiant(e)"
@@ -1089,10 +1084,9 @@ msgstr "Courriel"
 #: peerinst/templates/admin/peerinst/group_assignment_management.html:61
 #: peerinst/templates/peerinst/assignment_edit.html:10
 #: peerinst/templates/peerinst/assignment_form.html:10
-#, fuzzy
 #| msgid "Assignments"
 msgid "Assignment"
-msgstr "Exercices"
+msgstr "Questionnaires"
 
 #: peerinst/templates/admin/peerinst/index.html:10
 msgid "Student progress by assignment"
@@ -1259,10 +1253,9 @@ msgstr "Modifier la question"
 #: peerinst/templates/peerinst/assignment_detail.html:35
 #: peerinst/templates/peerinst/blinkassignment_detail.html:28
 #: peerinst/templates/peerinst/browse_database.html:58
-#, fuzzy
 #| msgid "Show answers"
 msgid "Show images"
-msgstr "Montrer les réponses"
+msgstr "Montrer les images"
 
 #: peerinst/templates/peerinst/assignment_detail.html:62
 #: peerinst/templates/peerinst/assignment_detail.html:138
@@ -1322,7 +1315,7 @@ msgstr "questions"
 #: peerinst/templates/peerinst/blinkassignment_detail.html:206
 #: peerinst/templates/peerinst/teacher/header/menu.html:19
 msgid "Search database"
-msgstr "Chercher dans la base de données"
+msgstr "Recherche"
 
 #: peerinst/templates/peerinst/assignment_detail.html:206
 #: peerinst/templates/peerinst/blinkassignment_detail.html:125
@@ -1355,15 +1348,13 @@ msgstr ""
 #: peerinst/templates/peerinst/assignment_detail.html:257
 #: peerinst/templates/peerinst/blinkassignment_detail.html:260
 #: peerinst/templates/peerinst/browse_database.html:89
-#, fuzzy
 #| msgid "Filter"
 msgid "Filters"
-msgstr "Filtre"
+msgstr "Filtres"
 
 #: peerinst/templates/peerinst/assignment_detail.html:260
 #: peerinst/templates/peerinst/blinkassignment_detail.html:263
 #: peerinst/templates/peerinst/browse_database.html:92
-#, fuzzy
 #| msgid "Discipline"
 msgid "Disciplines: "
 msgstr "Disciplines"
@@ -1372,7 +1363,7 @@ msgstr "Disciplines"
 #: peerinst/templates/peerinst/blinkassignment_detail.html:265
 #: peerinst/templates/peerinst/browse_database.html:94
 msgid "Keywords: "
-msgstr ""
+msgstr "Mot clés: "
 
 #: peerinst/templates/peerinst/assignment_detail.html:264
 #: peerinst/templates/peerinst/blinkassignment_detail.html:267
@@ -1381,10 +1372,9 @@ msgid "Clear"
 msgstr ""
 
 #: peerinst/templates/peerinst/assignment_edit.html:19
-#, fuzzy
 #| msgid "this assignment"
 msgid "Edit assignment"
-msgstr "cet exercice"
+msgstr "Modifier ce questionnaire"
 
 #: peerinst/templates/peerinst/assignment_edit.html:21
 #, fuzzy
@@ -1401,10 +1391,9 @@ msgid ""
 msgstr ""
 
 #: peerinst/templates/peerinst/assignment_form.html:19
-#, fuzzy
 #| msgid "My assignments"
 msgid "Copy an assignment"
-msgstr "Mes exercices"
+msgstr "Copier un questionnaire"
 
 #: peerinst/templates/peerinst/assignment_form.html:25
 msgid ""
@@ -1491,28 +1480,29 @@ msgid ""
 "complete phrase.  You can also search on username to find all content from a "
 "certain contributor."
 msgstr ""
+"Le moteur effectue sa recherche dans l’ensemble des textes présents dans la "
+"base de données pour chacun des mots-clés saisis ainsi que pour la phrase complète. "
+"Vous pouvez aussi taper un nom d’utilisateur pour trouver le contenu d’un "
+"contributeur en particulier."
 
 #: peerinst/templates/peerinst/blinkassignment_form.html:8
 msgid "Create Script"
 msgstr "Génerer une séquence"
 
 #: peerinst/templates/peerinst/browse_database.html:14
-#, fuzzy
 #| msgid "Search database"
 msgid "Browse Database"
-msgstr "Chercher dans la base de données"
+msgstr "Naviguer dans la base de données"
 
 #: peerinst/templates/peerinst/browse_database.html:20
-#, fuzzy
 #| msgid "Back to My Account"
 msgid "Go to My Account"
-msgstr "Revenir à Mon compte"
+msgstr "Accéder à mon compte"
 
 #: peerinst/templates/peerinst/browse_database.html:21
-#, fuzzy
 #| msgid "Create a new assignment"
 msgid "Create an assignment"
-msgstr "Créer un nouvel exercice"
+msgstr "Créer un questionnaire"
 
 #: peerinst/templates/peerinst/browse_database.html:23
 #, fuzzy
@@ -1528,6 +1518,11 @@ msgid ""
 "discipline and category.\n"
 "          "
 msgstr ""
+"\n"
+"Consulter la base de données de myDalite pour trouver les questions à l’aide "
+"de mots-clés. Vous pourrez affiner les résultats de votre recherche en utilisant "
+"les filtres (matière et catégorie).\n"
+"     "
 
 #: peerinst/templates/peerinst/cookie_help.html:5 templates/errors.html:8
 msgid "Error"
@@ -1997,10 +1992,9 @@ msgid ""
 msgstr ""
 
 #: peerinst/templates/peerinst/question/search_results.html:3
-#, fuzzy
 #| msgid "results"
 msgid "Results"
-msgstr "résultats"
+msgstr "Résultats"
 
 #: peerinst/templates/peerinst/question/search_results.html:8
 msgid "No search results"
@@ -2012,7 +2006,6 @@ msgid "Page"
 msgstr ""
 
 #: peerinst/templates/peerinst/question/sequential_review.html:8
-#, fuzzy
 #| msgid ""
 #| "\n"
 #| "  Below is an answer provided by another student.  Please indicate "
@@ -2041,7 +2034,7 @@ msgstr "Réponse"
 
 #: peerinst/templates/peerinst/question/start.html:20
 msgid "Back to assignment"
-msgstr "Revenir à l'exercice"
+msgstr "Revenir au questionnaire"
 
 #: peerinst/templates/peerinst/question/start.html:22
 msgid "Edit question"
@@ -2052,7 +2045,6 @@ msgid "Reset answers"
 msgstr "Réinitialiser les réponses"
 
 #: peerinst/templates/peerinst/question/summary.html:11
-#, fuzzy
 #| msgid ""
 #| "        You stuck with your answer choice and rationale.\n"
 #| "      "
@@ -2060,10 +2052,12 @@ msgid ""
 "\n"
 "          You stuck with your answer choice and rationale.\n"
 "        "
-msgstr "Vous vous en tenez à votre choix de réponse et votre explication."
+msgstr ""
+"\n"
+"Vous vous en tenez à votre choix de réponse et votre explication."
+"     "
 
 #: peerinst/templates/peerinst/question/summary.html:15
-#, fuzzy
 #| msgid ""
 #| "\n"
 #| "        You stuck with your answer choice and selected this rationale:\n"
@@ -2075,10 +2069,10 @@ msgid ""
 msgstr ""
 "\n"
 "Vous vous en tenez à votre choix de réponse et avez sélectionné "
-"l'explication suivante :"
+"l'explication suivante :\n"
+"      "
 
 #: peerinst/templates/peerinst/question/summary.html:21
-#, fuzzy, python-format
 #| msgid ""
 #| "\n"
 #| "      You then changed your answer to <strong>%(second_choice_label)s</"
@@ -2102,7 +2096,6 @@ msgid "Report"
 msgstr "Rapport"
 
 #: peerinst/templates/peerinst/report_all_rationales.html:39
-#, fuzzy
 #| msgid "Custom Reports"
 msgid "Back to Custom Reports"
 msgstr "Rapports personnalisés"
@@ -2121,10 +2114,9 @@ msgstr "Transitions générales des étudiants"
 
 #: peerinst/templates/peerinst/report_all_rationales.html:114
 #: peerinst/templates/peerinst/report_all_rationales.html:194
-#, fuzzy
 #| msgid "Back to login"
 msgid "Back to top"
-msgstr "Se connecter"
+msgstr "Retour vers le haut"
 
 #: peerinst/templates/peerinst/report_all_rationales.html:135
 #, fuzzy
@@ -2404,42 +2396,40 @@ msgid ""
 msgstr ""
 
 #: peerinst/templates/peerinst/student/emails/new_assignment.html:8
-#, fuzzy
 #| msgid "Create a new assignment"
 msgid "There's a new assignment for group "
-msgstr "Créer un nouvel exercice"
+msgstr "Vous avez un nouveau questionnaire disponible pour votre groupe "
 
 #: peerinst/templates/peerinst/student/emails/new_assignment.html:12
 msgid "Use the buttons below to go to the assignment or to your student page."
-msgstr ""
+msgstr "Utilisez les boutons ci-dessous pour naviguer vers votre compte étudiant."
 
 #: peerinst/templates/peerinst/student/emails/new_group.html:8
 msgid "You've successfully been registered to group "
-msgstr ""
+msgstr "Vous avez été inscrite pour le groupe "
 
 #: peerinst/templates/peerinst/student/emails/new_group.html:12
 msgid "Sign in to your myDALITE account by clicking the link below:"
-msgstr ""
+msgstr "Accéder à votre compte myDALITE en cliquant l'hyperlien ci-dessous:"
 
 #: peerinst/templates/peerinst/student/emails/new_group.html:15
 #: peerinst/templates/peerinst/student/emails/signin.html:12
-#, fuzzy
 #| msgid "Sign up"
 msgid "Sign In"
 msgstr "Inscription"
 
 #: peerinst/templates/peerinst/student/emails/signin.html:7
 msgid "Sign in to your myDALITE account"
-msgstr ""
+msgstr "Accéder à votre compte myDALITE"
 
 #: peerinst/templates/peerinst/student/emails/signin.html:9
 msgid "Sign in to your myDALITE account by clicking the button below:"
-msgstr ""
+msgstr "Accéder à votre compte myDALITE en cliquant l'hyperlien ci-dessous:"
 
 #: peerinst/templates/peerinst/student/header/menu.html:15
 #: peerinst/templates/peerinst/student/header/menu.html:65
 msgid "Terms of service"
-msgstr ""
+msgstr "Conditions d'utilisation"
 
 #: peerinst/templates/peerinst/student/header/menu.html:24
 #: peerinst/templates/peerinst/student/header/menu.html:73
@@ -2449,14 +2439,12 @@ msgstr "Déconnexion"
 
 #: peerinst/templates/peerinst/student/header/menu.html:49
 #: peerinst/templates/peerinst/teacher/header/menu.html:12
-#, fuzzy
 #| msgid "Home"
 msgid "Home page"
-msgstr "Accueil"
+msgstr "Page d'accueil"
 
 #: peerinst/templates/peerinst/student/header/menu.html:57
 #: peerinst/templates/peerinst/teacher/header/menu.html:52
-#, fuzzy
 #| msgid "My Account"
 msgid "My account"
 msgstr "Mon compte"
@@ -2931,22 +2919,19 @@ msgid "My archived groups"
 msgstr "Gérer les groupes"
 
 #: peerinst/templates/peerinst/teacher/header/menu.html:30
-#, fuzzy
 #| msgid "Student rationales"
 msgid "Student activity "
-msgstr "Explications des étudiants"
+msgstr "Participation des étudiants"
 
 #: peerinst/templates/peerinst/teacher/header/menu.html:37
-#, fuzzy
 #| msgid "Edit question"
 msgid "Create question"
-msgstr "Modifier la question"
+msgstr "Créer une question"
 
 #: peerinst/templates/peerinst/teacher/header/menu.html:45
-#, fuzzy
 #| msgid "Create a new assignment"
 msgid "Create assignment"
-msgstr "Créer un nouvel exercice"
+msgstr "Créer un questionnaire"
 
 #: peerinst/templates/peerinst/teacher/header/menu.html:60
 #: peerinst/templates/peerinst/teacher/header/menu.html:68
@@ -4083,6 +4068,16 @@ msgid ""
 "collected and processed when you use the site.\n"
 "        "
 msgstr ""
+"\n"
+"Veuillez lire attentivement nos conditions d’utilisation et notre politique de "
+"confidentialité dans l’encadré ci-dessous. Acceptez ou refusez les conditions "
+"au bas de la page. \n"
+"Les conditions d’utilisation qui suivent relèvent d’une entente (l’entente) entre "
+"vous et le réseau de chercheurs SALTISE. Que vous soyez ou non un utilisateur "
+"myDALITE.org, vous êtes légalement tenu par cette entente. La politique de "
+"confidentialité décrit de quelle manière vos données personnelles sont recueillies "
+"et traitées quand vous utilisez le site. \n"
+"     "
 
 #: tos/templates/tos/tos_modify.html:41
 msgid ""
@@ -4097,14 +4092,24 @@ msgid ""
 "collected and processed when you use the site.\n"
 "        "
 msgstr ""
+"\n"
+"Veuillez lire attentivement nos conditions d’utilisation et notre politique de "
+"confidentialité dans l’encadré ci-dessous. Acceptez ou refusez les conditions "
+"au bas de la page. \n"
+"Les conditions d’utilisation qui suivent relèvent d’une entente (l’entente) entre "
+"vous et le réseau de chercheurs SALTISE. Que vous soyez ou non un utilisateur "
+"myDALITE.org, vous êtes légalement tenu par cette entente. La politique de "
+"confidentialité décrit de quelle manière vos données personnelles sont recueillies "
+"et traitées quand vous utilisez le site. \n"
+"     "
 
 #: tos/templates/tos/tos_modify.html:68
 msgid "Share"
-msgstr "Partager"
+msgstr "Accepter"
 
 #: tos/templates/tos/tos_modify.html:73
 msgid "Refuse"
-msgstr "Réfuser"
+msgstr "Refuser"
 
 #: tos/templates/tos/tos_required.html:18
 msgid "Sharing required"
