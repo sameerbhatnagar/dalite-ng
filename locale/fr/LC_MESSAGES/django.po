@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-03-15 04:07+0000\n"
+"POT-Creation-Date: 2019-03-15 04:27+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -278,7 +278,8 @@ msgstr "Il doit y avoir au moins deux choix de réponses."
 msgid ""
 "That does not seem like a valid rationale.\n"
 "                Please explain your reasoning in more detail."
-msgstr ""
+msgstr "Ceci ne semble pas comme une explication valide.\n"
+"S'il vous plait, expliquer le raisonnement avec plus de détails."
 
 #: peerinst/forms.py:150
 msgid "Please select exactly one rationale."
@@ -1848,7 +1849,6 @@ msgid "Edit question list"
 msgstr "Modifier la liste de questions"
 
 #: peerinst/templates/peerinst/question/list.html:19
-#| msgid "rationales"
 msgid "Score Rationales"
 msgstr "Évaluer les explications"
 
@@ -1955,11 +1955,7 @@ msgstr ""
 "sélectionnez votre réponse définitive."
 
 #: peerinst/templates/peerinst/question/review_base.html:29
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "    You answered <strong>%(first_choice_label)s</strong> and gave this "
-#| "rationale:\n"
+#, python-format
 msgid ""
 "\n"
 "    You answered <strong>%(first_choice_label)s</strong> and gave this "
@@ -1969,6 +1965,7 @@ msgstr ""
 "\n"
 "Vous avez répondu <strong>%(first_choice_label)s</strong> et avez fourni "
 "l'explication suivante :\n"
+"     "
 
 #: peerinst/templates/peerinst/question/review_base.html:40
 msgid ""
@@ -1976,6 +1973,9 @@ msgid ""
 "    Your rationale:\n"
 "    "
 msgstr ""
+"\n"
+"Votre explications:\n"
+"    "
 
 #: peerinst/templates/peerinst/question/search_results.html:3
 msgid "Results"
@@ -2054,6 +2054,11 @@ msgstr ""
 "Vous avez ensuite modifié votre réponse pour <strong>"
 "%(second_choice_label)s</strong>\n"
 " et avez sélectionné l'explication suivante :"
+
+#: peerinst/templates/peerinst/question/summary.html:31
+#| msgid "Show correct answers"
+msgid "Correct answer(s)"
+msgstr "Réponse correcte"
 
 #: peerinst/templates/peerinst/report_all_rationales.html:33
 msgid "Report"

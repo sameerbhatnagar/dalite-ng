@@ -28,7 +28,7 @@
 
   {% if not group_assignment or group_assignment.show_correct_answers %}
   <p class='mdc-typography--body1'>
-    Correct answer(s):
+    {% trans 'Correct answer(s)' %}:
     {% for label, choice in answer_choices %}
       {% for c in question.answerchoice_set.all %}
         {% if forloop.counter == forloop.parentloop.counter %}
