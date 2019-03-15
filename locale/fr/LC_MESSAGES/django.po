@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-03-14 21:22+0000\n"
+"POT-Creation-Date: 2019-03-15 04:07+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -326,9 +326,9 @@ msgid "Choose which groups to include in report:"
 msgstr "Choisissez quels groupes vous souhaitez inclure dans votre rapport :"
 
 #: peerinst/forms.py:387
-#| msgid "Choose which assignments you would like your report to include:"
 msgid "Choose which assignments to include in report:"
-msgstr "Choisissez quels questionnaires vous souhaitez inclure dans votre rapport :"
+msgstr ""
+"Choisissez quels questionnaires vous souhaitez inclure dans votre rapport :"
 
 #: peerinst/models/answer.py:15
 msgid "Text"
@@ -400,8 +400,6 @@ msgid "identifier"
 msgstr "identifiant"
 
 #: peerinst/models/assignment.py:28
-#| msgid ""
-#| "A unique identifier for this assignment used for inclusion in a course."
 msgid ""
 "A unique identifier for this assignment used for inclusion in a course.  "
 "Only use letters, numbers and/or the underscore for the identifier."
@@ -431,7 +429,6 @@ msgstr "questionnaire"
 
 #: peerinst/models/assignment.py:70
 #: peerinst/templates/peerinst/group/assignment.html:62
-#| msgid "Show answers"
 msgid "Show correct answers"
 msgstr "Montrer la réponse correcte"
 
@@ -439,7 +436,8 @@ msgstr "Montrer la réponse correcte"
 msgid ""
 "Check if students should be shown correct answer after completing the "
 "question."
-msgstr "Choisissez si vous vouliez que la bonne réponse soit montré vos étudiants"
+msgstr ""
+"Choisissez si vous vouliez que la bonne réponse soit montré vos étudiants"
 
 #: peerinst/models/blink.py:16
 msgid "Time limit"
@@ -1030,7 +1028,6 @@ msgstr "Choix définitifs"
 
 #: peerinst/templates/admin/peerinst/group_assignment_management.html:13
 #: peerinst/templates/admin/peerinst/group_assignment_management.html:18
-#| msgid "No assignments defined."
 msgid "Group assignment distribution"
 msgstr "Aucun questionnaire défini."
 
@@ -1071,7 +1068,6 @@ msgstr ""
 #: peerinst/templates/admin/peerinst/group_assignment_management.html:59
 #: peerinst/templates/peerinst/report_all_rationales.html:70
 #: peerinst/templates/peerinst/report_all_rationales.html:200
-#| msgid "Student"
 msgid "Student"
 msgstr "Étudiant(e)"
 
@@ -1084,7 +1080,6 @@ msgstr "Courriel"
 #: peerinst/templates/admin/peerinst/group_assignment_management.html:61
 #: peerinst/templates/peerinst/assignment_edit.html:10
 #: peerinst/templates/peerinst/assignment_form.html:10
-#| msgid "Assignments"
 msgid "Assignment"
 msgstr "Questionnaires"
 
@@ -1253,7 +1248,6 @@ msgstr "Modifier la question"
 #: peerinst/templates/peerinst/assignment_detail.html:35
 #: peerinst/templates/peerinst/blinkassignment_detail.html:28
 #: peerinst/templates/peerinst/browse_database.html:58
-#| msgid "Show answers"
 msgid "Show images"
 msgstr "Montrer les images"
 
@@ -1348,14 +1342,12 @@ msgstr ""
 #: peerinst/templates/peerinst/assignment_detail.html:257
 #: peerinst/templates/peerinst/blinkassignment_detail.html:260
 #: peerinst/templates/peerinst/browse_database.html:89
-#| msgid "Filter"
 msgid "Filters"
 msgstr "Filtres"
 
 #: peerinst/templates/peerinst/assignment_detail.html:260
 #: peerinst/templates/peerinst/blinkassignment_detail.html:263
 #: peerinst/templates/peerinst/browse_database.html:92
-#| msgid "Discipline"
 msgid "Disciplines: "
 msgstr "Disciplines"
 
@@ -1372,7 +1364,6 @@ msgid "Clear"
 msgstr ""
 
 #: peerinst/templates/peerinst/assignment_edit.html:19
-#| msgid "this assignment"
 msgid "Edit assignment"
 msgstr "Modifier ce questionnaire"
 
@@ -1391,7 +1382,6 @@ msgid ""
 msgstr ""
 
 #: peerinst/templates/peerinst/assignment_form.html:19
-#| msgid "My assignments"
 msgid "Copy an assignment"
 msgstr "Copier un questionnaire"
 
@@ -1481,26 +1471,23 @@ msgid ""
 "certain contributor."
 msgstr ""
 "Le moteur effectue sa recherche dans l’ensemble des textes présents dans la "
-"base de données pour chacun des mots-clés saisis ainsi que pour la phrase complète. "
-"Vous pouvez aussi taper un nom d’utilisateur pour trouver le contenu d’un "
-"contributeur en particulier."
+"base de données pour chacun des mots-clés saisis ainsi que pour la phrase "
+"complète. Vous pouvez aussi taper un nom d’utilisateur pour trouver le "
+"contenu d’un contributeur en particulier."
 
 #: peerinst/templates/peerinst/blinkassignment_form.html:8
 msgid "Create Script"
 msgstr "Génerer une séquence"
 
 #: peerinst/templates/peerinst/browse_database.html:14
-#| msgid "Search database"
 msgid "Browse Database"
 msgstr "Naviguer dans la base de données"
 
 #: peerinst/templates/peerinst/browse_database.html:20
-#| msgid "Back to My Account"
 msgid "Go to My Account"
 msgstr "Accéder à mon compte"
 
 #: peerinst/templates/peerinst/browse_database.html:21
-#| msgid "Create a new assignment"
 msgid "Create an assignment"
 msgstr "Créer un questionnaire"
 
@@ -1520,8 +1507,8 @@ msgid ""
 msgstr ""
 "\n"
 "Consulter la base de données de myDalite pour trouver les questions à l’aide "
-"de mots-clés. Vous pourrez affiner les résultats de votre recherche en utilisant "
-"les filtres (matière et catégorie).\n"
+"de mots-clés. Vous pourrez affiner les résultats de votre recherche en "
+"utilisant les filtres (matière et catégorie).\n"
 "     "
 
 #: peerinst/templates/peerinst/cookie_help.html:5 templates/errors.html:8
@@ -1861,10 +1848,9 @@ msgid "Edit question list"
 msgstr "Modifier la liste de questions"
 
 #: peerinst/templates/peerinst/question/list.html:19
-#, fuzzy
 #| msgid "rationales"
 msgid "Score Rationales"
-msgstr "explications"
+msgstr "Évaluer les explications"
 
 #: peerinst/templates/peerinst/question/list.html:113
 msgid "Student rationales"
@@ -1992,7 +1978,6 @@ msgid ""
 msgstr ""
 
 #: peerinst/templates/peerinst/question/search_results.html:3
-#| msgid "results"
 msgid "Results"
 msgstr "Résultats"
 
@@ -2006,14 +1991,6 @@ msgid "Page"
 msgstr ""
 
 #: peerinst/templates/peerinst/question/sequential_review.html:8
-#| msgid ""
-#| "\n"
-#| "  Below is an answer provided by another student.  Please indicate "
-#| "whether you think this answer is\n"
-#| "  correct using the vote buttons below.  You will be able to select your "
-#| "preferred rationale in the\n"
-#| "  final review.\n"
-#| "  "
 msgid ""
 "\n"
 "  Below is an answer provided by another student.  Please indicate whether "
@@ -2045,23 +2022,15 @@ msgid "Reset answers"
 msgstr "Réinitialiser les réponses"
 
 #: peerinst/templates/peerinst/question/summary.html:11
-#| msgid ""
-#| "        You stuck with your answer choice and rationale.\n"
-#| "      "
 msgid ""
 "\n"
 "          You stuck with your answer choice and rationale.\n"
 "        "
 msgstr ""
 "\n"
-"Vous vous en tenez à votre choix de réponse et votre explication."
-"     "
+"Vous vous en tenez à votre choix de réponse et votre explication.     "
 
 #: peerinst/templates/peerinst/question/summary.html:15
-#| msgid ""
-#| "\n"
-#| "        You stuck with your answer choice and selected this rationale:\n"
-#| "      "
 msgid ""
 "\n"
 "          You stuck with your answer choice and selected this rationale:\n"
@@ -2073,12 +2042,7 @@ msgstr ""
 "      "
 
 #: peerinst/templates/peerinst/question/summary.html:21
-#| msgid ""
-#| "\n"
-#| "      You then changed your answer to <strong>%(second_choice_label)s</"
-#| "strong>\n"
-#| "      and selected this rationale:\n"
-#| "    "
+#, python-format
 msgid ""
 "\n"
 "        You then changed your answer to <strong>%(second_choice_label)s</"
@@ -2096,7 +2060,6 @@ msgid "Report"
 msgstr "Rapport"
 
 #: peerinst/templates/peerinst/report_all_rationales.html:39
-#| msgid "Custom Reports"
 msgid "Back to Custom Reports"
 msgstr "Rapports personnalisés"
 
@@ -2114,7 +2077,6 @@ msgstr "Transitions générales des étudiants"
 
 #: peerinst/templates/peerinst/report_all_rationales.html:114
 #: peerinst/templates/peerinst/report_all_rationales.html:194
-#| msgid "Back to login"
 msgid "Back to top"
 msgstr "Retour vers le haut"
 
@@ -2396,13 +2358,13 @@ msgid ""
 msgstr ""
 
 #: peerinst/templates/peerinst/student/emails/new_assignment.html:8
-#| msgid "Create a new assignment"
 msgid "There's a new assignment for group "
 msgstr "Vous avez un nouveau questionnaire disponible pour votre groupe "
 
 #: peerinst/templates/peerinst/student/emails/new_assignment.html:12
 msgid "Use the buttons below to go to the assignment or to your student page."
-msgstr "Utilisez les boutons ci-dessous pour naviguer vers votre compte étudiant."
+msgstr ""
+"Utilisez les boutons ci-dessous pour naviguer vers votre compte étudiant."
 
 #: peerinst/templates/peerinst/student/emails/new_group.html:8
 msgid "You've successfully been registered to group "
@@ -2414,7 +2376,6 @@ msgstr "Accéder à votre compte myDALITE en cliquant l'hyperlien ci-dessous:"
 
 #: peerinst/templates/peerinst/student/emails/new_group.html:15
 #: peerinst/templates/peerinst/student/emails/signin.html:12
-#| msgid "Sign up"
 msgid "Sign In"
 msgstr "Inscription"
 
@@ -2439,15 +2400,17 @@ msgstr "Déconnexion"
 
 #: peerinst/templates/peerinst/student/header/menu.html:49
 #: peerinst/templates/peerinst/teacher/header/menu.html:12
-#| msgid "Home"
 msgid "Home page"
 msgstr "Page d'accueil"
 
 #: peerinst/templates/peerinst/student/header/menu.html:57
 #: peerinst/templates/peerinst/teacher/header/menu.html:52
-#| msgid "My Account"
 msgid "My account"
 msgstr "Mon compte"
+
+#: peerinst/templates/peerinst/student/header/notifications.html:10
+msgid "Mark all read"
+msgstr "Tout marquer comme lu"
 
 #: peerinst/templates/peerinst/student/index.html:10
 #: peerinst/templates/peerinst/teacher/details.html:16
@@ -2468,12 +2431,12 @@ msgstr "Membre depuis :"
 
 #: peerinst/templates/peerinst/student/index.html:48
 msgid "Terms of service: "
-msgstr ""
+msgstr "Conditions d'utilisation: "
 
 #: peerinst/templates/peerinst/student/index.html:51
 #: peerinst/templates/peerinst/teacher/details.html:319
 msgid "Signed: "
-msgstr ""
+msgstr "Acceptés: "
 
 #: peerinst/templates/peerinst/student/index.html:68
 #: peerinst/templates/peerinst/teacher/details.html:21
@@ -2481,10 +2444,8 @@ msgid "Groups"
 msgstr "Groupes"
 
 #: peerinst/templates/peerinst/student/index.html:74
-#, fuzzy
-#| msgid "group"
 msgid "Add group"
-msgstr "groupe"
+msgstr "Ajouter groupe"
 
 #: peerinst/templates/peerinst/student/index.html:80
 #, fuzzy
@@ -2919,17 +2880,14 @@ msgid "My archived groups"
 msgstr "Gérer les groupes"
 
 #: peerinst/templates/peerinst/teacher/header/menu.html:30
-#| msgid "Student rationales"
 msgid "Student activity "
 msgstr "Participation des étudiants"
 
 #: peerinst/templates/peerinst/teacher/header/menu.html:37
-#| msgid "Edit question"
 msgid "Create question"
 msgstr "Créer une question"
 
 #: peerinst/templates/peerinst/teacher/header/menu.html:45
-#| msgid "Create a new assignment"
 msgid "Create assignment"
 msgstr "Créer un questionnaire"
 
@@ -2948,10 +2906,8 @@ msgid "Homework List"
 msgstr ""
 
 #: peerinst/templates/peerinst/teacher/studentgroup_assignments.html:16
-#, fuzzy
-#| msgid "You do not have any assignments."
 msgid "You currently have no assigned homework."
-msgstr "Vous n'avez aucun exercice."
+msgstr "Vous n'avez aucun questionnaires à completer."
 
 #: peerinst/templates/peerinst/teacher/studentgroup_assignments.html:22
 msgid ""
@@ -3168,9 +3124,10 @@ msgid ""
 "technical difficulties, please contact: <a class=\"text-link\" href='mailto:"
 "support@scivero.com'>support@scivero.com</a>\n"
 "        "
-msgstr "Si vous utilisez l’un de ces navigateurs, mais que vous éprouvez "
-"néanmoins des problèmes techniques, veuillez nous joindre à : <a class=\"text-link\" href='mailto:"
-"support@scivero.com'>support@scivero.com</a>\n"
+msgstr ""
+"Si vous utilisez l’un de ces navigateurs, mais que vous éprouvez néanmoins "
+"des problèmes techniques, veuillez nous joindre à : <a class=\"text-link\" "
+"href='mailto:support@scivero.com'>support@scivero.com</a>\n"
 "     "
 
 #: peerinst/templates/registration/landing_page.html:205
@@ -3466,7 +3423,7 @@ msgstr ""
 #: peerinst/templates/registration/terms.html:9
 #: tos/templates/tos/tos_modify.html:25 tos/templates/tos/tos_required.html:14
 msgid "Terms of Service"
-msgstr ""
+msgstr "Conditions d'utilisation"
 
 #: peerinst/templates/registration/sign_up.html:49
 #: peerinst/templates/registration/sign_up_student.html:41
@@ -3725,13 +3682,13 @@ msgstr ""
 
 #: peerinst/views/student.py:398
 msgid "Not sharing"
-msgstr ""
+msgstr "Non acceptés"
 
 #: peerinst/views/student.py:399
 #, fuzzy
 #| msgid "Share"
 msgid "Sharing"
-msgstr "Partager"
+msgstr "Acceptés"
 
 #: peerinst/views/student.py:400
 #, fuzzy
@@ -4069,14 +4026,14 @@ msgid ""
 "        "
 msgstr ""
 "\n"
-"Veuillez lire attentivement nos conditions d’utilisation et notre politique de "
-"confidentialité dans l’encadré ci-dessous. Acceptez ou refusez les conditions "
-"au bas de la page. \n"
-"Les conditions d’utilisation qui suivent relèvent d’une entente (l’entente) entre "
-"vous et le réseau de chercheurs SALTISE. Que vous soyez ou non un utilisateur "
-"myDALITE.org, vous êtes légalement tenu par cette entente. La politique de "
-"confidentialité décrit de quelle manière vos données personnelles sont recueillies "
-"et traitées quand vous utilisez le site. \n"
+"Veuillez lire attentivement nos conditions d’utilisation et notre politique "
+"de confidentialité dans l’encadré ci-dessous. Acceptez ou refusez les "
+"conditions au bas de la page. \n"
+"Les conditions d’utilisation qui suivent relèvent d’une entente (l’entente) "
+"entre vous et le réseau de chercheurs SALTISE. Que vous soyez ou non un "
+"utilisateur myDALITE.org, vous êtes légalement tenu par cette entente. La "
+"politique de confidentialité décrit de quelle manière vos données "
+"personnelles sont recueillies et traitées quand vous utilisez le site. \n"
 "     "
 
 #: tos/templates/tos/tos_modify.html:41
@@ -4093,21 +4050,52 @@ msgid ""
 "        "
 msgstr ""
 "\n"
-"Veuillez lire attentivement nos conditions d’utilisation et notre politique de "
-"confidentialité dans l’encadré ci-dessous. Acceptez ou refusez les conditions "
-"au bas de la page. \n"
-"Les conditions d’utilisation qui suivent relèvent d’une entente (l’entente) entre "
-"vous et le réseau de chercheurs SALTISE. Que vous soyez ou non un utilisateur "
-"myDALITE.org, vous êtes légalement tenu par cette entente. La politique de "
-"confidentialité décrit de quelle manière vos données personnelles sont recueillies "
-"et traitées quand vous utilisez le site. \n"
+"Veuillez lire attentivement nos conditions d’utilisation et notre politique "
+"de confidentialité dans l’encadré ci-dessous. Acceptez ou refusez les "
+"conditions au bas de la page. \n"
+"Les conditions d’utilisation qui suivent relèvent d’une entente (l’entente) "
+"entre vous et le réseau de chercheurs SALTISE. Que vous soyez ou non un "
+"utilisateur myDALITE.org, vous êtes légalement tenu par cette entente. La "
+"politique de confidentialité décrit de quelle manière vos données "
+"personnelles sont recueillies et traitées quand vous utilisez le site. \n"
 "     "
 
-#: tos/templates/tos/tos_modify.html:68
+#: tos/templates/tos/tos_modify.html:49
+msgid ""
+" 1. The SALTISE research network reserves the right to modify these ToS at "
+"any time without advance notice. Any changes to these ToS will be effective "
+"immediately upon posting on this page, with an updated effective date.\n"
+"        "
+msgstr ""
+" 1. Le réseau de chercheurs SALTISE se réserve le droit de modifier ces "
+"conditions d’utilisation à tout moment sans avis préalable. Tout changement "
+"à ces conditions d’utilisation entrera en vigueur immédiatement après "
+"l’affichage sur cette page. Une nouvelle date d’entrée en vigueur sera "
+"indiquée sur la page.        "
+
+#: tos/templates/tos/tos_modify.html:53
+msgid ""
+"\n"
+"        2. Any version of these ToS in a language other than English is "
+"provided for convenience and you understand and agree that the English "
+"language version will control if there is any conflict.\n"
+"        "
+msgstr ""
+"\n"
+"2. Toute version des conditions d’utilisation dans une autre langue que "
+"l’anglais est fournie à titre de référence et, en cas de contradiction, la "
+"version originale sera considérée comme officielle.\n"
+"        "
+
+#: tos/templates/tos/tos_modify.html:64
+msgid "current"
+msgstr "actuel"
+
+#: tos/templates/tos/tos_modify.html:71
 msgid "Share"
 msgstr "Accepter"
 
-#: tos/templates/tos/tos_modify.html:73
+#: tos/templates/tos/tos_modify.html:76
 msgid "Refuse"
 msgstr "Refuser"
 
@@ -4196,9 +4184,6 @@ msgstr ""
 
 #~ msgid "question id"
 #~ msgstr "id. de la question"
-
-#~ msgid "Current"
-#~ msgstr "Actuel(s)"
 
 #~ msgid ""
 #~ "You are not currently following any student groups.  You can select "
