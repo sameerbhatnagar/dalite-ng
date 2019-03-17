@@ -25,22 +25,25 @@
 - fields: {student: 10}
   model: peerinst.student
   pk: 1
-- fields: {answer_style: 0, image: '', text: Text of question 1, title: Question 1, video_url: ''}
+- fields: {title: Test category}
+  model: peerinst.category
+  pk: 1
+- fields: {answer_style: 0, image: '', text: Text of question 1, title: Question 1, video_url: '', category: [1]}
   model: peerinst.question
   pk: 29
-- fields: {answer_style: 0, image: '', text: Text of question 2, title: Question 2, video_url: ''}
+- fields: {answer_style: 0, image: '', text: Text of question 2, title: Question 2, video_url: '', category: [1]}
   model: peerinst.question
   pk: 30
-- fields: {answer_style: 0, image: '', text: Text of question 3, title: Question 3, video_url: ''}
+- fields: {answer_style: 0, image: '', text: Text of question 3, title: Question 3, video_url: '', category: [1]}
   model: peerinst.question
   pk: 31
-- fields: {answer_style: 0, image: '', text: Text of question 4, title: Question 4, video_url: '', user: 1, created_on: '2018-07-25 03:41:56.690113+00:00'}
+- fields: {answer_style: 0, image: '', text: Text of question 4, title: Question 4, video_url: '', user: 1, created_on: '2018-07-25 03:41:56.690113+00:00', category: [1]}
   model: peerinst.question
   pk: 32
-- fields: {answer_style: 0, image: '', text: Text of question 5, title: Question 5, video_url: '', user: 2, collaborators: [1]}
+- fields: {answer_style: 0, image: '', text: Text of question 5, title: Question 5, video_url: '', user: 2, collaborators: [1], category: [1]}
   model: peerinst.question
   pk: 33
-- fields: {answer_style: 0, image: '', text: Text of question 6, title: Question 6, video_url: '', user: 2}
+- fields: {answer_style: 0, image: '', text: Text of question 6, title: Question 6, video_url: '', user: 2, category: [1]}
   model: peerinst.question
   pk: 43
 - fields: {correct: true, question: 29, text: Choice 1 (correct)}
