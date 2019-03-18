@@ -398,3 +398,10 @@ class Question(models.Model):
     class Meta:
         verbose_name = _("question")
         verbose_name_plural = _("questions")
+
+
+class QuestionFlag(models.Model):
+    question = models.ForeignKey(Question)
+    user = models.ForeignKey(User)
+    flag = models.BooleanField(default=False)
+    comment = models.CharField(max_length=200, null=True, blank=True)
