@@ -6,7 +6,6 @@ import logging
 import random
 import re
 import urllib
-import string
 from datetime import datetime
 
 import pytz
@@ -23,7 +22,7 @@ from django.core.urlresolvers import reverse
 # reports
 from django.db.models import Count
 from django.db.models.expressions import Func
-from django.forms import Textarea, inlineformset_factory, modelformset_factory
+from django.forms import Textarea, inlineformset_factory
 
 # blink
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
@@ -67,7 +66,6 @@ from ..mixins import (
 )
 from ..models import (
     Answer,
-    AnswerAnnotation,
     AnswerChoice,  # LtiEvent,
     Assignment,
     BlinkAnswer,
@@ -3189,231 +3187,3 @@ def report_assignment_aggregates(request):
         j.append(d_a)
 
     return JsonResponse(j, safe=False)
-
-
-@login_required
-@user_passes_test(student_check, login_url="/access_denied_and_logout/")
-def research_index(request):
-    template = "peerinst/research/index.html"
-    context = {"disciplines": Discipline.objects.all()}
-    return render(request, template, context)
-
-
-def get_question_annotation_counts(discipline_title, annotator, assignment_id):
-    """
-    Returns:
-    ========
-    list of dicts, one for eacu question in discipline, and the counts of
-    Answers and AnswerAnnotations for each
-    """
-    if discipline_title:
-        questions_qs = Question.objects.filter(
-            discipline__title=discipline_title
-        )
-    elif assignment_id:
-        questions_qs = Assignment.objects.get(
-            identifier=assignment_id
-        ).questions.all()
-
-    # FIXME:
-    translation_table = string.maketrans("ABCDEFG", "1234567")
-
-    question_annotation_counts = []
-    for q in questions_qs:
-        d1 = {}
-        d1["question"] = q
-        d1["total_annotations"] = AnswerAnnotation.objects.filter(
-            score__isnull=False, answer__question_id=q.pk
-        ).count()
-        d1["total_annotations_by_user"] = AnswerAnnotation.objects.filter(
-            score__isnull=False, answer__question_id=q.pk, annotator=annotator
-        ).count()
-
-        answer_frequencies = q.get_frequency_json("first_choice")
-        for d2 in answer_frequencies:
-            a_choice = d2["answer_label"][0].translate(translation_table)
-            d2.update(
-                {
-                    "annotation_count": AnswerAnnotation.objects.filter(
-                        score__isnull=False,
-                        answer__question_id=q.pk,
-                        answer__first_answer_choice=a_choice,
-                    ).count(),
-                    "annotation_count_by_user": AnswerAnnotation.objects.filter(  # noqa
-                        score__isnull=False,
-                        answer__question_id=q.pk,
-                        answer__first_answer_choice=a_choice,
-                        annotator=annotator,
-                    ).count(),
-                }
-            )
-        d1["answerchoices"] = answer_frequencies
-        question_annotation_counts.append(d1)
-
-    return question_annotation_counts
-
-
-@login_required
-@user_passes_test(student_check, login_url="/access_denied_and_logout/")
-def research_discipline_question_index(
-    request, discipline_title=None, assignment_id=None
-):
-    template = "peerinst/research/question_index.html"
-
-    annotator = get_object_or_404(User, username=request.user)
-
-    question_annotation_counts = get_question_annotation_counts(
-        discipline_title=discipline_title,
-        annotator=annotator,
-        assignment_id=assignment_id,
-    )
-
-    context = {
-        "questions": question_annotation_counts,
-        "discipline_title": discipline_title,
-        "assignment_id": assignment_id,
-        "annotations_count": AnswerAnnotation.objects.filter(
-            annotator=annotator, score__isnull=False
-        ).count(),
-        "annotator": annotator,
-    }
-    return render(request, template, context)
-
-
-def research_question_answer_list(
-    request,
-    question_pk,
-    answerchoice_value,
-    discipline_title=None,
-    assignment_id=None,
-):
-    template = "peerinst/research/answer_list.html"
-    if discipline_title:
-        reverse_url_name = "research-question-answer-list-by-discipline"
-    elif assignment_id:
-        reverse_url_name = "research-question-answer-list-by-assignment"
-
-    annotator = get_object_or_404(User, username=request.user)
-    if not annotator:
-        access_denied_and_logout(request)
-
-    # FIXME
-    if answerchoice_value.isdigit():
-        answerchoice_id = answerchoice_value
-    else:
-        answerchoice_id = {"A": 1, "B": 2, "C": 3, "D": 4, "E": 5, "F": 6}[
-            answerchoice_value
-        ]
-
-    answer_qs = Question.objects.get(pk=question_pk).answer_set.filter(
-        question_id=question_pk, first_answer_choice=answerchoice_id
-    )
-    for a in answer_qs:
-        annotation, created = AnswerAnnotation.objects.get_or_create(
-            answer=a, annotator=annotator, score__isnull=True
-        )
-        if created:
-            # need to drop null scored objects if scored ones exist
-            if AnswerAnnotation.objects.filter(
-                answer=a,
-                annotator=annotator,
-                answer__first_answer_choice=answerchoice_id,
-                score__isnull=False,
-            ).exists():
-                annotation.delete()
-
-    queryset = (
-        AnswerAnnotation.objects.filter(
-            answer__question_id=question_pk,
-            annotator=annotator,
-            answer__first_answer_choice=answerchoice_id,
-        )
-        .annotate(times_shown=Count("answer__shown_answer"))
-        .order_by("answer__first_answer_choice", "-times_shown")
-    )
-
-    AnswerAnnotationFormset = modelformset_factory(
-        AnswerAnnotation, fields=("score",), extra=0
-    )
-
-    if request.method == "POST":
-        formset = AnswerAnnotationFormset(request.POST)
-        if formset.is_valid():
-            instances = formset.save()
-
-    formset = AnswerAnnotationFormset(queryset=queryset)
-
-    context = {
-        "formset": formset,
-        "question": Question.objects.get(id=question_pk),
-        "discipline_title": discipline_title,
-        "question_pk": question_pk,
-        "assignment_id": assignment_id,
-        "annotations_count": AnswerAnnotation.objects.filter(
-            annotator=annotator,
-            score__isnull=False,
-            answer__question_id=question_pk,
-            answer__first_answer_choice=answerchoice_id,
-        ).count(),
-        "annotator": annotator,
-    }
-    return render(request, template, context)
-
-
-def research_all_annotations_for_question(
-    request, question_pk, discipline_title=None, assignment_id=None
-):
-    """
-    Returns:
-    ====================
-    All answer annotations for a question, ordered for
-    comparison by researchers
-    """
-    template = "peerinst/research/all_annotations.html"
-    question = Question.objects.get(id=question_pk)
-    context = {
-        "question": question,
-        "question_pk": question_pk,
-        "discipline_title": discipline_title,
-        "assignment_id": assignment_id,
-    }
-
-    all_annotations = []
-    for label, answerchoice_text in question.get_choices():
-        d1 = {}
-        d1["answerchoice"] = label
-        d1["annotations"] = []
-
-        # FIXME
-        if label.isdigit():
-            answerchoice_id = label
-        else:
-            answerchoice_id = {"A": 1, "B": 2, "C": 3, "D": 4, "E": 5, "F": 6}[
-                label
-            ]
-
-        a_list = list(
-            set(
-                AnswerAnnotation.objects.filter(
-                    score__isnull=False,
-                    answer__question_id=question_pk,
-                    answer__first_answer_choice=answerchoice_id,
-                ).values_list("answer", flat=True)
-            )
-        )
-
-        a_list.sort()
-
-        for a in a_list:
-            d2 = {}
-            d2["answer"] = Answer.objects.get(pk=a)
-            d2["scores"] = AnswerAnnotation.objects.filter(
-                answer=a, score__isnull=False
-            ).values("score", "annotator__username")
-            d1["annotations"].append(d2)
-
-        all_annotations.append(d1)
-
-    context["all_annotations"] = all_annotations
-
-    return render(request, template, context)
