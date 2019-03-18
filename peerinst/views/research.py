@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 import string
 from django.db.models import Count
-from django.forms import modelformset_factory
+from django.forms import ModelForm, modelformset_factory
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
@@ -10,7 +10,14 @@ from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404, render
 
 from ..mixins import student_check
-from ..models import Assignment, Answer, AnswerAnnotation, Discipline, Question
+from ..models import (
+    Assignment,
+    Answer,
+    AnswerAnnotation,
+    Discipline,
+    Question,
+    QuestionFlag,
+)
 
 
 @login_required
@@ -238,5 +245,36 @@ def research_all_annotations_for_question(
         all_annotations.append(d1)
 
     context["all_annotations"] = all_annotations
+
+    return render(request, template, context)
+
+
+class QuestionFlagForm(ModelForm):
+    class Meta:
+        model = QuestionFlag
+        fields = ["flag", "comment"]
+
+
+@login_required
+@user_passes_test(student_check, login_url="/access_denied_and_logout/")
+def flag_question_form(request, question_pk):
+    """
+    Get or Create QuestionFlag object for user, and allow edit
+    """
+    template = "peerinst/research/flag_question.html"
+    user = get_object_or_404(User, username=request.user)
+    question = get_object_or_404(Question, pk=question_pk)
+    question_flag, created = QuestionFlag.objects.get_or_create(
+        user=user, question=question
+    )
+
+    if request.method == "POST":
+        form = QuestionFlagForm(request.POST, instance=question_flag)
+        if form.is_valid():
+            instance = form.save()
+
+    form = QuestionFlagForm(instance=question_flag)
+
+    context = {"form": form}
 
     return render(request, template, context)

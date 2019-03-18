@@ -1,0 +1,20 @@
+{% extends 'peerinst/base.html' %}
+
+{% load staticfiles compress i18n %}
+
+{% block body %}
+<main>
+  <section>
+    <div class="content">
+      <form id="flag-form" action="" method="post">
+        {% csrf_token %}
+        {{ form.instance.question.title }}<br>
+        {{ form }}
+      </form>
+    </div>
+
+    <input type="submit" form="flag-form" class="mdc-button mdc-button--raised padded-bottom" value="Flag Question">
+
+  </section>
+</main>
+{% endblock %}
