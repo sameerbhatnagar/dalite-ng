@@ -29,8 +29,10 @@ def add_default_qualities(sender, **kwargs):
             threshold=1, min_words=4
         )
 
-    if not Quality.objects.filter(quality_type="global").exists():
-        quality = Quality.objects.create(quality_type="global", threshold=1)
+    if not Quality.objects.filter(quality_type__type="global").exists():
+        quality = Quality.objects.create(
+            quality_type=QualityType.objects.get(type="global"), threshold=1
+        )
         UsesCriterion.objects.create(
             quality=quality, name="min_words", version=0, rules=0, weight=1
         )

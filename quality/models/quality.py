@@ -66,12 +66,11 @@ class Quality(models.Model):
                 "quality": c["criterion"].evaluate(
                     answer, c["criterion"].rules, *args, **kwargs
                 ),
-                "threshold": c["criterion"].threshold,
             }
             for c in criterions_
         ]
         quality = float(
-            sum(q["quality"] * q["weight"] for q in qualities)
+            sum(q["quality"]["quality"] * q["weight"] for q in qualities)
         ) / sum(q["weight"] for q in qualities)
         return quality, qualities
 

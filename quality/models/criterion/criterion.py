@@ -73,6 +73,9 @@ class CriterionRules(models.Model):
         help_text="Minimum value for the answer to be accepted"
     )
 
+    class Meta:
+        abstract = True
+
     @staticmethod
     def get_or_create(*args, **kwargs):
         raise NotImplementedError("This property has to be implemented.")

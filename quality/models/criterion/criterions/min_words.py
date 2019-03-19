@@ -20,7 +20,10 @@ class MinWordsCriterion(Criterion):
 
     def evaluate(self, answer, rules_pk):
         rules = MinWordsCriterionRules.objects.get(pk=rules_pk)
-        return len(answer.rationale.split()) >= rules.min_words
+        return {
+            "quality": len(answer.rationale.split()) >= rules.min_words,
+            "threshold": rules.threshold,
+        }
 
 
 class MinWordsCriterionRules(CriterionRules):
@@ -30,12 +33,14 @@ class MinWordsCriterionRules(CriterionRules):
     )
 
     @staticmethod
-    def get_or_create(min_words=0):
+    def get_or_create(threshold=0, min_words=0):
         """
         Creates or the criterion rules.
 
         Parameters
         ----------
+        threshold : float in [0, 1] (default : 0)
+            Minimum value for the criterion to pass
         min_words : int >= 0 (default : 0)
             Minimum number of words for the quality to evaluate to True.
 
@@ -49,9 +54,11 @@ class MinWordsCriterionRules(CriterionRules):
         ValueError
             If the arguments have invalid values
         """
+        if threshold < 0 or threshold > 1:
+            raise ValueError("The threshold must be between 0 and 1")
         if min_words < 0:
             raise ValueError("The minmum number of words can't be negative.")
         criterion, __ = MinWordsCriterionRules.objects.get_or_create(
-            min_words=min_words
+            threshold=threshold, min_words=min_words
         )
         return criterion
