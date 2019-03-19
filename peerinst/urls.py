@@ -574,6 +574,11 @@ def researcher_patterns():
             views.research_question_answer_list,
             name="research-question-answer-list-by-assignment",
         ),
+        url(
+            r"^research/question/flag/(?P<question_pk>[^/]+)$",
+            views.flag_question_form,
+            name="research-flag-question",
+        ),
     ]
 
 

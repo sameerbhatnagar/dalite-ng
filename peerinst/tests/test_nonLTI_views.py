@@ -332,6 +332,7 @@ class TeacherTest(TestCase):
                 "title": "New question",
                 "type": "PI",
                 "answer_style": 0,
+                "category": 1,
                 "image": "",
                 "video_url": "",
                 "rationale_selection_algorithm": "prefer_expert_and_highly_voted",  # noqa
@@ -373,6 +374,7 @@ class TeacherTest(TestCase):
                 "title": "New question",
                 "type": "PI",
                 "answer_style": 0,
+                "category": 1,
                 "image": "",
                 "video_url": "",
                 "rationale_selection_algorithm": "prefer_expert_and_highly_voted",  # noqa
@@ -397,6 +399,7 @@ class TeacherTest(TestCase):
                 "title": "New title for question 5",
                 "type": "PI",
                 "answer_style": 0,
+                "category": 1,
                 "image": "",
                 "video_url": "",
                 "rationale_selection_algorithm": "prefer_expert_and_highly_voted",  # noqa
@@ -662,6 +665,7 @@ class TeacherTest(TestCase):
                 "title": "Title for cloned question",
                 "type": "PI",
                 "answer_style": 0,
+                "category": 1,
                 "image": "",
                 "video_url": "",
                 "rationale_selection_algorithm": "prefer_expert_and_highly_voted",  # noqa
