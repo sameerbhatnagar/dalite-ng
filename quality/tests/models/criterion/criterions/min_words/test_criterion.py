@@ -20,7 +20,9 @@ def test_evaluate__less_than_min(
     min_words_rules.min_words = 3
     min_words_rules.save()
 
-    assert not min_words_criterion.evaluate(answer, min_words_rules.pk)
+    assert not min_words_criterion.evaluate(answer, min_words_rules.pk)[
+        "quality"
+    ]
 
 
 def test_evaluate__more_than_min(
@@ -33,7 +35,7 @@ def test_evaluate__more_than_min(
     min_words_rules.min_words = 3
     min_words_rules.save()
 
-    assert min_words_criterion.evaluate(answer, min_words_rules.pk)
+    assert min_words_criterion.evaluate(answer, min_words_rules.pk)["quality"]
 
 
 def test_evaluate__same_as_min(min_words_criterion, min_words_rules, answers):
@@ -44,7 +46,7 @@ def test_evaluate__same_as_min(min_words_criterion, min_words_rules, answers):
     min_words_rules.min_words = 3
     min_words_rules.save()
 
-    assert min_words_criterion.evaluate(answer, min_words_rules.pk)
+    assert min_words_criterion.evaluate(answer, min_words_rules.pk)["quality"]
 
 
 def test_evaluate__default(min_words_criterion, answers):
@@ -54,7 +56,7 @@ def test_evaluate__default(min_words_criterion, answers):
 
     min_words_rules = MinWordsCriterionRules.get_or_create()
 
-    assert min_words_criterion.evaluate(answer, min_words_rules.pk)
+    assert min_words_criterion.evaluate(answer, min_words_rules.pk)["quality"]
 
 
 def test_rules(min_words_criterion):

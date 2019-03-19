@@ -3,7 +3,6 @@ from __future__ import unicode_literals
 
 import mock
 import pytest
-
 from quality.models import MinWordsCriterionRules, UsesCriterion
 from quality.tests.fixtures import *  # noqa
 
@@ -41,7 +40,7 @@ def test_evaluate__all_equal(assignment_quality):
             "rules": mock.Mock(),
         }
         criterion = mock.Mock()
-        evaluations = (i + 1 for i in range(3))
+        evaluations = ({"quality": i + 1, "threshold": 1} for i in range(3))
         criterion.evaluate = lambda answer, rules: next(evaluations)
         criterion_.objects.get.return_value = criterion
         for i in range(3):
@@ -57,7 +56,7 @@ def test_evaluate__all_equal(assignment_quality):
 
         assert quality_ == (1.0 + 2 + 3) / 3
         for i, q in enumerate(qualities):
-            assert q["quality"] == i + 1
+            assert q["quality"]["quality"] == i + 1
             assert q["weight"] == 1
 
 
@@ -72,7 +71,7 @@ def test_evaluate__different_weights(assignment_quality):
             "rules": mock.Mock(),
         }
         criterion = mock.Mock()
-        evaluations = (i + 1 for i in range(3))
+        evaluations = ({"quality": i + 1, "threshold": 1} for i in range(3))
         criterion.evaluate = lambda answer, rules: next(evaluations)
         criterion_.objects.get.return_value = criterion
         for i in range(3):
@@ -88,7 +87,7 @@ def test_evaluate__different_weights(assignment_quality):
 
         assert quality_ == ((1.0 * 1 + 2 * 2 + 3 * 3) / (1 + 2 + 3))
         for i, q in enumerate(qualities):
-            assert q["quality"] == i + 1
+            assert q["quality"]["quality"] == i + 1
             assert q["weight"] == i + 1
 
 

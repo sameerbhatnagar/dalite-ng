@@ -70,7 +70,8 @@ class Criterion(models.Model):
 
 class CriterionRules(models.Model):
     threshold = models.FloatField(
-        help_text="Minimum value for the answer to be accepted"
+        verbose_name="Threshold",
+        help_text="Minimum value for the answer to be accepted",
     )
 
     class Meta:

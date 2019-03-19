@@ -20,7 +20,9 @@ def test_evaluate__less_than_min(
     min_chars_rules.min_chars = 3
     min_chars_rules.save()
 
-    assert not min_chars_criterion.evaluate(answer, min_chars_rules.pk)
+    assert not min_chars_criterion.evaluate(answer, min_chars_rules.pk)[
+        "quality"
+    ]
 
 
 def test_evaluate__more_than_min(
@@ -33,7 +35,7 @@ def test_evaluate__more_than_min(
     min_chars_rules.min_chars = 3
     min_chars_rules.save()
 
-    assert min_chars_criterion.evaluate(answer, min_chars_rules.pk)
+    assert min_chars_criterion.evaluate(answer, min_chars_rules.pk)["quality"]
 
 
 def test_evaluate__same_as_min(min_chars_criterion, min_chars_rules, answers):
@@ -44,7 +46,7 @@ def test_evaluate__same_as_min(min_chars_criterion, min_chars_rules, answers):
     min_chars_rules.min_chars = 3
     min_chars_rules.save()
 
-    assert min_chars_criterion.evaluate(answer, min_chars_rules.pk)
+    assert min_chars_criterion.evaluate(answer, min_chars_rules.pk)["quality"]
 
 
 def test_evaluate__default(min_chars_criterion, answers):
@@ -54,7 +56,7 @@ def test_evaluate__default(min_chars_criterion, answers):
 
     min_chars_rules = MinCharsCriterionRules.get_or_create()
 
-    assert min_chars_criterion.evaluate(answer, min_chars_rules.pk)
+    assert min_chars_criterion.evaluate(answer, min_chars_rules.pk)["quality"]
 
 
 def test_dict(min_chars_criterion):

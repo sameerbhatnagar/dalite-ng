@@ -14,7 +14,7 @@ def new_min_words_rules(n):
     def generator():
         i = 0
         while True:
-            yield {"min_words": i}
+            yield {"threshold": 1, "min_words": i}
             i += 1
 
     gen = generator()

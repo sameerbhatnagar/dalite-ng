@@ -3,7 +3,6 @@ import json
 import mock
 from django.core.urlresolvers import reverse
 from django.template.response import TemplateResponse
-
 from peerinst.models import StudentGroupAssignment
 from peerinst.tests.fixtures import *  # noqa
 from quality.models import Quality, QualityType, UsesCriterion
@@ -109,7 +108,7 @@ def test_add_criterion(
 ):
     quality_type = QualityType.objects.get(type="assignment")
     student_group_assignment.quality = Quality.objects.create(
-        quality_type=quality_type
+        quality_type=quality_type, threshold=1
     )
     student_group_assignment.save()
     student_group_assignment.group.teacher.add(teacher)
@@ -138,7 +137,7 @@ def test_add_criterion__wrong_type(
 ):
     quality_type = QualityType.objects.get(type="assignment")
     student_group_assignment.quality = Quality.objects.create(
-        quality_type=quality_type
+        quality_type=quality_type, threshold=1
     )
     student_group_assignment.save()
     student_group_assignment.group.teacher.add(teacher)
@@ -163,7 +162,7 @@ def test_add_criterion__missing_params(
 ):
     quality_type = QualityType.objects.get(type="assignment")
     student_group_assignment.quality = Quality.objects.create(
-        quality_type=quality_type
+        quality_type=quality_type, threshold=1
     )
     student_group_assignment.save()
     student_group_assignment.group.teacher.add(teacher)
@@ -197,7 +196,7 @@ def test_add_criterion__wrong_quality_pk(
 ):
     quality_type = QualityType.objects.get(type="assignment")
     student_group_assignment.quality = Quality.objects.create(
-        quality_type=quality_type
+        quality_type=quality_type, threshold=1
     )
     student_group_assignment.save()
     student_group_assignment.group.teacher.add(teacher)
@@ -218,7 +217,7 @@ def test_add_criterion__wrong_criterion_name(
 ):
     quality_type = QualityType.objects.get(type="assignment")
     student_group_assignment.quality = Quality.objects.create(
-        quality_type=quality_type
+        quality_type=quality_type, threshold=1
     )
     student_group_assignment.save()
     student_group_assignment.group.teacher.add(teacher)
@@ -248,7 +247,7 @@ def test_update_criterion(
 ):
     quality_type = QualityType.objects.get(type="assignment")
     student_group_assignment.quality = Quality.objects.create(
-        quality_type=quality_type
+        quality_type=quality_type, threshold=1
     )
     student_group_assignment.save()
     student_group_assignment.group.teacher.add(teacher)
@@ -286,7 +285,7 @@ def test_update_criterion__wrong_type(
 ):
     quality_type = QualityType.objects.get(type="assignment")
     student_group_assignment.quality = Quality.objects.create(
-        quality_type=quality_type
+        quality_type=quality_type, threshold=1
     )
     student_group_assignment.save()
     student_group_assignment.group.teacher.add(teacher)
@@ -311,7 +310,7 @@ def test_update_criterion__missing_params(
 ):
     quality_type = QualityType.objects.get(type="assignment")
     student_group_assignment.quality = Quality.objects.create(
-        quality_type=quality_type
+        quality_type=quality_type, threshold=1
     )
     student_group_assignment.save()
     student_group_assignment.group.teacher.add(teacher)
@@ -394,7 +393,7 @@ def test_update_criterion__wrong_quality_pk(
 ):
     quality_type = QualityType.objects.get(type="assignment")
     student_group_assignment.quality = Quality.objects.create(
-        quality_type=quality_type
+        quality_type=quality_type, threshold=1
     )
     student_group_assignment.save()
     student_group_assignment.group.teacher.add(teacher)
@@ -433,7 +432,7 @@ def test_update_criterion__wrong_criterion(
 ):
     quality_type = QualityType.objects.get(type="assignment")
     student_group_assignment.quality = Quality.objects.create(
-        quality_type=quality_type
+        quality_type=quality_type, threshold=1
     )
     student_group_assignment.save()
     student_group_assignment.group.teacher.add(teacher)
@@ -472,7 +471,7 @@ def test_update_criterion__wrong_field(
 ):
     quality_type = QualityType.objects.get(type="assignment")
     student_group_assignment.quality = Quality.objects.create(
-        quality_type=quality_type
+        quality_type=quality_type, threshold=1
     )
     student_group_assignment.save()
     student_group_assignment.group.teacher.add(teacher)
@@ -511,7 +510,7 @@ def test_remove_criterion(
 ):
     quality_type = QualityType.objects.get(type="assignment")
     student_group_assignment.quality = Quality.objects.create(
-        quality_type=quality_type
+        quality_type=quality_type, threshold=1
     )
     student_group_assignment.save()
     student_group_assignment.group.teacher.add(teacher)
@@ -547,7 +546,7 @@ def test_remove_criterion__wrong_type(
 ):
     quality_type = QualityType.objects.get(type="assignment")
     student_group_assignment.quality = Quality.objects.create(
-        quality_type=quality_type
+        quality_type=quality_type, threshold=1
     )
     student_group_assignment.save()
     student_group_assignment.group.teacher.add(teacher)
@@ -579,7 +578,7 @@ def test_remove_criterion__missing_params(
 ):
     quality_type = QualityType.objects.get(type="assignment")
     student_group_assignment.quality = Quality.objects.create(
-        quality_type=quality_type
+        quality_type=quality_type, threshold=1
     )
     student_group_assignment.save()
     student_group_assignment.group.teacher.add(teacher)
@@ -620,7 +619,7 @@ def test_remove_criterion__wrong_quality_key(
 ):
     quality_type = QualityType.objects.get(type="assignment")
     student_group_assignment.quality = Quality.objects.create(
-        quality_type=quality_type
+        quality_type=quality_type, threshold=1
     )
     student_group_assignment.save()
     student_group_assignment.group.teacher.add(teacher)

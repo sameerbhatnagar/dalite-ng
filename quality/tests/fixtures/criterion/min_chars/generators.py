@@ -14,7 +14,7 @@ def new_min_chars_rules(n):
     def generator():
         i = 0
         while True:
-            yield {"min_chars": i}
+            yield {"threshold": 1, "min_chars": i}
             i += 1
 
     gen = generator()

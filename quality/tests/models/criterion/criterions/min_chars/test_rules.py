@@ -1,5 +1,4 @@
 import pytest
-
 from quality.models.criterion import MinCharsCriterionRules
 from quality.tests.fixtures import *  # noqa
 
@@ -7,15 +6,18 @@ from quality.tests.fixtures import *  # noqa
 def test_get_or_create__create():
     min_chars = 5
 
-    criterion = MinCharsCriterionRules.get_or_create(min_chars)
+    criterion = MinCharsCriterionRules.get_or_create(min_chars=min_chars)
     assert criterion.min_chars == min_chars
 
 
 def test_get_or_create__create(min_chars_rules):
     min_chars = min_chars_rules.min_chars
+    threshold = min_chars_rules.threshold
     n_rules = MinCharsCriterionRules.objects.count()
 
-    criterion = MinCharsCriterionRules.get_or_create(min_chars)
+    criterion = MinCharsCriterionRules.get_or_create(
+        threshold=threshold, min_chars=min_chars
+    )
     assert criterion.min_chars == min_chars
     assert MinCharsCriterionRules.objects.count() == n_rules
 
@@ -32,7 +34,16 @@ def test_dict(min_chars_rules):
     min_chars_rules.save()
 
     data = dict(min_chars_rules)
-    assert len(data) == 1
+    assert len(data) == 2
+    assert data["threshold"]["name"] == "threshold"
+    assert data["threshold"]["full_name"] == "Threshold"
+    assert (
+        data["threshold"]["description"]
+        == "Minimum value for the answer to be accepted"
+    )
+    assert data["threshold"]["value"] == 1
+    assert data["threshold"]["type"] == "FloatField"
+    assert len(data["threshold"]) == 5
     assert data["min_chars"]["name"] == "min_chars"
     assert data["min_chars"]["full_name"] == "Min characters"
     assert (

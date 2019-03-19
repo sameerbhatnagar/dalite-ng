@@ -4,14 +4,13 @@ from __future__ import unicode_literals
 import json
 import logging
 
+from dalite.views.errors import response_400, response_403
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_POST, require_safe
-
-from dalite.views.errors import response_400, response_403
 from peerinst.models import StudentGroupAssignment, Teacher
 
 from ..models import Quality, QualityType, UsesCriterion
@@ -77,7 +76,9 @@ def verify_assignment(req, assignment_pk):
 
     quality_type = QualityType.objects.get(type="assignment")
     if assignment.quality is None:
-        assignment.quality = Quality.objects.create(quality_type=quality_type)
+        assignment.quality = Quality.objects.create(
+            quality_type=quality_type, threshold=1
+        )
         assignment.save()
 
     return assignment
