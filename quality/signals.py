@@ -34,5 +34,5 @@ def add_default_qualities(sender, **kwargs):
             quality_type=QualityType.objects.get(type="global"), threshold=1
         )
         UsesCriterion.objects.create(
-            quality=quality, name="min_words", version=0, rules=0, weight=1
+            quality=quality, name="min_words", version=1, rules=1, weight=1
         )

@@ -22,10 +22,11 @@ def evaluate_quality(answer, quality=None):
         quality = Quality.objects.get(quality_type__type="global")
 
     quality_, evaluation = quality.evaluate(answer)
-
-    if quality_ < quality.threshold:
+    if quality_ is not None and quality_ < quality.threshold:
         failed = [
-            c["name"] for c in evaluation if c["quality"] < c["threshold"]
+            c["name"]
+            for c in evaluation
+            if c["quality"]["quality"] < c["quality"]["threshold"]
         ]
         return (
             "Your rationale didn't pass the following criterions:"

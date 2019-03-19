@@ -54,6 +54,7 @@ class Quality(models.Model):
                         version=c.version
                     )
                 ),
+                "rules": c.rules,
                 "weight": c.weight,
             }
             for c in self.criterions.all()
@@ -64,7 +65,7 @@ class Quality(models.Model):
                 "version": c["criterion"].version,
                 "weight": c["weight"],
                 "quality": c["criterion"].evaluate(
-                    answer, c["criterion"].rules, *args, **kwargs
+                    answer, c["rules"], *args, **kwargs
                 ),
             }
             for c in criterions_

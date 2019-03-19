@@ -19,9 +19,11 @@ class MinWordsCriterion(Criterion):
         }
 
     def evaluate(self, answer, rules_pk):
+        if not isinstance(answer, basestring):
+            answer = answer.rationale
         rules = MinWordsCriterionRules.objects.get(pk=rules_pk)
         return {
-            "quality": len(answer.rationale.split()) >= rules.min_words,
+            "quality": len(answer.split()) >= rules.min_words,
             "threshold": rules.threshold,
         }
 

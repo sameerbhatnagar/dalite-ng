@@ -91,8 +91,8 @@ class FirstAnswerForm(forms.Form):
 
     def clean(self):
         data = super(FirstAnswerForm, self).clean()
-        err = evaluate_quality(data.first_answer_choice)
-        if err:
+        err = evaluate_quality(data["rationale"])
+        if err is not None:
             raise forms.ValidationError(_(err))
         return data
 
