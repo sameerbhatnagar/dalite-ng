@@ -13,6 +13,9 @@ logger = logging.getLogger("quality")
 
 class Quality(models.Model):
     quality_type = models.ForeignKey(QualityType)
+    threshold = models.FloatField(
+        help_text="Minimum value for the answer to be accepted"
+    )
 
     def __str__(self):
         return "{} for type {}".format(self.pk, self.quality_type)
@@ -38,6 +41,7 @@ class Quality(models.Model):
                     version: int
                     weight: int
                     quality: float
+                    threshold: float
                 }]
         """
         if not self.criterions.exists():
@@ -62,6 +66,7 @@ class Quality(models.Model):
                 "quality": c["criterion"].evaluate(
                     answer, c["criterion"].rules, *args, **kwargs
                 ),
+                "threshold": c["criterion"].threshold,
             }
             for c in criterions_
         ]

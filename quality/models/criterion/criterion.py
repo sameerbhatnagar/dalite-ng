@@ -69,6 +69,10 @@ class Criterion(models.Model):
 
 
 class CriterionRules(models.Model):
+    threshold = models.FloatField(
+        help_text="Minimum value for the answer to be accepted"
+    )
+
     @staticmethod
     def get_or_create(*args, **kwargs):
         raise NotImplementedError("This property has to be implemented.")
