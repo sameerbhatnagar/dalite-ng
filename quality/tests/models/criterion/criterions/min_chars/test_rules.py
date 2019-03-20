@@ -24,9 +24,12 @@ def test_get_or_create__create(min_chars_rules):
 
 def test_get_or_create__wrong_args():
     min_chars = -1
-
     with pytest.raises(ValueError):
-        criterion = MinCharsCriterionRules.get_or_create(min_chars)
+        criterion = MinCharsCriterionRules.get_or_create(min_chars=min_chars)
+
+    threshold = 2
+    with pytest.raises(ValueError):
+        criterion = MinCharsCriterionRules.get_or_create(threshold=threshold)
 
 
 def test_dict(min_chars_rules):

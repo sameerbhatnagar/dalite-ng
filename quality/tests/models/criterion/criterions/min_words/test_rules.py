@@ -24,9 +24,12 @@ def test_get_or_create__get(min_words_rules):
 
 def test_get_or_create__wrong_args():
     min_words = -1
-
     with pytest.raises(ValueError):
-        criterion = MinWordsCriterionRules.get_or_create(min_words)
+        criterion = MinWordsCriterionRules.get_or_create(min_words=min_words)
+
+    threshold = 2
+    with pytest.raises(ValueError):
+        criterion = MinWordsCriterionRules.get_or_create(threshold=threshold)
 
 
 def test_rules(min_words_criterion):
