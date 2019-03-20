@@ -3,6 +3,11 @@ from quality.models import Quality, QualityType
 
 
 @pytest.fixture
+def global_quality():
+    return Quality.objects.get(quality_type__type="global")
+
+
+@pytest.fixture
 def assignment_quality_type():
     return QualityType.objects.get(type="assignment")
 

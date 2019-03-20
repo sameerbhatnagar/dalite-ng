@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 import logging
+from itertools import chain
 
 from django.db import models
 
@@ -21,8 +22,15 @@ class Quality(models.Model):
         return "{} for type {}".format(self.pk, self.quality_type)
 
     def __iter__(self):
-        return iter(
-            (("pk", self.pk), ("quality_type", self.quality_type.type))
+        return chain(
+            {
+                "pk": self.pk,
+                "quality_type": self.quality_type.type,
+            }.iteritems(),
+            *(
+                dict(criterion).iteritems()
+                for criterion in self.criterions.all()
+            )
         )
 
     def evaluate(self, answer, *args, **kwargs):

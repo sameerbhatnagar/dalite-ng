@@ -2,6 +2,7 @@ __all__ = [
     "assignment_qualities",
     "assignment_quality",
     "assignment_quality_type",
+    "global_quality",
     "min_chars_criterion",
     "min_chars_rules",
     "min_words_criterion",
@@ -18,4 +19,5 @@ from .quality import (
     assignment_qualities,
     assignment_quality,
     assignment_quality_type,
+    global_quality,
 )
