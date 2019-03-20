@@ -1,4 +1,6 @@
-from quality.models import Quality
+from quality.models import Quality, RejectedAnswer
+
+from .models import Answer
 
 
 def evaluate_quality(answer, quality=None):
@@ -21,6 +23,9 @@ def evaluate_quality(answer, quality=None):
     if quality is None:
         quality = Quality.objects.get(quality_type__type="global")
 
+    if isinstance(answer, Answer):
+        answer = answer.rationale
+
     quality_, evaluation = quality.evaluate(answer)
     if quality_ is not None and quality_ < quality.threshold:
         failed = [
@@ -28,9 +33,9 @@ def evaluate_quality(answer, quality=None):
             for c in evaluation
             if c["quality"]["quality"] < c["quality"]["threshold"]
         ]
+        RejectedAnswer.add(quality, answer, evaluation)
         return (
             "Your rationale didn't pass the following criterions:"
             "\n\t{}".format("\n\t".join(failed))
         )
-
     return None

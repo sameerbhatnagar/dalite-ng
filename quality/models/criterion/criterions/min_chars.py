@@ -22,10 +22,14 @@ class MinCharsCriterion(Criterion):
         if not isinstance(answer, basestring):
             answer = answer.rationale
         rules = MinCharsCriterionRules.objects.get(pk=rules_pk)
-        return {
-            "quality": len(answer) >= rules.min_chars,
-            "threshold": rules.threshold,
+        evaluation = {
+            "version": self.version,
+            "quality": float(len(answer) >= rules.min_chars),
         }
+        evaluation.update(
+            {criterion: val["value"] for criterion, val in rules}
+        )
+        return evaluation
 
 
 class MinCharsCriterionRules(CriterionRules):

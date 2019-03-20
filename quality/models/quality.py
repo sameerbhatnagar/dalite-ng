@@ -70,7 +70,6 @@ class Quality(models.Model):
         qualities = [
             {
                 "name": c["criterion"].name,
-                "version": c["criterion"].version,
                 "weight": c["weight"],
                 "quality": c["criterion"].evaluate(
                     answer, c["rules"], *args, **kwargs

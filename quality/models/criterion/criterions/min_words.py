@@ -22,10 +22,14 @@ class MinWordsCriterion(Criterion):
         if not isinstance(answer, basestring):
             answer = answer.rationale
         rules = MinWordsCriterionRules.objects.get(pk=rules_pk)
-        return {
-            "quality": len(answer.split()) >= rules.min_words,
-            "threshold": rules.threshold,
+        evaluation = {
+            "version": self.version,
+            "quality": float(len(answer.split()) >= rules.min_words),
         }
+        evaluation.update(
+            {criterion: val["value"] for criterion, val in rules}
+        )
+        return evaluation
 
 
 class MinWordsCriterionRules(CriterionRules):
