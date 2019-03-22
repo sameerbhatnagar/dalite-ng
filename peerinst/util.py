@@ -8,8 +8,26 @@ from collections import defaultdict, Counter
 
 
 from django.utils.safestring import mark_safe
-from django.db.models import Count, Value, Case, Q, When, CharField
-from peerinst.models import Question, Assignment, Student, Answer
+from django.db.models import (
+    Count,
+    Value,
+    Case,
+    Q,
+    When,
+    CharField,
+    DurationField,
+    F,
+    ExpressionWrapper,
+    Avg,
+)
+from peerinst.models import (
+    Question,
+    Assignment,
+    Student,
+    Answer,
+    LtiEvent,
+    ShownRationale,
+)
 
 
 def get_object_or_none(model_class, *args, **kwargs):
@@ -1001,3 +1019,126 @@ def get_lti_data_as_csv(weeks_ago_start, weeks_ago_stop=0, username=None):
         df.to_csv(path_or_buf=f, encoding="utf-8")
 
     return df
+
+
+# https://stackoverflow.com/questions/1060279/iterating-through-a-range-of-dates-in-python
+def make_daterange(start_date, end_date):
+    for n in range(int((end_date - start_date).days)):
+        yield start_date + datetime.timedelta(n)
+
+
+def load_shown_rationales_from_ltievent_logs(day_of_logs):
+
+    event_logs = LtiEvent.objects.filter(
+        timestamp__gte=day_of_logs,
+        timestamp__lte=day_of_logs + datetime.timedelta(hours=24),
+    )
+
+    for e in event_logs.iterator():
+        e_json = e.event_log
+        if e_json["event_type"] == "save_problem_success":
+
+            try:
+                try:
+                    shown_for_answer = Answer.objects.get(
+                        user_token=e_json["username"],
+                        question_id=e_json["event"]["question_id"],
+                        assignment_id=e_json["event"]["assignment_id"],
+                    )
+                except Answer.MultipleObjectsReturned:
+                    print(
+                        "Multiple : ",
+                        e_json["username"],
+                        e_json["event"]["question_id"],
+                        e_json["event"]["assignment_id"],
+                    )
+                try:
+                    for r in e_json["event"]["rationales"]:
+                        obj, created = ShownRationale.objects.get_or_create(  # noqa
+                            shown_answer=Answer.objects.get(pk=r["id"]),
+                            shown_for_answer=shown_for_answer,
+                        )
+                except KeyError:
+                    print("No Rationales")
+                    print(e_json)
+
+            except Answer.DoesNotExist:
+                print(
+                    "Not found : ",
+                    e_json["username"],
+                    e_json["event"]["question_id"],
+                    e_json["event"]["assignment_id"],
+                )
+    return
+
+
+def get_average_time_spent_on_all_question_start(question_id):
+    """
+    Given a question id, return average time taken by all students to
+    submit answer. If not enough data, return None
+    """
+
+    expression = F("datetime_second") - F("datetime_start")
+    wrapped_expression = ExpressionWrapper(expression, DurationField())
+    try:
+        result = (
+            Answer.objects.filter(question_id=question_id)
+            .annotate(time_spent=wrapped_expression)
+            .values("time_spent")
+            .aggregate(Avg("time_spent"))["time_spent__avg"]
+            .seconds
+        )
+    except AttributeError:
+        result = None
+
+    return result
+
+
+def populate_answer_start_time_from_ltievent_logs(day_of_logs):
+    """
+    Given a date, filter event logs to populate Answer.datetime_start field for
+    answer instances already in database
+    """
+
+    event_logs = LtiEvent.objects.filter(
+        timestamp__gte=day_of_logs,
+        timestamp__lte=day_of_logs + datetime.timedelta(hours=24),
+    )
+    i = 0
+    for e in event_logs.iterator():
+        e_json = e.event_log
+        if e_json["event_type"] == "problem_show":
+
+            try:
+
+                answer_obj = Answer.objects.get(
+                    user_token=e_json["username"],
+                    question_id=e_json["event"]["question_id"],
+                    assignment_id=e_json["event"]["assignment_id"],
+                )
+
+                # keep the latest time at which student accessed
+                # problem start page
+                if answer_obj.datetime_start:
+                    if answer_obj.datetime_start < e.timestamp:
+                        answer_obj.datetime_start = e.timestamp
+                        answer_obj.save()
+                        i += 1
+                    else:
+                        pass
+                else:
+                    answer_obj.datetime_start = e.timestamp
+                    answer_obj.save()
+                    i += 1
+
+            except Answer.DoesNotExist:
+                pass
+                # print(
+                #     "Not found : ",
+                #     e_json["username"],
+                #     e_json["event"]["question_id"],
+                #     e_json["event"]["assignment_id"],
+                # )
+
+    print("{} answer start times updated".format(i))
+    return
