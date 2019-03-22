@@ -61,6 +61,7 @@
         {% if form.errors.first_answer_choice %}
           {{ form.errors.first_answer_choice }}
         {% endif %}
+        {{ form.non_field_errors }}
       {% block form %}
       <form id="submit-answer-form" method="post">
         {% csrf_token %}

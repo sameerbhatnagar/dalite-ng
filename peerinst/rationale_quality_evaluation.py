@@ -35,7 +35,7 @@ def evaluate_quality(answer, quality=None):
         ]
         RejectedAnswer.add(quality, answer, evaluation)
         return (
-            "Your rationale didn't pass the following criterions:"
-            "\n\t{}".format("\n\t".join(failed))
+            "Your rationale didn't pass the following criterions: "
+            "{}".format(", ".join(failed))
         )
     return None
