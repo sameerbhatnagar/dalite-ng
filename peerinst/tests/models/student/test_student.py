@@ -158,6 +158,7 @@ def test_join_group_mail_confirmation(student, group):
 
 
 def test_join_group_existing_assignments(student, group_assignment):
+    group_assignment.distribute()
     assert not StudentAssignment.objects.filter(
         student=student, group_assignment=group_assignment
     ).exists()
@@ -233,6 +234,7 @@ def test_add_assignment(student, group_assignment):
 
 
 def test_add_assignment__assignment_exists(student, group_assignment):
+    group_assignment.distribute()
     student.join_group(group_assignment.group)
 
     assert StudentAssignment.objects.filter(
