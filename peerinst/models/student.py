@@ -223,7 +223,9 @@ class Student(models.Model):
                 group.pk,
             )
 
-        for assignment in StudentGroupAssignment.objects.filter(group=group):
+        for assignment in StudentGroupAssignment.objects.filter(
+            group=group, distribution_date__isnull=False
+        ):
             self.add_assignment(assignment, send_email=False)
 
         if mail_type is not None:
