@@ -8,6 +8,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404, render
+from django.utils.translation import ugettext_lazy as _
 
 from ..mixins import student_check
 from ..models import (
@@ -267,14 +268,24 @@ def flag_question_form(request, question_pk):
     question_flag, created = QuestionFlag.objects.get_or_create(
         user=user, question=question
     )
+    if not created:
+        message = _(
+            "Your input has been forwarded to a myDALITE content moderator."
+        )
 
     if request.method == "POST":
         form = QuestionFlagForm(request.POST, instance=question_flag)
         if form.is_valid():
             instance = form.save()
-
+            message = _(
+                """
+                Your input has been forwarded to a myDALITE content moderator.
+                """
+            )
+    elif created:
+        message = None
     form = QuestionFlagForm(instance=question_flag)
 
-    context = {"form": form}
+    context = {"form": form, "question": question, "message": message}
 
     return render(request, template, context)
