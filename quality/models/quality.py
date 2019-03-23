@@ -68,13 +68,17 @@ class Quality(models.Model):
             for c in self.criterions.all()
         ]
         qualities = [
-            {
-                "name": c["criterion"].name,
-                "weight": c["weight"],
-                "quality": c["criterion"].evaluate(
-                    answer, c["rules"], *args, **kwargs
-                ),
-            }
+            dict(
+                chain(
+                    dict(c["criterion"]).iteritems(),
+                    {
+                        "weight": c["weight"],
+                        "quality": c["criterion"].evaluate(
+                            answer, c["rules"], *args, **kwargs
+                        ),
+                    }.iteritems(),
+                )
+            )
             for c in criterions_
         ]
         quality = float(

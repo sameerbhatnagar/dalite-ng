@@ -28,14 +28,18 @@ def evaluate_quality(answer, quality=None):
 
     quality_, evaluation = quality.evaluate(answer)
     if quality_ is not None and quality_ < quality.threshold:
+        print(evaluation)
         failed = [
-            c["name"]
+            "<span title='{}'>{}</span>".format(
+                c["description"], c["full_name"]
+            )
             for c in evaluation
             if c["quality"]["quality"] < c["quality"]["threshold"]
         ]
         RejectedAnswer.add(quality, answer, evaluation)
         return (
+            "<div class='quality-error'>"
             "Your rationale didn't pass the following criterions: "
-            "{}".format(", ".join(failed))
+            "<ul><li>{}</li></ul></div>".format("</li><li>".join(failed))
         )
     return None

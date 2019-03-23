@@ -25,7 +25,7 @@ from .models import (
     StudentGroupAssignment,
     Teacher,
 )
-from .rationale_quality_evaluation import evaluate_quality
+from .quality_evaluation import evaluate_quality
 
 
 class NonStudentPasswordResetForm(PasswordResetForm):
@@ -83,7 +83,8 @@ class FirstAnswerForm(forms.Form):
 
     def clean(self):
         data = super(FirstAnswerForm, self).clean()
-        err = evaluate_quality(data["rationale"])
+        quality = data.get("quality")
+        err = evaluate_quality(data["rationale"], quality=quality)
         if err is not None:
             raise forms.ValidationError(_(err))
         return data

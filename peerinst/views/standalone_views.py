@@ -109,6 +109,19 @@ def live(request, token, assignment_hash):
     # Register assignment
     request.session["assignment"] = assignment_hash
 
+    # Register quality
+    if group_assignment.quality:
+        request.session["quality"] = group_assignment.quality.pk
+    elif group_assignment.group.quality:
+        request.session["quality"] = group_assignment.group.quality.pk
+    elif (
+        group_assignment.group.teachers.exists()
+        and group_assignment.group.teachers.first().quality
+    ):
+        request.session[
+            "quality"
+        ] = group_assignment.group.teachers.first().quality.pk
+
     assignment = student_assignment.group_assignment
     current_question = student_assignment.get_current_question()
     has_expired = student_assignment.group_assignment.expired

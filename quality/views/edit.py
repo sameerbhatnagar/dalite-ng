@@ -4,19 +4,52 @@ from __future__ import unicode_literals
 import json
 import logging
 
-from dalite.views.errors import response_400, response_403
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_POST, require_safe
-from peerinst.models import StudentGroupAssignment, Teacher
+
+from dalite.views.errors import response_400, response_403
+from peerinst.models import StudentGroup, StudentGroupAssignment, Teacher
 
 from ..models import Quality, QualityType, UsesCriterion
 from .decorators import logged_in_non_student_required
 
 logger = logging.getLogger("quality")
+
+
+def verify_question(req, question_pk):
+    """
+    Verifies if the question exists and the user is allowed to change the
+    question, returning it if that's the case and an error response if not.
+
+    Parameters
+    ----------
+    req : HttpRequest
+        Request
+    question_pk : int
+        Primary key for the question
+
+    Returns
+    -------
+    Either
+        Quality
+            Quality corresponding to the question
+        HttpResponse
+            400 or 403 error response
+    """
+    return response_400(
+        req,
+        msg=_("Some parameters are wrong"),
+        logger_msg=(
+            "An access to {} was tried with a question primary key.".format(
+                req.path
+            )
+        ),
+        log=logger.warning,
+    )
 
 
 def verify_assignment(req, assignment_pk):
@@ -34,8 +67,8 @@ def verify_assignment(req, assignment_pk):
     Returns
     -------
     Either
-        StudentGroupAssignment
-            Assignment corresponding to the primary key
+        Quality
+            Quality corresponding to the assignment
         HttpResponse
             400 or 403 error response
     """
@@ -81,7 +114,112 @@ def verify_assignment(req, assignment_pk):
         )
         assignment.save()
 
-    return assignment
+    return assignment.quality
+
+
+def verify_group(req, group_pk):
+    """
+    Verifies if the group exists and the user is allowed to change the
+    group, returning it if that's the case and an error response if not.
+
+    Parameters
+    ----------
+    req : HttpRequest
+        Request
+    group_pk : int
+        Primary key for the group
+
+    Returns
+    -------
+    Either
+        Quality
+            Quality corresponding to the group
+        HttpResponse
+            400 or 403 error response
+    """
+    try:
+        group = StudentGroup.objects.get(pk=group_pk)
+    except StudentGroupAssignment.DoesNotExist:
+        return response_400(
+            req,
+            msg=_("Some parameters are wrong"),
+            logger_msg=(
+                "An access to {} was tried with the wrong ".format(req.path)
+                + "group primary key {}.".format(group_pk)
+            ),
+            log=logger.warning,
+        )
+
+    try:
+        teacher = Teacher.objects.get(user=req.user)
+    except Teacher.DoesNotExist:
+        return response_403(
+            req,
+            msg=_("You don't have access to this resource."),
+            logger_msg=(
+                "Access to {} from user {}.".format(req.path, req.user.pk)
+            ),
+            log=logger.warning,
+        )
+
+    if not group.teacher.filter(pk=teacher.pk).exists():
+        return response_403(
+            req,
+            msg=_("You don't have access to this resource."),
+            logger_msg=(
+                "Access to {} from user {}.".format(req.path, req.user.pk)
+            ),
+            log=logger.warning,
+        )
+
+    quality_type = QualityType.objects.get(type="group")
+    if group.quality is None:
+        group.quality = Quality.objects.create(
+            quality_type=quality_type, threshold=1
+        )
+        group.save()
+
+    return group.quality
+
+
+def verify_teacher(req):
+    """
+    Verifies if the teacher exists , returning it if that's the case and an
+    error response if not.
+
+    Parameters
+    ----------
+    req : HttpRequest
+        Request
+
+    Returns
+    -------
+    Either
+        Quality
+            Quality corresponding to the group
+        HttpResponse
+            400 or 403 error response
+    """
+    try:
+        teacher = Teacher.objects.get(user=req.user)
+    except Teacher.DoesNotExist:
+        return response_403(
+            req,
+            msg=_("You don't have access to this resource."),
+            logger_msg=(
+                "Access to {} from user {}.".format(req.path, req.user.pk)
+            ),
+            log=logger.warning,
+        )
+
+    quality_type = QualityType.objects.get(type="teacher")
+    if teacher.quality is None:
+        teacher.quality = Quality.objects.create(
+            quality_type=quality_type, threshold=1
+        )
+        teacher.save()
+
+    return teacher.quality
 
 
 @logged_in_non_student_required
@@ -103,33 +241,41 @@ def index(req):
     HttpResponse
         Either a TemplateResponse for edition or an error response
     """
+    question_pk = req.GET.get("question")
     assignment_pk = req.GET.get("assignment")
+    group_pk = req.GET.get("group")
+    for_teacher = req.GET.get("teacher")
     next_ = req.GET.get("next")
 
-    if assignment_pk is None:
+    if question_pk is not None:
+        quality = verify_question(req, question_pk)
+    elif assignment_pk is not None:
+        quality = verify_assignment(req, assignment_pk)
+    elif group_pk is not None:
+        quality = verify_group(req, group_pk)
+    elif for_teacher is not None:
+        quality = verify_teacher(req)
+    else:
         return response_400(
             req,
             msg=_("Some parameters are missing"),
             logger_msg=(
                 "An access to {} was tried without a ".format(req.path)
                 + "primary key in the query string indicating what the "
-                "quality was for."
+                "quality is for."
             ),
             log=logger.error,
         )
 
-    if assignment_pk is not None:
-        assignment = verify_assignment(req, assignment_pk)
-        if isinstance(assignment, HttpResponse):
-            return assignment
+    if isinstance(quality, HttpResponse):
+        return quality
 
     data = {
-        "quality": dict(assignment.quality),
+        "quality": dict(quality),
         "next": next_,
-        "available": assignment.quality.available,
+        "available": quality.available,
         "criterions": [
-            dict(criterion)
-            for criterion in assignment.quality.criterions.all()
+            dict(criterion) for criterion in quality.criterions.all()
         ],
         "urls": {
             "add_criterion": reverse("quality:add-criterion"),
@@ -344,5 +490,4 @@ def remove_criterion(req):
     logger.info(
         "Criterion %s was removed from quality %d.", criterion_name, quality_pk
     )
-
     return HttpResponse()

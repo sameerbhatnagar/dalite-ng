@@ -1,4 +1,4 @@
-{% extends user.student|yesno:'peerinst/student/base.html,peerinst/base.html' %}
+{% extends 'peerinst/question/base.html' %}
 
 {% load add_class i18n %}
 
@@ -61,11 +61,16 @@
         {% if form.errors.first_answer_choice %}
           {{ form.errors.first_answer_choice }}
         {% endif %}
-        {{ form.non_field_errors }}
+        {% for error in form.non_field_errors %}
+          {{ error|safe }}
+        {% endfor %}
       {% block form %}
       <form id="submit-answer-form" method="post">
         {% csrf_token %}
         {{ form.datetime_start }}
+        {% if quality %}
+        <input type="hidden" name="qualiy" value="{{ quality }}">
+        {% endif %}
         {% block inner_form %}
         <!--
         <span class="mdc-typography--body1">{{ form.first_answer_choice.label }}</span>

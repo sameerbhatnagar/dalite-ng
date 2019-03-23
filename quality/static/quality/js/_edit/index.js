@@ -113,7 +113,11 @@ function returnLinkView() {
   const link = document.querySelector("#back-link");
   if (model.next) {
     link.href = model.next;
-    link.textContent = `Back to ${model.quality.qualityType}`;
+    if (model.quality.qualityType === "teacher") {
+      link.textContent = "Back to account";
+    } else {
+      link.textContent = `Back to ${model.quality.qualityType}`;
+    }
   } else {
     link.parentNode.removeChild(link);
   }

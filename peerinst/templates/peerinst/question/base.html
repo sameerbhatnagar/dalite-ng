@@ -1,0 +1,10 @@
+{% extends user.student|yesno:'peerinst/student/base.html,peerinst/base.html' %}
+
+{% load compress staticfiles %}
+
+{% block stylesheets %}
+{{ block.super }}
+{% compress css %}
+<link href="{% static 'peerinst/css/assignment.min.css' %}" rel="stylesheet">
+{% endcompress %}
+{% endblock %}

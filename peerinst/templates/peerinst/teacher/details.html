@@ -18,7 +18,9 @@
     </h1>
 
     <div class="foldable">
-      <h2 class="foldable--title mdc-typography--display1 mdc-theme--secondary">{% trans 'Groups' %}</h2>
+      <h2 class="foldable--title mdc-typography--display1 mdc-theme--secondary">
+        {% trans 'Groups' %}
+      </h2>
       <div class="foldable--body">
         <div class="admin-link">
           <a href="{% url 'teacher-groups' teacher.id %}">{% trans 'Manage groups' %}</a>
@@ -59,7 +61,9 @@
     </div>
 
     <div class="foldable">
-      <h2 id="assignment-section" class="foldable--title mdc-typography--display1 mdc-theme--secondary">{% trans 'Assignments' %}</h2>
+      <h2 id="assignment-section" class="foldable--title mdc-typography--display1 mdc-theme--secondary">
+        {% trans 'Assignments' %}
+      </h2>
       <div class="foldable--body">
         <div class="admin-link">
             <a href="{% url 'teacher-assignments' teacher.id %}">{% trans 'Manage assignments' %}</a>
@@ -146,7 +150,9 @@
     </div>
 
     <div class="foldable">
-      <h2 id="question-section" class="foldable--title mdc-typography--display1 mdc-theme--secondary">{% trans 'Questions' %}</h2>
+      <h2 id="question-section" class="foldable--title mdc-typography--display1 mdc-theme--secondary">
+        {% trans 'Questions' %}
+      </h2>
       <div class="foldable--body">
         <div class="admin-link">
           <a href="{% url 'question-create' %}">{% trans 'Create new' %}</a>
@@ -216,7 +222,9 @@
     </div>
 
     <div class="foldable">
-      <h2 class="foldable--title mdc-typography--display1 mdc-theme--secondary">{% trans 'Blink scripts' %}</h2>
+      <h2 class="foldable--title mdc-typography--display1 mdc-theme--secondary">
+        {% trans 'Blink scripts' %}
+      </h2>
       <div class="foldable--body">
         <div class="admin-link">
           <a href="{% url 'blinkAssignment-create' %}">{% trans 'Add script' %}</a>
@@ -261,7 +269,46 @@
     </div>
 
     <div class="foldable">
-      <h2 class="foldable--title mdc-typography--display1 mdc-theme--secondary">{% trans 'Identity' %}</h2>
+      <h2 class="foldable--title mdc-typography--display1 mdc-theme--secondary">
+        {% trans 'Quality control' %}
+      </h2>
+      <div class="foldable--body">
+        <ul class="mdc-list mdc-list--two-line">
+          <li role="separator" class="mdc-list-divider"></li>
+          <li class="mdc-list-item"
+              title="{% trans 'Quality evaluation for allowing rationale submission' %}"
+              onclick="window.location.href='{% url 'quality:edit' %}?teacher=true&next={{ request.path }}'"
+              style="cursor: pointer;">
+            <span class="mdc-list-item__graphic mdc-theme--primary">
+              <i class="mdc-theme--primary material-icons md-48">
+                assistant
+              </i>
+            </span>
+            <span class="mdc-list-item__text mdc-theme--secondary bold">
+              {% trans 'Submission quality' %}
+              <div class="mdc-list-item__secondary-text">
+                {% if teacher.quality %}
+                <ul style="padding-left:0px;">
+                  {% for criterion in teacher.quality.criterions.all %}
+                  <li class="mdc-list-item__secondary-text">
+                    {{ criterion.name }} v{{ criterion.version }}
+                  </li>
+                  {% endfor %}
+                </ul>
+                {% endif %}
+              </div>
+            </span>
+          </li>
+          <li role="separator" class="mdc-list-divider"></li>
+        </ul>
+      </div>
+      
+    </div>
+
+    <div class="foldable">
+      <h2 class="foldable--title mdc-typography--display1 mdc-theme--secondary">
+        {% trans 'Identity' %}
+      </h2>
       <div class="foldable--body">
         <ul class="mdc-list mdc-list--two-line">
           <li role="separator" class="mdc-list-divider"></li>

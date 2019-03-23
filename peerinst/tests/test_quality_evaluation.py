@@ -1,4 +1,4 @@
-from peerinst.rationale_quality_evaluation import evaluate_quality
+from peerinst.quality_evaluation import evaluate_quality
 from quality.models import RejectedAnswer
 from quality.tests.fixtures import global_quality  # noqa
 
