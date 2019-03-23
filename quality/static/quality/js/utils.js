@@ -5,6 +5,11 @@ export function createInput(type) {
   if (type === "PositiveIntegerField") {
     input.type = "number";
     input.min = 0;
+  } else if (type === "ProbabilityField") {
+    input.type = "number";
+    input.min = 0;
+    input.max = 1;
+    input.step = 0.01;
   }
   return input;
 }

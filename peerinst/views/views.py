@@ -888,6 +888,7 @@ class QuestionMixin(object):
                     "assignment_expired"
                 )
             )
+            context.update(quality=self.request.session.get("quality"))
 
         return context
 

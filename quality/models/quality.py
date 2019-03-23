@@ -209,7 +209,7 @@ class UsesCriterion(models.Model):
             {
                 key: value
                 for key, value in dict(rules).items()
-                if key in criterion.rules
+                if key in criterion.rules or key == "threshold"
             }
         )
         data.update({"weight": self.weight})

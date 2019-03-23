@@ -5,6 +5,13 @@
 {% block stylesheets %}
 {{ block.super }}
 {% compress css %}
-<link href="{% static 'peerinst/css/assignment.min.css' %}" rel="stylesheet">
+<link href="{% static 'peerinst/css/question.min.css' %}" rel="stylesheet">
+{% endcompress %}
+{% endblock %}
+
+{% block scripts %}
+{{ block.super }}
+{% compress js %}
+<script src="{% static 'peerinst/js/question.min.js' %}"></script>
 {% endcompress %}
 {% endblock %}

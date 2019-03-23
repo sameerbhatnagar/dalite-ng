@@ -283,6 +283,7 @@ def index(req):
             "remove_criterion": reverse("quality:remove-criterion"),
         },
     }
+    print(data["criterions"])
 
     return render(req, "quality/edit/index.html", {"data": json.dumps(data)})
 

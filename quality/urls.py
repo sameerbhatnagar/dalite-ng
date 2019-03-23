@@ -23,4 +23,14 @@ def edit_patterns():
     ]
 
 
-urlpatterns = sum([edit_patterns()], [])
+def validation_patterns():
+    return [
+        url(
+            r"^validate/$",
+            views.validation.validate_rationale,
+            name="validate",
+        )
+    ]
+
+
+urlpatterns = sum([edit_patterns(), validation_patterns()], [])

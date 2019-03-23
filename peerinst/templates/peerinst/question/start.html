@@ -68,9 +68,6 @@
       <form id="submit-answer-form" method="post">
         {% csrf_token %}
         {{ form.datetime_start }}
-        {% if quality %}
-        <input type="hidden" name="qualiy" value="{{ quality }}">
-        {% endif %}
         {% block inner_form %}
         <!--
         <span class="mdc-typography--body1">{{ form.first_answer_choice.label }}</span>
@@ -101,7 +98,15 @@
         {% endblock %}
         {% if lti or not assignment_expired %}
         <div>
-          <input id="answer-form" class="mdc-button mdc-button--raised padded-top" onclick="this.form.submit();if (this.form.reportValidity()){this.disabled=true;}" type="submit" value="{% block submit_button %}{% trans 'Next' %}{% endblock %}" />
+          <input id="answer-form"
+                 class="mdc-button mdc-button--raised padded-top"
+                 onclick="question.validateFormSubmit(
+                  event,
+                  '{% url 'quality:validate' %}',
+                  {{ quality }}
+                 )"
+                 type="submit"
+                 value="{% block submit_button %}{% trans 'Next' %}{% endblock %}" />
         </div>
         {% endif %}
       </form>

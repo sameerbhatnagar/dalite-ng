@@ -6,6 +6,7 @@ from itertools import chain
 
 from django.db import models
 
+from ..custom_fields import ProbabilityField
 from ..quality_type import QualityType
 
 
@@ -69,7 +70,7 @@ class Criterion(models.Model):
 
 
 class CriterionRules(models.Model):
-    threshold = models.FloatField(
+    threshold = ProbabilityField(
         verbose_name="Threshold",
         help_text="Minimum value for the answer to be accepted",
     )
