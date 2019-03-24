@@ -310,3 +310,14 @@ def flag_question_form(
     }
 
     return render(request, template, context)
+
+
+def all_flagged_questions(request):
+    """
+    Return all flagged questions
+    """
+
+    template = "peerinst/research/all_flagged_questions.html"
+    context = {"flags": QuestionFlag.objects.filter(flag=True)}
+
+    return render(request, template, context)

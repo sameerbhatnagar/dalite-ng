@@ -586,6 +586,11 @@ def researcher_patterns():
             views.flag_question_form,
             name="research-flag-question-by-assignment",
         ),
+        url(
+            r"^research/all_flagged_questions$",  # noqa
+            views.all_flagged_questions,
+            name="research-all-flagged-questions",
+        ),
     ]
 
 
