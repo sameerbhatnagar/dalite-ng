@@ -577,9 +577,14 @@ def researcher_patterns():
             name="research-question-answer-list-by-assignment",
         ),
         url(
-            r"^research/question/flag/(?P<question_pk>[^/]+)$",
+            r"^research/question/flag/discipline/(?P<discipline_title>[^/]+)/(?P<question_pk>[^/]+)$",  # noqa
             views.flag_question_form,
-            name="research-flag-question",
+            name="research-flag-question-by-discipline",
+        ),
+        url(
+            r"^research/question/flag/assignment/(?P<assignment_id>[^/]+)/(?P<question_pk>[^/]+)$",  # noqa
+            views.flag_question_form,
+            name="research-flag-question-by-assignment",
         ),
     ]
 
