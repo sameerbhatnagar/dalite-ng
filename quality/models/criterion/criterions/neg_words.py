@@ -27,7 +27,9 @@ class NegWordsCriterion(Criterion):
         answer_words = answer.split()
         evaluation = {
             "version": self.version,
-            "quality": sum(1.0 for word in answer_words if word in rules.pk)
+            "quality": sum(
+                1.0 for word in answer_words if word in rules.neg_words
+            )
             / len(answer_words),
         }
         evaluation.update(
