@@ -14,13 +14,13 @@ from django.views.decorators.http import require_POST, require_safe
 from dalite.views.errors import response_400, response_403
 from peerinst.models import StudentGroup, StudentGroupAssignment, Teacher
 
-from ..models import Quality, QualityType, UsesCriterion
+from ..models import Quality, QualityType, QualityUseType, UsesCriterion
 from .decorators import logged_in_non_student_required
 
 logger = logging.getLogger("quality")
 
 
-def verify_question(req, question_pk):
+def verify_question(req, type_, question_pk):
     """
     Verifies if the question exists and the user is allowed to change the
     question, returning it if that's the case and an error response if not.
@@ -29,6 +29,8 @@ def verify_question(req, question_pk):
     ----------
     req : HttpRequest
         Request
+    type_ : str
+        Which use type it the quality for
     question_pk : int
         Primary key for the question
 
@@ -52,7 +54,7 @@ def verify_question(req, question_pk):
     )
 
 
-def verify_assignment(req, assignment_pk):
+def verify_assignment(req, type_, assignment_pk):
     """
     Verifies if the assignment exists and the user is allowed to change the
     assignment, returning it if that's the case and an error response if not.
@@ -61,6 +63,8 @@ def verify_assignment(req, assignment_pk):
     ----------
     req : HttpRequest
         Request
+    type_ : str
+        Which use type it the quality for
     assignment_pk : int
         Primary key for the assignment
 
@@ -107,17 +111,32 @@ def verify_assignment(req, assignment_pk):
             log=logger.warning,
         )
 
-    quality_type = QualityType.objects.get(type="assignment")
     if assignment.quality is None:
+        quality_type = QualityType.objects.get(type="assignment")
+        try:
+            quality_use_type = QualityUseType.objects.get(type=type_)
+        except QualityUseType.DoesNotExist:
+            return response_400(
+                req,
+                msg=_("Some parameters are wrong"),
+                logger_msg=(
+                    "An access to {} was tried with the wrong ".format(
+                        req.path
+                    )
+                    + "quality use type{}.".format(type_)
+                ),
+                log=logger.warning,
+            )
+
         assignment.quality = Quality.objects.create(
-            quality_type=quality_type, threshold=1
+            quality_type=quality_type, quality_use_type=quality_use_type
         )
         assignment.save()
 
     return assignment.quality
 
 
-def verify_group(req, group_pk):
+def verify_group(req, type_, group_pk):
     """
     Verifies if the group exists and the user is allowed to change the
     group, returning it if that's the case and an error response if not.
@@ -126,6 +145,8 @@ def verify_group(req, group_pk):
     ----------
     req : HttpRequest
         Request
+    type_ : str
+        Which use type it the quality for
     group_pk : int
         Primary key for the group
 
@@ -172,17 +193,32 @@ def verify_group(req, group_pk):
             log=logger.warning,
         )
 
-    quality_type = QualityType.objects.get(type="group")
     if group.quality is None:
+        quality_type = QualityType.objects.get(type="group")
+        try:
+            quality_use_type = QualityUseType.objects.get(type=type_)
+        except QualityUseType.DoesNotExist:
+            return response_400(
+                req,
+                msg=_("Some parameters are wrong"),
+                logger_msg=(
+                    "An access to {} was tried with the wrong ".format(
+                        req.path
+                    )
+                    + "quality use type{}.".format(type_)
+                ),
+                log=logger.warning,
+            )
+
         group.quality = Quality.objects.create(
-            quality_type=quality_type, threshold=1
+            quality_type=quality_type, quality_use_type=quality_use_type
         )
         group.save()
 
     return group.quality
 
 
-def verify_teacher(req):
+def verify_teacher(req, type_):
     """
     Verifies if the teacher exists , returning it if that's the case and an
     error response if not.
@@ -191,6 +227,8 @@ def verify_teacher(req):
     ----------
     req : HttpRequest
         Request
+    type_ : str
+        Which use type it the quality for
 
     Returns
     -------
@@ -212,10 +250,25 @@ def verify_teacher(req):
             log=logger.warning,
         )
 
-    quality_type = QualityType.objects.get(type="teacher")
     if teacher.quality is None:
+        quality_type = QualityType.objects.get(type="teacher")
+        try:
+            quality_use_type = QualityUseType.objects.get(type=type_)
+        except QualityUseType.DoesNotExist:
+            return response_400(
+                req,
+                msg=_("Some parameters are wrong"),
+                logger_msg=(
+                    "An access to {} was tried with the wrong ".format(
+                        req.path
+                    )
+                    + "quality use type{}.".format(type_)
+                ),
+                log=logger.warning,
+            )
+
         teacher.quality = Quality.objects.create(
-            quality_type=quality_type, threshold=1
+            quality_type=quality_type, quality_use_type=quality_use_type
         )
         teacher.save()
 
@@ -241,6 +294,7 @@ def index(req):
     HttpResponse
         Either a TemplateResponse for edition or an error response
     """
+    type_ = req.GET["type"]
     question_pk = req.GET.get("question")
     assignment_pk = req.GET.get("assignment")
     group_pk = req.GET.get("group")
@@ -248,13 +302,13 @@ def index(req):
     next_ = req.GET.get("next")
 
     if question_pk is not None:
-        quality = verify_question(req, question_pk)
+        quality = verify_question(req, type_, question_pk)
     elif assignment_pk is not None:
-        quality = verify_assignment(req, assignment_pk)
+        quality = verify_assignment(req, type_, assignment_pk)
     elif group_pk is not None:
-        quality = verify_group(req, group_pk)
+        quality = verify_group(req, type_, group_pk)
     elif for_teacher is not None:
-        quality = verify_teacher(req)
+        quality = verify_teacher(req, type_)
     else:
         return response_400(
             req,
@@ -283,7 +337,6 @@ def index(req):
             "remove_criterion": reverse("quality:remove-criterion"),
         },
     }
-    print(data["criterions"])
 
     return render(req, "quality/edit/index.html", {"data": json.dumps(data)})
 

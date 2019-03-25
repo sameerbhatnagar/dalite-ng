@@ -24,7 +24,7 @@ class MinCharsCriterion(Criterion):
         rules = MinCharsCriterionRules.objects.get(pk=rules_pk)
         evaluation = {
             "version": self.version,
-            "quality": float(len(answer) >= rules.min_chars),
+            "quality": float(len(answer.replace(" ", "")) >= rules.min_chars),
         }
         evaluation.update(
             {criterion: val["value"] for criterion, val in rules}

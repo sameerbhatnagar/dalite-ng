@@ -7,25 +7,26 @@ from itertools import chain
 from django.db import models
 
 from .criterion.criterion_list import criterions, get_criterion
-from .quality_type import QualityType
+from .quality_type import QualityType, QualityUseType
 
 logger = logging.getLogger("quality")
 
 
 class Quality(models.Model):
     quality_type = models.ForeignKey(QualityType)
-    threshold = models.FloatField(
-        help_text="Minimum value for the answer to be accepted"
-    )
+    quality_use_type = models.ForeignKey(QualityUseType)
 
     def __str__(self):
-        return "{} for type {}".format(self.pk, self.quality_type)
+        return "{} for type {} and use type {}".format(
+            self.pk, self.quality_type, self.quality_use_type
+        )
 
     def __iter__(self):
         return chain(
             {
                 "pk": self.pk,
                 "quality_type": self.quality_type.type,
+                "quality_use_type": self.quality_use_type.type,
             }.iteritems(),
             *(
                 dict(criterion).iteritems()
@@ -172,6 +173,13 @@ class Quality(models.Model):
                 pk=criterion.rules
             )
             old_value = getattr(rules, field)
+            type_ = dict(rules)[field]["type"]
+            print(type_)
+            if type_ == "CommaSepField":
+                if value:
+                    value = old_value + [value]
+                else:
+                    value = old_value[:-1]
             setattr(rules, field, value)
             rules.save()
 

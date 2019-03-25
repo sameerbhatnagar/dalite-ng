@@ -95,7 +95,7 @@
                 </div>
               </span>
               <span class="mdc-list-item__meta">
-                <a href="{% url 'quality:edit' %}?assignment={{ assignment.pk }}&next={{ request.path }}">
+                <a href="{% url 'quality:edit' %}?type=validation&assignment={{ assignment.pk }}&next={{ request.path }}">
                   <i class="material-icons md-24 mdc-ripple-surface icon-list">
                     edit
                   </i>

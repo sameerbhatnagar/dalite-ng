@@ -5,6 +5,8 @@ __all__ = [
     "MinCharsCriterionRules",
     "MinWordsCriterion",
     "MinWordsCriterionRules",
+    "NegWordsCriterion",
+    "NegWordsCriterionRules",
     "get_criterion",
 ]
 
@@ -16,4 +18,6 @@ from .criterions import (
     MinCharsCriterionRules,
     MinWordsCriterion,
     MinWordsCriterionRules,
+    NegWordsCriterion,
+    NegWordsCriterionRules,
 )

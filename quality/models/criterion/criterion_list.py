@@ -5,6 +5,8 @@ from .criterions import (
     MinCharsCriterionRules,
     MinWordsCriterion,
     MinWordsCriterionRules,
+    NegWordsCriterion,
+    NegWordsCriterionRules,
 )
 from .errors import CriterionDoesNotExistError
 
@@ -18,6 +20,10 @@ criterions = {
     "min_chars": {
         "criterion": MinCharsCriterion,
         "rules": MinCharsCriterionRules,
+    },
+    "neg_words": {
+        "criterion": NegWordsCriterion,
+        "rules": NegWordsCriterionRules,
     },
 }
 

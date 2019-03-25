@@ -1,8 +1,5 @@
-"use strict";
-
 import { buildReq } from "../../../../../peerinst/static/peerinst/js/_ajax/utils.js"; // eslint-disable-line
 import { clear } from "../../../../../peerinst/static/peerinst/js/utils.js"; // eslint-disable-line
-import { createInput } from "../utils.js";
 
 /*********/
 /* model */
@@ -35,28 +32,51 @@ function initModel(data) {
 /* update */
 /**********/
 
-function updateCriterionOption(criterion, option) {
+function updateCriterionOption(event, option, criterion) {
+  const type = option.getAttribute("data-type");
+  const name = option.getAttribute("name");
+  let value;
+
+  if (type === "CommaSepField") {
+    if (event.key === "Enter" || event.key === "," || event.key === " ") {
+      if (value === " " || value === ",") {
+        value = "";
+      }
+      value = option.querySelector(".comma-sep-input--input").value;
+    } else if (event.key === "Backspace") {
+      value = option.querySelector(".comma-sep-input--input").value;
+      if (value) {
+        return;
+      }
+    } else {
+      return;
+    }
+  } else {
+    value = option.value;
+  }
+
   const data = {
     quality: model.quality.pk,
     criterion: criterion.name,
-    field: option.name,
-    value: option.value,
+    field: name,
+    value: value,
   };
 
   const req = buildReq(data, "post");
   fetch(model.urls.updateCriterion, req)
-    .then(resp => {
-      if (resp.ok) {
-        return resp.json(), false;
+    .then(resp => (resp.ok ? resp.json() : resp.text()))
+    .then(data => {
+      if (typeof data === "string") {
+        toggleCriterionOptionError(err);
       } else {
-        return resp.text(), true;
-      }
-    })
-    .then((data, err) => {
-      if (err) {
-        toggleCriterionOptionError(option, err);
-      } else {
-        criterion = data;
+        model.criterions = model.criterions.map(c =>
+          c.name === data.name ? data : c,
+        );
+        if (name === "weight") {
+          criterionOptionView(type, data.weight, criterion, option);
+        } else {
+          criterionOptionView(type, data[name].value, criterion, option);
+        }
       }
     })
     .catch(err => console.log(err));
@@ -134,6 +154,7 @@ function criterionsView() {
 function criterionView(criterion) {
   const div = document.createElement("div");
   div.classList.add("criterion");
+  div.name = criterion.name;
 
   const name = document.createElement("div");
   name.classList.add("criterion--name");
@@ -172,14 +193,12 @@ function criterionView(criterion) {
   //
   const weightLabel = document.createElement("label");
   weightLabel.textContent = "Weight:";
-  const weight = document.createElement("input");
-  weight.name = "weight";
-  weight.type = "number";
-  weight.min = 0;
-  weight.value = criterion.weight;
-  weight.addEventListener("input", () =>
-    updateCriterionOption(criterion, weight),
+  const weight = criterionOptionView(
+    "PositiveIntegerField",
+    criterion.weight,
+    criterion,
   );
+  weight.name = "weight";
   options.appendChild(weightLabel);
   options.appendChild(weight);
 
@@ -200,17 +219,77 @@ function criterionView(criterion) {
     const label = document.createElement("label");
     label.textContent = `${option.full_name}:`;
     label.title = option.description;
-    const input = createInput(option.type);
-    input.name = option.name;
-    input.value = option.value;
-    input.addEventListener("input", () =>
-      updateCriterionOption(criterion, input),
+    const input = criterionOptionView(
+      option.type,
+      option.value,
+      criterion,
+      null,
     );
+    input.setAttribute("name", option.name);
     options.appendChild(label);
     options.appendChild(input);
   });
 
   return div;
+}
+
+function criterionOptionView(type, value, criterion, input = null) {
+  const focus = !!input;
+  if (type === "PositiveIntegerField") {
+    if (!input) {
+      input = document.createElement("input");
+      input.setAttribute("data-type", type);
+      input.type = "number";
+      input.min = 0;
+      input.addEventListener("input", event =>
+        updateCriterionOption(event, input, criterion),
+      );
+    }
+    input.value = value;
+    return input;
+  } else if (type === "ProbabilityField") {
+    if (!input) {
+      input = document.createElement("input");
+      input.setAttribute("data-type", type);
+      input.type = "number";
+      input.min = 0;
+      input.max = 1;
+      input.step = 0.01;
+      input.addEventListener("input", event =>
+        updateCriterionOption(event, input, criterion),
+      );
+      if (focus) {
+        input.focus();
+      }
+    }
+    input.value = value;
+    return input;
+  } else if (type === "CommaSepField") {
+    if (!input) {
+      input = document.createElement("div");
+      input.setAttribute("data-type", type);
+      input.classList.add("comma-sep-input");
+      input.type = "comma-sep";
+    }
+    clear(input);
+    value.forEach(word => {
+      const span = document.createElement("span");
+      span.classList.add("comma-sep-input--word");
+      span.textContent = word;
+      input.appendChild(span);
+    });
+    const input_ = document.createElement("input");
+    input_.classList.add("comma-sep-input--input");
+    input_.type = "text";
+    input_.addEventListener("keydown", event =>
+      updateCriterionOption(event, input, criterion),
+    );
+    input.appendChild(input_);
+    if (focus) {
+      input_.focus();
+    }
+    return input;
+  }
 }
 
 function toggleCriterionOptions(criterion) {
