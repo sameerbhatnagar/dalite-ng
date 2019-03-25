@@ -115,12 +115,12 @@ def live(request, token, assignment_hash):
     elif group_assignment.group.quality:
         request.session["quality"] = group_assignment.group.quality.pk
     elif (
-        group_assignment.group.teachers.exists()
-        and group_assignment.group.teachers.first().quality
+        group_assignment.group.teacher.exists()
+        and group_assignment.group.teacher.first().quality
     ):
         request.session[
             "quality"
-        ] = group_assignment.group.teachers.first().quality.pk
+        ] = group_assignment.group.teacher.first().quality.pk
 
     assignment = student_assignment.group_assignment
     current_question = student_assignment.get_current_question()

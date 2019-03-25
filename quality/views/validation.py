@@ -58,7 +58,9 @@ def validate_rationale(req):
 
     quality_, evaluation = quality.evaluate(rationale)
 
-    if quality_ is not None and quality_ < quality.threshold:
+    if quality_ is not None and any(
+        c["quality"]["quality"] < c["quality"]["threshold"] for c in evaluation
+    ):
         data = {
             "failed": [
                 {"name": c["full_name"], "description": c["description"]}
