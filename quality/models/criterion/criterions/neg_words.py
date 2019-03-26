@@ -16,8 +16,7 @@ class NegWordsCriterion(Criterion):
         return {
             "name": "neg_words",
             "full_name": "Negative words",
-            "description": "Gives a percentage score of the number of "
-            "negative words in the rationale.",
+            "description": "Doesn't accept certain words.",
         }
 
     def evaluate(self, answer, rules_pk):
