@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 import json
 import logging
+from operator import itemgetter
 
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
@@ -74,6 +75,8 @@ def validate_rationale(req):
                     {"name": c["full_name"], "description": c["description"]}
                     for c in evaluation
                     if c["quality"]["quality"] < c["quality"]["threshold"]
+                    and c["full_name"]
+                    not in map(itemgetter("name"), data["failed"])
                 ]
 
         except Quality.DoesNotExist:
