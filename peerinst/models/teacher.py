@@ -45,7 +45,9 @@ class Teacher(models.Model):
     current_groups = models.ManyToManyField(
         StudentGroup, blank=True, related_name="current_groups"
     )
-    quality = models.ForeignKey(Quality, blank=True, null=True)
+    quality = models.ForeignKey(
+        Quality, blank=True, null=True, on_delete=models.SET_NULL
+    )
 
     def get_absolute_url(self):
         return reverse("teacher", kwargs={"pk": self.pk})

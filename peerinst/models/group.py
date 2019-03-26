@@ -15,7 +15,9 @@ class StudentGroup(models.Model):
     creation_date = models.DateField(blank=True, null=True, auto_now=True)
     teacher = models.ManyToManyField("Teacher", blank=True)
     student_id_needed = models.BooleanField(default=False)
-    quality = models.ForeignKey(Quality, blank=True, null=True)
+    quality = models.ForeignKey(
+        Quality, blank=True, null=True, on_delete=models.SET_NULL
+    )
 
     def __unicode__(self):
         if not self.title:

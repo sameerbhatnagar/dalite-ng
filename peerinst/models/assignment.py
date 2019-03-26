@@ -78,7 +78,9 @@ class StudentGroupAssignment(models.Model):
     )
     order = models.TextField(blank=True, editable=False)
     reminder_days = models.PositiveIntegerField(default=3)
-    quality = models.ForeignKey(Quality, blank=True, null=True)
+    quality = models.ForeignKey(
+        Quality, blank=True, null=True, on_delete=models.SET_NULL
+    )
 
     @staticmethod
     def get(hash_):
