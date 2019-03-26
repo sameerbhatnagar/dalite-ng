@@ -103,7 +103,7 @@
                  onclick="question.validateFormSubmit(
                   event,
                   '{% url 'quality:validate' %}',
-                  {{ quality }}
+                  {{ quality|default_if_none:'null' }}
                  )"
                  type="submit"
                  value="{% block submit_button %}{% trans 'Next' %}{% endblock %}" />
