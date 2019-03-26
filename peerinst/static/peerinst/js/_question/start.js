@@ -1,4 +1,5 @@
 import { buildReq } from "../_ajax/utils.js";
+import { clear } from "../utils.js";
 
 /**********/
 /* update */
@@ -33,10 +34,14 @@ export function validateFormSubmit(event, url, quality) {
 
 function toggleQualityError(data) {
   if (data) {
-    console.log(data);
     const form = document.querySelector("#submit-answer-form");
 
-    const div = document.createElement("div");
+    let div = document.querySelector(".quality-error");
+    if (!div) {
+      div = document.createElement("div");
+    }
+    clear(div);
+
     div.classList.add("quality-error");
     div.textContent = "Your rationale didn't pass the following criterions: ";
 
