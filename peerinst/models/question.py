@@ -405,3 +405,11 @@ class QuestionFlag(models.Model):
     user = models.ForeignKey(User)
     flag = models.BooleanField(default=False)
     comment = models.CharField(max_length=200, null=True, blank=True)
+
+    def __unicode__(self):
+        return "{} - {}- {}- {}".format(
+            self.question.pk, self.question, self.user.email, self.comment
+        )
+
+    class Meta:
+        verbose_name = _("flagged question")

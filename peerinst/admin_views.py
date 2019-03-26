@@ -543,12 +543,19 @@ class QuestionPreviewViewBase(
         context = super(QuestionPreviewViewBase, self).get_context_data(
             **kwargs
         )
+        save_allowed = (
+            0
+            not in self.question.get_frequency(all_rationales=True)[
+                "first_choice"
+            ].values()
+        )
         context.update(
             question=self.question,
             answer_choices=self.answer_choices,
             assignment_form=AssignmentMultiselectForm(
                 self.request.user, self.question
             ),
+            save_allowed=save_allowed,
         )
         return context
 

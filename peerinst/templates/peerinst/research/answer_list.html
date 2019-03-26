@@ -35,7 +35,7 @@
           <span style="padding-left:0.3em;padding-right:0.5em;">|</span><a href="{% url 'question-list' assignment_id=assignment_id %}">{% trans 'Back to Assignment' %}</a>
       {% endif %}
       <span style="padding-left:0.3em;padding-right:0.5em;">|</span> Number of rationales scored for this answer choice by {{ annotator }}: {{ annotations_count }}
-      <i id="activate-dialog" class="material-icons md-24 mdc-ripple-surface icon-list">info</i>
+      <i id="activate-dialog" class="material-icons md-24 mdc-ripple-surface icon-list">help</i>
         <aside id="dialog"
           class="mdc-dialog"
           role="alertdialog"
@@ -96,23 +96,17 @@
 
         <ul id="answer-choices">
           {% for label, choice in question.get_choices %}
-          <li class="dense-list">{{ label }}. {{ choice|safe }}</li>
-          {% endfor %}
-        </ul>
-
-        <div class="question-answers">
-          Correct answer(s):
-          {% for label, choice in question.get_choices %}
+            <li class="dense-list">{{ label }}. {{ choice|safe }}
             {% for c in question.answerchoice_set.all %}
               {% if forloop.counter == forloop.parentloop.counter %}
                 {% if c.correct %}
-                  <blockquote><strong>{{ label }}. {{ choice|safe }}</strong></blockquote>
+                  <i id="check" class="material-icons" style="-webkit-transform: translateY(3px);font-size:12pt;">check</i>
                 {% endif %}
               {% endif %}
             {% endfor %}
+            </li>
           {% endfor %}
-        </div>
-
+        </ul>
       </div>
   </div>
 

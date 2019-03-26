@@ -33,12 +33,14 @@
 {% endblock %}
 
 {% block submit_button %}{% trans 'Submit example answer' %}{% endblock %}
-
 {% block extra_content %}
 {% if question.type == "PI" %}
   {{ form.errors }}
   <hr class="simple-hr">
   <h3>{% trans 'Existing sample answers' %}</h3>
+  {% if not save_allowed %}
+    <p class="errorlist">You must submit some at least one example rationale for each of the answer choices above</p>
+  {% endif %}
   <ul class="mdc-list">
     {% for sample in question.answer_set.all|dictsort:'first_answer_choice' %}
       {% if not sample.user_token %}
@@ -84,7 +86,9 @@
   </span>
   <span class="padded">
     {% if user.teacher %}
-      <input form="add_question_to_assignment" type="submit" class="mdc-button mdc-button--raised submit_button" value="{% trans 'Done' %}">
+      {% if save_allowed %}
+        <input form="add_question_to_assignment" type="submit" class="mdc-button mdc-button--raised submit_button" value="{% trans 'Done' %}">
+      {% endif %}
     {% else %}
       <form style="display:inline" id="done" action="{% url 'welcome' %}" method="get">
         <button form="done" type="submit" class="mdc-button mdc-button--raised">Done</button>
