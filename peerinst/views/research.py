@@ -8,6 +8,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404, render
+from django.utils.translation import ugettext_lazy as _
 
 from ..mixins import student_check
 from ..models import (
@@ -32,7 +33,7 @@ def get_question_annotation_counts(discipline_title, annotator, assignment_id):
     """
     Returns:
     ========
-    list of dicts, one for eacu question in discipline, and the counts of
+    list of dicts, one for each question in discipline, and the counts of
     Answers and AnswerAnnotations for each
     """
     if discipline_title:
@@ -257,7 +258,9 @@ class QuestionFlagForm(ModelForm):
 
 @login_required
 @user_passes_test(student_check, login_url="/access_denied_and_logout/")
-def flag_question_form(request, question_pk):
+def flag_question_form(
+    request, question_pk, discipline_title=None, assignment_id=None
+):
     """
     Get or Create QuestionFlag object for user, and allow edit
     """
@@ -267,14 +270,54 @@ def flag_question_form(request, question_pk):
     question_flag, created = QuestionFlag.objects.get_or_create(
         user=user, question=question
     )
+    if not created:
+        message = _(
+            """
+            Your input has already been forwarded to a myDALITE content
+            moderator."
+            """
+        )
 
     if request.method == "POST":
         form = QuestionFlagForm(request.POST, instance=question_flag)
         if form.is_valid():
             instance = form.save()
-
+            if instance.flag:
+                message = _(
+                    """
+                    You have flagged this question, and your input
+                    has been forwarded to a myDALITE content moderator.
+                    """
+                )
+            else:
+                message = _(
+                    """
+                    You have un-flagged this question, and thus it will be
+                    it will be taken off the list of potentially problematic
+                    questions.
+                    """
+                )
+    elif created:
+        message = None
     form = QuestionFlagForm(instance=question_flag)
 
-    context = {"form": form}
+    context = {
+        "form": form,
+        "question": question,
+        "message": message,
+        "discipline_title": discipline_title,
+        "assignment_id": assignment_id,
+    }
+
+    return render(request, template, context)
+
+
+def all_flagged_questions(request):
+    """
+    Return all flagged questions
+    """
+
+    template = "peerinst/research/all_flagged_questions.html"
+    context = {"flags": QuestionFlag.objects.filter(flag=True)}
 
     return render(request, template, context)
