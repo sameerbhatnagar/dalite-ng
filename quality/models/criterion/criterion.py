@@ -19,6 +19,7 @@ class Criterion(models.Model):
         "the verbose_name",
     )
     is_beta = models.BooleanField(default=False)
+    binary_threshold = models.BooleanField(default=False)
     for_quality_types = models.ManyToManyField(QualityType)
 
     class Meta:
@@ -41,7 +42,11 @@ class Criterion(models.Model):
             {
                 "version": self.version,
                 "versions": [
-                    {"version": version.version, "is_beta": version.is_beta}
+                    {
+                        "version": version.version,
+                        "is_beta": version.is_beta,
+                        "binary_threshold": version.binary_threshold,
+                    }
                     for version in self.__class__.objects.all()
                 ],
             }.iteritems(),

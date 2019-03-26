@@ -216,6 +216,9 @@ function criterionView(criterion) {
   options.classList.add("criterion--options");
   div.appendChild(options);
 
+  const binaryThreshold =
+    criterion.versions[criterion.version - 1].binary_threshold;
+
   // const versionLabel = document.createElement("label");
   // versionLabel.textContent = "Version:";
   // const version = document.createElement("select");
@@ -252,19 +255,21 @@ function criterionView(criterion) {
       ].includes(o),
   );
   otherOptions.forEach(o => {
-    const option = criterion[o];
-    const label = document.createElement("label");
-    label.textContent = `${option.full_name}:`;
-    label.title = option.description;
-    const input = criterionOptionView(
-      option.type,
-      option.value,
-      criterion,
-      null,
-    );
-    input.setAttribute("name", option.name);
-    options.appendChild(label);
-    options.appendChild(input);
+    if (!binaryThreshold || o !== "threshold") {
+      const option = criterion[o];
+      const label = document.createElement("label");
+      label.textContent = `${option.full_name}:`;
+      label.title = option.description;
+      const input = criterionOptionView(
+        option.type,
+        option.value,
+        criterion,
+        null,
+      );
+      input.setAttribute("name", option.name);
+      options.appendChild(label);
+      options.appendChild(input);
+    }
   });
 
   return div;

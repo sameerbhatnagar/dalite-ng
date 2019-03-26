@@ -15,9 +15,9 @@ export function validateFormSubmit(event, url, quality) {
   const req = buildReq(data, "post");
   fetch(url, req)
     .then(resp => resp.json())
-    .then(json => {
-      if (json.failed) {
-        toggleQualityError(json.failed);
+    .then(failed => {
+      if (failed.length) {
+        toggleQualityError(failed);
         document.querySelector("#answer-form").disabled = false;
       } else {
         toggleQualityError();

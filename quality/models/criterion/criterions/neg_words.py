@@ -50,7 +50,7 @@ class NegWordsCriterionRules(CriterionRules):
         return "Rules {} for criterion neg_words".format(self.pk)
 
     @staticmethod
-    def get_or_create(threshold=0, neg_words=""):
+    def get_or_create(threshold=1, neg_words=""):
         """
         Creates or get the criterion rules.
 

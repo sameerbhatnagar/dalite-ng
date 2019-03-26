@@ -39,7 +39,7 @@ class MinCharsCriterionRules(CriterionRules):
     )
 
     @staticmethod
-    def get_or_create(threshold=0, min_chars=0):
+    def get_or_create(threshold=1, min_chars=0):
         """
         Creates or get the criterion rules.
 
