@@ -41,11 +41,41 @@ def validate_rationale(req):
             log=logger.warning,
         )
 
-    if quality_pk is None:
-        quality = Quality.objects.get(quality_type__type="global")
+    global_quality = Quality.objects.get(
+        quality_type__type="global", quality_use_type__type="validation"
+    )
+
+    global_quality_, global_evaluation = global_quality.evaluate(rationale)
+
+    if global_quality_ is not None and any(
+        c["quality"]["quality"] < c["quality"]["threshold"]
+        for c in global_evaluation
+    ):
+        data = {
+            "failed": [
+                {"name": c["full_name"], "description": c["description"]}
+                for c in global_evaluation
+                if c["quality"]["quality"] < c["quality"]["threshold"]
+            ]
+        }
+        RejectedAnswer.add(global_quality, rationale, global_evaluation)
     else:
+        data = {}
+
+    if quality_pk is not None:
         try:
             quality = Quality.objects.get(pk=quality_pk)
+            quality_, evaluation = quality.evaluate(rationale)
+            if quality_ is not None and any(
+                c["quality"]["quality"] < c["quality"]["threshold"]
+                for c in evaluation
+            ):
+                data["failed"] = data["failed"] + [
+                    {"name": c["full_name"], "description": c["description"]}
+                    for c in evaluation
+                    if c["quality"]["quality"] < c["quality"]["threshold"]
+                ]
+
         except Quality.DoesNotExist:
             return response_400(
                 req,
@@ -55,21 +85,5 @@ def validate_rationale(req):
                 ),
                 log=logger.warning,
             )
-
-    quality_, evaluation = quality.evaluate(rationale)
-
-    if quality_ is not None and any(
-        c["quality"]["quality"] < c["quality"]["threshold"] for c in evaluation
-    ):
-        data = {
-            "failed": [
-                {"name": c["full_name"], "description": c["description"]}
-                for c in evaluation
-                if c["quality"]["quality"] < c["quality"]["threshold"]
-            ]
-        }
-        RejectedAnswer.add(quality, rationale, evaluation)
-    else:
-        data = {}
 
     return JsonResponse(data)
