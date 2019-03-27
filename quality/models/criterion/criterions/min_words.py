@@ -3,6 +3,8 @@ from __future__ import unicode_literals
 
 from django.db import models
 
+from quality.models.quality_type import QualityType
+
 from ..criterion import Criterion, CriterionRules
 
 
@@ -17,6 +19,17 @@ class MinWordsCriterion(Criterion):
             "description": "Imposes a minium number of words for each "
             "rationale.",
         }
+
+    @staticmethod
+    def create_default():
+        criterion = MinWordsCriterion.objects.create(uses_rules="min_words")
+        criterion.for_quality_types.add(
+            QualityType.objects.get(type="assignment"),
+            QualityType.objects.get(type="group"),
+            QualityType.objects.get(type="teacher"),
+            QualityType.objects.get(type="global"),
+        )
+        criterion.save()
 
     def evaluate(self, answer, rules_pk):
         if not isinstance(answer, basestring):

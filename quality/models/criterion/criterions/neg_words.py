@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 from django.db import models
 
 from quality.models.custom_fields import CommaSepField
+from quality.models.quality_type import QualityType
 
 from ..criterion import Criterion, CriterionRules
 
@@ -18,6 +19,18 @@ class NegWordsCriterion(Criterion):
             "full_name": "Negative words",
             "description": "Doesn't accept certain words.",
         }
+
+    @staticmethod
+    def create_default():
+        criterion = NegWordsCriterion.objects.create(
+            binary_threshold=True, uses_rules="neg_words"
+        )
+        criterion.for_quality_types.add(
+            QualityType.objects.get(type="assignment"),
+            QualityType.objects.get(type="group"),
+            QualityType.objects.get(type="teacher"),
+            QualityType.objects.get(type="global"),
+        )
 
     def evaluate(self, answer, rules_pk):
         if not isinstance(answer, basestring):

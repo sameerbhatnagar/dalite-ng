@@ -6,13 +6,13 @@ from itertools import chain
 
 from django.db import models
 
-from ..custom_fields import ProbabilityField
+from ..custom_fields import CommaSepField, ProbabilityField
 from ..quality_type import QualityType
 
 
 class Criterion(models.Model):
     version = models.AutoField(primary_key=True)
-    uses_rules = models.TextField(
+    uses_rules = CommaSepField(
         blank=True,
         help_text="Comma separated list of used rules for the criterion "
         "found as the fields of the associated rules object. Make sure to use "
@@ -27,7 +27,11 @@ class Criterion(models.Model):
 
     @staticmethod
     def info():
-        raise NotImplementedError("This property has to be implemented.")
+        raise NotImplementedError("This method has to be implemented.")
+
+    @staticmethod
+    def create_default():
+        raise NotImplementedError("This method has to be implemented.")
 
     def __iter__(self):
         """
@@ -53,7 +57,7 @@ class Criterion(models.Model):
         )
 
     def evaluate(self, answer, rules_pk):
-        raise NotImplementedError("This property has to be implemented.")
+        raise NotImplementedError("This method has to be implemented.")
 
     def save(self, *args, **kwargs):
         """
@@ -86,7 +90,7 @@ class CriterionRules(models.Model):
 
     @staticmethod
     def get_or_create(*args, **kwargs):
-        raise NotImplementedError("This property has to be implemented.")
+        raise NotImplementedError("This method has to be implemented.")
 
     def __iter__(self):
         return {
