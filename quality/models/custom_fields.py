@@ -38,7 +38,6 @@ class CommaSepField(models.TextField):
         super(CommaSepField, self).__init__(*args, **kwargs)
 
     def to_python(self, val):
-        print(4)
         if not val:
             return []
 
@@ -48,15 +47,12 @@ class CommaSepField(models.TextField):
         return [v.strip() for v in val.split(",")]
 
     def from_db_value(self, val, *args):
-        print(3)
         return self.to_python(val)
 
     def get_prep_value(self, val):
-        print(2)
         return ",".join(val)
 
     def value_to_string(self, obj):
-        print(1)
         val = self._get_val_from_obj(obj)
         return self.get_db_prep_value(val)
 
