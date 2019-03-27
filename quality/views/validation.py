@@ -52,7 +52,10 @@ def validate_rationale(req):
         {"name": c["full_name"], "description": c["description"]}
         for c in global_evaluation
         if c["quality"]["quality"] < c["quality"]["threshold"]
-        or c["versions"][c["version"] - 1]["binary_threshold"]
+        or (
+            c["quality"]["quality"] < 1
+            and c["versions"][c["version"] - 1]["binary_threshold"]
+        )
     ]
     if failed:
         RejectedAnswer.add(global_quality, rationale, global_evaluation)
@@ -66,7 +69,10 @@ def validate_rationale(req):
                 for c in evaluation
                 if (
                     c["quality"]["quality"] < c["quality"]["threshold"]
-                    or c["versions"][c["version"] - 1]["binary_threshold"]
+                    or (
+                        c["quality"]["quality"] < 1
+                        and c["versions"][c["version"] - 1]["binary_threshold"]
+                    )
                 )
                 and c["full_name"] not in map(itemgetter("name"), failed)
             ]
