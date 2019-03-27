@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-import re
 from itertools import chain
 
 from django.db import models
@@ -70,7 +69,6 @@ class Criterion(models.Model):
                 "different from the others or it may lead to some trouble "
                 "down the line."
             )
-        self.uses_rules = re.sub(r"\s*,\s*", ", ", self.uses_rules)
         super(Criterion, self).save(*args, **kwargs)
 
     @property
