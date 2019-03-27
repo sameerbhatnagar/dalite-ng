@@ -73,7 +73,7 @@ class Criterion(models.Model):
 
     @property
     def rules(self):
-        return self.uses_rules.split(", ")
+        return self.uses_rules
 
 
 class CriterionRules(models.Model):
