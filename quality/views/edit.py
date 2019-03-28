@@ -466,7 +466,7 @@ def update_criterion(req):
         )
 
     try:
-        criterion, old_value = quality.update_criterion(
+        criterion, old_value, value = quality.update_criterion(
             criterion_name, field, value
         )
     except (AttributeError, UsesCriterion.DoesNotExist) as e:

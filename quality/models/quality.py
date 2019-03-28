@@ -174,16 +174,16 @@ class Quality(models.Model):
             )
             old_value = getattr(rules, field)
             type_ = dict(rules)[field]["type"]
-            print(type_)
             if type_ == "CommaSepField":
                 if value:
                     value = old_value + [value]
                 else:
                     value = old_value[:-1]
+            print("TEST")
             setattr(rules, field, value)
             rules.save()
 
-        return criterion, old_value
+        return criterion, old_value, value
 
     def remove_criterion(self, name):
         UsesCriterion.objects.filter(quality=self, name=name).delete()

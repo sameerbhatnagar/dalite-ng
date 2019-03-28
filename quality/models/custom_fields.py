@@ -33,7 +33,8 @@ class CommaSepField(models.TextField):
         "invalid": _("'%(value)s' value must be a comma separated string.")
     }
 
-    def __init__(self, separator=",", *args, **kwargs):
+    def __init__(self, distinct=False, separator=",", *args, **kwargs):
+        self.distinct = distinct
         self.separator = separator
         super(CommaSepField, self).__init__(*args, **kwargs)
 
@@ -41,10 +42,16 @@ class CommaSepField(models.TextField):
         if not val:
             return []
 
-        if isinstance(val, list):
-            return val
+        if not isinstance(val, list):
+            val = [v.strip() for v in val.split(",")]
 
-        return [v.strip() for v in val.split(",")]
+        if self.distinct:
+            seen = set()
+            #  print(seen.add(val[0]))
+            val = [v for v in val if v not in seen and seen.add(v) is None]
+        print(val)
+
+        return val
 
     def from_db_value(self, val, *args):
         return self.to_python(val)

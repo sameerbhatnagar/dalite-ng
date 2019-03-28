@@ -12,6 +12,7 @@ from ..quality_type import QualityType
 class Criterion(models.Model):
     version = models.AutoField(primary_key=True)
     uses_rules = CommaSepField(
+        distinct=True,
         blank=True,
         help_text="Comma separated list of used rules for the criterion "
         "found as the fields of the associated rules object. Make sure to use "

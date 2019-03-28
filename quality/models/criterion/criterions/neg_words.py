@@ -53,6 +53,7 @@ class NegWordsCriterion(Criterion):
 
 class NegWordsCriterionRules(CriterionRules):
     neg_words = CommaSepField(
+        distinct=True,
         verbose_name="Negative words",
         help_text="Words considered to be negative.",
         blank=True,
