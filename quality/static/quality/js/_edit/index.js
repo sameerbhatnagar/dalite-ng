@@ -191,6 +191,7 @@ function criterionsView() {
 function criterionView(criterion) {
   const div = document.createElement("div");
   div.classList.add("criterion");
+  div.classList.add("criterion__showing");
   div.name = criterion.name;
 
   const name = document.createElement("div");

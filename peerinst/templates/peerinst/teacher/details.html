@@ -288,13 +288,9 @@
               {% trans 'Submission quality' %}
               <div class="mdc-list-item__secondary-text">
                 {% if teacher.quality %}
-                <ul style="padding-left:0px;">
                   {% for criterion in teacher.quality.criterions.all %}
-                  <li class="mdc-list-item__secondary-text">
-                    {{ criterion.name }} v{{ criterion.version }}
-                  </li>
+                    {{ criterion.name }}{% if not forloop.last %}, {% endif %}
                   {% endfor %}
-                </ul>
                 {% endif %}
               </div>
             </span>
@@ -302,7 +298,7 @@
           <li role="separator" class="mdc-list-divider"></li>
         </ul>
       </div>
-      
+
     </div>
 
     <div class="foldable">
