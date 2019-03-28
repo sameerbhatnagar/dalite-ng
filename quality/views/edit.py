@@ -545,3 +545,12 @@ def remove_criterion(req):
         "Criterion %s was removed from quality %d.", criterion_name, quality_pk
     )
     return HttpResponse()
+
+
+from django.contrib.auth.mixins import LoginRequiredMixin  # noqa
+from django.views.generic.edit import DeleteView  # noqa
+
+
+class UsesCriterionDelete(LoginRequiredMixin, DeleteView):
+    model = UsesCriterion
+    success_url = "/"

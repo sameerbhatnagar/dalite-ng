@@ -139,11 +139,10 @@ function addCriterion(criterion) {
 
 function removeCriterion(criterion) {
   const data = {
-    quality: model.quality.pk,
-    criterion: criterion.name,
+    pk: criterion.pk,
   };
   const req = buildReq(data, "post");
-  fetch(model.urls.removeCriterion, req)
+  fetch(model.urls.removeCriterion + criterion.id + "/", req)
     .then(resp => {
       if (resp.ok) {
         model.criterions = model.criterions.filter(
@@ -253,6 +252,7 @@ function criterionView(criterion) {
         "version",
         "versions",
         "weight",
+        "id",
       ].includes(o),
   );
   otherOptions.forEach(o => {

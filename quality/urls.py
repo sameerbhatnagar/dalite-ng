@@ -20,6 +20,12 @@ def edit_patterns():
             views.edit.remove_criterion,
             name="remove-criterion",
         ),
+        url(
+            r"^edit/remove/(?P<pk>\d+)/$",
+            # views.edit.remove_criterion,
+            views.edit.UsesCriterionDelete.as_view(),
+            name="remove-criterion_",
+        ),
     ]
 
 
