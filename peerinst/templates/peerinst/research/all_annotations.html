@@ -36,7 +36,7 @@ score1, score2, etc...<br>
 <li>
     <ul>
       {% for a in answerchoice_data.annotations %}
-        <li>{{ a.answer.pk}} : {{ a.answer.rationale }}:
+        <li title="times shown: {{ a.times_shown }}, times chosen: {{ a.times_chosen }}">{{ a.answer.pk}} : {{ a.answer.rationale }}:
           <table>
           <tr>
             {% for s in a.scores %}

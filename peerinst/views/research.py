@@ -18,6 +18,7 @@ from ..models import (
     Discipline,
     Question,
     QuestionFlag,
+    ShownRationale,
 )
 
 
@@ -160,7 +161,7 @@ def research_question_answer_list(
             answer__first_answer_choice=answerchoice_id,
         )
         .annotate(times_shown=Count("answer__shown_answer"))
-        .order_by("answer__first_answer_choice", "-times_shown")
+        .order_by("-times_shown")
     )
 
     AnswerAnnotationFormset = modelformset_factory(
@@ -241,6 +242,12 @@ def research_all_annotations_for_question(
             d2["scores"] = AnswerAnnotation.objects.filter(
                 answer=a, score__isnull=False
             ).values("score", "annotator__username")
+            d2["times_shown"] = ShownRationale.objects.filter(
+                shown_answer=a
+            ).count()
+            d2["times_chosen"] = Answer.objects.filter(
+                chosen_rationale_id=a
+            ).count()
             d1["annotations"].append(d2)
 
         all_annotations.append(d1)
