@@ -26,8 +26,11 @@ def add_default_qualities(sender, **kwargs):
         if not criterion.objects.exists():
             criterion.create_default()
 
-    if not Quality.objects.filter(quality_type__type="global").exists():
-        quality = Quality.objects.create(
-            quality_type=QualityType.objects.get(type="global"),
-            quality_use_type=QualityUseType.objects.get(type="validation"),
-        )
+    for use_type in ("validation", "evaluation"):
+        if not Quality.objects.filter(
+            quality_type__type="global", quality_use_type__type=use_type
+        ).exists():
+            quality = Quality.objects.create(
+                quality_type=QualityType.objects.get(type="global"),
+                quality_use_type=QualityUseType.objects.get(type=use_type),
+            )

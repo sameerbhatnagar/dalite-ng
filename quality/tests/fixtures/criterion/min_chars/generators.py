@@ -4,7 +4,7 @@ from quality.models import MinCharsCriterion, MinCharsCriterionRules
 def new_min_chars_criterion(n):
     def generator():
         while True:
-            yield {"uses_rules": "min_chars"}
+            yield {"uses_rules": ["min_chars"]}
 
     gen = generator()
     return [next(gen) for _ in range(n)]

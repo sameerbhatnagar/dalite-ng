@@ -82,7 +82,6 @@ class CriterionRules(models.Model):
         verbose_name="Threshold",
         help_text="Minimum value for the answer to be accepted",
     )
-    readonly_fields = ("id",)
 
     class Meta:
         abstract = True

@@ -30,6 +30,7 @@ class MinCharsCriterion(Criterion):
             QualityType.objects.get(type="global"),
         )
         criterion.save()
+        return criterion
 
     def evaluate(self, answer, rules_pk):
         if not isinstance(answer, basestring):

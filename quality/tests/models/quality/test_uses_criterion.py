@@ -4,7 +4,7 @@ from quality.models import UsesCriterion
 from quality.tests.fixtures import *  # noqa
 
 
-def test_dict(assignment_quality):
+def test_dict(assignment_validation_quality):
     with mock.patch(
         "quality.models.quality.get_criterion"
     ) as get_criterion, mock.patch("quality.models.quality.models.Model.save"):
@@ -37,7 +37,7 @@ def test_dict(assignment_quality):
         }
 
         criterion = UsesCriterion.objects.create(
-            quality=assignment_quality,
+            quality=assignment_validation_quality,
             name="fake",
             version=0,
             rules=0,
@@ -57,7 +57,7 @@ def test_dict(assignment_quality):
         assert len(data) == 10
 
 
-def test_dict__subset_of_rules(assignment_quality):
+def test_dict__subset_of_rules(assignment_validation_quality):
     with mock.patch(
         "quality.models.quality.get_criterion"
     ) as get_criterion, mock.patch("quality.models.quality.models.Model.save"):
@@ -90,7 +90,7 @@ def test_dict__subset_of_rules(assignment_quality):
         }
 
         criterion = UsesCriterion.objects.create(
-            quality=assignment_quality,
+            quality=assignment_validation_quality,
             name="fake",
             version=0,
             rules=0,

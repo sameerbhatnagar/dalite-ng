@@ -10,6 +10,13 @@ def test_info():
     assert "description" in info
 
 
+def test_create_default():
+    n = MinWordsCriterion.objects.count()
+    criterion = MinWordsCriterion.create_default()
+    assert isinstance(criterion, MinWordsCriterion)
+    assert MinWordsCriterion.objects.count() == n + 1
+
+
 def test_evaluate__less_than_min(
     min_words_criterion, min_words_rules, answers
 ):
@@ -60,15 +67,7 @@ def test_evaluate__default(min_words_criterion, answers):
 
 
 def test_rules(min_words_criterion):
-    min_words_criterion.uses_rules = "a,b,c,d"
-    min_words_criterion.save()
-    assert min_words_criterion.rules == ["a", "b", "c", "d"]
-
-    min_words_criterion.uses_rules = "a, b, c, d"
-    min_words_criterion.save()
-    assert min_words_criterion.rules == ["a", "b", "c", "d"]
-
-    min_words_criterion.uses_rules = "a , b , c , d"
+    min_words_criterion.uses_rules = ["a", "b", "c", "d"]
     min_words_criterion.save()
     assert min_words_criterion.rules == ["a", "b", "c", "d"]
 
@@ -83,5 +82,6 @@ def test_dict(min_words_criterion):
     for version in data["versions"]:
         assert "version" in version
         assert "is_beta" in version
-        assert len(version) == 2
+        assert "binary_threshold" in version
+        assert len(version) == 3
     assert len(data) == 5

@@ -1,9 +1,10 @@
 from quality.models import (
+    MinCharsCriterion,
     MinWordsCriterion,
-    MinWordsCriterionRules,
+    NegWordsCriterion,
     Quality,
     QualityType,
-    UsesCriterion,
+    QualityUseType,
 )
 
 
@@ -12,10 +13,18 @@ def test_quality_types_exist():
         assert QualityType.objects.filter(type=type_).exists()
 
 
+def test_quality_use_types_exist():
+    for type_ in ("validation", "evaluation"):
+        assert QualityUseType.objects.filter(type=type_).exists()
+
+
 def test_default_quality():
-    assert Quality.objects.filter(quality_type__type="global").exists()
-    assert MinWordsCriterion.objects.exists()
-    assert MinWordsCriterionRules.objects.exists()
-    assert UsesCriterion.objects.filter(
-        quality=Quality.objects.get(quality_type__type="global")
+    assert Quality.objects.filter(
+        quality_type__type="global", quality_use_type__type="validation"
     ).exists()
+    assert Quality.objects.filter(
+        quality_type__type="global", quality_use_type__type="evaluation"
+    ).exists()
+    assert MinWordsCriterion.objects.exists()
+    assert MinCharsCriterion.objects.exists()
+    assert NegWordsCriterion.objects.exists()

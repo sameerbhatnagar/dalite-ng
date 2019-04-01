@@ -1,4 +1,5 @@
 import pytest
+
 from quality.models.criterion import MinWordsCriterionRules
 from quality.tests.fixtures import *  # noqa
 
@@ -32,20 +33,6 @@ def test_get_or_create__wrong_args():
         criterion = MinWordsCriterionRules.get_or_create(threshold=threshold)
 
 
-def test_rules(min_words_criterion):
-    min_words_criterion.uses_rules = "a,b,c,d"
-    min_words_criterion.save()
-    assert min_words_criterion.rules == ["a", "b", "c", "d"]
-
-    min_words_criterion.uses_rules = "a, b, c, d"
-    min_words_criterion.save()
-    assert min_words_criterion.rules == ["a", "b", "c", "d"]
-
-    min_words_criterion.uses_rules = "a , b , c , d"
-    min_words_criterion.save()
-    assert min_words_criterion.rules == ["a", "b", "c", "d"]
-
-
 def test_dict(min_words_rules):
     min_words_rules.min_words = 3
     min_words_rules.save()
@@ -59,7 +46,7 @@ def test_dict(min_words_rules):
         == "Minimum value for the answer to be accepted"
     )
     assert data["threshold"]["value"] == 1
-    assert data["threshold"]["type"] == "FloatField"
+    assert data["threshold"]["type"] == "ProbabilityField"
     assert len(data["threshold"]) == 5
     assert data["min_words"]["name"] == "min_words"
     assert data["min_words"]["full_name"] == "Min words"
