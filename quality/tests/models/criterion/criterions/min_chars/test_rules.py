@@ -1,4 +1,5 @@
 import pytest
+
 from quality.models.criterion import MinCharsCriterionRules
 from quality.tests.fixtures import *  # noqa
 
@@ -45,7 +46,7 @@ def test_dict(min_chars_rules):
         == "Minimum value for the answer to be accepted"
     )
     assert data["threshold"]["value"] == 1
-    assert data["threshold"]["type"] == "FloatField"
+    assert data["threshold"]["type"] == "ProbabilityField"
     assert len(data["threshold"]) == 5
     assert data["min_chars"]["name"] == "min_chars"
     assert data["min_chars"]["full_name"] == "Min characters"

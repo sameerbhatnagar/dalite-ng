@@ -8,6 +8,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
+from django.utils.datastructures import MultiValueDictKeyError
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_POST, require_safe
 
@@ -294,7 +295,20 @@ def index(req):
     HttpResponse
         Either a TemplateResponse for edition or an error response
     """
-    type_ = req.GET["type"]
+    try:
+        type_ = req.GET["type"]
+    except MultiValueDictKeyError:
+        return response_400(
+            req,
+            msg=_("Some parameters are missing"),
+            logger_msg=(
+                "An access to {} was tried without a ".format(req.path)
+                + "primary key in the query string indicating what the "
+                "quality is for."
+            ),
+            log=logger.error,
+        )
+
     question_pk = req.GET.get("question")
     assignment_pk = req.GET.get("assignment")
     group_pk = req.GET.get("group")

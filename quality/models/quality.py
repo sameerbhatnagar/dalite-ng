@@ -179,7 +179,6 @@ class Quality(models.Model):
                     value = old_value + [value]
                 else:
                     value = old_value[:-1]
-            print("TEST")
             setattr(rules, field, value)
             rules.save()
 

@@ -47,9 +47,7 @@ class CommaSepField(models.TextField):
 
         if self.distinct:
             seen = set()
-            #  print(seen.add(val[0]))
             val = [v for v in val if v not in seen and seen.add(v) is None]
-        print(val)
 
         return val
 
