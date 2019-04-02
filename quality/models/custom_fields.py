@@ -8,10 +8,6 @@ from django.utils.translation import gettext_lazy as _
 
 class ProbabilityField(models.FloatField):
     description = _("Probability between 0 and 1")
-
-
-class ProbabilityField(models.FloatField):
-    description = _("Probability between 0 and 1")
     default_error_messages = {
         "invlid": _("'%(value)s' value must be a float between 0 and 1.")
     }
@@ -57,10 +53,6 @@ class CommaSepField(models.TextField):
     def get_prep_value(self, val):
         return ",".join(val)
 
-    def value_to_string(self, obj):
-        val = self._get_val_from_obj(obj)
-        return self.get_db_prep_value(val)
-
     def formfield(self, **kwargs):
         defaults = kwargs
         if defaults["widget"] == AdminTextareaWidget:
@@ -72,5 +64,6 @@ class AdminCommaSepFieldWidget(AdminTextareaWidget):
     def format_value(self, val):
         val = super(AdminCommaSepFieldWidget, self).format_value(val)
         return ", ".join(
-            re.sub(r"u?'(?!,|\])|'(?=,|\])", "", val[1:-1]).split(",")
+            w.strip()
+            for w in re.sub(r"u?'(?!,|\])|'(?=,|\])", "", val[1:-1]).split(",")
         )

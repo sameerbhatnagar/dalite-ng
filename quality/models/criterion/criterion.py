@@ -86,6 +86,9 @@ class CriterionRules(models.Model):
     class Meta:
         abstract = True
 
+    def __str__(self):
+        raise NotImplementedError("This method has to be implemented.")
+
     @staticmethod
     def get_or_create(*args, **kwargs):
         raise NotImplementedError("This method has to be implemented.")

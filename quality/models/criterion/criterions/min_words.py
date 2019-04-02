@@ -52,6 +52,9 @@ class MinWordsCriterionRules(CriterionRules):
         help_text="The minimum number of words needed by a rationale.",
     )
 
+    def __str__(self):
+        return "Rules {} for criterion min_words".format(self.pk)
+
     @staticmethod
     def get_or_create(threshold=1, min_words=0):
         """

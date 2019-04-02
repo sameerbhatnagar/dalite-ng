@@ -5,6 +5,7 @@ import json
 import logging
 
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
@@ -161,7 +162,7 @@ def verify_group(req, type_, group_pk):
     """
     try:
         group = StudentGroup.objects.get(pk=group_pk)
-    except StudentGroupAssignment.DoesNotExist:
+    except StudentGroup.DoesNotExist:
         return response_400(
             req,
             msg=_("Some parameters are wrong"),
@@ -241,12 +242,17 @@ def verify_teacher(req, type_):
     """
     try:
         teacher = Teacher.objects.get(user=req.user)
-    except Teacher.DoesNotExist:
+    except (Teacher.DoesNotExist, AttributeError):
         return response_403(
             req,
             msg=_("You don't have access to this resource."),
             logger_msg=(
-                "Access to {} from user {}.".format(req.path, req.user.pk)
+                "Access to {} from user {}.".format(
+                    req.path,
+                    req.user.pk
+                    if hasattr(req, "user") and isinstance(req.user, User)
+                    else "anonymous",
+                )
             ),
             log=logger.warning,
         )

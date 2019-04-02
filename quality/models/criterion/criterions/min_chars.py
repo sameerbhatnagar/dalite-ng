@@ -52,6 +52,9 @@ class MinCharsCriterionRules(CriterionRules):
         help_text="The minimum number of characters needed by a rationale.",
     )
 
+    def __str__(self):
+        return "Rules {} for criterion min_chars".format(self.pk)
+
     @staticmethod
     def get_or_create(threshold=1, min_chars=0):
         """

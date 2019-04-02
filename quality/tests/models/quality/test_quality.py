@@ -4,7 +4,11 @@ from __future__ import unicode_literals
 import mock
 import pytest
 
-from quality.models import MinWordsCriterionRules, UsesCriterion
+from quality.models import (
+    MinWordsCriterionRules,
+    NegWordsCriterionRules,
+    UsesCriterion,
+)
 from quality.tests.fixtures import *  # noqa
 
 
@@ -211,6 +215,68 @@ def test_update_criterion__specific_rule(
     )
     assert old_value == old_value_
     assert value == old_value_ + 1
+
+
+def test_update_criterion__specific_rule__comma_sep_field__added(
+    assignment_validation_quality, neg_words_criterion, neg_words_rules
+):
+    UsesCriterion.objects.create(
+        quality=assignment_validation_quality,
+        name="neg_words",
+        version=neg_words_criterion.pk,
+        rules=neg_words_rules.pk,
+        weight=1,
+    )
+    criterion_ = NegWordsCriterionRules.objects.get(pk=neg_words_rules.pk)
+    criterion_.neg_words = ["a", "b", "c"]
+    criterion_.save()
+    old_value_ = criterion_.neg_words
+    (
+        criterion,
+        old_value,
+        value,
+    ) = assignment_validation_quality.update_criterion(
+        "neg_words", "neg_words", "d"
+    )
+
+    data = dict(criterion)
+    assert data["neg_words"]["value"] == ["a", "b", "c", "d"]
+    assert NegWordsCriterionRules.objects.get(
+        pk=neg_words_rules.pk
+    ).neg_words == ["a", "b", "c", "d"]
+    assert old_value == old_value_
+    assert value == ["a", "b", "c", "d"]
+
+
+def test_update_criterion__specific_rule__comma_sep_field__removed(
+    assignment_validation_quality, neg_words_criterion, neg_words_rules
+):
+    UsesCriterion.objects.create(
+        quality=assignment_validation_quality,
+        name="neg_words",
+        version=neg_words_criterion.pk,
+        rules=neg_words_rules.pk,
+        weight=1,
+    )
+    criterion_ = NegWordsCriterionRules.objects.get(pk=neg_words_rules.pk)
+    criterion_.neg_words = ["a", "b", "c"]
+    criterion_.save()
+    old_value_ = criterion_.neg_words
+    (
+        criterion,
+        old_value,
+        value,
+    ) = assignment_validation_quality.update_criterion(
+        "neg_words", "neg_words", ""
+    )
+
+    data = dict(criterion)
+    assert data["neg_words"]["value"] == ["a", "b"]
+    assert NegWordsCriterionRules.objects.get(
+        pk=neg_words_rules.pk
+    ).neg_words == ["a", "b"]
+    assert old_value == old_value_
+    assert value == ["a", "b"]
 
 
 def test_update_criterion__invalid_name(assignment_validation_quality):

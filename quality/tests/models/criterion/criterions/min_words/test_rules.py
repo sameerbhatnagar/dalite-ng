@@ -4,6 +4,12 @@ from quality.models.criterion import MinWordsCriterionRules
 from quality.tests.fixtures import *  # noqa
 
 
+def test_str(min_words_rules):
+    assert str(min_words_rules) == "Rules {} for criterion min_words".format(
+        min_words_rules.pk
+    )
+
+
 def test_get_or_create__create():
     min_words = 5
 

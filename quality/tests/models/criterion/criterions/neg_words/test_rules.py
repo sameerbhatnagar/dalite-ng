@@ -4,6 +4,12 @@ from quality.models.criterion import NegWordsCriterionRules
 from quality.tests.fixtures import *  # noqa
 
 
+def test_str(neg_words_rules):
+    assert str(neg_words_rules) == "Rules {} for criterion neg_words".format(
+        neg_words_rules.pk
+    )
+
+
 def test_get_or_create__create():
     neg_words = ["a", "b", "c"]
 
