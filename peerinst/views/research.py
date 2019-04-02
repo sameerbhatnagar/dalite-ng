@@ -154,12 +154,28 @@ def research_question_answer_list(
             ).exists():
                 annotation.delete()
 
+    # only need two expert scores per rationale,
+    # and those marked never show even by one person can be excluded
+    already_scored = (
+        AnswerAnnotation.objects.filter(
+            answer__question_id=question_pk,
+            score__isnull=False,
+            answer__first_answer_choice=answerchoice_id,
+        )
+        .values("answer")
+        .order_by("answer")
+        .annotate(times_scored=Count("answer"))
+        .filter(times_scored__gte=2)
+        .values_list("answer__id", flat=True)
+    )
+
     queryset = (
         AnswerAnnotation.objects.filter(
             answer__question_id=question_pk,
             annotator=annotator,
             answer__first_answer_choice=answerchoice_id,
         )
+        .exclude(answer__id__in=already_scored)
         .annotate(times_shown=Count("answer__shown_answer"))
         .order_by("-times_shown")
     )

@@ -26,7 +26,6 @@
   <div class="sticky-header mdc-theme--background">
     <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Question' %}: {{ question.title|safe }}</h2>
 
-
     <div class="admin-link">
       {% if discipline_title %}
           <a href="{% url 'research-discipline-question-index-by-discipline' discipline_title=discipline_title %}#{{ question.pk }}">{% trans 'Back to Question List' %}</a>
@@ -34,6 +33,7 @@
           <a href="{% url 'research-assignment-question-index-by-assignment' assignment_id=assignment_id %}#{{ question.pk }}">{% trans 'Back to Question List' %}</a>
           <span style="padding-left:0.3em;padding-right:0.5em;">|</span><a href="{% url 'question-list' assignment_id=assignment_id %}">{% trans 'Back to Assignment' %}</a>
       {% endif %}
+      <span style="padding-left:0.3em;padding-right:0.5em;">|</span>Answers to score: {{formset.total_form_count}}
       <span style="padding-left:0.3em;padding-right:0.5em;">|</span> Number of rationales scored for this answer choice by {{ annotator }}: {{ annotations_count }}
       <i id="activate-dialog" class="material-icons md-24 mdc-ripple-surface icon-list">help</i>
         <aside id="dialog"
