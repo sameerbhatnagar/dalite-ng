@@ -276,7 +276,7 @@ def research_all_annotations_for_question(
 class QuestionFlagForm(ModelForm):
     class Meta:
         model = QuestionFlag
-        fields = ["flag", "comment"]
+        fields = ["flag", "flag_reason", "comment"]
 
 
 @login_required
