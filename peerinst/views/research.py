@@ -53,6 +53,7 @@ def get_question_annotation_counts(discipline_title, annotator, assignment_id):
     for q in questions_qs:
         d1 = {}
         d1["question"] = q
+        d1["question_expert_answers"] = q.answer_set.filter(expert=True)
         d1["total_annotations"] = AnswerAnnotation.objects.filter(
             score__isnull=False, answer__question_id=q.pk
         ).count()
