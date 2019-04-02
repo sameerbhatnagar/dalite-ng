@@ -3,7 +3,13 @@ import json
 from django.core.urlresolvers import reverse
 
 from peerinst.tests.fixtures import *  # noqa
-from quality.models import Quality, QualityType, QualityUseType, UsesCriterion
+from quality.models import (
+    Quality,
+    QualityType,
+    QualityUseType,
+    RejectedAnswer,
+    UsesCriterion,
+)
 from quality.tests.fixtures import *  # noqa
 
 
@@ -63,6 +69,7 @@ def test_validate_rationale__failed(
         weight=1,
     )
     client.login(username=teacher.user.username, password="test")
+    n = RejectedAnswer.objects.count()
 
     resp = client.post(
         reverse("quality:validate"),
@@ -74,6 +81,7 @@ def test_validate_rationale__failed(
     data = json.loads(resp.content)
     assert data
     assert len(data) == 1
+    assert RejectedAnswer.objects.count() == n + 1
 
 
 def test_validate_rationale__failed_global_and_specific(
@@ -110,6 +118,7 @@ def test_validate_rationale__failed_global_and_specific(
         weight=1,
     )
     client.login(username=teacher.user.username, password="test")
+    n = RejectedAnswer.objects.count()
 
     resp = client.post(
         reverse("quality:validate"),
@@ -127,6 +136,7 @@ def test_validate_rationale__failed_global_and_specific(
     data = json.loads(resp.content)
     assert data
     assert len(data) == 1
+    assert RejectedAnswer.objects.count() == n + 2
 
 
 def test_validate_rationale__wrong_type(client, teacher):
