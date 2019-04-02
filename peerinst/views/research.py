@@ -330,6 +330,7 @@ def flag_question_form(
         "message": message,
         "discipline_title": discipline_title,
         "assignment_id": assignment_id,
+        "expert_answers": question.answer_set.filter(expert=True),
     }
 
     return render(request, template, context)
