@@ -337,12 +337,29 @@ def flag_question_form(
     return render(request, template, context)
 
 
-def all_flagged_questions(request):
-    """
-    Return all flagged questions
-    """
+def expert_rationales_form(
+    request, question_pk, discipline_title=None, assignment_id=None
+):
+    template = "peerinst/research/expert_rationales.html"
+    question = get_object_or_404(Question, pk=question_pk)
 
-    template = "peerinst/research/all_flagged_questions.html"
-    context = {"flags": QuestionFlag.objects.filter(flag=True)}
+    queryset = question.answer_set.filter(expert=True)
 
+    ExpertRationaleFormset = modelformset_factory(
+        Answer, fields=("first_answer_choice", "expert", "rationale"), extra=1
+    )
+
+    if request.method == "POST":
+        formset = ExpertRationaleFormset(request.POST)
+        if formset.is_valid():
+            instances = formset.save()
+
+    formset = ExpertRationaleFormset(queryset=queryset)
+
+    context = {
+        "formset": formset,
+        "question": question,
+        "discipline_title": discipline_title,
+        "assignment_id": assignment_id,
+    }
     return render(request, template, context)
