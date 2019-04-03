@@ -17,7 +17,7 @@ def test_get_or_create__create():
     assert criterion.min_chars == min_chars
 
 
-def test_get_or_create__create(min_chars_rules):
+def test_get_or_create__get(min_chars_rules):
     min_chars = min_chars_rules.min_chars
     threshold = min_chars_rules.threshold
     n_rules = MinCharsCriterionRules.objects.count()

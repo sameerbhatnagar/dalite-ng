@@ -22,7 +22,7 @@ class MinWordsCriterion(Criterion):
 
     @staticmethod
     def create_default():
-        criterion = MinWordsCriterion.objects.create(uses_rules="min_words")
+        criterion = MinWordsCriterion.objects.create(uses_rules=["min_words"])
         criterion.for_quality_types.add(
             QualityType.objects.get(type="assignment"),
             QualityType.objects.get(type="group"),

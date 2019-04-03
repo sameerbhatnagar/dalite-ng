@@ -7,6 +7,8 @@ from .criterions import (
     MinWordsCriterionRules,
     NegWordsCriterion,
     NegWordsCriterionRules,
+    RightAnswerCriterion,
+    RightAnswerCriterionRules,
 )
 from .errors import CriterionDoesNotExistError
 
@@ -24,6 +26,10 @@ criterions = {
     "neg_words": {
         "criterion": NegWordsCriterion,
         "rules": NegWordsCriterionRules,
+    },
+    "right_answer": {
+        "criterion": RightAnswerCriterion,
+        "rules": RightAnswerCriterionRules,
     },
 }
 

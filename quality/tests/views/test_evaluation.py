@@ -109,7 +109,7 @@ def test_evaluate_rationale__wrong_quality_pk(client, teacher, answers):
 
     resp = client.post(
         reverse("quality:evaluate"),
-        json.dumps({"quality": 0, "answer": 0}),
+        json.dumps({"quality": 0, "answer": answer.pk}),
         content_type="application/json",
         follow=True,
     )

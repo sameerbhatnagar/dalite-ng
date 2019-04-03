@@ -22,7 +22,7 @@ class MinCharsCriterion(Criterion):
 
     @staticmethod
     def create_default():
-        criterion = MinCharsCriterion.objects.create(uses_rules="min_chars")
+        criterion = MinCharsCriterion.objects.create(uses_rules=["min_chars"])
         criterion.for_quality_types.add(
             QualityType.objects.get(type="assignment"),
             QualityType.objects.get(type="group"),

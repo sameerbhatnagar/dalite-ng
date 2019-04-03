@@ -23,7 +23,7 @@ class NegWordsCriterion(Criterion):
     @staticmethod
     def create_default():
         criterion = NegWordsCriterion.objects.create(
-            binary_threshold=True, uses_rules="neg_words"
+            binary_threshold=True, uses_rules=["neg_words"]
         )
         criterion.for_quality_types.add(
             QualityType.objects.get(type="assignment"),

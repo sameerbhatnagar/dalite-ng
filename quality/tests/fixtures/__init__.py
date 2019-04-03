@@ -9,6 +9,8 @@ __all__ = [
     "min_words_rules",
     "neg_words_criterion",
     "neg_words_rules",
+    "right_answer_criterion",
+    "right_answer_rules",
     "validation_quality_use_type",
 ]
 
@@ -19,6 +21,8 @@ from .criterion import (
     min_words_rules,
     neg_words_criterion,
     neg_words_rules,
+    right_answer_criterion,
+    right_answer_rules,
 )
 from .quality import (
     assignment_quality_type,

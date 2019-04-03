@@ -17,7 +17,7 @@ def test_get_or_create__create():
     assert criterion.neg_words == neg_words
 
 
-def test_get_or_create__create(neg_words_rules):
+def test_get_or_create__get(neg_words_rules):
     neg_words = neg_words_rules.neg_words
     threshold = neg_words_rules.threshold
     n_rules = NegWordsCriterionRules.objects.count()
