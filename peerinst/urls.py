@@ -587,9 +587,9 @@ def researcher_patterns():
             name="research-flag-question-by-assignment",
         ),
         url(
-            r"^research/all_flagged_questions$",  # noqa
-            views.all_flagged_questions,
-            name="research-all-flagged-questions",
+            r"^research/question/expert_rationales/assignment/(?P<assignment_id>[^/]+)/expert/(?P<question_pk>[^/]+)$",  # noqa
+            views.expert_rationales_form,
+            name="research-expert-rationales-by-assignment",
         ),
     ]
 

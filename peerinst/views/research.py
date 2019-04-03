@@ -18,6 +18,7 @@ from ..models import (
     Discipline,
     Question,
     QuestionFlag,
+    ShownRationale,
 )
 
 
@@ -52,6 +53,7 @@ def get_question_annotation_counts(discipline_title, annotator, assignment_id):
     for q in questions_qs:
         d1 = {}
         d1["question"] = q
+        d1["question_expert_answers"] = q.answer_set.filter(expert=True)
         d1["total_annotations"] = AnswerAnnotation.objects.filter(
             score__isnull=False, answer__question_id=q.pk
         ).count()
@@ -153,14 +155,30 @@ def research_question_answer_list(
             ).exists():
                 annotation.delete()
 
+    # only need two expert scores per rationale,
+    # and those marked never show even by one person can be excluded
+    already_scored = (
+        AnswerAnnotation.objects.filter(
+            answer__question_id=question_pk,
+            score__isnull=False,
+            answer__first_answer_choice=answerchoice_id,
+        )
+        .values("answer")
+        .order_by("answer")
+        .annotate(times_scored=Count("answer"))
+        .filter(times_scored__gte=2)
+        .values_list("answer__id", flat=True)
+    )
+
     queryset = (
         AnswerAnnotation.objects.filter(
             answer__question_id=question_pk,
             annotator=annotator,
             answer__first_answer_choice=answerchoice_id,
         )
+        .exclude(answer__id__in=already_scored)
         .annotate(times_shown=Count("answer__shown_answer"))
-        .order_by("answer__first_answer_choice", "-times_shown")
+        .order_by("-times_shown")
     )
 
     AnswerAnnotationFormset = modelformset_factory(
@@ -241,6 +259,12 @@ def research_all_annotations_for_question(
             d2["scores"] = AnswerAnnotation.objects.filter(
                 answer=a, score__isnull=False
             ).values("score", "annotator__username")
+            d2["times_shown"] = ShownRationale.objects.filter(
+                shown_answer=a
+            ).count()
+            d2["times_chosen"] = Answer.objects.filter(
+                chosen_rationale_id=a
+            ).count()
             d1["annotations"].append(d2)
 
         all_annotations.append(d1)
@@ -253,7 +277,7 @@ def research_all_annotations_for_question(
 class QuestionFlagForm(ModelForm):
     class Meta:
         model = QuestionFlag
-        fields = ["flag", "comment"]
+        fields = ["flag", "flag_reason", "comment"]
 
 
 @login_required
@@ -307,17 +331,35 @@ def flag_question_form(
         "message": message,
         "discipline_title": discipline_title,
         "assignment_id": assignment_id,
+        "expert_answers": question.answer_set.filter(expert=True),
     }
 
     return render(request, template, context)
 
 
-def all_flagged_questions(request):
-    """
-    Return all flagged questions
-    """
+def expert_rationales_form(
+    request, question_pk, discipline_title=None, assignment_id=None
+):
+    template = "peerinst/research/expert_rationales.html"
+    question = get_object_or_404(Question, pk=question_pk)
 
-    template = "peerinst/research/all_flagged_questions.html"
-    context = {"flags": QuestionFlag.objects.filter(flag=True)}
+    queryset = question.answer_set.filter(expert=True)
 
+    ExpertRationaleFormset = modelformset_factory(
+        Answer, fields=("first_answer_choice", "expert", "rationale"), extra=1
+    )
+
+    if request.method == "POST":
+        formset = ExpertRationaleFormset(request.POST)
+        if formset.is_valid():
+            instances = formset.save()
+
+    formset = ExpertRationaleFormset(queryset=queryset)
+
+    context = {
+        "formset": formset,
+        "question": question,
+        "discipline_title": discipline_title,
+        "assignment_id": assignment_id,
+    }
     return render(request, template, context)

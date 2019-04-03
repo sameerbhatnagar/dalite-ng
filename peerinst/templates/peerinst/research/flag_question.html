@@ -78,7 +78,7 @@
             {{question.text|safe}}
           </div>
 
-          <div class="hidable">
+          <div>
             {% if question.image %}
             <img class="question-image" src="{{ question.image.url }}" height="{{ question.image.height }}"
                  width="{{ question.image.width }}" alt="question.image_alt_text">
@@ -103,7 +103,18 @@
               {% endfor %}
             </ul>
           </div>
+
       </div>
+      <h3>Expert Rationales for the correct answer to this question</h3>
+      {% if expert_answers %}
+      <ul>
+        {% for a in expert_answers %}
+            <li>{{ a.id }} : {{ a.rationale }}</li>
+        {% endfor %}
+      </ul>
+      {% else %}
+      <p>Sorry, There are no rationales that have been marked as expert for this question.</p>
+      {% endif %}
 
     </div>
 
