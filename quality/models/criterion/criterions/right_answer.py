@@ -25,7 +25,7 @@ class RightAnswerCriterion(Criterion):
     @staticmethod
     def create_default():
         criterion = RightAnswerCriterion.objects.create(
-            uses_rules=["all_needed", "only_last"]
+            uses_rules=["only_last"]
         )
         criterion.for_quality_types.add(
             QualityType.objects.get(type="assignment"),
