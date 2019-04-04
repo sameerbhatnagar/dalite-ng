@@ -588,6 +588,71 @@ class QuestionPreviewView(StaffMemberRequiredMixin, QuestionPreviewViewBase):
         )
 
 
+class QuestionExpertRationaleView(QuestionPreviewViewBase):
+    template_name = "peerinst/question/fix_expert_rationales.html"
+
+    def get_form_kwargs(self):
+        """
+        only return the answer choices marked as correct, as those are the ones
+        that need expert rationales
+        """
+        kwargs = super(QuestionExpertRationaleView, self).get_form_kwargs()
+        self.answer_choices = list(
+            itertools.compress(
+                self.question.get_choices(),
+                self.question.answerchoice_set.all().values_list(
+                    "correct", flat=True
+                ),
+            )
+        )
+        kwargs.update(answer_choices=self.answer_choices)
+        return kwargs
+
+    def get_context_data(self, **kwargs):
+        """
+        show currently saved expert rationales, and define context variable
+        that does not render completion button until a expert rationale exists
+        for each correct answerchoice (FIXME: currently comparison is to number
+        of correct answer choices)
+        """
+        context = super(QuestionExpertRationaleView, self).get_context_data(
+            **kwargs
+        )
+        expert_rationales = self.question.answer_set.filter(expert=True)
+        save_allowed = len(expert_rationales) >= sum(
+            self.question.answerchoice_set.all().values_list(
+                "correct", flat=True
+            )
+        )
+        context.update(
+            expert_rationales=expert_rationales, save_allowed=save_allowed
+        )
+        return context
+
+    def form_valid(self, form):
+        """
+        save answer as expert = True
+        """
+        answer = models.Answer(
+            question=self.question,
+            first_answer_choice=int(form.cleaned_data["first_answer_choice"]),
+            rationale=form.cleaned_data["rationale"],
+            show_to_others=True,
+            expert=True,
+        )
+        answer.save()
+        messages.add_message(
+            self.request, messages.INFO, _("Expert rationale saved.")
+        )
+        return super(QuestionPreviewViewBase, self).form_valid(form)
+
+    def get_success_url(self):
+        return reverse(
+            "research-fix-expert-rationale",
+            kwargs=dict(question_id=self.question.pk),
+        )
+
+
 class StringListForm(forms.Form):
     """Simple form to allow entering a list of strings in a textarea widget."""
 

@@ -39,7 +39,6 @@ These numbers are then broken down by answer choice below the Question ID. Click
           <a href="{% url 'research-all-annotations-for-question-by-assignment' assignment_id=assignment_id question_pk=item.question.pk %}"><i class="material-icons md-24 mdc-ripple-surface icon-list" title="see all scores">group</i></a>
           <a href="{% url 'research-flag-question-by-assignment' assignment_id=assignment_id question_pk=item.question.pk %}"><i class="material-icons md-24 mdc-ripple-surface icon-list" title="flag question as problematic">report</i></a>
       {% endif %}
-      {% if item.question_expert_answers %}
         <i id="activate-dialog-expert-{{ item.question.pk }}" class="material-icons md-24 mdc-ripple-surface icon-list" title="{{ item.question_expert_answers|length }} Expert answers">check_circle_outline</i>
         <aside id="dialog-expert-{{ item.question.pk }}"
         class="mdc-dialog"
@@ -55,7 +54,7 @@ These numbers are then broken down by answer choice below the Question ID. Click
           <section id="description" class="mdc-dialog__body mdc-dialog__body--scrollable">
               <ul>
                 {% for a in item.question_expert_answers %}
-                  <li name="expert" class="items-for-question">{{ a.rationale|safe|striptags }}</li>
+                  <li name="expert" class="items-for-question">{{a.first_answer_choice_label}} : {{ a.rationale|safe|striptags }}</li>
                 {% endfor %}
               </ul>
           </section>
@@ -66,9 +65,7 @@ These numbers are then broken down by answer choice below the Question ID. Click
         <div class="mdc-dialog__backdrop"></div>
 
         </aside>
-      {% else %}
-        <i class="material-icons md-24 mdc-ripple-surface icon-list" title="{{ item.question_expert_answers|length }} Expert answers">add_comment</i>
-      {% endif %}
+        <a href="{% url 'research-fix-expert-rationale' question_id=item.question.pk %}"><i class="material-icons md-24 mdc-ripple-surface icon-list" title="{{ item.question_expert_answers|length }} Expert answers">add_comment</i></a>
 
         <ul>
           <li>
