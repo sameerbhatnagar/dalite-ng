@@ -624,8 +624,11 @@ class QuestionExpertRationaleView(QuestionPreviewViewBase):
                 "correct", flat=True
             )
         )
+        assignment_id = self.kwargs.get("assignment_id")
         context.update(
-            expert_rationales=expert_rationales, save_allowed=save_allowed
+            expert_rationales=expert_rationales,
+            save_allowed=save_allowed,
+            assignment_id=assignment_id,
         )
         return context
 

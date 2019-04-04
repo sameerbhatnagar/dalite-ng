@@ -35,9 +35,11 @@ These numbers are then broken down by answer choice below the Question ID. Click
       {% if discipline_title %}
           <a href="{% url 'research-all-annotations-for-question-by-discipline' discipline_title=discipline_title question_pk=item.question.pk %}"><i class="material-icons md-24 mdc-ripple-surface icon-list" title="see all scores">group</i></a>
           <a href="{% url 'research-flag-question-by-discipline' discipline_title=discipline_title question_pk=item.question.pk %}"><i class="material-icons md-24 mdc-ripple-surface icon-list" title="flag question as problematic">report</i></a>
+          <a href="{% url 'research-fix-expert-rationale' question_id=item.question.pk %}"><i class="material-icons md-24 mdc-ripple-surface icon-list" title="{{ item.question_expert_answers|length }} Expert answers">add_comment</i></a>
       {% elif assignment_id %}
           <a href="{% url 'research-all-annotations-for-question-by-assignment' assignment_id=assignment_id question_pk=item.question.pk %}"><i class="material-icons md-24 mdc-ripple-surface icon-list" title="see all scores">group</i></a>
           <a href="{% url 'research-flag-question-by-assignment' assignment_id=assignment_id question_pk=item.question.pk %}"><i class="material-icons md-24 mdc-ripple-surface icon-list" title="flag question as problematic">report</i></a>
+          <a href="{% url 'research-fix-expert-rationale' question_id=item.question.pk assignment_id=assignment_id %}"><i class="material-icons md-24 mdc-ripple-surface icon-list" title="{{ item.question_expert_answers|length }} Expert answers">add_comment</i></a>
       {% endif %}
         <i id="activate-dialog-expert-{{ item.question.pk }}" class="material-icons md-24 mdc-ripple-surface icon-list" title="{{ item.question_expert_answers|length }} Expert answers">check_circle_outline</i>
         <aside id="dialog-expert-{{ item.question.pk }}"
@@ -65,7 +67,6 @@ These numbers are then broken down by answer choice below the Question ID. Click
         <div class="mdc-dialog__backdrop"></div>
 
         </aside>
-        <a href="{% url 'research-fix-expert-rationale' question_id=item.question.pk %}"><i class="material-icons md-24 mdc-ripple-surface icon-list" title="{{ item.question_expert_answers|length }} Expert answers">add_comment</i></a>
 
         <ul>
           <li>
