@@ -591,6 +591,11 @@ def researcher_patterns():
             views.expert_rationales_form,
             name="research-expert-rationales-by-assignment",
         ),
+        url(
+            r"^research/expert/rationale/fix/(?P<question_id>[0-9]+)$",
+            admin_views.QuestionExpertRationaleView.as_view(),
+            name="research-fix-expert-rationale",
+        ),
     ]
 
 
