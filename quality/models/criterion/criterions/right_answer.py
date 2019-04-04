@@ -83,7 +83,7 @@ class RightAnswerCriterionRules(CriterionRules):
 
         Returns
         -------
-        MinWordsCriterionRules
+        RightAnswerCriterionRules
             Instance
 
         Raises

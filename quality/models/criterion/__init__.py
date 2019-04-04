@@ -9,6 +9,8 @@ __all__ = [
     "NegWordsCriterionRules",
     "RightAnswerCriterion",
     "RightAnswerCriterionRules",
+    "SelectedAnswerCriterion",
+    "SelectedAnswerCriterionRules",
     "get_criterion",
 ]
 
@@ -24,4 +26,6 @@ from .criterions import (
     NegWordsCriterionRules,
     RightAnswerCriterion,
     RightAnswerCriterionRules,
+    SelectedAnswerCriterion,
+    SelectedAnswerCriterionRules,
 )

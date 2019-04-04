@@ -13,6 +13,8 @@ __all__ = [
     "RejectedAnswer",
     "RightAnswerCriterion",
     "RightAnswerCriterionRules",
+    "SelectedAnswerCriterion",
+    "SelectedAnswerCriterionRules",
     "UsesCriterion",
 ]
 
@@ -28,6 +30,8 @@ from .criterion import (
     NegWordsCriterionRules,
     RightAnswerCriterion,
     RightAnswerCriterionRules,
+    SelectedAnswerCriterion,
+    SelectedAnswerCriterionRules,
 )
 from .quality import Quality, UsesCriterion
 from .quality_type import QualityType, QualityUseType

@@ -11,6 +11,8 @@ __all__ = [
     "neg_words_rules",
     "right_answer_criterion",
     "right_answer_rules",
+    "selected_answer_criterion",
+    "selected_answer_rules",
     "validation_quality_use_type",
 ]
 
@@ -23,6 +25,8 @@ from .criterion import (
     neg_words_rules,
     right_answer_criterion,
     right_answer_rules,
+    selected_answer_criterion,
+    selected_answer_rules,
 )
 from .quality import (
     assignment_quality_type,
