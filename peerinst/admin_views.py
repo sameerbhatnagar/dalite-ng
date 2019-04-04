@@ -582,15 +582,6 @@ class QuestionPreviewViewBase(
 class QuestionPreviewView(StaffMemberRequiredMixin, QuestionPreviewViewBase):
     template_name = "admin/peerinst/question/preview.html"
 
-    def get_success_url(self):
-        return reverse(
-            "question-preview", kwargs=dict(question_id=self.question.pk)
-        )
-
-
-class QuestionExpertRationaleView(QuestionPreviewViewBase):
-    template_name = "peerinst/question/fix_expert_rationales.html"
-
     def get_form_kwargs(self):
         """
         only return the answer choices marked as correct, as those are the ones
@@ -607,6 +598,15 @@ class QuestionExpertRationaleView(QuestionPreviewViewBase):
         )
         kwargs.update(answer_choices=self.answer_choices)
         return kwargs
+
+    def get_success_url(self):
+        return reverse(
+            "question-preview", kwargs=dict(question_id=self.question.pk)
+        )
+
+
+class QuestionExpertRationaleView(QuestionPreviewViewBase):
+    template_name = "peerinst/question/fix_expert_rationales.html"
 
     def get_context_data(self, **kwargs):
         """
@@ -650,10 +650,19 @@ class QuestionExpertRationaleView(QuestionPreviewViewBase):
         return super(QuestionPreviewViewBase, self).form_valid(form)
 
     def get_success_url(self):
-        return reverse(
-            "research-fix-expert-rationale",
-            kwargs=dict(question_id=self.question.pk),
-        )
+        if self.kwargs.get("assignment_id"):
+            return reverse(
+                "research-fix-expert-rationale",
+                kwargs=dict(
+                    question_id=self.question.pk,
+                    assignment_id=self.kwargs.get("assignment_id"),
+                ),
+            )
+        else:
+            return reverse(
+                "research-fix-expert-rationale",
+                kwargs=dict(question_id=self.question.pk),
+            )
 
 
 class StringListForm(forms.Form):
