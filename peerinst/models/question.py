@@ -413,14 +413,14 @@ class QuestionFlagReason(models.Model):
         return self.title
 
     class Meta:
-        verbose_name = _("question_flag_reason")
+        verbose_name = _("Question flag reason")
 
 
 class QuestionFlag(models.Model):
     question = models.ForeignKey(Question)
     flag_reason = models.ManyToManyField(QuestionFlagReason)
     user = models.ForeignKey(User)
-    flag = models.BooleanField(default=False)
+    flag = models.BooleanField(default=True)
     comment = models.CharField(max_length=200, null=True, blank=True)
 
     def __unicode__(self):

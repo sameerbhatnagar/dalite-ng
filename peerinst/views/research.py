@@ -2,13 +2,14 @@
 from __future__ import unicode_literals
 import string
 from django.db.models import Count
-from django.forms import ModelForm, modelformset_factory
+from django.forms import ModelForm, ModelChoiceField, modelformset_factory
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.shortcuts import get_object_or_404, render
 from django.utils.translation import ugettext_lazy as _
+from django.views.decorators.http import require_http_methods
 from django.views.generic.edit import UpdateView
 
 from ..mixins import student_check
@@ -19,6 +20,7 @@ from ..models import (
     Discipline,
     Question,
     QuestionFlag,
+    QuestionFlagReason,
     ShownRationale,
 )
 
@@ -278,11 +280,17 @@ def research_all_annotations_for_question(
 
 
 class QuestionFlagForm(ModelForm):
+    flag_reason = ModelChoiceField(
+        queryset=QuestionFlagReason.objects.all(),
+        empty_label=_("Please select one option"),
+    )
+
     class Meta:
         model = QuestionFlag
         fields = ["flag", "flag_reason", "comment"]
 
 
+@require_http_methods(["GET", "POST"])
 @login_required
 @user_passes_test(student_check, login_url="/access_denied_and_logout/")
 def flag_question_form(
@@ -292,22 +300,25 @@ def flag_question_form(
     Get or Create QuestionFlag object for user, and allow edit
     """
     template = "peerinst/research/flag_question.html"
-    user = get_object_or_404(User, username=request.user)
     question = get_object_or_404(Question, pk=question_pk)
-    question_flag, created = QuestionFlag.objects.get_or_create(
-        user=user, question=question
-    )
-    if not created:
-        message = _(
-            """
-            Your input has already been forwarded to a myDALITE content
-            moderator.
-            """
+    message = None
+
+    try:
+        question_flag = QuestionFlag.objects.get(
+            user=request.user, question=question
         )
+    except ObjectDoesNotExist:
+        question_flag = None
+
+    if request.method == "GET":
+        form = QuestionFlagForm(instance=question_flag)
 
     if request.method == "POST":
         form = QuestionFlagForm(request.POST, instance=question_flag)
+
         if form.is_valid():
+            form.instance.user = request.user
+            form.instance.question = question
             instance = form.save()
             if instance.flag:
                 message = _(
@@ -323,10 +334,6 @@ def flag_question_form(
                     taken off the list of potentially problematic questions.
                     """
                 )
-    elif created:
-        message = None
-
-    form = QuestionFlagForm(instance=question_flag)
 
     context = {
         "form": form,

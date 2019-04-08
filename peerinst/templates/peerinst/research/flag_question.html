@@ -17,7 +17,7 @@
     padding: 10px;
   }
   .mdc-text-field__input {
-    width: 100%;
+    width: 500px;
   }
 </style>
 {% endblock %}
@@ -41,12 +41,15 @@
       <div class="content">
         <form id="flag-form" action="" method="post">
           {% csrf_token %}
+
           <div class="mdc-form-field">
-            <label for="my-checkbox">{{ form.flag.label }}: </label>
+            <label for="id_flag">{{ form.flag.label }}: </label>
             <div class="mdc-checkbox">
               <input type="checkbox"
-                     id="my-checkbox"
-                     class="mdc-checkbox__native-control"/>
+                     name="flag"
+                     id="id_flag"
+                     class="mdc-checkbox__native-control"
+                     {% if form.flag.value %}checked{% endif %}/>
               <div class="mdc-checkbox__background">
                 <svg class="mdc-checkbox__checkmark"
                      viewBox="0 0 24 24">
@@ -59,11 +62,26 @@
               </div>
             </div>
           </div>
-          {{ form.flag_reason.label }} {{ form.flag_reason }}
-          <div class="mdc-text-field mdc-text-field--textarea mdc-theme--background" data-mdc-auto-init="MDCTextField">
-            {{ form.comment|add_class:"mdc-text-field__input" }}
-            <label for="id_content" class="mdc-floating-label">{% trans 'Comment' %}</label>
+
+          <div class='mdc-form-field'>
+            <label for='id_flag_reason'>{{ form.flag_reason.label }}:</label>
+            <div class='mdc-select' style='margin-left: 10px;transform: translateY(-6px);'>
+              {{ form.flag_reason|add_class:"mdc-select__native-control" }}
+              <div class="mdc-select__bottom-line"></div>
+            </div>
           </div>
+
+          <div class="mdc-text-field mdc-text-field--outlined mdc-text-field--dense" data-mdc-auto-init="MDCTextField">
+            {{ form.comment|add_class:"mdc-text-field__input" }}
+            {{ form.comment.label_tag|add_class:"mdc-floating-label"|cut:":" }}
+            <div class="mdc-notched-outline">
+              <svg>
+                <path class="mdc-notched-outline__path"/>
+              </svg>
+            </div>
+            <div class="mdc-notched-outline__idle"></div>
+          </div>
+
         </form>
       </div>
 
@@ -101,7 +119,7 @@
         <div class="mdc-dialog__surface">
           <header class="mdc-dialog__header">
             <h2 id="assignment-parameters-label" class="mdc-dialog__header__title">
-              {% trans 'Scoring Rationales' %}
+              {% trans 'Flagging questions' %}
             </h2>
           </header>
           <section id="assignment-parameters-description" class="mdc-dialog__body mdc-dialog__body--scrollable">
