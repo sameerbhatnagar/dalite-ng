@@ -40,8 +40,6 @@
         {% endif %}
         <span class="links-divider">|</span>{% blocktrans with count=formset.total_form_count %}Answers to score: {{count}}{% endblocktrans %}
         <span class="links-divider">|</span>{% blocktrans %}Number of rationales scored for this answer choice by {{ annotator }}: {{ annotations_count }}{% endblocktrans %}
-
-        <i id="activate-dialog" class="material-icons md-24 mdc-ripple-surface icon-list">help</i>
       </div>
 
       <aside id="dialog"
@@ -85,6 +83,8 @@
           onclick="$('.hidable').toggle();localStorage.setItem('collapse', $('.hidable').css('display')=='none' ? false : true);">
           unfold_less
       </i>
+
+      <i id="activate-dialog" class="mdc-theme--primary material-icons md-24 mdc-ripple-surface icon-list">help</i>
 
       <div class="mdc-card">
         <div class="mdc-typography--body1">
