@@ -31,24 +31,31 @@
       <span class="links-divider">|</span>{% blocktrans %}Number of rationales scored by {{ annotator }}: {{ annotations_count }}{% endblocktrans %}
     </div>
 
-    <p>
-      {% trans 'Below is a list of questions and their answer choices. The numbers in the brackets are meant to give you an idea of the state of the database as it stands right now.  The numbers are, in order:' %}
-    </p>
-
-    <ul>
-      <li>Total number of rationales that have been scored by you for this question</li>
-      <li>Total number of rationales that have been scored by all teachers, including yourself</li>
-      <li>Total number of rationales that there are for this question</li>
-    </ul>
-
-    <p>
-      {% trans 'These numbers are then broken down by answer choice below the Question ID. Click on the Answer Choice to add or update your scoring of the rationales.' %}
-    </p>
-
     <h2 class="mdc-typography--display1 mdc-theme--secondary">
       {% if discipline_title %}{{ discipline_title|safe }}{% elif assignment_id %}{{ assignment_id }}{% endif %}
     </h2>
 
+    <div class='field-container'>
+      <div class='number-box'><span class='number'>?</span></div>
+      <div class='field'>
+        <small>
+          <p>
+            {% trans 'Below is a list of questions and their answer choices. The numbers in the brackets are meant to give you an idea of the state of the database as it stands right now.  The numbers are, in order:' %}
+          </p>
+
+          <ul>
+            <li>Total number of rationales that have been scored by you for this question</li>
+            <li>Total number of rationales that have been scored by all teachers, including yourself</li>
+            <li>Total number of rationales that there are for this question</li>
+          </ul>
+
+          <p>
+            {% trans 'These numbers are then broken down by answer choice below the Question ID. Click on the Answer Choice to add or update your scoring of the rationales.' %}
+          </p>
+        </small>
+      </div>
+    </div>
+    <br>
     <hr class="simple-hr">
     {% for item in questions %}
       <div class="question-list" id="{{ item.question.pk }}">
