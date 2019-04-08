@@ -39,7 +39,7 @@
             <span class="links-divider">|</span><a href="{% url 'question-list' assignment_id=assignment_id %}">{% trans 'Back to Assignment' %}</a>
         {% endif %}
         <span class="links-divider">|</span>{% blocktrans with count=formset.total_form_count %}Answers to score: {{count}}{% endblocktrans %}
-        <span class="links-divider">|</span>{% blocktrans %}Number of rationales scored for this answer choice by {{ annotator }}: {{ annotations_count }}{% endblocktrans %}
+        <span class="links-divider">|</span>{% blocktrans %}Total rationales scored for this answer choice by {{ annotator }}: {{ annotations_count }}{% endblocktrans %}
       </div>
 
       <aside id="dialog"
@@ -85,6 +85,16 @@
       </i>
 
       <i id="activate-dialog" class="mdc-theme--primary material-icons md-24 mdc-ripple-surface icon-list">help</i>
+
+      {% if message %}
+      <div class="message-box">
+        <div class="message">{{ message }}</div>
+        <i class="clear mdc-theme--secondary material-icons md-24 mdc-ripple-surface icon-list"
+          onclick="$(this).parent().remove();">
+            clear
+        </i>
+      </div>
+      {% endif %}
 
       <div class="mdc-card">
         <div class="mdc-typography--body1">
@@ -144,7 +154,7 @@
                 <td title="ID: {{ form.instance.answer.pk }}">
                   {{ form.instance.answer.rationale }}
                   <p class='meta-data'>
-                    {% trans 'Times shown: ' %}{{ form.instance.times_shown }};  {% trans 'Times chosen: '%}{{ form.instance.answer.answer_set.count }}
+                    {% trans 'Times shown: ' %}{{ form.instance.times_shown }}; {% trans 'Times chosen: '%}{{ form.instance.answer.answer_set.count }}
                   </p>
                 </td>
               </tr>

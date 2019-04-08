@@ -185,11 +185,6 @@ def research_question_answer_list(
         AnswerAnnotation, fields=("score",), extra=0
     )
 
-    if request.method == "POST":
-        formset = AnswerAnnotationFormset(request.POST)
-        if formset.is_valid():
-            instances = formset.save()
-
     formset = AnswerAnnotationFormset(queryset=queryset)
 
     context = {
@@ -206,6 +201,13 @@ def research_question_answer_list(
         ).count(),
         "annotator": annotator,
     }
+
+    if request.method == "POST":
+        formset = AnswerAnnotationFormset(request.POST)
+        if formset.is_valid():
+            instances = formset.save()
+            context.update(message=_("Scores updated"))
+
     return render(request, template, context)
 
 
