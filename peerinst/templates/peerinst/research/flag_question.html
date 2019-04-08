@@ -1,6 +1,7 @@
 {% extends 'peerinst/base.html' %}
 
-{% load staticfiles compress i18n %}
+{% load add_class staticfiles compress i18n %}
+
 {% block stylesheets %}
 <style>
   .sticky-header {
@@ -15,70 +16,116 @@
     border: 1px solid rgb(190,190,190);
     padding: 10px;
   }
+  .mdc-text-field__input {
+    width: 100%;
+  }
 </style>
 {% endblock %}
 
 {% block body %}
 <main>
   <section>
-      <div class="sticky-header mdc-theme--background">
-        <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Question' %}: {{ question.title|safe }}</h2>
 
+    <div class="sticky-header mdc-theme--background">
+      <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Question' %}: {{ question.title|safe }}</h2>
 
-        <div class="admin-link">
-          {% if discipline_title %}
-              <a href="{% url 'research-discipline-question-index-by-discipline' discipline_title=discipline_title %}#{{ question.pk }}">{% trans 'Back to Question List' %}</a>
-          {% elif assignment_id %}
-              <a href="{% url 'research-assignment-question-index-by-assignment' assignment_id=assignment_id %}#{{ question.pk }}">{% trans 'Back to Question List' %}</a>
-              <span style="padding-left:0.3em;padding-right:0.5em;">|</span><a href="{% url 'question-list' assignment_id=assignment_id %}">{% trans 'Back to Assignment' %}</a>
-          {% endif %}
+      <div class="admin-link">
+        {% if discipline_title %}
+          <a href="{% url 'research-discipline-question-index-by-discipline' discipline_title=discipline_title %}#{{ question.pk }}">{% trans 'Back to Question List' %}</a>
+        {% elif assignment_id %}
+          <a href="{% url 'research-assignment-question-index-by-assignment' assignment_id=assignment_id %}#{{ question.pk }}">{% trans 'Back to Question List' %}</a>
+          <span class="links-divider">|</span><a href="{% url 'question-list' assignment_id=assignment_id %}">{% trans 'Back to Assignment' %}</a>
+        {% endif %}
+      </div>
 
-          <div class="content">
-            <form id="flag-form" action="" method="post">
-              {% csrf_token %}
-              {{ form }}
-            </form>
-          </div>
-          <input type="submit" form="flag-form" class="mdc-button mdc-button--raised padded-bottom" value="Flag Question">
-          {% if message %}
-            <p>{{ message }}</p>
-          {% endif %}
-
-          <i id="activate-dialog" class="material-icons md-24 mdc-ripple-surface icon-list">help</i>
-            <aside id="dialog"
-              class="mdc-dialog"
-              role="alertdialog"
-              aria-labelledby="assignment-parameters-label"
-              aria-describedby="assignment-parameters-description">
-              <div class="mdc-dialog__surface">
-                <header class="mdc-dialog__header">
-                  <h2 id="assignment-parameters-label" class="mdc-dialog__header__title">
-                    {% trans 'Scoring Rationales' %}
-                  </h2>
-                </header>
-                <section id="assignment-parameters-description" class="mdc-dialog__body mdc-dialog__body--scrollable">
-                  <p class="mdc-typography--body1">{% blocktrans %}Please use this page to flag a question you believe should be reviewed by a myDALITE moderator, and maybe taken out of the database.<br><br>
-                    This may be because the answer is incorrect, the image is infringing on copyright, or the content is inappropriate.<br><br>
-                    As a subject matter expert, and a member of the myDALITE community, your input will help maintain the quality of the database of questions.<br><br>
-                    Thank you for your time!<br><br>
-                    - The SALTISE/S4 Team{% endblocktrans %}</p>
-
-                </section>
-                <footer class="mdc-dialog__footer">
-                  <button type="button" class="mdc-button mdc-dialog__footer__button mdc-dialog__footer__button--accept">Ok</button>
-                </footer>
+      <div class="content">
+        <form id="flag-form" action="" method="post">
+          {% csrf_token %}
+          <div class="mdc-form-field">
+            <label for="my-checkbox">{{ form.flag.label }}: </label>
+            <div class="mdc-checkbox">
+              <input type="checkbox"
+                     id="my-checkbox"
+                     class="mdc-checkbox__native-control"/>
+              <div class="mdc-checkbox__background">
+                <svg class="mdc-checkbox__checkmark"
+                     viewBox="0 0 24 24">
+                  <path class="mdc-checkbox__checkmark-path"
+                        fill="none"
+                        stroke="white"
+                        d="M1.73,12.91 8.1,19.28 22.79,4.59"/>
+                </svg>
+                <div class="mdc-checkbox__mixedmark"></div>
               </div>
-              <div class="mdc-dialog__backdrop"></div>
-            </aside>
+            </div>
+          </div>
+          {{ form.flag_reason.label }} {{ form.flag_reason }}
+          <div class="mdc-text-field mdc-text-field--textarea mdc-theme--background" data-mdc-auto-init="MDCTextField">
+            {{ form.comment|add_class:"mdc-text-field__input" }}
+            <label for="id_content" class="mdc-floating-label">{% trans 'Comment' %}</label>
+          </div>
+        </form>
+      </div>
 
+      <input type="submit" form="flag-form" class="mdc-button mdc-button--raised padded-bottom" value="{% trans 'Flag question' %}">
+
+      <i class="mdc-icon-toggle material-icons mdc-theme--primary icon-list"
+          id="hide"
+          role="button"
+          title="{% trans 'Show/Hide' %}"
+          aria-label="{% trans 'Show/Hide' %}" tabindex="0"
+          aria-pressed="false"
+          data-toggle-on='{"label": "{% trans 'Show' %}", "content": "unfold_more"}'
+          data-toggle-off='{"label": "{% trans 'Hide' %}", "content": "unfold_less"}'
+          onclick="$('.hidable').toggle();localStorage.setItem('collapse', $('.hidable').css('display')=='none' ? false : true);">
+          unfold_less
+      </i>
+
+      <i id="activate-dialog" class="mdc-theme--primary material-icons md-24 mdc-ripple-surface icon-list">help</i>
+
+        {% if message %}
+        <div class="message-box">
+          <div class="message">{{ message }}</div>
+          <i class="clear mdc-theme--secondary material-icons md-24 mdc-ripple-surface icon-list"
+            onclick="$(this).parent().remove();">
+              clear
+          </i>
         </div>
+        {% endif %}
+
+      <aside id="dialog"
+        class="mdc-dialog"
+        role="alertdialog"
+        aria-labelledby="assignment-parameters-label"
+        aria-describedby="assignment-parameters-description">
+        <div class="mdc-dialog__surface">
+          <header class="mdc-dialog__header">
+            <h2 id="assignment-parameters-label" class="mdc-dialog__header__title">
+              {% trans 'Scoring Rationales' %}
+            </h2>
+          </header>
+          <section id="assignment-parameters-description" class="mdc-dialog__body mdc-dialog__body--scrollable">
+            <p class="mdc-typography--body1">
+              {% blocktrans %}Please use this page to flag a question you believe should be reviewed by a myDALITE moderator, and maybe taken out of the database.<br><br>
+              This may be because the answer is incorrect, the image is infringing on copyright, or the content is inappropriate.<br><br>
+              As a subject matter expert, and a member of the myDALITE community, your input will help maintain the quality of the database of questions.<br><br>
+              Thank you for your time!<br><br>
+              - The SALTISE/S4 Team{% endblocktrans %}
+            </p>
+          </section>
+          <footer class="mdc-dialog__footer">
+            <button type="button" class="mdc-button mdc-dialog__footer__button mdc-dialog__footer__button--accept">Ok</button>
+          </footer>
+        </div>
+        <div class="mdc-dialog__backdrop"></div>
+      </aside>
 
         <div class="mdc-card">
           <div class="mdc-typography--body1">
             {{question.text|safe}}
           </div>
 
-          <div>
+          <div class="hidable">
             {% if question.image %}
             <img class="question-image" src="{{ question.image.url }}" height="{{ question.image.height }}"
                  width="{{ question.image.width }}" alt="question.image_alt_text">
@@ -105,15 +152,17 @@
           </div>
 
       </div>
-      <h3>Expert Rationales for the correct answer to this question</h3>
+      <h3>{% trans 'Expert rationales for the correct answer to this question' %}</h3>
       {% if expert_answers %}
-      <ul>
+      <div>
         {% for a in expert_answers %}
-            <li>{{ a.id }} : {{ a.rationale }}</li>
+          <p><strong>{{ a.id }}</strong>: {{ a.rationale }}</p>
         {% endfor %}
-      </ul>
+      </div>
       {% else %}
-      <p>Sorry, There are no rationales that have been marked as expert for this question.</p>
+      <p>
+        {% trans 'Sorry, there are no rationales that have been marked as expert for this question.' %}
+      </p>
       {% endif %}
 
     </div>
@@ -121,11 +170,18 @@
   </section>
 </main>
 {% endblock %}
+
 {% block scripts %}
 <script>
+  var show = localStorage.getItem('collapse') === 'true';
+  $('.hidable').toggle(show);
   $(".mdc-icon-toggle").each(function() {
-      bundle.iconToggle.MDCIconToggle.attachTo(this);
+    var el = bundle.iconToggle.MDCIconToggle.attachTo(this);
+    el.on = !show;
   });
+
+
+
   bundle.addDialog();
 </script>
 {% endblock %}

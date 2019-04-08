@@ -300,7 +300,7 @@ def flag_question_form(
         message = _(
             """
             Your input has already been forwarded to a myDALITE content
-            moderator."
+            moderator.
             """
         )
 
@@ -319,12 +319,12 @@ def flag_question_form(
                 message = _(
                     """
                     You have un-flagged this question, and thus it will be
-                    it will be taken off the list of potentially problematic
-                    questions.
+                    taken off the list of potentially problematic questions.
                     """
                 )
     elif created:
         message = None
+
     form = QuestionFlagForm(instance=question_flag)
 
     context = {
