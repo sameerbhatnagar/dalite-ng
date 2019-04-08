@@ -582,12 +582,15 @@ class QuestionPreviewViewBase(
         context = super(QuestionPreviewViewBase, self).get_context_data(
             **kwargs
         )
-        save_allowed = (
-            0
-            not in self.question.get_frequency(all_rationales=True)[
-                "first_choice"
-            ].values()
-        )
+        if self.question.get_frequency(all_rationales=True)["first_choice"]:
+            save_allowed = (
+                0
+                not in self.question.get_frequency(all_rationales=True)[
+                    "first_choice"
+                ].values()
+            )
+        else:
+            save_allowed = False
         context.update(
             question=self.question,
             answer_choices=self.answer_choices,
