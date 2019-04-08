@@ -65,9 +65,8 @@
 
           <div class='mdc-form-field'>
             <label for='id_flag_reason'>{{ form.flag_reason.label }}:</label>
-            <div class='mdc-select' style='margin-left: 10px;transform: translateY(-6px);'>
-              {{ form.flag_reason|add_class:"mdc-select__native-control" }}
-              <div class="mdc-select__bottom-line"></div>
+            <div style='margin-left: 10px;'>
+              {{ form.flag_reason|add_class:'multiple-select mdc-theme--background' }}
             </div>
           </div>
 

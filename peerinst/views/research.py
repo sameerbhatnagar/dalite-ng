@@ -2,7 +2,11 @@
 from __future__ import unicode_literals
 import string
 from django.db.models import Count
-from django.forms import ModelForm, ModelChoiceField, modelformset_factory
+from django.forms import (
+    ModelForm,
+    ModelMultipleChoiceField,
+    modelformset_factory,
+)
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
@@ -280,9 +284,8 @@ def research_all_annotations_for_question(
 
 
 class QuestionFlagForm(ModelForm):
-    flag_reason = ModelChoiceField(
-        queryset=QuestionFlagReason.objects.all(),
-        empty_label=_("Please select one option"),
+    flag_reason = ModelMultipleChoiceField(
+        queryset=QuestionFlagReason.objects.all()
     )
 
     class Meta:
@@ -319,6 +322,7 @@ def flag_question_form(
         if form.is_valid():
             form.instance.user = request.user
             form.instance.question = question
+            print(form)
             instance = form.save()
             if instance.flag:
                 message = _(
