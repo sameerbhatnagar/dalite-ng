@@ -706,8 +706,10 @@ def answer_choice_form(request, question_id):
         if request.method == "POST":
             # Populate form; resend if invalid
             formset = AnswerChoiceFormSet(request.POST, instance=question)
+            print(formset)
             if formset.is_valid():
-                formset.save()
+                instances = formset.save()
+                print(instances)
                 return HttpResponseRedirect(
                     reverse(
                         "sample-answer-form",

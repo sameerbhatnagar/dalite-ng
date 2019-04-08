@@ -322,7 +322,6 @@ def flag_question_form(
         if form.is_valid():
             form.instance.user = request.user
             form.instance.question = question
-            print(form)
             instance = form.save()
             if instance.flag:
                 message = _(
