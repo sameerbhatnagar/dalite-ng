@@ -39,7 +39,7 @@
   <ul class="mdc-list">
     {% for sample in expert_rationales|dictsort:'first_answer_choice' %}
         <li>
-          <a href="">
+          <a href="{% url 'research-rationale-update-expert' pk=sample.id %}">
           <i class="material-icons md-24 mdc-ripple-surface icon-list">check_circle_outline</i>
           </a>
           <span class='mdc-theme--primary bold'>{{ sample.first_answer_choice_label }}</span>: {{ sample.rationale|safe|striptags }}.

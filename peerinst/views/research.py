@@ -9,6 +9,7 @@ from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404, render
 from django.utils.translation import ugettext_lazy as _
+from django.views.generic.edit import UpdateView
 
 from ..mixins import student_check
 from ..models import (
@@ -339,29 +340,14 @@ def flag_question_form(
     return render(request, template, context)
 
 
-def expert_rationales_form(
-    request, question_pk, discipline_title=None, assignment_id=None
-):
-    template = "peerinst/research/expert_rationales.html"
-    question = get_object_or_404(Question, pk=question_pk)
+class AnswerExpertUpdateView(UpdateView):
+    model = Answer
+    fields = ["expert"]
+    template_name = "peerinst/research/answer-expert-update.html"
 
-    queryset = question.answer_set.filter(expert=True)
-
-    ExpertRationaleFormset = modelformset_factory(
-        Answer, fields=("first_answer_choice", "expert", "rationale"), extra=1
-    )
-
-    if request.method == "POST":
-        formset = ExpertRationaleFormset(request.POST)
-        if formset.is_valid():
-            instances = formset.save()
-
-    formset = ExpertRationaleFormset(queryset=queryset)
-
-    context = {
-        "formset": formset,
-        "question": question,
-        "discipline_title": discipline_title,
-        "assignment_id": assignment_id,
-    }
-    return render(request, template, context)
+    def get_context_data(self, **kwargs):
+        context = super(AnswerExpertUpdateView, self).get_context_data(
+            **kwargs
+        )
+        context["question"] = Question.objects.get(pk=self.object.question_id)
+        return context

@@ -587,14 +587,19 @@ def researcher_patterns():
             name="research-flag-question-by-assignment",
         ),
         url(
-            r"^research/expert/rationale/fix/(?P<question_id>[0-9]+)$",
+            r"^research/expert/rationales/(?P<question_id>[0-9]+)$",
             admin_views.QuestionExpertRationaleView.as_view(),
             name="research-fix-expert-rationale",
         ),
         url(
-            r"^research/assignment/(?P<assignment_id>[^/]+)/expert/rationale/fix/(?P<question_id>[0-9]+)$",  # noqa
+            r"^research/assignment/(?P<assignment_id>[^/]+)/expert/rationale/(?P<question_id>[0-9]+)$",  # noqa
             admin_views.QuestionExpertRationaleView.as_view(),
             name="research-fix-expert-rationale",
+        ),
+        url(
+            r"^research/expert/rationale/fix/(?P<pk>[0-9]+)$",
+            views.AnswerExpertUpdateView.as_view(),
+            name="research-rationale-update-expert",
         ),
     ]
 
