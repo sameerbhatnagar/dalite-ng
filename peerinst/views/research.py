@@ -185,11 +185,6 @@ def research_question_answer_list(
         AnswerAnnotation, fields=("score",), extra=0
     )
 
-    if request.method == "POST":
-        formset = AnswerAnnotationFormset(request.POST)
-        if formset.is_valid():
-            instances = formset.save()
-
     formset = AnswerAnnotationFormset(queryset=queryset)
 
     context = {
@@ -206,6 +201,13 @@ def research_question_answer_list(
         ).count(),
         "annotator": annotator,
     }
+
+    if request.method == "POST":
+        formset = AnswerAnnotationFormset(request.POST)
+        if formset.is_valid():
+            instances = formset.save()
+            context.update(message=_("Scores updated"))
+
     return render(request, template, context)
 
 
@@ -298,7 +300,7 @@ def flag_question_form(
         message = _(
             """
             Your input has already been forwarded to a myDALITE content
-            moderator."
+            moderator.
             """
         )
 
@@ -317,12 +319,12 @@ def flag_question_form(
                 message = _(
                     """
                     You have un-flagged this question, and thus it will be
-                    it will be taken off the list of potentially problematic
-                    questions.
+                    taken off the list of potentially problematic questions.
                     """
                 )
     elif created:
         message = None
+
     form = QuestionFlagForm(instance=question_flag)
 
     context = {
