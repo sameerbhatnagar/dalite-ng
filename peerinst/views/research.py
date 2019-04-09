@@ -2,13 +2,20 @@
 from __future__ import unicode_literals
 import string
 from django.db.models import Count
-from django.forms import ModelForm, modelformset_factory
+from django.forms import (
+    ModelForm,
+    ModelMultipleChoiceField,
+    modelformset_factory,
+)
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.shortcuts import get_object_or_404, render
 from django.utils.translation import ugettext_lazy as _
+from django.urls import reverse
+from django.views.decorators.http import require_http_methods
+from django.views.generic.edit import UpdateView
 
 from ..mixins import student_check
 from ..models import (
@@ -18,6 +25,7 @@ from ..models import (
     Discipline,
     Question,
     QuestionFlag,
+    QuestionFlagReason,
     ShownRationale,
 )
 
@@ -185,11 +193,6 @@ def research_question_answer_list(
         AnswerAnnotation, fields=("score",), extra=0
     )
 
-    if request.method == "POST":
-        formset = AnswerAnnotationFormset(request.POST)
-        if formset.is_valid():
-            instances = formset.save()
-
     formset = AnswerAnnotationFormset(queryset=queryset)
 
     context = {
@@ -206,6 +209,13 @@ def research_question_answer_list(
         ).count(),
         "annotator": annotator,
     }
+
+    if request.method == "POST":
+        formset = AnswerAnnotationFormset(request.POST)
+        if formset.is_valid():
+            instances = formset.save()
+            context.update(message=_("Scores updated"))
+
     return render(request, template, context)
 
 
@@ -275,11 +285,16 @@ def research_all_annotations_for_question(
 
 
 class QuestionFlagForm(ModelForm):
+    flag_reason = ModelMultipleChoiceField(
+        queryset=QuestionFlagReason.objects.all()
+    )
+
     class Meta:
         model = QuestionFlag
         fields = ["flag", "flag_reason", "comment"]
 
 
+@require_http_methods(["GET", "POST"])
 @login_required
 @user_passes_test(student_check, login_url="/access_denied_and_logout/")
 def flag_question_form(
@@ -289,22 +304,25 @@ def flag_question_form(
     Get or Create QuestionFlag object for user, and allow edit
     """
     template = "peerinst/research/flag_question.html"
-    user = get_object_or_404(User, username=request.user)
     question = get_object_or_404(Question, pk=question_pk)
-    question_flag, created = QuestionFlag.objects.get_or_create(
-        user=user, question=question
-    )
-    if not created:
-        message = _(
-            """
-            Your input has already been forwarded to a myDALITE content
-            moderator."
-            """
+    message = None
+
+    try:
+        question_flag = QuestionFlag.objects.get(
+            user=request.user, question=question
         )
+    except ObjectDoesNotExist:
+        question_flag = None
+
+    if request.method == "GET":
+        form = QuestionFlagForm(instance=question_flag)
 
     if request.method == "POST":
         form = QuestionFlagForm(request.POST, instance=question_flag)
+
         if form.is_valid():
+            form.instance.user = request.user
+            form.instance.question = question
             instance = form.save()
             if instance.flag:
                 message = _(
@@ -317,13 +335,9 @@ def flag_question_form(
                 message = _(
                     """
                     You have un-flagged this question, and thus it will be
-                    it will be taken off the list of potentially problematic
-                    questions.
+                    taken off the list of potentially problematic questions.
                     """
                 )
-    elif created:
-        message = None
-    form = QuestionFlagForm(instance=question_flag)
 
     context = {
         "form": form,
@@ -337,29 +351,20 @@ def flag_question_form(
     return render(request, template, context)
 
 
-def expert_rationales_form(
-    request, question_pk, discipline_title=None, assignment_id=None
-):
-    template = "peerinst/research/expert_rationales.html"
-    question = get_object_or_404(Question, pk=question_pk)
+class AnswerExpertUpdateView(UpdateView):
+    model = Answer
+    fields = ["expert"]
+    template_name = "peerinst/research/answer-expert-update.html"
 
-    queryset = question.answer_set.filter(expert=True)
+    def get_context_data(self, **kwargs):
+        context = super(AnswerExpertUpdateView, self).get_context_data(
+            **kwargs
+        )
+        context["question"] = Question.objects.get(pk=self.object.question_id)
+        return context
 
-    ExpertRationaleFormset = modelformset_factory(
-        Answer, fields=("first_answer_choice", "expert", "rationale"), extra=1
-    )
-
-    if request.method == "POST":
-        formset = ExpertRationaleFormset(request.POST)
-        if formset.is_valid():
-            instances = formset.save()
-
-    formset = ExpertRationaleFormset(queryset=queryset)
-
-    context = {
-        "formset": formset,
-        "question": question,
-        "discipline_title": discipline_title,
-        "assignment_id": assignment_id,
-    }
-    return render(request, template, context)
+    def get_success_url(self):
+        return reverse(
+            "research-fix-expert-rationale",
+            kwargs={"question_id": self.object.question_id},
+        )

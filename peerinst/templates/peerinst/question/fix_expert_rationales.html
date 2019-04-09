@@ -38,7 +38,12 @@
   {% endif %}
   <ul class="mdc-list">
     {% for sample in expert_rationales|dictsort:'first_answer_choice' %}
-        <li><span class='mdc-theme--primary bold'>{{ sample.first_answer_choice_label }}</span>: {{ sample.rationale|safe|striptags }}.</li>
+        <li>
+          <a href="{% url 'research-rationale-update-expert' pk=sample.id %}">
+          <i class="material-icons md-24 mdc-ripple-surface icon-list">check_circle_outline</i>
+          </a>
+          <span class='mdc-theme--primary bold'>{{ sample.first_answer_choice_label }}</span>: {{ sample.rationale|safe|striptags }}.
+        </li>
     {% endfor %}
   </ul>
 {% endif %}
@@ -48,21 +53,16 @@
 
 <div style="margin-top:20px;">
   <span class="padded">
-    {% if question.type == "PI" %}
-      <form style="display:inline" id="back" action="{% url 'answer-choice-form' question_id=question.id %}" method="get">
-        <button form="back" type="submit" class="mdc-button mdc-button--raised">Back</button>
-      </form>
-    {% else %}
-      <form style="display:inline" id="back" action="{% url 'question-update' pk=question.id %}" method="get">
-        <button form="back" type="submit" class="mdc-button mdc-button--raised">Back</button>
-      </form>
-    {% endif %}
-  </span>
-  <span class="padded">
       {% if save_allowed %}
-      <form style="display:inline" id="done" action="{% url 'research-discipline-question-index-by-discipline' discipline_title=question.discipline.title %}#{{ question.pk }}" method="get">
-        <button form="done" type="submit" class="mdc-button mdc-button--raised submit_button">{% trans 'Done' %}</<button>
-      </form>
+        {% if assignment_id %}
+          <form style="display:inline" id="done" action="{% url 'research-assignment-question-index-by-assignment' assignment_id=assignment_id %}" method="get">
+            <button form="done" type="submit" class="mdc-button mdc-button--raised submit_button">{% trans 'Done' %}</<button>
+          </form>
+        {% else %}
+          <form style="display:inline" id="done" action="{% url 'research-discipline-question-index-by-discipline' discipline_title=question.discipline.title %}#{{ question.pk }}" method="get">
+            <button form="done" type="submit" class="mdc-button mdc-button--raised submit_button">{% trans 'Done' %}</<button>
+          </form>
+        {% endif %}
       {% endif %}
   </span>
 </div>

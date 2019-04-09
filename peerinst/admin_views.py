@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 import collections
 import itertools
 import urllib
+import re
 
 from django import forms
 from django.contrib import messages
@@ -12,6 +13,7 @@ from django.core.urlresolvers import reverse
 from django.db.models import F
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
+from django.utils.safestring import mark_safe
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import FormView
 
@@ -517,9 +519,46 @@ class AssignmentResultsView(
 
 
 class QuestionPreviewForm(FirstAnswerForm):
+
     expert = forms.BooleanField(
         label=_("Expert answer"), initial=True, required=False
     )
+
+
+class ExpertRationaleForm(QuestionPreviewForm):
+    """
+    Special form for entering Expert Rationales for correct answers only
+    Requires a diffent __init__ as the form depends on the question for
+    determining the correct answer_choices
+    """
+
+    def __init__(self, answer_choices, question, *args, **kwargs):
+        choice_texts = [
+            mark_safe(
+                ". ".join(
+                    (
+                        pair[0],
+                        ("<br>" + "&nbsp" * 5).join(
+                            re.split(r"<br(?: /)?>", pair[1])
+                        ),
+                    )
+                )
+            )
+            for pair in answer_choices
+        ]
+        #  choice_texts = [mark_safe(". ".join(pair)) for pair in
+        #  answer_choices]
+        all_choices = enumerate(choice_texts, 1)
+        correct_choices = list(
+            itertools.compress(
+                all_choices,
+                question.answerchoice_set.all().values_list(
+                    "correct", flat=True
+                ),
+            )
+        )
+        self.base_fields["first_answer_choice"].choices = correct_choices
+        forms.Form.__init__(self, *args, **kwargs)
 
 
 class QuestionPreviewViewBase(
@@ -543,12 +582,15 @@ class QuestionPreviewViewBase(
         context = super(QuestionPreviewViewBase, self).get_context_data(
             **kwargs
         )
-        save_allowed = (
-            0
-            not in self.question.get_frequency(all_rationales=True)[
-                "first_choice"
-            ].values()
-        )
+        if self.question.get_frequency(all_rationales=True)["first_choice"]:
+            save_allowed = (
+                0
+                not in self.question.get_frequency(all_rationales=True)[
+                    "first_choice"
+                ].values()
+            )
+        else:
+            save_allowed = False
         context.update(
             question=self.question,
             answer_choices=self.answer_choices,
@@ -560,12 +602,16 @@ class QuestionPreviewViewBase(
         return context
 
     def form_valid(self, form):
+        """
+        These rationales are NOT saved as expert, as that is reserved for a
+        seperate form
+        """
         answer = models.Answer(
             question=self.question,
             first_answer_choice=int(form.cleaned_data["first_answer_choice"]),
             rationale=form.cleaned_data["rationale"],
             show_to_others=True,
-            expert=form.cleaned_data["expert"],
+            expert=False,
         )
         answer.save()
         messages.add_message(
@@ -589,23 +635,21 @@ class QuestionPreviewView(StaffMemberRequiredMixin, QuestionPreviewViewBase):
 
 
 class QuestionExpertRationaleView(QuestionPreviewViewBase):
+    """
+    Special view for entering Expert Rationales for correct answers only
+    Requires that question is added to form kwargs, and template variables to
+    block completion buttons unless enough expert rationales are entered
+    """
+
     template_name = "peerinst/question/fix_expert_rationales.html"
+    form_class = ExpertRationaleForm
 
     def get_form_kwargs(self):
         """
-        only return the answer choices marked as correct, as those are the ones
-        that need expert rationales
+        add question to form kwargs
         """
         kwargs = super(QuestionExpertRationaleView, self).get_form_kwargs()
-        self.answer_choices = list(
-            itertools.compress(
-                self.question.get_choices(),
-                self.question.answerchoice_set.all().values_list(
-                    "correct", flat=True
-                ),
-            )
-        )
-        kwargs.update(answer_choices=self.answer_choices)
+        kwargs.update(question=self.question)
         return kwargs
 
     def get_context_data(self, **kwargs):
@@ -613,8 +657,10 @@ class QuestionExpertRationaleView(QuestionPreviewViewBase):
         show currently saved expert rationales, and define context variable
         that does not render completion button until a expert rationale exists
         for each correct answerchoice (FIXME: currently comparison is to number
-        of correct answer choices)
+        of correct answer choices; should be at least one expert rationale
+        per correct answer choice)
         """
+
         context = super(QuestionExpertRationaleView, self).get_context_data(
             **kwargs
         )
@@ -624,8 +670,11 @@ class QuestionExpertRationaleView(QuestionPreviewViewBase):
                 "correct", flat=True
             )
         )
+        assignment_id = self.kwargs.get("assignment_id")
         context.update(
-            expert_rationales=expert_rationales, save_allowed=save_allowed
+            expert_rationales=expert_rationales,
+            save_allowed=save_allowed,
+            assignment_id=assignment_id,
         )
         return context
 
@@ -647,10 +696,19 @@ class QuestionExpertRationaleView(QuestionPreviewViewBase):
         return super(QuestionPreviewViewBase, self).form_valid(form)
 
     def get_success_url(self):
-        return reverse(
-            "research-fix-expert-rationale",
-            kwargs=dict(question_id=self.question.pk),
-        )
+        if self.kwargs.get("assignment_id"):
+            return reverse(
+                "research-fix-expert-rationale",
+                kwargs=dict(
+                    question_id=self.question.pk,
+                    assignment_id=self.kwargs.get("assignment_id"),
+                ),
+            )
+        else:
+            return reverse(
+                "research-fix-expert-rationale",
+                kwargs=dict(question_id=self.question.pk),
+            )
 
 
 class StringListForm(forms.Form):

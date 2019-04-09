@@ -17,7 +17,7 @@
     padding: 10px;
   }
   .mdc-text-field__input {
-    width: 500px;
+    width: 100%;
   }
 </style>
 {% endblock %}
@@ -27,7 +27,7 @@
   <section>
 
     <div class="sticky-header mdc-theme--background">
-      <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Question' %}: {{ question.title|safe }}</h2>
+      <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Update Expert Rationale' %}</h2>
 
       <div class="admin-link">
         {% if discipline_title %}
@@ -38,18 +38,61 @@
         {% endif %}
       </div>
 
-      <div class="content">
-        <form id="flag-form" action="" method="post">
-          {% csrf_token %}
 
+      <div class="mdc-card">
+        <div class="mdc-typography--body1">
+          {{question.text|safe}}
+        </div>
+
+        <div class="hidable">
+          {% if question.image %}
+          <img class="question-image" src="{{ question.image.url }}" height="{{ question.image.height }}"
+               width="{{ question.image.width }}" alt="question.image_alt_text">
+          {% endif %}
+          {% if question.video_url %}
+          <div id="question-video">
+            <object class="question-image" width="640" height="390" data="{{ question.video_url }}"></object>
+          </div>
+          {% endif %}
+
+          <ul id="answer-choices">
+            {% for label, choice in question.get_choices %}
+              <li class="dense-list">{{ label }}. {{ choice|safe }}
+              {% for c in question.answerchoice_set.all %}
+                {% if forloop.counter == forloop.parentloop.counter %}
+                  {% if c.correct %}
+                    <i id="check" class="material-icons" style="-webkit-transform: translateY(3px);font-size:12pt;">check</i>
+                  {% endif %}
+                {% endif %}
+              {% endfor %}
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+
+    </div>
+
+
+<div class="content">
+  <form id="expert-form" method="post">
+    {% csrf_token %}
+    <label for="expert-form">{% trans 'Is the following rationale appropriate for a student to study off of for the associated correct answer?'%}: </label>
+    {{ form.expert }}
+  </form>
+<input type="submit" form="expert-form" class="mdc-button mdc-button--raised padded-bottom" value="{% trans 'Save' %}">
+</div>
+
+{% comment %}
+      <div class="content">
+        <form id="expert-form" action="" method="post">
+          {% csrf_token %}
           <div class="mdc-form-field">
-            <label for="id_flag">{{ form.flag.label }}: </label>
+            <label for="my-checkbox">{% trans 'Is the following rationale appropriate for a student to study off of for the associated correct answer?'%}: </label>
             <div class="mdc-checkbox">
               <input type="checkbox"
-                     name="flag"
-                     id="id_flag"
+                     id="my-checkbox"
                      class="mdc-checkbox__native-control"
-                     {% if form.flag.value %}checked{% endif %}/>
+                     {% if answer.expert %}checked{% endif %}/>
               <div class="mdc-checkbox__background">
                 <svg class="mdc-checkbox__checkmark"
                      viewBox="0 0 24 24">
@@ -63,28 +106,10 @@
             </div>
           </div>
 
-          <div class='mdc-form-field'>
-            <label for='id_flag_reason'>{{ form.flag_reason.label }}:</label>
-            <div style='margin-left: 10px;'>
-              {{ form.flag_reason|add_class:'multiple-select mdc-theme--background' }}
-            </div>
-          </div>
-
-          <div class="mdc-text-field mdc-text-field--outlined mdc-text-field--dense" data-mdc-auto-init="MDCTextField">
-            {{ form.comment|add_class:"mdc-text-field__input" }}
-            {{ form.comment.label_tag|add_class:"mdc-floating-label"|cut:":" }}
-            <div class="mdc-notched-outline">
-              <svg>
-                <path class="mdc-notched-outline__path"/>
-              </svg>
-            </div>
-            <div class="mdc-notched-outline__idle"></div>
-          </div>
-
         </form>
       </div>
 
-      <input type="submit" form="flag-form" class="mdc-button mdc-button--raised padded-bottom" value="{% trans 'Flag question' %}">
+      <input type="submit" form="expert-form" class="mdc-button mdc-button--raised padded-bottom" value="{% trans 'Save' %}">
 
       <i class="mdc-icon-toggle material-icons mdc-theme--primary icon-list"
           id="hide"
@@ -97,7 +122,7 @@
           onclick="$('.hidable').toggle();localStorage.setItem('collapse', $('.hidable').css('display')=='none' ? false : true);">
           unfold_less
       </i>
-
+{% endcomment %}
       <i id="activate-dialog" class="mdc-theme--primary material-icons md-24 mdc-ripple-surface icon-list">help</i>
 
         {% if message %}
@@ -118,14 +143,12 @@
         <div class="mdc-dialog__surface">
           <header class="mdc-dialog__header">
             <h2 id="assignment-parameters-label" class="mdc-dialog__header__title">
-              {% trans 'Flagging questions' %}
+              {% trans 'Update Expert Rationale' %}
             </h2>
           </header>
           <section id="assignment-parameters-description" class="mdc-dialog__body mdc-dialog__body--scrollable">
             <p class="mdc-typography--body1">
-              {% blocktrans %}Please use this page to flag a question you believe should be reviewed by a myDALITE moderator, and maybe taken out of the database.<br><br>
-              This may be because the answer is incorrect, the image is infringing on copyright, or the content is inappropriate.<br><br>
-              As a subject matter expert, and a member of the myDALITE community, your input will help maintain the quality of the database of questions.<br><br>
+              {% blocktrans %}Please use this page to decide if the rationale is associated with the correct answer choice for the questions below.<br><br>
               Thank you for your time!<br><br>
               - The SALTISE/S4 Team{% endblocktrans %}
             </p>
@@ -139,63 +162,29 @@
 
         <div class="mdc-card">
           <div class="mdc-typography--body1">
-            {{question.text|safe}}
+            <strong>{{answer.first_answer_choice_label}}</strong> : {{ answer.rationale|safe|striptags }}
           </div>
 
-          <div class="hidable">
-            {% if question.image %}
-            <img class="question-image" src="{{ question.image.url }}" height="{{ question.image.height }}"
-                 width="{{ question.image.width }}" alt="question.image_alt_text">
-            {% endif %}
-            {% if question.video_url %}
-            <div id="question-video">
-              <object class="question-image" width="640" height="390" data="{{ question.video_url }}"></object>
-            </div>
-            {% endif %}
+        </div>
 
-            <ul id="answer-choices">
-              {% for label, choice in question.get_choices %}
-                <li class="dense-list">{{ label }}. {{ choice|safe }}
-                {% for c in question.answerchoice_set.all %}
-                  {% if forloop.counter == forloop.parentloop.counter %}
-                    {% if c.correct %}
-                      <i id="check" class="material-icons" style="-webkit-transform: translateY(3px);font-size:12pt;">check</i>
-                    {% endif %}
-                  {% endif %}
-                {% endfor %}
-                </li>
-              {% endfor %}
-            </ul>
-          </div>
 
       </div>
-      <h3>{% trans 'Expert rationales for the correct answer to this question' %}</h3>
-      {% if expert_answers %}
-      <div>
-        {% for a in expert_answers %}
-          <p><strong>{{ a.id }}</strong>: {{ a.rationale }}</p>
-        {% endfor %}
-      </div>
-      {% else %}
-      <p>
-        {% trans 'Sorry, there are no rationales that have been marked as expert for this question.' %}
-      </p>
-      {% endif %}
 
-    </div>
+    </section>
+  </main>
+  {% endblock %}
 
-  </section>
-</main>
-{% endblock %}
+  {% block scripts %}
+  <script>
+    var show = localStorage.getItem('collapse') === 'true';
+    $('.hidable').toggle(show);
+    $(".mdc-icon-toggle").each(function() {
+      var el = bundle.iconToggle.MDCIconToggle.attachTo(this);
+      el.on = !show;
+    });
 
-{% block scripts %}
-<script>
-  var show = localStorage.getItem('collapse') === 'true';
-  $('.hidable').toggle(show);
-  $(".mdc-icon-toggle").each(function() {
-    var el = bundle.iconToggle.MDCIconToggle.attachTo(this);
-    el.on = !show;
-  });
-  bundle.addDialog();
-</script>
-{% endblock %}
+
+
+    bundle.addDialog();
+  </script>
+  {% endblock %}
