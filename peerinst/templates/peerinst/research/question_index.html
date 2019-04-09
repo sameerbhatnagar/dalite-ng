@@ -64,11 +64,11 @@
           {% if discipline_title %}
             <a href="{% url 'research-all-annotations-for-question-by-discipline' discipline_title=discipline_title question_pk=item.question.pk %}"><i class="mdc-theme--primary material-icons md-24 mdc-ripple-surface icon-list" title="{% trans 'See all scores' %}">group</i></a>
 
-            <a href="{% url 'research-flag-question-by-discipline' discipline_title=discipline_title question_pk=item.question.pk %}"><i class="mdc-theme--primary material-icons md-24 mdc-ripple-surface icon-list" title="{% trans 'Flag question as problematic' %}">report</i></a>
+            <a href="{% url 'research-flag-question-by-discipline' discipline_title=discipline_title question_pk=item.question.pk %}"><i {% if item.flag_color_code %} style="color:{{ item.flag_color_code }};" {% endif %} class="{% if not item.flag_color_code %}mdc-theme--primary {% endif %}material-icons md-24 mdc-ripple-surface icon-list" title="{% trans 'Flag question as problematic' %}">report</i></a>
           {% elif assignment_id %}
             <a href="{% url 'research-all-annotations-for-question-by-assignment' assignment_id=assignment_id question_pk=item.question.pk %}"><i class="mdc-theme--primary material-icons md-24 mdc-ripple-surface icon-list" title="{% trans 'See all scores' %}">group</i></a>
 
-            <a href="{% url 'research-flag-question-by-assignment' assignment_id=assignment_id question_pk=item.question.pk %}"><i class="mdc-theme--primary material-icons md-24 mdc-ripple-surface icon-list" title="{% trans 'Flag question as problematic' %}">report</i></a>
+            <a href="{% url 'research-flag-question-by-assignment' assignment_id=assignment_id question_pk=item.question.pk %}"><i {% if item.flag_color_code %} style="color:{{ item.flag_color_code }};"{% endif %} class="{% if not item.flag_color_code %}mdc-theme--primary {% endif %}material-icons md-24 mdc-ripple-surface icon-list" title="{% trans 'Flag question as problematic' %}">report</i></a>
           {% endif %}
 
         <a href="{% url 'research-fix-expert-rationale' question_id=item.question.pk %}"><i class="mdc-theme--primary material-icons md-24 mdc-ripple-surface icon-list" title="{% trans 'Add/edit expert rationales' %}">add_comment</i></a>
