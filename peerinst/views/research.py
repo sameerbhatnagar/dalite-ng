@@ -107,6 +107,7 @@ def research_discipline_question_index(
         annotator=annotator,
         assignment_id=assignment_id,
     )
+    request.session["assignment_id"] = assignment_id
 
     context = {
         "questions": question_annotation_counts,
