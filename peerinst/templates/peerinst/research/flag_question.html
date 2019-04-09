@@ -27,7 +27,7 @@
   <section>
 
     <div class="sticky-header mdc-theme--background">
-      <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Question' %}: {{ question.title|safe }}</h2>
+      <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Flag Question' %}: {{ question.title|safe }}</h2>
 
       <div class="admin-link">
         {% if discipline_title %}
@@ -84,7 +84,7 @@
         </form>
       </div>
 
-      <input type="submit" form="flag-form" class="mdc-button mdc-button--raised padded-bottom" value="{% trans 'Flag question' %}">
+      <input type="submit" form="flag-form" class="mdc-button mdc-button--raised padded-bottom" value="{% trans 'Save' %}">
 
       <i class="mdc-icon-toggle material-icons mdc-theme--primary icon-list"
           id="hide"
@@ -143,6 +143,7 @@
           </div>
 
           <div class="hidable">
+
             {% if question.image %}
             <img class="question-image" src="{{ question.image.url }}" height="{{ question.image.height }}"
                  width="{{ question.image.width }}" alt="question.image_alt_text">
@@ -168,13 +169,20 @@
             </ul>
           </div>
 
-      </div>
+        </div>
       <h3>{% trans 'Expert rationales for the correct answer to this question' %}</h3>
       {% if expert_answers %}
       <div>
+        <ul>
         {% for a in expert_answers %}
-          <p><strong>{{ a.id }}</strong>: {{ a.rationale }}</p>
+        <li>
+          <a href="{% url 'research-rationale-update-expert' pk=a.id %}">
+          <i class="material-icons md-24 mdc-ripple-surface icon-list">check_circle_outline</i>
+          </a>
+          <span class='mdc-theme--primary bold'>{{ a.first_answer_choice_label }}</span>: {{ a.rationale|safe|striptags }}.
+        </li>
         {% endfor %}
+        </ul>
       </div>
       {% else %}
       <p>

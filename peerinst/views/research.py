@@ -76,6 +76,16 @@ def get_question_annotation_counts(discipline_title, annotator, assignment_id):
             d1["flag_color_code"] = "red"
         elif q.pk in flagged_questions:
             d1["flag_color_code"] = "#EDAA1E"
+            d1["flagged_reasons"] = "; ".join(
+                (
+                    [
+                        " - ".join(e)
+                        for e in QuestionFlag.objects.filter(
+                            flag=True, question=q
+                        ).values_list("user__username", "flag_reason__title")
+                    ]
+                )
+            )
         else:
             d1["flag_color_code"] = None
 
