@@ -13,6 +13,7 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.shortcuts import get_object_or_404, render
 from django.utils.translation import ugettext_lazy as _
+from django.urls import reverse
 from django.views.decorators.http import require_http_methods
 from django.views.generic.edit import UpdateView
 
@@ -361,3 +362,9 @@ class AnswerExpertUpdateView(UpdateView):
         )
         context["question"] = Question.objects.get(pk=self.object.question_id)
         return context
+
+    def get_success_url(self):
+        return reverse(
+            "research-fix-expert-rationale",
+            kwargs={"question_id": self.object.question_id},
+        )

@@ -38,6 +38,51 @@
         {% endif %}
       </div>
 
+
+      <div class="mdc-card">
+        <div class="mdc-typography--body1">
+          {{question.text|safe}}
+        </div>
+
+        <div class="hidable">
+          {% if question.image %}
+          <img class="question-image" src="{{ question.image.url }}" height="{{ question.image.height }}"
+               width="{{ question.image.width }}" alt="question.image_alt_text">
+          {% endif %}
+          {% if question.video_url %}
+          <div id="question-video">
+            <object class="question-image" width="640" height="390" data="{{ question.video_url }}"></object>
+          </div>
+          {% endif %}
+
+          <ul id="answer-choices">
+            {% for label, choice in question.get_choices %}
+              <li class="dense-list">{{ label }}. {{ choice|safe }}
+              {% for c in question.answerchoice_set.all %}
+                {% if forloop.counter == forloop.parentloop.counter %}
+                  {% if c.correct %}
+                    <i id="check" class="material-icons" style="-webkit-transform: translateY(3px);font-size:12pt;">check</i>
+                  {% endif %}
+                {% endif %}
+              {% endfor %}
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+
+    </div>
+
+
+<div class="content">
+  <form id="expert-form" method="post">
+    {% csrf_token %}
+    <label for="expert-form">{% trans 'Is the following rationale appropriate for a student to study off of for the associated correct answer?'%}: </label>
+    {{ form.expert }}
+  </form>
+<input type="submit" form="expert-form" class="mdc-button mdc-button--raised padded-bottom" value="{% trans 'Save' %}">
+</div>
+
+{% comment %}
       <div class="content">
         <form id="expert-form" action="" method="post">
           {% csrf_token %}
@@ -46,7 +91,8 @@
             <div class="mdc-checkbox">
               <input type="checkbox"
                      id="my-checkbox"
-                     class="mdc-checkbox__native-control"/>
+                     class="mdc-checkbox__native-control"
+                     {% if answer.expert %}checked{% endif %}/>
               <div class="mdc-checkbox__background">
                 <svg class="mdc-checkbox__checkmark"
                      viewBox="0 0 24 24">
@@ -63,7 +109,7 @@
         </form>
       </div>
 
-      <input type="submit" action="" form="expert-form" class="mdc-button mdc-button--raised padded-bottom" value="{% trans 'Save' %}">
+      <input type="submit" form="expert-form" class="mdc-button mdc-button--raised padded-bottom" value="{% trans 'Save' %}">
 
       <i class="mdc-icon-toggle material-icons mdc-theme--primary icon-list"
           id="hide"
@@ -76,7 +122,7 @@
           onclick="$('.hidable').toggle();localStorage.setItem('collapse', $('.hidable').css('display')=='none' ? false : true);">
           unfold_less
       </i>
-
+{% endcomment %}
       <i id="activate-dialog" class="mdc-theme--primary material-icons md-24 mdc-ripple-surface icon-list">help</i>
 
         {% if message %}
@@ -114,45 +160,14 @@
         <div class="mdc-dialog__backdrop"></div>
       </aside>
 
-<div class="mdc-card">
-  <div class="mdc-typography--body1">
-    {{answer.first_answer_choice}} : {{ answer.rationale|safe|striptags }}
-  </div>
-
-</div>
-
         <div class="mdc-card">
           <div class="mdc-typography--body1">
-            {{question.text|safe}}
+            <strong>{{answer.first_answer_choice_label}}</strong> : {{ answer.rationale|safe|striptags }}
           </div>
 
-          <div class="hidable">
-            {% if question.image %}
-            <img class="question-image" src="{{ question.image.url }}" height="{{ question.image.height }}"
-                 width="{{ question.image.width }}" alt="question.image_alt_text">
-            {% endif %}
-            {% if question.video_url %}
-            <div id="question-video">
-              <object class="question-image" width="640" height="390" data="{{ question.video_url }}"></object>
-            </div>
-            {% endif %}
+        </div>
 
-            <ul id="answer-choices">
-              {% for label, choice in question.get_choices %}
-                <li class="dense-list">{{ label }}. {{ choice|safe }}
-                {% for c in question.answerchoice_set.all %}
-                  {% if forloop.counter == forloop.parentloop.counter %}
-                    {% if c.correct %}
-                      <i id="check" class="material-icons" style="-webkit-transform: translateY(3px);font-size:12pt;">check</i>
-                    {% endif %}
-                  {% endif %}
-                {% endfor %}
-                </li>
-              {% endfor %}
-            </ul>
-          </div>
 
-      </div>
       </div>
 
     </section>
