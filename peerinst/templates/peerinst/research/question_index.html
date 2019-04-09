@@ -21,7 +21,7 @@
   <section>
 
     <h1 id="title" class="mdc-typography--display3">
-      {% trans 'Question list' %}
+      {% trans 'Quality Control' %}
       <svg class="underline" width=150 height=4></svg>
     </h1>
 
@@ -52,6 +52,14 @@
           <p>
             {% trans 'These numbers are then broken down by answer choice below the Question ID. Click on the Answer Choice to add or update your scoring of the rationales.' %}
           </p>
+          <br>
+          <p>{% trans 'The icons to the left allow you to: ' %}</p>
+          <ul>
+            <li><i class="mdc-theme--primary material-icons md-24">group</i>See All the scores given by other teachers to the rationales for a question.</li>
+            <li><i class="mdc-theme--primary material-icons md-24">report</i>Flag a question as being problematic. (Red means you have flagged the question, yellow means this question has been flagged by someone else, blue means that the question has not yet been flagged.)</li>
+            <li><i class="mdc-theme--primary material-icons md-24">add_comment</i>Add/edit expert rationales for the correct answer choice(s).</li>
+            <li><i class="mdc-theme--primary material-icons md-24">check_circle</i>See the current list of current expert rationales for that question.</li>
+          </ul>
         </small>
       </div>
     </div>
@@ -64,11 +72,11 @@
           {% if discipline_title %}
             <a href="{% url 'research-all-annotations-for-question-by-discipline' discipline_title=discipline_title question_pk=item.question.pk %}"><i class="mdc-theme--primary material-icons md-24 mdc-ripple-surface icon-list" title="{% trans 'See all scores' %}">group</i></a>
 
-            <a href="{% url 'research-flag-question-by-discipline' discipline_title=discipline_title question_pk=item.question.pk %}"><i class="mdc-theme--primary material-icons md-24 mdc-ripple-surface icon-list" title="{% trans 'Flag question as problematic' %}">report</i></a>
+            <a href="{% url 'research-flag-question-by-discipline' discipline_title=discipline_title question_pk=item.question.pk %}"><i {% if item.flag_color_code %} style="color:{{ item.flag_color_code }};" {% endif %} class="{% if not item.flag_color_code %}mdc-theme--primary {% endif %}material-icons md-24 mdc-ripple-surface icon-list" title="{% if item.flagged_reasons %}{{ item.flagged_reasons }}{% else %}{% trans 'Flag question as problematic' %}{% endif %}">report</i></a>
           {% elif assignment_id %}
             <a href="{% url 'research-all-annotations-for-question-by-assignment' assignment_id=assignment_id question_pk=item.question.pk %}"><i class="mdc-theme--primary material-icons md-24 mdc-ripple-surface icon-list" title="{% trans 'See all scores' %}">group</i></a>
 
-            <a href="{% url 'research-flag-question-by-assignment' assignment_id=assignment_id question_pk=item.question.pk %}"><i class="mdc-theme--primary material-icons md-24 mdc-ripple-surface icon-list" title="{% trans 'Flag question as problematic' %}">report</i></a>
+            <a href="{% url 'research-flag-question-by-assignment' assignment_id=assignment_id question_pk=item.question.pk %}"><i {% if item.flag_color_code %} style="color:{{ item.flag_color_code }};"{% endif %} class="{% if not item.flag_color_code %}mdc-theme--primary {% endif %}material-icons md-24 mdc-ripple-surface icon-list" title="{% if item.flagged_reasons %}{{ item.flagged_reasons }}{% else %}{% trans 'Flag question as problematic' %}{% endif %}">report</i></a>
           {% endif %}
 
         <a href="{% url 'research-fix-expert-rationale' question_id=item.question.pk %}"><i class="mdc-theme--primary material-icons md-24 mdc-ripple-surface icon-list" title="{% trans 'Add/edit expert rationales' %}">add_comment</i></a>

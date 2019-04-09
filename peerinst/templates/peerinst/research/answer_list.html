@@ -154,7 +154,7 @@
                 <td title="ID: {{ form.instance.answer.pk }}">
                   {{ form.instance.answer.rationale }}
                   <p class='meta-data'>
-                    {% trans 'Times shown: ' %}{{ form.instance.times_shown }}; {% trans 'Times chosen: '%}{{ form.instance.answer.answer_set.count }}
+                    {% trans 'Times shown: ' %}{{ form.instance.times_shown }}{% comment %}; {% trans 'Times chosen: '%}{{ form.instance.answer.answer_set.count }}{% endcomment %}
                   </p>
                 </td>
               </tr>

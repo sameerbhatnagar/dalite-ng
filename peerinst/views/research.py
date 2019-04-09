@@ -68,6 +68,26 @@ def get_question_annotation_counts(discipline_title, annotator, assignment_id):
         d1["total_annotations_by_user"] = AnswerAnnotation.objects.filter(
             score__isnull=False, answer__question_id=q.pk, annotator=annotator
         ).count()
+        flagged_questions = QuestionFlag.objects.filter(flag=True).values_list(
+            "question", flat=True
+        )
+        flagged_by_user = flagged_questions.filter(user=annotator)
+        if q.pk in flagged_by_user:
+            d1["flag_color_code"] = "red"
+        elif q.pk in flagged_questions:
+            d1["flag_color_code"] = "#EDAA1E"
+            d1["flagged_reasons"] = "; ".join(
+                (
+                    [
+                        " - ".join(e)
+                        for e in QuestionFlag.objects.filter(
+                            flag=True, question=q
+                        ).values_list("user__username", "flag_reason__title")
+                    ]
+                )
+            )
+        else:
+            d1["flag_color_code"] = None
 
         answer_frequencies = q.get_frequency_json("first_choice")
         for d2 in answer_frequencies:
@@ -107,6 +127,7 @@ def research_discipline_question_index(
         annotator=annotator,
         assignment_id=assignment_id,
     )
+    request.session["assignment_id"] = assignment_id
 
     context = {
         "questions": question_annotation_counts,

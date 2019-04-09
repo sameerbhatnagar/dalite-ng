@@ -25,6 +25,17 @@
     </small></p>
   </div>
 </div>
+{% if messages %}
+{% for message in messages %}
+<div class="message-box">
+  <div class="message">{{ message }}</div>
+  <i class="clear mdc-theme--secondary material-icons md-24 mdc-ripple-surface icon-list"
+    onclick="$(this).parent().remove();">
+      clear
+  </i>
+</div>
+{% endfor %}
+{% endif %}
 {% endblock %}
 
 {% block submit_button %}{% trans 'Submit expert rationale' %}{% endblock %}
