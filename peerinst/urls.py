@@ -576,6 +576,31 @@ def researcher_patterns():
             views.research_question_answer_list,
             name="research-question-answer-list-by-assignment",
         ),
+        url(
+            r"^research/question/flag/discipline/(?P<discipline_title>[^/]+)/(?P<question_pk>[^/]+)$",  # noqa
+            views.flag_question_form,
+            name="research-flag-question-by-discipline",
+        ),
+        url(
+            r"^research/question/flag/assignment/(?P<assignment_id>[^/]+)/(?P<question_pk>[^/]+)$",  # noqa
+            views.flag_question_form,
+            name="research-flag-question-by-assignment",
+        ),
+        url(
+            r"^research/expert/rationales/(?P<question_id>[0-9]+)$",
+            admin_views.QuestionExpertRationaleView.as_view(),
+            name="research-fix-expert-rationale",
+        ),
+        url(
+            r"^research/assignment/(?P<assignment_id>[^/]+)/expert/rationale/(?P<question_id>[0-9]+)$",  # noqa
+            admin_views.QuestionExpertRationaleView.as_view(),
+            name="research-fix-expert-rationale",
+        ),
+        url(
+            r"^research/expert/rationale/fix/(?P<pk>[0-9]+)$",
+            views.AnswerExpertUpdateView.as_view(),
+            name="research-rationale-update-expert",
+        ),
     ]
 
 

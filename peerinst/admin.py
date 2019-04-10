@@ -6,7 +6,7 @@ from django.contrib import admin
 from django.contrib.admin.models import DELETION, LogEntry
 from django.core import exceptions
 from django.core.urlresolvers import reverse
-from django.utils.html import escape
+from django.utils.html import escape, format_html
 from django.utils.translation import ugettext_lazy as _
 
 from .models import (
@@ -24,6 +24,8 @@ from .models import (
     LastLogout,
     LtiEvent,
     Question,
+    QuestionFlag,
+    QuestionFlagReason,
     Student,
     StudentAssignment,
     StudentGroup,
@@ -159,6 +161,27 @@ class QuestionAdmin(admin.ModelAdmin):
     list_filter = ["category"]
     ordering = ["discipline"]
     search_fields = ["title", "text", "category__title"]
+
+
+@admin.register(QuestionFlagReason)
+class QuestionFlagReasonAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(QuestionFlag)
+class QuestionFlagAdmin(admin.ModelAdmin):
+    list_display = ["question_link", "flag_reason_list", "user", "comment"]
+
+    def question_link(self, obj):
+        link = reverse(
+            "admin:peerinst_question_change", args=[obj.question.pk]
+        )
+        return format_html('<a href="{}">{}</a>', link, obj.question.title)
+
+    def flag_reason_list(self, obj):
+        return "; ".join(obj.flag_reason.all().values_list("title", flat=True))
+
+    question_link.short_description = "Question"
 
 
 @admin.register(Category)

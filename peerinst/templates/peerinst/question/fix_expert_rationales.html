@@ -1,0 +1,89 @@
+{% extends 'peerinst/question/start.html' %}
+
+{% load staticfiles compress i18n add_class %}
+
+{% block extra_title %}
+<h2 class="mdc-typography--display1 mdc-theme--secondary">
+    {% trans 'Expert Rationales' %}
+</h2>
+
+<div class='field-container'>
+  <div class='number-box'><span class='number'>?</span></div>
+  <div class='field'>
+    <p class="mdc-typography--body1"><small>
+      {% if question.type == "PI" %}
+      {% blocktrans %}
+      This is a preview of how the question looks in the student interface, except only the answer choices that are marked as correct are shown.
+      The purpose of this page is to enter rationales that are associated with the correct answer choices, so that they can be shown to students as a model of
+      how a teacher may explain the underlying concepts (no distractors here, please!)
+      {% endblocktrans %}
+      {% else %}
+      {% blocktrans %}
+      This is a preview of how the question looks in the student interface.
+      {% endblocktrans %}
+      {% endif %}
+    </small></p>
+  </div>
+</div>
+{% if messages %}
+{% for message in messages %}
+<div class="message-box">
+  <div class="message">{{ message }}</div>
+  <i class="clear mdc-theme--secondary material-icons md-24 mdc-ripple-surface icon-list"
+    onclick="$(this).parent().remove();">
+      clear
+  </i>
+</div>
+{% endfor %}
+{% endif %}
+{% endblock %}
+
+{% block submit_button %}{% trans 'Submit expert rationale' %}{% endblock %}
+{% block extra_content %}
+{% if question.type == "PI" %}
+  {{ form.errors }}
+  <hr class="simple-hr">
+  <h3>{% trans 'Existing Expert Rationales' %}</h3>
+  {% if not save_allowed %}
+    <p class="errorlist">You must submit some at least one expert rationale for each of the correct answer choices above</p>
+  {% endif %}
+  <ul class="mdc-list">
+    {% for sample in expert_rationales|dictsort:'first_answer_choice' %}
+        <li>
+          <a href="{% url 'research-rationale-update-expert' pk=sample.id %}">
+          <i class="material-icons md-24 mdc-ripple-surface icon-list">check_circle_outline</i>
+          </a>
+          <span class='mdc-theme--primary bold'>{{ sample.first_answer_choice_label }}</span>: {{ sample.rationale|safe|striptags }}.
+        </li>
+    {% endfor %}
+  </ul>
+{% endif %}
+
+<hr class="simple-hr">
+
+
+<div style="margin-top:20px;">
+  <span class="padded">
+      {% if save_allowed %}
+        {% if assignment_id %}
+          <form style="display:inline" id="done" action="{% url 'research-assignment-question-index-by-assignment' assignment_id=assignment_id %}" method="get">
+            <button form="done" type="submit" class="mdc-button mdc-button--raised submit_button">{% trans 'Done' %}</<button>
+          </form>
+        {% else %}
+          <form style="display:inline" id="done" action="{% url 'research-discipline-question-index-by-discipline' discipline_title=question.discipline.title %}#{{ question.pk }}" method="get">
+            <button form="done" type="submit" class="mdc-button mdc-button--raised submit_button">{% trans 'Done' %}</<button>
+          </form>
+        {% endif %}
+      {% endif %}
+  </span>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+{% if question.type == "RO" %}
+<script>
+$('#submit-answer-form').remove();
+</script>
+{% endif %}
+{% endblock %}
