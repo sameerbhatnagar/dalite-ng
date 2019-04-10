@@ -422,6 +422,8 @@ class QuestionFlag(models.Model):
     user = models.ForeignKey(User)
     flag = models.BooleanField(default=True)
     comment = models.CharField(max_length=200, null=True, blank=True)
+    datetime_created = models.DateTimeField(auto_now_add=True)
+    datetime_last_modified = models.DateTimeField(auto_now=True)
 
     def __unicode__(self):
         return "{} - {}- {}- {}".format(
