@@ -22,3 +22,4 @@ pytest-logs.txt
 *.ipynb_checkpoints/
 *.ipynb
 scripts/
+mysql_scripts/
