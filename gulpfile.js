@@ -237,7 +237,7 @@ function scriptsPeerinstPinax() {
       input: "./peerinst/static/pinax/forums/js/thread.js",
       sourcemap: true,
       format: "iife",
-      name: "bundle",
+      name: "thread",
       globals: {
         flatpickr: "flatpickr",
         d3: "d3",
@@ -260,7 +260,7 @@ function scriptsPeerinstPinax() {
       input: "./peerinst/static/pinax/forums/js/limit.js",
       sourcemap: true,
       format: "iife",
-      name: "bundle",
+      name: "limit",
       globals: {
         flatpickr: "flatpickr",
         d3: "d3",
