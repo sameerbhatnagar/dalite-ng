@@ -233,7 +233,11 @@ def navigate_assignment(request, assignment_id, question_id, direction, index):
 @require_safe
 @require_http_methods(["GET"])
 def finish_assignment(req):
-    hash_ = req.session["assignment"]
+    try:
+        hash_ = req.session["assignment"]
+    except KeyError:
+        return HttpResponseRedirect(reverse("welcome"))
+
     assignment = StudentGroupAssignment.get(hash_)
     req.session["assignment_first"] = True
     req.session["assignment_last"] = len(assignment.questions) == 1
