@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-import logging
-
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
@@ -29,8 +27,6 @@ from ..models import (
     Teacher,
 )
 from ..students import authenticate_student
-
-logger = logging.getLogger("peerinst-views")
 
 
 def signup_through_link(request, group_hash):
@@ -106,15 +102,9 @@ def live(request, token, assignment_hash):
 
     # Get assignment for this token and current question
     group_assignment = StudentGroupAssignment.get(assignment_hash)
-    student_assignment, created = StudentAssignment.objects.get_or_create(
+    student_assignment = StudentAssignment.objects.get(
         student=user.student, group_assignment=group_assignment
     )
-
-    if created:
-        logger.info(
-            "Student assignment created for assignment "
-            "{} and student {}.".format(group_assignment.pk, user.student.pk)
-        )
 
     # Register assignment
     request.session["assignment"] = assignment_hash
