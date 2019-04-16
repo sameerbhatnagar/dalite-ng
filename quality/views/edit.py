@@ -347,7 +347,9 @@ def index(req):
     data = {
         "quality": dict(quality),
         "next": next_,
-        "available": quality.available,
+        "available": [
+            c for c in quality.available if c["name"] != "right_answer"
+        ],
         "criterions": [
             dict(criterion) for criterion in quality.criterions.all()
         ],
