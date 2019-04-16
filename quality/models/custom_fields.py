@@ -63,7 +63,12 @@ class CommaSepField(models.TextField):
 class AdminCommaSepFieldWidget(AdminTextareaWidget):
     def format_value(self, val):
         val = super(AdminCommaSepFieldWidget, self).format_value(val)
-        return ", ".join(
-            w.strip()
-            for w in re.sub(r"u?'(?!,|\])|'(?=,|\])", "", val[1:-1]).split(",")
-        )
+        if val is None:
+            return ""
+        else:
+            return ", ".join(
+                w.strip()
+                for w in re.sub(r"u?'(?!,|\])|'(?=,|\])", "", val[1:-1]).split(
+                    ","
+                )
+            )
