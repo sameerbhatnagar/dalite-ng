@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 import logging
 from itertools import chain
 
+from django.contrib.contenttypes.models import ContentType
 from django.db import models
 
 from .criterion.criterion_list import criterions, get_criterion
@@ -22,13 +23,14 @@ class Quality(models.Model):
                 self.pk, self.quality_type, self.quality_use_type
             )
         else:
-            if self.quality_type.type == "teacher":
-                for_ = str(self.teacher_set.first())
-            elif self.quality_type.type == "group":
-                for_ = str(self.studentgroup_set.first())
-            elif self.quality_type.type == "assignment":
-                for_ = str(self.studentgroupassignment_set.first())
-            return "{} for {} {} and use type {}".format(
+            contenttype = ContentType.objects.get(
+                app_label="peerinst", model=self.quality_type.type
+            )
+            for_ = str(
+                contenttype.model_class().objects.filter(quality=self).first()
+            )
+
+            return "{} for {}: {} and use type {}".format(
                 self.pk, self.quality_type, for_, self.quality_use_type
             )
 
