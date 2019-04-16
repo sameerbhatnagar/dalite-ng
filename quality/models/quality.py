@@ -22,15 +22,14 @@ class Quality(models.Model):
                 self.pk, self.quality_type, self.quality_use_type
             )
         else:
+            if self.quality_type.type == "teacher":
+                for_ = str(self.teacher_set.first())
+            elif self.quality_type.type == "group":
+                for_ = str(self.studentgroup_set.first())
+            elif self.quality_type.type == "assignment":
+                for_ = str(self.studentgroupassignment_set.first())
             return "{} for {} {} and use type {}".format(
-                self.pk,
-                self.quality_type,
-                str(
-                    getattr(
-                        self, "{}_set".format(self.quality_type.type)
-                    ).first()
-                ),
-                self.quality_use_type,
+                self.pk, self.quality_type, for_, self.quality_use_type
             )
 
     def __iter__(self):
