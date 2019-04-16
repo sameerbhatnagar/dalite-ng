@@ -25,9 +25,11 @@ class Quality(models.Model):
             return "{} for {} {} and use type {}".format(
                 self.pk,
                 self.quality_type,
-                getattr(self, "{}_set".format(self.quality_type.type))
-                .first()
-                .pk,
+                str(
+                    getattr(
+                        self, "{}_set".format(self.quality_type.type)
+                    ).first()
+                ),
                 self.quality_use_type,
             )
 
