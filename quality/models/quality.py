@@ -4,7 +4,6 @@ from __future__ import unicode_literals
 import logging
 from itertools import chain
 
-from django.contrib.contenttypes.models import ContentType
 from django.db import models
 
 from .criterion.criterion_list import criterions, get_criterion
@@ -23,15 +22,15 @@ class Quality(models.Model):
                 self.pk, self.quality_type, self.quality_use_type
             )
         else:
-            contenttype = ContentType.objects.get(
-                app_label="peerinst", model=self.quality_type.type
-            )
-            for_ = str(
-                contenttype.model_class().objects.filter(quality=self).first()
-            )
-
             return "{} for {}: {} and use type {}".format(
-                self.pk, self.quality_type, for_, self.quality_use_type
+                self.pk,
+                self.quality_type,
+                str(
+                    getattr(
+                        self, "{}_set".format(self.quality_type.model)
+                    ).first()
+                ),
+                self.quality_use_type,
             )
 
     def __iter__(self):
