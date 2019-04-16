@@ -92,6 +92,8 @@ function updateCriterionOption(event, option, criterion) {
         return;
       }
     }
+  } else if (type === "BooleanField") {
+    value = option.value === "false";
   } else {
     value = option.value;
   }
@@ -335,6 +337,31 @@ function criterionOptionView(type, value, criterion, input = null) {
     if (focus) {
       input_.focus();
     }
+    return input;
+  } else if (type === "BooleanField") {
+    if (!input) {
+      input = document.createElement("div");
+      input.setAttribute("data-type", type);
+      input.classList.add("boolean-input");
+      clear(input);
+      const input_ = document.createElement("input");
+      input_.classList.add("boolean-input--input");
+      input_.type = "checkbox";
+      input_.addEventListener("click", event =>
+        updateCriterionOption(event, input, criterion),
+      );
+      input.appendChild(input_);
+      const background = document.createElement("span");
+      background.classList.add("boolean-input--background");
+      input.appendChild(background);
+      const mark = document.createElement("span");
+      mark.classList.add("boolean-input--mark");
+      input.appendChild(mark);
+      if (focus) {
+        input_.focus();
+      }
+    }
+    input.value = value;
     return input;
   }
 }

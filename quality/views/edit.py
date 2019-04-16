@@ -347,9 +347,7 @@ def index(req):
     data = {
         "quality": dict(quality),
         "next": next_,
-        "available": [
-            c for c in quality.available if c["name"] != "right_answer"
-        ],
+        "available": quality.available,
         "criterions": [
             dict(criterion) for criterion in quality.criterions.all()
         ],
@@ -428,6 +426,7 @@ def add_criterion(req):
     logger.info(
         "Criterion %s was added to quality %d.", criterion_name, quality_pk
     )
+    print(dict(criterion))
 
     return JsonResponse(dict(criterion))
 
