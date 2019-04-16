@@ -221,3 +221,6 @@ class UsesCriterion(models.Model):
         )
         data.update({"weight": self.weight})
         return ((field, value) for field, value in data.items())
+
+    def __str__(self):
+        return "{} for quality {}".format(self.name, str(self.quality))
