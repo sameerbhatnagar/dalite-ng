@@ -17,9 +17,19 @@ class Quality(models.Model):
     quality_use_type = models.ForeignKey(QualityUseType)
 
     def __str__(self):
-        return "{} for type {} and use type {}".format(
-            self.pk, self.quality_type, self.quality_use_type
-        )
+        if self.quality_type.type == "global":
+            return "{} for {} and use type {}".format(
+                self.pk, self.quality_type, self.quality_use_type
+            )
+        else:
+            return "{} for {} {} and use type {}".format(
+                self.pk,
+                self.quality_type,
+                getattr(self, "{}_set".format(self.quality_type.type))
+                .first()
+                .pk,
+                self.quality_use_type,
+            )
 
     def __iter__(self):
         return chain(
