@@ -232,7 +232,7 @@ class UsesCriterion(models.Model):
                 if key in criterion.rules or key == "threshold"
             }
         )
-        data.update({"weight": self.weight, "id": self.pk})
+        data.update({"weight": self.weight})
         return ((field, value) for field, value in data.items())
 
     def __str__(self):
