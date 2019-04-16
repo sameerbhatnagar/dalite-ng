@@ -8,10 +8,6 @@ from django.utils.translation import gettext_lazy as _
 
 class ProbabilityField(models.FloatField):
     description = _("Probability between 0 and 1")
-
-
-class ProbabilityField(models.FloatField):
-    description = _("Probability between 0 and 1")
     default_error_messages = {
         "invlid": _("'%(value)s' value must be a float between 0 and 1.")
     }
@@ -33,7 +29,8 @@ class CommaSepField(models.TextField):
         "invalid": _("'%(value)s' value must be a comma separated string.")
     }
 
-    def __init__(self, separator=",", *args, **kwargs):
+    def __init__(self, distinct=False, separator=",", *args, **kwargs):
+        self.distinct = distinct
         self.separator = separator
         super(CommaSepField, self).__init__(*args, **kwargs)
 
@@ -41,20 +38,20 @@ class CommaSepField(models.TextField):
         if not val:
             return []
 
-        if isinstance(val, list):
-            return val
+        if not isinstance(val, list):
+            val = [v.strip() for v in val.split(",")]
 
-        return [v.strip() for v in val.split(",")]
+        if self.distinct:
+            seen = set()
+            val = [v for v in val if v not in seen and seen.add(v) is None]
+
+        return val
 
     def from_db_value(self, val, *args):
         return self.to_python(val)
 
     def get_prep_value(self, val):
         return ",".join(val)
-
-    def value_to_string(self, obj):
-        val = self._get_val_from_obj(obj)
-        return self.get_db_prep_value(val)
 
     def formfield(self, **kwargs):
         defaults = kwargs
@@ -66,6 +63,12 @@ class CommaSepField(models.TextField):
 class AdminCommaSepFieldWidget(AdminTextareaWidget):
     def format_value(self, val):
         val = super(AdminCommaSepFieldWidget, self).format_value(val)
-        return ", ".join(
-            re.sub(r"u?'(?!,|\])|'(?=,|\])", "", val[1:-1]).split(",")
-        )
+        if val is None:
+            return ""
+        else:
+            return ", ".join(
+                w.strip()
+                for w in re.sub(r"u?'(?!,|\])|'(?=,|\])", "", val[1:-1]).split(
+                    ","
+                )
+            )

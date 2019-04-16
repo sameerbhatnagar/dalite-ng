@@ -17,9 +17,20 @@ class Quality(models.Model):
     quality_use_type = models.ForeignKey(QualityUseType)
 
     def __str__(self):
-        return "{} for type {} and use type {}".format(
-            self.pk, self.quality_type, self.quality_use_type
-        )
+        if self.quality_type.type == "global":
+            return "{} for {} and use type {}".format(
+                self.pk, self.quality_type, self.quality_use_type
+            )
+        else:
+            if self.quality_type.type == "teacher":
+                for_ = str(self.teacher_set.first())
+            elif self.quality_type.type == "group":
+                for_ = str(self.studentgroup_set.first())
+            elif self.quality_type.type == "assignment":
+                for_ = str(self.studentgroupassignment_set.first())
+            return "{} for {} {} and use type {}".format(
+                self.pk, self.quality_type, for_, self.quality_use_type
+            )
 
     def __iter__(self):
         return chain(
@@ -174,7 +185,6 @@ class Quality(models.Model):
             )
             old_value = getattr(rules, field)
             type_ = dict(rules)[field]["type"]
-            print(type_)
             if type_ == "CommaSepField":
                 if value:
                     value = old_value + [value]
@@ -183,7 +193,7 @@ class Quality(models.Model):
             setattr(rules, field, value)
             rules.save()
 
-        return criterion, old_value
+        return criterion, old_value, value
 
     def remove_criterion(self, name):
         UsesCriterion.objects.filter(quality=self, name=name).delete()
@@ -222,3 +232,6 @@ class UsesCriterion(models.Model):
         )
         data.update({"weight": self.weight, "id": self.pk})
         return ((field, value) for field, value in data.items())
+
+    def __str__(self):
+        return "{} for quality {}".format(self.name, str(self.quality))

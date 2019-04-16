@@ -4,7 +4,7 @@ from quality.models import MinWordsCriterion, MinWordsCriterionRules
 def new_min_words_criterion(n):
     def generator():
         while True:
-            yield {"uses_rules": "min_words"}
+            yield {"uses_rules": ["min_words"]}
 
     gen = generator()
     return [next(gen) for _ in range(n)]

@@ -25,6 +25,21 @@ def test_info():
 
 
 @pytest.mark.filterwarnings("ignore::RuntimeWarning")
+def test_create_default():
+    class FakeCriterion(Criterion):
+        name = models.CharField(max_length=32, default="fake", editable=False)
+
+        class Meta:
+            app_label = "quality"
+
+    with mixer.ctx(commit=False):
+        fake_criterion = mixer.blend(FakeCriterion)
+
+        with pytest.raises(NotImplementedError):
+            fake_criterion.create_default()
+
+
+@pytest.mark.filterwarnings("ignore::RuntimeWarning")
 def test_evaluate():
     class FakeCriterion(Criterion):
         name = models.CharField(max_length=32, default="fake", editable=False)
@@ -65,14 +80,6 @@ def test_rules():
     ):
         fake_criterion = mixer.blend(FakeCriterion)
 
-        fake_criterion.uses_rules = "a,b,c,d"
+        fake_criterion.uses_rules = ["a", "b", "c", "d"]
         fake_criterion.save()
         assert fake_criterion.rules == ["a", "b", "c", "d"]
-
-        fake_criterion.uses_rules = "e, f, g, h"
-        fake_criterion.save()
-        assert fake_criterion.rules == ["e", "f", "g", "h"]
-
-        fake_criterion.uses_rules = "i , j , k , l"
-        fake_criterion.save()
-        assert fake_criterion.rules == ["i", "j", "k", "l"]

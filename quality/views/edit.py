@@ -5,9 +5,11 @@ import json
 import logging
 
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
+from django.utils.datastructures import MultiValueDictKeyError
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_POST, require_safe
 
@@ -160,7 +162,7 @@ def verify_group(req, type_, group_pk):
     """
     try:
         group = StudentGroup.objects.get(pk=group_pk)
-    except StudentGroupAssignment.DoesNotExist:
+    except StudentGroup.DoesNotExist:
         return response_400(
             req,
             msg=_("Some parameters are wrong"),
@@ -240,12 +242,17 @@ def verify_teacher(req, type_):
     """
     try:
         teacher = Teacher.objects.get(user=req.user)
-    except Teacher.DoesNotExist:
+    except (Teacher.DoesNotExist, AttributeError):
         return response_403(
             req,
             msg=_("You don't have access to this resource."),
             logger_msg=(
-                "Access to {} from user {}.".format(req.path, req.user.pk)
+                "Access to {} from user {}.".format(
+                    req.path,
+                    req.user.pk
+                    if hasattr(req, "user") and isinstance(req.user, User)
+                    else "anonymous",
+                )
             ),
             log=logger.warning,
         )
@@ -294,7 +301,20 @@ def index(req):
     HttpResponse
         Either a TemplateResponse for edition or an error response
     """
-    type_ = req.GET["type"]
+    try:
+        type_ = req.GET["type"]
+    except MultiValueDictKeyError:
+        return response_400(
+            req,
+            msg=_("Some parameters are missing"),
+            logger_msg=(
+                "An access to {} was tried without a ".format(req.path)
+                + "primary key in the query string indicating what the "
+                "quality is for."
+            ),
+            log=logger.error,
+        )
+
     question_pk = req.GET.get("question")
     assignment_pk = req.GET.get("assignment")
     group_pk = req.GET.get("group")
@@ -327,7 +347,9 @@ def index(req):
     data = {
         "quality": dict(quality),
         "next": next_,
-        "available": quality.available,
+        "available": [
+            c for c in quality.available if c["name"] != "right_answer"
+        ],
         "criterions": [
             dict(criterion) for criterion in quality.criterions.all()
         ],
@@ -466,7 +488,7 @@ def update_criterion(req):
         )
 
     try:
-        criterion, old_value = quality.update_criterion(
+        criterion, old_value, value = quality.update_criterion(
             criterion_name, field, value
         )
     except (AttributeError, UsesCriterion.DoesNotExist) as e:

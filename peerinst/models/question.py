@@ -400,11 +400,30 @@ class Question(models.Model):
         verbose_name_plural = _("questions")
 
 
+class QuestionFlagReason(models.Model):
+    title = models.CharField(
+        _("Reason for flagging a question"),
+        unique=True,
+        max_length=100,
+        help_text=_("Reason for flagging a question."),
+        validators=[no_hyphens],
+    )
+
+    def __unicode__(self):
+        return self.title
+
+    class Meta:
+        verbose_name = _("Question flag reason")
+
+
 class QuestionFlag(models.Model):
     question = models.ForeignKey(Question)
+    flag_reason = models.ManyToManyField(QuestionFlagReason)
     user = models.ForeignKey(User)
-    flag = models.BooleanField(default=False)
+    flag = models.BooleanField(default=True)
     comment = models.CharField(max_length=200, null=True, blank=True)
+    datetime_created = models.DateTimeField(auto_now_add=True)
+    datetime_last_modified = models.DateTimeField(auto_now=True)
 
     def __unicode__(self):
         return "{} - {}- {}- {}".format(

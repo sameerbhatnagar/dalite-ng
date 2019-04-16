@@ -84,3 +84,27 @@ def add_shown_and_second(first_answers_no_shown, n=0):
         else:
             answer.second_answer_choice = answer.first_answer_choice
         answer.save()
+
+
+def new_answers_rationale_only(
+    n, student, question_rationale_only, assignment, answer_choice
+):
+    def generator():
+        i = 0
+        while True:
+            i += 1
+            yield {
+                "question": question_rationale_only,
+                "assignment": assignment,
+                "first_answer_choice": 0,
+                "rationale": "rationale{}".format(i),
+                "user_token": student.student.username,
+            }
+
+    gen = generator()
+    return [next(gen) for _ in range(n)]
+
+
+def add_answers_rationale_only(answers):
+    answers = [answers] if isinstance(answers, Answer) else answers
+    return [Answer.objects.create(**a) for a in answers]

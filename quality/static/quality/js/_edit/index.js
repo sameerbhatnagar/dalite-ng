@@ -43,6 +43,10 @@ function updateCriterionOption(event, option, criterion) {
         value = "";
       }
       value = option.querySelector(".comma-sep-input--input").value;
+      if (!value) {
+        event.preventDefault();
+        return;
+      }
     } else if (event.key === "Backspace") {
       value = option.querySelector(".comma-sep-input--input").value;
       if (value) {

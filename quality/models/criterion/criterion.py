@@ -12,6 +12,7 @@ from ..quality_type import QualityType
 class Criterion(models.Model):
     version = models.AutoField(primary_key=True)
     uses_rules = CommaSepField(
+        distinct=True,
         blank=True,
         help_text="Comma separated list of used rules for the criterion "
         "found as the fields of the associated rules object. Make sure to use "
@@ -81,10 +82,12 @@ class CriterionRules(models.Model):
         verbose_name="Threshold",
         help_text="Minimum value for the answer to be accepted",
     )
-    readonly_fields = ("id",)
 
     class Meta:
         abstract = True
+
+    def __str__(self):
+        raise NotImplementedError("This method has to be implemented.")
 
     @staticmethod
     def get_or_create(*args, **kwargs):

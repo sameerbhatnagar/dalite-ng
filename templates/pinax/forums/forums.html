@@ -7,6 +7,29 @@
 {% endblock %}
 
 {% block content %}
+<h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Forum list' %}</h2>
+<ul class="mdc-list mdc-list--two-line">
+  {% for f in object_list|dictsortreversed:"view_count" %}
+  <li role="separator" class="mdc-list-divider"></li>
+  <li class="mdc-list-item {{ f.category }}" onclick="window.location.href='{% url 'pinax_forums:forum' f.pk %}'" style="cursor:pointer;">
+    <span class="mdc-list-item__graphic mdc-theme--primary">
+      <i class="mdc-theme--primary material-icons md-48">forum</i>
+    </span>
+    <span class="mdc-list-item__text mdc-theme--secondary bold">
+      {{ f.title }}
+      <span class="mdc-list-item__secondary-text">
+        {{ f.description }}
+      </span>
+      <span class="mdc-list-item__secondary-text">
+        {{ f.post_count }} posts, {{ f.view_count }} views
+      </span>
+    </span>
+  </li>
+  {% endfor %}
+  <li role="separator" class="mdc-list-divider"></li>
+</ul>
+
+<!--
 <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Categories' %}</h2>
 <ul>
 {% for c in categories %}
@@ -15,32 +38,16 @@
   </li>
 {% endfor %}
 </ul>
+-->
 
-<h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Most active forums' %}</h2>
-<ul>
-{% for f in most_active_forums %}
-  <li>
-    <a href="{% url 'pinax_forums:forum' f.pk %}">{{ f }}</a>
-  </li>
-{% endfor %}
-</ul>
-
-<h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Most viewed forums' %}</h2>
-<ul>
-{% for f in most_viewed_forums %}
-  <li>
-    <a href="{% url 'pinax_forums:forum' f.pk %}">{{ f }}</a>
-  </li>
-{% endfor %}
-</ul>
-
-<h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Most active members' %}</h2>
+<h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Most active contributors' %}</h2>
 <ul>
 {% for u in most_active_members %}
   <li>{{ u.user }}: {{ u.count  }} {% trans 'posts' %}</li>
 {% endfor %}
 </ul>
 
+<!--
 <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Latest replies' %}</h2>
 <ul>
 {% for p in latest_posts %}
@@ -49,33 +56,77 @@
   </li>
 {% endfor %}
 </ul>
+-->
 
 <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Latest posts' %}</h2>
-<ul>
-{% for t in latest_threads %}
-  <li>
-    <a href="{% url 'pinax_forums:thread' t.pk %}">{{ t.title }}</a>
+
+<ul class="mdc-list mdc-list--two-line">
+  {% for t in latest_threads|slice:":3" %}
+  <li role="separator" class="mdc-list-divider"></li>
+  <li class="mdc-list-item" onclick="window.location.href='{% url 'pinax_forums:thread' t.pk %}'" style="cursor:pointer;">
+    <span class="mdc-list-item__graphic mdc-theme--primary">
+      <i class="mdc-theme--primary material-icons md-48">message</i>
+    </span>
+    <span class="mdc-list-item__text mdc-theme--secondary bold">
+      {{ t.title }}
+      <span class="mdc-list-item__secondary-text">
+        {% trans "Latest reply: " %} {{ t.last_modified  }}
+      </span>
+      <span class="mdc-list-item__secondary-text">
+        {{ t.view_count }} {% trans "views" %}, {{ t.reply_count }} {% trans "replies" %}, {{ t.subscriber_count }} {% trans "following" %}
+      </span>
+    </span>
   </li>
-{% endfor %}
+  {% endfor %}
+  <li role="separator" class="mdc-list-divider"></li>
 </ul>
 
+
 <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Most active threads' %}</h2>
-<ul>
-{% for t in most_active_threads %}
-  <li>
-    <a href="{% url 'pinax_forums:thread' t.pk %}">{{ t.title }}</a>
+
+<ul class="mdc-list mdc-list--two-line">
+  {% for t in most_active_threads|slice:":5" %}
+  <li role="separator" class="mdc-list-divider"></li>
+  <li class="mdc-list-item" onclick="window.location.href='{% url 'pinax_forums:thread' t.pk %}'" style="cursor:pointer;">
+    <span class="mdc-list-item__graphic mdc-theme--primary">
+      <i class="mdc-theme--primary material-icons md-48">message</i>
+    </span>
+    <span class="mdc-list-item__text mdc-theme--secondary bold">
+      {{ t.title }}
+      <span class="mdc-list-item__secondary-text">
+        {% trans "Latest reply: " %} {{ t.last_modified  }}
+      </span>
+      <span class="mdc-list-item__secondary-text">
+        {{ t.view_count }} {% trans "views" %}, {{ t.reply_count }} {% trans "replies" %}, {{ t.subscriber_count }} {% trans "following" %}
+      </span>
+    </span>
   </li>
-{% endfor %}
+  {% endfor %}
+  <li role="separator" class="mdc-list-divider"></li>
 </ul>
 
 <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Most viewed threads' %}</h2>
-<ul>
-{% for t in most_viewed_threads %}
-  <li>
-    <a href="{% url 'pinax_forums:thread' t.pk %}">{{ t.title }}</a>
-  </li>
-{% endfor %}
 
+<ul class="mdc-list mdc-list--two-line">
+  {% for t in most_viewed_threads|slice:":5" %}
+  <li role="separator" class="mdc-list-divider"></li>
+  <li class="mdc-list-item" onclick="window.location.href='{% url 'pinax_forums:thread' t.pk %}'" style="cursor:pointer;">
+    <span class="mdc-list-item__graphic mdc-theme--primary">
+      <i class="mdc-theme--primary material-icons md-48">message</i>
+    </span>
+    <span class="mdc-list-item__text mdc-theme--secondary bold">
+      {{ t.title }}
+      <span class="mdc-list-item__secondary-text">
+        {% trans "Latest reply: " %} {{ t.last_modified  }}
+      </span>
+      <span class="mdc-list-item__secondary-text">
+        {{ t.view_count }} {% trans "views" %}, {{ t.reply_count }} {% trans "replies" %}, {{ t.subscriber_count }} {% trans "following" %}
+      </span>
+    </span>
+  </li>
+  {% endfor %}
+  <li role="separator" class="mdc-list-divider"></li>
 </ul>
+
 
 {% endblock %}

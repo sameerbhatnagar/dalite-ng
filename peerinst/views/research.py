@@ -2,13 +2,20 @@
 from __future__ import unicode_literals
 import string
 from django.db.models import Count
-from django.forms import ModelForm, modelformset_factory
+from django.forms import (
+    ModelForm,
+    ModelMultipleChoiceField,
+    modelformset_factory,
+)
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.shortcuts import get_object_or_404, render
 from django.utils.translation import ugettext_lazy as _
+from django.urls import reverse
+from django.views.decorators.http import require_http_methods
+from django.views.generic.edit import UpdateView
 
 from ..mixins import student_check
 from ..models import (
@@ -18,6 +25,8 @@ from ..models import (
     Discipline,
     Question,
     QuestionFlag,
+    QuestionFlagReason,
+    ShownRationale,
 )
 
 
@@ -52,12 +61,33 @@ def get_question_annotation_counts(discipline_title, annotator, assignment_id):
     for q in questions_qs:
         d1 = {}
         d1["question"] = q
+        d1["question_expert_answers"] = q.answer_set.filter(expert=True)
         d1["total_annotations"] = AnswerAnnotation.objects.filter(
             score__isnull=False, answer__question_id=q.pk
         ).count()
         d1["total_annotations_by_user"] = AnswerAnnotation.objects.filter(
             score__isnull=False, answer__question_id=q.pk, annotator=annotator
         ).count()
+        flagged_questions = QuestionFlag.objects.filter(flag=True).values_list(
+            "question", flat=True
+        )
+        flagged_by_user = flagged_questions.filter(user=annotator)
+        if q.pk in flagged_by_user:
+            d1["flag_color_code"] = "red"
+        elif q.pk in flagged_questions:
+            d1["flag_color_code"] = "#EDAA1E"
+            d1["flagged_reasons"] = "; ".join(
+                (
+                    [
+                        " - ".join(e)
+                        for e in QuestionFlag.objects.filter(
+                            flag=True, question=q
+                        ).values_list("user__username", "flag_reason__title")
+                    ]
+                )
+            )
+        else:
+            d1["flag_color_code"] = None
 
         answer_frequencies = q.get_frequency_json("first_choice")
         for d2 in answer_frequencies:
@@ -97,6 +127,7 @@ def research_discipline_question_index(
         annotator=annotator,
         assignment_id=assignment_id,
     )
+    request.session["assignment_id"] = assignment_id
 
     context = {
         "questions": question_annotation_counts,
@@ -153,24 +184,35 @@ def research_question_answer_list(
             ).exists():
                 annotation.delete()
 
+    # only need two expert scores per rationale,
+    # and those marked never show even by one person can be excluded
+    already_scored = (
+        AnswerAnnotation.objects.filter(
+            answer__question_id=question_pk,
+            score__isnull=False,
+            answer__first_answer_choice=answerchoice_id,
+        )
+        .values("answer")
+        .order_by("answer")
+        .annotate(times_scored=Count("answer"))
+        .filter(times_scored__gte=2)
+        .values_list("answer__id", flat=True)
+    )
+
     queryset = (
         AnswerAnnotation.objects.filter(
             answer__question_id=question_pk,
             annotator=annotator,
             answer__first_answer_choice=answerchoice_id,
         )
+        .exclude(answer__id__in=already_scored)
         .annotate(times_shown=Count("answer__shown_answer"))
-        .order_by("answer__first_answer_choice", "-times_shown")
+        .order_by("-times_shown")
     )
 
     AnswerAnnotationFormset = modelformset_factory(
         AnswerAnnotation, fields=("score",), extra=0
     )
-
-    if request.method == "POST":
-        formset = AnswerAnnotationFormset(request.POST)
-        if formset.is_valid():
-            instances = formset.save()
 
     formset = AnswerAnnotationFormset(queryset=queryset)
 
@@ -188,6 +230,13 @@ def research_question_answer_list(
         ).count(),
         "annotator": annotator,
     }
+
+    if request.method == "POST":
+        formset = AnswerAnnotationFormset(request.POST)
+        if formset.is_valid():
+            instances = formset.save()
+            context.update(message=_("Scores updated"))
+
     return render(request, template, context)
 
 
@@ -241,6 +290,12 @@ def research_all_annotations_for_question(
             d2["scores"] = AnswerAnnotation.objects.filter(
                 answer=a, score__isnull=False
             ).values("score", "annotator__username")
+            d2["times_shown"] = ShownRationale.objects.filter(
+                shown_answer=a
+            ).count()
+            d2["times_chosen"] = Answer.objects.filter(
+                chosen_rationale_id=a
+            ).count()
             d1["annotations"].append(d2)
 
         all_annotations.append(d1)
@@ -251,11 +306,16 @@ def research_all_annotations_for_question(
 
 
 class QuestionFlagForm(ModelForm):
+    flag_reason = ModelMultipleChoiceField(
+        queryset=QuestionFlagReason.objects.all()
+    )
+
     class Meta:
         model = QuestionFlag
-        fields = ["flag", "comment"]
+        fields = ["flag", "flag_reason", "comment"]
 
 
+@require_http_methods(["GET", "POST"])
 @login_required
 @user_passes_test(student_check, login_url="/access_denied_and_logout/")
 def flag_question_form(
@@ -265,22 +325,25 @@ def flag_question_form(
     Get or Create QuestionFlag object for user, and allow edit
     """
     template = "peerinst/research/flag_question.html"
-    user = get_object_or_404(User, username=request.user)
     question = get_object_or_404(Question, pk=question_pk)
-    question_flag, created = QuestionFlag.objects.get_or_create(
-        user=user, question=question
-    )
-    if not created:
-        message = _(
-            """
-            Your input has already been forwarded to a myDALITE content
-            moderator."
-            """
+    message = None
+
+    try:
+        question_flag = QuestionFlag.objects.get(
+            user=request.user, question=question
         )
+    except ObjectDoesNotExist:
+        question_flag = None
+
+    if request.method == "GET":
+        form = QuestionFlagForm(instance=question_flag)
 
     if request.method == "POST":
         form = QuestionFlagForm(request.POST, instance=question_flag)
+
         if form.is_valid():
+            form.instance.user = request.user
+            form.instance.question = question
             instance = form.save()
             if instance.flag:
                 message = _(
@@ -293,13 +356,9 @@ def flag_question_form(
                 message = _(
                     """
                     You have un-flagged this question, and thus it will be
-                    it will be taken off the list of potentially problematic
-                    questions.
+                    taken off the list of potentially problematic questions.
                     """
                 )
-    elif created:
-        message = None
-    form = QuestionFlagForm(instance=question_flag)
 
     context = {
         "form": form,
@@ -307,17 +366,26 @@ def flag_question_form(
         "message": message,
         "discipline_title": discipline_title,
         "assignment_id": assignment_id,
+        "expert_answers": question.answer_set.filter(expert=True),
     }
 
     return render(request, template, context)
 
 
-def all_flagged_questions(request):
-    """
-    Return all flagged questions
-    """
+class AnswerExpertUpdateView(UpdateView):
+    model = Answer
+    fields = ["expert"]
+    template_name = "peerinst/research/answer-expert-update.html"
 
-    template = "peerinst/research/all_flagged_questions.html"
-    context = {"flags": QuestionFlag.objects.filter(flag=True)}
+    def get_context_data(self, **kwargs):
+        context = super(AnswerExpertUpdateView, self).get_context_data(
+            **kwargs
+        )
+        context["question"] = Question.objects.get(pk=self.object.question_id)
+        return context
 
-    return render(request, template, context)
+    def get_success_url(self):
+        return reverse(
+            "research-fix-expert-rationale",
+            kwargs={"question_id": self.object.question_id},
+        )

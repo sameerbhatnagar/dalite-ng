@@ -10,6 +10,13 @@ def test_info():
     assert "description" in info
 
 
+def test_create_default():
+    n = MinCharsCriterion.objects.count()
+    criterion = MinCharsCriterion.create_default()
+    assert isinstance(criterion, MinCharsCriterion)
+    assert MinCharsCriterion.objects.count() == n + 1
+
+
 def test_evaluate__less_than_min(
     min_chars_criterion, min_chars_rules, answers
 ):
@@ -59,6 +66,12 @@ def test_evaluate__default(min_chars_criterion, answers):
     assert min_chars_criterion.evaluate(answer, min_chars_rules.pk)["quality"]
 
 
+def test_rules(min_chars_criterion):
+    min_chars_criterion.uses_rules = ["a", "b", "c", "d"]
+    min_chars_criterion.save()
+    assert min_chars_criterion.rules == ["a", "b", "c", "d"]
+
+
 def test_dict(min_chars_criterion):
     data = dict(min_chars_criterion)
     assert "name" in data
@@ -69,5 +82,6 @@ def test_dict(min_chars_criterion):
     for version in data["versions"]:
         assert "version" in version
         assert "is_beta" in version
-        assert len(version) == 2
+        assert "binary_threshold" in version
+        assert len(version) == 3
     assert len(data) == 5

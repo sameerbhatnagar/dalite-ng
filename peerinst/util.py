@@ -22,6 +22,7 @@ from django.db.models import (
 )
 from peerinst.models import (
     Question,
+    QuestionFlag,
     Assignment,
     Student,
     Answer,
@@ -344,18 +345,20 @@ def question_search_function(search_string):
     given a search_string, return query_set of question objects that have that
     string in either question text, title, or categories
     """
+    flagged_questions = QuestionFlag.objects.filter(flag=True).values_list(
+        "question", flat=True
+    )
     query_term = (
         Question.objects.filter(
             Q(id__icontains=search_string)
             | Q(text__icontains=search_string)
             | Q(title__icontains=search_string)
-            | Q(parent__title__icontains=search_string)
-            | Q(parent__text__icontains=search_string)
             | Q(category__title__icontains=search_string)
             | Q(discipline__title__icontains=search_string)
             | Q(answerchoice__text__icontains=search_string)
             | Q(user__username__icontains=search_string)
         )
+        .exclude(pk__in=flagged_questions)
         .annotate(answer_count=Count("answer", distinct=True))
         .order_by("-answer_count")
     )

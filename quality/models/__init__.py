@@ -1,5 +1,4 @@
 __all__ = [
-    "RejectedAnswer",
     "Criterion",
     "CriterionRules",
     "MinCharsCriterion",
@@ -11,6 +10,11 @@ __all__ = [
     "Quality",
     "QualityType",
     "QualityUseType",
+    "RejectedAnswer",
+    "RightAnswerCriterion",
+    "RightAnswerCriterionRules",
+    "SelectedAnswerCriterion",
+    "SelectedAnswerCriterionRules",
     "UsesCriterion",
 ]
 
@@ -24,6 +28,10 @@ from .criterion import (
     MinWordsCriterionRules,
     NegWordsCriterion,
     NegWordsCriterionRules,
+    RightAnswerCriterion,
+    RightAnswerCriterionRules,
+    SelectedAnswerCriterion,
+    SelectedAnswerCriterionRules,
 )
 from .quality import Quality, UsesCriterion
 from .quality_type import QualityType, QualityUseType

@@ -22,7 +22,7 @@ class MinWordsCriterion(Criterion):
 
     @staticmethod
     def create_default():
-        criterion = MinWordsCriterion.objects.create(uses_rules="min_words")
+        criterion = MinWordsCriterion.objects.create(uses_rules=["min_words"])
         criterion.for_quality_types.add(
             QualityType.objects.get(type="assignment"),
             QualityType.objects.get(type="group"),
@@ -30,6 +30,7 @@ class MinWordsCriterion(Criterion):
             QualityType.objects.get(type="global"),
         )
         criterion.save()
+        return criterion
 
     def evaluate(self, answer, rules_pk):
         if not isinstance(answer, basestring):
@@ -50,6 +51,9 @@ class MinWordsCriterionRules(CriterionRules):
         verbose_name="Min words",
         help_text="The minimum number of words needed by a rationale.",
     )
+
+    def __str__(self):
+        return "Rules {} for criterion min_words".format(self.pk)
 
     @staticmethod
     def get_or_create(threshold=1, min_words=0):

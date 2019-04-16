@@ -2,11 +2,11 @@ import pytest
 
 from quality.models import Criterion, CriterionRules
 from quality.models.criterion import get_criterion
+from quality.models.criterion.criterion_list import criterions
 from quality.models.criterion.errors import CriterionDoesNotExistError
 
 
 def test_get_criterion():
-    criterions = ("min_words", "min_chars")
     for criterion in criterions:
         criterion_ = get_criterion(criterion)
         assert issubclass(criterion_["criterion"], Criterion)

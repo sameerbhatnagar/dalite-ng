@@ -23,7 +23,7 @@ class NegWordsCriterion(Criterion):
     @staticmethod
     def create_default():
         criterion = NegWordsCriterion.objects.create(
-            binary_threshold=True, uses_rules="neg_words"
+            binary_threshold=True, uses_rules=["neg_words"]
         )
         criterion.for_quality_types.add(
             QualityType.objects.get(type="assignment"),
@@ -31,6 +31,8 @@ class NegWordsCriterion(Criterion):
             QualityType.objects.get(type="teacher"),
             QualityType.objects.get(type="global"),
         )
+
+        return criterion
 
     def evaluate(self, answer, rules_pk):
         if not isinstance(answer, basestring):
@@ -43,7 +45,7 @@ class NegWordsCriterion(Criterion):
             - sum(
                 1.0 for word in answer_words if word.lower() in rules.neg_words
             )
-            / len(answer_words),
+            / (len(answer_words) + 1e-16),
         }
         evaluation.update(
             {criterion: val["value"] for criterion, val in rules}
@@ -53,6 +55,7 @@ class NegWordsCriterion(Criterion):
 
 class NegWordsCriterionRules(CriterionRules):
     neg_words = CommaSepField(
+        distinct=True,
         verbose_name="Negative words",
         help_text="Words considered to be negative.",
         blank=True,
@@ -63,7 +66,7 @@ class NegWordsCriterionRules(CriterionRules):
         return "Rules {} for criterion neg_words".format(self.pk)
 
     @staticmethod
-    def get_or_create(threshold=1, neg_words=""):
+    def get_or_create(threshold=1, neg_words=[]):
         """
         Creates or get the criterion rules.
 
@@ -86,6 +89,8 @@ class NegWordsCriterionRules(CriterionRules):
         """
         if threshold < 0 or threshold > 1:
             raise ValueError("The threshold must be between 0 and 1")
+        if not isinstance(neg_words, list):
+            raise ValueError("The neg_words must be a list")
         criterion, __ = NegWordsCriterionRules.objects.get_or_create(
             threshold=threshold, neg_words=neg_words
         )
