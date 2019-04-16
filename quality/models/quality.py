@@ -27,7 +27,7 @@ class Quality(models.Model):
                 self.quality_type,
                 str(
                     getattr(
-                        self, "{}_set".format(self.quality_type.model)
+                        self, "{}_set".format(self.quality_type.type)
                     ).first()
                 ),
                 self.quality_use_type,

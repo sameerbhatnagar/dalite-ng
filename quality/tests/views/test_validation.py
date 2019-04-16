@@ -14,7 +14,7 @@ from quality.tests.fixtures import *  # noqa
 
 
 def test_validate_rationale(client, student_group_assignment, teacher):
-    quality_type = QualityType.objects.get(type="assignment")
+    quality_type = QualityType.objects.get(type="studentgroupassignment")
     quality_use_type = QualityUseType.objects.get(type="validation")
     student_group_assignment.quality = Quality.objects.create(
         quality_type=quality_type, quality_use_type=quality_use_type
@@ -91,7 +91,7 @@ def test_validate_rationale__failed_global_and_specific(
     min_words_criterion,
     min_words_rules,
 ):
-    quality_type = QualityType.objects.get(type="assignment")
+    quality_type = QualityType.objects.get(type="studentgroupassignment")
     quality_use_type = QualityUseType.objects.get(type="validation")
     student_group_assignment.quality = Quality.objects.create(
         quality_type=quality_type, quality_use_type=quality_use_type

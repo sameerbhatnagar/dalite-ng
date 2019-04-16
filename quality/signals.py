@@ -9,22 +9,13 @@ from .models.criterion.criterion_list import criterions
 
 @receiver(post_migrate)
 def add_quality_types(sender, **kwargs):
-    types = (
-        ("assignment", "studentgroupassignment"),
-        ("group", "studentgroup"),
-        ("teacher", "teacher"),
-        ("global", None),
-    )
-    for quality_type, type_model in types:
-        try:
-            type_ = QualityType.objects.get(type=quality_type)
-            if type_.model is None:
-                type_.model = type_model
-                type_.save()
-        except QualityType.DoesNotExist:
-            type_ = QualityType.objects.create(
-                type=quality_type, model=type_model
-            )
+    for quality_type in (
+        "studentgroupassignment",
+        "studentgroup",
+        "teacher",
+        "global",
+    ):
+        QualityType.objects.get_or_create(type=quality_type)
 
 
 @receiver(post_migrate)

@@ -114,7 +114,7 @@ def verify_assignment(req, type_, assignment_pk):
         )
 
     if assignment.quality is None:
-        quality_type = QualityType.objects.get(type="assignment")
+        quality_type = QualityType.objects.get(type="studentgroupassignment")
         try:
             quality_use_type = QualityUseType.objects.get(type=type_)
         except QualityUseType.DoesNotExist:
@@ -196,7 +196,7 @@ def verify_group(req, type_, group_pk):
         )
 
     if group.quality is None:
-        quality_type = QualityType.objects.get(type="group")
+        quality_type = QualityType.objects.get(type="studentgroup")
         try:
             quality_use_type = QualityUseType.objects.get(type=type_)
         except QualityUseType.DoesNotExist:

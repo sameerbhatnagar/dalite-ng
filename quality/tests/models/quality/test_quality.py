@@ -13,10 +13,12 @@ from quality.tests.fixtures import *  # noqa
 
 
 def test_str(assignment_validation_quality):
-    assert str(
-        assignment_validation_quality
-    ) == "{} for type assignment and use type validation".format(
-        assignment_validation_quality.pk
+    assert (
+        str(assignment_validation_quality)
+        == "{} for studentgroupassignment: None ".format(
+            assignment_validation_quality.pk
+        )
+        + "and use type validation"
     )
 
 

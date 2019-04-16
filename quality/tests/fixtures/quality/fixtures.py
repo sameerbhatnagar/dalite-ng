@@ -17,7 +17,7 @@ def validation_quality_use_type():
 
 @pytest.fixture
 def assignment_quality_type():
-    return QualityType.objects.get(type="assignment")
+    return QualityType.objects.get(type="studentgroupassignment")
 
 
 @pytest.fixture

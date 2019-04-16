@@ -26,8 +26,8 @@ class NegWordsCriterion(Criterion):
             binary_threshold=True, uses_rules=["neg_words"]
         )
         criterion.for_quality_types.add(
-            QualityType.objects.get(type="assignment"),
-            QualityType.objects.get(type="group"),
+            QualityType.objects.get(type="studentgroupassignment"),
+            QualityType.objects.get(type="studentgroup"),
             QualityType.objects.get(type="teacher"),
             QualityType.objects.get(type="global"),
         )

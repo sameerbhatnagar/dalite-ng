@@ -305,7 +305,7 @@ def test_add_criterion(
     min_words_criterion,
     min_words_rules,
 ):
-    quality_type = QualityType.objects.get(type="assignment")
+    quality_type = QualityType.objects.get(type="studentgroupassignment")
     quality_use_type = QualityUseType.objects.get(type="validation")
     student_group_assignment.quality = Quality.objects.create(
         quality_type=quality_type, quality_use_type=quality_use_type
@@ -335,7 +335,7 @@ def test_add_criterion__wrong_type(
     min_words_criterion,
     min_words_rules,
 ):
-    quality_type = QualityType.objects.get(type="assignment")
+    quality_type = QualityType.objects.get(type="studentgroupassignment")
     quality_use_type = QualityUseType.objects.get(type="validation")
     student_group_assignment.quality = Quality.objects.create(
         quality_type=quality_type, quality_use_type=quality_use_type
@@ -361,7 +361,7 @@ def test_add_criterion__missing_params(
     min_words_criterion,
     min_words_rules,
 ):
-    quality_type = QualityType.objects.get(type="assignment")
+    quality_type = QualityType.objects.get(type="studentgroupassignment")
     quality_use_type = QualityUseType.objects.get(type="validation")
     student_group_assignment.quality = Quality.objects.create(
         quality_type=quality_type, quality_use_type=quality_use_type
@@ -396,7 +396,7 @@ def test_add_criterion__wrong_quality_pk(
     min_words_criterion,
     min_words_rules,
 ):
-    quality_type = QualityType.objects.get(type="assignment")
+    quality_type = QualityType.objects.get(type="studentgroupassignment")
     quality_use_type = QualityUseType.objects.get(type="validation")
     student_group_assignment.quality = Quality.objects.create(
         quality_type=quality_type, quality_use_type=quality_use_type
@@ -418,7 +418,7 @@ def test_add_criterion__wrong_quality_pk(
 def test_add_criterion__wrong_criterion_name(
     client, student_group_assignment, teacher
 ):
-    quality_type = QualityType.objects.get(type="assignment")
+    quality_type = QualityType.objects.get(type="studentgroupassignment")
     quality_use_type = QualityUseType.objects.get(type="validation")
     student_group_assignment.quality = Quality.objects.create(
         quality_type=quality_type, quality_use_type=quality_use_type
@@ -449,7 +449,7 @@ def test_update_criterion(
     min_words_criterion,
     min_words_rules,
 ):
-    quality_type = QualityType.objects.get(type="assignment")
+    quality_type = QualityType.objects.get(type="studentgroupassignment")
     quality_use_type = QualityUseType.objects.get(type="validation")
     student_group_assignment.quality = Quality.objects.create(
         quality_type=quality_type, quality_use_type=quality_use_type
@@ -488,7 +488,7 @@ def test_update_criterion__wrong_type(
     min_words_criterion,
     min_words_rules,
 ):
-    quality_type = QualityType.objects.get(type="assignment")
+    quality_type = QualityType.objects.get(type="studentgroupassignment")
     quality_use_type = QualityUseType.objects.get(type="validation")
     student_group_assignment.quality = Quality.objects.create(
         quality_type=quality_type, quality_use_type=quality_use_type
@@ -514,7 +514,7 @@ def test_update_criterion__missing_params(
     min_words_criterion,
     min_words_rules,
 ):
-    quality_type = QualityType.objects.get(type="assignment")
+    quality_type = QualityType.objects.get(type="studentgroupassignment")
     quality_use_type = QualityUseType.objects.get(type="validation")
     student_group_assignment.quality = Quality.objects.create(
         quality_type=quality_type, quality_use_type=quality_use_type
@@ -598,7 +598,7 @@ def test_update_criterion__wrong_quality_pk(
     min_words_criterion,
     min_words_rules,
 ):
-    quality_type = QualityType.objects.get(type="assignment")
+    quality_type = QualityType.objects.get(type="studentgroupassignment")
     quality_use_type = QualityUseType.objects.get(type="validation")
     student_group_assignment.quality = Quality.objects.create(
         quality_type=quality_type, quality_use_type=quality_use_type
@@ -638,7 +638,7 @@ def test_update_criterion__wrong_criterion(
     min_words_criterion,
     min_words_rules,
 ):
-    quality_type = QualityType.objects.get(type="assignment")
+    quality_type = QualityType.objects.get(type="studentgroupassignment")
     quality_use_type = QualityUseType.objects.get(type="validation")
     student_group_assignment.quality = Quality.objects.create(
         quality_type=quality_type, quality_use_type=quality_use_type
@@ -678,7 +678,7 @@ def test_update_criterion__wrong_field(
     min_words_criterion,
     min_words_rules,
 ):
-    quality_type = QualityType.objects.get(type="assignment")
+    quality_type = QualityType.objects.get(type="studentgroupassignment")
     quality_use_type = QualityUseType.objects.get(type="validation")
     student_group_assignment.quality = Quality.objects.create(
         quality_type=quality_type, quality_use_type=quality_use_type
@@ -718,7 +718,7 @@ def test_remove_criterion(
     min_words_criterion,
     min_words_rules,
 ):
-    quality_type = QualityType.objects.get(type="assignment")
+    quality_type = QualityType.objects.get(type="studentgroupassignment")
     quality_use_type = QualityUseType.objects.get(type="validation")
     student_group_assignment.quality = Quality.objects.create(
         quality_type=quality_type, quality_use_type=quality_use_type
@@ -755,7 +755,7 @@ def test_remove_criterion__wrong_type(
     min_words_criterion,
     min_words_rules,
 ):
-    quality_type = QualityType.objects.get(type="assignment")
+    quality_type = QualityType.objects.get(type="studentgroupassignment")
     quality_use_type = QualityUseType.objects.get(type="validation")
     student_group_assignment.quality = Quality.objects.create(
         quality_type=quality_type, quality_use_type=quality_use_type
@@ -788,7 +788,7 @@ def test_remove_criterion__missing_params(
     min_words_criterion,
     min_words_rules,
 ):
-    quality_type = QualityType.objects.get(type="assignment")
+    quality_type = QualityType.objects.get(type="studentgroupassignment")
     quality_use_type = QualityUseType.objects.get(type="validation")
     student_group_assignment.quality = Quality.objects.create(
         quality_type=quality_type, quality_use_type=quality_use_type
@@ -830,7 +830,7 @@ def test_remove_criterion__wrong_quality_key(
     min_words_criterion,
     min_words_rules,
 ):
-    quality_type = QualityType.objects.get(type="assignment")
+    quality_type = QualityType.objects.get(type="studentgroupassignment")
     quality_use_type = QualityUseType.objects.get(type="validation")
     student_group_assignment.quality = Quality.objects.create(
         quality_type=quality_type, quality_use_type=quality_use_type

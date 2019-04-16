@@ -9,7 +9,12 @@ from quality.models import (
 
 
 def test_quality_types_exist():
-    for type_ in ("assignment", "group", "teacher", "global"):
+    for type_ in (
+        "studentgroupassignment",
+        "studentgroup",
+        "teacher",
+        "global",
+    ):
         assert QualityType.objects.filter(type=type_).exists()
 
 
