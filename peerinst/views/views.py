@@ -50,7 +50,6 @@ from opaque_keys import InvalidKeyError
 from opaque_keys.edx.keys import CourseKey
 
 from dalite.views.errors import response_400, response_404, response_500
-from quality.models import Quality
 
 # tos
 from tos.models import Consent, Tos
@@ -84,7 +83,6 @@ from ..models import (
     StudentGroupAssignment,
     Teacher,
 )
-from ..rationale_choice import choose_rationales
 from ..util import (
     SessionStageData,
     get_object_or_none,
@@ -98,7 +96,6 @@ from ..util import (
 
 LOGGER = logging.getLogger(__name__)
 LOGGER_teacher_activity = logging.getLogger("teacher_activity")
-logger = logging.getLogger("peerinst-views")
 
 
 # Views related to Auth
@@ -522,6 +519,7 @@ class QuestionCreateView(
         "collaborators",
         "fake_attributions",
         "sequential_review",
+        "rationale_selection_algorithm",
         "grading_scheme",
     ]
 
@@ -562,6 +560,7 @@ class QuestionCloneView(QuestionCreateView):
             "discipline": question.discipline,
             "fake_attributions": question.fake_attributions,
             "sequential_review": question.sequential_review,
+            "rationale_selection_algorithm": question.rationale_selection_algorithm,  # noqa
             "grading_scheme": question.grading_scheme,
         }
         return initial
@@ -609,6 +608,7 @@ class QuestionUpdateView(
         "collaborators",
         "fake_attributions",
         "sequential_review",
+        "rationale_selection_algorithm",
         "grading_scheme",
     ]
 
@@ -1126,8 +1126,11 @@ class QuestionReviewBaseView(QuestionFormView):
     """Common base class for sequential and non-sequential review types."""
 
     def determine_rationale_choices(self):
+        if not hasattr(self, "choose_rationales"):
+            self.choose_rationales = rationale_choice.algorithms[
+                self.question.rationale_selection_algorithm
+            ]
         self.rationale_choices = self.stage_data.get("rationale_choices")
-
         if self.rationale_choices is not None:
             # The rationales we stored in the session have already been
             # HTML-escaped – mark them as safe to avoid double-escaping
@@ -1135,39 +1138,17 @@ class QuestionReviewBaseView(QuestionFormView):
             return
         # Make the choice of rationales deterministic, so rationales won't
         # change when reloading the page after clearing the session.
-        random_seed = hash(
+        rng = random.Random(
             (self.user_token, self.assignment.pk, self.question.pk)
-        ) % (2 ** 32)
-
+        )
         try:
-            quality = Quality.objects.get(
-                quality_type__type="global",
-                quality_use_type__type="evaluation",
-            )
-        except Quality.DoesNotExist:
-            return response_500(
-                self.request,
-                logger_msg=(
-                    "A global evaluation quality is needed to choose "
-                    "rationales."
-                ),
-                log=logger.error,
-            )
-
-        try:
-            self.rationale_choices = choose_rationales(
-                quality=quality,
-                first_answer_choice=self.first_answer_choice,
-                rationale=self.rationale,
-                question=self.question,
-                seed=random_seed,
-                n_choices=4,
+            self.rationale_choices = self.choose_rationales(
+                rng, self.first_answer_choice, self.rationale, self.question
             )
         except rationale_choice.RationaleSelectionError as e:
             self.start_over(e.message)
         if self.question.fake_attributions:
-            random.seed(random_seed)
-            self.add_fake_attributions()
+            self.add_fake_attributions(rng)
         else:
             self.mark_rationales_safe(escape_html=True)
         self.stage_data.update(rationale_choices=self.rationale_choices)
@@ -1180,7 +1161,7 @@ class QuestionReviewBaseView(QuestionFormView):
         for choice, label, rationales in self.rationale_choices:
             rationales[:] = [(id, processor(text)) for id, text in rationales]
 
-    def add_fake_attributions(self):
+    def add_fake_attributions(self, rng):
         usernames = models.FakeUsername.objects.values_list("name", flat=True)
         countries = models.FakeCountry.objects.values_list("name", flat=True)
         if not usernames or not countries:
@@ -1198,10 +1179,7 @@ class QuestionReviewBaseView(QuestionFormView):
                     # Don't add a fake attribution, it might blow our cover.
                     attributed_rationales.append((id, text))
                     continue
-                attribution = (
-                    random.choice(usernames),
-                    random.choice(countries),
-                )
+                attribution = rng.choice(usernames), rng.choice(countries)
                 fake_attributions[id] = attribution
                 formatted_rationale = format_html(
                     "<q>{}</q> ({}, {})", text, *attribution

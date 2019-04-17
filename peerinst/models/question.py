@@ -15,6 +15,8 @@ from django.utils.encoding import smart_bytes
 from django.utils.html import escape, strip_tags
 from django.utils.translation import ugettext_lazy as _
 
+from .. import rationale_choice
+
 
 def no_hyphens(value):
     if "-" in value:
@@ -192,6 +194,17 @@ class Question(models.Model):
         help_text=_(
             "Show rationales sequentially and allow to vote on them before "
             "the final review."
+        ),
+    )
+    rationale_selection_algorithm = models.CharField(
+        _("Rationale selection algorithm"),
+        choices=rationale_choice.algorithm_choices(),
+        default="prefer_expert_and_highly_voted",
+        max_length=100,
+        help_text=_(
+            "The algorithm to use for choosing the rationales presented to "
+            "students during question review.  This option is ignored if you "
+            "selected sequential review."
         ),
     )
     GRADING_SCHEME_CHOICES = (
