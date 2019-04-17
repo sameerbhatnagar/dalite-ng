@@ -35,7 +35,7 @@ def test_evaluate__no_criterions(assignment_validation_quality):
 
     quality_, qualities = assignment_validation_quality.evaluate(answer)
 
-    assert quality_ is None
+    assert quality_ == 1
     assert qualities == []
 
 

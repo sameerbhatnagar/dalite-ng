@@ -144,7 +144,6 @@ class QuestionAdmin(admin.ModelAdmin):
                     "answer_style",
                     "fake_attributions",
                     "sequential_review",
-                    "rationale_selection_algorithm",
                     "grading_scheme",
                 ]
             },
@@ -152,7 +151,6 @@ class QuestionAdmin(admin.ModelAdmin):
     ]
     radio_fields = {
         "answer_style": admin.HORIZONTAL,
-        "rationale_selection_algorithm": admin.HORIZONTAL,
         "grading_scheme": admin.HORIZONTAL,
     }
     readonly_fields = ["id", "parent", "created_on", "last_modified"]

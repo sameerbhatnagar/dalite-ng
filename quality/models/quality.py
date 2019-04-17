@@ -66,7 +66,7 @@ class Quality(models.Model):
                 }]
         """
         if not self.criterions.exists():
-            return None, []
+            return 1.0, []
 
         criterions_ = [
             {
