@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import logging
+
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
@@ -27,6 +29,8 @@ from ..models import (
     Teacher,
 )
 from ..students import authenticate_student
+
+logger = logging.getLogger("peerinst-views")
 
 
 def signup_through_link(request, group_hash):
@@ -102,6 +106,20 @@ def live(request, token, assignment_hash):
 
     # Get assignment for this token and current question
     group_assignment = StudentGroupAssignment.get(assignment_hash)
+    if group_assignment is None:
+        return response_404(
+            request,
+            msg=_(
+                "This url doesn't correspond to any assignment. "
+                "It may have been deleted by your teacher."
+            ),
+            logger_msg=(
+                "Access to live was tried for unknown assignment with hash "
+                "{} by user {}.".format(assignment_hash, user.pk)
+            ),
+            log=logger.warning,
+        )
+
     student_assignment = StudentAssignment.objects.get(
         student=user.student, group_assignment=group_assignment
     )

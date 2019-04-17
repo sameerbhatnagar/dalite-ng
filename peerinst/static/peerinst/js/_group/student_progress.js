@@ -187,10 +187,12 @@ function correctView(container, data, total, height, width) {
 
 function toggleStudentProgressView() {
   const progress = document.querySelector("#student-progress");
-  const complete = progress.querySelector(".student-progress-complete");
+  const complete = progress.querySelectorAll(".student-progress-complete");
   const correct = progress.querySelectorAll(".student-progress-correct");
 
-  animateComplete(complete, !model.showing);
+  Array.from(complete).map(function(svg) {
+    animateComplete(svg, !model.showing);
+  });
   Array.from(correct).map(function(svg) {
     animateCorrect(svg, !model.showing);
   });
