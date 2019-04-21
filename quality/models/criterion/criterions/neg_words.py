@@ -74,8 +74,8 @@ class NegWordsCriterionRules(CriterionRules):
         ----------
         threshold : float in [0, 1] (default : 0)
             Minimum value for the criterion to pass
-        neg_words : str (default : "")
-            Negative words split with a comma
+        neg_words : List[str] (default : [])
+            Negative words
 
         Returns
         -------
