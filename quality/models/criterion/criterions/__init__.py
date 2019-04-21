@@ -1,4 +1,6 @@
 __all__ = [
+    "LikelihoodCriterion",
+    "LikelihoodCriterionRules",
     "MinCharsCriterion",
     "MinCharsCriterionRules",
     "MinWordsCriterion",
@@ -12,6 +14,7 @@ __all__ = [
 ]
 
 
+from .likelihood import LikelihoodCriterion, LikelihoodCriterionRules
 from .min_chars import MinCharsCriterion, MinCharsCriterionRules
 from .min_words import MinWordsCriterion, MinWordsCriterionRules
 from .neg_words import NegWordsCriterion, NegWordsCriterionRules

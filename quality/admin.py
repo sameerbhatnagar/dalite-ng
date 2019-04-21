@@ -5,6 +5,8 @@ from django.contrib import admin
 
 from . import models
 
+admin.site.register(models.LikelihoodCriterion)
+admin.site.register(models.LikelihoodCriterionRules)
 admin.site.register(models.MinCharsCriterion)
 admin.site.register(models.MinCharsCriterionRules)
 admin.site.register(models.MinWordsCriterion)

@@ -1,6 +1,8 @@
 __all__ = [
     "Criterion",
     "CriterionRules",
+    "LikelihoodCriterion",
+    "LikelihoodCriterionRules",
     "MinCharsCriterion",
     "MinCharsCriterionRules",
     "MinWordsCriterion",
@@ -22,6 +24,8 @@ __all__ = [
 from .criterion import (
     Criterion,
     CriterionRules,
+    LikelihoodCriterion,
+    LikelihoodCriterionRules,
     MinCharsCriterion,
     MinCharsCriterionRules,
     MinWordsCriterion,

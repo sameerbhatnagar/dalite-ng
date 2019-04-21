@@ -1,6 +1,8 @@
 import logging
 
 from .criterions import (
+    LikelihoodCriterion,
+    LikelihoodCriterionRules,
     MinCharsCriterion,
     MinCharsCriterionRules,
     MinWordsCriterion,
@@ -17,6 +19,10 @@ from .errors import CriterionDoesNotExistError
 logger = logging.getLogger("quality")
 
 criterions = {
+    "likelihood": {
+        "criterion": LikelihoodCriterion,
+        "rules": LikelihoodCriterionRules,
+    },
     "min_words": {
         "criterion": MinWordsCriterion,
         "rules": MinWordsCriterionRules,
