@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import codecs
 import io
 import os
 import pickle
@@ -9,7 +10,7 @@ from itertools import product
 
 import requests
 
-from src.utils import done_print, load_print
+from .utils import done_print, load_print
 
 language_list = {"english", "french"}
 
@@ -96,22 +97,24 @@ def download_gram_file(language, gram, path):
             with f_zip.open(os.path.basename(url)[:-4]) as f:
                 lines = [line.strip().split() for line in f]
                 data = {
-                    line[0].decode().lower(): int(line[1]) for line in lines
+                    line[0].decode("utf-8").lower(): float(line[1])
+                    for line in lines
                 }
 
     else:
         lines = [
             line.strip().split()
-            for line in resp.content.decode().split("\n")
+            for line in resp.content.decode("utf-8").split("\n")
             if line
         ]
-        data = {line[0].lower(): int(line[1]) for line in lines}
+        data = {line[0].lower(): float(line[1]) for line in lines}
 
     total = sum(data.values())
     data = {key: val / total for key, val in data.items()}
 
-    os.makedirs(os.path.dirname(path), exist_ok=True)
-    with open(path, "w") as f:
+    if not os.path.exists(os.path.dirname(path)):
+        os.makedirs(os.path.dirname(path))
+    with codecs.open(path, "w", "utf8") as f:
         f.write("n-gram\tfrequency\n")
         for n_gram, frequency in data.items():
             f.write("{}\t{}\n".format(n_gram, frequency))
