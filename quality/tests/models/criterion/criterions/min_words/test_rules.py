@@ -53,7 +53,8 @@ def test_dict(min_words_rules):
     )
     assert data["threshold"]["value"] == 1
     assert data["threshold"]["type"] == "ProbabilityField"
-    assert len(data["threshold"]) == 5
+    assert data["threshold"]["allowed"] is None
+    assert len(data["threshold"]) == 6
     assert data["min_words"]["name"] == "min_words"
     assert data["min_words"]["full_name"] == "Min words"
     assert (
@@ -62,4 +63,5 @@ def test_dict(min_words_rules):
     )
     assert data["min_words"]["value"] == 3
     assert data["min_words"]["type"] == "PositiveIntegerField"
-    assert len(data["min_words"]) == 5
+    assert data["min_words"]["allowed"] is None
+    assert len(data["min_words"]) == 6

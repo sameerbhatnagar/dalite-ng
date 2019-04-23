@@ -61,7 +61,8 @@ def test_dict(selected_answer_rules):
     )
     assert data["threshold"]["value"] == 1
     assert data["threshold"]["type"] == "ProbabilityField"
-    assert len(data["threshold"]) == 5
+    assert data["threshold"]["allowed"] is None
+    assert len(data["threshold"]) == 6
     assert data["default_if_never_shown"]["name"] == "default_if_never_shown"
     assert (
         data["default_if_never_shown"]["full_name"]
@@ -72,4 +73,5 @@ def test_dict(selected_answer_rules):
     )
     assert data["default_if_never_shown"]["value"] == 1
     assert data["default_if_never_shown"]["type"] == "ProbabilityField"
-    assert len(data["default_if_never_shown"]) == 5
+    assert data["default_if_never_shown"]["allowed"] is None
+    assert len(data["default_if_never_shown"]) == 6

@@ -51,7 +51,8 @@ def test_dict(right_answer_rules):
     )
     assert data["threshold"]["value"] == 1
     assert data["threshold"]["type"] == "ProbabilityField"
-    assert len(data["threshold"]) == 5
+    assert data["threshold"]["allowed"] is None
+    assert len(data["threshold"]) == 6
     assert data["only_last"]["name"] == "only_last"
     assert data["only_last"]["full_name"] == "Only last step evaluated"
     assert data["only_last"]["description"] == (
@@ -60,4 +61,5 @@ def test_dict(right_answer_rules):
     )
     assert data["only_last"]["value"]
     assert data["only_last"]["type"] == "BooleanField"
-    assert len(data["only_last"]) == 5
+    assert data["only_last"]["allowed"] is None
+    assert len(data["only_last"]) == 6

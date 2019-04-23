@@ -64,7 +64,8 @@ def test_dict(likelihood_rules):
     )
     assert data["threshold"]["value"] == 1
     assert data["threshold"]["type"] == "ProbabilityField"
-    assert len(data["threshold"]) == 5
+    assert data["threshold"]["allowed"] is None
+    assert len(data["threshold"]) == 6
     assert data["languages"]["name"] == "languages"
     assert data["languages"]["full_name"] == "Languages"
     assert (
@@ -73,7 +74,8 @@ def test_dict(likelihood_rules):
     )
     assert data["languages"]["value"] == ["english"]
     assert data["languages"]["type"] == "CommaSepField"
-    assert len(data["languages"]) == 5
+    assert data["languages"]["allowed"] == ("french", "english")
+    assert len(data["languages"]) == 6
     assert data["max_gram"]["name"] == "max_gram"
     assert data["max_gram"]["full_name"] == "Max gram"
     assert (
@@ -81,4 +83,5 @@ def test_dict(likelihood_rules):
     )
     assert data["max_gram"]["value"] == 2
     assert data["max_gram"]["type"] == "PositiveIntegerField"
-    assert len(data["max_gram"]) == 5
+    assert data["max_gram"]["allowed"] is None
+    assert len(data["max_gram"]) == 6

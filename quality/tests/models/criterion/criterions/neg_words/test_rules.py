@@ -53,7 +53,8 @@ def test_dict(neg_words_rules):
     )
     assert data["threshold"]["value"] == 1
     assert data["threshold"]["type"] == "ProbabilityField"
-    assert len(data["threshold"]) == 5
+    assert data["threshold"]["allowed"] is None
+    assert len(data["threshold"]) == 6
     assert data["neg_words"]["name"] == "neg_words"
     assert data["neg_words"]["full_name"] == "Negative words"
     assert (
@@ -61,4 +62,5 @@ def test_dict(neg_words_rules):
     )
     assert data["neg_words"]["value"] == ["a", "b", "c"]
     assert data["neg_words"]["type"] == "CommaSepField"
-    assert len(data["neg_words"]) == 5
+    assert data["neg_words"]["allowed"] is None
+    assert len(data["neg_words"]) == 6
