@@ -30,7 +30,7 @@ class LikelihoodCriterion(Criterion):
     @staticmethod
     def create_default():
         criterion = LikelihoodCriterion.objects.create(
-            binary_threshold=True, uses_rules=["languages"]
+            binary_threshold=False, uses_rules=["languages"]
         )
         criterion.for_quality_types.add(
             QualityType.objects.get(type="studentgroupassignment"),
