@@ -67,3 +67,6 @@ def test_format_value():
 
     val = u"['a', 'b', 'c']"
     assert widget.format_value(val) == "a, b, c"
+
+    val = None
+    assert widget.format_value(val) == ""
