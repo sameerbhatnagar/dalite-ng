@@ -90,7 +90,7 @@ class LikelihoodCriterionRules(CriterionRules):
 
     @staticmethod
     def get_or_create(
-        threshold=1, languages=["english", "french"], max_gram=3
+        threshold=0.95, languages=["english", "french"], max_gram=3
     ):
         """
         Creates or get the criterion rules.
