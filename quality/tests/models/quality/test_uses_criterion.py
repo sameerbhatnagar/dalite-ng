@@ -108,3 +108,18 @@ def test_dict__subset_of_rules(assignment_validation_quality):
         assert "full_name" in data
         assert "description" in data
         assert len(data) == 9
+
+
+def test_str(global_validation_quality):
+    criterion = UsesCriterion.objects.create(
+        quality=global_validation_quality,
+        name="fake",
+        version=0,
+        rules=0,
+        weight=1,
+    )
+    assert str(
+        criterion
+    ) == "fake for quality {} for global and use type validation".format(
+        global_validation_quality.pk
+    )

@@ -11,7 +11,7 @@ from quality.models.custom_fields import CommaSepField
 from quality.models.quality_type import QualityType
 
 from .data import language_list
-from .model import create_model, predict
+from .model import create_model
 
 
 class LikelihoodCriterion(Criterion):
@@ -48,20 +48,23 @@ class LikelihoodCriterion(Criterion):
 
         other_languages = language_list - set(rules.languages)
 
-        models = {
-            language: create_model(language, rules.max_gram)
-            for language in language_list
-        }
-
-        likelihoods = [
-            predict(answer, models[language]) for language in rules.languages
+        models = [
+            create_model(
+                language, other_language=None, max_gram=rules.max_gram
+            )
+            for language in rules.languages
         ] + [
-            predict(answer, models[language], models[other_language])
+            create_model(
+                language,
+                other_language=other_language,
+                max_gram=rules.max_gram,
+            )
             for other_language in other_languages
-            for language in rules.language
+            for language in rules.languages
         ]
 
-        likelihood = reduce(mul, likelihoods, 1) ** (1 / len(likelihoods))
+        likelihoods = [predict(answer) for predict in models]
+        likelihood = reduce(mul, likelihoods, 1) ** (1.0 / len(likelihoods))
 
         evaluation = {"version": self.version, "quality": likelihood}
         evaluation.update(
@@ -116,6 +119,8 @@ class LikelihoodCriterionRules(CriterionRules):
         if max_gram < 1:
             raise ValueError("The max gram has to be greater than 0")
         criterion, __ = LikelihoodCriterionRules.objects.get_or_create(
-            threshold=threshold, languages=[l.lower() for l in languages]
+            threshold=threshold,
+            languages=[l.lower() for l in languages],
+            max_gram=max_gram,
         )
         return criterion

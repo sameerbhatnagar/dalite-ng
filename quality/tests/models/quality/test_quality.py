@@ -12,7 +12,12 @@ from quality.models import (
 from quality.tests.fixtures import *  # noqa
 
 
-def test_str(assignment_validation_quality):
+def test_str(global_validation_quality, assignment_validation_quality):
+    assert (
+        str(global_validation_quality)
+        == "{} for global ".format(global_validation_quality.pk)
+        + "and use type validation"
+    )
     assert (
         str(assignment_validation_quality)
         == "{} for studentgroupassignment: None ".format(

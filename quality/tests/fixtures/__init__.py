@@ -3,6 +3,8 @@ __all__ = [
     "assignment_validation_qualities",
     "assignment_validation_quality",
     "global_validation_quality",
+    "likelihood_criterion",
+    "likelihood_rules",
     "min_chars_criterion",
     "min_chars_rules",
     "min_words_criterion",
@@ -17,6 +19,8 @@ __all__ = [
 ]
 
 from .criterion import (
+    likelihood_criterion,
+    likelihood_rules,
     min_chars_criterion,
     min_chars_rules,
     min_words_criterion,
