@@ -10,8 +10,9 @@ from quality.models.criterion.criterion import Criterion, CriterionRules
 from quality.models.custom_fields import CommaSepField
 from quality.models.quality_type import QualityType
 
-from .data import language_list
 from .model import create_model
+
+language_list = {"english", "french"}
 
 
 class LikelihoodCriterion(Criterion):
@@ -76,6 +77,7 @@ class LikelihoodCriterion(Criterion):
 class LikelihoodCriterionRules(CriterionRules):
     languages = CommaSepField(
         distinct=True,
+        allowed=tuple(language_list),
         verbose_name="Languages",
         help_text="Accepted languages. Choices are english and french.",
         blank=True,

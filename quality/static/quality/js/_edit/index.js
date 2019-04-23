@@ -38,6 +38,7 @@ function updateCriterionOption(event, option, criterion) {
   let value;
 
   if (type === "CommaSepField") {
+    option.querySelector(".comma-sep-input--input").setCustomValidity("");
     if (event.key === "Enter" || event.key === "," || event.key === " ") {
       if (value === " " || value === ",") {
         value = "";
@@ -46,6 +47,23 @@ function updateCriterionOption(event, option, criterion) {
       if (!value) {
         event.preventDefault();
         return;
+      }
+      if (criterion[name].allowed) {
+        if (!criterion[name].allowed.includes(value)) {
+          toggleCriterionOptionError(
+            option.querySelector(".comma-sep-input--input"),
+            `${value} isn't an accepted language. Options are ${criterion[
+              name
+            ].allowed
+              .slice(0, criterion[name].allowed.length - 2)
+              .join(", ")} and ${
+              criterion[name].allowed[criterion[name].allowed.length - 1]
+            }.`,
+          );
+          option.querySelector(".comma-sep-input--input").value = "";
+          event.preventDefault();
+          return;
+        }
       }
     } else if (event.key === "Backspace") {
       value = option.querySelector(".comma-sep-input--input").value;
@@ -61,6 +79,7 @@ function updateCriterionOption(event, option, criterion) {
     type === "FloatField" ||
     type === "IntegerField"
   ) {
+    option.setCustomValidity("");
     value = option.value;
     if (value === "") {
       if (event.inputType === "insertText" && event.data === "-") {
@@ -93,8 +112,10 @@ function updateCriterionOption(event, option, criterion) {
       }
     }
   } else if (type === "BooleanField") {
+    option.setCustomValidity("");
     value = option.value === "false";
   } else {
+    option.setCustomValidity("");
     value = option.value;
   }
 
@@ -374,7 +395,9 @@ function toggleCriterionOptions(criterion) {
   }
 }
 
-function toggleCriterionOptionError(option) {}
+function toggleCriterionOptionError(option, msg) {
+  option.setCustomValidity(msg);
+}
 
 function newCriterionsView() {
   const button = document.querySelector(".add-criterion button");

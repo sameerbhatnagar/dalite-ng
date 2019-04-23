@@ -101,6 +101,7 @@ class CriterionRules(models.Model):
                 "description": field.help_text,
                 "value": getattr(self, field.name),
                 "type": field.__class__.__name__,
+                "allowed": getattr(field, "allowed", None),
             }
             for field in self.__class__._meta.get_fields()
             if field.name != "id" and not field.name.endswith("ptr")

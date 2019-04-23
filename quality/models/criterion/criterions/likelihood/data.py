@@ -12,8 +12,6 @@ import requests
 
 from .utils import done_print, load_print
 
-language_list = {"english", "french"}
-
 
 def read_data(language):
     path = os.path.join(os.path.dirname(__file__), ".data", language)
