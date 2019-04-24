@@ -301,7 +301,7 @@ def test_update_criterion__invalid_field(
         rules=min_words_rules.pk,
         weight=1,
     )
-    with pytest.raises(AttributeError):
+    with pytest.raises(KeyError):
         assignment_validation_quality.update_criterion(
             "min_words", "fake", None
         )

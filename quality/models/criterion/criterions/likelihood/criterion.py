@@ -15,6 +15,19 @@ from .model import create_model
 language_list = {"english", "french"}
 
 
+class LikelihoodLanguage(models.Model):
+    language = models.CharField(max_length=32, primary_key=True)
+    left_to_right = models.BooleanField(default=True)
+    n_gram_urls = CommaSepField(distinct=True)
+
+    def __str__(self):
+        return str(self.pk)
+
+    @classmethod
+    def available(cls):
+        return [instance.pk for instance in cls.objects.all()]
+
+
 class LikelihoodCriterion(Criterion):
     name = models.CharField(
         max_length=32, default="likelihood", editable=False
@@ -47,21 +60,39 @@ class LikelihoodCriterion(Criterion):
             answer = answer.rationale
         rules = LikelihoodCriterionRules.objects.get(pk=rules_pk)
 
-        other_languages = language_list - set(rules.languages)
+        other_languages = [
+            LikelihoodLanguage.objects.get(language=language)
+            for language in set(language_list)
+            - {language.language for language in rules.languages.all()}
+        ]
 
         models = [
             create_model(
-                language, other_language=None, max_gram=rules.max_gram
+                (
+                    language.language,
+                    language.n_gram_urls,
+                    language.left_to_right,
+                ),
+                other_language=None,
+                max_gram=rules.max_gram,
             )
-            for language in rules.languages
+            for language in rules.languages.all()
         ] + [
             create_model(
-                language,
-                other_language=other_language,
+                (
+                    language.language,
+                    language.n_gram_urls,
+                    language.left_to_right,
+                ),
+                other_language=(
+                    other_language.language,
+                    other_language.n_gram_urls,
+                    other_language.left_to_right,
+                ),
                 max_gram=rules.max_gram,
             )
             for other_language in other_languages
-            for language in rules.languages
+            for language in rules.languages.all()
         ]
 
         likelihoods = [predict(answer) for predict in models]
@@ -75,13 +106,10 @@ class LikelihoodCriterion(Criterion):
 
 
 class LikelihoodCriterionRules(CriterionRules):
-    languages = CommaSepField(
-        distinct=True,
-        allowed=tuple(language_list),
+    languages = models.ManyToManyField(
+        LikelihoodLanguage,
         verbose_name="Languages",
-        help_text="Accepted languages. Choices are english and french.",
-        blank=True,
-        null=True,
+        help_text="Accepted languages.",
     )
     max_gram = models.PositiveIntegerField(
         verbose_name="Max gram", help_text="The maximum size of n-gram to use."
@@ -120,9 +148,34 @@ class LikelihoodCriterionRules(CriterionRules):
             raise ValueError("The languages must be a list")
         if max_gram < 1:
             raise ValueError("The max gram has to be greater than 0")
-        criterion, __ = LikelihoodCriterionRules.objects.get_or_create(
-            threshold=threshold,
-            languages=[l.lower() for l in languages],
-            max_gram=max_gram,
+
+        try:
+            languages = [
+                language
+                if isinstance(language, LikelihoodLanguage)
+                else LikelihoodLanguage.objects.get(language=language.lower())
+                for language in languages
+            ]
+        except LikelihoodLanguage.DoesNotExist:
+            raise ValueError(
+                "The language has to be one of {}".format(
+                    LikelihoodLanguage.available()
+                )
+            )
+
+        criterion = LikelihoodCriterionRules.objects.filter(
+            threshold=threshold, max_gram=max_gram
         )
+        for language in languages:
+            criterion = criterion.filter(languages__pk=language.pk)
+            if not criterion:
+                criterion = LikelihoodCriterionRules.objects.create(
+                    threshold=threshold, max_gram=max_gram
+                )
+                criterion.languages.set([l.pk for l in languages])
+                criterion.save()
+                break
+        else:
+            criterion = criterion.first()
+
         return criterion

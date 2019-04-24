@@ -3,6 +3,7 @@ __all__ = [
     "CriterionRules",
     "LikelihoodCriterion",
     "LikelihoodCriterionRules",
+    "LikelihoodLanguage",
     "MinCharsCriterion",
     "MinCharsCriterionRules",
     "MinWordsCriterion",
@@ -22,6 +23,7 @@ from .criterion_list import get_criterion
 from .criterions import (
     LikelihoodCriterion,
     LikelihoodCriterionRules,
+    LikelihoodLanguage,
     MinCharsCriterion,
     MinCharsCriterionRules,
     MinWordsCriterion,

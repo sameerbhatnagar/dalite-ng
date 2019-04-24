@@ -9,20 +9,31 @@ from .data import read_data
 
 
 def create_model(language, other_language=None, max_gram=3):
+    language, urls, left_to_right = language
+
     data = {
         gram: val
-        for gram, val in read_data(language).items()
+        for gram, val in read_data(language, urls, left_to_right).items()
         if gram <= max_gram
+    }
+    data = read_data(language, urls, left_to_right)
+    data["n_grams"] = {
+        gram: val for gram, val in data["n_grams"].items() if gram <= max_gram
     }
     if other_language is None:
         other = {
-            gram: {g: 1.0 / len(val) for g in val.keys()}
-            for gram, val in data.items()
+            "n_grams": {
+                gram: {g: 1.0 / len(val) for g in val.keys()}
+                for gram, val in data["n_grams"].items()
+            },
+            "left_to_right": data["left_to_right"],
         }
     else:
-        other = {
+        other_language, other_urls, other_left_to_right = other_language
+        other = read_data(other_language, other_urls, other_left_to_right)
+        other["n_grams"] = {
             gram: val
-            for gram, val in read_data(other_language).items()
+            for gram, val in other["n_grams"].items()
             if gram <= max_gram
         }
 
@@ -30,15 +41,16 @@ def create_model(language, other_language=None, max_gram=3):
 
 
 def predict(text, data, other):
-
-    l1 = log_likelihood(text, data)
-    l0 = log_likelihood(text, other)
+    l1 = log_likelihood(text, data["n_grams"], data["left_to_right"])
+    l0 = log_likelihood(text, other["n_grams"], other["left_to_right"])
 
     return 1 - min(1, exp(l0 - l1))
 
 
-def log_likelihood(text, ngrams):
+def log_likelihood(text, ngrams, left_to_right):
     text = "".join(c for c in text.lower() if c == " " or c in ngrams[1])
+    if not left_to_right:
+        text = text[::-1]
     words = [
         [c for c in word.lower() if c in ngrams[1]] for word in text.split()
     ]

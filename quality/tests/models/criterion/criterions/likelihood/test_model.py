@@ -4,17 +4,51 @@ from __future__ import unicode_literals
 import random
 import string
 
+import pytest
+
 from quality.models.criterion.criterions.likelihood.model import create_model
 
 
-def test_create_model():
-    predict = create_model("english", "french")
-    predict = create_model("french", "english")
-    predict = create_model("english")
-    predict = create_model("french")
+@pytest.fixture
+def english():
+    return (
+        "english",
+        [
+            "http://practicalcryptography.com/media/cryptanalysis/files/"
+            "english_monograms.txt",
+            "http://practicalcryptography.com/media/cryptanalysis/files/"
+            "english_bigrams_1.txt",
+            "http://practicalcryptography.com/media/cryptanalysis/files/"
+            "english_trigrams.txt.zip",
+        ],
+        True,
+    )
 
 
-def test_predict__english():
+@pytest.fixture
+def french():
+    return (
+        "french",
+        [
+            "http://practicalcryptography.com/media/cryptanalysis/files/"
+            "french_monograms.txt",
+            "http://practicalcryptography.com/media/cryptanalysis/files/"
+            "french_bigrams_1.txt",
+            "http://practicalcryptography.com/media/cryptanalysis/files/"
+            "french_trigrams.txt.zip",
+        ],
+        True,
+    )
+
+
+def test_create_model(english, french):
+    predict = create_model(english, french)
+    predict = create_model(french, english)
+    predict = create_model(english)
+    predict = create_model(french)
+
+
+def test_predict__english(english):
     test = (
         "It is a truth universally acknowledged, that a single man in "
         "possession of a good fortune, must be in want of a wife.",
@@ -37,14 +71,14 @@ def test_predict__english():
         "lost; The old that is strong does not wither, Deep roots are not "
         "reached by the frost.",
     )
-    predict = create_model("english")
+    predict = create_model(english)
     result = [predict(t) for t in test]
 
     for r in result:
         assert r >= 0.95
 
 
-def test_predict__english__random():
+def test_predict__english__random(english):
     test = tuple(
         "".join(
             random.choice([" "] + list(string.ascii_letters))
@@ -52,14 +86,14 @@ def test_predict__english__random():
         )
         for _ in range(10)
     )
-    predict = create_model("english")
+    predict = create_model(english)
     result = [predict(t) for t in test]
 
     for r in result:
         assert r < 0.95
 
 
-def test_predict__english__french():
+def test_predict__english__french(english, french):
     test = (
         "Aujourd'hui, maman est morte. Ou peut-être hier, je ne sais pas. "
         "J'ai reçu un télégramme de l'asile : « Mère décédée. Enterrement "
@@ -80,14 +114,14 @@ def test_predict__english__french():
         "malheureuses sont malheureuses chacune à leur façon.",
         "Je cherchais un endroit tranquille où mourir.",
     )
-    predict = create_model("english", "french")
+    predict = create_model(english, french)
     result = [predict(t) for t in test]
 
     for r in result:
         assert r < 0.95
 
 
-def test_predict__french():
+def test_predict__french(french):
     test = (
         "Aujourd'hui, maman est morte. Ou peut-être hier, je ne sais pas. "
         "J'ai reçu un télégramme de l'asile : « Mère décédée. Enterrement "
@@ -108,14 +142,14 @@ def test_predict__french():
         "malheureuses sont malheureuses chacune à leur façon.",
         "Je cherchais un endroit tranquille où mourir.",
     )
-    predict = create_model("french")
+    predict = create_model(french)
     result = [predict(t) for t in test]
 
     for r in result:
         assert r >= 0.95
 
 
-def test_predict__french__random():
+def test_predict__french__random(french):
     test = tuple(
         "".join(
             random.choice([" "] + list(string.ascii_letters))
@@ -123,14 +157,14 @@ def test_predict__french__random():
         )
         for _ in range(10)
     )
-    predict = create_model("french")
+    predict = create_model(french)
     result = [predict(t) for t in test]
 
     for r in result:
         assert r < 0.95
 
 
-def test_predict__french__english():
+def test_predict__french__english(french, english):
     test = (
         "It is a truth universally acknowledged, that a single man in "
         "possession of a good fortune, must be in want of a wife.",
@@ -153,14 +187,14 @@ def test_predict__french__english():
         "lost; The old that is strong does not wither, Deep roots are not "
         "reached by the frost.",
     )
-    predict = create_model("french", "english")
+    predict = create_model(french, english)
     result = [predict(t) for t in test]
 
     for r in result:
         assert r < 0.95
 
 
-def test_predict__english__1_gram():
+def test_predict__english__1_gram(english):
     test = (
         "It is a truth universally acknowledged, that a single man in "
         "possession of a good fortune, must be in want of a wife.",
@@ -183,8 +217,7 @@ def test_predict__english__1_gram():
         "lost; The old that is strong does not wither, Deep roots are not "
         "reached by the frost.",
     )
-    predict = create_model("english", max_gram=1)
+    predict = create_model(english, max_gram=1)
     result = [predict(t) for t in test]
-
     for r in result:
         assert r >= 0.95

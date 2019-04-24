@@ -184,14 +184,24 @@ class Quality(models.Model):
             rules = get_criterion(name)["rules"].objects.get(
                 pk=criterion.rules
             )
-            old_value = getattr(rules, field)
             type_ = dict(rules)[field]["type"]
-            if type_ == "CommaSepField":
+            if type_ == "ManyToManyField":
+                old_value = list(map(str, getattr(rules, field).all()))
                 if value:
+                    getattr(rules, field).add(value)
                     value = old_value + [value]
                 else:
+                    getattr(rules, field).remove(old_value[-1])
                     value = old_value[:-1]
-            setattr(rules, field, value)
+                rules.save()
+            else:
+                old_value = getattr(rules, field)
+                if type_ == "CommaSepField":
+                    if value:
+                        value = old_value + [value]
+                    else:
+                        value = old_value[:-1]
+                setattr(rules, field, value)
             rules.save()
 
         return criterion, old_value, value

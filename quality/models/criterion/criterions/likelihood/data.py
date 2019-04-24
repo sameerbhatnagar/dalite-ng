@@ -13,7 +13,7 @@ import requests
 from .utils import done_print, load_print
 
 
-def read_data(language):
+def read_data(language, urls, left_to_right):
     path = os.path.join(os.path.dirname(__file__), ".data", language)
 
     pkl_path = os.path.join(path, "data.pkl")
@@ -26,7 +26,8 @@ def read_data(language):
 
     else:
         data = {
-            gram: read_gram_file(language, gram, path) for gram in (1, 2, 3)
+            gram + 1: read_gram_file(language, gram + 1, url, path)
+            for gram, url in enumerate(urls)
         }
         data = {
             gram: {
@@ -35,6 +36,7 @@ def read_data(language):
             }
             for gram, val in data.items()
         }
+        data = {"n_grams": data, "left_to_right": left_to_right}
         load_print("Pickling data for {}...".format(language))
         with open(pkl_path, "wb") as f:
             pickle.dump(data, f, pickle.HIGHEST_PROTOCOL)
@@ -43,7 +45,7 @@ def read_data(language):
     return data
 
 
-def read_gram_file(language, gram, path):
+def read_gram_file(language, gram, url, path):
     path = os.path.join(path, "{}-grams.txt".format(gram))
     if os.path.exists(path):
         load_print("Reading {}-gram file for {}...".format(gram, language))
@@ -53,42 +55,16 @@ def read_gram_file(language, gram, path):
             data = {line[0]: float(line[1]) for line in lines}
         done_print("Read {}-gram file for {}.".format(gram, language))
     else:
-        data = download_gram_file(language, gram, path)
+        data = download_gram_file(language, gram, url, path)
 
     return data
 
 
-def download_gram_file(language, gram, path):
+def download_gram_file(language, gram, url, path):
     load_print("Downloading {}-gram file for {}...".format(gram, language))
-    base_url = "http://practicalcryptography.com/media/cryptanalysis/files"
-    if language == "english":
-        if gram == 1:
-            url = "{}/english_monograms.txt".format(base_url)
-        elif gram == 2:
-            url = "{}/english_bigrams_1.txt".format(base_url)
-        elif gram == 3:
-            url = "{}/english_trigrams.txt.zip".format(base_url)
-        else:
-            raise ValueError(
-                "There is no file for {}-grams in {language}.".format(gram)
-            )
-    elif language == "french":
-        if gram == 1:
-            url = "{}/french_monograms.txt".format(base_url)
-        elif gram == 2:
-            url = "{}/french_bigrams.txt".format(base_url)
-        elif gram == 3:
-            url = "{}/french_trigrams.txt.zip".format(base_url)
-        else:
-            raise ValueError(
-                "There is no file for {}-grams in {language}.".format(gram)
-            )
-    else:
-        raise ValueError(
-            "There is no file for {}-grams in {}.".format(gram, language)
-        )
 
     resp = requests.get(url)
+    resp.raise_for_status()
 
     if url.endswith("zip"):
         with zipfile.ZipFile(io.BytesIO(resp.content)) as f_zip:

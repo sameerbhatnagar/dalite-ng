@@ -1,6 +1,11 @@
+from operator import attrgetter
+
 import pytest
 
-from quality.models.criterion import LikelihoodCriterionRules
+from quality.models.criterion import (
+    LikelihoodCriterionRules,
+    LikelihoodLanguage,
+)
 from quality.tests.fixtures import *  # noqa
 
 
@@ -17,12 +22,12 @@ def test_get_or_create__create():
     criterion = LikelihoodCriterionRules.get_or_create(
         languages=languages, max_gram=max_gram
     )
-    assert criterion.languages == languages
+    assert map(attrgetter("language"), criterion.languages.all()) == languages
     assert criterion.max_gram == max_gram
 
 
 def test_get_or_create__get(likelihood_rules):
-    languages = likelihood_rules.languages
+    languages = list(likelihood_rules.languages.all())
     max_gram = likelihood_rules.max_gram
     threshold = likelihood_rules.threshold
     n_rules = LikelihoodCriterionRules.objects.count()
@@ -30,13 +35,17 @@ def test_get_or_create__get(likelihood_rules):
     criterion = LikelihoodCriterionRules.get_or_create(
         threshold=threshold, languages=languages, max_gram=max_gram
     )
-    assert criterion.languages == languages
+    assert list(criterion.languages.all()) == languages
     assert criterion.max_gram == max_gram
     assert LikelihoodCriterionRules.objects.count() == n_rules
 
 
 def test_get_or_create__wrong_args():
     languages = "english"
+    with pytest.raises(ValueError):
+        criterion = LikelihoodCriterionRules.get_or_create(languages=languages)
+
+    languages = ["wrong"]
     with pytest.raises(ValueError):
         criterion = LikelihoodCriterionRules.get_or_create(languages=languages)
 
@@ -50,7 +59,9 @@ def test_get_or_create__wrong_args():
 
 
 def test_dict(likelihood_rules):
-    likelihood_rules.languages = ["english"]
+    likelihood_rules.languages.set(
+        [LikelihoodLanguage.objects.get(language="english")]
+    )
     likelihood_rules.max_gram = 2
     likelihood_rules.save()
 
@@ -68,13 +79,10 @@ def test_dict(likelihood_rules):
     assert len(data["threshold"]) == 6
     assert data["languages"]["name"] == "languages"
     assert data["languages"]["full_name"] == "Languages"
-    assert (
-        data["languages"]["description"]
-        == "Accepted languages. Choices are english and french."
-    )
+    assert data["languages"]["description"] == "Accepted languages."
     assert data["languages"]["value"] == ["english"]
-    assert data["languages"]["type"] == "CommaSepField"
-    assert data["languages"]["allowed"] == ("french", "english")
+    assert data["languages"]["type"] == "ManyToManyField"
+    assert data["languages"]["allowed"] == ["english", "french"]
     assert len(data["languages"]) == 6
     assert data["max_gram"]["name"] == "max_gram"
     assert data["max_gram"]["full_name"] == "Max gram"

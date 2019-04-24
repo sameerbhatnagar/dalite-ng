@@ -426,7 +426,6 @@ def add_criterion(req):
     logger.info(
         "Criterion %s was added to quality %d.", criterion_name, quality_pk
     )
-    print(dict(criterion))
 
     return JsonResponse(dict(criterion))
 
@@ -490,7 +489,7 @@ def update_criterion(req):
         criterion, old_value, value = quality.update_criterion(
             criterion_name, field, value
         )
-    except (AttributeError, UsesCriterion.DoesNotExist) as e:
+    except (AttributeError, KeyError, UsesCriterion.DoesNotExist) as e:
         return response_400(
             req,
             msg=_("There was an error updating the criterion."),

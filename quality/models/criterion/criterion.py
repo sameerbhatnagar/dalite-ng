@@ -99,9 +99,15 @@ class CriterionRules(models.Model):
                 "name": field.name,
                 "full_name": field.verbose_name,
                 "description": field.help_text,
-                "value": getattr(self, field.name),
+                "value": [
+                    instance.pk for instance in getattr(self, field.name).all()
+                ]
+                if field.__class__.__name__ == "ManyToManyField"
+                else getattr(self, field.name),
                 "type": field.__class__.__name__,
-                "allowed": getattr(field, "allowed", None),
+                "allowed": getattr(self, field.name).model.available()
+                if field.__class__.__name__ == "ManyToManyField"
+                else getattr(field, "allowed", None),
             }
             for field in self.__class__._meta.get_fields()
             if field.name != "id" and not field.name.endswith("ptr")

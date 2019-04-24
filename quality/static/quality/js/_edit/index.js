@@ -37,7 +37,7 @@ function updateCriterionOption(event, option, criterion) {
   const name = option.getAttribute("name");
   let value;
 
-  if (type === "CommaSepField") {
+  if (type === "CommaSepField" || type === "ManyToManyField") {
     option.querySelector(".comma-sep-input--input").setCustomValidity("");
     if (event.key === "Enter" || event.key === "," || event.key === " ") {
       if (value === " " || value === ",") {
@@ -55,7 +55,7 @@ function updateCriterionOption(event, option, criterion) {
             `${value} isn't an accepted language. Options are ${criterion[
               name
             ].allowed
-              .slice(0, criterion[name].allowed.length - 2)
+              .slice(0, criterion[name].allowed.length - 1)
               .join(", ")} and ${
               criterion[name].allowed[criterion[name].allowed.length - 1]
             }.`,
@@ -334,7 +334,7 @@ function criterionOptionView(type, value, criterion, input = null) {
     }
     input.value = value;
     return input;
-  } else if (type === "CommaSepField") {
+  } else if (type === "CommaSepField" || type === "ManyToManyField") {
     if (!input) {
       input = document.createElement("div");
       input.setAttribute("data-type", type);

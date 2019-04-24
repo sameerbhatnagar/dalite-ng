@@ -1,3 +1,11 @@
-__all__ = ["LikelihoodCriterion", "LikelihoodCriterionRules"]
+__all__ = [
+    "LikelihoodCriterion",
+    "LikelihoodCriterionRules",
+    "LikelihoodLanguage",
+]
 
-from .criterion import LikelihoodCriterion, LikelihoodCriterionRules
+from .criterion import (
+    LikelihoodCriterion,
+    LikelihoodCriterionRules,
+    LikelihoodLanguage,
+)

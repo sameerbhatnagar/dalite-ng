@@ -3,7 +3,7 @@ from operator import itemgetter
 from django.db.models.signals import post_migrate
 from django.dispatch import receiver
 
-from .models import Quality, QualityType, QualityUseType
+from .models import LikelihoodLanguage, Quality, QualityType, QualityUseType
 from .models.criterion.criterion_list import criterions
 
 
@@ -39,3 +39,39 @@ def add_default_qualities(sender, **kwargs):
                 quality_type=QualityType.objects.get(type="global"),
                 quality_use_type=QualityUseType.objects.get(type=use_type),
             )
+
+
+@receiver(post_migrate)
+def add_likelihood_languages(sender, **kwargs):
+    languages = [
+        {
+            "language": "english",
+            "left_to_right": True,
+            "n_gram_urls": [
+                "http://practicalcryptography.com/media/cryptanalysis/files/"
+                "english_monograms.txt",
+                "http://practicalcryptography.com/media/cryptanalysis/files/"
+                "english_bigrams_1.txt",
+                "http://practicalcryptography.com/media/cryptanalysis/files/"
+                "english_trigrams.txt.zip",
+            ],
+        },
+        {
+            "language": "french",
+            "left_to_right": True,
+            "n_gram_urls": [
+                "http://practicalcryptography.com/media/cryptanalysis/files/"
+                "french_monograms.txt",
+                "http://practicalcryptography.com/media/cryptanalysis/files/"
+                "french_bigrams_1.txt",
+                "http://practicalcryptography.com/media/cryptanalysis/files/"
+                "french_trigrams.txt.zip",
+            ],
+        },
+    ]
+
+    for language in languages:
+        if not LikelihoodLanguage.objects.filter(
+            language=language["language"]
+        ).exists():
+            LikelihoodLanguage.objects.create(**language)
