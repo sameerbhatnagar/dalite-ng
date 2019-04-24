@@ -63,7 +63,7 @@ def add_likelihood_languages(sender, **kwargs):
                 "http://practicalcryptography.com/media/cryptanalysis/files/"
                 "french_monograms.txt",
                 "http://practicalcryptography.com/media/cryptanalysis/files/"
-                "french_bigrams_1.txt",
+                "french_bigrams.txt",
                 "http://practicalcryptography.com/media/cryptanalysis/files/"
                 "french_trigrams.txt.zip",
             ],
