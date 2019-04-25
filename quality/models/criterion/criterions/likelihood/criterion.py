@@ -73,9 +73,7 @@ class LikelihoodCriterion(Criterion):
         )
 
         try:
-            likelihood = LikelihoodCache.objects.get(
-                criterion=self, rules=rules, hash=hash_
-            ).likelihood
+            likelihood = LikelihoodCache.objects.get(hash=hash_).likelihood
         except LikelihoodCache.DoesNotExist:
             models = [
                 create_model(
@@ -201,7 +199,7 @@ class LikelihoodCriterionRules(CriterionRules):
 class LikelihoodCache(models.Model):
     criterion = models.ForeignKey(LikelihoodCriterion)
     rules = models.ForeignKey(LikelihoodCriterionRules)
-    hash = models.CharField(max_length=32)
+    hash = models.CharField(max_length=32, unique=True, db_index=True)
     likelihood = ProbabilityField()
 
     @staticmethod
