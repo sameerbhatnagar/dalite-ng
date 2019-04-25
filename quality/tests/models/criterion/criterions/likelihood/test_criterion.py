@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 import random
 import string
+import time
 
 from peerinst.tests.fixtures import *  # noqa
 from quality.models.criterion import (
@@ -273,3 +274,31 @@ def test_dict(likelihood_criterion):
         assert "binary_threshold" in version
         assert len(version) == 3
     assert len(data) == 5
+
+
+def test_cache(likelihood_criterion, likelihood_rules, answers):
+    answer = answers[0]
+    answer.rationale = (
+        "All happy families are alike; each unhappy family is unhappy in its "
+        "own way."
+    )
+    answer.save()
+
+    likelihood_rules.languages = ["english", "french"]
+    likelihood_rules.max_gram = 3
+    likelihood_rules.save()
+
+    start = time.time()
+    quality_1 = likelihood_criterion.evaluate(answer, likelihood_rules.pk)[
+        "quality"
+    ]
+    time_taken_1 = time.time() - start
+
+    start = time.time()
+    quality_2 = likelihood_criterion.evaluate(answer, likelihood_rules.pk)[
+        "quality"
+    ]
+    time_taken_2 = time.time() - start
+
+    assert quality_1 == quality_2
+    assert time_taken_2 < time_taken_1

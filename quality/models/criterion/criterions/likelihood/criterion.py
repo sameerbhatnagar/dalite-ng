@@ -1,13 +1,15 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import hashlib
+import json
 from functools import reduce
 from operator import mul
 
 from django.db import models
 
 from quality.models.criterion.criterion import Criterion, CriterionRules
-from quality.models.custom_fields import CommaSepField
+from quality.models.custom_fields import CommaSepField, ProbabilityField
 from quality.models.quality_type import QualityType
 
 from .model import create_model
@@ -66,37 +68,52 @@ class LikelihoodCriterion(Criterion):
             - {language.language for language in rules.languages.all()}
         ]
 
-        models = [
-            create_model(
-                (
-                    language.language,
-                    language.n_gram_urls,
-                    language.left_to_right,
-                ),
-                other_language=None,
-                max_gram=rules.max_gram,
-            )
-            for language in rules.languages.all()
-        ] + [
-            create_model(
-                (
-                    language.language,
-                    language.n_gram_urls,
-                    language.left_to_right,
-                ),
-                other_language=(
-                    other_language.language,
-                    other_language.n_gram_urls,
-                    other_language.left_to_right,
-                ),
-                max_gram=rules.max_gram,
-            )
-            for other_language in other_languages
-            for language in rules.languages.all()
-        ]
+        hash_ = LikelihoodCache.compute_hash(
+            answer, rules.languages.all(), other_languages, rules.max_gram
+        )
 
-        likelihoods = [predict(answer) for predict in models]
-        likelihood = reduce(mul, likelihoods, 1) ** (1.0 / len(likelihoods))
+        try:
+            likelihood = LikelihoodCache.objects.get(
+                criterion=self, rules=rules, hash=hash_
+            ).likelihood
+        except LikelihoodCache.DoesNotExist:
+            models = [
+                create_model(
+                    (
+                        language.language,
+                        language.n_gram_urls,
+                        language.left_to_right,
+                    ),
+                    other_language=None,
+                    max_gram=rules.max_gram,
+                )
+                for language in rules.languages.all()
+            ] + [
+                create_model(
+                    (
+                        language.language,
+                        language.n_gram_urls,
+                        language.left_to_right,
+                    ),
+                    other_language=(
+                        other_language.language,
+                        other_language.n_gram_urls,
+                        other_language.left_to_right,
+                    ),
+                    max_gram=rules.max_gram,
+                )
+                for other_language in other_languages
+                for language in rules.languages.all()
+            ]
+
+            likelihoods = [predict(answer) for predict in models]
+            likelihood = reduce(mul, likelihoods, 1) ** (
+                1.0 / len(likelihoods)
+            )
+
+            LikelihoodCache.objects.create(
+                criterion=self, rules=rules, hash=hash_, likelihood=likelihood
+            )
 
         evaluation = {"version": self.version, "quality": likelihood}
         evaluation.update(
@@ -179,3 +196,24 @@ class LikelihoodCriterionRules(CriterionRules):
             criterion = criterion.first()
 
         return criterion
+
+
+class LikelihoodCache(models.Model):
+    criterion = models.ForeignKey(LikelihoodCriterion)
+    rules = models.ForeignKey(LikelihoodCriterionRules)
+    hash = models.CharField(max_length=32)
+    likelihood = ProbabilityField()
+
+    @staticmethod
+    def compute_hash(text, languages, other_languages, max_gram):
+        languages = list(map(str, languages))
+        other_languages = list(map(str, other_languages))
+        data = json.dumps(
+            {
+                "text": text,
+                "languages": languages,
+                "other_languages": other_languages,
+                "max_gram": max_gram,
+            }
+        )
+        return hashlib.md5(data.encode()).hexdigest()

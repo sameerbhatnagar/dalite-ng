@@ -110,5 +110,7 @@ class CriterionRules(models.Model):
                 else getattr(field, "allowed", None),
             }
             for field in self.__class__._meta.get_fields()
-            if field.name != "id" and not field.name.endswith("ptr")
+            if field.name != "id"
+            and not field.name.endswith("ptr")
+            and not field.__class__.__name__ == "ManyToOneRel"
         }.iteritems()
