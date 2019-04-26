@@ -3,13 +3,12 @@ from __future__ import unicode_literals
 
 from functools import partial
 from itertools import chain
-from math import exp, log
+from math import log
 
 from .data import read_data
 
 
-def create_model(language, other_language=None, max_gram=3):
-    language, urls, left_to_right = language
+def create_model(language, urls, left_to_right, max_gram=3):
 
     data = {
         gram: val
@@ -20,22 +19,14 @@ def create_model(language, other_language=None, max_gram=3):
     data["n_grams"] = {
         gram: val for gram, val in data["n_grams"].items() if gram <= max_gram
     }
-    if other_language is None:
-        other = {
-            "n_grams": {
-                gram: {g: 1.0 / len(val) for g in val.keys()}
-                for gram, val in data["n_grams"].items()
-            },
-            "left_to_right": data["left_to_right"],
-        }
-    else:
-        other_language, other_urls, other_left_to_right = other_language
-        other = read_data(other_language, other_urls, other_left_to_right)
-        other["n_grams"] = {
-            gram: val
-            for gram, val in other["n_grams"].items()
-            if gram <= max_gram
-        }
+
+    other = {
+        "n_grams": {
+            gram: {g: 1.0 / len(val) for g in val.keys()}
+            for gram, val in data["n_grams"].items()
+        },
+        "left_to_right": data["left_to_right"],
+    }
 
     return partial(predict, data=data, other=other)
 
@@ -44,7 +35,7 @@ def predict(text, data, other):
     l1 = log_likelihood(text, data["n_grams"], data["left_to_right"])
     l0 = log_likelihood(text, other["n_grams"], other["left_to_right"])
 
-    return 1 - min(1, exp(l0 - l1))
+    return l1, l0
 
 
 def log_likelihood(text, ngrams, left_to_right):

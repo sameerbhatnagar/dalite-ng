@@ -4,7 +4,8 @@ from __future__ import unicode_literals
 import hashlib
 import json
 from functools import reduce
-from operator import mul
+from math import exp
+from operator import mul, sub
 
 from django.db import models
 
@@ -13,8 +14,6 @@ from quality.models.custom_fields import CommaSepField, ProbabilityField
 from quality.models.quality_type import QualityType
 
 from .model import create_model
-
-language_list = {"english", "french"}
 
 
 class LikelihoodLanguage(models.Model):
@@ -58,60 +57,35 @@ class LikelihoodCriterion(Criterion):
         return criterion
 
     def evaluate(self, answer, rules_pk):
-        if not isinstance(answer, basestring):
-            answer = answer.rationale
         rules = LikelihoodCriterionRules.objects.get(pk=rules_pk)
 
-        other_languages = [
-            LikelihoodLanguage.objects.get(language=language)
-            for language in set(language_list)
-            - {language.language for language in rules.languages.all()}
+        languages = LikelihoodLanguage.objects.all()
+        other_languages = languages.exclude(language__in=rules.languages.all())
+
+        language_likelihoods = {
+            language.language: LikelihoodCache.get(
+                answer, language, self, rules
+            )
+            for language in languages
+        }
+
+        likelihoods = [
+            1 - min(1, exp(-sub(*language_likelihoods[language.language])))
+            for language in rules.languages.all()
+        ] + [
+            1
+            - min(
+                1,
+                exp(
+                    language_likelihoods[other_language.language][0]
+                    - language_likelihoods[language.language][0]
+                ),
+            )
+            for other_language in other_languages
+            for language in rules.languages.all()
         ]
 
-        hash_ = LikelihoodCache.compute_hash(
-            answer, rules.languages.all(), other_languages, rules.max_gram
-        )
-
-        try:
-            likelihood = LikelihoodCache.objects.get(hash=hash_).likelihood
-        except LikelihoodCache.DoesNotExist:
-            models = [
-                create_model(
-                    (
-                        language.language,
-                        language.n_gram_urls,
-                        language.left_to_right,
-                    ),
-                    other_language=None,
-                    max_gram=rules.max_gram,
-                )
-                for language in rules.languages.all()
-            ] + [
-                create_model(
-                    (
-                        language.language,
-                        language.n_gram_urls,
-                        language.left_to_right,
-                    ),
-                    other_language=(
-                        other_language.language,
-                        other_language.n_gram_urls,
-                        other_language.left_to_right,
-                    ),
-                    max_gram=rules.max_gram,
-                )
-                for other_language in other_languages
-                for language in rules.languages.all()
-            ]
-
-            likelihoods = [predict(answer) for predict in models]
-            likelihood = reduce(mul, likelihoods, 1) ** (
-                1.0 / len(likelihoods)
-            )
-
-            LikelihoodCache.objects.create(
-                criterion=self, rules=rules, hash=hash_, likelihood=likelihood
-            )
+        likelihood = reduce(mul, likelihoods, 1) ** (1.0 / len(likelihoods))
 
         evaluation = {"version": self.version, "quality": likelihood}
         evaluation.update(
@@ -199,19 +173,42 @@ class LikelihoodCriterionRules(CriterionRules):
 class LikelihoodCache(models.Model):
     criterion = models.ForeignKey(LikelihoodCriterion)
     rules = models.ForeignKey(LikelihoodCriterionRules)
-    hash = models.CharField(max_length=32, unique=True, db_index=True)
+    answer = models.PositiveIntegerField()
+    language = models.ForeignKey(LikelihoodLanguage)
+    hash = models.CharField(max_length=32, db_index=True)
     likelihood = ProbabilityField()
+    likelihood_random = ProbabilityField()
 
-    @staticmethod
-    def compute_hash(text, languages, other_languages, max_gram):
-        languages = list(map(str, languages))
-        other_languages = list(map(str, other_languages))
-        data = json.dumps(
-            {
-                "text": text,
-                "languages": languages,
-                "other_languages": other_languages,
-                "max_gram": max_gram,
-            }
-        )
-        return hashlib.md5(data.encode()).hexdigest()
+    @classmethod
+    def get(cls, answer, language, criterion, rules):
+        hash_ = hashlib.md5(
+            json.dumps(
+                {
+                    "text": answer.rationale,
+                    "language": language.language,
+                    "max_gram": rules.max_gram,
+                }
+            ).encode()
+        ).hexdigest()
+        try:
+            cache = cls.objects.get(hash=hash_)
+            likelihood = cache.likelihood
+            likelihood_random = cache.likelihood_random
+        except cls.DoesNotExist:
+            predict = create_model(
+                language.language,
+                language.n_gram_urls,
+                language.left_to_right,
+                rules.max_gram,
+            )
+            likelihood, likelihood_random = predict(answer.rationale)
+            cls.objects.create(
+                criterion=criterion,
+                rules=rules,
+                answer=answer.pk,
+                language=language,
+                hash=hash_,
+                likelihood=likelihood,
+                likelihood_random=likelihood_random,
+            )
+        return likelihood, likelihood_random

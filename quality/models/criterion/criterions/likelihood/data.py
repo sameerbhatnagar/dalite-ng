@@ -10,8 +10,6 @@ from itertools import product
 
 import requests
 
-from .utils import done_print, load_print
-
 
 def read_data(language, urls, left_to_right):
     path = os.path.join(os.path.dirname(__file__), ".data", language)
@@ -19,10 +17,8 @@ def read_data(language, urls, left_to_right):
     pkl_path = os.path.join(path, "data.pkl")
 
     if os.path.exists(pkl_path):
-        load_print("Reading pickled file for {}...".format(language))
         with open(pkl_path, "rb") as f:
             data = pickle.load(f)
-        done_print("Read pickled file for {}.".format(language))
 
     else:
         data = {
@@ -37,10 +33,8 @@ def read_data(language, urls, left_to_right):
             for gram, val in data.items()
         }
         data = {"n_grams": data, "left_to_right": left_to_right}
-        load_print("Pickling data for {}...".format(language))
         with open(pkl_path, "wb") as f:
             pickle.dump(data, f, pickle.HIGHEST_PROTOCOL)
-        done_print("Pickled data for {}.".format(language))
 
     return data
 
@@ -48,12 +42,10 @@ def read_data(language, urls, left_to_right):
 def read_gram_file(language, gram, url, path):
     path = os.path.join(path, "{}-grams.txt".format(gram))
     if os.path.exists(path):
-        load_print("Reading {}-gram file for {}...".format(gram, language))
         with open(path, "r") as f:
             f.readline()
             lines = [line.strip().split() for line in f]
             data = {line[0]: float(line[1]) for line in lines}
-        done_print("Read {}-gram file for {}.".format(gram, language))
     else:
         data = download_gram_file(language, gram, url, path)
 
@@ -61,7 +53,6 @@ def read_gram_file(language, gram, url, path):
 
 
 def download_gram_file(language, gram, url, path):
-    load_print("Downloading {}-gram file for {}...".format(gram, language))
 
     resp = requests.get(url)
     resp.raise_for_status()
@@ -93,5 +84,4 @@ def download_gram_file(language, gram, url, path):
         for n_gram, frequency in data.items():
             f.write("{}\t{}\n".format(n_gram, frequency))
 
-    done_print("Downloaded {}-gram file for {}.".format(gram, language))
     return data

@@ -3,6 +3,8 @@ from __future__ import unicode_literals
 
 import random
 import string
+from math import exp
+from operator import sub
 
 import pytest
 
@@ -42,10 +44,8 @@ def french():
 
 
 def test_create_model(english, french):
-    predict = create_model(english, french)
-    predict = create_model(french, english)
-    predict = create_model(english)
-    predict = create_model(french)
+    predict = create_model(*english)
+    predict = create_model(*french)
 
 
 def test_predict__english(english):
@@ -71,8 +71,8 @@ def test_predict__english(english):
         "lost; The old that is strong does not wither, Deep roots are not "
         "reached by the frost.",
     )
-    predict = create_model(english)
-    result = [predict(t) for t in test]
+    predict = create_model(*english)
+    result = [1 - min(1, exp(-sub(*predict(t)))) for t in test]
 
     for r in result:
         assert r >= 0.95
@@ -86,36 +86,8 @@ def test_predict__english__random(english):
         )
         for _ in range(10)
     )
-    predict = create_model(english)
-    result = [predict(t) for t in test]
-
-    for r in result:
-        assert r < 0.95
-
-
-def test_predict__english__french(english, french):
-    test = (
-        "Aujourd'hui, maman est morte. Ou peut-être hier, je ne sais pas. "
-        "J'ai reçu un télégramme de l'asile : « Mère décédée. Enterrement "
-        "demain. Sentiments distingués. » Cela ne veut rien dire. C'était "
-        "peut-être hier.",
-        "Lolita, lumière de ma vie, feu de mes reins. Mon péché, mon âme. "
-        "Lo-li-ta : le bout de la langue fait trois petits bonds le long du "
-        "palais pour venir, à trois, cogner contre les dents. Lo. Li. Ta.  "
-        "Elle était Lo le matin, Lo tout court, un mètre quarante-huit en "
-        "chaussettes, debout sur un seul pied. Elle était Lola en pantalon. "
-        "Elle était Dolly à l'école. Elle était Dolorès sur le pointillé des "
-        "formulaires. Mais dans mes bras, c'était toujours Lolita.",
-        "Me voici donc seul sur la terre, n'ayant plus de frère, de prochain, "
-        "d'ami, de société que moi-même.",
-        "J’avais vingt ans. Je ne laisserai personne dire que c’est le plus "
-        "bel âge de la vie.",
-        "Les familles heureuses se ressemblent toutes; les familles "
-        "malheureuses sont malheureuses chacune à leur façon.",
-        "Je cherchais un endroit tranquille où mourir.",
-    )
-    predict = create_model(english, french)
-    result = [predict(t) for t in test]
+    predict = create_model(*english)
+    result = [1 - min(1, exp(-sub(*predict(t)))) for t in test]
 
     for r in result:
         assert r < 0.95
@@ -142,8 +114,8 @@ def test_predict__french(french):
         "malheureuses sont malheureuses chacune à leur façon.",
         "Je cherchais un endroit tranquille où mourir.",
     )
-    predict = create_model(french)
-    result = [predict(t) for t in test]
+    predict = create_model(*french)
+    result = [1 - min(1, exp(-sub(*predict(t)))) for t in test]
 
     for r in result:
         assert r >= 0.95
@@ -157,8 +129,40 @@ def test_predict__french__random(french):
         )
         for _ in range(10)
     )
-    predict = create_model(french)
-    result = [predict(t) for t in test]
+    predict = create_model(*french)
+    result = [1 - min(1, exp(-sub(*predict(t)))) for t in test]
+
+    for r in result:
+        assert r < 0.95
+
+
+def test_predict__english__french(english, french):
+    test = (
+        "Aujourd'hui, maman est morte. Ou peut-être hier, je ne sais pas. "
+        "J'ai reçu un télégramme de l'asile : « Mère décédée. Enterrement "
+        "demain. Sentiments distingués. » Cela ne veut rien dire. C'était "
+        "peut-être hier.",
+        "Lolita, lumière de ma vie, feu de mes reins. Mon péché, mon âme. "
+        "Lo-li-ta : le bout de la langue fait trois petits bonds le long du "
+        "palais pour venir, à trois, cogner contre les dents. Lo. Li. Ta.  "
+        "Elle était Lo le matin, Lo tout court, un mètre quarante-huit en "
+        "chaussettes, debout sur un seul pied. Elle était Lola en pantalon. "
+        "Elle était Dolly à l'école. Elle était Dolorès sur le pointillé des "
+        "formulaires. Mais dans mes bras, c'était toujours Lolita.",
+        "Me voici donc seul sur la terre, n'ayant plus de frère, de prochain, "
+        "d'ami, de société que moi-même.",
+        "J’avais vingt ans. Je ne laisserai personne dire que c’est le plus "
+        "bel âge de la vie.",
+        "Les familles heureuses se ressemblent toutes; les familles "
+        "malheureuses sont malheureuses chacune à leur façon.",
+        "Je cherchais un endroit tranquille où mourir.",
+    )
+    predict_english = create_model(*english)
+    predict_french = create_model(*french)
+    result = [
+        1 - min(1, exp(predict_french(t)[0] - predict_english(t)[0]))
+        for t in test
+    ]
 
     for r in result:
         assert r < 0.95
@@ -187,8 +191,14 @@ def test_predict__french__english(french, english):
         "lost; The old that is strong does not wither, Deep roots are not "
         "reached by the frost.",
     )
-    predict = create_model(french, english)
-    result = [predict(t) for t in test]
+    predict_english = create_model(*english)
+    predict_french = create_model(*french)
+    print([predict_french(t) for t in test])
+    print([predict_english(t) for t in test])
+    result = [
+        1 - min(1, exp(predict_english(t)[0] - predict_french(t)[0]))
+        for t in test
+    ]
 
     for r in result:
         assert r < 0.95
@@ -217,7 +227,7 @@ def test_predict__english__1_gram(english):
         "lost; The old that is strong does not wither, Deep roots are not "
         "reached by the frost.",
     )
-    predict = create_model(english, max_gram=1)
-    result = [predict(t) for t in test]
+    predict = create_model(*english, max_gram=1)
+    result = [1 - min(1, exp(-sub(*predict(t)))) for t in test]
     for r in result:
         assert r >= 0.95
