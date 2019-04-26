@@ -1,6 +1,7 @@
 __all__ = [
     "Criterion",
     "CriterionRules",
+    "LikelihoodCache",
     "LikelihoodCriterion",
     "LikelihoodCriterionRules",
     "LikelihoodLanguage",
@@ -25,6 +26,7 @@ __all__ = [
 from .criterion import (
     Criterion,
     CriterionRules,
+    LikelihoodCache,
     LikelihoodCriterion,
     LikelihoodCriterionRules,
     LikelihoodLanguage,

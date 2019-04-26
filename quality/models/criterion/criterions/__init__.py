@@ -1,4 +1,5 @@
 __all__ = [
+    "LikelihoodCache",
     "LikelihoodCriterion",
     "LikelihoodCriterionRules",
     "LikelihoodLanguage",
@@ -16,6 +17,7 @@ __all__ = [
 
 
 from .likelihood import (
+    LikelihoodCache,
     LikelihoodCriterion,
     LikelihoodCriterionRules,
     LikelihoodLanguage,

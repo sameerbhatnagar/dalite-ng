@@ -64,7 +64,7 @@ class LikelihoodCriterion(Criterion):
 
         language_likelihoods = {
             language.language: LikelihoodCache.get(
-                answer, language, self, rules
+                answer, language, rules.max_gram
             )
             for language in languages
         }
@@ -171,8 +171,6 @@ class LikelihoodCriterionRules(CriterionRules):
 
 
 class LikelihoodCache(models.Model):
-    criterion = models.ForeignKey(LikelihoodCriterion)
-    rules = models.ForeignKey(LikelihoodCriterionRules)
     answer = models.PositiveIntegerField()
     language = models.ForeignKey(LikelihoodLanguage)
     hash = models.CharField(max_length=32, db_index=True)
@@ -180,13 +178,13 @@ class LikelihoodCache(models.Model):
     likelihood_random = ProbabilityField()
 
     @classmethod
-    def get(cls, answer, language, criterion, rules):
+    def get(cls, answer, language, max_gram):
         hash_ = hashlib.md5(
             json.dumps(
                 {
                     "text": answer.rationale,
                     "language": language.language,
-                    "max_gram": rules.max_gram,
+                    "max_gram": max_gram,
                 }
             ).encode()
         ).hexdigest()
@@ -199,12 +197,10 @@ class LikelihoodCache(models.Model):
                 language.language,
                 language.n_gram_urls,
                 language.left_to_right,
-                rules.max_gram,
+                max_gram,
             )
             likelihood, likelihood_random = predict(answer.rationale)
             cls.objects.create(
-                criterion=criterion,
-                rules=rules,
                 answer=answer.pk,
                 language=language,
                 hash=hash_,
