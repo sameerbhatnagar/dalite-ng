@@ -28,7 +28,7 @@ class Command(BaseCommand):
         parser.add_argument(
             "--n-students",
             type=int,
-            default=10,
+            default=24,
             help="Number of students to create",
         )
         parser.add_argument(
@@ -212,7 +212,7 @@ def answer_assignments(assignments, students):
                         question=question,
                         assignment=assignment.assignment,
                         rationale="test",
-                        first_answer_choice=1,
+                        first_answer_choice=2,
                         user_token=student.student.username,
                     )
                 for _ in range(int(ceil(float(i) - 5 * floor(float(i) / 6)))):
