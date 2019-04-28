@@ -28,7 +28,7 @@ jobs:
             . .venv/bin/activate
             pip install -r requirements/dev-requirements.txt
             yarn install
-            gulp build
+            yarn run gulp build
       - run:
           name: Safety
           command:  |
