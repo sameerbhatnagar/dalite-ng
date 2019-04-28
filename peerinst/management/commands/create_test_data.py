@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 
 from datetime import timedelta
-from math import ceil, floor
+from math import ceil
 
 from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand
@@ -40,13 +40,13 @@ class Command(BaseCommand):
         parser.add_argument(
             "--n-questions",
             type=int,
-            default=6,
+            default=8,
             help="Number of questions to create",
         )
         parser.add_argument(
             "--n-assignments",
             type=int,
-            default=2,
+            default=1,
             help="Number of assignments to create",
         )
 
@@ -162,44 +162,19 @@ def get_assignments(teacher, groups, questions, n_assignments):
 def answer_assignments(assignments, students):
     for assignment in assignments:
         for i, question in enumerate(assignment.assignment.questions.all()):
-            for student in students[
-                : int(
-                    ceil(
-                        float(i)
-                        * len(students)
-                        / assignment.assignment.questions.count()
-                    )
-                )
-                + 1
-            ]:
-                for _ in range(int(floor(float(i) / 6))):
-                    Answer.objects.get_or_create(
-                        question=question,
-                        assignment=assignment.assignment,
-                        rationale="test",
-                        first_answer_choice=1,
-                        second_answer_choice=2,
-                        user_token=student.student.username,
-                    )
-                for _ in range(int(floor(float(i) / 6))):
-                    Answer.objects.get_or_create(
-                        question=question,
-                        assignment=assignment.assignment,
-                        rationale="test",
-                        first_answer_choice=2,
-                        second_answer_choice=1,
-                        user_token=student.student.username,
-                    )
-                for _ in range(int(floor(float(i) / 6))):
-                    Answer.objects.get_or_create(
-                        question=question,
-                        assignment=assignment.assignment,
-                        rationale="test",
-                        first_answer_choice=2,
-                        second_answer_choice=2,
-                        user_token=student.student.username,
-                    )
-                for _ in range(int(floor(float(i) / 6))):
+            q = assignment.assignment.questions.count()
+            n = int(ceil(float(i + 1) * len(students) / q))
+            for j, student in enumerate(students[: n + 1]):
+                if (i + 1) % 8 == 2:
+                    if j < float(n) / 2:
+                        Answer.objects.get_or_create(
+                            question=question,
+                            assignment=assignment.assignment,
+                            rationale="test",
+                            first_answer_choice=1,
+                            user_token=student.student.username,
+                        )
+                elif (i + 1) % 8 == 3:
                     Answer.objects.get_or_create(
                         question=question,
                         assignment=assignment.assignment,
@@ -207,15 +182,99 @@ def answer_assignments(assignments, students):
                         first_answer_choice=1,
                         user_token=student.student.username,
                     )
-                for _ in range(int(floor(float(i) / 6))):
-                    Answer.objects.get_or_create(
-                        question=question,
-                        assignment=assignment.assignment,
-                        rationale="test",
-                        first_answer_choice=2,
-                        user_token=student.student.username,
-                    )
-                for _ in range(int(ceil(float(i) - 5 * floor(float(i) / 6)))):
+                elif (i + 1) % 8 == 4:
+                    if j < float(n) / 2:
+                        Answer.objects.get_or_create(
+                            question=question,
+                            assignment=assignment.assignment,
+                            rationale="test",
+                            first_answer_choice=1,
+                            user_token=student.student.username,
+                        )
+                    else:
+                        Answer.objects.get_or_create(
+                            question=question,
+                            assignment=assignment.assignment,
+                            rationale="test",
+                            first_answer_choice=2,
+                            user_token=student.student.username,
+                        )
+                elif (i + 1) % 8 == 5:
+                    if j < float(n) / 2:
+                        Answer.objects.get_or_create(
+                            question=question,
+                            assignment=assignment.assignment,
+                            rationale="test",
+                            first_answer_choice=1,
+                            second_answer_choice=1,
+                            user_token=student.student.username,
+                        )
+                    else:
+                        Answer.objects.get_or_create(
+                            question=question,
+                            assignment=assignment.assignment,
+                            rationale="test",
+                            first_answer_choice=1,
+                            second_answer_choice=2,
+                            user_token=student.student.username,
+                        )
+                elif (i + 1) % 8 == 6:
+                    if j < float(n) / 3:
+                        Answer.objects.get_or_create(
+                            question=question,
+                            assignment=assignment.assignment,
+                            rationale="test",
+                            first_answer_choice=1,
+                            second_answer_choice=1,
+                            user_token=student.student.username,
+                        )
+                    elif j < 2.0 * float(n) / 3:
+                        Answer.objects.get_or_create(
+                            question=question,
+                            assignment=assignment.assignment,
+                            rationale="test",
+                            first_answer_choice=1,
+                            second_answer_choice=2,
+                            user_token=student.student.username,
+                        )
+                    else:
+                        Answer.objects.get_or_create(
+                            question=question,
+                            assignment=assignment.assignment,
+                            rationale="test",
+                            first_answer_choice=2,
+                            second_answer_choice=2,
+                            user_token=student.student.username,
+                        )
+                elif (i + 1) % 8 == 7:
+                    if j < float(n) / 3:
+                        Answer.objects.get_or_create(
+                            question=question,
+                            assignment=assignment.assignment,
+                            rationale="test",
+                            first_answer_choice=1,
+                            second_answer_choice=1,
+                            user_token=student.student.username,
+                        )
+                    elif j < 2.0 * float(n) / 3:
+                        Answer.objects.get_or_create(
+                            question=question,
+                            assignment=assignment.assignment,
+                            rationale="test",
+                            first_answer_choice=2,
+                            second_answer_choice=2,
+                            user_token=student.student.username,
+                        )
+                    else:
+                        Answer.objects.get_or_create(
+                            question=question,
+                            assignment=assignment.assignment,
+                            rationale="test",
+                            first_answer_choice=2,
+                            second_answer_choice=2,
+                            user_token=student.student.username,
+                        )
+                else:
                     Answer.objects.get_or_create(
                         question=question,
                         assignment=assignment.assignment,
