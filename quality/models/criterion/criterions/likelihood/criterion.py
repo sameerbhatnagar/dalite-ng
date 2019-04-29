@@ -171,7 +171,7 @@ class LikelihoodCriterionRules(CriterionRules):
 
 
 class LikelihoodCache(models.Model):
-    answer = models.PositiveIntegerField()
+    answer = models.PositiveIntegerField(null=True, blank=True)
     language = models.ForeignKey(LikelihoodLanguage)
     hash = models.CharField(max_length=32, db_index=True)
     likelihood = ProbabilityField()
@@ -179,10 +179,16 @@ class LikelihoodCache(models.Model):
 
     @classmethod
     def get(cls, answer, language, max_gram):
+        if isinstance(answer, basestring):
+            answer_pk = None
+            rationale = answer
+        else:
+            answer_pk = answer.pk
+            rationale = answer.rationale
         hash_ = hashlib.md5(
             json.dumps(
                 {
-                    "text": answer.rationale,
+                    "text": rationale,
                     "language": language.language,
                     "max_gram": max_gram,
                 }
@@ -199,9 +205,9 @@ class LikelihoodCache(models.Model):
                 language.left_to_right,
                 max_gram,
             )
-            likelihood, likelihood_random = predict(answer.rationale)
+            likelihood, likelihood_random = predict(rationale)
             cls.objects.create(
-                answer=answer.pk,
+                answer=answer_pk,
                 language=language,
                 hash=hash_,
                 likelihood=likelihood,
