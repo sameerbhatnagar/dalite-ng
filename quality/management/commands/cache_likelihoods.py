@@ -4,6 +4,7 @@ from __future__ import print_function, unicode_literals
 import logging
 
 from django.core.management.base import BaseCommand
+from django.db.models.functions import Lower
 
 from peerinst.models import Answer
 from quality.models import LikelihoodCache, LikelihoodLanguage
@@ -24,21 +25,43 @@ class Command(BaseCommand):
             default=3,
             help="Maximum size of n-grams to use.",
         )
+        parser.add_argument(
+            "-d", "--discipline", type=str, help="Only cache for discipline"
+        )
 
     def handle(self, *args, **options):
-        n = Answer.objects.count() * LikelihoodLanguage.objects.count()
+        discipline = options.get("discipline")
+
+        if discipline is None:
+            answers = Answer.objects.all()
+        else:
+            answers = Answer.objects.annotate(
+                discipline_lower=Lower("question__discipline__title")
+            ).filter(discipline_lower=discipline.lower())
+
+        n = answers.count() * LikelihoodLanguage.objects.count()
+
         signs = ["⠋", "⠙", "⠴", "⠦"]
 
         progress = 0
         current = 0
         i = 0
-        for answer in Answer.objects.all().iterator():
+
+        for answer in answers.iterator():
             for language in LikelihoodLanguage.objects.all().iterator():
                 LikelihoodCache.get(answer, language, options["max_gram"])
                 progress = progress + 1.0 / n * 100
-                print(
-                    "{} ({:>6.2f}%)".format(signs[i], progress)
-                    + " Computing likelihood for all answers...",
-                    end="\r",
-                )
+                if discipline is None:
+                    print(
+                        "{} ({:>6.2f}%)".format(signs[i], progress)
+                        + " Computing likelihood for all answers...",
+                        end="\r",
+                    )
+                else:
+                    print(
+                        "{} ({:>6.2f}%)".format(signs[i], progress)
+                        + " Computing likelihood for answers in "
+                        + "discipline {}...".format(discipline),
+                        end="\r",
+                    )
                 i = (i + 1) % len(signs)
