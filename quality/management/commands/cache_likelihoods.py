@@ -2,6 +2,7 @@
 from __future__ import print_function, unicode_literals
 
 import logging
+from datetime import datetime
 
 from django.core.management.base import BaseCommand
 from django.db.models.functions import Lower
@@ -41,11 +42,8 @@ class Command(BaseCommand):
 
         n = answers.count() * LikelihoodLanguage.objects.count()
 
-        signs = ["⠋", "⠙", "⠴", "⠦"]
-
         progress = 0
         current = 0
-        i = 0
 
         for answer in answers.iterator():
             for language in LikelihoodLanguage.objects.all().iterator():
@@ -53,15 +51,12 @@ class Command(BaseCommand):
                 progress = progress + 1.0 / n * 100
                 if discipline is None:
                     print(
-                        "{} ({:>6.2f}%)".format(signs[i], progress)
-                        + " Computing likelihood for all answers...",
-                        end="\r",
+                        "{} - ({:>6.2f}%) -".format(datetime.now(), progress)
+                        + " Computing likelihood for all answers..."
                     )
                 else:
                     print(
-                        "{} ({:>6.2f}%)".format(signs[i], progress)
+                        "{} - ({:>6.2f}%) -".format(datetime.now(), progress)
                         + " Computing likelihood for answers in "
-                        + "discipline {}...".format(discipline),
-                        end="\r",
+                        + "discipline {}...".format(discipline)
                     )
-                i = (i + 1) % len(signs)
