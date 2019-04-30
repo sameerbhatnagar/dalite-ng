@@ -36,13 +36,13 @@ function toggleQualityError(data) {
   if (data) {
     const form = document.querySelector("#submit-answer-form");
 
-    let div = document.querySelector(".quality-error");
+    let div = document.querySelector(".errorlist");
     if (!div) {
       div = document.createElement("div");
     }
     clear(div);
 
-    div.classList.add("quality-error");
+    div.classList.add("errorlist");
     div.textContent = "Your rationale didn't pass the following criterions: ";
 
     const ul = document.createElement("ul");
@@ -56,7 +56,7 @@ function toggleQualityError(data) {
 
     form.parentNode.insertBefore(div, form);
   } else {
-    const err = document.querySelector("quality-error");
+    const err = document.querySelector("errorlist");
     if (err) {
       err.parentNode.removeChild(err);
     }
