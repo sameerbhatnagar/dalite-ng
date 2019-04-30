@@ -2,8 +2,9 @@ from __future__ import unicode_literals
 
 import logging
 
-from dalite.views.errors import response_400, response_403
 from django.utils.translation import ugettext_lazy as _
+
+from dalite.views.errors import response_400, response_403
 from peerinst.models import (
     Student,
     StudentGroup,
@@ -112,7 +113,9 @@ def group_access_required(fct):
 
 def teacher_required(fct):
     def wrapper(req, *args, **kwargs):
-        if not Teacher.objects.filter(user=req.user).exists():
+        try:
+            teacher = Teacher.objects.get(user=req.user)
+        except Teacher.DoesNotExist:
             return response_403(
                 req,
                 msg=_("You don't have access to this resource."),
@@ -121,7 +124,7 @@ def teacher_required(fct):
                 ),
                 log=logger.warning,
             )
-        return fct(req, *args, **kwargs)
+        return fct(req, *args, teacher=teacher, **kwargs)
 
     return wrapper
 

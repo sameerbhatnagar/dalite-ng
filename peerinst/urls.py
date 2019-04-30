@@ -602,6 +602,10 @@ def researcher_patterns():
     ]
 
 
+def reputation_patterns():
+    return [url(r"^page/$", views.reputation.page, name="page")]
+
+
 urlpatterns = sum(
     [
         old_patterns(),
@@ -609,6 +613,7 @@ urlpatterns = sum(
         student_patterns(),
         search_patterns(),
         researcher_patterns(),
+        reputation_patterns(),
     ],
     [],
 )
