@@ -59,6 +59,9 @@ class Criterion(models.Model):
     def evaluate(self, answer, rules_pk):
         raise NotImplementedError("This method has to be implemented.")
 
+    def batch_evaluate(self, answers, rules_pk):
+        raise NotImplementedError("This method has to be implemented.")
+
     def save(self, *args, **kwargs):
         """
         Saves the new criterion making sure only one exists for each criterion

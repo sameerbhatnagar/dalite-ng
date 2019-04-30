@@ -94,6 +94,57 @@ class LikelihoodCriterion(Criterion):
         )
         return evaluation
 
+    def batch_evaluate(self, answers, rules_pk):
+        rules = LikelihoodCriterionRules.objects.get(pk=rules_pk)
+
+        languages = LikelihoodLanguage.objects.all()
+        other_languages = languages.exclude(language__in=rules.languages.all())
+
+        answers = list(answers)
+
+        language_likelihoods = {
+            language.language: LikelihoodCache.batch(
+                answers, language, rules.max_gram
+            )
+            for language in languages
+        }
+
+        likelihoods = [
+            [
+                1
+                - min(
+                    1, exp(-sub(*language_likelihoods[language.language][i]))
+                )
+                for language in rules.languages.all()
+            ]
+            + [
+                1
+                - min(
+                    1,
+                    exp(
+                        language_likelihoods[other_language.language][i][0]
+                        - language_likelihoods[language.language][i][0]
+                    ),
+                )
+                for other_language in other_languages
+                for language in rules.languages.all()
+            ]
+            for i in range(len(answers))
+        ]
+
+        likelihood = [reduce(mul, l, 1) ** (1.0 / len(l)) for l in likelihoods]
+
+        evaluations = [
+            {"version": self.version, "quality": l} for l in likelihood
+        ]
+
+        for evaluation in evaluations:
+            evaluation.update(
+                {criterion: val["value"] for criterion, val in rules}
+            )
+
+        return evaluations
+
 
 class LikelihoodCriterionRules(CriterionRules):
     languages = models.ManyToManyField(
