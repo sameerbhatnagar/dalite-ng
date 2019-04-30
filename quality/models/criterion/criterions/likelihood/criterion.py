@@ -8,6 +8,7 @@ from math import exp
 from operator import mul, sub
 
 from django.db import models
+from django.db.utils import IntegrityError
 
 from quality.models.criterion.criterion import Criterion, CriterionRules
 from quality.models.custom_fields import CommaSepField, ProbabilityField
@@ -173,7 +174,7 @@ class LikelihoodCriterionRules(CriterionRules):
 class LikelihoodCache(models.Model):
     answer = models.PositiveIntegerField(null=True, blank=True)
     language = models.ForeignKey(LikelihoodLanguage)
-    hash = models.CharField(max_length=32, db_index=True)
+    hash = models.CharField(max_length=32, unique=True, db_index=True)
     likelihood = ProbabilityField()
     likelihood_random = ProbabilityField()
 
@@ -214,3 +215,61 @@ class LikelihoodCache(models.Model):
                 likelihood_random=likelihood_random,
             )
         return likelihood, likelihood_random
+
+    @classmethod
+    def batch(cls, answers, language, max_gram):
+        answers = list(answers)
+        pks = [
+            None if isinstance(answer, basestring) else answer.pk
+            for answer in answers
+        ]
+        rationales = [
+            answer if isinstance(answer, basestring) else answer.rationale
+            for answer in answers
+        ]
+        hashes = [
+            hashlib.md5(
+                json.dumps(
+                    {
+                        "text": rationale,
+                        "language": language.language,
+                        "max_gram": max_gram,
+                    }
+                ).encode()
+            ).hexdigest()
+            for rationale in rationales
+        ]
+
+        likelihoods = []
+        for hash_ in hashes:
+            try:
+                cache = cls.objects.get(hash=hash_)
+                likelihoods.append((cache.likelihood, cache.likelihood_random))
+            except cls.DoesNotExist:
+                likelihoods.append(None)
+
+        if not all(likelihoods):
+            predict = create_model(
+                language.language,
+                language.n_gram_urls,
+                language.left_to_right,
+                max_gram,
+            )
+            for (i, likelihood), pk, rationale, hash_ in zip(
+                enumerate(likelihoods), pks, rationales, hashes
+            ):
+                if likelihood is None:
+                    _likelihood, likelihood_random = predict(rationale)
+                    try:
+                        cls.objects.create(
+                            answer=pk,
+                            language=language,
+                            hash=hash_,
+                            likelihood=_likelihood,
+                            likelihood_random=likelihood_random,
+                        )
+                    except IntegrityError:
+                        pass
+                    likelihoods[i] = (_likelihood, likelihood_random)
+
+        return likelihoods

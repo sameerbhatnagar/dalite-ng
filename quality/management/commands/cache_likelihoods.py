@@ -3,6 +3,7 @@ from __future__ import print_function, unicode_literals
 
 import logging
 from datetime import datetime
+from itertools import chain, islice
 
 from django.core.management.base import BaseCommand
 from django.db.models.functions import Lower
@@ -29,9 +30,17 @@ class Command(BaseCommand):
         parser.add_argument(
             "-d", "--discipline", type=str, help="Only cache for discipline"
         )
+        parser.add_argument(
+            "-b",
+            "--batch-size",
+            type=int,
+            default=64,
+            help="Size of batches to use",
+        )
 
     def handle(self, *args, **options):
         discipline = options.get("discipline")
+        batch_size = options["batch_size"]
 
         if discipline is None:
             answers = Answer.objects.all()
@@ -45,10 +54,12 @@ class Command(BaseCommand):
         progress = 0
         current = 0
 
-        for answer in answers.iterator():
+        for answers in batch(answers.iterator(), batch_size):
             for language in LikelihoodLanguage.objects.all().iterator():
-                LikelihoodCache.get(answer, language, options["max_gram"])
-                progress = progress + 1.0 / n * 100
+                likelihoods = LikelihoodCache.batch(
+                    answers, language, options["max_gram"]
+                )
+                progress = progress + float(len(likelihoods)) / n * 100
                 if discipline is None:
                     print(
                         "{} - ({:>6.2f}%) -".format(datetime.now(), progress)
@@ -60,3 +71,10 @@ class Command(BaseCommand):
                         + " Computing likelihood for answers in "
                         + "discipline {}...".format(discipline)
                     )
+
+
+def batch(iterable, size):
+    source_iter = iter(iterable)
+    while True:
+        batch_iter = islice(source_iter, size)
+        yield chain([batch_iter.next()], batch_iter)
