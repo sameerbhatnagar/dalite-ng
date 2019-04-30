@@ -54,22 +54,23 @@ class Command(BaseCommand):
         progress = 0
         current = 0
 
-        for answers in batch(answers.iterator(), batch_size):
-            for language in LikelihoodLanguage.objects.all().iterator():
+        for language in LikelihoodLanguage.objects.all().iterator():
+            for _answers in batch(answers.iterator(), batch_size):
                 likelihoods = LikelihoodCache.batch(
-                    answers, language, options["max_gram"]
+                    _answers, language, options["max_gram"]
                 )
                 progress = progress + float(len(likelihoods)) / n * 100
                 if discipline is None:
                     print(
                         "{} - ({:>6.2f}%) -".format(datetime.now(), progress)
-                        + " Computing likelihood for all answers..."
+                        + " Computing likelihood for all answers in "
+                        + "{}...".format(language.language)
                     )
                 else:
                     print(
                         "{} - ({:>6.2f}%) -".format(datetime.now(), progress)
                         + " Computing likelihood for answers in "
-                        + "discipline {}...".format(discipline)
+                        + "discipline {} in {}...".format(discipline, language)
                     )
 
 
