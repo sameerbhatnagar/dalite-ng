@@ -99,49 +99,6 @@ class Quality(models.Model):
         ) / sum(q["weight"] for q in qualities)
         return quality, qualities
 
-    def batch_evaluate(self, answers, *args, **kwargs):
-        if not self.criterions.exists():
-            return [(None, [])]
-
-        criterions_ = [
-            {
-                "criterion": (
-                    get_criterion(c.name)["criterion"].objects.get(
-                        version=c.version
-                    )
-                ),
-                "rules": c.rules,
-                "weight": c.weight,
-            }
-            for c in self.criterions.all()
-        ]
-
-        qualities = [
-            c["criterion"].batch_evaluate(answers, c["rules"], *args, **kwargs)
-            for c in criterions_
-        ]
-        qualities = [
-            [
-                dict(
-                    chain(
-                        dict(c["criterion"]).iteritems(),
-                        {"weight": c["weight"], "quality": q}.iteritems(),
-                    )
-                )
-                for c, q in zip(criterions_, quality)
-            ]
-            for quality in zip(*qualities)
-        ]
-
-        quality = [
-            float(
-                sum(q["quality"]["quality"] * q["weight"] for q in _qualities)
-            )
-            / sum(q["weight"] for q in _qualities)
-            for _qualities in qualities
-        ]
-        return [(q, qq) for q, qq in zip(quality, qualities)]
-
     def add_criterion(self, name):
         """
         Adds the given criterion with latest version and default rules to the

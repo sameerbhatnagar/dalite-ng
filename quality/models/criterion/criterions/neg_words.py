@@ -52,35 +52,6 @@ class NegWordsCriterion(Criterion):
         )
         return evaluation
 
-    def batch_evaluate(self, answers, rules_pk):
-        rules = NegWordsCriterionRules.objects.get(pk=rules_pk)
-
-        answers = [
-            (
-                answer if isinstance(answer, basestring) else answer.rationale
-            ).split()
-            for answer in answers
-        ]
-
-        evaluations = [
-            {
-                "version": self.version,
-                "quality": 1
-                - sum(
-                    1.0 for word in answer if word.lower() in rules.neg_words
-                )
-                / (len(answer) + 1e-16),
-            }
-            for answer in answers
-        ]
-
-        for evaluation in evaluations:
-            evaluation.update(
-                {criterion: val["value"] for criterion, val in rules}
-            )
-
-        return evaluations
-
 
 class NegWordsCriterionRules(CriterionRules):
     neg_words = CommaSepField(
