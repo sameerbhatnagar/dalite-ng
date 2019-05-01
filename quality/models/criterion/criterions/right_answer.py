@@ -56,6 +56,9 @@ class RightAnswerCriterion(Criterion):
         )
         return evaluation
 
+    def batch_evaluate(self, answers, rules_pk):
+        return [self.evaluate(answer, rules_pk) for answer in answers]
+
 
 class RightAnswerCriterionRules(CriterionRules):
     only_last = models.BooleanField(

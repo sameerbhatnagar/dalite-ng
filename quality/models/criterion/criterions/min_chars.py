@@ -45,6 +45,33 @@ class MinCharsCriterion(Criterion):
         )
         return evaluation
 
+    def batch_evaluate(self, answers, rules_pk):
+        rules = MinCharsCriterionRules.objects.get(pk=rules_pk)
+
+        evaluations = [
+            {
+                "version": self.version,
+                "quality": float(
+                    len(
+                        (
+                            answer
+                            if isinstance(answer, basestring)
+                            else answer.rationale
+                        ).replace(" ", "")
+                    )
+                    >= rules.min_chars
+                ),
+            }
+            for answer in answers
+        ]
+
+        for evaluation in evaluations:
+            evaluation.update(
+                {criterion: val["value"] for criterion, val in rules}
+            )
+
+        return evaluations
+
 
 class MinCharsCriterionRules(CriterionRules):
     min_chars = models.PositiveIntegerField(

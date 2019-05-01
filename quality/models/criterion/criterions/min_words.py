@@ -45,6 +45,33 @@ class MinWordsCriterion(Criterion):
         )
         return evaluation
 
+    def batch_evaluate(self, answers, rules_pk):
+        rules = MinWordsCriterionRules.objects.get(pk=rules_pk)
+
+        evaluations = [
+            {
+                "version": self.version,
+                "quality": float(
+                    len(
+                        (
+                            answer
+                            if isinstance(answer, basestring)
+                            else answer.rationale
+                        ).split()
+                    )
+                    >= rules.min_chars
+                ),
+            }
+            for answer in answers
+        ]
+
+        for evaluation in evaluations:
+            evaluation.update(
+                {criterion: val["value"] for criterion, val in rules}
+            )
+
+        return evaluations
+
 
 class MinWordsCriterionRules(CriterionRules):
     min_words = models.PositiveIntegerField(

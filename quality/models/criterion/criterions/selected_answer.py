@@ -59,6 +59,9 @@ class SelectedAnswerCriterion(Criterion):
         )
         return evaluation
 
+    def batch_evaluate(self, answers, rules_pk):
+        return [self.evaluate(answer, rules_pk) for answer in answers]
+
 
 class SelectedAnswerCriterionRules(CriterionRules):
     default_if_never_shown = ProbabilityField(
