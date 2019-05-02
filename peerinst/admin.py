@@ -316,6 +316,8 @@ class StudentGroupAssignmentAdmin(admin.ModelAdmin):
         "group__title",
         "group__teacher__user__username",
     ]
+    list_filter = (("question_id"), ("timestamp", admin.DateFieldListFilter))
+    readonly_fields = ("order",)
 
 
 @admin.register(StudentAssignment)
