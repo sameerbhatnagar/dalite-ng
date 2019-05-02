@@ -59,7 +59,7 @@ class MinWordsCriterion(Criterion):
                             else answer.rationale
                         ).split()
                     )
-                    >= rules.min_chars
+                    >= rules.min_words
                 ),
             }
             for answer in answers

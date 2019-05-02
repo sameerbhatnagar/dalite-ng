@@ -55,6 +55,21 @@ def test_evaluate():
 
 
 @pytest.mark.filterwarnings("ignore::RuntimeWarning")
+def test_batch_evaluate():
+    class FakeCriterion(Criterion):
+        name = models.CharField(max_length=32, default="fake", editable=False)
+
+        class Meta:
+            app_label = "quality"
+
+    with mixer.ctx(commit=False):
+        fake_criterion = mixer.blend(FakeCriterion)
+
+        with pytest.raises(NotImplementedError):
+            fake_criterion.batch_evaluate(None, None)
+
+
+@pytest.mark.filterwarnings("ignore::RuntimeWarning")
 def test_save():
     class FakeCriterion(Criterion):
         class Meta:

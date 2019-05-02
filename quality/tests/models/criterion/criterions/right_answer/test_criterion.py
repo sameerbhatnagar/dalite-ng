@@ -257,6 +257,215 @@ def test_evaluate__wrong_argument(
         )
 
 
+def test_batch_evaluate__all_batch_evaluated__right_first_and_second__multiple_choice(  # noqa
+    right_answer_criterion, right_answer_rules, answers
+):
+    for answer in answers:
+        answer.first_answer_choice = 1
+        answer.second_answer_choice = 1
+        answer.save()
+
+    right_answer_rules.only_last = False
+    right_answer_rules.save()
+
+    for quality in right_answer_criterion.batch_evaluate(
+        answers, right_answer_rules.pk
+    ):
+        assert quality["quality"] == 1
+
+
+def test_batch_evaluate__all_batch_evaluated__right_first_wrong_second__multiple_choice(  # noqa
+    right_answer_criterion, right_answer_rules, answers
+):
+    for answer in answers:
+        answer.first_answer_choice = 1
+        answer.second_answer_choice = 2
+        answer.save()
+
+    right_answer_rules.only_last = False
+    right_answer_rules.save()
+
+    for quality in right_answer_criterion.batch_evaluate(
+        answers, right_answer_rules.pk
+    ):
+        assert quality["quality"] == 0.5
+
+
+def test_batch_evaluate__all_batch_evaluated__wrong_first_right_second__multiple_choice(  # noqa
+    right_answer_criterion, right_answer_rules, answers
+):
+    for answer in answers:
+        answer.first_answer_choice = 2
+        answer.second_answer_choice = 1
+        answer.save()
+
+    right_answer_rules.only_last = False
+    right_answer_rules.save()
+
+    for quality in right_answer_criterion.batch_evaluate(
+        answers, right_answer_rules.pk
+    ):
+        assert quality["quality"] == 0.5
+
+
+def test_batch_evaluate__all_batch_evaluated__wrong_first_and_second__multiple_choice(  # noqa
+    right_answer_criterion, right_answer_rules, answers
+):
+    for answer in answers:
+        answer.first_answer_choice = 2
+        answer.second_answer_choice = 2
+        answer.save()
+
+    right_answer_rules.only_last = False
+    right_answer_rules.save()
+
+    for quality in right_answer_criterion.batch_evaluate(
+        answers, right_answer_rules.pk
+    ):
+        assert quality["quality"] == 0
+
+
+def test_batch_evaluate__only_last__right_first_and_second__multiple_choice(
+    right_answer_criterion, right_answer_rules, answers
+):
+    for answer in answers:
+        answer.first_answer_choice = 1
+        answer.second_answer_choice = 1
+        answer.save()
+
+    right_answer_rules.only_last = True
+    right_answer_rules.save()
+
+    for quality in right_answer_criterion.batch_evaluate(
+        answers, right_answer_rules.pk
+    ):
+        assert quality["quality"] == 1
+
+
+def test_batch_evaluate__only_last__right_first_wrong_second__multiple_choice(
+    right_answer_criterion, right_answer_rules, answers
+):
+    for answer in answers:
+        answer.first_answer_choice = 1
+        answer.second_answer_choice = 2
+        answer.save()
+
+    right_answer_rules.only_last = True
+    right_answer_rules.save()
+
+    for quality in right_answer_criterion.batch_evaluate(
+        answers, right_answer_rules.pk
+    ):
+        assert quality["quality"] == 0
+
+
+def test_batch_evaluate__only_last__wrong_first_right_second__multiple_choice(
+    right_answer_criterion, right_answer_rules, answers
+):
+    for answer in answers:
+        answer.first_answer_choice = 2
+        answer.second_answer_choice = 1
+        answer.save()
+
+    right_answer_rules.only_last = True
+    right_answer_rules.save()
+
+    for quality in right_answer_criterion.batch_evaluate(
+        answers, right_answer_rules.pk
+    ):
+        assert quality["quality"] == 1
+
+
+def test_batch_evaluate__only_last__wrong_first_and_second__multiple_choice(
+    right_answer_criterion, right_answer_rules, answers
+):
+    for answer in answers:
+        answer.first_answer_choice = 2
+        answer.second_answer_choice = 2
+        answer.save()
+
+    right_answer_rules.only_last = True
+    right_answer_rules.save()
+
+    for quality in right_answer_criterion.batch_evaluate(
+        answers, right_answer_rules.pk
+    ):
+        assert quality["quality"] == 0
+
+
+def test_batch_evaluate__default__right_first_and_second__multiple_choice(
+    right_answer_criterion, answers
+):
+    for answer in answers:
+        answer.first_answer_choice = 1
+        answer.second_answer_choice = 1
+        answer.save()
+
+    right_answer_rules = RightAnswerCriterionRules.get_or_create()
+
+    for quality in right_answer_criterion.batch_evaluate(
+        answers, right_answer_rules.pk
+    ):
+        assert quality["quality"] == 1
+
+
+def test_batch_evaluate__default__right_first_wrong_second__multiple_choice(
+    right_answer_criterion, answers
+):
+    for answer in answers:
+        answer.first_answer_choice = 1
+        answer.second_answer_choice = 2
+        answer.save()
+
+    right_answer_rules = RightAnswerCriterionRules.get_or_create()
+
+    for quality in right_answer_criterion.batch_evaluate(
+        answers, right_answer_rules.pk
+    ):
+        assert quality["quality"] == 0.5
+
+
+def test_batch_evaluate__default__wrong_first_right_second__multiple_choice(
+    right_answer_criterion, answers
+):
+    for answer in answers:
+        answer.first_answer_choice = 2
+        answer.second_answer_choice = 1
+        answer.save()
+
+    right_answer_rules = RightAnswerCriterionRules.get_or_create()
+
+    for quality in right_answer_criterion.batch_evaluate(
+        answers, right_answer_rules.pk
+    ):
+        assert quality["quality"] == 0.5
+
+
+def test_batch_evaluate__default__wrong_first_and_second__multiple_choice(
+    right_answer_criterion, answers
+):
+    for answer in answers:
+        answer.first_answer_choice = 2
+        answer.second_answer_choice = 2
+        answer.save()
+
+    right_answer_rules = RightAnswerCriterionRules.get_or_create()
+
+    for quality in right_answer_criterion.batch_evaluate(
+        answers, right_answer_rules.pk
+    ):
+        assert quality["quality"] == 0
+
+
+def test_batch_evaluate__wrong_argument(
+    right_answer_criterion, right_answer_rules, answers
+):
+    with pytest.raises(ValueError):
+        right_answer_criterion.batch_evaluate(
+            [answer.rationale for answer in answers], right_answer_rules.pk
+        )
+
+
 def test_rules(right_answer_criterion):
     right_answer_criterion.uses_rules = []
     right_answer_criterion.save()
