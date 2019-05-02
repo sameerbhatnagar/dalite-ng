@@ -258,7 +258,10 @@ class Quality(models.Model):
             criterion["criterion"].info()
             for criterion in criterions.values()
             if criterion["criterion"]
-            .objects.filter(for_quality_types=self.quality_type)
+            .objects.filter(
+                for_quality_types=self.quality_type,
+                for_quality_use_types=self.quality_use_type,
+            )
             .exists()
         ]
 

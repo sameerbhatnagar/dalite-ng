@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 from django.db import models
 
 from quality.models.custom_fields import ProbabilityField
-from quality.models.quality_type import QualityType
+from quality.models.quality_type import QualityType, QualityUseType
 
 from ..criterion import Criterion, CriterionRules
 
@@ -34,6 +34,9 @@ class SelectedAnswerCriterion(Criterion):
             QualityType.objects.get(type="studentgroup"),
             QualityType.objects.get(type="teacher"),
             QualityType.objects.get(type="global"),
+        )
+        criterion.for_quality_use_types.add(
+            QualityUseType.objects.get(type="evaluation")
         )
         criterion.save()
         return criterion
