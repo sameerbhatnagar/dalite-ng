@@ -316,7 +316,6 @@ class StudentGroupAssignmentAdmin(admin.ModelAdmin):
         "group__title",
         "group__teacher__user__username",
     ]
-    readonly_fields = ("order",)
 
 
 @admin.register(StudentAssignment)

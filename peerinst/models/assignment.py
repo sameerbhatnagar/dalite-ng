@@ -74,7 +74,7 @@ class StudentGroupAssignment(models.Model):
             "completing the question."
         ),
     )
-    order = models.TextField(blank=True, editable=False)
+    order = models.TextField(blank=True, editable=True)
     reminder_days = models.PositiveIntegerField(default=3)
 
     @staticmethod
