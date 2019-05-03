@@ -20,7 +20,6 @@ function initModel(data) {
       nCorrect: question.n_correct,
     })),
   };
-  console.log(model);
 }
 
 /**********/
