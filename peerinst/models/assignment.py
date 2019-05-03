@@ -76,7 +76,7 @@ class StudentGroupAssignment(models.Model):
             "completing the question."
         ),
     )
-    order = models.TextField(blank=True, editable=False)
+    order = models.TextField(blank=True, editable=True)
     reminder_days = models.PositiveIntegerField(default=3)
     quality = models.ForeignKey(
         Quality, blank=True, null=True, on_delete=models.SET_NULL
@@ -377,6 +377,9 @@ class StudentGroupAssignment(models.Model):
     @property
     def questions(self):
         questions_ = self.assignment.questions.all()
+        if not self.order:
+            self.order = ",".join(map(str, range(len(questions_))))
+            self.save()
         if questions_:
             questions_ = [
                 questions_[i] for i in map(int, self.order.split(","))
