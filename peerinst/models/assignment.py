@@ -372,6 +372,9 @@ class StudentGroupAssignment(models.Model):
     @property
     def questions(self):
         questions_ = self.assignment.questions.all()
+        if not self.order:
+            self.order = ",".join(map(str, range(len(questions_))))
+            self.save()
         if questions_:
             questions_ = [
                 questions_[i] for i in map(int, self.order.split(","))
