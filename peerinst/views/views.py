@@ -64,9 +64,9 @@ from ..mixins import (
     student_check,
     teacher_tos_accepted_check,
 )
+from ..models import AnswerChoice  # LtiEvent,
 from ..models import (
     Answer,
-    AnswerChoice,  # LtiEvent,
     Assignment,
     BlinkAnswer,
     BlinkAssignment,
@@ -894,6 +894,7 @@ class QuestionMixin(object):
                     "assignment_expired"
                 )
             )
+            context.update(quality=self.request.session.get("quality"))
 
         return context
 

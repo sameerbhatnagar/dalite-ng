@@ -29,11 +29,17 @@ the "algorithms" dictionary at the end of this file.
 """
 from __future__ import unicode_literals
 
-from django.db.models import Count, Max
-from django.db.models.functions import Length
-from django.utils.translation import ugettext_lazy as _, ugettext
+from itertools import chain
 
+from django.conf import settings
+from django.db.models import Count, Max
+from django.utils.translation import ugettext
+from django.utils.translation import ugettext_lazy as _
+
+from quality.models import Quality
 from tos.models import Consent
+
+from .utils import batch
 
 
 class RationaleSelectionError(Exception):
@@ -65,12 +71,33 @@ def _base_selection_algorithm(
         .filter(accepted=False)
         .values_list("user__username")
     )
-    all_rationales = (
-        models.Answer.objects.filter(question=question, show_to_others=True)
-        .exclude(user_token__in=usernames_to_exclude)
-        .annotate(num_chars=Length("rationale"))
-        .filter(num_chars__gte=4)
-    )
+    all_rationales = models.Answer.objects.filter(
+        question=question, show_to_others=True
+    ).exclude(user_token__in=usernames_to_exclude)
+
+    try:
+        quality = Quality.objects.get(
+            quality_type__type="global", quality_use_type__type="validation"
+        )
+        batch_size = getattr(settings, "BATCH_SIZE", 128)
+        qualities = chain(
+            *(
+                quality.batch_evaluate(answers)
+                for answers in batch(all_rationales.iterator(), batch_size)
+            )
+        )
+        kept_answers = [
+            answer.pk
+            for answer, q in zip(all_rationales.iterator(), qualities)
+            if all(
+                c["quality"]["quality"] >= c["quality"]["threshold"]
+                for c in q[1]
+            )
+        ]
+        all_rationales = all_rationales.filter(pk__in=kept_answers)
+    except Quality.DoesNotExist:
+        pass
+
     # Select a second answer to offer at random.
     # If the user's answer wasn't correct, the
     # second answer choice offered must be correct.

@@ -18,22 +18,30 @@ const { uglify } = require("rollup-plugin-uglify");
 const styleBuilds = [
   {
     app: "peerinst",
-    modules: ["group", "student"],
+    modules: ["group", "student", "question"],
   },
   {
     app: "tos",
     modules: ["styles"],
+  },
+  {
+    app: "quality",
+    modules: ["edit"],
   },
 ];
 
 const scriptBuilds = [
   {
     app: "peerinst",
-    modules: ["group", "student", "ajax", "search", "index"],
+    modules: ["group", "student", "ajax", "search", "index", "question"],
   },
   {
     app: "tos",
     modules: ["tos", "email"],
+  },
+  {
+    app: "quality",
+    modules: ["edit"],
   },
 ];
 

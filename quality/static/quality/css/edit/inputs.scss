@@ -1,0 +1,52 @@
+@import "../../../../../peerinst/static/peerinst/css/variables";
+
+.boolean-input {
+  height: 24px;
+  justify-self: center;
+  position: relative;
+  width: 24px;
+
+  & .boolean-input--input {
+    border-radius: 15px;
+    cursor: pointer;
+    height: 100%;
+    left: 0;
+    opacity: 0;
+    position: absolute;
+    top: 0;
+    width: 100%;
+    z-index: 2;
+
+    &:checked ~ .boolean-input--background {
+      border: 2px solid $mdc-theme-primary;
+    }
+
+    &:checked ~ .boolean-input--mark {
+      transform: scale(1, 1);
+    }
+  }
+
+  & .boolean-input--background {
+    background: #ffffff;
+    border: 2px solid #ffffff;
+    border-radius: calc(100% / 2);
+    height: calc(100% - 4px);
+    left: 0;
+    position: absolute;
+    top: 0;
+    width: calc(100% - 4px);
+  }
+
+  & .boolean-input--mark {
+    background: $mdc-theme-primary;
+    border-radius: calc(100% / 2);
+    height: calc(100% / 2);
+    left: calc(100% / 4);
+    position: absolute;
+    top: calc(100% / 4);
+    transform: scale(0, 0);
+    transition: 100ms;
+    width: calc(100% / 2);
+    z-index: 1;
+  }
+}

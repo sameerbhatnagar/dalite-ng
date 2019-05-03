@@ -6,7 +6,7 @@ from django.contrib.auth.models import Group, Permission, User
 from django.core import mail
 from django.core.urlresolvers import reverse
 from django.test import TestCase, TransactionTestCase
-
+from quality.models import UsesCriterion
 from tos.models import Consent, Role, Tos
 
 from ..models import Assignment, Discipline, Question, Teacher
@@ -532,6 +532,9 @@ class TeacherTest(TestCase):
             .answer_set.filter(user_token__exact="")
             .count()
         )
+        UsesCriterion.objects.filter(
+            quality__quality_type__type="global"
+        ).delete()
         response = self.client.post(
             reverse("sample-answer-form", kwargs={"question_id": 29}),
             {

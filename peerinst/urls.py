@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from operator import add
-
 # Backport of django 1.9 password validation
 import password_validation.views as password_views
 from django.conf.urls import include, url
@@ -604,8 +602,7 @@ def researcher_patterns():
     ]
 
 
-urlpatterns = reduce(
-    add,
+urlpatterns = sum(
     [
         old_patterns(),
         group_patterns(),
@@ -613,4 +610,5 @@ urlpatterns = reduce(
         search_patterns(),
         researcher_patterns(),
     ],
+    [],
 )

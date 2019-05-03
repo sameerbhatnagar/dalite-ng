@@ -1,0 +1,16 @@
+.errorlist {
+  // border: 2px solid #b30000;
+  // border-radius: 5px;
+  // display: inline-block;
+  // padding: 5px 10px;
+
+  & ul {
+    list-style: square;
+    margin: 5px 0;
+
+    & li {
+      cursor: default;
+      text-decoration: underline;
+    }
+  }
+}

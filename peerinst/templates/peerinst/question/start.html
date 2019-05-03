@@ -1,4 +1,4 @@
-{% extends user.student|yesno:'peerinst/student/base.html,peerinst/base.html' %}
+{% extends 'peerinst/question/base.html' %}
 
 {% load add_class i18n %}
 
@@ -61,6 +61,9 @@
         {% if form.errors.first_answer_choice %}
           {{ form.errors.first_answer_choice }}
         {% endif %}
+        {% for error in form.non_field_errors %}
+          {{ error|safe }}
+        {% endfor %}
       {% block form %}
       <form id="submit-answer-form" method="post">
         {% csrf_token %}
@@ -95,7 +98,15 @@
         {% endblock %}
         {% if lti or not assignment_expired %}
         <div>
-          <input id="answer-form" class="mdc-button mdc-button--raised padded-top" onclick="this.form.submit();if (this.form.reportValidity()){this.disabled=true;}" type="submit" value="{% block submit_button %}{% trans 'Next' %}{% endblock %}" />
+          <input id="answer-form"
+                 class="mdc-button mdc-button--raised padded-top"
+                 onclick="question.validateFormSubmit(
+                  event,
+                  '{% url 'quality:validate' %}',
+                  {{ quality|default_if_none:'null' }}
+                 )"
+                 type="submit"
+                 value="{% block submit_button %}{% trans 'Next' %}{% endblock %}" />
         </div>
         {% endif %}
       </form>

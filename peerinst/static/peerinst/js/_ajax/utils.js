@@ -1,5 +1,3 @@
-"use strict";
-
 export function getCsrfToken() {
   const name = "csrftoken";
   if (document.cookie && document.cookie !== "") {

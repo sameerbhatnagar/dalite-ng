@@ -23,7 +23,6 @@ jobs:
           name: Build
           command: |
             sudo pip2 install virtualenv
-            sudo yarn global add gulp
             virtualenv .venv
             . .venv/bin/activate
             pip install -r requirements/dev-requirements.txt
