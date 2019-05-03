@@ -374,8 +374,8 @@ function addToggleStudentProgressListener() {
 /********/
 
 export function initStudentProgress(url) {
-  initListeners();
   view();
+  initListeners();
   const req = buildReq(null, "get");
   fetch(url, req)
     .then(resp => resp.json())
