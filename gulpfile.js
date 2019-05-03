@@ -12,6 +12,7 @@ const resolve = require("rollup-plugin-node-resolve");
 const sass = require("gulp-sass");
 const source = require("vinyl-source-stream");
 const sourcemaps = require("gulp-sourcemaps");
+const svgSprite = require("gulp-svg-sprite");
 const { eslint } = require("rollup-plugin-eslint");
 const { uglify } = require("rollup-plugin-uglify");
 
@@ -284,6 +285,25 @@ function scriptsPeerinstPinax() {
   return build;
 }
 
+function icons() {
+  return gulp
+    .src("./peerinst/static/peerinst/icons/*.svg")
+    .pipe(
+      svgSprite({
+        mode: {
+          symbol: {
+            inline: true,
+          },
+        },
+        svg: {
+          namespaceIDs: false,
+        },
+      }),
+    )
+    .pipe(rename("icons.svg"))
+    .pipe(gulp.dest("./peerinst/static/peerinst/"));
+}
+
 function watch() {
   gulp.watch("./peerinst/static/peerinst/css/*.scss", stylesPeerinstMain);
   gulp.watch("./peerinst/static/pinax/forums/css/*.scss", stylesPeerinstPinax);
@@ -303,6 +323,7 @@ function watch() {
     ),
     () => buildScript("peerinst", "index"),
   );
+  gulp.watch("./peerinst/static/peerinst/icons/*.svg", icons);
 }
 
 const styles = gulp.parallel(
@@ -320,9 +341,10 @@ const scripts = gulp.parallel(
   ),
 );
 
-const build = gulp.parallel(styles, scripts);
+const build = gulp.parallel(styles, scripts, icons);
 
 exports.build = build;
 exports.watch = watch;
 exports.styles = styles;
 exports.scripts = scripts;
+exports.icons = icons;

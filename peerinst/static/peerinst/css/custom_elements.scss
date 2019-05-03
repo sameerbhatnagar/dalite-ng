@@ -1,3 +1,5 @@
+@import "variables";
+
 .foldable {
   & > .foldable--title {
     cursor: pointer;
@@ -86,5 +88,28 @@
   & .switch-button__input:checked ~ .switch-button__button {
     background: #339966;
     left: 50%;
+  }
+}
+
+.loading-icon {
+  animation-duration: 3s;
+  animation-iteration-count: infinite;
+  animation-name: rotate;
+  animation-timing-function: linear;
+  fill: none;
+  height: 24px;
+  stroke: $mdc-theme-primary;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2;
+  width: 24px;
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
   }
 }
