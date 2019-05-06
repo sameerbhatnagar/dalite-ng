@@ -4,17 +4,21 @@ function limitFileSize() {
   pdfForm.setAttribute("accept", ".pdf");
   pdfForm.onchange = function() {
     const fileSize = pdfForm.files[0].size;
-    if (fileSize > 1000000) {
-      window.alert("File too big: "+fileSize/1000+"kB");
+    if (fileSize > 2000000) {
+      window.alert("File too big: " + fileSize / 1000 + "kB");
       warning.style.display = "inline";
-      $(".mdc-button").each(/* @this */ function() {
-        $(this).attr("disabled", true);
-      });
+      $(".mdc-button").each(
+        /* @this */ function() {
+          $(this).attr("disabled", true);
+        },
+      );
     } else {
       warning.style.display = "none";
-      $(".mdc-button").each(/* @this */ function() {
-        $(this).attr("disabled", false);
-      });
+      $(".mdc-button").each(
+        /* @this */ function() {
+          $(this).attr("disabled", false);
+        },
+      );
     }
     return;
   };
