@@ -114,6 +114,93 @@ def test_evaluate__different_weights(assignment_validation_quality):
             assert q["weight"] == i + 1
 
 
+def test_batch_evaluate__no_criterions(assignment_validation_quality):
+    answers = [mock.Mock() for _ in range(3)]
+
+    qualities = assignment_validation_quality.batch_evaluate(answers)
+    for (quality, _qualities) in qualities:
+        assert quality is None
+        assert _qualities == []
+
+
+def test_batch_evaluate__all_equal(assignment_validation_quality):
+    answers = [mock.Mock() for _ in range(3)]
+
+    for i in range(3):
+        UsesCriterion.objects.create(
+            quality=assignment_validation_quality,
+            name="fake_{}".format(i + 1),
+            version=0,
+            rules=0,
+            weight=1,
+        )
+
+    with mock.patch("quality.models.quality.get_criterion") as get_criterion:
+
+        criterion_class = mock.Mock()
+        get_criterion.return_value = {
+            "criterion": criterion_class,
+            "rules": mock.Mock(),
+        }
+
+        criterion = mock.MagicMock()
+        criterion.__iter__.side_effect = {}.__iter__
+        evaluations = (
+            [{"quality": i + 1, "threshold": 1} for _ in range(len(answers))]
+            for i in range(3)
+        )
+        criterion.batch_evaluate = lambda answer, rules: next(evaluations)
+
+        criterion_class.objects.get.return_value = criterion
+
+        qualities = assignment_validation_quality.batch_evaluate(answers)
+
+        for (quality, _qualities) in qualities:
+            assert quality == (1.0 + 2 + 3) / 3
+            for i, q in enumerate(_qualities):
+                assert q["quality"]["quality"] == i + 1
+                assert q["weight"] == 1
+
+
+def test_batch_evaluate__different_weights(assignment_validation_quality):
+    answers = [mock.Mock() for _ in range(3)]
+
+    for i in range(3):
+        UsesCriterion.objects.create(
+            quality=assignment_validation_quality,
+            name="fake_{}".format(i + 1),
+            version=0,
+            rules=0,
+            weight=i + 1,
+        )
+
+    with mock.patch("quality.models.quality.get_criterion") as get_criterion:
+
+        criterion_class = mock.Mock()
+        get_criterion.return_value = {
+            "criterion": criterion_class,
+            "rules": mock.Mock(),
+        }
+
+        criterion = mock.MagicMock()
+        criterion.__iter__.side_effect = {}.__iter__
+        evaluations = (
+            [{"quality": i + 1, "threshold": 1} for _ in range(len(answers))]
+            for i in range(3)
+        )
+        criterion.batch_evaluate = lambda answer, rules: next(evaluations)
+
+        criterion_class.objects.get.return_value = criterion
+
+        qualities = assignment_validation_quality.batch_evaluate(answers)
+
+        for (quality, _qualities) in qualities:
+            assert quality == ((1.0 * 1 + 2 * 2 + 3 * 3) / (1 + 2 + 3))
+            for i, q in enumerate(_qualities):
+                assert q["quality"]["quality"] == i + 1
+                assert q["weight"] == i + 1
+
+
 def test_add_criterion(assignment_validation_quality):
 
     with mock.patch(

@@ -66,6 +66,67 @@ def test_evaluate__default(min_words_criterion, answers):
     assert min_words_criterion.evaluate(answer, min_words_rules.pk)["quality"]
 
 
+def test_batch_evaluate__less_than_min(
+    min_words_criterion, min_words_rules, answers
+):
+    for answer in answers:
+        answer.rationale = ". ."
+        answer.save()
+
+    min_words_rules.min_words = 3
+    min_words_rules.save()
+
+    for quality in min_words_criterion.batch_evaluate(
+        answers, min_words_rules.pk
+    ):
+        assert not quality["quality"]
+
+
+def test_batch_evaluate__more_than_min(
+    min_words_criterion, min_words_rules, answers
+):
+    for answer in answers:
+        answer.rationale = ". . . ."
+        answer.save()
+
+    min_words_rules.min_words = 3
+    min_words_rules.save()
+
+    for quality in min_words_criterion.batch_evaluate(
+        answers, min_words_rules.pk
+    ):
+        assert quality["quality"]
+
+
+def test_batch_evaluate__same_than_min(
+    min_words_criterion, min_words_rules, answers
+):
+    for answer in answers:
+        answer.rationale = ". . ."
+        answer.save()
+
+    min_words_rules.min_words = 3
+    min_words_rules.save()
+
+    for quality in min_words_criterion.batch_evaluate(
+        answers, min_words_rules.pk
+    ):
+        assert quality["quality"]
+
+
+def test_batch_evaluate__default(min_words_criterion, answers):
+    for answer in answers:
+        answer.rationale = ""
+        answer.save()
+
+    min_words_rules = MinWordsCriterionRules.get_or_create()
+
+    for quality in min_words_criterion.batch_evaluate(
+        answers, min_words_rules.pk
+    ):
+        assert quality["quality"]
+
+
 def test_rules(min_words_criterion):
     min_words_criterion.uses_rules = ["a", "b", "c", "d"]
     min_words_criterion.save()

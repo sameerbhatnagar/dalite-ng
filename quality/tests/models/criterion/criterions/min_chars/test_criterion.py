@@ -66,6 +66,67 @@ def test_evaluate__default(min_chars_criterion, answers):
     assert min_chars_criterion.evaluate(answer, min_chars_rules.pk)["quality"]
 
 
+def test_batch_evaluate__less_than_min(
+    min_chars_criterion, min_chars_rules, answers
+):
+    for answer in answers:
+        answer.rationale = ".."
+        answer.save()
+
+    min_chars_rules.min_chars = 3
+    min_chars_rules.save()
+
+    for quality in min_chars_criterion.batch_evaluate(
+        answers, min_chars_rules.pk
+    ):
+        assert not quality["quality"]
+
+
+def test_batch_evaluate__more_than_min(
+    min_chars_criterion, min_chars_rules, answers
+):
+    for answer in answers:
+        answer.rationale = "...."
+        answer.save()
+
+    min_chars_rules.min_chars = 3
+    min_chars_rules.save()
+
+    for quality in min_chars_criterion.batch_evaluate(
+        answers, min_chars_rules.pk
+    ):
+        assert quality["quality"]
+
+
+def test_batch_evaluate__same_than_min(
+    min_chars_criterion, min_chars_rules, answers
+):
+    for answer in answers:
+        answer.rationale = "..."
+        answer.save()
+
+    min_chars_rules.min_chars = 3
+    min_chars_rules.save()
+
+    for quality in min_chars_criterion.batch_evaluate(
+        answers, min_chars_rules.pk
+    ):
+        assert quality["quality"]
+
+
+def test_batch_evaluate__default(min_chars_criterion, answers):
+    for answer in answers:
+        answer.rationale = ""
+        answer.save()
+
+    min_chars_rules = MinCharsCriterionRules.get_or_create()
+
+    for quality in min_chars_criterion.batch_evaluate(
+        answers, min_chars_rules.pk
+    ):
+        assert quality["quality"]
+
+
 def test_rules(min_chars_criterion):
     min_chars_criterion.uses_rules = ["a", "b", "c", "d"]
     min_chars_criterion.save()

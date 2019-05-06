@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 from django.db import models
 
-from quality.models.quality_type import QualityType
+from quality.models.quality_type import QualityType, QualityUseType
 
 from ..criterion import Criterion, CriterionRules
 
@@ -33,6 +33,9 @@ class RightAnswerCriterion(Criterion):
             QualityType.objects.get(type="teacher"),
             QualityType.objects.get(type="global"),
         )
+        criterion.for_quality_use_types.add(
+            QualityUseType.objects.get(type="evaluation")
+        )
         criterion.save()
         return criterion
 
@@ -55,6 +58,9 @@ class RightAnswerCriterion(Criterion):
             {criterion: val["value"] for criterion, val in rules}
         )
         return evaluation
+
+    def batch_evaluate(self, answers, rules_pk):
+        return [self.evaluate(answer, rules_pk) for answer in answers]
 
 
 class RightAnswerCriterionRules(CriterionRules):

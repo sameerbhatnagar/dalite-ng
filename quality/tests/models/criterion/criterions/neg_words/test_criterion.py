@@ -73,7 +73,9 @@ def test_evaluate__some_neg_words_present(
     neg_words_rules.save()
 
     assert (
-        neg_words_criterion.evaluate(answer, neg_words_rules.pk)["quality"] < 1
+        0
+        < neg_words_criterion.evaluate(answer, neg_words_rules.pk)["quality"]
+        < 1
     )
 
 
@@ -88,6 +90,84 @@ def test_evaluate__default(neg_words_criterion, answers):
         neg_words_criterion.evaluate(answer, neg_words_rules.pk)["quality"]
         == 1
     )
+
+
+def test_batch_evaluate__no_neg_words(
+    neg_words_criterion, neg_words_rules, answers
+):
+    for answer in answers:
+        answer.rationale = "a b c"
+        answer.save()
+
+    neg_words_rules.neg_words = []
+    neg_words_rules.save()
+
+    for quality in neg_words_criterion.batch_evaluate(
+        answers, neg_words_rules.pk
+    ):
+        assert quality["quality"] == 1
+
+
+def test_batch_evaluate__no_neg_words_present(
+    neg_words_criterion, neg_words_rules, answers
+):
+    for answer in answers:
+        answer.rationale = "a b c"
+        answer.save()
+
+    neg_words_rules.neg_words = ["d"]
+    neg_words_rules.save()
+
+    for quality in neg_words_criterion.batch_evaluate(
+        answers, neg_words_rules.pk
+    ):
+        assert quality["quality"] == 1
+
+
+def test_batch_evaluate__all_neg_words_present(
+    neg_words_criterion, neg_words_rules, answers
+):
+    for answer in answers:
+
+        answer.rationale = "a b c"
+        answer.save()
+
+    neg_words_rules.neg_words = ["a", "b", "c"]
+    neg_words_rules.save()
+
+    for quality in neg_words_criterion.batch_evaluate(
+        answers, neg_words_rules.pk
+    ):
+        assert not quality["quality"]
+
+
+def test_batch_evaluate__some_neg_words_present(
+    neg_words_criterion, neg_words_rules, answers
+):
+    for answer in answers:
+        answer.rationale = "a b c"
+        answer.save()
+
+    neg_words_rules.neg_words = ["a", "b"]
+    neg_words_rules.save()
+
+    for quality in neg_words_criterion.batch_evaluate(
+        answers, neg_words_rules.pk
+    ):
+        assert 0 < quality["quality"] < 1
+
+
+def test_batch_evaluate__default(neg_words_criterion, answers):
+    for answer in answers:
+        answer.rationale = ""
+        answer.save()
+
+    neg_words_rules = NegWordsCriterionRules.get_or_create()
+
+    for quality in neg_words_criterion.batch_evaluate(
+        answers, neg_words_rules.pk
+    ):
+        assert quality["quality"] == 1
 
 
 def test_rules(neg_words_criterion):

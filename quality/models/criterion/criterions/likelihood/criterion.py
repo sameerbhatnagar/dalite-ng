@@ -8,10 +8,11 @@ from math import exp
 from operator import mul, sub
 
 from django.db import models
+from django.db.utils import IntegrityError
 
 from quality.models.criterion.criterion import Criterion, CriterionRules
 from quality.models.custom_fields import CommaSepField, ProbabilityField
-from quality.models.quality_type import QualityType
+from quality.models.quality_type import QualityType, QualityUseType
 
 from .model import create_model
 
@@ -38,7 +39,7 @@ class LikelihoodCriterion(Criterion):
     def info():
         return {
             "name": "likelihood",
-            "full_name": "Likelihood",
+            "full_name": "Language",
             "description": "Evaluates if sentence is random gibberish or not.",
         }
 
@@ -52,6 +53,10 @@ class LikelihoodCriterion(Criterion):
             QualityType.objects.get(type="studentgroup"),
             QualityType.objects.get(type="teacher"),
             QualityType.objects.get(type="global"),
+        )
+        criterion.for_quality_use_types.add(
+            QualityUseType.objects.get(type="validation"),
+            QualityUseType.objects.get(type="evaluation"),
         )
 
         return criterion
@@ -92,6 +97,57 @@ class LikelihoodCriterion(Criterion):
             {criterion: val["value"] for criterion, val in rules}
         )
         return evaluation
+
+    def batch_evaluate(self, answers, rules_pk):
+        rules = LikelihoodCriterionRules.objects.get(pk=rules_pk)
+
+        languages = LikelihoodLanguage.objects.all()
+        other_languages = languages.exclude(language__in=rules.languages.all())
+
+        answers = list(answers)
+
+        language_likelihoods = {
+            language.language: LikelihoodCache.batch(
+                answers, language, rules.max_gram
+            )
+            for language in languages
+        }
+
+        likelihoods = [
+            [
+                1
+                - min(
+                    1, exp(-sub(*language_likelihoods[language.language][i]))
+                )
+                for language in rules.languages.all()
+            ]
+            + [
+                1
+                - min(
+                    1,
+                    exp(
+                        language_likelihoods[other_language.language][i][0]
+                        - language_likelihoods[language.language][i][0]
+                    ),
+                )
+                for other_language in other_languages
+                for language in rules.languages.all()
+            ]
+            for i in range(len(answers))
+        ]
+
+        likelihood = [reduce(mul, l, 1) ** (1.0 / len(l)) for l in likelihoods]
+
+        evaluations = [
+            {"version": self.version, "quality": l} for l in likelihood
+        ]
+
+        for evaluation in evaluations:
+            evaluation.update(
+                {criterion: val["value"] for criterion, val in rules}
+            )
+
+        return evaluations
 
 
 class LikelihoodCriterionRules(CriterionRules):
@@ -171,18 +227,24 @@ class LikelihoodCriterionRules(CriterionRules):
 
 
 class LikelihoodCache(models.Model):
-    answer = models.PositiveIntegerField()
+    answer = models.PositiveIntegerField(null=True, blank=True)
     language = models.ForeignKey(LikelihoodLanguage)
-    hash = models.CharField(max_length=32, db_index=True)
+    hash = models.CharField(max_length=32, unique=True, db_index=True)
     likelihood = ProbabilityField()
     likelihood_random = ProbabilityField()
 
     @classmethod
     def get(cls, answer, language, max_gram):
+        if isinstance(answer, basestring):
+            answer_pk = None
+            rationale = answer
+        else:
+            answer_pk = answer.pk
+            rationale = answer.rationale
         hash_ = hashlib.md5(
             json.dumps(
                 {
-                    "text": answer.rationale,
+                    "text": rationale,
                     "language": language.language,
                     "max_gram": max_gram,
                 }
@@ -199,12 +261,70 @@ class LikelihoodCache(models.Model):
                 language.left_to_right,
                 max_gram,
             )
-            likelihood, likelihood_random = predict(answer.rationale)
+            likelihood, likelihood_random = predict(rationale)
             cls.objects.create(
-                answer=answer.pk,
+                answer=answer_pk,
                 language=language,
                 hash=hash_,
                 likelihood=likelihood,
                 likelihood_random=likelihood_random,
             )
         return likelihood, likelihood_random
+
+    @classmethod
+    def batch(cls, answers, language, max_gram):
+        answers = list(answers)
+        pks = [
+            None if isinstance(answer, basestring) else answer.pk
+            for answer in answers
+        ]
+        rationales = [
+            answer if isinstance(answer, basestring) else answer.rationale
+            for answer in answers
+        ]
+        hashes = [
+            hashlib.md5(
+                json.dumps(
+                    {
+                        "text": rationale,
+                        "language": language.language,
+                        "max_gram": max_gram,
+                    }
+                ).encode()
+            ).hexdigest()
+            for rationale in rationales
+        ]
+
+        likelihoods = []
+        for hash_ in hashes:
+            try:
+                cache = cls.objects.get(hash=hash_)
+                likelihoods.append((cache.likelihood, cache.likelihood_random))
+            except cls.DoesNotExist:
+                likelihoods.append(None)
+
+        if not all(likelihoods):
+            predict = create_model(
+                language.language,
+                language.n_gram_urls,
+                language.left_to_right,
+                max_gram,
+            )
+            for (i, likelihood), pk, rationale, hash_ in zip(
+                enumerate(likelihoods), pks, rationales, hashes
+            ):
+                if likelihood is None:
+                    _likelihood, likelihood_random = predict(rationale)
+                    try:
+                        cls.objects.create(
+                            answer=pk,
+                            language=language,
+                            hash=hash_,
+                            likelihood=_likelihood,
+                            likelihood_random=likelihood_random,
+                        )
+                    except IntegrityError:
+                        pass
+                    likelihoods[i] = (_likelihood, likelihood_random)
+
+        return likelihoods

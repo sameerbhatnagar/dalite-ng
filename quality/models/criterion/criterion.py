@@ -6,7 +6,7 @@ from itertools import chain
 from django.db import models
 
 from ..custom_fields import CommaSepField, ProbabilityField
-from ..quality_type import QualityType
+from ..quality_type import QualityType, QualityUseType
 
 
 class Criterion(models.Model):
@@ -21,6 +21,7 @@ class Criterion(models.Model):
     is_beta = models.BooleanField(default=False)
     binary_threshold = models.BooleanField(default=False)
     for_quality_types = models.ManyToManyField(QualityType)
+    for_quality_use_types = models.ManyToManyField(QualityUseType)
 
     class Meta:
         abstract = True
@@ -57,6 +58,9 @@ class Criterion(models.Model):
         )
 
     def evaluate(self, answer, rules_pk):
+        raise NotImplementedError("This method has to be implemented.")
+
+    def batch_evaluate(self, answers, rules_pk):
         raise NotImplementedError("This method has to be implemented.")
 
     def save(self, *args, **kwargs):

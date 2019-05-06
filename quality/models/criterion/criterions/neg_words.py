@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 from django.db import models
 
 from quality.models.custom_fields import CommaSepField
-from quality.models.quality_type import QualityType
+from quality.models.quality_type import QualityType, QualityUseType
 
 from ..criterion import Criterion, CriterionRules
 
@@ -31,6 +31,10 @@ class NegWordsCriterion(Criterion):
             QualityType.objects.get(type="teacher"),
             QualityType.objects.get(type="global"),
         )
+        criterion.for_quality_use_types.add(
+            QualityUseType.objects.get(type="validation"),
+            QualityUseType.objects.get(type="evaluation"),
+        )
 
         return criterion
 
@@ -51,6 +55,35 @@ class NegWordsCriterion(Criterion):
             {criterion: val["value"] for criterion, val in rules}
         )
         return evaluation
+
+    def batch_evaluate(self, answers, rules_pk):
+        rules = NegWordsCriterionRules.objects.get(pk=rules_pk)
+
+        answers = [
+            (
+                answer if isinstance(answer, basestring) else answer.rationale
+            ).split()
+            for answer in answers
+        ]
+
+        evaluations = [
+            {
+                "version": self.version,
+                "quality": 1
+                - sum(
+                    1.0 for word in answer if word.lower() in rules.neg_words
+                )
+                / (len(answer) + 1e-16),
+            }
+            for answer in answers
+        ]
+
+        for evaluation in evaluations:
+            evaluation.update(
+                {criterion: val["value"] for criterion, val in rules}
+            )
+
+        return evaluations
 
 
 class NegWordsCriterionRules(CriterionRules):

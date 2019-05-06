@@ -29,12 +29,17 @@ the "algorithms" dictionary at the end of this file.
 """
 from __future__ import unicode_literals
 
+from itertools import chain
+
+from django.conf import settings
 from django.db.models import Count, Max
 from django.utils.translation import ugettext
 from django.utils.translation import ugettext_lazy as _
 
 from quality.models import Quality
 from tos.models import Consent
+
+from .utils import batch
 
 
 class RationaleSelectionError(Exception):
@@ -74,12 +79,19 @@ def _base_selection_algorithm(
         quality = Quality.objects.get(
             quality_type__type="global", quality_use_type__type="validation"
         )
+        batch_size = getattr(settings, "BATCH_SIZE", 128)
+        qualities = chain(
+            *(
+                quality.batch_evaluate(answers)
+                for answers in batch(all_rationales.iterator(), batch_size)
+            )
+        )
         kept_answers = [
             answer.pk
-            for answer in all_rationales.all()
+            for answer, q in zip(all_rationales.iterator(), qualities)
             if all(
                 c["quality"]["quality"] >= c["quality"]["threshold"]
-                for c in quality.evaluate(answer)[1]
+                for c in q[1]
             )
         ]
         all_rationales = all_rationales.filter(pk__in=kept_answers)

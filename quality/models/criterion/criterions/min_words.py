@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 from django.db import models
 
-from quality.models.quality_type import QualityType
+from quality.models.quality_type import QualityType, QualityUseType
 
 from ..criterion import Criterion, CriterionRules
 
@@ -29,6 +29,10 @@ class MinWordsCriterion(Criterion):
             QualityType.objects.get(type="teacher"),
             QualityType.objects.get(type="global"),
         )
+        criterion.for_quality_use_types.add(
+            QualityUseType.objects.get(type="validation"),
+            QualityUseType.objects.get(type="evaluation"),
+        )
         criterion.save()
         return criterion
 
@@ -44,6 +48,33 @@ class MinWordsCriterion(Criterion):
             {criterion: val["value"] for criterion, val in rules}
         )
         return evaluation
+
+    def batch_evaluate(self, answers, rules_pk):
+        rules = MinWordsCriterionRules.objects.get(pk=rules_pk)
+
+        evaluations = [
+            {
+                "version": self.version,
+                "quality": float(
+                    len(
+                        (
+                            answer
+                            if isinstance(answer, basestring)
+                            else answer.rationale
+                        ).split()
+                    )
+                    >= rules.min_words
+                ),
+            }
+            for answer in answers
+        ]
+
+        for evaluation in evaluations:
+            evaluation.update(
+                {criterion: val["value"] for criterion, val in rules}
+            )
+
+        return evaluations
 
 
 class MinWordsCriterionRules(CriterionRules):

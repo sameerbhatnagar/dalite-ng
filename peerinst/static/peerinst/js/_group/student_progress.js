@@ -2,16 +2,23 @@
 
 import * as d3 from "d3";
 import { buildReq } from "../_ajax/utils.js";
+import { clear, createSvg } from "../utils.js";
 
 /*********/
 /* model */
 /*********/
 
-let model;
+let model = {
+  dataLoaded: false,
+  showing: false,
+};
 
 function initModel(data) {
   model = {
-    showing: false,
+    dataLoaded: true,
+    showing: document
+      .querySelector("#student-progress")
+      .parentNode.parentNode.classList.contains("foldable__unfolded"),
     results: data.map(question => ({
       questionTitle: question.question_title,
       nStudents: question.n_students,
@@ -20,6 +27,10 @@ function initModel(data) {
       nCorrect: question.n_correct,
     })),
   };
+  progressView();
+  if (model.showing) {
+    toggleStudentProgressView();
+  }
 }
 
 /**********/
@@ -28,7 +39,9 @@ function initModel(data) {
 
 function toggleStudentProgress() {
   model.showing = !model.showing;
-  toggleStudentProgressView();
+  if (model.dataLoaded) {
+    toggleStudentProgressView();
+  }
 }
 
 /********/
@@ -36,7 +49,22 @@ function toggleStudentProgress() {
 /********/
 
 function view() {
+  if (model.dataLoaded) {
+    progressView();
+  } else {
+    loadingView();
+  }
+}
+
+function loadingView() {
+  const svg = createSvg("loader");
+  svg.classList.add("loading-icon");
+  document.querySelector("#student-progress").appendChild(svg);
+}
+
+function progressView() {
   const progress = document.querySelector("#student-progress");
+  clear(progress);
   model.results.map(function(question) {
     progress.append(questionView(question));
   });
@@ -346,13 +374,13 @@ function addToggleStudentProgressListener() {
 /********/
 
 export function initStudentProgress(url) {
+  view();
+  initListeners();
   const req = buildReq(null, "get");
   fetch(url, req)
     .then(resp => resp.json())
     .then(function(data) {
       initModel(data.progress);
-      initListeners();
-      view();
     })
     .catch(err => console.log(err));
 }

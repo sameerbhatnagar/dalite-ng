@@ -19,3 +19,19 @@ export function formatDatetime(datetime) {
     datetime.toLocaleString("en-ca", { minute: "2-digit" })
   );
 }
+
+export function createSvg(name) {
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  const use = document.createElementNS("http://www.w3.org/2000/svg", "use");
+  use.setAttributeNS(
+    "http://www.w3.org/1999/xlink",
+    "href",
+    window.location.protocol +
+      "//" +
+      window.location.host +
+      "/static/peerinst/icons.svg#" +
+      name,
+  );
+  svg.append(use);
+  return svg;
+}
