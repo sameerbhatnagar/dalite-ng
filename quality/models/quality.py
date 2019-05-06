@@ -46,10 +46,15 @@ class Quality(models.Model):
             )
         )
 
-    def evaluate(self, answer, *args, **kwargs):
+    def evaluate(self, answer):
         """
         Returns the quality as a tuple of the quality and the different
         criterion results.
+
+        Parameters
+        ----------
+        answer : Union[Answer, str]
+            Answer to evaluate
 
         Returns
         -------
@@ -86,9 +91,7 @@ class Quality(models.Model):
                     dict(c["criterion"]).iteritems(),
                     {
                         "weight": c["weight"],
-                        "quality": c["criterion"].evaluate(
-                            answer, c["rules"], *args, **kwargs
-                        ),
+                        "quality": c["criterion"].evaluate(answer, c["rules"]),
                     }.iteritems(),
                 )
             )
