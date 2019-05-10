@@ -15,6 +15,8 @@ from django.utils.encoding import smart_bytes
 from django.utils.html import escape, strip_tags
 from django.utils.translation import ugettext_lazy as _
 
+from reputation.models import Reputation
+
 from .. import rationale_choice
 
 
@@ -223,6 +225,13 @@ class Question(models.Model):
             "0.5 points if they subsequently stick with or change to the "
             "correct answer."
         ),
+    )
+    reputation = models.OneToOneField(
+        Reputation,
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+        related_name="reputation_model",
     )
 
     def __unicode__(self):
