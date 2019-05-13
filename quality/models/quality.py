@@ -103,6 +103,8 @@ class Quality(models.Model):
         if not self.criterions.exists():
             return [(None, [])]
 
+        answers = list(answers)
+
         criterions_ = [
             {
                 "criterion": (
