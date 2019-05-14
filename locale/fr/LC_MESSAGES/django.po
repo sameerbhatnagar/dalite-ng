@@ -4084,9 +4084,7 @@ msgstr "Un problème est survenu avec votre demande."
 #| "That does not seem like a valid rationale.\n"
 #| "                Please explain your reasoning in more detail."
 msgid "That does not seem like a clear explanation of your reasoning:"
-msgstr ""
-"Ceci ne semble pas comme une explication valide.\n"
-"S'il vous plait, expliquer le raisonnement avec plus de détails."
+msgstr "Ceci ne semble pas être une explication claire de votre démarche de raisonnement:"
 
 #: templates/400.html:9
 msgid "Something went wrong..."
