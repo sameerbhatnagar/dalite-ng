@@ -12,7 +12,9 @@ from django.shortcuts import render
 from django.utils.datastructures import MultiValueDictKeyError
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_POST, require_safe
-
+from django.utils.functional import Promise
+from django.utils.encoding import force_text
+from django.core.serializers.json import DjangoJSONEncoder
 from dalite.views.errors import response_400, response_403
 from peerinst.models import StudentGroup, StudentGroupAssignment, Teacher
 
@@ -20,6 +22,14 @@ from ..models import Quality, QualityType, QualityUseType, UsesCriterion
 from .decorators import logged_in_non_student_required
 
 logger = logging.getLogger("quality")
+
+
+# https://stackoverflow.com/questions/19734724/django-is-not-json-serializable-when-using-ugettext-lazy
+class LazyEncoder(DjangoJSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, Promise):
+            return force_text(obj)
+        return super(LazyEncoder, self).default(obj)
 
 
 def verify_question(req, type_, question_pk):
@@ -358,7 +368,11 @@ def index(req):
         },
     }
 
-    return render(req, "quality/edit/index.html", {"data": json.dumps(data)})
+    return render(
+        req,
+        "quality/edit/index.html",
+        {"data": json.dumps(data, cls=LazyEncoder)},
+    )
 
 
 @login_required

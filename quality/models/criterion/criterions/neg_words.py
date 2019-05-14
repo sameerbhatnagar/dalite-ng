@@ -5,6 +5,7 @@ from django.db import models
 
 from quality.models.custom_fields import CommaSepField
 from quality.models.quality_type import QualityType, QualityUseType
+from django.utils.translation import ugettext_lazy as _
 
 from ..criterion import Criterion, CriterionRules
 
@@ -16,8 +17,8 @@ class NegWordsCriterion(Criterion):
     def info():
         return {
             "name": "neg_words",
-            "full_name": "Toxicity",
-            "description": "Please refrain from using toxic words.",
+            "full_name": _("Toxicity"),
+            "description": _("Please refrain from using toxic words."),
         }
 
     @staticmethod

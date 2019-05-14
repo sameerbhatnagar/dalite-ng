@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 from django.db import models
+from django.utils.translation import ugettext_lazy as _
 
 from quality.models.quality_type import QualityType, QualityUseType
 
@@ -15,9 +16,10 @@ class MinWordsCriterion(Criterion):
     def info():
         return {
             "name": "min_words",
-            "full_name": "Depth",
-            "description": "Try going more in depth in explaining your "
-            "reasoning.",
+            "full_name": _("Depth"),
+            "description": _(
+                "Try going more in depth in explaining your " "reasoning."
+            ),
         }
 
     @staticmethod

@@ -9,6 +9,7 @@ from operator import mul, sub
 
 from django.db import models
 from django.db.utils import IntegrityError
+from django.utils.translation import ugettext_lazy as _
 
 from quality.models.criterion.criterion import Criterion, CriterionRules
 from quality.models.custom_fields import CommaSepField, ProbabilityField
@@ -39,8 +40,10 @@ class LikelihoodCriterion(Criterion):
     def info():
         return {
             "name": "likelihood",
-            "full_name": "Readability",
-            "description": "This does not seem like a well formed sentence.",
+            "full_name": _("Readability"),
+            "description": _(
+                "This does not seem like a well formed sentence."
+            ),
         }
 
     @staticmethod
