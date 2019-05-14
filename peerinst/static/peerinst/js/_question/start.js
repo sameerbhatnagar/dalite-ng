@@ -43,7 +43,8 @@ function toggleQualityError(data) {
     clear(div);
 
     div.classList.add("errorlist");
-    div.textContent = "Your rationale didn't pass the following criterions: ";
+    div.textContent = `That does not seem like a clear explanation
+    of your reasoning:`;
 
     const ul = document.createElement("ul");
     div.append(ul);
