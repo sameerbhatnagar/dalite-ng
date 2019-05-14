@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-03-15 04:27+0000\n"
+"POT-Creation-Date: 2019-05-14 16:04+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,23 +18,23 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: dalite/urls.py:15 peerinst/templates/admin/peerinst/index.html:5
+#: dalite/urls.py:14 peerinst/templates/admin/peerinst/index.html:5
 msgid "Dalite NG administration"
 msgstr "Administration Dalite NG"
 
-#: peerinst/admin.py:54
+#: peerinst/admin.py:56
 msgid "There must be at least two answer choices."
 msgstr "Il doit y avoir au moins deux choix de réponses."
 
-#: peerinst/admin.py:60
+#: peerinst/admin.py:62
 msgid "At least one of the answers must be marked as correct."
 msgstr "Au moins une réponse doit être marquée comme exacte."
 
-#: peerinst/admin.py:77
+#: peerinst/admin.py:79
 msgid "Associated answer"
 msgstr "Réponse connexe"
 
-#: peerinst/admin.py:80
+#: peerinst/admin.py:82
 #, fuzzy
 #| msgid ""
 #| "An example rationale that will be shown to students during the answer "
@@ -46,7 +46,7 @@ msgstr ""
 "Exemple d'explication qui sera présentée aux étudiants lors de la révision "
 "des réponses."
 
-#: peerinst/admin.py:84
+#: peerinst/admin.py:86
 #, fuzzy
 #| msgid ""
 #| "The number of the associated answer; 1 = first answer, 2 = second answer "
@@ -58,15 +58,15 @@ msgstr ""
 "Le nombre associé à la réponse connexe; 1 = première réponse, 2 = deuxième "
 "réponse, etc."
 
-#: peerinst/admin.py:93
+#: peerinst/admin.py:95
 msgid "example answer"
 msgstr "Exemple de réponse"
 
-#: peerinst/admin.py:94
+#: peerinst/admin.py:96
 msgid "example answers"
 msgstr "Exemples de réponse"
 
-#: peerinst/admin.py:102
+#: peerinst/admin.py:104
 #, fuzzy
 #| msgid ""
 #| "You can add example answers more comfortably by using the \"Preview\" "
@@ -81,182 +81,188 @@ msgstr ""
 "bouton \"Aperçu\" dans le coin supérieur droit. Le bouton apparaît après "
 "avoir sauvegardé la question pour la première fois."
 
-#: peerinst/admin.py:135
+#: peerinst/admin.py:137
 msgid "Question image or video"
 msgstr "Image ou vidéo associée à la question"
 
-#: peerinst/admin.py:189
+#: peerinst/admin.py:212
 msgid "Show selected answers to students"
 msgstr "Montrer les réponses choisies aux étudiants"
 
-#: peerinst/admin_views.py:269
+#: peerinst/admin_views.py:271
 msgid "Total rationales upvoted"
 msgstr "N. total d'explications ayant obtenu un vote positif"
 
-#: peerinst/admin_views.py:270
+#: peerinst/admin_views.py:272
 msgid "Total rationales chosen"
 msgstr "N. total d'explications choisies"
 
-#: peerinst/admin_views.py:273
+#: peerinst/admin_views.py:275
 msgid "Total rationales chosen for right to wrong answer switches"
 msgstr ""
 "N. total d'explications choisies pour justifier un changement d'une bonne "
 "réponse en mauvaise réponse"
 
-#: peerinst/admin_views.py:280
+#: peerinst/admin_views.py:282
 msgid "Total rationales chosen for wrong to right answer switches"
 msgstr ""
 "N. total d'explications choisies pour justifier un changement d'une mauvaise "
 "réponse en bonne réponse"
 
-#: peerinst/admin_views.py:290
+#: peerinst/admin_views.py:292
 msgid "Count"
 msgstr "Décompte"
 
-#: peerinst/admin_views.py:291 peerinst/models/answer.py:33
+#: peerinst/admin_views.py:293 peerinst/models/answer.py:35
 #: peerinst/templates/peerinst/report_all_rationales.html:206
 msgid "Rationale"
 msgstr "Explication"
 
-#: peerinst/admin_views.py:292
+#: peerinst/admin_views.py:294
 #: peerinst/templates/admin/peerinst/attribution_stats.html:8
 msgid "Upvotes"
 msgstr "Votes positifs"
 
-#: peerinst/admin_views.py:293
+#: peerinst/admin_views.py:295
 #: peerinst/templates/admin/peerinst/attribution_stats.html:10
 msgid "Downvotes"
 msgstr "Votes négatifs"
 
-#: peerinst/admin_views.py:294
+#: peerinst/admin_views.py:296
 msgid "Answers with this chosen rationale"
 msgstr "Réponses associées à cette explication"
 
-#: peerinst/admin_views.py:324
+#: peerinst/admin_views.py:326
 msgid "(Student stuck to own rationale)"
 msgstr "(L'étudiant s'en tient à sa propre explication)"
 
-#: peerinst/admin_views.py:344
+#: peerinst/admin_views.py:346
 msgid "Upvoted rationales"
 msgstr "Explications ayant obtenu un vote positif"
 
-#: peerinst/admin_views.py:349
+#: peerinst/admin_views.py:351
 msgid "Top rationales chosen"
 msgstr "Explications les plus choisies"
 
-#: peerinst/admin_views.py:355
+#: peerinst/admin_views.py:357
 msgid "Top rationales chosen for right to wrong answer switches"
 msgstr ""
 "Explications les plus choisies pour justifier un changement d'une bonne "
 "réponse en mauvaise réponse"
 
-#: peerinst/admin_views.py:364
+#: peerinst/admin_views.py:366
 msgid "Top rationales chosen for wrong to right answer switches"
 msgstr ""
 "Explications les plus choisies pour justifier un changement d'une mauvaise "
 "réponse en bonne réponse"
 
-#: peerinst/admin_views.py:429
+#: peerinst/admin_views.py:431
 msgid "Total number of answers recorded:"
 msgstr "Nombre total de réponses obtenues :"
 
-#: peerinst/admin_views.py:430
+#: peerinst/admin_views.py:432
 msgid "Total number of participating students:"
 msgstr "Nombre total d'étudiants ayant participé :"
 
-#: peerinst/admin_views.py:431
+#: peerinst/admin_views.py:433
 #, fuzzy
 #| msgid "Correct answer choices â second attempt:"
 msgid "Correct answer choices – first attempt:"
 msgstr "Bon choix de réponse à la deuxième tentative :"
 
 # msgid "Bon choix de réponse à la première tentative :"
-#: peerinst/admin_views.py:432 peerinst/admin_views.py:434
-#: peerinst/admin_views.py:436
+#: peerinst/admin_views.py:434 peerinst/admin_views.py:436
+#: peerinst/admin_views.py:438
 #, fuzzy
 #| msgid "â³ Percentage of total answers:"
 msgid "↳ Percentage of total answers:"
 msgstr "â³ Pourcentage des réponses au total :"
 
-#: peerinst/admin_views.py:433
+#: peerinst/admin_views.py:435
 #, fuzzy
 #| msgid "Correct answer choices â second attempt:"
 msgid "Correct answer choices – second attempt:"
 msgstr "Bon choix de réponse à la deuxième tentative :"
 
-#: peerinst/admin_views.py:435
+#: peerinst/admin_views.py:437
 msgid "Number of answer choice switches:"
 msgstr "Nombre de changements de choix de réponse :"
 
-#: peerinst/admin_views.py:440
+#: peerinst/admin_views.py:442
 #, python-brace-format
 msgid "Switches to answer {index}:"
 msgstr "Changements de réponse {index}:"
 
-#: peerinst/admin_views.py:477
+#: peerinst/admin_views.py:479
 msgid "No."
 msgstr "Non"
 
-#: peerinst/admin_views.py:478
+#: peerinst/admin_views.py:480
 msgid "Question ID"
 msgstr "Id. de la question"
 
-#: peerinst/admin_views.py:479
+#: peerinst/admin_views.py:481
 msgid "Total answers"
 msgstr "Nombre total de réponses"
 
-#: peerinst/admin_views.py:480
+#: peerinst/admin_views.py:482
 msgid "Total students"
 msgstr "Nombre total d'étudiants"
 
-#: peerinst/admin_views.py:481
+#: peerinst/admin_views.py:483
 msgid "First correct"
 msgstr "Première réponse exacte"
 
-#: peerinst/admin_views.py:482 peerinst/admin_views.py:484
-#: peerinst/admin_views.py:486
+#: peerinst/admin_views.py:484 peerinst/admin_views.py:486
+#: peerinst/admin_views.py:488
 #: peerinst/templates/admin/peerinst/attribution_stats.html:9
 #: peerinst/templates/admin/peerinst/attribution_stats.html:11
 #: peerinst/templates/admin/peerinst/attribution_stats.html:13
 msgid "Percent"
 msgstr "Pourcentage"
 
-#: peerinst/admin_views.py:483
+#: peerinst/admin_views.py:485
 msgid "Second correct"
 msgstr "Deuxième réponse exacte"
 
-#: peerinst/admin_views.py:485
+#: peerinst/admin_views.py:487
 msgid "Switches"
 msgstr "Changements"
 
-#: peerinst/admin_views.py:489
+#: peerinst/admin_views.py:491
 #, python-brace-format
 msgid "To {index}"
 msgstr "À {index}"
 
-#: peerinst/admin_views.py:490
+#: peerinst/admin_views.py:492
 #: peerinst/templates/peerinst/assignment_detail.html:45
 #: peerinst/templates/peerinst/blinkassignment_detail.html:38
 #: peerinst/templates/peerinst/browse_database.html:68
 msgid "Show answers"
 msgstr "Montrer les choix de réponses"
 
-#: peerinst/admin_views.py:521
+#: peerinst/admin_views.py:524
 msgid "Expert answer"
 msgstr "Réponse d'expert"
 
-#: peerinst/admin_views.py:565
+#: peerinst/admin_views.py:618
 msgid "Example answer saved."
 msgstr "Exemple de réponse sauvegardée."
 
-#: peerinst/admin_views.py:637
+#: peerinst/admin_views.py:694
+#, fuzzy
+#| msgid "Expert rationale?"
+msgid "Expert rationale saved."
+msgstr "Explication d'expert?"
+
+#: peerinst/admin_views.py:767
 #, python-brace-format
 msgid "List of {model_name} saved."
 msgstr ""
 
 # msgid "List of {model_name} saved."
 # msgstr "Liste de {nom_modèle} sauvegardée."
-#: peerinst/admin_views.py:682 peerinst/admin_views.py:687
+#: peerinst/admin_views.py:812 peerinst/admin_views.py:817
 msgid "---all---"
 msgstr "toutes"
 
@@ -264,54 +270,47 @@ msgstr "toutes"
 msgid "Dalite Peer Instruction"
 msgstr "Instructions sur Dalite Peer"
 
-#: peerinst/forms.py:48 peerinst/forms.py:259
+#: peerinst/forms.py:47 peerinst/forms.py:251
 msgid "Choose one of these answers:"
 msgstr "Choisissez l'une de ces réponses :"
 
-#: peerinst/forms.py:51
+#: peerinst/forms.py:50
 #, fuzzy
 #| msgid "There must be at least two answer choices."
 msgid "Please make sure to select an answer choice."
 msgstr "Il doit y avoir au moins deux choix de réponses."
 
-#: peerinst/forms.py:59
-msgid ""
-"That does not seem like a valid rationale.\n"
-"                Please explain your reasoning in more detail."
-msgstr "Ceci ne semble pas comme une explication valide.\n"
-"S'il vous plait, expliquer le raisonnement avec plus de détails."
-
-#: peerinst/forms.py:150
+#: peerinst/forms.py:142
 msgid "Please select exactly one rationale."
 msgstr "Veuillez sélectionner une explication exactement."
 
-#: peerinst/forms.py:169
+#: peerinst/forms.py:161
 msgid "Please vote up or down."
 msgstr "Veuillez voter positivement ou négativement."
 
-#: peerinst/forms.py:209 peerinst/templates/admin/peerinst/index.html:32
-#: peerinst/templates/peerinst/group/details.html:151
+#: peerinst/forms.py:201 peerinst/templates/admin/peerinst/index.html:32
+#: peerinst/templates/peerinst/group/details.html:183
 #: peerinst/templates/peerinst/question/list.html:88
-#: peerinst/templates/peerinst/teacher/details.html:62
+#: peerinst/templates/peerinst/teacher/details.html:65
 msgid "Assignments"
 msgstr "Questionnaires"
 
-#: peerinst/forms.py:211
+#: peerinst/forms.py:203
 msgid ""
 "Optional. Select assignments to add this question. You can select multiple "
 "assignments. Assignments that this question is already a part of will not "
 "appear in list."
 msgstr ""
 
-#: peerinst/forms.py:249
+#: peerinst/forms.py:241
 msgid "Set the time limit to be used for each question."
 msgstr ""
 
-#: peerinst/forms.py:317
+#: peerinst/forms.py:309
 msgid "Website"
 msgstr "Site Web"
 
-#: peerinst/forms.py:321
+#: peerinst/forms.py:313
 msgid ""
 "Please provide an institutional url listing yourself as a faculty member and "
 "showing your e-mail address."
@@ -320,120 +319,120 @@ msgstr ""
 "sur la liste des membres du corps professoral et indiquant votre adresse de "
 "courriel."
 
-#: peerinst/forms.py:381
+#: peerinst/forms.py:373
 #, fuzzy
 #| msgid "Choose which groups you would like your report to include:"
 msgid "Choose which groups to include in report:"
 msgstr "Choisissez quels groupes vous souhaitez inclure dans votre rapport :"
 
-#: peerinst/forms.py:387
+#: peerinst/forms.py:379
 msgid "Choose which assignments to include in report:"
 msgstr ""
 "Choisissez quels questionnaires vous souhaitez inclure dans votre rapport :"
 
-#: peerinst/models/answer.py:15
+#: peerinst/models/answer.py:17
 msgid "Text"
 msgstr "Texte"
 
-#: peerinst/models/answer.py:16
+#: peerinst/models/answer.py:18
 msgid "Correct?"
 msgstr "Exact?"
 
-#: peerinst/models/answer.py:23
+#: peerinst/models/answer.py:25
 msgid "answer choice"
 msgstr "choix de réponse"
 
-#: peerinst/models/answer.py:24
+#: peerinst/models/answer.py:26
 msgid "answer choices"
 msgstr "choix de réponses"
 
-#: peerinst/models/answer.py:31 peerinst/models/answer.py:65
+#: peerinst/models/answer.py:33 peerinst/models/answer.py:82
 msgid "First answer choice"
 msgstr "Premier choix de réponse"
 
-#: peerinst/models/answer.py:35 peerinst/models/answer.py:71
+#: peerinst/models/answer.py:37 peerinst/models/answer.py:88
 msgid "Second answer choice"
 msgstr "Deuxième choix de réponse"
 
-#: peerinst/models/answer.py:48
+#: peerinst/models/answer.py:50
 msgid "Corresponds to the user's username."
 msgstr ""
 
-#: peerinst/models/answer.py:50
+#: peerinst/models/answer.py:52
 msgid "Show to others?"
 msgstr "Montrer aux autres?"
 
-#: peerinst/models/answer.py:52
+#: peerinst/models/answer.py:54
 msgid "Expert rationale?"
 msgstr "Explication d'expert?"
 
-#: peerinst/models/answer.py:54
+#: peerinst/models/answer.py:56
 msgid "Whether this answer is a pre-seeded expert rationale."
 msgstr ""
 "Si cette réponse constitue une explication d'expert fournie préalablement."
 
-#: peerinst/models/answer.py:76
+#: peerinst/models/answer.py:93
 msgid "{} for question {}"
 msgstr "{} à la question {}"
 
-#: peerinst/models/answer.py:200
+#: peerinst/models/answer.py:217
 msgid "Vote type"
 msgstr "Type de vote"
 
-#: peerinst/models/answer.py:272
+#: peerinst/models/answer.py:289
 msgid "0-Never Show"
 msgstr ""
 
-#: peerinst/models/answer.py:273
+#: peerinst/models/answer.py:290
 msgid "1-Not Convincing"
 msgstr ""
 
-#: peerinst/models/answer.py:274
+#: peerinst/models/answer.py:291
 msgid "2-Somewhat Convincing"
 msgstr ""
 
-#: peerinst/models/answer.py:275
+#: peerinst/models/answer.py:292
 msgid "3-Very Convincing"
 msgstr ""
 
-#: peerinst/models/assignment.py:24
+#: peerinst/models/assignment.py:26
 msgid "identifier"
 msgstr "identifiant"
 
-#: peerinst/models/assignment.py:28
+#: peerinst/models/assignment.py:30
 msgid ""
 "A unique identifier for this assignment used for inclusion in a course.  "
 "Only use letters, numbers and/or the underscore for the identifier."
 msgstr ""
 "Identifiant unique, pour ce questionnaire, utilisé pour s'inscrire au cours."
 
-#: peerinst/models/assignment.py:34 peerinst/models/blink.py:42
+#: peerinst/models/assignment.py:36 peerinst/models/blink.py:42
 #: peerinst/templates/peerinst/group/details.html:49
 msgid "Title"
 msgstr "Titre"
 
-#: peerinst/models/assignment.py:35
+#: peerinst/models/assignment.py:37
 #: peerinst/templates/admin/peerinst/index.html:37
-#: peerinst/templates/peerinst/group/assignment.html:87
+#: peerinst/templates/peerinst/group/assignment.html:113
 #: peerinst/templates/peerinst/question/list.html:23
-#: peerinst/templates/peerinst/teacher/details.html:149
+#: peerinst/templates/peerinst/teacher/details.html:154
 msgid "Questions"
 msgstr "Questions"
 
-#: peerinst/models/assignment.py:49
+#: peerinst/models/assignment.py:51
 msgid "assignment"
 msgstr "questionnaire"
 
-#: peerinst/models/assignment.py:50
+#: peerinst/models/assignment.py:52
 msgid "assignments"
 msgstr "questionnaire"
 
-#: peerinst/models/assignment.py:70
-#: peerinst/templates/peerinst/group/assignment.html:62
+#: peerinst/models/assignment.py:72
+#: peerinst/templates/peerinst/group/assignment.html:58
 msgid "Show correct answers"
 msgstr "Montrer la réponse correcte"
 
-#: peerinst/models/assignment.py:73
+#: peerinst/models/assignment.py:75
 msgid ""
 "Check if students should be shown correct answer after completing the "
 "question."
@@ -456,11 +455,11 @@ msgstr "exercice clignotant"
 msgid "blink assignments"
 msgstr "exercices clignotants"
 
-#: peerinst/models/group.py:25
+#: peerinst/models/group.py:30
 msgid "group"
 msgstr "groupe"
 
-#: peerinst/models/group.py:26
+#: peerinst/models/group.py:31
 msgid "groups"
 msgstr "groupes"
 
@@ -630,8 +629,8 @@ msgstr ""
 #: peerinst/templates/peerinst/blinkassignment_detail.html:76
 #: peerinst/templates/peerinst/blinkassignment_detail.html:175
 #: peerinst/templates/peerinst/question/list.html:52
-#: peerinst/templates/peerinst/question/search_results.html:83
-#: templates/pinax/forums/forums.html:10
+#: peerinst/templates/peerinst/question/search_results.html:91
+#: templates/pinax/forums/forums.html:33
 msgid "Categories"
 msgstr "Catégories"
 
@@ -737,9 +736,29 @@ msgstr "question"
 #: peerinst/templates/peerinst/teacher/assignments.html:71
 #: peerinst/templates/peerinst/teacher/assignments.html:120
 #: peerinst/templates/peerinst/teacher/assignments.html:162
-#: peerinst/templates/peerinst/teacher/details.html:82
+#: peerinst/templates/peerinst/teacher/details.html:86
 msgid "questions"
 msgstr "questions"
+
+#: peerinst/models/question.py:405
+msgid "Reason for flagging a question"
+msgstr ""
+
+#: peerinst/models/question.py:408
+msgid "Reason for flagging a question."
+msgstr ""
+
+#: peerinst/models/question.py:416
+#, fuzzy
+#| msgid "Question categories"
+msgid "Question flag reason"
+msgstr "Catégories de questions"
+
+#: peerinst/models/question.py:434
+#, fuzzy
+#| msgid "Create question"
+msgid "flagged question"
+msgstr "Créer une question"
 
 #: peerinst/models/student.py:42
 msgid "student"
@@ -750,27 +769,27 @@ msgstr "étudiant(e)"
 msgid "students"
 msgstr "étudiants"
 
-#: peerinst/models/teacher.py:23
+#: peerinst/models/teacher.py:25
 msgid "Name of school."
 msgstr "Nom de l'école"
 
-#: peerinst/models/teacher.py:30
+#: peerinst/models/teacher.py:32
 msgid "institution"
 msgstr "établissement"
 
-#: peerinst/models/teacher.py:31
+#: peerinst/models/teacher.py:33
 msgid "institutions"
 msgstr "établissements"
 
-#: peerinst/models/teacher.py:101
+#: peerinst/models/teacher.py:106
 msgid "teacher"
 msgstr "professeur(e)"
 
-#: peerinst/models/teacher.py:102
+#: peerinst/models/teacher.py:107
 msgid "teachers"
 msgstr "professeurs"
 
-#: peerinst/models/teacher.py:137
+#: peerinst/models/teacher.py:142
 #, fuzzy
 #| msgid ""
 #| "Teacher-only email domain, if available.  Email addresses with these "
@@ -783,7 +802,7 @@ msgstr ""
 "adresses de courriel comportant ces domaines seront considérées comme "
 "vérifiées."
 
-#: peerinst/rationale_choice.py:93
+#: peerinst/rationale_choice.py:120
 #, fuzzy
 #| msgid ""
 #| "Can't proceed since the course staff did not provide example answers."
@@ -794,15 +813,15 @@ msgstr ""
 "Impossible de continuer puisque le responsable du cours n'a pas fourni "
 "d'exemples de réponses."
 
-#: peerinst/rationale_choice.py:118
+#: peerinst/rationale_choice.py:145
 msgid "I stick with my own rationale."
 msgstr "Je m'en tiens à ma propre explication."
 
-#: peerinst/rationale_choice.py:135
+#: peerinst/rationale_choice.py:162
 msgid "Simple random rationale selection"
 msgstr "Simple sélection d'explication au hasard"
 
-#: peerinst/rationale_choice.py:137
+#: peerinst/rationale_choice.py:164
 #, fuzzy
 #| msgid ""
 #| "The two answer choices presented will include the answer the user chose.  "
@@ -843,11 +862,11 @@ msgstr ""
 "pour chaque choix, si disponibles. De plus, l'utilisateur peut choisir de "
 "s'en tenir à sa propre explication."
 
-#: peerinst/rationale_choice.py:157
+#: peerinst/rationale_choice.py:184
 msgid "Simple random rationale selection for sequential review"
 msgstr "Simple sélection d'explication au hasard pour l'examen séquentiel"
 
-#: peerinst/rationale_choice.py:160
+#: peerinst/rationale_choice.py:187
 #, fuzzy
 #| msgid ""
 #| "The two answer choices presented will include the answer the user chose.  "
@@ -887,13 +906,13 @@ msgstr ""
 "pour chaque choix, si disponibles. De plus, l'utilisateur peut choisir de "
 "s'en tenir à sa propre explication."
 
-#: peerinst/rationale_choice.py:210
+#: peerinst/rationale_choice.py:237
 msgid "Prefer expert and highly votes rationales"
 msgstr ""
 "Préférence pour les explications d'experts ou ayant obtenu un grand nombre "
 "de votes"
 
-#: peerinst/rationale_choice.py:213
+#: peerinst/rationale_choice.py:240
 #, fuzzy
 #| msgid ""
 #| "The two answer choices presented will include the answer the user chose.  "
@@ -1184,7 +1203,7 @@ msgstr ""
 "(questions)"
 
 #: peerinst/templates/admin/peerinst/question/rationales.html:53
-#: peerinst/templates/peerinst/teacher/details.html:82
+#: peerinst/templates/peerinst/teacher/details.html:86
 msgid "answers"
 msgstr "réponses"
 
@@ -1263,8 +1282,8 @@ msgstr ""
 #: peerinst/templates/peerinst/blinkassignment_detail.html:73
 #: peerinst/templates/peerinst/blinkassignment_detail.html:172
 #: peerinst/templates/peerinst/question/list.html:49
-#: peerinst/templates/peerinst/question/search_results.html:80
-#: peerinst/templates/peerinst/teacher/details.html:289
+#: peerinst/templates/peerinst/question/search_results.html:88
+#: peerinst/templates/peerinst/teacher/details.html:332
 msgid "Discipline"
 msgstr "Disciplines"
 
@@ -1273,7 +1292,7 @@ msgstr "Disciplines"
 #: peerinst/templates/peerinst/blinkassignment_detail.html:80
 #: peerinst/templates/peerinst/blinkassignment_detail.html:179
 #: peerinst/templates/peerinst/question/list.html:56
-#: peerinst/templates/peerinst/question/search_results.html:87
+#: peerinst/templates/peerinst/question/search_results.html:95
 msgid "Uncategorized"
 msgstr "Non classé"
 
@@ -1282,7 +1301,7 @@ msgstr "Non classé"
 #: peerinst/templates/peerinst/blinkassignment_detail.html:84
 #: peerinst/templates/peerinst/blinkassignment_detail.html:183
 #: peerinst/templates/peerinst/question/list.html:60
-#: peerinst/templates/peerinst/question/search_results.html:91
+#: peerinst/templates/peerinst/question/search_results.html:99
 #, fuzzy
 #| msgid "Student Responses"
 msgid "Student answers"
@@ -1417,7 +1436,7 @@ msgid "Waiting for students"
 msgstr "En attente de la réponse des étudiants"
 
 #: peerinst/templates/peerinst/blink_waiting.html:16
-#: peerinst/templates/peerinst/teacher/details.html:224
+#: peerinst/templates/peerinst/teacher/details.html:232
 msgid "Student link"
 msgstr "Lien pour l'étudiant(e)"
 
@@ -1611,62 +1630,77 @@ msgstr "Se connecter"
 msgid "Details"
 msgstr ""
 
-#: peerinst/templates/peerinst/group/assignment.html:44
+#: peerinst/templates/peerinst/group/assignment.html:42
 msgid "Due date"
 msgstr ""
 
-#: peerinst/templates/peerinst/group/assignment.html:64
+#: peerinst/templates/peerinst/group/assignment.html:60
 msgid "Grade answer and show correct"
 msgstr ""
 
-#: peerinst/templates/peerinst/group/assignment.html:72
+#: peerinst/templates/peerinst/group/assignment.html:68
 #, fuzzy
 #| msgid "Reset answers"
 msgid "Hide correct answers"
 msgstr "Réinitialiser les réponses"
 
-#: peerinst/templates/peerinst/group/assignment.html:74
+#: peerinst/templates/peerinst/group/assignment.html:70
 msgid "Do not grade or show correct"
 msgstr ""
 
-#: peerinst/templates/peerinst/group/assignment.html:112
+#: peerinst/templates/peerinst/group/assignment.html:77
+#: peerinst/templates/peerinst/group/details.html:147
+#: peerinst/templates/peerinst/teacher/details.html:279
+msgid "Quality evaluation for allowing rationale submission"
+msgstr "Les critères selon lesquels les réponses des etudiants seront evalués "
+" avant qu'ils sont acceptés dans le système"
+
+#: peerinst/templates/peerinst/group/assignment.html:84
+#: peerinst/templates/peerinst/group/details.html:154
+#: peerinst/templates/peerinst/teacher/details.html:288
+msgid "Submission quality"
+msgstr "Critères d'admissibilté"
+
+#: peerinst/templates/peerinst/group/assignment.html:138
+#: peerinst/templates/peerinst/research/answer-expert-update.html:82
+#: peerinst/templates/peerinst/research/flag_question.html:87
 #: tos/templates/tos/email_modify.html:60
 #: tos/templates/tos/email_modify.html:112
 msgid "Save"
-msgstr ""
+msgstr "Sauvgarder"
 
-#: peerinst/templates/peerinst/group/assignment.html:119
+#: peerinst/templates/peerinst/group/assignment.html:145
 #, fuzzy
 #| msgid "Student Responses"
 msgid "Student progress"
 msgstr "Réponses des étudiants"
 
-#: peerinst/templates/peerinst/group/assignment.html:123
+#: peerinst/templates/peerinst/group/assignment.html:149
 #, fuzzy
 #| msgid "Generate Report"
 msgid "Generate report"
 msgstr "Produire un rapport"
 
-#: peerinst/templates/peerinst/group/assignment.html:142
-#: peerinst/templates/peerinst/group/details.html:195
+#: peerinst/templates/peerinst/group/assignment.html:168
+#: peerinst/templates/peerinst/group/details.html:227
 #, fuzzy
 #| msgid "Student link"
 msgid "Student list"
 msgstr "Lien pour l'étudiant(e)"
 
-#: peerinst/templates/peerinst/group/assignment.html:160
+#: peerinst/templates/peerinst/group/assignment.html:186
 #, fuzzy
 #| msgid "this assignment"
 msgid "Started assignment: "
 msgstr "cet exercice"
 
-#: peerinst/templates/peerinst/group/assignment.html:160
+#: peerinst/templates/peerinst/group/assignment.html:186
 #: tos/templates/tos/email_modify.html:100
 #: tos/templates/tos/email_modify.html:104
 msgid "Yes"
 msgstr ""
 
-#: peerinst/templates/peerinst/group/assignment.html:160
+#: peerinst/templates/peerinst/group/assignment.html:186
 #: tos/templates/tos/email_modify.html:101
 #: tos/templates/tos/email_modify.html:105
 #, fuzzy
@@ -1674,8 +1708,14 @@ msgstr ""
 msgid "No"
 msgstr "Non"
 
-#: peerinst/templates/peerinst/group/assignment.html:175
-#: peerinst/templates/peerinst/group/details.html:224
+#: peerinst/templates/peerinst/group/assignment.html:191
+#, fuzzy
+#| msgid "Student link"
+msgid "Resend link"
+msgstr "Lien pour l'étudiant(e)"
+
+#: peerinst/templates/peerinst/group/assignment.html:201
+#: peerinst/templates/peerinst/group/details.html:256
 msgid "No student has signed up yet"
 msgstr ""
 
@@ -1713,23 +1753,23 @@ msgstr ""
 msgid "Teachers with access"
 msgstr ""
 
-#: peerinst/templates/peerinst/group/details.html:166
+#: peerinst/templates/peerinst/group/details.html:198
 #: peerinst/templates/peerinst/teacher/studentgroup_assignments.html:47
 msgid "Distributed: "
 msgstr ""
 
-#: peerinst/templates/peerinst/group/details.html:169
+#: peerinst/templates/peerinst/group/details.html:201
 #: peerinst/templates/peerinst/teacher/studentgroup_assignments.html:50
 msgid "Due date: "
 msgstr ""
 
-#: peerinst/templates/peerinst/group/details.html:184
+#: peerinst/templates/peerinst/group/details.html:216
 #, fuzzy
 #| msgid "These are all the assignments in the database."
 msgid "There aren't any assignments for this group yet."
 msgstr "Voici tous les exercices présents dans la base de données."
 
-#: peerinst/templates/peerinst/group/details.html:213
+#: peerinst/templates/peerinst/group/details.html:245
 #, fuzzy
 #| msgid "Back to login"
 msgid "Last login: "
@@ -1765,7 +1805,7 @@ msgstr ""
 #: peerinst/templates/peerinst/question/form.html:413
 #: peerinst/templates/peerinst/question/form.html:419
 #: peerinst/templates/peerinst/question/form.html:434
-#: peerinst/templates/peerinst/question/start.html:98
+#: peerinst/templates/peerinst/question/start.html:109
 msgid "Next"
 msgstr "Suivante"
 
@@ -1780,10 +1820,56 @@ msgstr ""
 msgid "Clone"
 msgstr ""
 
+#: peerinst/templates/peerinst/question/fix_expert_rationales.html:7
+#: peerinst/templates/peerinst/research/question_index.html:94
+#, fuzzy
+#| msgid "Expert rationale?"
+msgid "Expert Rationales"
+msgstr "Explication d'expert?"
+
+#: peerinst/templates/peerinst/question/fix_expert_rationales.html:15
+msgid ""
+"\n"
+"      This is a preview of how the question looks in the student interface, "
+"except only the answer choices that are marked as correct are shown.\n"
+"      The purpose of this page is to enter rationales that are associated "
+"with the correct answer choices, so that they can be shown to students as a "
+"model of\n"
+"      how a teacher may explain the underlying concepts (no distractors "
+"here, please!)\n"
+"      "
+msgstr ""
+
+#: peerinst/templates/peerinst/question/fix_expert_rationales.html:21
+#: peerinst/templates/peerinst/question/preview.html:26
+msgid ""
+"\n"
+"      This is a preview of how the question looks in the student interface.\n"
+"      "
+msgstr ""
+
+#: peerinst/templates/peerinst/question/fix_expert_rationales.html:41
+#, fuzzy
+#| msgid "Expert rationale?"
+msgid "Submit expert rationale"
+msgstr "Explication d'expert?"
+
+#: peerinst/templates/peerinst/question/fix_expert_rationales.html:46
+#, fuzzy
+#| msgid "Expert rationale?"
+msgid "Existing Expert Rationales"
+msgstr "Explication d'expert?"
+
+#: peerinst/templates/peerinst/question/fix_expert_rationales.html:70
+#: peerinst/templates/peerinst/question/fix_expert_rationales.html:74
+#: peerinst/templates/peerinst/question/preview.html:90
+msgid "Done"
+msgstr ""
+
 #: peerinst/templates/peerinst/question/form.html:38
 #: peerinst/templates/peerinst/question/start.html:13
 #: peerinst/templates/peerinst/report_all_rationales.html:112
-#: peerinst/templates/peerinst/research/answer_list.html:27
+#: peerinst/templates/peerinst/research/answer_list.html:32
 msgid "Question"
 msgstr "Question"
 
@@ -1849,8 +1935,8 @@ msgid "Edit question list"
 msgstr "Modifier la liste de questions"
 
 #: peerinst/templates/peerinst/question/list.html:19
-msgid "Score Rationales"
-msgstr "Évaluer les explications"
+msgid "Score Rationales / Flag Questions / Update Expert Answers"
+msgstr ""
 
 #: peerinst/templates/peerinst/question/list.html:113
 msgid "Student rationales"
@@ -1905,28 +1991,17 @@ msgstr ""
 "Il est préférables que vous fournissiez quelques explications pour chaque "
 "choix, même si elles sont inexactes."
 
-#: peerinst/templates/peerinst/question/preview.html:26
-msgid ""
-"\n"
-"      This is a preview of how the question looks in the student interface.\n"
-"      "
-msgstr ""
-
-#: peerinst/templates/peerinst/question/preview.html:41
+#: peerinst/templates/peerinst/question/preview.html:40
 #, fuzzy
 #| msgid "example answers"
 msgid "Existing sample answers"
 msgstr "Exemples de réponses"
 
-#: peerinst/templates/peerinst/question/preview.html:54
+#: peerinst/templates/peerinst/question/preview.html:56
 #, fuzzy
 #| msgid "Back to assignment"
 msgid "Auto add to assignments"
 msgstr "Revenir à l'exercice"
-
-#: peerinst/templates/peerinst/question/preview.html:87
-msgid "Done"
-msgstr ""
 
 #: peerinst/templates/peerinst/question/review.html:9
 msgid ""
@@ -1986,7 +2061,7 @@ msgid "No search results"
 msgstr "Aucun résultat"
 
 #: peerinst/templates/peerinst/question/search_results.html:17
-#: peerinst/templates/peerinst/question/search_results.html:148
+#: peerinst/templates/peerinst/question/search_results.html:156
 msgid "Page"
 msgstr ""
 
@@ -2056,7 +2131,6 @@ msgstr ""
 " et avez sélectionné l'explication suivante :"
 
 #: peerinst/templates/peerinst/question/summary.html:31
-#| msgid "Show correct answers"
 msgid "Correct answer(s)"
 msgstr "Réponse correcte"
 
@@ -2181,53 +2255,137 @@ msgstr ""
 
 #: peerinst/templates/peerinst/research/all_annotations.html:21
 #: peerinst/templates/peerinst/research/all_annotations.html:23
-#: peerinst/templates/peerinst/research/answer_list.html:32
-#: peerinst/templates/peerinst/research/answer_list.html:34
+#: peerinst/templates/peerinst/research/answer-expert-update.html:34
+#: peerinst/templates/peerinst/research/answer-expert-update.html:36
+#: peerinst/templates/peerinst/research/answer_list.html:36
+#: peerinst/templates/peerinst/research/answer_list.html:38
+#: peerinst/templates/peerinst/research/flag_question.html:34
+#: peerinst/templates/peerinst/research/flag_question.html:36
 #, fuzzy
 #| msgid "Edit question list"
 msgid "Back to Question List"
 msgstr "Modifier la liste de questions"
 
 #: peerinst/templates/peerinst/research/all_annotations.html:24
-#: peerinst/templates/peerinst/research/answer_list.html:35
-#: peerinst/templates/peerinst/research/question_index.html:15
+#: peerinst/templates/peerinst/research/answer-expert-update.html:37
+#: peerinst/templates/peerinst/research/answer_list.html:39
+#: peerinst/templates/peerinst/research/flag_question.html:37
+#: peerinst/templates/peerinst/research/question_index.html:30
 #, fuzzy
 #| msgid "Back to assignment"
 msgid "Back to Assignment"
 msgstr "Revenir à l'exercice"
 
-#: peerinst/templates/peerinst/research/answer_list.html:47
+#: peerinst/templates/peerinst/research/answer-expert-update.html:30
+#: peerinst/templates/peerinst/research/answer-expert-update.html:146
+msgid "Update Expert Rationale"
+msgstr "Explication d'expert?"
+
+#: peerinst/templates/peerinst/research/answer-expert-update.html:79
+msgid ""
+"Is the following rationale appropriate for a student to study off of for the "
+"associated correct answer?"
+msgstr ""
+
+#: peerinst/templates/peerinst/research/answer-expert-update.html:151
+msgid ""
+"Please use this page to decide if the rationale is associated with the "
+"correct answer choice for the questions below.<br><br>\n"
+"              Thank you for your time!<br><br>\n"
+"              - The SALTISE/S4 Team"
+msgstr ""
+
+#: peerinst/templates/peerinst/research/answer_list.html:41
+#, python-format
+msgid "Answers to score: %(count)s"
+msgstr ""
+
+#: peerinst/templates/peerinst/research/answer_list.html:42
+#, python-format
+msgid ""
+"Total rationales scored for this answer choice by %(annotator)s: "
+"%(annotations_count)s"
+msgstr ""
+
+#: peerinst/templates/peerinst/research/answer_list.html:53
 #, fuzzy
 #| msgid "rationales"
 msgid "Scoring Rationales"
 msgstr "explications"
 
-#: peerinst/templates/peerinst/research/answer_list.html:51
+#: peerinst/templates/peerinst/research/answer_list.html:58
 msgid ""
 "Please use the table below to score the rationales for this answer choice to "
 "this question.<br><br>\n"
-"                These rationales will be shown to students (hover on the "
-"text to see how many times they have already been shown).<br><br>\n"
-"                The goal here is to score based on how <em>convincing</em> "
-"the rationale is, <em>even if it is for the wrong answer!</em><br><br>\n"
-"                As a subject matter expert, your scores will help determine "
+"              These rationales will be shown to students (hover on the text "
+"to see how many times they have already been shown).<br><br>\n"
+"              The goal here is to score based on how <em>convincing</em> the "
+"rationale is, <em>even if it is for the wrong answer!</em><br><br>\n"
+"              As a subject matter expert, your scores will help determine "
 "what rationales get shown to future students.<br><br>\n"
-"                Thank you for your contribution in helping maintain the "
+"              Thank you for your contribution in helping maintain the "
 "database!<br><br>\n"
-"                - The SALTISE/S4 Team"
+"              - The SALTISE/S4 Team"
 msgstr ""
 
-#: peerinst/templates/peerinst/research/answer_list.html:72
-#: peerinst/templates/peerinst/research/answer_list.html:73
+#: peerinst/templates/peerinst/research/answer_list.html:78
+#: peerinst/templates/peerinst/research/answer_list.html:79
+#: peerinst/templates/peerinst/research/flag_question.html:92
+#: peerinst/templates/peerinst/research/flag_question.html:93
 msgid "Show/Hide"
 msgstr ""
 
-#: peerinst/templates/peerinst/research/answer_list.html:75
+#: peerinst/templates/peerinst/research/answer_list.html:81
+#: peerinst/templates/peerinst/research/flag_question.html:95
 msgid "Show"
 msgstr ""
 
-#: peerinst/templates/peerinst/research/answer_list.html:76
+#: peerinst/templates/peerinst/research/answer_list.html:82
+#: peerinst/templates/peerinst/research/flag_question.html:96
 msgid "Hide"
+msgstr ""
+
+#: peerinst/templates/peerinst/research/answer_list.html:157
+msgid "Times shown: "
+msgstr ""
+
+#: peerinst/templates/peerinst/research/flag_question.html:30
+#, fuzzy
+#| msgid "Question"
+msgid "Flag Question"
+msgstr "Question"
+
+#: peerinst/templates/peerinst/research/flag_question.html:121
+#, fuzzy
+#| msgid "Blink Question"
+msgid "Flagging questions"
+msgstr "Question clignotante"
+
+#: peerinst/templates/peerinst/research/flag_question.html:126
+msgid ""
+"Please use this page to flag a question you believe should be reviewed by a "
+"myDALITE moderator, and maybe taken out of the database.<br><br>\n"
+"              This may be because the answer is incorrect, the image is "
+"infringing on copyright, or the content is inappropriate.<br><br>\n"
+"              As a subject matter expert, and a member of the myDALITE "
+"community, your input will help maintain the quality of the database of "
+"questions.<br><br>\n"
+"              Thank you for your time!<br><br>\n"
+"              - The SALTISE/S4 Team"
+msgstr ""
+
+#: peerinst/templates/peerinst/research/flag_question.html:173
+#, fuzzy
+#| msgid "Top %(perpage)s rationales for answers to %(question)s"
+msgid "Expert rationales for the correct answer to this question"
+msgstr ""
+"Explications ayant les meilleurs % (par page) pour les réponses aux % "
+"(questions)"
+
+#: peerinst/templates/peerinst/research/flag_question.html:189
+msgid ""
+"Sorry, there are no rationales that have been marked as expert for this "
+"question."
 msgstr ""
 
 #: peerinst/templates/peerinst/research/index.html:9
@@ -2242,15 +2400,63 @@ msgstr "Disciplines"
 msgid "Back to Browse"
 msgstr "Se connecter"
 
-#: peerinst/templates/peerinst/research/question_index.html:10
-#, fuzzy
-#| msgid "Questions"
-msgid "Questions in "
-msgstr "Questions"
+#: peerinst/templates/peerinst/research/question_index.html:24
+msgid "Quality Control"
+msgstr "Contrôle de qualité"
 
-#: peerinst/templates/peerinst/research/question_index.html:14
+#: peerinst/templates/peerinst/research/question_index.html:29
 msgid "Back to List of Disciplines"
 msgstr ""
+
+#: peerinst/templates/peerinst/research/question_index.html:31
+#, python-format
+msgid "Number of rationales scored by %(annotator)s: %(annotations_count)s"
+msgstr ""
+
+#: peerinst/templates/peerinst/research/question_index.html:43
+msgid ""
+"Below is a list of questions and their answer choices. The numbers in the "
+"brackets are meant to give you an idea of the state of the database as it "
+"stands right now.  The numbers are, in order:"
+msgstr ""
+
+#: peerinst/templates/peerinst/research/question_index.html:53
+msgid ""
+"These numbers are then broken down by answer choice below the Question ID. "
+"Click on the Answer Choice to add or update your scoring of the rationales."
+msgstr ""
+
+#: peerinst/templates/peerinst/research/question_index.html:56
+msgid "The icons to the left allow you to: "
+msgstr ""
+
+#: peerinst/templates/peerinst/research/question_index.html:73
+#: peerinst/templates/peerinst/research/question_index.html:77
+msgid "See all scores"
+msgstr ""
+
+#: peerinst/templates/peerinst/research/question_index.html:75
+#: peerinst/templates/peerinst/research/question_index.html:79
+msgid "Flag question as problematic"
+msgstr ""
+
+#: peerinst/templates/peerinst/research/question_index.html:82
+#, fuzzy
+#| msgid "Expert rationale?"
+msgid "Add/edit expert rationales"
+msgstr "Explication d'expert?"
+
+#: peerinst/templates/peerinst/research/question_index.html:85
+#, fuzzy
+#| msgid "Expert rationale?"
+msgid "Show expert rationales "
+msgstr "Explication d'expert?"
+
+#: peerinst/templates/peerinst/research/question_index.html:112
+#, fuzzy
+#| msgid "Expert rationale?"
+msgid "No expert rationales"
+msgstr "Explication d'expert?"
 
 #: peerinst/templates/peerinst/student/assignment_complete.html:13
 #, fuzzy
@@ -2423,14 +2629,14 @@ msgid "My Account"
 msgstr "Mon compte"
 
 #: peerinst/templates/peerinst/student/index.html:16
-#: peerinst/templates/peerinst/teacher/details.html:264
+#: peerinst/templates/peerinst/teacher/details.html:306
 #: peerinst/templates/peerinst/teacher/form.html:18
 #: peerinst/templates/registration/password_change_form.html:8
 msgid "Identity"
 msgstr "Identité"
 
 #: peerinst/templates/peerinst/student/index.html:31
-#: peerinst/templates/peerinst/teacher/details.html:276
+#: peerinst/templates/peerinst/teacher/details.html:319
 msgid "Member since: "
 msgstr "Membre depuis :"
 
@@ -2439,12 +2645,12 @@ msgid "Terms of service: "
 msgstr "Conditions d'utilisation: "
 
 #: peerinst/templates/peerinst/student/index.html:51
-#: peerinst/templates/peerinst/teacher/details.html:319
+#: peerinst/templates/peerinst/teacher/details.html:362
 msgid "Signed: "
 msgstr "Acceptés: "
 
 #: peerinst/templates/peerinst/student/index.html:68
-#: peerinst/templates/peerinst/teacher/details.html:21
+#: peerinst/templates/peerinst/teacher/details.html:22
 msgid "Groups"
 msgstr "Groupes"
 
@@ -2634,51 +2840,51 @@ msgstr ""
 msgid "These are all the assignments in the database."
 msgstr "Voici tous les exercices présents dans la base de données."
 
-#: peerinst/templates/peerinst/teacher/details.html:24
+#: peerinst/templates/peerinst/teacher/details.html:26
 msgid "Manage groups"
 msgstr "Gérer les groupes"
 
-#: peerinst/templates/peerinst/teacher/details.html:25
+#: peerinst/templates/peerinst/teacher/details.html:27
 msgid "Homework list"
 msgstr ""
 
-#: peerinst/templates/peerinst/teacher/details.html:28
+#: peerinst/templates/peerinst/teacher/details.html:30
 #, fuzzy
 #| msgid "You are not currently following any student groups."
 msgid "You have no active student groups."
 msgstr "Vous ne suivez pas actuellement de groupes d'étudiants."
 
-#: peerinst/templates/peerinst/teacher/details.html:40
+#: peerinst/templates/peerinst/teacher/details.html:42
 #: peerinst/templates/peerinst/teacher/groups.html:67
 #: peerinst/templates/peerinst/teacher/groups.html:101
 msgid "Created: "
 msgstr "Créé le :"
 
-#: peerinst/templates/peerinst/teacher/details.html:43
+#: peerinst/templates/peerinst/teacher/details.html:45
 #: peerinst/templates/peerinst/teacher/groups.html:70
 #: peerinst/templates/peerinst/teacher/groups.html:104
 msgid "Students: "
 msgstr "Étudiants :"
 
-#: peerinst/templates/peerinst/teacher/details.html:65
+#: peerinst/templates/peerinst/teacher/details.html:69
 msgid "Manage assignments"
 msgstr "Gérer les exercices"
 
-#: peerinst/templates/peerinst/teacher/details.html:66
+#: peerinst/templates/peerinst/teacher/details.html:70
 #, fuzzy
 #| msgid "Custom Reports"
 msgid "Custom reports"
 msgstr "Rapports personnalisés"
 
-#: peerinst/templates/peerinst/teacher/details.html:70
+#: peerinst/templates/peerinst/teacher/details.html:74
 msgid "You do not have any assignments."
 msgstr "Vous n'avez aucun exercice."
 
-#: peerinst/templates/peerinst/teacher/details.html:113
+#: peerinst/templates/peerinst/teacher/details.html:117
 msgid "How to use in your course through LTI"
 msgstr "Comment l'utiliser dans votre cours par l'entremise du LTI"
 
-#: peerinst/templates/peerinst/teacher/details.html:117
+#: peerinst/templates/peerinst/teacher/details.html:121
 msgid ""
 "Use the following to configure the LTI tool in your Learning Management "
 "System (e.g. Moodle, OpenEdx)"
@@ -2686,19 +2892,19 @@ msgstr ""
 "Utilisez les options suivantes pour configurer l'outil LTI dans votre "
 "Gestionnaire d'apprentissage (p. ex., Moodle, OpenEdx)."
 
-#: peerinst/templates/peerinst/teacher/details.html:119
+#: peerinst/templates/peerinst/teacher/details.html:123
 msgid "LTI Launch URL"
 msgstr "URL de lancement du LTI"
 
-#: peerinst/templates/peerinst/teacher/details.html:120
+#: peerinst/templates/peerinst/teacher/details.html:124
 msgid "LTI Consumer Key"
 msgstr "Clé du consommateur LTI"
 
-#: peerinst/templates/peerinst/teacher/details.html:121
+#: peerinst/templates/peerinst/teacher/details.html:125
 msgid "LTI Shared Secret"
 msgstr "Secret partagé LTI"
 
-#: peerinst/templates/peerinst/teacher/details.html:123
+#: peerinst/templates/peerinst/teacher/details.html:127
 msgid ""
 "To import any of the questions below, copy and paste the text below the "
 "question title into the <em>Custom Paramaters</em> box of your LTI tool"
@@ -2707,48 +2913,48 @@ msgstr ""
 "texte sous le titre de la question dans la fenêtre <em>Personnaliser les "
 "paramètres</em> de votre outil LTI"
 
-#: peerinst/templates/peerinst/teacher/details.html:152
+#: peerinst/templates/peerinst/teacher/details.html:158
 #, fuzzy
 #| msgid "Created: "
 msgid "Create new"
 msgstr "Créé le :"
 
-#: peerinst/templates/peerinst/teacher/details.html:153
+#: peerinst/templates/peerinst/teacher/details.html:159
 msgid "Show deleted"
 msgstr ""
 
-#: peerinst/templates/peerinst/teacher/details.html:153
+#: peerinst/templates/peerinst/teacher/details.html:159
 msgid "Hide deleted"
 msgstr ""
 
-#: peerinst/templates/peerinst/teacher/details.html:156
+#: peerinst/templates/peerinst/teacher/details.html:162
 #, fuzzy
 #| msgid "questions"
 msgid "My questions"
 msgstr "questions"
 
-#: peerinst/templates/peerinst/teacher/details.html:158
+#: peerinst/templates/peerinst/teacher/details.html:164
 msgid "You do not have any questions.  Create one using the link above!"
 msgstr ""
 
-#: peerinst/templates/peerinst/teacher/details.html:170
-#: peerinst/templates/peerinst/teacher/details.html:200
+#: peerinst/templates/peerinst/teacher/details.html:176
+#: peerinst/templates/peerinst/teacher/details.html:206
 msgid "Last modified: "
 msgstr ""
 
-#: peerinst/templates/peerinst/teacher/details.html:187
+#: peerinst/templates/peerinst/teacher/details.html:193
 msgid "Collaborations"
 msgstr ""
 
-#: peerinst/templates/peerinst/teacher/details.html:219
+#: peerinst/templates/peerinst/teacher/details.html:226
 msgid "Blink scripts"
 msgstr "Scripts clignotants"
 
-#: peerinst/templates/peerinst/teacher/details.html:222
+#: peerinst/templates/peerinst/teacher/details.html:230
 msgid "Add script"
 msgstr "Ajouter un script"
 
-#: peerinst/templates/peerinst/teacher/details.html:227
+#: peerinst/templates/peerinst/teacher/details.html:235
 msgid ""
 "A blink script is a series of blink questions strung together into one "
 "activity.  You do not have any blink scripts."
@@ -2756,31 +2962,35 @@ msgstr ""
 "Un script clignotant est une série de questions clignotantes rassemblées en "
 "une seule activité. Vous n'avez aucun script clignotant."
 
-#: peerinst/templates/peerinst/teacher/details.html:245
+#: peerinst/templates/peerinst/teacher/details.html:253
 msgid "question(s)"
 msgstr "question(s)"
 
 #: peerinst/templates/peerinst/teacher/details.html:273
+msgid "Quality control"
+msgstr "Contrôle de qualité"
+
+#: peerinst/templates/peerinst/teacher/details.html:316
 msgid "Email: "
 msgstr "Courriel :"
 
-#: peerinst/templates/peerinst/teacher/details.html:302
+#: peerinst/templates/peerinst/teacher/details.html:345
 msgid "Institution"
 msgstr "Établissement"
 
-#: peerinst/templates/peerinst/teacher/details.html:312
+#: peerinst/templates/peerinst/teacher/details.html:355
 msgid "Terms of service: Sharing"
 msgstr ""
 
-#: peerinst/templates/peerinst/teacher/details.html:316
+#: peerinst/templates/peerinst/teacher/details.html:359
 msgid "Terms of service: Not sharing"
 msgstr ""
 
-#: peerinst/templates/peerinst/teacher/details.html:328
+#: peerinst/templates/peerinst/teacher/details.html:371
 msgid "Email settings"
 msgstr ""
 
-#: peerinst/templates/peerinst/teacher/details.html:330
+#: peerinst/templates/peerinst/teacher/details.html:373
 #, fuzzy
 #| msgid "Verification url"
 msgid "Notifications: "
@@ -3510,10 +3720,13 @@ msgid ""
 "To validate this request, click the link in the confirmation email sent to: "
 msgstr ""
 
-#: peerinst/views/assignment.py:28 peerinst/views/group.py:39
-#: peerinst/views/group.py:210 peerinst/views/student.py:72
+#: peerinst/views/assignment.py:28 peerinst/views/group.py:40
+#: peerinst/views/group.py:211 peerinst/views/student.py:72
 #: peerinst/views/student.py:544 peerinst/views/student.py:618
-#: peerinst/views/student.py:674 tos/views/tos.py:61
+#: peerinst/views/student.py:674 quality/views/edit.py:409
+#: quality/views/edit.py:483 quality/views/edit.py:557
+#: quality/views/evaluation.py:38 quality/views/validation.py:38
+#: tos/views/tos.py:61
 msgid "There are missing parameters."
 msgstr ""
 
@@ -3523,6 +3736,9 @@ msgstr ""
 
 #: peerinst/views/decorators.py:26 peerinst/views/decorators.py:40
 #: peerinst/views/decorators.py:118 peerinst/views/decorators.py:136
+#: quality/views/decorators.py:22 quality/views/edit.py:109
+#: quality/views/edit.py:119 quality/views/edit.py:191
+#: quality/views/edit.py:201 quality/views/edit.py:258
 msgid "You don't have access to this resource."
 msgstr ""
 
@@ -3542,50 +3758,82 @@ msgid ""
 "for the group {}."
 msgstr ""
 
-#: peerinst/views/group.py:33 peerinst/views/group.py:117
-#: peerinst/views/group.py:205 peerinst/views/student.py:57
+#: peerinst/views/group.py:34 peerinst/views/group.py:118
+#: peerinst/views/group.py:206 peerinst/views/student.py:57
 #: peerinst/views/student.py:534 peerinst/views/student.py:607
+#: quality/views/edit.py:399 quality/views/edit.py:471
+#: quality/views/edit.py:547 quality/views/evaluation.py:28
+#: quality/views/validation.py:28
 msgid "Wrong data type was sent."
 msgstr ""
 
-#: peerinst/views/group.py:87
+#: peerinst/views/group.py:88
 msgid "That name already exists."
 msgstr ""
 
-#: peerinst/views/group.py:103
+#: peerinst/views/group.py:104
 msgid "There is no teacher with username {}."
 msgstr ""
 
-#: peerinst/views/group.py:162
+#: peerinst/views/group.py:163
 msgid "Distribute"
 msgstr ""
 
-#: peerinst/views/group.py:163
+#: peerinst/views/group.py:164
 msgid "Distributed"
 msgstr ""
 
-#: peerinst/views/group.py:216
+#: peerinst/views/group.py:217
 msgid "There is no student with email \"{}\"."
 msgstr ""
 
-#: peerinst/views/standalone_views.py:43
+#: peerinst/views/research.py:238
+#, fuzzy
+#| msgid "Score Rationales"
+msgid "Scores updated"
+msgstr "Évaluer les explications"
+
+#: peerinst/views/research.py:350
+msgid ""
+"\n"
+"                    You have flagged this question, and your input\n"
+"                    has been forwarded to a myDALITE content moderator.\n"
+"                    "
+msgstr ""
+
+#: peerinst/views/research.py:357
+msgid ""
+"\n"
+"                    You have un-flagged this question, and thus it will be\n"
+"                    taken off the list of potentially problematic "
+"questions.\n"
+"                    "
+msgstr ""
+
+#: peerinst/views/standalone_views.py:47
 msgid ""
 "The group couldn't be found. Bear in mind that the URL is case-sensitive."
 msgstr ""
 
-#: peerinst/views/standalone_views.py:53
+#: peerinst/views/standalone_views.py:57
 #, fuzzy
 #| msgid "There was a problem with your submission"
 msgid "There was a problem with the values sent."
 msgstr "Un problème est survenu avec votre demande."
 
-#: peerinst/views/standalone_views.py:62
+#: peerinst/views/standalone_views.py:66
 msgid ""
 "There already exists a user with this username. Try a different email "
 "address."
 msgstr ""
 
-#: peerinst/views/standalone_views.py:149
+#: peerinst/views/standalone_views.py:113
+msgid ""
+"This url doesn't correspond to any assignment. It may have been deleted by "
+"your teacher."
+msgstr ""
+
+#: peerinst/views/standalone_views.py:180
 msgid "Try logging in again using the link to this assignment sent via email."
 msgstr ""
 
@@ -3709,23 +3957,23 @@ msgstr ""
 msgid "The wanted group doesn't seem to exist."
 msgstr ""
 
-#: peerinst/views/views.py:217
+#: peerinst/views/views.py:215
 msgid "Your myDALITE account has been activated"
 msgstr "Votre compte myDALITE a été activé."
 
-#: peerinst/views/views.py:369
+#: peerinst/views/views.py:367
 msgid "Copy of "
 msgstr ""
 
-#: peerinst/views/views.py:1070
+#: peerinst/views/views.py:1075
 msgid "There was a problem with your submission"
 msgstr "Un problème est survenu avec votre demande."
 
-#: peerinst/views/views.py:1071
+#: peerinst/views/views.py:1076
 msgid "Check the form below."
 msgstr "Veuillez vérifier le formulaire ci-dessous."
 
-#: peerinst/views/views.py:1339
+#: peerinst/views/views.py:1344
 #, fuzzy
 #| msgid ""
 #| "The rationale you chose does not exist anymore.  This should not happen.  "
@@ -3737,7 +3985,7 @@ msgstr ""
 "L'explication que vous avez choisie n'existe plus. Ceci ne devrait pas se "
 "produire. Veuillez recommencer la question."
 
-#: peerinst/views/views.py:1350
+#: peerinst/views/views.py:1355
 msgid ""
 "The rationale you chose does not match your second answer choice.  This "
 "should not happen.  Please start over with the question."
@@ -3746,19 +3994,98 @@ msgstr ""
 "choix de réponse. Ceci ne devrait pas se produire. Veuillez recommencer la "
 "question."
 
-#: peerinst/views/views.py:2666
+#: peerinst/views/views.py:2671
 msgid ""
 "You must be logged in as a teacher to search the database. Log in again with "
 "a teacher account."
 msgstr ""
 
-#: peerinst/views/views.py:2768
+#: peerinst/views/views.py:2773
 msgid "An error occurred.  Retry search after logging in again."
 msgstr ""
+
+#: quality/apps.py:10
+msgid "Dalite answer quality evaluation"
+msgstr ""
+
+#: quality/models/criterion/criterions/likelihood/criterion.py:43
+msgid "Readability"
+msgstr "Lisibilité"
+
+#: quality/models/criterion/criterions/likelihood/criterion.py:45
+msgid "This does not seem like a well formed sentence."
+msgstr "Votre réponse ne semble pas comme une phrase bien formulée."
+
+#: quality/models/criterion/criterions/min_words.py:19
+msgid "Depth"
+msgstr "Profondeur"
+
+#: quality/models/criterion/criterions/min_words.py:21
+msgid "Try going more in depth in explaining your reasoning."
+msgstr "Réessayer avec une réponse plus approfondie."
+
+#: quality/models/criterion/criterions/neg_words.py:20
+msgid "Toxicity"
+msgstr "Commentaires Négatifs"
+
+#: quality/models/criterion/criterions/neg_words.py:21
+msgid "Please refrain from using toxic words."
+msgstr "Veuillez ne pas utiliser du langage offensif"
+
+#: quality/models/custom_fields.py:10
+msgid "Probability between 0 and 1"
+msgstr ""
+
+#: quality/models/custom_fields.py:12
+#, python-format
+msgid "'%(value)s' value must be a float between 0 and 1."
+msgstr ""
+
+#: quality/models/custom_fields.py:27
+msgid "Comma separated list"
+msgstr ""
+
+#: quality/models/custom_fields.py:29
+#, python-format
+msgid "'%(value)s' value must be a comma separated string."
+msgstr ""
+
+#: quality/templates/quality/edit/index.html:24
+msgid "Edit quality"
+msgstr "Modifier les critères d'admissibilté des réponses"
+
+#: quality/views/edit.py:59 quality/views/edit.py:96 quality/views/edit.py:133
+#: quality/views/edit.py:178 quality/views/edit.py:215
+#: quality/views/edit.py:277
+msgid "Some parameters are wrong"
+msgstr ""
+
+#: quality/views/edit.py:319 quality/views/edit.py:345
+msgid "Some parameters are missing"
+msgstr ""
+
+#: quality/views/edit.py:421 quality/views/edit.py:433
+#: quality/views/edit.py:495 quality/views/edit.py:569
+#: quality/views/evaluation.py:50 quality/views/evaluation.py:64
+#: quality/views/validation.py:84
+msgid "Some of the parameters were wrong."
+msgstr ""
+
+#: quality/views/edit.py:509
+#, fuzzy
+#| msgid "There was a problem with your submission"
+msgid "There was an error updating the criterion."
+msgstr "Un problème est survenu avec votre demande."
 
 #: templates/400.html:9
 msgid "Something went wrong..."
 msgstr ""
+
+#: templates/400.html:13
+#, fuzzy
+#| msgid "Back to login"
+msgid "Go back to login"
+msgstr "Se connecter"
 
 #: templates/401.html:9
 msgid "You need to be logged in to access this page."
@@ -3789,12 +4116,6 @@ msgstr ""
 #: templates/500.html:9
 msgid "A server error has occurred.  The webmaster has been notified."
 msgstr ""
-
-#: templates/errors.html:34
-#, fuzzy
-#| msgid "Back to login"
-msgid "Go back to login"
-msgstr "Se connecter"
 
 #: templates/pinax/forums/base.html:20
 #: templates/pinax/forums/thread_updates.html:6
@@ -3833,24 +4154,31 @@ msgstr "Créer un nouvel exercice"
 msgid "There are no posts in this forum."
 msgstr "Il n'y a actuellement aucune question associée à cet exercice."
 
-#: templates/pinax/forums/forum.html:35
+#: templates/pinax/forums/forum.html:35 templates/pinax/forums/forums.html:73
+#: templates/pinax/forums/forums.html:97 templates/pinax/forums/forums.html:120
 #: templates/pinax/forums/thread_updates.html:25
 msgid "Latest reply: "
 msgstr ""
 
-#: templates/pinax/forums/forum.html:38
+#: templates/pinax/forums/forum.html:38 templates/pinax/forums/forums.html:76
+#: templates/pinax/forums/forums.html:100
+#: templates/pinax/forums/forums.html:123
 #: templates/pinax/forums/thread_updates.html:28
 #, fuzzy
 #| msgid "Preview"
 msgid "views"
 msgstr "Aperçu"
 
-#: templates/pinax/forums/forum.html:38
+#: templates/pinax/forums/forum.html:38 templates/pinax/forums/forums.html:76
+#: templates/pinax/forums/forums.html:100
+#: templates/pinax/forums/forums.html:123
 #: templates/pinax/forums/thread_updates.html:28
 msgid "replies"
 msgstr ""
 
-#: templates/pinax/forums/forum.html:38
+#: templates/pinax/forums/forum.html:38 templates/pinax/forums/forums.html:76
+#: templates/pinax/forums/forums.html:100
+#: templates/pinax/forums/forums.html:123
 #: templates/pinax/forums/thread_updates.html:28
 #, fuzzy
 #| msgid "Following"
@@ -3880,37 +4208,33 @@ msgstr ""
 msgid "Edit Reply"
 msgstr "Modifier la question"
 
-#: templates/pinax/forums/forums.html:19
-msgid "Most active forums"
+#: templates/pinax/forums/forums.html:10
+msgid "Forum list"
 msgstr ""
 
-#: templates/pinax/forums/forums.html:28
-msgid "Most viewed forums"
-msgstr ""
-
-#: templates/pinax/forums/forums.html:37
+#: templates/pinax/forums/forums.html:43
 #, fuzzy
 #| msgid "Inactive users"
-msgid "Most active members"
+msgid "Most active contributors"
 msgstr "Utilisateurs inactifs"
 
-#: templates/pinax/forums/forums.html:40
+#: templates/pinax/forums/forums.html:46
 msgid "posts"
 msgstr ""
 
-#: templates/pinax/forums/forums.html:44
+#: templates/pinax/forums/forums.html:51
 msgid "Latest replies"
 msgstr ""
 
-#: templates/pinax/forums/forums.html:53
+#: templates/pinax/forums/forums.html:61
 msgid "Latest posts"
 msgstr ""
 
-#: templates/pinax/forums/forums.html:62
+#: templates/pinax/forums/forums.html:85
 msgid "Most active threads"
 msgstr ""
 
-#: templates/pinax/forums/forums.html:71
+#: templates/pinax/forums/forums.html:108
 msgid "Most viewed threads"
 msgstr ""
 
@@ -4135,6 +4459,18 @@ msgstr ""
 #: tos/views/tos.py:133
 msgid "There is no terms of service yet."
 msgstr ""
+
+#~ msgid ""
+#~ "That does not seem like a valid rationale.\n"
+#~ "                Please explain your reasoning in more detail."
+#~ msgstr ""
+#~ "Ceci ne semble pas comme une explication valide.\n"
+#~ "S'il vous plait, expliquer le raisonnement avec plus de détails."
+
+#, fuzzy
+#~| msgid "Questions"
+#~ msgid "Questions in "
+#~ msgstr "Questions"
 
 #~ msgid ""
 #~ "A title for the question. Used for lookup when creating assignments, but "
