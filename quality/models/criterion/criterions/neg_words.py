@@ -16,8 +16,8 @@ class NegWordsCriterion(Criterion):
     def info():
         return {
             "name": "neg_words",
-            "full_name": "Negative words",
-            "description": "Doesn't accept certain words.",
+            "full_name": "Toxicity",
+            "description": "Please refrain from using toxic words.",
         }
 
     @staticmethod

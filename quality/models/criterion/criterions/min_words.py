@@ -15,9 +15,9 @@ class MinWordsCriterion(Criterion):
     def info():
         return {
             "name": "min_words",
-            "full_name": "Min words",
-            "description": "Imposes a minium number of words for each "
-            "rationale.",
+            "full_name": "Depth",
+            "description": "Try going more in depth in explaining your "
+            "reasoning.",
         }
 
     @staticmethod

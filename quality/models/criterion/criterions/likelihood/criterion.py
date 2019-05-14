@@ -39,8 +39,8 @@ class LikelihoodCriterion(Criterion):
     def info():
         return {
             "name": "likelihood",
-            "full_name": "Language",
-            "description": "Evaluates if sentence is random gibberish or not.",
+            "full_name": "Readability",
+            "description": "This does not seem like a well formed sentence.",
         }
 
     @staticmethod
