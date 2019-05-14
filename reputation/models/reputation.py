@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 from django.db import models
 
+from ..logger import logger
 from .reputation_type import ReputationType
 
 
@@ -11,11 +12,7 @@ class Reputation(models.Model):
 
     def __str__(self):
         return "{} for {}: {}".format(
-            self.pk,
-            self.reputation_type,
-            str(
-                getattr(self, "{}_set".format(self.quality_type.type)).first()
-            ),
+            self.pk, self.reputation_type, self.reputation_model
         )
 
     def evaluate(self):
@@ -38,17 +35,35 @@ class Reputation(models.Model):
 
         Raises
         ------
-        AttributeError
-            If the OneToOne field wasn't correctly set with the `related_name`
-            as "reputation_model"
+        ValueError
+            If this reputation doesn't correspond to any type of reputation
         """
-        try:
-            return self.reputation_type.evaluate(self.reputation_model)
-        except AttributeError:
-            raise AttributeError(
-                "The OneToOne field to Reputation needs to have as "
-                '`related_name` "reputation_model".'
-            )
+        return self.reputation_type.evaluate(self.reputation_model)
+
+    @property
+    def reputation_model(self):
+        """
+        Returns the model corresponding to this instance.
+
+        Returns
+        -------
+        Model
+            Model instance
+
+        Raises
+        ------
+        ValueError
+            If this reputation doesn't correspond to any type of reputation
+        """
+        for model in ReputationType.objects.values_list("type", flat=True):
+            if hasattr(self, model):
+                return getattr(self, model)
+        msg = (
+            "Reputation needs to have a OneToOne field with a model defined "
+            "as a ReputationType. See Teacher for an example."
+        )
+        logger.error(msg)
+        raise ValueError(msg)
 
     @staticmethod
     def create(cls):
@@ -67,6 +82,8 @@ class Reputation(models.Model):
 
         Raises
         ------
+        TypeError
+            If the `cls` isn't a string
         ReputationType.DoesNotExist
             If there is no reputation type for the given class
         """

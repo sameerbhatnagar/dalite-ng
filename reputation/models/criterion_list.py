@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from reputation.logger import logger
+import importlib
 
-from .errors import CriterionDoesNotExistError
+from ..logger import logger
+from .criterions.errors import CriterionDoesNotExistError
 
-criterions = {}
+criterions = {"n_answers": "NAnswersCriterion"}
 
 
 def get_criterion(criterion):
@@ -28,8 +29,13 @@ def get_criterion(criterion):
         If there is not criterion corresponding to the name `criterion`
     """
     try:
-        return criterions[criterion]
-    except KeyError:
+        return getattr(
+            importlib.import_module(
+                ".criterions", package=".".join(__name__.split(".")[:-1])
+            ),
+            criterions[criterion],
+        )
+    except (KeyError, AttributeError):
         msg = "There is not criterion with the name {}.".format(criterion)
         logger.error(msg)
         raise CriterionDoesNotExistError(msg)

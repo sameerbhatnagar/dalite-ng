@@ -227,11 +227,7 @@ class Question(models.Model):
         ),
     )
     reputation = models.OneToOneField(
-        Reputation,
-        blank=True,
-        null=True,
-        on_delete=models.SET_NULL,
-        related_name="reputation_model",
+        Reputation, blank=True, null=True, on_delete=models.SET_NULL
     )
 
     def __unicode__(self):

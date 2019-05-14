@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 import math
 
+from django.core.validators import MinValueValidator
 from django.db import models
 
 from reputation.logger import logger
@@ -21,12 +22,18 @@ class NAnswersCriterion(Criterion):
     )
     ceiling = models.PositiveIntegerField(
         verbose_name="Number ceiling",
-        default=0,
+        default=100,
         help_text="Any number of answers from and including this evaluates "
         "to 1. If set to 0, no ceiling is set.",
     )
+    growth_rate = models.FloatField(
+        default=0.01,
+        help_text="Steepness of the slope.",
+        validators=[MinValueValidator(0.0)],
+    )
 
     def evaluate(self, question):
+        super(NAnswersCriterion, self).evaluate(question)
         if not hasattr(question, "answer_set"):
             msg = "`question` has to be of type Question."
             logger.error("TypeError: {}".format(question))
@@ -41,7 +48,11 @@ class NAnswersCriterion(Criterion):
             return 1
 
         else:
-            return 2.0 * 1.0 / (1.0 + math.exp(-n_answers)) - 1.0
+            if self.ceiling:
+                n_answers = self.ceiling - n_answers
+            return (
+                1.0 / (1.0 + math.exp(-self.growth_rate * n_answers)) - 0.5
+            ) * 2
 
     @staticmethod
     def info():
