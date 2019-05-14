@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-05-14 16:04+0000\n"
+"POT-Creation-Date: 2019-05-14 14:16-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1652,8 +1652,9 @@ msgstr ""
 #: peerinst/templates/peerinst/group/details.html:147
 #: peerinst/templates/peerinst/teacher/details.html:279
 msgid "Quality evaluation for allowing rationale submission"
-msgstr "Les critères selon lesquels les réponses des etudiants seront evalués "
-" avant qu'ils sont acceptés dans le système"
+msgstr ""
+"Les critères selon lesquels les réponses des etudiants seront evalués  avant "
+"qu'ils sont acceptés dans le système"
 
 #: peerinst/templates/peerinst/group/assignment.html:84
 #: peerinst/templates/peerinst/group/details.html:154
@@ -3723,9 +3724,9 @@ msgstr ""
 #: peerinst/views/assignment.py:28 peerinst/views/group.py:40
 #: peerinst/views/group.py:211 peerinst/views/student.py:72
 #: peerinst/views/student.py:544 peerinst/views/student.py:618
-#: peerinst/views/student.py:674 quality/views/edit.py:409
-#: quality/views/edit.py:483 quality/views/edit.py:557
-#: quality/views/evaluation.py:38 quality/views/validation.py:38
+#: peerinst/views/student.py:674 quality/views/edit.py:399
+#: quality/views/edit.py:473 quality/views/edit.py:547
+#: quality/views/evaluation.py:38 quality/views/validation.py:39
 #: tos/views/tos.py:61
 msgid "There are missing parameters."
 msgstr ""
@@ -3736,9 +3737,9 @@ msgstr ""
 
 #: peerinst/views/decorators.py:26 peerinst/views/decorators.py:40
 #: peerinst/views/decorators.py:118 peerinst/views/decorators.py:136
-#: quality/views/decorators.py:22 quality/views/edit.py:109
-#: quality/views/edit.py:119 quality/views/edit.py:191
-#: quality/views/edit.py:201 quality/views/edit.py:258
+#: quality/views/decorators.py:22 quality/views/edit.py:99
+#: quality/views/edit.py:109 quality/views/edit.py:181
+#: quality/views/edit.py:191 quality/views/edit.py:248
 msgid "You don't have access to this resource."
 msgstr ""
 
@@ -3761,9 +3762,9 @@ msgstr ""
 #: peerinst/views/group.py:34 peerinst/views/group.py:118
 #: peerinst/views/group.py:206 peerinst/views/student.py:57
 #: peerinst/views/student.py:534 peerinst/views/student.py:607
-#: quality/views/edit.py:399 quality/views/edit.py:471
-#: quality/views/edit.py:547 quality/views/evaluation.py:28
-#: quality/views/validation.py:28
+#: quality/views/edit.py:389 quality/views/edit.py:461
+#: quality/views/edit.py:537 quality/views/evaluation.py:28
+#: quality/views/validation.py:29
 msgid "Wrong data type was sent."
 msgstr ""
 
@@ -4054,28 +4055,38 @@ msgstr ""
 msgid "Edit quality"
 msgstr "Modifier les critères d'admissibilté des réponses"
 
-#: quality/views/edit.py:59 quality/views/edit.py:96 quality/views/edit.py:133
-#: quality/views/edit.py:178 quality/views/edit.py:215
-#: quality/views/edit.py:277
+#: quality/views/edit.py:49 quality/views/edit.py:86 quality/views/edit.py:123
+#: quality/views/edit.py:168 quality/views/edit.py:205
+#: quality/views/edit.py:267
 msgid "Some parameters are wrong"
 msgstr ""
 
-#: quality/views/edit.py:319 quality/views/edit.py:345
+#: quality/views/edit.py:309 quality/views/edit.py:335
 msgid "Some parameters are missing"
 msgstr ""
 
-#: quality/views/edit.py:421 quality/views/edit.py:433
-#: quality/views/edit.py:495 quality/views/edit.py:569
+#: quality/views/edit.py:411 quality/views/edit.py:423
+#: quality/views/edit.py:485 quality/views/edit.py:559
 #: quality/views/evaluation.py:50 quality/views/evaluation.py:64
-#: quality/views/validation.py:84
+#: quality/views/validation.py:85
 msgid "Some of the parameters were wrong."
 msgstr ""
 
-#: quality/views/edit.py:509
+#: quality/views/edit.py:499
 #, fuzzy
 #| msgid "There was a problem with your submission"
 msgid "There was an error updating the criterion."
 msgstr "Un problème est survenu avec votre demande."
+
+#: quality/views/validation.py:94
+#, fuzzy
+#| msgid ""
+#| "That does not seem like a valid rationale.\n"
+#| "                Please explain your reasoning in more detail."
+msgid "That does not seem like a clear explanation of your reasoning:"
+msgstr ""
+"Ceci ne semble pas comme une explication valide.\n"
+"S'il vous plait, expliquer le raisonnement avec plus de détails."
 
 #: templates/400.html:9
 msgid "Something went wrong..."
@@ -4459,13 +4470,6 @@ msgstr ""
 #: tos/views/tos.py:133
 msgid "There is no terms of service yet."
 msgstr ""
-
-#~ msgid ""
-#~ "That does not seem like a valid rationale.\n"
-#~ "                Please explain your reasoning in more detail."
-#~ msgstr ""
-#~ "Ceci ne semble pas comme une explication valide.\n"
-#~ "S'il vous plait, expliquer le raisonnement avec plus de détails."
 
 #, fuzzy
 #~| msgid "Questions"
