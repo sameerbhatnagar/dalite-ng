@@ -6,6 +6,7 @@ import json
 from django.db import models
 
 from .quality import Quality
+from ..utils import LazyEncoder
 
 
 class RejectedAnswer(models.Model):
@@ -51,5 +52,7 @@ class RejectedAnswer(models.Model):
             Created instance
         """
         return RejectedAnswer.objects.create(
-            quality=quality, rationale=rationale, reasons=json.dumps(reasons)
+            quality=quality,
+            rationale=rationale,
+            reasons=json.dumps(reasons, cls=LazyEncoder),
         )
