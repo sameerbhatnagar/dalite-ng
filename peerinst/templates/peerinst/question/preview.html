@@ -40,7 +40,7 @@
   <hr class="simple-hr">
   <h3>{% trans 'Existing sample answers' %}</h3>
   {% if not save_allowed %}
-    <p class="errorlist">You must submit some at least one example rationale for each of the answer choices above</p>
+    <p class="errorlist">{% trans 'You must submit some at least one example rationale for each of the answer choices above' %}</p>
   {% endif %}
   <ul class="mdc-list">
     {% for sample in question.answer_set.all|dictsort:'first_answer_choice' %}

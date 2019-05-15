@@ -45,7 +45,7 @@
   <hr class="simple-hr">
   <h3>{% trans 'Existing Expert Rationales' %}</h3>
   {% if not save_allowed %}
-    <p class="errorlist">You must submit some at least one expert rationale for each of the correct answer choices above</p>
+    <p class="errorlist">{% trans 'You must submit some at least one expert rationale for each of the correct answer choices above' %}</p>
   {% endif %}
   <ul class="mdc-list">
     {% for sample in expert_rationales|dictsort:'first_answer_choice' %}

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-05-15 03:45+0000\n"
+"POT-Creation-Date: 2019-05-15 04:05+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -301,6 +301,8 @@ msgid ""
 "assignments. Assignments that this question is already a part of will not "
 "appear in list."
 msgstr ""
+"Facultatif. Choisssez les questionnaires où vous vouliez "
+" ajouter cette question."
 
 #: peerinst/forms.py:241
 msgid "Set the time limit to be used for each question."
@@ -1834,8 +1836,9 @@ msgstr ""
 "\n"
 "      Ceci est un apercu de la question comme dans l'interface étudiant, "
 "sauf que seulement les choix de réponses qui sont exactes sont listés.\n"
-"      Le but de cet page est pour que vous puissiez soumettre des justification "
-"de réponses que les étudiants pourront en servir comme modèle pour étudier.\n"
+"      Le but de cet page est pour que vous puissiez soumettre des "
+"justification de réponses que les étudiants pourront en servir comme modèle "
+"pour étudier.\n"
 "       "
 
 #: peerinst/templates/peerinst/question/fix_expert_rationales.html:21
@@ -1853,6 +1856,14 @@ msgstr "Soumettre explication d'expert"
 #: peerinst/templates/peerinst/question/fix_expert_rationales.html:46
 msgid "Existing Expert Rationales"
 msgstr "Explications d'experts"
+
+#: peerinst/templates/peerinst/question/fix_expert_rationales.html:48
+msgid ""
+"You must submit some at least one expert rationale for each of the correct "
+"answer choices above"
+msgstr ""
+"If faut que vous soumettez au moins une explication expert pour chaque choix "
+"de réponse exact ci-dessus"
 
 #: peerinst/templates/peerinst/question/fix_expert_rationales.html:70
 #: peerinst/templates/peerinst/question/fix_expert_rationales.html:78
@@ -1952,7 +1963,7 @@ msgstr "Il n'y a actuellement aucune question associée à cet exercice."
 #, fuzzy
 #| msgid "example answers"
 msgid "Step 4: Example answers"
-msgstr "Exemples de réponses"
+msgstr "Étape 4: Exemples de réponses"
 
 #: peerinst/templates/peerinst/question/preview.html:10
 #, fuzzy
@@ -1962,19 +1973,9 @@ msgstr "Aperçu"
 
 #: peerinst/templates/peerinst/question/preview.html:15
 msgid "What might a confused student say to justify these answer choices?"
-msgstr ""
+msgstr "Quel serait la réponse d'un étudiant confus?"
 
 #: peerinst/templates/peerinst/question/preview.html:20
-#, fuzzy
-#| msgid ""
-#| "This is a preview of how the question looks in the student interface. You "
-#| "can add example\n"
-#| "  rationales here that will be shown as choices to students.  You should "
-#| "at least provide a few\n"
-#| "  example rationales for the correct choices.  It's best if you provide a "
-#| "few rationales for each\n"
-#| "  choice, even the incorrect ones.\n"
-#| "  "
 msgid ""
 "\n"
 "      This is a preview of how the question looks in the student interface.  "
@@ -1986,24 +1987,30 @@ msgid ""
 "      even for the correct answer choices.\n"
 "      "
 msgstr ""
+"\n"
 "Il s'agit d'un aperçu sur la façon dont les questions apparaîtront dans "
 "l'interface étudiante. Vous pouvez ajouter ici des exemples d'explications "
 "qui seront présentées comme des choix possibles aux étudiants. Vous devez au "
 "minimum fournir quelques exemples d'explications pour les bonnes réponses. "
 "Il est préférables que vous fournissiez quelques explications pour chaque "
 "choix, même si elles sont inexactes."
+"     "
 
 #: peerinst/templates/peerinst/question/preview.html:41
-#, fuzzy
-#| msgid "example answers"
 msgid "Existing sample answers"
 msgstr "Exemples de réponses"
 
+#: peerinst/templates/peerinst/question/preview.html:43
+msgid ""
+"You must submit some at least one example rationale for each of the answer "
+"choices above"
+msgstr ""
+"If faut que vous soumettez au moins une explication pour chaque choix "
+"de réponse ci-dessus"
+
 #: peerinst/templates/peerinst/question/preview.html:57
-#, fuzzy
-#| msgid "Back to assignment"
 msgid "Auto add to assignments"
-msgstr "Revenir à l'exercice"
+msgstr "Ajouter aux questionnaires"
 
 #: peerinst/templates/peerinst/question/review.html:9
 msgid ""
