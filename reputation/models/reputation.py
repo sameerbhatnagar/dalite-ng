@@ -72,8 +72,9 @@ class Reputation(models.Model):
 
         Parameters
         ----------
-        cls : str
-            Model class for which to create the instance
+        cls : Union[str, object]
+            Model class for which to create the instance. Converted to string
+            if object passed
 
         Returns
         -------
@@ -88,7 +89,7 @@ class Reputation(models.Model):
             If there is no reputation type for the given class
         """
         if not isinstance(cls, basestring):
-            raise TypeError("`cls` must be of type `str`.")
+            cls = cls.__class__.__name__
 
         reputation_type = ReputationType.objects.get(type=cls.lower())
 

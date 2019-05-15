@@ -44,16 +44,20 @@ def test_reputation_model__no_onetoone(question_reputation):
         question_reputation.reputation_model
 
 
-def test_create():
+def test_create__str_passed():
     for cls in ("Question", "Assignment", "Teacher"):
         reputation = Reputation.create(cls)
         assert isinstance(reputation, Reputation)
         assert reputation.reputation_type.type == cls.lower()
 
 
-def test_create__wrong_argument_passed():
-    with pytest.raises(TypeError):
-        reputation = Reputation.create(Teacher)
+def test_create__object_passed(question, assignment, teacher):
+    for cls in (question, assignment, teacher):
+        reputation = Reputation.create(cls)
+        assert isinstance(reputation, Reputation)
+        assert (
+            reputation.reputation_type.type == cls.__class__.__name__.lower()
+        )
 
 
 def test_create__wrong_type():
