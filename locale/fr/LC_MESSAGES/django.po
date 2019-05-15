@@ -1960,8 +1960,6 @@ msgid "There are currently no questions in this assignment"
 msgstr "Il n'y a actuellement aucune question associée à cet exercice."
 
 #: peerinst/templates/peerinst/question/preview.html:8
-#, fuzzy
-#| msgid "example answers"
 msgid "Step 4: Example answers"
 msgstr "Étape 4: Exemples de réponses"
 
