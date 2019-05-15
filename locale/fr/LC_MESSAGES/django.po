@@ -4079,10 +4079,6 @@ msgid "There was an error updating the criterion."
 msgstr "Un problème est survenu avec votre demande."
 
 #: quality/views/validation.py:94
-#, fuzzy
-#| msgid ""
-#| "That does not seem like a valid rationale.\n"
-#| "                Please explain your reasoning in more detail."
 msgid "That does not seem like a clear explanation of your reasoning:"
 msgstr "Ceci ne semble pas être une explication claire de votre démarche de raisonnement:"
 
