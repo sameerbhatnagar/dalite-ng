@@ -537,25 +537,22 @@ msgstr "Texte associé à la question"
 msgid ""
 "Choose 'peer instruction' for two-step multiple choice with rationale or "
 "'rationale only' for a simple text response."
-msgstr ""
+msgstr "Choisissez 'peer instruction' pour les questions à deux étapes, ou "
+"'rationale only' pour les questions à development. "
 
 #: peerinst/models/question.py:95
 msgid "Question title"
 msgstr "Titre de la question"
 
 #: peerinst/models/question.py:98
-#, fuzzy
-#| msgid "{} for question {}"
 msgid "A title for the question."
-msgstr "{} à la question {}"
+msgstr "Titre pour la question"
 
 #: peerinst/models/question.py:101
 msgid "Question text"
 msgstr "Texte associé à la question"
 
 #: peerinst/models/question.py:101
-#, fuzzy
-#| msgid "Question text"
 msgid "Enter the question text."
 msgstr "Texte associé à la question"
 
@@ -1781,16 +1778,12 @@ msgid "Heartbeat for dalite-ng"
 msgstr "Heartbeat pour Dalite NG"
 
 #: peerinst/templates/peerinst/question/answer_choice_form.html:11
-#, fuzzy
-#| msgid "Answer choice"
 msgid "Step 2: Answer choices"
-msgstr "Choix de réponse"
+msgstr "Étape 2: Définir les Choix de réponses"
 
 #: peerinst/templates/peerinst/question/answer_choice_form.html:16
-#, fuzzy
-#| msgid "answer choices"
 msgid "Enter 2-5 answer choices"
-msgstr "choix de réponses"
+msgstr "Il faut définir entre 2 et 5 choix de réponses"
 
 #: peerinst/templates/peerinst/question/answer_choice_form.html:88
 msgid ""
@@ -1814,7 +1807,7 @@ msgstr "Suivante"
 #: peerinst/templates/peerinst/question/answer_choice_form.html:114
 #: peerinst/templates/peerinst/question/form.html:424
 msgid "Save and next"
-msgstr ""
+msgstr "Sauvgarder et Suivant"
 
 #: peerinst/templates/peerinst/question/answer_choice_form.html:124
 #: peerinst/templates/peerinst/question/form.html:438
@@ -2915,14 +2908,12 @@ msgstr ""
 "paramètres</em> de votre outil LTI"
 
 #: peerinst/templates/peerinst/teacher/details.html:158
-#, fuzzy
-#| msgid "Created: "
 msgid "Create new"
-msgstr "Créé le :"
+msgstr "Écrire une nouvelle question"
 
 #: peerinst/templates/peerinst/teacher/details.html:159
 msgid "Show deleted"
-msgstr ""
+msgstr "Montrer les questions cachées"
 
 #: peerinst/templates/peerinst/teacher/details.html:159
 msgid "Hide deleted"
@@ -2941,7 +2932,7 @@ msgstr ""
 #: peerinst/templates/peerinst/teacher/details.html:176
 #: peerinst/templates/peerinst/teacher/details.html:206
 msgid "Last modified: "
-msgstr ""
+msgstr "Modifiée: "
 
 #: peerinst/templates/peerinst/teacher/details.html:193
 msgid "Collaborations"
