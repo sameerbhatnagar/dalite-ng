@@ -691,6 +691,7 @@ def answer_choice_form(request, question_id):
         extra=5,
     )
     question = get_object_or_404(models.Question, pk=question_id)
+    request.session["question_id"] = question_id
 
     # Check permissions
     if request.user.has_perm("peerinst.change_question", question):

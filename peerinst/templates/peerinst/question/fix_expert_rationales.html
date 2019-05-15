@@ -4,7 +4,7 @@
 
 {% block extra_title %}
 <h2 class="mdc-typography--display1 mdc-theme--secondary">
-    {% trans 'Expert Rationales' %}
+    {% trans 'Step 3: Expert Rationales' %}
 </h2>
 
 <div class='field-container'>
@@ -69,6 +69,10 @@
           <form style="display:inline" id="done" action="{% url 'research-assignment-question-index-by-assignment' assignment_id=assignment_id %}" method="get">
             <button form="done" type="submit" class="mdc-button mdc-button--raised submit_button">{% trans 'Done' %}</<button>
           </form>
+        {% elif question_id %}
+        <form style="display:inline" id="next" action="{% url 'sample-answer-form' question_id=question_id %}" method="get">
+          <button form="next" type="submit" class="mdc-button mdc-button--raised submit_button">{% trans 'Next: Distractor Rationales' %}</<button>
+        </form>
         {% else %}
           <form style="display:inline" id="done" action="{% url 'research-discipline-question-index-by-discipline' discipline_title=question.discipline.title %}#{{ question.pk }}" method="get">
             <button form="done" type="submit" class="mdc-button mdc-button--raised submit_button">{% trans 'Done' %}</<button>

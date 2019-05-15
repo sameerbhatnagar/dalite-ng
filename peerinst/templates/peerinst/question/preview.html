@@ -5,22 +5,23 @@
 {% block extra_title %}
 <h2 class="mdc-typography--display1 mdc-theme--secondary">
   {% if question.type == "PI" %}
-    {% trans 'Step 3: Example answers' %}
+    {% trans 'Step 4: Example answers' %}
   {% else %}
-    {% trans 'Step 2: Preview' %}
+    {% trans 'Step 3: Preview' %}
   {% endif %}
 </h2>
 
 <div class='field-container'>
-  <div class='number-box'><span class='number'>?</span></div>
+  <div class='number-box' title="{% trans 'What might a confused student say to justify these answer choices?' %}">
+  <span class='number'>?</span></div>
   <div class='field'>
     <p class="mdc-typography--body1"><small>
       {% if question.type == "PI" %}
       {% blocktrans %}
       This is a preview of how the question looks in the student interface.  You can add example
-      rationales here that will be shown as choices to students.  You should at least provide a few
-      example rationales for the correct choices.  It's best if you provide a few rationales for each
-      choice, even the incorrect ones.
+      rationales here that will be shown as choices to students.  You need to provide at least one example
+      rationale for each of the possible answer choices. This is where you can enter <em>distractor</em> rationales,
+      even for the correct answer choices.
       {% endblocktrans %}
       {% else %}
       {% blocktrans %}
@@ -86,7 +87,7 @@
   </span>
   <span class="padded">
     {% if user.teacher %}
-      {% if save_allowed %}
+      {% if save_allowed or question.type == "RO" %}
         <input form="add_question_to_assignment" type="submit" class="mdc-button mdc-button--raised submit_button" value="{% trans 'Done' %}">
       {% endif %}
     {% else %}

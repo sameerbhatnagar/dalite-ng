@@ -585,7 +585,7 @@ def researcher_patterns():
             name="research-flag-question-by-assignment",
         ),
         url(
-            r"^research/expert/rationales/(?P<question_id>[0-9]+)$",
+            r"^expert/rationales/(?P<question_id>[0-9]+)$",
             admin_views.QuestionExpertRationaleView.as_view(),
             name="research-fix-expert-rationale",
         ),
