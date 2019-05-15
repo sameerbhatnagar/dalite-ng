@@ -1,3 +1,4 @@
-__all__ = ["NAnswersCriterion"]
+__all__ = ["NAnswersCriterion", "NQuestionsCriterion"]
 
 from .n_answers import NAnswersCriterion
+from .n_questions import NQuestionsCriterion

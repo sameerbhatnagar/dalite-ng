@@ -12,8 +12,10 @@ from reputation.models.reputation_type import ReputationType
 from ..criterion import Criterion
 
 
-class NAnswersCriterion(Criterion):
-    name = models.CharField(max_length=32, default="n_answers", editable=False)
+class NQuestionsCriterion(Criterion):
+    name = models.CharField(
+        max_length=32, default="n_questions", editable=False
+    )
     floor = models.PositiveIntegerField(
         verbose_name="Number floor",
         default=0,
@@ -32,43 +34,43 @@ class NAnswersCriterion(Criterion):
         validators=[MinValueValidator(0.0)],
     )
 
-    def evaluate(self, question):
-        super(NAnswersCriterion, self).evaluate(question)
-        if question.__class__.__name__ != "Question":
-            msg = "`question` has to be of type Question."
+    def evaluate(self, teacher):
+        super(NQuestionsCriterion, self).evaluate(teacher)
+        if teacher.__class__.__name__ != "Teacher":
+            msg = "`teacher` has to be of type Teacher."
             logger.error("TypeError: {}".format(msg))
             raise TypeError(msg)
 
-        n_answers = question.answer_set.count()
+        n_questions = teacher.user.question_set.count()
 
-        if n_answers <= self.floor:
+        if n_questions <= self.floor:
             return 0
 
-        elif self.ceiling and n_answers >= self.ceiling:
+        elif self.ceiling and n_questions >= self.ceiling:
             return 1
 
         else:
             if self.ceiling:
-                n_answers = self.ceiling - n_answers
+                n_questions = self.ceiling - n_questions
             return (
-                1.0 / (1.0 + math.exp(-self.growth_rate * n_answers)) - 0.5
+                1.0 / (1.0 + math.exp(-self.growth_rate * n_questions)) - 0.5
             ) * 2
 
     @staticmethod
     def info():
         return {
-            "name": "n_answers",
-            "full_name": "Number of answers",
+            "name": "n_questions",
+            "full_name": "Number of questions",
             "description": "Gives a score between 0 and 1 representing the "
-            "number of answers for a question. Range is enforced by using "
-            "the sigmoid function.",
+            "number of questions written by a teacher. Range is enforced by "
+            "using the sigmoid function.",
         }
 
     @staticmethod
     def create_default():
-        criterion = NAnswersCriterion.objects.create()
+        criterion = NQuestionsCriterion.objects.create()
         criterion.for_reputation_types.add(
-            ReputationType.objects.get(type="question")
+            ReputationType.objects.get(type="teacher")
         )
         criterion.save()
         return criterion

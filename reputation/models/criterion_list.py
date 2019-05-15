@@ -6,7 +6,10 @@ import importlib
 from ..logger import logger
 from .criterions.errors import CriterionDoesNotExistError
 
-criterions = {"n_answers": "NAnswersCriterion"}
+criterions = {
+    "n_answers": "NAnswersCriterion",
+    "n_questions": "NQuestionsCriterion",
+}
 
 
 def get_criterion(criterion):

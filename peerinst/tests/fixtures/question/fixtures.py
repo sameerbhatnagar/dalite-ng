@@ -1,5 +1,6 @@
 import pytest
 
+from ..teacher import teacher  # noqa
 from .generators import (
     add_questions,
     add_rationale_only_questions,
@@ -8,13 +9,13 @@ from .generators import (
 
 
 @pytest.fixture
-def question():
-    return add_questions(new_questions(1))[0]
+def question(teacher):
+    return add_questions(new_questions(1, teacher))[0]
 
 
 @pytest.fixture
-def questions():
-    return add_questions(new_questions(2))
+def questions(teacher):
+    return add_questions(new_questions(10, teacher))
 
 
 @pytest.fixture

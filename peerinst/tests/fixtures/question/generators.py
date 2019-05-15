@@ -1,7 +1,7 @@
 from peerinst.models import Question, RationaleOnlyQuestion
 
 
-def new_questions(n):
+def new_questions(n, teacher):
     def generator():
         i = 0
         while True:
@@ -9,6 +9,7 @@ def new_questions(n):
             yield {
                 "title": "question{}".format(i),
                 "text": "question{}".format(i),
+                "user": teacher.user,
             }
 
     gen = generator()
