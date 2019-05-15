@@ -36,7 +36,7 @@ class NAnswersCriterion(Criterion):
         super(NAnswersCriterion, self).evaluate(question)
         if not hasattr(question, "answer_set"):
             msg = "`question` has to be of type Question."
-            logger.error("TypeError: {}".format(question))
+            logger.error("TypeError: {}".format(msg))
             raise TypeError(msg)
 
         n_answers = question.answer_set.count()
