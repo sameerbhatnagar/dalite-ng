@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-05-14 14:16-0400\n"
+"POT-Creation-Date: 2019-05-15 03:45+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -249,20 +249,20 @@ msgstr "Réponse d'expert"
 msgid "Example answer saved."
 msgstr "Exemple de réponse sauvegardée."
 
-#: peerinst/admin_views.py:694
+#: peerinst/admin_views.py:696
 #, fuzzy
 #| msgid "Expert rationale?"
 msgid "Expert rationale saved."
 msgstr "Explication d'expert?"
 
-#: peerinst/admin_views.py:767
+#: peerinst/admin_views.py:769
 #, python-brace-format
 msgid "List of {model_name} saved."
 msgstr ""
 
 # msgid "List of {model_name} saved."
 # msgstr "Liste de {nom_modèle} sauvegardée."
-#: peerinst/admin_views.py:812 peerinst/admin_views.py:817
+#: peerinst/admin_views.py:814 peerinst/admin_views.py:819
 msgid "---all---"
 msgstr "toutes"
 
@@ -537,7 +537,8 @@ msgstr "Texte associé à la question"
 msgid ""
 "Choose 'peer instruction' for two-step multiple choice with rationale or "
 "'rationale only' for a simple text response."
-msgstr "Choisissez 'peer instruction' pour les questions à deux étapes, ou "
+msgstr ""
+"Choisissez 'peer instruction' pour les questions à deux étapes, ou "
 "'rationale only' pour les questions à development. "
 
 #: peerinst/models/question.py:95
@@ -1175,7 +1176,7 @@ msgstr ""
 "choix, même si elles sont inexactes."
 
 #: peerinst/templates/admin/peerinst/question/preview.html:15
-#: peerinst/templates/peerinst/question/preview.html:35
+#: peerinst/templates/peerinst/question/preview.html:36
 msgid "Submit example answer"
 msgstr "Fournissez un exemple de réponse"
 
@@ -1815,11 +1816,8 @@ msgid "Clone"
 msgstr ""
 
 #: peerinst/templates/peerinst/question/fix_expert_rationales.html:7
-#: peerinst/templates/peerinst/research/question_index.html:94
-#, fuzzy
-#| msgid "Expert rationale?"
-msgid "Expert Rationales"
-msgstr "Explication d'expert?"
+msgid "Step 3: Expert Rationales"
+msgstr "Étape 3: Explication d'experts"
 
 #: peerinst/templates/peerinst/question/fix_expert_rationales.html:15
 msgid ""
@@ -1833,9 +1831,15 @@ msgid ""
 "here, please!)\n"
 "      "
 msgstr ""
+"\n"
+"      Ceci est un apercu de la question comme dans l'interface étudiant, "
+"sauf que seulement les choix de réponses qui sont exactes sont listés.\n"
+"      Le but de cet page est pour que vous puissiez soumettre des justification "
+"de réponses que les étudiants pourront en servir comme modèle pour étudier.\n"
+"       "
 
 #: peerinst/templates/peerinst/question/fix_expert_rationales.html:21
-#: peerinst/templates/peerinst/question/preview.html:26
+#: peerinst/templates/peerinst/question/preview.html:27
 msgid ""
 "\n"
 "      This is a preview of how the question looks in the student interface.\n"
@@ -1843,22 +1847,22 @@ msgid ""
 msgstr ""
 
 #: peerinst/templates/peerinst/question/fix_expert_rationales.html:41
-#, fuzzy
-#| msgid "Expert rationale?"
 msgid "Submit expert rationale"
-msgstr "Explication d'expert?"
+msgstr "Soumettre explication d'expert"
 
 #: peerinst/templates/peerinst/question/fix_expert_rationales.html:46
-#, fuzzy
-#| msgid "Expert rationale?"
 msgid "Existing Expert Rationales"
-msgstr "Explication d'expert?"
+msgstr "Explications d'experts"
 
 #: peerinst/templates/peerinst/question/fix_expert_rationales.html:70
-#: peerinst/templates/peerinst/question/fix_expert_rationales.html:74
-#: peerinst/templates/peerinst/question/preview.html:90
+#: peerinst/templates/peerinst/question/fix_expert_rationales.html:78
+#: peerinst/templates/peerinst/question/preview.html:91
 msgid "Done"
 msgstr ""
+
+#: peerinst/templates/peerinst/question/fix_expert_rationales.html:74
+msgid "Next: Distractor Rationales"
+msgstr "Suivant: Explications distracteurs"
 
 #: peerinst/templates/peerinst/question/form.html:38
 #: peerinst/templates/peerinst/question/start.html:13
@@ -1947,16 +1951,20 @@ msgstr "Il n'y a actuellement aucune question associée à cet exercice."
 #: peerinst/templates/peerinst/question/preview.html:8
 #, fuzzy
 #| msgid "example answers"
-msgid "Step 3: Example answers"
+msgid "Step 4: Example answers"
 msgstr "Exemples de réponses"
 
 #: peerinst/templates/peerinst/question/preview.html:10
 #, fuzzy
 #| msgid "Preview"
-msgid "Step 2: Preview"
+msgid "Step 3: Preview"
 msgstr "Aperçu"
 
-#: peerinst/templates/peerinst/question/preview.html:19
+#: peerinst/templates/peerinst/question/preview.html:15
+msgid "What might a confused student say to justify these answer choices?"
+msgstr ""
+
+#: peerinst/templates/peerinst/question/preview.html:20
 #, fuzzy
 #| msgid ""
 #| "This is a preview of how the question looks in the student interface. You "
@@ -1971,11 +1979,11 @@ msgid ""
 "\n"
 "      This is a preview of how the question looks in the student interface.  "
 "You can add example\n"
-"      rationales here that will be shown as choices to students.  You should "
-"at least provide a few\n"
-"      example rationales for the correct choices.  It's best if you provide "
-"a few rationales for each\n"
-"      choice, even the incorrect ones.\n"
+"      rationales here that will be shown as choices to students.  You need "
+"to provide at least one example\n"
+"      rationale for each of the possible answer choices. This is where you "
+"can enter <em>distractor</em> rationales,\n"
+"      even for the correct answer choices.\n"
 "      "
 msgstr ""
 "Il s'agit d'un aperçu sur la façon dont les questions apparaîtront dans "
@@ -1985,13 +1993,13 @@ msgstr ""
 "Il est préférables que vous fournissiez quelques explications pour chaque "
 "choix, même si elles sont inexactes."
 
-#: peerinst/templates/peerinst/question/preview.html:40
+#: peerinst/templates/peerinst/question/preview.html:41
 #, fuzzy
 #| msgid "example answers"
 msgid "Existing sample answers"
 msgstr "Exemples de réponses"
 
-#: peerinst/templates/peerinst/question/preview.html:56
+#: peerinst/templates/peerinst/question/preview.html:57
 #, fuzzy
 #| msgid "Back to assignment"
 msgid "Auto add to assignments"
@@ -2212,10 +2220,8 @@ msgid "Chosen Rationale"
 msgstr "Explication choisie"
 
 #: peerinst/templates/peerinst/report_all_rationales.html:218
-#, fuzzy
-#| msgid "Submit"
 msgid "Submitted"
-msgstr "Soumettre"
+msgstr "Soumis"
 
 #: peerinst/templates/peerinst/report_selector.html:9
 msgid "Custom Reports"
@@ -2444,6 +2450,12 @@ msgstr "Explication d'expert?"
 #, fuzzy
 #| msgid "Expert rationale?"
 msgid "Show expert rationales "
+msgstr "Explication d'expert?"
+
+#: peerinst/templates/peerinst/research/question_index.html:94
+#, fuzzy
+#| msgid "Expert rationale?"
+msgid "Expert Rationales"
 msgstr "Explication d'expert?"
 
 #: peerinst/templates/peerinst/research/question_index.html:112
@@ -3957,15 +3969,15 @@ msgstr "Votre compte myDALITE a été activé."
 msgid "Copy of "
 msgstr ""
 
-#: peerinst/views/views.py:1075
+#: peerinst/views/views.py:1076
 msgid "There was a problem with your submission"
 msgstr "Un problème est survenu avec votre demande."
 
-#: peerinst/views/views.py:1076
+#: peerinst/views/views.py:1077
 msgid "Check the form below."
 msgstr "Veuillez vérifier le formulaire ci-dessous."
 
-#: peerinst/views/views.py:1344
+#: peerinst/views/views.py:1345
 #, fuzzy
 #| msgid ""
 #| "The rationale you chose does not exist anymore.  This should not happen.  "
@@ -3977,7 +3989,7 @@ msgstr ""
 "L'explication que vous avez choisie n'existe plus. Ceci ne devrait pas se "
 "produire. Veuillez recommencer la question."
 
-#: peerinst/views/views.py:1355
+#: peerinst/views/views.py:1356
 msgid ""
 "The rationale you chose does not match your second answer choice.  This "
 "should not happen.  Please start over with the question."
@@ -3986,13 +3998,13 @@ msgstr ""
 "choix de réponse. Ceci ne devrait pas se produire. Veuillez recommencer la "
 "question."
 
-#: peerinst/views/views.py:2671
+#: peerinst/views/views.py:2672
 msgid ""
 "You must be logged in as a teacher to search the database. Log in again with "
 "a teacher account."
 msgstr ""
 
-#: peerinst/views/views.py:2773
+#: peerinst/views/views.py:2774
 msgid "An error occurred.  Retry search after logging in again."
 msgstr ""
 
@@ -4071,7 +4083,9 @@ msgstr "Un problème est survenu avec votre demande."
 
 #: quality/views/validation.py:94
 msgid "That does not seem like a clear explanation of your reasoning:"
-msgstr "Ceci ne semble pas être une explication claire de votre démarche de raisonnement:"
+msgstr ""
+"Ceci ne semble pas être une explication claire de votre démarche de "
+"raisonnement:"
 
 #: templates/400.html:9
 msgid "Something went wrong..."
