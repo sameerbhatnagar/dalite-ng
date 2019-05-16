@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-05-16 03:36+0000\n"
+"POT-Creation-Date: 2019-05-16 04:19+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2152,6 +2152,18 @@ msgstr ""
 #: peerinst/templates/peerinst/question/summary.html:31
 msgid "Correct answer(s)"
 msgstr "Réponse correcte"
+
+#: peerinst/templates/peerinst/question/summary.html:45
+msgid "Expert rationale(s)"
+msgstr "Explication(s) d'expert"
+
+#: peerinst/templates/peerinst/question/summary.html:54
+msgid ""
+"Sorry, but there are currently no rationales in the database that have been "
+"marked as expert for the correct answer choice(s)."
+msgstr ""
+"Désolé, mais il n'y a pas des réponses dans la base de données qui ont été "
+"marquées en étant comme 'expert' par votre professeur(e)."
 
 #: peerinst/templates/peerinst/report_all_rationales.html:33
 msgid "Report"

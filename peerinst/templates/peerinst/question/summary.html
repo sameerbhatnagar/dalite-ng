@@ -41,20 +41,21 @@
   </p>
   {% endif %}
 
-  <!-- Remove 'expert' rationales for now
-  {% if experts %}
   <p class='mdc-typography--body1'>
-    Expert rationale(s):
+    {% trans 'Expert rationale(s)' %}:
       {% for expert in experts %}
         {% for option in question.answerchoice_set.all %}
           {% if option.correct and expert.first_answer_choice == forloop.counter %}
-            <blockquote>{{ expert.rationale|safe }}</blockquote>
+            <blockquote><strong>{{ expert.first_answer_choice_label }}. {{ expert.rationale|safe }}</strong></blockquote>
           {% endif %}
         {% endfor %}
+        {% empty %}
+        <blockquote>
+          {% trans 'Sorry, but there are currently no rationales in the database that have been marked as expert for the correct answer choice(s).'%}
+        </blockquote>
       {% endfor %}
   </p>
-  {% endif %}
-  -->
+
 {% endif %}
 
 {% endblock %}
