@@ -214,6 +214,10 @@
           {% empty %}
 
           <p class='mdc-typography--body1'> {% trans "There aren't any assignments for this group yet." %}</p>
+          <p class='mdc-typography--body1'>
+            {% trans 'If you are using myDALITE via LTI (e.g. through Moodle, or edX), and would like to get your teacher reports, you will need to generate a' %}
+             <a href="{% url 'report_selector' %}">{% trans 'Custom Report' %}</a>.
+          </p>
 
           {% endfor %}
           <li class="mdc-list-divider" role="separator"></li>

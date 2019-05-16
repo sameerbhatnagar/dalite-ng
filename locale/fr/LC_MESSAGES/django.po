@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-05-15 04:05+0000\n"
+"POT-Creation-Date: 2019-05-16 03:36+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -301,8 +301,8 @@ msgid ""
 "assignments. Assignments that this question is already a part of will not "
 "appear in list."
 msgstr ""
-"Facultatif. Choisssez les questionnaires où vous vouliez "
-" ajouter cette question."
+"Facultatif. Choisssez les questionnaires où vous vouliez  ajouter cette "
+"question."
 
 #: peerinst/forms.py:241
 msgid "Set the time limit to be used for each question."
@@ -1683,7 +1683,7 @@ msgid "Generate report"
 msgstr "Produire un rapport"
 
 #: peerinst/templates/peerinst/group/assignment.html:168
-#: peerinst/templates/peerinst/group/details.html:227
+#: peerinst/templates/peerinst/group/details.html:231
 #, fuzzy
 #| msgid "Student link"
 msgid "Student list"
@@ -1716,7 +1716,7 @@ msgid "Resend link"
 msgstr "Lien pour l'étudiant(e)"
 
 #: peerinst/templates/peerinst/group/assignment.html:201
-#: peerinst/templates/peerinst/group/details.html:256
+#: peerinst/templates/peerinst/group/details.html:260
 msgid "No student has signed up yet"
 msgstr ""
 
@@ -1770,7 +1770,20 @@ msgstr ""
 msgid "There aren't any assignments for this group yet."
 msgstr "Voici tous les exercices présents dans la base de données."
 
-#: peerinst/templates/peerinst/group/details.html:245
+#: peerinst/templates/peerinst/group/details.html:218
+msgid ""
+"If you are using myDALITE via LTI (e.g. through Moodle, or edX), and would "
+"like to get your teacher reports, you will need to generate a"
+msgstr ""
+"Si vous utilisé myDALITE avec une intégration LTI (e.g. Moodle, ou edX), et "
+"si vous désirez voir les résultats détaillés des travaux de vos étudiants, "
+"il va falloir que vous utilisiez les "
+
+#: peerinst/templates/peerinst/group/details.html:219
+msgid "Custom Report"
+msgstr "Rapport personnalisé"
+
+#: peerinst/templates/peerinst/group/details.html:249
 #, fuzzy
 #| msgid "Back to login"
 msgid "Last login: "
@@ -1991,8 +2004,7 @@ msgstr ""
 "qui seront présentées comme des choix possibles aux étudiants. Vous devez au "
 "minimum fournir quelques exemples d'explications pour les bonnes réponses. "
 "Il est préférables que vous fournissiez quelques explications pour chaque "
-"choix, même si elles sont inexactes."
-"     "
+"choix, même si elles sont inexactes.     "
 
 #: peerinst/templates/peerinst/question/preview.html:41
 msgid "Existing sample answers"
@@ -2003,8 +2015,8 @@ msgid ""
 "You must submit some at least one example rationale for each of the answer "
 "choices above"
 msgstr ""
-"If faut que vous soumettez au moins une explication pour chaque choix "
-"de réponse ci-dessus"
+"If faut que vous soumettez au moins une explication pour chaque choix de "
+"réponse ci-dessus"
 
 #: peerinst/templates/peerinst/question/preview.html:57
 msgid "Auto add to assignments"
@@ -2882,8 +2894,6 @@ msgid "Manage assignments"
 msgstr "Gérer les exercices"
 
 #: peerinst/templates/peerinst/teacher/details.html:70
-#, fuzzy
-#| msgid "Custom Reports"
 msgid "Custom reports"
 msgstr "Rapports personnalisés"
 
@@ -3974,15 +3984,15 @@ msgstr "Votre compte myDALITE a été activé."
 msgid "Copy of "
 msgstr ""
 
-#: peerinst/views/views.py:1076
+#: peerinst/views/views.py:1078
 msgid "There was a problem with your submission"
 msgstr "Un problème est survenu avec votre demande."
 
-#: peerinst/views/views.py:1077
+#: peerinst/views/views.py:1079
 msgid "Check the form below."
 msgstr "Veuillez vérifier le formulaire ci-dessous."
 
-#: peerinst/views/views.py:1345
+#: peerinst/views/views.py:1347
 #, fuzzy
 #| msgid ""
 #| "The rationale you chose does not exist anymore.  This should not happen.  "
@@ -3994,7 +4004,7 @@ msgstr ""
 "L'explication que vous avez choisie n'existe plus. Ceci ne devrait pas se "
 "produire. Veuillez recommencer la question."
 
-#: peerinst/views/views.py:1356
+#: peerinst/views/views.py:1358
 msgid ""
 "The rationale you chose does not match your second answer choice.  This "
 "should not happen.  Please start over with the question."
@@ -4003,13 +4013,13 @@ msgstr ""
 "choix de réponse. Ceci ne devrait pas se produire. Veuillez recommencer la "
 "question."
 
-#: peerinst/views/views.py:2672
+#: peerinst/views/views.py:2674
 msgid ""
 "You must be logged in as a teacher to search the database. Log in again with "
 "a teacher account."
 msgstr ""
 
-#: peerinst/views/views.py:2774
+#: peerinst/views/views.py:2776
 msgid "An error occurred.  Retry search after logging in again."
 msgstr ""
 
@@ -4524,9 +4534,6 @@ msgstr ""
 
 #~ msgid "unique results"
 #~ msgstr "résultats uniques"
-
-#~ msgid "Custom Report"
-#~ msgstr "Rapport personnalisé"
 
 #~ msgid "assignment_id"
 #~ msgstr "id_exercice"
