@@ -1063,6 +1063,8 @@ class QuestionFormView(QuestionMixin, FormView):
                 teacher = Teacher.get(teacher_hash)
                 if teacher not in group.teacher.all():
                     group.teacher.add(teacher)
+                    teacher.current_groups.add(group)
+                    teacher.save()
 
             # If this user is a student, add group to student
             if hasattr(self.request.user, "student"):
