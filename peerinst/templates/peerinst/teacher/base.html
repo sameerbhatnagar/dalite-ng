@@ -1,0 +1,23 @@
+{% extends 'peerinst/_base.html' %}
+
+{% load compress staticfiles i18n %}
+
+{% block stylesheets %}
+{% include 'reputation/header/styles.html' %}
+{% endblock %}
+
+{% block scripts %}
+{% include 'reputation/header/scripts.html' %}
+{% endblock %}
+
+{% block header-left %}
+<div class="header">
+  {% include 'peerinst/teacher/header/menu.html' %}
+</div>
+{% endblock %}
+
+{% block header-right %}
+<div class="header">
+  {% include 'reputation/header/header.html' %}
+</div>
+{% endblock %}

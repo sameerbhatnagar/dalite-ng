@@ -3,6 +3,7 @@
 {% load staticfiles compress i18n %}
 
 {% block stylesheets %}
+{{ block.super }}
 {% compress css %}
 <link href="{% static 'peerinst/css/search.min.css' %}" rel="stylesheet">
 {% endcompress %}
@@ -272,6 +273,7 @@
 {% endblock %}
 
 {% block scripts %}
+{{ block.super }}
 {% compress js inline %}
 <script>
 bundle.toggleImages();

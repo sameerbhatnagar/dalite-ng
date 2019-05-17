@@ -43,6 +43,7 @@
 {% endblock %}
 
 {% block scripts %}
+{{ block.super }}
 <script>
 let data = {{ json|safe }};
 
