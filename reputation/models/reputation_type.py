@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+from itertools import chain
+
 from django.db import models
 
 from criterion_list import get_criterion
@@ -55,14 +57,27 @@ class ReputationType(models.Model):
         if not self.criterions.exists():
             return None, []
 
-        reputations = [
+        criterions = [
             {
-                "reputation": get_criterion(c.name)
-                .objects.get(version=c.version)
-                .evaluate(model),
+                "criterion": get_criterion(c.name).objects.get(
+                    version=c.version
+                ),
                 "weight": c.weight,
             }
             for c in self.criterions.all()
+        ]
+
+        reputations = [
+            dict(
+                chain(
+                    {
+                        "reputation": c["criterion"].evaluate(model),
+                        "weight": c["weight"],
+                    }.items(),
+                    c["criterion"].__iter__(),
+                )
+            )
+            for c in criterions
         ]
 
         reputation = float(
