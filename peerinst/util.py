@@ -342,7 +342,7 @@ def student_list_from_student_groups(group_list):
 
 def question_search_function(search_string):
     """
-    given a search_string, return query_set of question objects that have that
+    Given a search_string, return query_set of question objects that have that
     string in either question text, title, or categories
     """
     flagged_questions = QuestionFlag.objects.filter(flag=True).values_list(
