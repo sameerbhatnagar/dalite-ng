@@ -59,9 +59,8 @@ class NAnswersCriterion(Criterion):
         return {
             "name": "n_answers",
             "full_name": "Number of answers",
-            "description": "Gives a score between 0 and 1 representing the "
-            "number of answers for a question. Range is enforced by using "
-            "the sigmoid function.",
+            "description": "Gives a score between 0 and 100 representing the "
+            "number of answers for a question.",
         }
 
     @staticmethod

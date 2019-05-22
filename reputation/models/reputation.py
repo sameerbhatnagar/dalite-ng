@@ -2,8 +2,9 @@
 from __future__ import unicode_literals
 
 import json
+from datetime import date as date_
 
-from django.db import models
+from django.db import IntegrityError, models
 
 from ..logger import logger
 from .reputation_type import ReputationType
@@ -102,15 +103,28 @@ class Reputation(models.Model):
 
 class ReputationHistory(models.Model):
     reputation = models.ForeignKey(Reputation, editable=False)
-    datetime = models.DateTimeField(auto_now_add=True)
+    date = models.DateField(auto_now_add=True)
     reputation_value = models.FloatField(null=True, blank=True, editable=False)
     reputation_details = models.TextField(editable=False)
+
+    class Meta:
+        unique_together = ("reputation", "date")
 
     @staticmethod
     def create(reputation):
         value, details = reputation.evaluate()
-        return ReputationHistory.objects.create(
-            reputation=reputation,
-            reputation_value=value,
-            reputation_details=json.dumps(details),
-        )
+        try:
+            instance = ReputationHistory.objects.create(
+                reputation=reputation,
+                reputation_value=value,
+                reputation_details=json.dumps(details),
+            )
+        except IntegrityError:
+            instance = ReputationHistory.objects.get(
+                reputation=reputation, date=date_.today()
+            )
+            instance.reputation_value = value
+            instance.reputation_details = json.dumps(details)
+            instance.save()
+
+        return instance

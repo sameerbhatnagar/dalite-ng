@@ -11,3 +11,7 @@ class ReputationConfig(AppConfig):
 
     def ready(self):
         from . import signals  # noqa
+
+        from .scheduled import start_scheduled_events
+
+        start_scheduled_events()
