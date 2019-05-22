@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import json
+
 from django.db import models
 
 from ..logger import logger
@@ -28,9 +30,11 @@ class Reputation(models.Model):
             Individual criterions under the format
                 [{
                     name: str
+                    full_name: str
+                    description: str
                     version: int
                     weight: int
-                    value: float
+                    reputation: float
                 }]
 
         Raises
@@ -94,3 +98,19 @@ class Reputation(models.Model):
         reputation_type = ReputationType.objects.get(type=cls.lower())
 
         return Reputation.objects.create(reputation_type=reputation_type)
+
+
+class ReputationHistory(models.Model):
+    reputation = models.ForeignKey(Reputation, editable=False)
+    datetime = models.DateTimeField(auto_now_add=True)
+    reputation_value = models.FloatField(null=True, blank=True, editable=False)
+    reputation_details = models.TextField(editable=False)
+
+    @staticmethod
+    def create(reputation):
+        value, details = reputation.evaluate()
+        return ReputationHistory.objects.create(
+            reputation=reputation,
+            reputation_value=value,
+            reputation_details=json.dumps(details),
+        )

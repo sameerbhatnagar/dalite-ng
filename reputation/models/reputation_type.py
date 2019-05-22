@@ -34,9 +34,11 @@ class ReputationType(models.Model):
             Individual criterions under the format
                 [{
                     name: str
+                    full_name: str
+                    description: str
                     version: int
                     weight: int
-                    value: float
+                    reputation: float
                 }]
 
         Raises
