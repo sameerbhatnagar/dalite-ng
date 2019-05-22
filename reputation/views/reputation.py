@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.utils.translation import ugettext_lazy as _
+from django.views.decorators.http import require_POST
 
 from dalite.views.errors import response_400
 
@@ -13,6 +14,7 @@ from .utils import get_json_params
 
 
 @login_required
+@require_POST
 def reputation(req):
     args = get_json_params(req, args=["reputation_type"])
     if isinstance(args, HttpResponse):
