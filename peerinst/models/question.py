@@ -370,15 +370,17 @@ class Question(models.Model):
                     .count()
                 )
 
-                peer = (
-                    student_answers.exclude(
-                        first_answer_choice__in=correct_choices
-                    )
-                    .filter(second_answer_choice__in=correct_choices)
-                    .count()
-                )
+                # peer = (
+                #     student_answers.exclude(
+                #         first_answer_choice__in=correct_choices
+                #     )
+                #     .filter(second_answer_choice__in=correct_choices)
+                #     .count()
+                # )
 
-                assert easy + hard + tricky + peer == N
+                # assert easy + hard + tricky + peer == N
+
+                peer = N - easy - tricky - hard
 
                 matrix[str("easy")] = float(easy) / N
                 matrix[str("hard")] = float(hard) / N
