@@ -1,4 +1,5 @@
 import factory
+import pytest
 import random
 from timeit import default_timer as timer
 
@@ -51,6 +52,7 @@ class QuestionMethodTests(TestCase):
             )
         assert models.Question.objects.count() == self.N_questions
 
+    @pytest.mark.skip(reason="Performance test; not needed for CI.")
     def test_get_matrix(self):
         """
         Current benchmarks (runserver):

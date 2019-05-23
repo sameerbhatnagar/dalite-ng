@@ -174,7 +174,7 @@ class Student(models.Model):
                 context = {"signin_link": signin_link, "group": group}
 
                 if err is None:
-                    send_email_async.delay(
+                    send_email_async(
                         subject,
                         message,
                         "noreply@myDALITE.org",
@@ -475,7 +475,7 @@ class StudentAssignment(models.Model):
                 }
 
                 if err is None:
-                    send_email_async.delay(
+                    send_email_async(
                         subject,
                         message,
                         "noreply@myDALITE.org",
