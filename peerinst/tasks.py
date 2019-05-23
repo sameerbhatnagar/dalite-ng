@@ -25,7 +25,7 @@ def try_async(func):
         if len(available_workers):
             return func.delay(*args, **kwargs)
         else:
-            func(*args, **kwargs)
+            return func(*args, **kwargs)
 
     return wrapper
 
