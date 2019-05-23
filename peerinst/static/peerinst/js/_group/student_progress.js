@@ -49,6 +49,9 @@ function toggleStudentProgress() {
 /********/
 
 function view() {
+  document
+    .querySelector("#student-progress")
+    .parentNode.parentNode.classList.remove("hidden");
   if (model.dataLoaded) {
     progressView();
   } else {

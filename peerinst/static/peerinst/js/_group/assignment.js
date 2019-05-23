@@ -49,6 +49,7 @@ function distributeAssignment() {
           : null,
       };
       distributedView();
+      initStudentProgress(model.urls.getAssignmentStudentProgress);
     })
     .catch(function(err) {
       console.log(err);
@@ -180,5 +181,7 @@ export function initAssignment(data) {
   initModel(data);
   view();
   initListeners();
-  initStudentProgress(model.urls.getAssignmentStudentProgress);
+  if (model.assignment.distributionDate) {
+    initStudentProgress(model.urls.getAssignmentStudentProgress);
+  }
 }
