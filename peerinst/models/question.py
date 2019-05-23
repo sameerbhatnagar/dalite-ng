@@ -328,23 +328,64 @@ class Question(models.Model):
         matrix[str("tricky")] = 0
         matrix[str("peer")] = 0
 
-        if self.answerchoice_set.count() > 0:
-            student_answers = self.answer_set.filter(expert=False).filter(
-                second_answer_choice__gt=0
+        answer_choices = self.answerchoice_set.all()
+        answerchoice_correct = self.answerchoice_set.values_list(
+            "correct", flat=True
+        )
+        correct_choices = list(
+            itertools.compress(itertools.count(1), answerchoice_correct)
+        )
+
+        # There must be more choices than correct choices for valid matrix
+        if answer_choices.count() > len(correct_choices):
+            student_answers = (
+                self.answer_set.filter(expert=False)
+                .filter(second_answer_choice__gt=0)
+                .exclude(user_token="")
             )
             N = len(student_answers)
             if N > 0:
-                for answer in student_answers:
-                    if self.is_correct(answer.first_answer_choice):
-                        if self.is_correct(answer.second_answer_choice):
-                            matrix[str("easy")] += 1.0 / N
-                        else:
-                            matrix[str("tricky")] += 1.0 / N
-                    else:
-                        if self.is_correct(answer.second_answer_choice):
-                            matrix[str("peer")] += 1.0 / N
-                        else:
-                            matrix[str("hard")] += 1.0 / N
+
+                easy = (
+                    student_answers.filter(
+                        first_answer_choice__in=correct_choices
+                    )
+                    .filter(second_answer_choice__in=correct_choices)
+                    .count()
+                )
+
+                hard = (
+                    student_answers.exclude(
+                        first_answer_choice__in=correct_choices
+                    )
+                    .exclude(second_answer_choice__in=correct_choices)
+                    .count()
+                )
+
+                tricky = (
+                    student_answers.filter(
+                        first_answer_choice__in=correct_choices
+                    )
+                    .exclude(second_answer_choice__in=correct_choices)
+                    .count()
+                )
+
+                # peer = (
+                #     student_answers.exclude(
+                #         first_answer_choice__in=correct_choices
+                #     )
+                #     .filter(second_answer_choice__in=correct_choices)
+                #     .count()
+                # )
+
+                # assert easy + hard + tricky + peer == N
+
+                peer = N - easy - tricky - hard
+
+                matrix[str("easy")] = float(easy) / N
+                matrix[str("hard")] = float(hard) / N
+                matrix[str("tricky")] = float(tricky) / N
+                matrix[str("peer")] = float(peer) / N
 
         return matrix
 

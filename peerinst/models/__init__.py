@@ -6,3 +6,4 @@ from .lti import *
 from .question import *
 from .student import *
 from .teacher import *
+from .collection import *

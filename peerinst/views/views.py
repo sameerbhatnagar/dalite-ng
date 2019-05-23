@@ -17,6 +17,7 @@ from django.contrib.auth.models import Group, User
 from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import PermissionDenied
 from django.core.mail import mail_admins, send_mail
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.core.urlresolvers import reverse
 
 # reports
@@ -691,6 +692,7 @@ def answer_choice_form(request, question_id):
         extra=5,
     )
     question = get_object_or_404(models.Question, pk=question_id)
+    request.session["question_id"] = question_id
 
     # Check permissions
     if request.user.has_perm("peerinst.change_question", question):
@@ -1062,6 +1064,8 @@ class QuestionFormView(QuestionMixin, FormView):
                 teacher = Teacher.get(teacher_hash)
                 if teacher not in group.teacher.all():
                     group.teacher.add(teacher)
+                    teacher.current_groups.add(group)
+                    teacher.save()
 
             # If this user is a student, add group to student
             if hasattr(self.request.user, "student"):
@@ -2663,7 +2667,6 @@ def blink_waiting(request, username, assignment=""):
 
 # AJAX functions
 def question_search(request):
-    from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
     if not Teacher.objects.filter(user=request.user).exists():
         return HttpResponse(

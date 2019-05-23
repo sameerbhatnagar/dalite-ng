@@ -19,6 +19,7 @@ from .models import (
     BlinkQuestion,
     BlinkRound,
     Category,
+    Collection,
     Discipline,
     Institution,
     LastLogout,
@@ -110,6 +111,11 @@ class AnswerInline(admin.StackedInline):
         # Only include example answers not belonging to any student
         qs = admin.StackedInline.get_queryset(self, request)
         return qs.filter(user_token="", show_to_others=True)
+
+
+@admin.register(Collection)
+class CollectionAdmin(admin.ModelAdmin):
+    pass
 
 
 @admin.register(Question)
