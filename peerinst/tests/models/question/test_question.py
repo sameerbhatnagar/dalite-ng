@@ -83,11 +83,12 @@ class QuestionMethodTests(TestCase):
             print(m["tricky"])
             print(m["peer"])
             self.assertTrue(
-                abs(1 - m["easy"] - m["hard"] - m["tricky"] - m["peer"]) < 0.01
+                abs(1 - m["easy"] - m["hard"] - m["tricky"] - m["peer"])
+                <= 0.01
             )
-            self.assertTrue(abs(m["easy"] / (prob * prob) - 1) < 0.1)
+            self.assertTrue(abs(m["easy"] / (prob * prob) - 1) <= 0.1)
             self.assertTrue(
-                abs(m["hard"] / ((1 - prob) * (1 - prob)) - 1) < 0.1
+                abs(m["hard"] / ((1 - prob) * (1 - prob)) - 1) <= 0.1
             )
-            self.assertTrue(abs(m["tricky"] / (prob * (1 - prob)) - 1) < 0.1)
-            self.assertTrue(abs(m["peer"] / ((1 - prob) * prob) - 1) < 0.1)
+            self.assertTrue(abs(m["tricky"] / (prob * (1 - prob)) - 1) <= 0.1)
+            self.assertTrue(abs(m["peer"] / ((1 - prob) * prob) - 1) <= 0.1)
