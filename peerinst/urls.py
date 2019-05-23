@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from operator import add
-
 # Backport of django 1.9 password validation
 import password_validation.views as password_views
 from django.conf.urls import include, url
@@ -130,6 +128,11 @@ def old_patterns():
             name="question-search",
         ),
         url(r"^heartbeat/$", views.HeartBeatUrl.as_view(), name="heartbeat"),
+        url(
+            r"^collection/create$",
+            views.CollectionCreateView.as_view(),
+            name="collection-create",
+        ),
         # Standalone
         url(
             r"^live/access/(?P<token>[0-9A-Za-z=_-]+)/(?P<assignment_hash>[0-9A-Za-z=_-]+)$",  # noqa
@@ -587,7 +590,7 @@ def researcher_patterns():
             name="research-flag-question-by-assignment",
         ),
         url(
-            r"^research/expert/rationales/(?P<question_id>[0-9]+)$",
+            r"^expert/rationales/(?P<question_id>[0-9]+)$",
             admin_views.QuestionExpertRationaleView.as_view(),
             name="research-fix-expert-rationale",
         ),
@@ -604,8 +607,7 @@ def researcher_patterns():
     ]
 
 
-urlpatterns = reduce(
-    add,
+urlpatterns = sum(
     [
         old_patterns(),
         group_patterns(),
@@ -613,4 +615,5 @@ urlpatterns = reduce(
         search_patterns(),
         researcher_patterns(),
     ],
+    [],
 )

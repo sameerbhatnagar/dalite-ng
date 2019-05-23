@@ -2,7 +2,8 @@
 
 coverage
 ddt
-factory_boy
+factory_boy==2.6
+mixer
 mock
 pytest
 pytest-cov

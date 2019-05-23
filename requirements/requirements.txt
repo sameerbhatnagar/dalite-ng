@@ -10,6 +10,7 @@ pyjwt
 # pymysql
 python-memcached==1.59
 pytz
+requests
 
 -e git+https://github.com/open-craft/ansible-sanity-checker@v0.0.2#egg=sanity_checker
 -e git+https://github.com/tophatmonocle/ims_lti_py.git@979244d83c2e6420d2c1941f58e52f641c56ad12#egg=ims_lti_py

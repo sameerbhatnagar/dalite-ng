@@ -13,6 +13,8 @@ from django.db import models
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
+from quality.models import Quality
+
 from .group import StudentGroup
 from .question import Question
 
@@ -76,6 +78,9 @@ class StudentGroupAssignment(models.Model):
     )
     order = models.TextField(blank=True, editable=True)
     reminder_days = models.PositiveIntegerField(default=3)
+    quality = models.ForeignKey(
+        Quality, blank=True, null=True, on_delete=models.SET_NULL
+    )
 
     @staticmethod
     def get(hash_):

@@ -3,13 +3,15 @@ from __future__ import unicode_literals
 
 import base64
 
+from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
+
+from quality.models import Quality
 
 from .answer import Answer
 from .assignment import Assignment
@@ -42,6 +44,9 @@ class Teacher(models.Model):
     )
     current_groups = models.ManyToManyField(
         StudentGroup, blank=True, related_name="current_groups"
+    )
+    quality = models.ForeignKey(
+        Quality, blank=True, null=True, on_delete=models.SET_NULL
     )
 
     def get_absolute_url(self):

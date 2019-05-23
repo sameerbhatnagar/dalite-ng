@@ -1,4 +1,4 @@
-from peerinst.models import Question
+from peerinst.models import Question, RationaleOnlyQuestion
 
 
 def new_questions(n):
@@ -16,4 +16,10 @@ def new_questions(n):
 
 
 def add_questions(questions):
-    return [Question.objects.create(**q) for q in questions]
+    return [Question.objects.get_or_create(**q)[0] for q in questions]
+
+
+def add_rationale_only_questions(questions):
+    return [
+        RationaleOnlyQuestion.objects.get_or_create(**q)[0] for q in questions
+    ]

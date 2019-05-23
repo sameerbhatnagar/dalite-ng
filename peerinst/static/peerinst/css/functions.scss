@@ -1,0 +1,13 @@
+@import "variables";
+
+@function text-color($key1, $key2) {
+  @if map-has-key($mdc-theme-text-colors, $key1) {
+    $colors: map-get($mdc-theme-text-colors, $key1);
+    @if map-has-key($colors, $key2) {
+      @return map-get($colors, $key2);
+    }
+  }
+
+  @warn "Unkown `#{$key1}` or `#{$key2}` in $mdc-theme-text-colors.";
+  @return null;
+}

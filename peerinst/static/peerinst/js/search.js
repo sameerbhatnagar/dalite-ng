@@ -78,6 +78,8 @@ export function reset() {
  *  @function
  */
 export function processResponse() {
+  console.info("Processing response...");
+
   bundle.toggleImages();
   bundle.toggleAnswers();
 

@@ -25,7 +25,6 @@
           {% csrf_token %}
           <ul class="mdc-list mdc-list--two-line mdc-list--non-interactive">
             <li class="mdc-list-divider" role="separator"></li>
-
             <li class="mdc-list-item">
               <span class="mdc-list-item__graphic mdc-theme--primary">
                 <i class="mdc-theme--primary material-icons md-48">calendar_today</i>
@@ -35,7 +34,6 @@
               </span>
             </li>
             <li class="mdc-list-divider" role="separator"></li>
-
             <li class="mdc-list-item">
               <span class="mdc-list-item__graphic mdc-theme--primary">
                 <i class="mdc-theme--primary material-icons md-48">calendar_today</i>
@@ -51,8 +49,6 @@
               </span>
             </li>
             <li class="mdc-list-divider" role="separator"></li>
-
-
             <li class="mdc-list-item">
               {% if assignment.show_correct_answers %}
               <span class="mdc-list-item__graphic mdc-theme--primary">
@@ -75,6 +71,36 @@
                 </span>
               </span>
               {% endif %}
+            </li>
+            <li class="mdc-list-divider" role="separator"></li>
+            <li class="mdc-list-item"
+                title="{% trans 'Quality evaluation for allowing rationale submission' %}">
+              <span class="mdc-list-item__graphic mdc-theme--primary">
+                <i class="mdc-theme--primary material-icons md-48">
+                  assistant
+                </i>
+              </span>
+              <span class="mdc-list-item__text mdc-theme--secondary bold">
+                {% trans 'Submission quality' %}
+                <div class="mdc-list-item__secondary-text">
+                  {% if assignment.quality %}
+                  <ul style="padding-left:0px;">
+                    {% for criterion in assignment.quality.criterions.all %}
+                    <li class="mdc-list-item__secondary-text">
+                      {{ criterion.name }} v{{ criterion.version }}
+                    </li>
+                    {% endfor %}
+                  </ul>
+                  {% endif %}
+                </div>
+              </span>
+              <span class="mdc-list-item__meta">
+                <a href="{% url 'quality:edit' %}?type=validation&assignment={{ assignment.pk }}&next={{ request.path }}">
+                  <i class="material-icons md-24 mdc-ripple-surface icon-list">
+                    edit
+                  </i>
+                </a>
+              </span>
             </li>
             <li class="mdc-list-divider" role="separator"></li>
           </ul>
@@ -114,7 +140,7 @@
       </div>
     </div>
 
-    <div class="foldable">
+    <div class="foldable hidden">
       <h2 class="foldable--title mdc-typography--display1 mdc-theme--secondary">
         {% trans 'Student progress' %}
       </h2>
@@ -156,9 +182,16 @@
               {% else %}
               {{ student.student.username }}
               {% endif %}
+              {% if assignment.distribution_date %}
               <span class="mdc-list-item__secondary-text">
-                {% trans "Started assignment: " %}{% if student.student.username in students_with_answers %}{% trans 'Yes' %}{% else %}{% trans 'No' %}{% endif %}
+                {% trans "Started assignment: " %}
+                {% if student.student.username in students_with_answers %}
+                {% trans 'Yes' %}
+                {% else %}
+                {% trans 'No' %}
+                {% endif %}
               </span>
+              {% endif %}
             </span>
             {% if student.student.email %}
             <span class="mdc-list-item__meta">

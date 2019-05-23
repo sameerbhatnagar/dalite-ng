@@ -1,5 +1,9 @@
 @import "../custom_elements";
 
+.mdc-list {
+  cursor: default;
+}
+
 #student-list {
   user-select: none;
   & > li {

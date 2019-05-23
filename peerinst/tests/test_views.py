@@ -13,10 +13,11 @@ from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django_lti_tool_provider.models import LtiUserData
 from django_lti_tool_provider.views import LTIView
+from quality.models import UsesCriterion
 
-from . import factories
 from ..models import Answer, LtiEvent, Question, ShownRationale
 from ..util import SessionStageData
+from . import factories
 
 
 class Grade(object):
@@ -54,6 +55,10 @@ class QuestionViewTestCase(TestCase):
 
     def setUp(self):
         super(QuestionViewTestCase, self).setUp()
+
+        UsesCriterion.objects.filter(
+            quality__quality_type__type="global"
+        ).delete()
 
         # TOS integration
         from tos.models import Consent, Role, Tos

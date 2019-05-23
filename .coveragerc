@@ -2,6 +2,7 @@
 source =
   dalite/
   peerinst/
+  quality/
   tos/
 omit =
   */tests/*

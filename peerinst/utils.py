@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 import base64
 from datetime import datetime, timedelta
+from itertools import chain, islice
 
 import jwt
 import pytz
@@ -48,3 +49,10 @@ def verify_token(token):
         err = "Invalid token"
 
     return payload, err
+
+
+def batch(iterable, size):
+    source_iter = iter(iterable)
+    while True:
+        batch_iter = islice(source_iter, size)
+        yield chain([batch_iter.next()], batch_iter)
