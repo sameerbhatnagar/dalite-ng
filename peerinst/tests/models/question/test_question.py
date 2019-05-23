@@ -15,10 +15,10 @@ from peerinst.tests.factories import (
 class QuestionMethodTests(TestCase):
     def setUp(self):
         """
-        Make 100 questions, but do not generate answers as factory does not add
+        Make questions, but do not generate answers as factory does not add
         a user by default.
 
-        Make 1000 users each with an answer to each question (using Faker to
+        Make users each with an answer to each question (using Faker to
         make rationale text).
         """
         print("Populating test db...")
