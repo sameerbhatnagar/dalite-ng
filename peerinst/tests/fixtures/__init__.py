@@ -3,6 +3,8 @@ __all__ = [
     "answers_rationale_only",
     "answer_choice",
     "answers",
+    "discipline",
+    "disciplines",
     "first_answers_no_shown",
     "assignment",
     "student_group_assignment",
@@ -30,7 +32,7 @@ from .answer import (
 from .assignment import assignment, student_group_assignment
 from .auth import user
 from .group import group
-from .question import question, questions
+from .question import discipline, disciplines, question, questions
 from .student import add_to_group, student, student_new, students
 from .teacher import teacher
 from .tos import tos_student, tos_teacher

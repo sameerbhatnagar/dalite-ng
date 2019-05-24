@@ -2,8 +2,10 @@ import pytest
 
 from ..teacher import teacher  # noqa
 from .generators import (
+    add_disciplines,
     add_questions,
     add_rationale_only_questions,
+    new_disciplines,
     new_questions,
 )
 
@@ -26,3 +28,13 @@ def rationale_only_question():
 @pytest.fixture
 def rationale_only_questions():
     return add_rationale_only_questions(new_questions(2))
+
+
+@pytest.fixture
+def discipline():
+    return add_disciplines(new_disciplines(1))[0]
+
+
+@pytest.fixture
+def disciplines():
+    return add_disciplines(new_disciplines(2))

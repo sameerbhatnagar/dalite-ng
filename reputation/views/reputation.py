@@ -7,10 +7,10 @@ from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_POST
 
 from dalite.views.errors import response_400
+from dalite.views.utils import get_json_params
 
 from ..logger import logger
 from .teacher import teacher_reputation
-from .utils import get_json_params
 
 
 @login_required

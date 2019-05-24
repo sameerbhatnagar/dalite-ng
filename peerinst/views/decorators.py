@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 
 import logging
 
+from django.contrib.auth.decorators import login_required
 from django.utils.translation import ugettext_lazy as _
 
 from dalite.views.errors import response_400, response_403
@@ -112,6 +113,7 @@ def group_access_required(fct):
 
 
 def teacher_required(fct):
+    @login_required
     def wrapper(req, *args, **kwargs):
         try:
             teacher = Teacher.objects.get(user=req.user)

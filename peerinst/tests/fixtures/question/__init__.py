@@ -1,4 +1,6 @@
 __all__ = [
+    "discipline",
+    "disciplines",
     "question",
     "questions",
     "rationale_only_question",
@@ -6,6 +8,8 @@ __all__ = [
 ]
 
 from .fixtures import (
+    discipline,
+    disciplines,
     question,
     questions,
     rationale_only_question,

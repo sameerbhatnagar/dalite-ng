@@ -5,12 +5,12 @@ from django.http import HttpResponse, JsonResponse
 from django.utils.translation import ugettext_lazy as _
 
 from dalite.views.errors import response_400
+from dalite.views.utils import get_json_params
 from peerinst.models import Teacher
 
 from ..logger import logger
 from ..models import Reputation
 from .decorators import logged_in_non_student_required
-from .utils import get_json_params
 
 
 @logged_in_non_student_required

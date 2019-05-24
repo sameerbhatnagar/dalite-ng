@@ -5,7 +5,7 @@ import json
 
 from django.http import HttpResponse
 
-from reputation.views.utils import get_json_params
+from dalite.views.utils import get_json_params
 
 
 def test_get_json_params(rf):

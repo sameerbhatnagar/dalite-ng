@@ -602,6 +602,16 @@ def researcher_patterns():
     ]
 
 
+def teacher_patterns():
+    return [
+        url(
+            r"^teacher/page/new-questions/$",
+            views.teacher.new_questions,
+            name="teacher-page--new-questions",
+        )
+    ]
+
+
 urlpatterns = sum(
     [
         old_patterns(),
@@ -609,6 +619,7 @@ urlpatterns = sum(
         student_patterns(),
         search_patterns(),
         researcher_patterns(),
+        teacher_patterns(),
     ],
     [],
 )
