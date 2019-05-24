@@ -42,8 +42,7 @@ def test_teacher_required__with_anonymous_user(rf):
 
     fct = teacher_required(lambda req, teacher: teacher)
     resp = fct(req)
-    assert resp.status_code == 403
-    assert resp.template_name == "403.html"
+    assert resp.status_code == 302
 
 
 def test_student_required__with_student(client, rf, student):
