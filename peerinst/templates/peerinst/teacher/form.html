@@ -3,6 +3,7 @@
 {% load i18n add_class compress %}
 
 {% block stylesheets %}
+{{ block.super }}
 {% compress css inline %}
 <style>
   label {
@@ -66,6 +67,7 @@
 {% endblock %}
 
 {% block scripts %}
+{{ block.super }}
 <script>
   bundle.bindAjaxTextInputForm('show_discipline_form', 'discipline_form', "{% url 'disciplines-create' %}");
 </script>

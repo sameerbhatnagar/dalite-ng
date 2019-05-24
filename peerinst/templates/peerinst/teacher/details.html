@@ -3,6 +3,7 @@
 {% load compress i18n %}
 
 {% block stylesheets %}
+{{ block.super }}
 <style>
 .deleted {
   background-color: lightgray;
@@ -385,6 +386,7 @@
 {% endblock %}
 
 {% block scripts %}
+{{ block.super }}
 {% compress js inline %}
 <script>
   bundle.addDialog();
