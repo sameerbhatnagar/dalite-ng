@@ -43,6 +43,7 @@ def test_teacher_required__with_anonymous_user(rf):
     fct = teacher_required(lambda req, teacher: teacher)
     resp = fct(req)
     assert resp.status_code == 302
+    assert resp.url.endswith("/login/?next=/test")
 
 
 def test_student_required__with_student(client, rf, student):
