@@ -2,14 +2,17 @@
 from __future__ import unicode_literals
 
 import logging
+from datetime import datetime
 
+import pytz
+from django.conf import settings
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.views.decorators.http import require_POST, require_safe
 
 from dalite.views.utils import get_json_params
 
-from ..models import QUESTION_TYPES, Question
+from ..models import QUESTION_TYPES, Question, StudentGroupMembership
 from .decorators import teacher_required
 
 logger = logging.getLogger("peerinst-views")
@@ -33,6 +36,7 @@ def teacher_page(req, teacher):
     HttpResponse
         Html response with basic template skeleton
     """
+    teacher.last_page_access = datetime.now(pytz.utc)
     context = {"teacher": teacher}
 
     return render(req, "peerinst/teacher/page.html", context)
@@ -54,9 +58,104 @@ def student_activity(req, teacher):
     Returns
     -------
     JSONResponse
-        Response with json data
+        Response with json data:
+            {
+                groups: [{
+                    title: str
+                        Group title
+                    n_students: int
+                        Number of students in the group
+                    new: bool
+                        If there is any new activity in the group
+                    assignments: [{
+                        title: str
+                            Title of the assignment
+                        n_completed: int
+                            Number of students having completed the assignment
+                        mean_grade: float
+                            Average grade on the assignment
+                        min_grade: float
+                            Minimum grade on the assignment
+                        max_grade: float
+                            Maximum grade on the assignment
+                        new: bool
+                            If the information changed since last login
+                        expired: bool
+                            If the assignment has expired
+                        link: str
+                            Link to the assignment
+                    }]
+                }]
+            }
     """
-    pass
+    host = settings.ALLOWED_HOSTS[0]
+    if host.startswith("localhost") or host.startswith("127.0.0.1"):
+        protocol = "http"
+        host = "{}:{}".format(host, settings.DEV_PORT)
+    else:
+        protocol = "https"
+
+    assignments = [
+        {
+            "title": group.title,
+            "n_students": StudentGroupMembership.objects.filter(
+                group=group
+            ).count(),
+            "assignments": [
+                {
+                    "title": assignment.assignment.title,
+                    "new": assignment.last_modified > teacher.last_page_access
+                    if teacher.last_page_access
+                    else True,
+                    "expired": assignment.expired,
+                    "link": "{}://{}{}".format(
+                        protocol, host, assignment.link
+                    ),
+                    "results": [
+                        (a.completed, a.grade)
+                        for a in assignment.studentassignment_set.iterator()
+                    ],
+                }
+                for assignment in group.studentgroupassignment_set.iterator()
+            ],
+        }
+        for group in teacher.current_groups.iterator()
+    ]
+
+    data = {
+        "groups": [
+            {
+                "title": group["title"],
+                "n_students": group["n_students"],
+                "new": any(a["new"] for a in group["assignments"]),
+                "assignments": [
+                    {
+                        "title": assignment["title"],
+                        "n_completed": sum(
+                            a[0] for a in assignment["results"]
+                        ),
+                        "mean_grade": sum(a[1] for a in assignment["results"])
+                        / group["n_students"]
+                        if group["n_students"]
+                        else 0,
+                        "min_grade": min(a[1] for a in assignment["results"])
+                        if group["n_students"]
+                        else 0,
+                        "max_grade": max(a[1] for a in assignment["results"])
+                        if group["n_students"]
+                        else 0,
+                        "new": assignment["new"],
+                        "expired": assignment["expired"],
+                        "link": assignment["link"],
+                    }
+                    for assignment in group["assignments"]
+                ],
+            }
+            for group in assignments
+        ]
+    }
+
+    return JsonResponse(data)
 
 
 @require_POST
@@ -96,7 +195,23 @@ def new_questions(req, teacher):
     Returns
     -------
     JSONResponse
-        Response with json data
+        Response with json data:
+            {
+                questions: [{
+                    author: str
+                        Author username
+                    discipline: str
+                        Discipline of the question
+                    last_modified: %Y-%m-%dT%H:%M:%S.%fZ
+                        Datetime of last modification
+                    n_assignment: int
+                        Number of assignments containing the question
+                    text: str
+                        Full question text
+                    title: str
+                        Question title
+                }]
+            }
     """
 
     args = get_json_params(req, opt_args=["question_index", "n_questions"])
@@ -117,12 +232,12 @@ def new_questions(req, teacher):
         "questions": [
             {
                 "author": question.user.username,
-                "title": question.title,
-                "text": question.text,
-                "question_type": dict(QUESTION_TYPES)[question.type],
                 "discipline": question.discipline.title,
                 "last_modified": question.last_modified,
                 "n_assignments": question.assignment_set.count(),
+                "question_type": dict(QUESTION_TYPES)[question.type],
+                "text": question.text,
+                "title": question.title,
             }
             for question in questions
         ]

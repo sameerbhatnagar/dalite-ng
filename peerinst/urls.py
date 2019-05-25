@@ -608,7 +608,12 @@ def teacher_patterns():
             r"^teacher/page/new-questions/$",
             views.teacher.new_questions,
             name="teacher-page--new-questions",
-        )
+        ),
+        url(
+            r"^teacher/page/student-activity/$",
+            views.teacher.student_activity,
+            name="teacher-page--student-activity",
+        ),
     ]
 
 

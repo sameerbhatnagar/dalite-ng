@@ -12,6 +12,18 @@ from peerinst.tests.fixtures import *  # noqa
 from peerinst.tests.fixtures.teacher import login_teacher
 
 
+def test_student_activity(client, teacher, group, student_assignments):
+    assert login_teacher(client, teacher)
+    group.teacher.add(teacher)
+    teacher.current_groups.add(group)
+
+    resp = client.post(
+        reverse("teacher-page--student-activity"),
+        json.dumps({}),
+        content_type="application/json",
+    )
+
+
 def test_new_questions(client, teacher, questions, assignment, disciplines):
     assert login_teacher(client, teacher)
 
