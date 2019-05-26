@@ -7,6 +7,7 @@ from datetime import datetime
 
 import pytz
 from django.contrib.auth.models import User
+from django.contrib.contenttypes.fields import GenericRelation
 from django.core import exceptions
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -15,6 +16,7 @@ from django.utils.encoding import smart_bytes
 from django.utils.html import escape, strip_tags
 from django.utils.translation import ugettext_lazy as _
 
+from .search import MetaSearch
 from .. import rationale_choice
 
 
@@ -224,6 +226,7 @@ class Question(models.Model):
             "correct answer."
         ),
     )
+    meta_search = GenericRelation(MetaSearch, related_query_name="questions")
 
     def __unicode__(self):
         if self.discipline:
