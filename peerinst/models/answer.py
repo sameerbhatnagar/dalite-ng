@@ -72,7 +72,7 @@ class Answer(models.Model):
         Quality,
         blank=True,
         null=True,
-        help_text="Chich quality was used to filter shown rationales.",
+        help_text="Which quality was used to filter shown rationales.",
         related_name="filtering_quality",
     )
 
