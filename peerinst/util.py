@@ -13,6 +13,7 @@ from django.db.models import (
     Value,
     Case,
     Q,
+    QuerySet,
     When,
     CharField,
     DurationField,
@@ -339,13 +340,21 @@ def student_list_from_student_groups(group_list):
     return student_ids
 
 
-def question_search_function(search_string):
+def question_search_function(search_string, pre_filtered_list=None):
     """
-    Given a search_string, return query_set of question objects that have that
-    string in either question text, title, or categories
+    Given a search_string and an optional queryset to search within, return
+    a queryset of question objects that have that search_string in either
+    the question id, text, title, category, discipline, answerchoice,
+    or username.
     """
-    query_term = (
-        Question.unflagged_objects.filter(
+    if pre_filtered_list:
+        assert isinstance(pre_filtered_list, QuerySet)
+
+    search_list = (
+        pre_filtered_list if pre_filtered_list else Question.objects.all()
+    )
+    query_result = (
+        search_list.filter(
             Q(id__icontains=search_string)
             | Q(text__icontains=search_string)
             | Q(title__icontains=search_string)
@@ -358,7 +367,7 @@ def question_search_function(search_string):
         .order_by("-answer_count")
     )
 
-    return query_term
+    return query_result
 
 
 def get_student_objects_from_group_list(student_groups):
