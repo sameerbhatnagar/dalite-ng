@@ -23,7 +23,7 @@ def try_async(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
         try:
-            logger.info("Checking for celery...")
+            logger.info("Checking for celery message broker...")
             heartbeat.apply_async()
 
         except heartbeat.OperationalError as e:
