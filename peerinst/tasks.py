@@ -21,10 +21,8 @@ def try_async(func):
 
     @wraps(func)
     def wrapper(*args, **kwargs):
-        logger.info("Checking for available workers...")
-        logger.info(celery_app)
-        available_workers = celery_app.control.ping(timeout=0.25)
-        logger.info(available_workers)
+        logger.info("Checking for available workers in " + str(celery_app))
+        available_workers = celery_app.control.ping(timeout=0.5)
         if len(available_workers):
             return func.delay(*args, **kwargs)
         else:

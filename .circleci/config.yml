@@ -30,10 +30,17 @@ jobs:
             yarn run gulp build
       - run:
           name: Safety
-          command:  |
+          command: |
             . .venv/bin/activate
             pip install safety
             safety check
+      - run:
+          name: Install Redis (message broker)
+          command: |
+            wget http://download.redis.io/releases/redis-5.0.0.tar.gz
+            tar xzf redis-5.0.0.tar.gz
+            cd redis-5.0.0
+            make
       - run:
           name: Setup local_settings.py
           command: |
@@ -59,4 +66,5 @@ jobs:
           name: Tests
           command: |
             . .venv/bin/activate
+            redis-5.0.0/src/redis-server &
             pytest --cov --create-db --cov-report term-missing -v -s
