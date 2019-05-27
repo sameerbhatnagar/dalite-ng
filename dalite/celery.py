@@ -1,8 +1,14 @@
 from __future__ import absolute_import, unicode_literals
-import os
-from celery import Celery
 
-# set the default Django settings module for the 'celery' program.
+import os
+
+from functools import wraps
+from celery import Celery
+from celery.utils.log import get_logger
+
+logger = get_logger(__name__)
+
+# Set the default Django settings module for the 'celery' program.
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "dalite.settings")
 
 app = Celery("proj")
@@ -25,3 +31,38 @@ def debug_task(self):
 @app.task
 def heartbeat():
     pass
+
+
+def try_async(func):
+    """
+    Decorator for celery tasks such that they default to synchronous operation
+    if no workers are available
+    """
+
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        try:
+            logger.info("Checking for celery message broker...")
+            heartbeat.delay()
+
+        except heartbeat.OperationalError as e:
+            info = "Celery unavailable ({}).  Executing {} synchronously.".format(  # noqa
+                e, func.__name__
+            )
+            logger.info(info)
+            return func(*args, **kwargs)
+
+        else:
+            logger.info("Checking for available workers...")
+            available_workers = app.control.ping(timeout=0.4)
+
+            if len(available_workers):
+                return func.delay(*args, **kwargs)
+            else:
+                info = "No celery workers available.  Executing {} synchronously.".format(  # noqa
+                    func.__name__
+                )
+                logger.info(info)
+                return func(*args, **kwargs)
+
+    return wrapper
