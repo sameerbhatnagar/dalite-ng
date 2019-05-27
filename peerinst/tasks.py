@@ -7,6 +7,7 @@ from functools import wraps
 
 from celery import shared_task
 from dalite.celery import app as celery_app
+from dalite.celery import heartbeat
 
 from django.core.mail import send_mail
 
@@ -21,16 +22,29 @@ def try_async(func):
 
     @wraps(func)
     def wrapper(*args, **kwargs):
-        logger.info("Checking for available workers in " + str(celery_app))
-        available_workers = celery_app.control.ping(timeout=0.5)
-        if len(available_workers):
-            return func.delay(*args, **kwargs)
-        else:
-            err = "No celery workers available.  Executing {} synchronously.".format(  # noqa
-                func.__name__
+        try:
+            logger.info("Checking for celery...")
+            heartbeat.apply_async()
+
+        except heartbeat.OperationalError as e:
+            info = "Celery unavailable ({}).  Executing {} synchronously.".format(  # noqa
+                e, func.__name__
             )
-            logger.info(err)
+            logger.info(info)
             return func(*args, **kwargs)
+
+        else:
+            logger.info("Checking for available workers...")
+            available_workers = celery_app.control.ping(timeout=0.4)
+
+            if len(available_workers):
+                return func.delay(*args, **kwargs)
+            else:
+                info = "No celery workers available.  Executing {} synchronously.".format(  # noqa
+                    func.__name__
+                )
+                logger.info(info)
+                return func(*args, **kwargs)
 
     return wrapper
 
