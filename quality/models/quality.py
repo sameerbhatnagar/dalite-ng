@@ -354,7 +354,6 @@ class QualityCache(models.Model):
             )
             for c in quality.criterions.all()
         ]
-        print(json.dumps({"text": rationale, "criterions": criterions}))
 
         hash_ = hashlib.md5(
             json.dumps({"text": rationale, "criterions": criterions}).encode()
@@ -388,7 +387,6 @@ class QualityCache(models.Model):
             )
             for c in quality_instance.criterions.all()
         ]
-        print(json.dumps({"text": rationale, "criterions": criterions}))
 
         hash_ = hashlib.md5(
             json.dumps({"text": rationale, "criterions": criterions}).encode()
