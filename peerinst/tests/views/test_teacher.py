@@ -12,7 +12,14 @@ from peerinst.tests.fixtures import *  # noqa
 from peerinst.tests.fixtures.teacher import login_teacher
 
 
-def test_student_activity(client, teacher, group, student_assignments):
+def test_student_activity__no_questions_done(
+    client,
+    teacher,
+    group,
+    students,
+    student_group_assignments,
+    student_assignments,
+):
     assert login_teacher(client, teacher)
     group.teacher.add(teacher)
     teacher.current_groups.add(group)
@@ -22,6 +29,22 @@ def test_student_activity(client, teacher, group, student_assignments):
         json.dumps({}),
         content_type="application/json",
     )
+    data = json.loads(resp.content)["groups"][0]
+    assert data["title"] == group.title
+    assert data["n_students"] == len(students)
+    assert data["new"] is True
+    assert len(data["assignments"]) == len(student_group_assignments)
+    for assignment, assignment_ in zip(
+        data["assignments"], student_group_assignments
+    ):
+        assert assignment["title"] == assignment_.assignment.title
+        assert assignment["n_completed"] == 0
+        assert assignment["mean_grade"] == 0
+        assert assignment["min_grade"] == 0
+        assert assignment["max_grade"] == 0
+        assert assignment["new"] is True
+        assert assignment["expired"] is False
+        assert assignment["link"].endswith(assignment_.hash + "/")
 
 
 def test_new_questions(client, teacher, questions, assignment, disciplines):
