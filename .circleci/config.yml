@@ -59,4 +59,4 @@ jobs:
           name: Tests
           command: |
             . .venv/bin/activate
-            pytest --cov --create-db --cov-report term-missing
+            pytest --cov --create-db --cov-report term-missing -v -s

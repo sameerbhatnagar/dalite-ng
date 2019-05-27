@@ -21,14 +21,14 @@ def try_async(func):
 
     @wraps(func)
     def wrapper(*args, **kwargs):
-        available_workers = celery_app.control.ping(timeout=0.5)
+        available_workers = celery_app.control.ping(timeout=0.25)
         if len(available_workers):
             return func.delay(*args, **kwargs)
         else:
             err = "No celery workers available.  Executing {} synchronously.".format(  # noqa
                 func.__name__
             )
-            logger.error(err)
+            logger.info(err)
             return func(*args, **kwargs)
 
     return wrapper
