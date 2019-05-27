@@ -6,8 +6,7 @@ import smtplib
 from functools import wraps
 
 from celery import shared_task
-from dalite.celery import app as celery_app
-from dalite.celery import heartbeat
+from dalite.celery import heartbeat, app as celery_app
 
 from django.core.mail import send_mail
 
