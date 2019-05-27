@@ -25,3 +25,4 @@ scripts/
 mysql_scripts/
 .tern-port
 .data/
+dump.rdb
