@@ -21,7 +21,6 @@ def send_email_async(*args, **kwargs):
         logger.error(err)
 
 
-@try_async
 @shared_task
 def update_question_meta_search_difficulty():
     # Prevent circular import
