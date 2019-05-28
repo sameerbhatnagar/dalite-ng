@@ -13,6 +13,7 @@ from django.views.decorators.http import require_POST, require_safe
 from dalite.views.utils import get_json_params
 
 from ..models import QUESTION_TYPES, Question, StudentGroupMembership
+from ..rationale_annotation import choose_rationales
 from .decorators import teacher_required
 
 logger = logging.getLogger("peerinst-views")
@@ -188,7 +189,12 @@ def new_questions(req, teacher):
     Parameters
     ----------
     req : HttpRequest
-        Request
+        Request with:
+            optional parameters:
+                question_index: int (default : 0)
+                    Starting index of the questions to return
+                n_questions: int (default : 10)
+                    Number of questions to return
     teacher : Teacher
         Teacher instance returned by `teacher_required`
 
@@ -276,7 +282,10 @@ def rationales_to_score(req, teacher):
     Parameters
     ----------
     req : HttpRequest
-        Request
+        Request with:
+            optional parameters:
+                n: int (default : 5)
+                    Number of rationales to return
     teacher : Teacher
         Teacher instance returned by `teacher_required`
 
@@ -285,7 +294,35 @@ def rationales_to_score(req, teacher):
     JSONResponse
         Response with json data
     """
-    pass
+    args = get_json_params(req, opt_args=["n"])
+    if isinstance(args, HttpResponse):
+        return args
+    _, (n,) = args
+
+    if n is None:
+        n = 5
+
+    rationales = choose_rationales(teacher, n=n)
+
+    data = {
+        "rationales": [
+            {
+                "id": answer.id,
+                "title": answer.question.title,
+                "rationale": answer.rationale,
+                "choice": answer.first_answer_choice,
+                "text": answer.question.answerchoice_set.all()[
+                    answer.first_answer_choice - 1
+                ].text,
+                "correct": answer.question.is_correct(
+                    answer.first_answer_choice
+                ),
+            }
+            for answer in rationales
+        ]
+    }
+
+    return JsonResponse(data)
 
 
 @require_POST
