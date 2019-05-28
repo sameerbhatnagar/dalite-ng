@@ -25,7 +25,7 @@ def update_question_meta_search_difficulty():
             logger.info("new difficulty level created : " + f)
 
     for q in qs:
-        level = max(q.get_matrix(), key=operator.itemgetter(1))[0]
+        level = max(q.get_matrix().iteritems(), key=operator.itemgetter(1))[0]
         f = MetaFeature.objects.get(level)
         s = MetaSearch.objects.create(meta_feature=f, content_object=q)
         q.add(s)
