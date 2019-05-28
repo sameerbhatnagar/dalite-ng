@@ -1,37 +1,10 @@
 # import threading
 import logging
-import operator
-from celery import shared_task
-from dalite.celery import try_async
-
-from .models import Question, MetaFeature, MetaSearch
 
 # from datetime import datetime, timedelta
 
 # from .models import StudentGroupAssignment
 logger = logging.getLogger("peerinst-models")
-
-
-@try_async
-@shared_task
-def update_question_meta_search_difficulty():
-    qs = Question.objects.all()
-    difficulty_levels = qs[0].get_matrix().keys()
-    for d in difficulty_levels:
-        f, created = MetaFeature.objects.create(
-            key="difficulty", value=d, type="S"
-        )
-        if created:
-            logger.info("new difficulty level created : " + f)
-
-    for q in qs:
-        level = max(q.get_matrix(), key=operator.itemgetter(1))[0]
-        f = MetaFeature.objects.get(level)
-        s = MetaSearch.objects.create(meta_feature=f, content_object=q)
-        q.add(s)
-        q.save()
-
-    return
 
 
 def start_scheduled_events():
