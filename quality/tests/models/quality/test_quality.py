@@ -141,7 +141,15 @@ def test_evaluate__cached(assignment_validation_quality):
 
         criterion = mock.MagicMock()
         criterion.__iter__.side_effect = {}.__iter__
-        evaluations = ({"quality": i + 1, "threshold": 1} for i in range(3))
+
+        def evaluate():
+            i = 0
+            while True:
+                time.sleep(0.1)
+                i += 1
+                yield {"quality": i + 1, "threshold": 1}
+
+        evaluations = evaluate()
         criterion.evaluate = lambda answer, rules: next(evaluations)
 
         criterion_class.objects.get.return_value = criterion
@@ -254,7 +262,7 @@ def test_batch_evaluate__cached_all(assignment_validation_quality):
     answers = [mock.Mock() for _ in range(3)]
     for i, answer in enumerate(answers):
         answer.pk = i
-        answer.rationale = "test"
+        answer.rationale = "test" + str(i)
 
     for i in range(3):
         UsesCriterion.objects.create(
@@ -275,10 +283,18 @@ def test_batch_evaluate__cached_all(assignment_validation_quality):
 
         criterion = mock.MagicMock()
         criterion.__iter__.side_effect = {}.__iter__
-        evaluations = (
-            [{"quality": i + 1, "threshold": 1} for _ in range(len(answers))]
-            for i in range(3)
-        )
+
+        def evaluate():
+            i = 0
+            while True:
+                time.sleep(0.1)
+                i += 1
+                yield [
+                    {"quality": i + 1, "threshold": 1}
+                    for _ in range(len(answers))
+                ]
+
+        evaluations = evaluate()
         criterion.batch_evaluate = lambda answer, rules: next(evaluations)
 
         criterion_class.objects.get.return_value = criterion
@@ -289,10 +305,7 @@ def test_batch_evaluate__cached_all(assignment_validation_quality):
         )
         time_taken_1 = time.time() - start
 
-        evaluations = (
-            [{"quality": i + 1, "threshold": 1} for _ in range(len(answers))]
-            for i in range(3)
-        )
+        evaluations = evaluate()
         criterion.batch_evaluate = lambda answer, rules: next(evaluations)
 
         start = time.time()
@@ -309,7 +322,7 @@ def test_batch_evaluate__cached_some(assignment_validation_quality):
     answers = [mock.Mock() for _ in range(3)]
     for i, answer in enumerate(answers):
         answer.pk = i
-        answer.rationale = "test"
+        answer.rationale = "test" + str(i)
 
     for i in range(3):
         UsesCriterion.objects.create(
@@ -330,10 +343,18 @@ def test_batch_evaluate__cached_some(assignment_validation_quality):
 
         criterion = mock.MagicMock()
         criterion.__iter__.side_effect = {}.__iter__
-        evaluations = (
-            [{"quality": i + 1, "threshold": 1} for _ in range(len(answers))]
-            for i in range(3)
-        )
+
+        def evaluate():
+            i = 0
+            while True:
+                time.sleep(0.1)
+                i += 1
+                yield [
+                    {"quality": i + 1, "threshold": 1}
+                    for _ in range(len(answers))
+                ]
+
+        evaluations = evaluate()
         criterion.batch_evaluate = lambda answer, rules: next(evaluations)
 
         criterion_class.objects.get.return_value = criterion
@@ -344,12 +365,13 @@ def test_batch_evaluate__cached_some(assignment_validation_quality):
         )
         time_taken_1 = time.time() - start
 
-        QualityCache.objects.exclude(pk__in=(0, 1)).delete()
+        for c in QualityCache.objects.all()[:2]:
+            c.delete()
 
-        evaluations = (
-            [{"quality": i + 1, "threshold": 1} for _ in range(len(answers))]
-            for i in range(3)
-        )
+        evaluations = evaluate()
+        criterion.batch_evaluate = lambda answer, rules: next(evaluations)
+
+        evaluations = evaluate()
         criterion.batch_evaluate = lambda answer, rules: next(evaluations)
 
         start = time.time()

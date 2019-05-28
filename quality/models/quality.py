@@ -134,7 +134,7 @@ class Quality(models.Model):
 
         if cache:
             cached = [QualityCache.get(self, answer) for answer in answers]
-            answers = [a for a, c in zip(answers, cached) if c[0] is not None]
+            answers = [a for a, c in zip(answers, cached) if c[0] is None]
         else:
             cached = [(None, None) for _ in answers]
 
@@ -171,6 +171,8 @@ class Quality(models.Model):
 
             gen = iter(combined)
             combined = [q if q[0] is not None else next(gen) for q in cached]
+
+        print(combined)
 
         return combined
 
@@ -392,9 +394,10 @@ class QualityCache(models.Model):
             json.dumps({"text": rationale, "criterions": criterions}).encode()
         ).hexdigest()
 
-        cls.objects.create(
-            answer=answer_pk,
-            hash=hash_,
-            quality=quality,
-            qualities=json.dumps(qualities),
-        )
+        if not cls.objects.filter(hash=hash_):
+            cls.objects.create(
+                answer=answer_pk,
+                hash=hash_,
+                quality=quality,
+                qualities=json.dumps(qualities),
+            )
