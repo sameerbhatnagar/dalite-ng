@@ -37,19 +37,14 @@ def update_question_meta_search_difficulty():
 
     for q in qs:
         level = max(q.get_matrix().iteritems(), key=operator.itemgetter(1))[0]
-        f = MetaFeature.objects.get(key="difficulty", value=level)
+        f = MetaFeature.objects.get(key="difficulty", value=level, type="S")
         s = MetaSearch.objects.create(meta_feature=f, content_object=q)
         q.meta_search.add(s)
 
         logger.debug("Updating difficulty of '{}''".format(q))
         logger.debug("Feature: {}".format(f))
         logger.debug("Search object: {}".format(s))
-        logger.debug(
-            "All search objects for question: {}".format(
-                "".join([str(_s) for _s in q.meta_search.all()])
-            )
+
+        assert (
+            q.meta_search.filter(meta_feature__key="difficulty").count() == 1
         )
-
-        assert q.meta_search.filter(key="difficulty").count() == 1
-
-    return
