@@ -8,11 +8,19 @@ import pytz
 from django.conf import settings
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
+from django.utils.translation import ugettext_lazy as translate
 from django.views.decorators.http import require_POST, require_safe
 
+from dalite.views.errors import response_400
 from dalite.views.utils import get_json_params
 
-from ..models import QUESTION_TYPES, Question, StudentGroupMembership
+from ..models import (
+    QUESTION_TYPES,
+    Answer,
+    AnswerAnnotation,
+    Question,
+    StudentGroupMembership,
+)
 from ..rationale_annotation import choose_rationales
 from .decorators import teacher_required
 
@@ -351,3 +359,56 @@ def messages(req, teacher):
         Response with json data
     """
     pass
+
+
+@require_POST
+@teacher_required
+def evaluate_rationale(req, teacher):
+    """
+    Add the `teacher`'s evaluation for a rationale.
+
+    Parameters
+    ----------
+    req : HttpRequest
+        Request with:
+            parameters:
+                id: int
+                    Primary key of the rationale
+                score: int
+                    Given score
+    teacher : Teacher
+        Teacher instance returned by `teacher_required`
+
+    Returns
+    -------
+    JSONResponse
+        Response with json data
+    """
+    args = get_json_params(req, args=["id", "score"])
+    if isinstance(args, HttpResponse):
+        return args
+    (id_, score), _ = args
+
+    if score not in range(4):
+        return response_400(
+            req,
+            msg=translate("The score wasn't in a valid range."),
+            logger_msg=("The score wasn't valid; was {}.".format(score)),
+            log=logger.warning,
+        )
+
+    try:
+        answer = Answer.objects.get(id=id_)
+    except Answer.DoesNotExist:
+        return response_400(
+            req,
+            msg=translate("Unkown answer id sent."),
+            logger_msg=("No answer could be found for pk {}.".format(id_)),
+            log=logger.warning,
+        )
+
+    AnswerAnnotation.objects.create(
+        answer=answer, annotator=teacher.user, score=score
+    )
+
+    return HttpResponse("")
