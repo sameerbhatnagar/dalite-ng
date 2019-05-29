@@ -130,6 +130,7 @@ def student_activity(req, teacher):
         }
         for group in teacher.current_groups.iterator()
     ]
+    print(assignments)
 
     data = {
         "groups": [
@@ -143,15 +144,24 @@ def student_activity(req, teacher):
                         "n_completed": sum(
                             a[0] for a in assignment["results"]
                         ),
-                        "mean_grade": sum(a[1] for a in assignment["results"])
-                        / group["n_students"]
+                        "mean_grade": float(
+                            sum(a[1] for a in assignment["results"] if a[0])
+                        )
+                        / sum(a[0] for a in assignment["results"])
                         if group["n_students"]
+                        and any(a[0] for a in assignment["results"])
                         else 0,
-                        "min_grade": min(a[1] for a in assignment["results"])
+                        "min_grade": min(
+                            a[1] for a in assignment["results"] if a[0]
+                        )
                         if group["n_students"]
+                        and any(a[0] for a in assignment["results"])
                         else 0,
-                        "max_grade": max(a[1] for a in assignment["results"])
+                        "max_grade": max(
+                            a[1] for a in assignment["results"] if a[0]
+                        )
                         if group["n_students"]
+                        and any(a[0] for a in assignment["results"])
                         else 0,
                         "new": assignment["new"],
                         "expired": assignment["expired"],

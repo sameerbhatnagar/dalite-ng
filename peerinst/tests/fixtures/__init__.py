@@ -1,4 +1,5 @@
 __all__ = [
+    "add_answers",
     "add_to_group",
     "answer_choice",
     "answer_choices",
@@ -42,7 +43,7 @@ from .assignment import (
 )
 from .auth import user
 from .group import group
-from .question import discipline, disciplines, question, questions
+from .question import add_answers, discipline, disciplines, question, questions
 from .student import (
     add_to_group,
     student,

@@ -1,4 +1,5 @@
 __all__ = [
+    "add_answers",
     "discipline",
     "disciplines",
     "question",
@@ -15,3 +16,4 @@ from .fixtures import (
     rationale_only_question,
     rationale_only_questions,
 )
+from .utils import add_answers
