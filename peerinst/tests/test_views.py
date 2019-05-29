@@ -13,6 +13,7 @@ from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django_lti_tool_provider.models import LtiUserData
 from django_lti_tool_provider.views import LTIView
+
 from quality.models import UsesCriterion
 
 from ..models import Answer, LtiEvent, Question, ShownRationale
@@ -556,5 +557,4 @@ class EventLogTest(QuestionViewTestCase):
         lti_params = self.LTI_PARAMS.copy()
         lti_params["context_id"] = self.COURSE_ID
         self.log_in_with_lti(lti_params=lti_params)
-
         self._test_events(logger, is_edx_course_id=False)
