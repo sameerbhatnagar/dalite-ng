@@ -102,33 +102,7 @@ def test_new_questions__with_params(
 
     resp = client.post(
         reverse("teacher-page--new-questions"),
-        json.dumps({"question_index": 1}),
-        content_type="application/json",
-    )
-
-    assert resp.status_code == 200
-    data = json.loads(resp.content)
-    assert len(data["questions"]) == len(questions) // 2 - 1
-
-    for i, (question, question_) in enumerate(
-        zip(reversed(questions[: len(questions) // 2 - 1]), data["questions"])
-    ):
-        assert question_["title"] == question.title
-        assert question_["text"] == question.text
-        assert question_["author"] == teacher.user.username
-        assert question_["question_type"] == "Peer instruction"
-        assert question_[
-            "discipline"
-        ] in teacher.disciplines.all().values_list("title", flat=True)
-        assert question_["n_assignments"] == 1
-        for q in data["questions"][i + 1 :]:
-            assert datetime.strptime(
-                question_["last_modified"], "%Y-%m-%dT%H:%M:%S.%fZ"
-            ) >= datetime.strptime(q["last_modified"], "%Y-%m-%dT%H:%M:%S.%fZ")
-
-    resp = client.post(
-        reverse("teacher-page--new-questions"),
-        json.dumps({"n_questions": 2}),
+        json.dumps({"n": 2}),
         content_type="application/json",
     )
 
@@ -157,7 +131,52 @@ def test_new_questions__with_params(
 
     resp = client.post(
         reverse("teacher-page--new-questions"),
-        json.dumps({"question_index": 1, "n_questions": 2}),
+        json.dumps(
+            {
+                "current": [
+                    q.pk
+                    for q in questions[
+                        len(questions) // 2 - 2 : len(questions) // 2
+                    ]
+                ]
+            }
+        ),
+        content_type="application/json",
+    )
+
+    assert resp.status_code == 200
+    data = json.loads(resp.content)
+    assert len(data["questions"]) == len(questions) // 2 - 2
+
+    for i, (question, question_) in enumerate(
+        zip(reversed(questions[: len(questions) // 2 - 2]), data["questions"])
+    ):
+        assert question_["title"] == question.title
+        assert question_["text"] == question.text
+        assert question_["author"] == teacher.user.username
+        assert question_["question_type"] == "Peer instruction"
+        assert question_[
+            "discipline"
+        ] in teacher.disciplines.all().values_list("title", flat=True)
+        assert question_["n_assignments"] == 1
+        for q in data["questions"][i + 1 :]:
+            assert datetime.strptime(
+                question_["last_modified"], "%Y-%m-%dT%H:%M:%S.%fZ"
+            ) >= datetime.strptime(q["last_modified"], "%Y-%m-%dT%H:%M:%S.%fZ")
+
+    resp = client.post(
+        reverse("teacher-page--new-questions"),
+        json.dumps(
+            {
+                "n": 2,
+                "current": [
+                    q.pk
+                    for q in questions[
+                        len(questions) // 2 - 2 : len(questions) // 2
+                    ]
+                ],
+            }
+        ),
         content_type="application/json",
     )
 
@@ -166,10 +185,7 @@ def test_new_questions__with_params(
     assert len(data["questions"]) == 2
 
     for i, (question, question_) in enumerate(
-        zip(
-            reversed(questions[len(questions) - 3 : len(questions) // 2 - 1]),
-            data["questions"],
-        )
+        zip(reversed(questions[: len(questions) // 2 - 2]), data["questions"])
     ):
         assert question_["title"] == question.title
         assert question_["text"] == question.text
@@ -269,6 +285,56 @@ def test_rationales_to_score__with_params(
         assert len(data["rationales"]) == 3
 
         for a, a_ in zip(data["rationales"], answers[::-1]):
+            assert a["id"] == a_.pk
+            assert a["title"] == a_.question.title
+            assert a["rationale"] == a_.rationale
+            assert a["choice"] == a_.first_answer_choice
+            assert (
+                a["text"]
+                == a_.question.answerchoice_set.all()[
+                    a_.first_answer_choice - 1
+                ].text
+            )
+            assert a["correct"] == a_.question.is_correct(
+                a_.first_answer_choice
+            )
+
+        resp = client.post(
+            reverse("teacher-page--rationales"),
+            json.dumps({"current": [a.pk for a in answers[-3:]]}),
+            content_type="application/json",
+        )
+
+        assert resp.status_code == 200
+        data = json.loads(resp.content)
+        assert len(data["rationales"]) == 5
+
+        for a, a_ in zip(data["rationales"], answers[:-3][::-1]):
+            assert a["id"] == a_.pk
+            assert a["title"] == a_.question.title
+            assert a["rationale"] == a_.rationale
+            assert a["choice"] == a_.first_answer_choice
+            assert (
+                a["text"]
+                == a_.question.answerchoice_set.all()[
+                    a_.first_answer_choice - 1
+                ].text
+            )
+            assert a["correct"] == a_.question.is_correct(
+                a_.first_answer_choice
+            )
+
+        resp = client.post(
+            reverse("teacher-page--rationales"),
+            json.dumps({"n": 3, "current": [a.pk for a in answers[-3:]]}),
+            content_type="application/json",
+        )
+
+        assert resp.status_code == 200
+        data = json.loads(resp.content)
+        assert len(data["rationales"]) == 3
+
+        for a, a_ in zip(data["rationales"], answers[:-3][::-1]):
             assert a["id"] == a_.pk
             assert a["title"] == a_.question.title
             assert a["rationale"] == a_.rationale

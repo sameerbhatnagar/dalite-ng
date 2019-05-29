@@ -191,10 +191,10 @@ def new_questions(req, teacher):
     req : HttpRequest
         Request with:
             optional parameters:
-                question_index: int (default : 0)
-                    Starting index of the questions to return
-                n_questions: int (default : 10)
+                n: int (default : 10)
                     Number of questions to return
+                current: List[int] (default : [])
+                    Primary keys of current questions (not to return)
     teacher : Teacher
         Teacher instance returned by `teacher_required`
 
@@ -220,19 +220,21 @@ def new_questions(req, teacher):
             }
     """
 
-    args = get_json_params(req, opt_args=["question_index", "n_questions"])
+    args = get_json_params(req, opt_args=["n", "current"])
     if isinstance(args, HttpResponse):
         return args
-    _, (question_index, n_questions) = args
+    _, (n, current) = args
 
-    if question_index is None:
-        question_index = 0
-    if n_questions is None:
-        n_questions = 10
+    if n is None:
+        n = 10
+    if current is None:
+        current = []
 
-    questions = Question.objects.filter(
-        discipline__in=teacher.disciplines.all()
-    ).order_by("-last_modified")[question_index : question_index + n_questions]
+    questions = (
+        Question.objects.filter(discipline__in=teacher.disciplines.all())
+        .exclude(pk__in=current)
+        .order_by("-last_modified")[:n]
+    )
 
     data = {
         "questions": [
@@ -286,6 +288,8 @@ def rationales_to_score(req, teacher):
             optional parameters:
                 n: int (default : 5)
                     Number of rationales to return
+                current: List[int] (default : [])
+                    Primary keys of current rationales (not to return)
     teacher : Teacher
         Teacher instance returned by `teacher_required`
 
@@ -294,15 +298,18 @@ def rationales_to_score(req, teacher):
     JSONResponse
         Response with json data
     """
-    args = get_json_params(req, opt_args=["n"])
+    args = get_json_params(req, opt_args=["n", "current"])
     if isinstance(args, HttpResponse):
         return args
-    _, (n,) = args
+    _, (n, current) = args
 
     if n is None:
         n = 5
+    if current is None:
+        current = []
 
-    rationales = choose_rationales(teacher, n=n)
+    rationales = choose_rationales(teacher, n=n + len(current))
+    rationales = [a for a in rationales if a.pk not in current]
 
     data = {
         "rationales": [
