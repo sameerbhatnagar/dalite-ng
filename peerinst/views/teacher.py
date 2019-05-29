@@ -130,7 +130,6 @@ def student_activity(req, teacher):
         }
         for group in teacher.current_groups.iterator()
     ]
-    print(assignments)
 
     data = {
         "groups": [
