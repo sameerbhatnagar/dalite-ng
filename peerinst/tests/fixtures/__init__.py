@@ -8,6 +8,8 @@ __all__ = [
     "assignment",
     "assignment",
     "assignments",
+    "collection",
+    "collections",
     "discipline",
     "disciplines",
     "first_answers_no_shown",
@@ -22,6 +24,7 @@ __all__ = [
     "student_new",
     "students",
     "teacher",
+    "teachers",
     "tos_student",
     "tos_teacher",
     "user",
@@ -42,6 +45,7 @@ from .assignment import (
     student_group_assignments,
 )
 from .auth import user
+from .collection import collection, collections
 from .group import group
 from .question import add_answers, discipline, disciplines, question, questions
 from .student import (
@@ -52,5 +56,5 @@ from .student import (
     student_new,
     students,
 )
-from .teacher import teacher
+from .teacher import teacher, teachers
 from .tos import tos_student, tos_teacher

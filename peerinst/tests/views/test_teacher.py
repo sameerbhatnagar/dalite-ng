@@ -339,6 +339,83 @@ def test_student_activity__some_questions_done_wrong_first_and_second(
         assert assignment["link"].endswith(assignment_.hash + "/")
 
 
+def test_collections(client, collections, teachers, discipline):
+    teacher = teachers[0]
+    teachers = teachers[1:]
+
+    teacher.disciplines.add(discipline)
+
+    assert login_teacher(client, teacher)
+
+    for i, collection in enumerate(collections):
+        collection.followers.remove(*teachers[: -i - 1])
+
+    resp = client.post(
+        reverse("teacher-page--collections"),
+        json.dumps({}),
+        content_type="application/json",
+    )
+
+    assert resp.status_code == 200
+    data = json.loads(resp.content)
+    assert len(data["collections"]) == len(collections)
+
+    for collection, collection_ in zip(
+        data["collections"], reversed(collections)
+    ):
+        assert collection["title"] == collection_.title
+        assert collection["description"] == collection_.description
+        assert collection["discipline"] == collection_.discipline.title
+        assert collection["n_assignments"] == collection_.assignments.count()
+        assert collection["n_followers"] == collection_.followers.count()
+
+
+def test_collections__with_params(client, collections, teachers, discipline):
+    teacher = teachers[0]
+    teachers = teachers[1:]
+
+    teacher.disciplines.add(discipline)
+
+    assert login_teacher(client, teacher)
+
+    for i, collection in enumerate(collections):
+        collection.followers.remove(*teachers[: -i - 1])
+
+    resp = client.post(
+        reverse("teacher-page--collections"),
+        json.dumps({"n": 1}),
+        content_type="application/json",
+    )
+
+    assert resp.status_code == 200
+    data = json.loads(resp.content)
+    assert len(data["collections"]) == 1
+
+    for collection, collection_ in zip(
+        data["collections"], reversed(collections)
+    ):
+        assert collection["title"] == collection_.title
+        assert collection["description"] == collection_.description
+        assert collection["discipline"] == collection_.discipline.title
+        assert collection["n_assignments"] == collection_.assignments.count()
+        assert collection["n_followers"] == collection_.followers.count()
+
+
+def test_collections__wrong_params(client, teachers):
+    assert login_teacher(client, teachers[0])
+
+    with mock.patch(
+        "peerinst.views.teacher.get_json_params",
+        return_value=HttpResponse("", status=400),
+    ):
+        resp = client.post(
+            reverse("teacher-page--new-questions"),
+            json.dumps({}),
+            content_type="application/json",
+        )
+        assert resp.status_code == 400
+
+
 def test_new_questions(client, teacher, questions, assignment, disciplines):
     assert login_teacher(client, teacher)
 

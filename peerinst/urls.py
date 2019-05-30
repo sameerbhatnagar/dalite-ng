@@ -629,6 +629,11 @@ def teacher_patterns():
             views.teacher.rationales_to_score,
             name="teacher-page--rationales",
         ),
+        url(
+            r"^teacher/page/collections/$",
+            views.teacher.collections,
+            name="teacher-page--collections",
+        ),
     ]
 
 

@@ -6,6 +6,7 @@ from datetime import datetime
 
 import pytz
 from django.conf import settings
+from django.db import models
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.utils.translation import ugettext_lazy as translate
@@ -18,6 +19,7 @@ from ..models import (
     QUESTION_TYPES,
     Answer,
     AnswerAnnotation,
+    Collection,
     Question,
     StudentGroupMembership,
 )
@@ -185,16 +187,58 @@ def collections(req, teacher):
     Parameters
     ----------
     req : HttpRequest
-        Request
+        Request with:
+            optional parameters:
+                n: int (default : 5)
+                    Number of questions to return
     teacher : Teacher
         Teacher instance returned by `teacher_required`
 
     Returns
     -------
     JSONResponse
-        Response with json data
+        Response with json data:
+            {
+                "collections": [
+                    {
+                        title : str
+                            Collection title
+                        discipline : str
+                            Collection discipline
+                        n_assignments : int
+                            Number of assignments in collection
+                        n_followers : str
+                            Number of followers for the collection
+                    }
+                ]
+            }
     """
-    pass
+    args = get_json_params(req, opt_args=["n"])
+    if isinstance(args, HttpResponse):
+        return args
+    _, (n,) = args
+
+    if n is None:
+        n = 5
+
+    data = {
+        "collections": [
+            {
+                "title": collection.title,
+                "description": collection.description,
+                "discipline": collection.discipline.title,
+                "n_assignments": collection.assignments.count(),
+                "n_followers": collection.n_followers,
+            }
+            for collection in Collection.objects.filter(
+                discipline__in=teacher.disciplines.all()
+            )
+            .annotate(n_followers=models.Count("followers"))
+            .order_by("-n_followers")
+            .all()[:n]
+        ]
+    }
+    return JsonResponse(data)
 
 
 @require_POST
