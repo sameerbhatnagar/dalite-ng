@@ -38,6 +38,7 @@ INSTALLED_APPS = (
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django_lti_tool_provider",
+    "django_celery_beat",
     "compressor",
     "analytical",
     "pinax.forums",
@@ -359,6 +360,14 @@ PINAX_FORUMS_EDIT_TIMEOUT = dict(days=120)
 TEACHER_GROUP = "Teacher"
 
 DEFAULT_TIMEZONE = "America/Montreal"
+
+CELERY_BROKER_URL = "redis://localhost:6379/0"
+CELERY_BROKER_TRANSPORT_OPTIONS = {
+    "max_retries": 3,
+    "interval_start": 0,
+    "interval_step": 0.4,
+    "interval_max": 2,
+}
 
 try:
     from .local_settings import *  # noqa F403

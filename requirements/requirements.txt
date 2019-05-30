@@ -1,3 +1,5 @@
+celery[redis]
+django-celery-beat
 django-analytical
 django-compressor
 django-grappelli

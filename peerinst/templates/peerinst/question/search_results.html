@@ -30,36 +30,36 @@
   {% if search_results_term.count > 0 %}
   <div class="search-set">
     <h3 class="mdc-theme--secondary-bg">
-      "{{search_results_term.term}}"
+      "{{ search_results_term.term }}"
       <i class="icon ion-ios-arrow-forward"></i>
       <span class="filter-count">{{ search_results_term.count }}</span>/<span class="filter-count-total">{{ search_results_term.count }}</span> {% trans 'results' %}
     </h3>
 
     {% for g in search_results_term.questions|dictsortreversed:"answer_count"  %}
     <div class="mdc-card"
-         id="{{g.id}}"
-         discipline="'{{g.discipline}}'"
+         id="{{ g.id|safe }}"
+         discipline="'{{ g.discipline|safe }}'"
          category="{% for c in g.category.all %}{{ c.title|safe }} {% endfor %}"
          matrix="{{ g.get_matrix|safe }}">
       <div class="mdc-typography--title bold">
-        {{g.title|safe}}
+        {{ g.title|safe }}
       </div>
 
       <div class="mdc-typography--caption">
-        #{{g.id}} {% if g.user %}{% trans 'by' %} {{ g.user.username }}{% endif %}
+        #{{ g.id|safe }} {% if g.user %}{% trans 'by' %} {{ g.user.username|safe }}{% endif %}
       </div>
 
       <div class="mdc-typography--body1" style="margin-top:5px;">
-        {{g.text|safe}}
+        {{ g.text|safe }}
       </div>
 
       {% if g.image %}
-        <img class="question-image" style="display:none;" src="{{ g.image.url }}" alt="g.image_alt_text">
+        <img class="question-image" style="display:none;" src="{{ g.image.url|safe }}" alt="g.image_alt_text">
       {% endif %}
 
       {% if g.video_url %}
       <div id="question-video">
-        <object class="question-image" width="640" height="390" data="{{ g.video_url }}"></object>
+        <object class="question-image" width="640" height="390" data="{{ g.video_url|safe }}"></object>
       </div>
       {% endif %}
 
@@ -85,7 +85,7 @@
         <div class="mdc-card__action-buttons" style="color:grey;">
           <div class="mdc-typography--caption">
             <div>
-              {% trans 'Discipline' %}: {{g.discipline}}
+              {% trans 'Discipline' %}: {{ g.discipline|safe }}
             </div>
             <div>
               {% trans 'Categories' %}:
@@ -96,21 +96,21 @@
               {% endfor %}
             </div>
             <div>
-              {% trans 'Student answers' %}: {{g.answer_set.all.count}}
+              {% trans 'Student answers' %}: {{ g.answer_set.all.count }}
             </div>
           </div>
         </div>
 
         <div class="mdc-card__action-icons">
 
-          <div id="stats-{{g.id}}" class="stats">
-            <i id="activate-dialog-analytics-{{g.id}}"
-            ref_id="{{g.id}}" class="material-icons md-24 analytics-tags">assessment</i>
-            <span id="rating-{{g.id}}"></span>
+          <div id="stats-{{ g.id|safe }}" class="stats">
+            <i id="activate-dialog-analytics-{{ g.id|safe }}"
+            ref_id="{{ g.id|safe }}" class="material-icons md-24 analytics-tags">assessment</i>
+            <span id="rating-{{ g.id|safe }}"></span>
           </div>
 
           {% if assignment %}
-          <button onclick="ajax.updateAssignmentQuestionList('{% url 'assignment-edit-ajax' %}', '{{ g.id }}', '{{ assignment.identifier }}')" class="material-icons small-button mdc-button mdc-card__action mdc-card__action--button mdc-button--raised" style="margin-left:20px;">add</button>
+          <button onclick="ajax.updateAssignmentQuestionList('{% url 'assignment-edit-ajax' %}', '{{ g.id|safe }}', '{{ assignment.identifier|safe }}')" class="material-icons small-button mdc-button mdc-card__action mdc-card__action--button mdc-button--raised" style="margin-left:20px;">add</button>
           {% elif type == None %}
           {% if request.user.teacher %}
           <i class="mdc-icon-toggle material-icons mdc-theme--primary"
@@ -124,14 +124,14 @@
               data-toggle-on='{"label": "Remove from favourites", "content": "favorite"}'
               data-toggle-off='{"label": "Add to favourites", "content": "favorite_border"}'
               {% endif %}
-              onclick="toggleFavourite({{g.pk}})">
+              onclick="toggleFavourite({{ g.pk|safe }})">
               favorite_border
           </i>
           {% endif %}
           {% else %}
-          <form style="display:inline" method="post" action="#{{g.id|slugify}}">
+          <form style="display:inline" method="post" action="#{{ g.id|slugify }}">
             {% csrf_token %}
-            <input type="hidden" name="{{form_field_name}}" value="{{g.pk}}" />
+            <input type="hidden" name="{{ form_field_name|safe }}" value="{{ g.pk|safe }}" />
             <input class="material-icons small-button mdc-button mdc-card__action mdc-card__action--button mdc-button--raised" style="margin-left:20px;" type="submit" value="add" />
           </form>
           {% endif %}
@@ -139,6 +139,7 @@
       </div>
     </div>
     {% endfor %}
+
   </div>
   {% endif %}
 {% endfor %}

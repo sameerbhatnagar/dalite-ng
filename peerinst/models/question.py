@@ -7,6 +7,7 @@ from datetime import datetime
 
 import pytz
 from django.contrib.auth.models import User
+from django.contrib.contenttypes.fields import GenericRelation
 from django.core import exceptions
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -18,6 +19,7 @@ from django.utils.translation import ugettext_lazy as _
 from reputation.models import Reputation
 
 from .. import rationale_choice
+from .search import MetaSearch
 
 
 def no_hyphens(value):
@@ -72,8 +74,54 @@ class QuestionManager(models.Manager):
         return self.get(title=title)
 
 
+class QuestionFlag(models.Model):
+    question = models.ForeignKey("Question")
+    flag_reason = models.ManyToManyField("QuestionFlagReason")
+    user = models.ForeignKey(User)
+    flag = models.BooleanField(default=True)
+    comment = models.CharField(max_length=200, null=True, blank=True)
+    datetime_created = models.DateTimeField(auto_now_add=True)
+    datetime_last_modified = models.DateTimeField(auto_now=True)
+
+    def __unicode__(self):
+        return "{} - {}- {}- {}".format(
+            self.question.pk, self.question, self.user.email, self.comment
+        )
+
+    class Meta:
+        verbose_name = _("flagged question")
+
+
+class FlaggedQuestionManager(models.Manager):
+    def get_queryset(self):
+        flagged_questions = QuestionFlag.objects.filter(flag=True).values_list(
+            "question", flat=True
+        )
+
+        return (
+            super(FlaggedQuestionManager, self)
+            .get_queryset()
+            .filter(pk__in=flagged_questions)
+        )
+
+
+class UnflaggedQuestionManager(models.Manager):
+    def get_queryset(self):
+        flagged_questions = QuestionFlag.objects.filter(flag=True).values_list(
+            "question", flat=True
+        )
+
+        return (
+            super(UnflaggedQuestionManager, self)
+            .get_queryset()
+            .exclude(pk__in=flagged_questions)
+        )
+
+
 class Question(models.Model):
     objects = QuestionManager()
+    flagged_objects = FlaggedQuestionManager()
+    unflagged_objects = UnflaggedQuestionManager()
 
     id = models.AutoField(
         primary_key=True,
@@ -229,6 +277,7 @@ class Question(models.Model):
     reputation = models.OneToOneField(
         Reputation, blank=True, null=True, on_delete=models.SET_NULL
     )
+    meta_search = GenericRelation(MetaSearch, related_query_name="questions")
 
     def __unicode__(self):
         if self.discipline:
@@ -333,23 +382,64 @@ class Question(models.Model):
         matrix[str("tricky")] = 0
         matrix[str("peer")] = 0
 
-        if self.answerchoice_set.count() > 0:
-            student_answers = self.answer_set.filter(expert=False).filter(
-                second_answer_choice__gt=0
+        answer_choices = self.answerchoice_set.all()
+        answerchoice_correct = self.answerchoice_set.values_list(
+            "correct", flat=True
+        )
+        correct_choices = list(
+            itertools.compress(itertools.count(1), answerchoice_correct)
+        )
+
+        # There must be more choices than correct choices for valid matrix
+        if answer_choices.count() > len(correct_choices):
+            student_answers = (
+                self.answer_set.filter(expert=False)
+                .filter(second_answer_choice__gt=0)
+                .exclude(user_token="")
             )
             N = len(student_answers)
             if N > 0:
-                for answer in student_answers:
-                    if self.is_correct(answer.first_answer_choice):
-                        if self.is_correct(answer.second_answer_choice):
-                            matrix[str("easy")] += 1.0 / N
-                        else:
-                            matrix[str("tricky")] += 1.0 / N
-                    else:
-                        if self.is_correct(answer.second_answer_choice):
-                            matrix[str("peer")] += 1.0 / N
-                        else:
-                            matrix[str("hard")] += 1.0 / N
+
+                easy = (
+                    student_answers.filter(
+                        first_answer_choice__in=correct_choices
+                    )
+                    .filter(second_answer_choice__in=correct_choices)
+                    .count()
+                )
+
+                hard = (
+                    student_answers.exclude(
+                        first_answer_choice__in=correct_choices
+                    )
+                    .exclude(second_answer_choice__in=correct_choices)
+                    .count()
+                )
+
+                tricky = (
+                    student_answers.filter(
+                        first_answer_choice__in=correct_choices
+                    )
+                    .exclude(second_answer_choice__in=correct_choices)
+                    .count()
+                )
+
+                # peer = (
+                #     student_answers.exclude(
+                #         first_answer_choice__in=correct_choices
+                #     )
+                #     .filter(second_answer_choice__in=correct_choices)
+                #     .count()
+                # )
+
+                # assert easy + hard + tricky + peer == N
+
+                peer = N - easy - tricky - hard
+
+                matrix[str("easy")] = float(easy) / N
+                matrix[str("hard")] = float(hard) / N
+                matrix[str("tricky")] = float(tricky) / N
+                matrix[str("peer")] = float(peer) / N
 
         return matrix
 
@@ -419,21 +509,3 @@ class QuestionFlagReason(models.Model):
 
     class Meta:
         verbose_name = _("Question flag reason")
-
-
-class QuestionFlag(models.Model):
-    question = models.ForeignKey(Question)
-    flag_reason = models.ManyToManyField(QuestionFlagReason)
-    user = models.ForeignKey(User)
-    flag = models.BooleanField(default=True)
-    comment = models.CharField(max_length=200, null=True, blank=True)
-    datetime_created = models.DateTimeField(auto_now_add=True)
-    datetime_last_modified = models.DateTimeField(auto_now=True)
-
-    def __unicode__(self):
-        return "{} - {}- {}- {}".format(
-            self.question.pk, self.question, self.user.email, self.comment
-        )
-
-    class Meta:
-        verbose_name = _("flagged question")

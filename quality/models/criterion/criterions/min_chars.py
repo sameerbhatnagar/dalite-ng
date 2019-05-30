@@ -15,9 +15,9 @@ class MinCharsCriterion(Criterion):
     def info():
         return {
             "name": "min_chars",
-            "full_name": "Min characters",
-            "description": "Imposes a minium number of characters for each "
-            "rationale.",
+            "full_name": "Clarity",
+            "description": "This rationale seems too short. Consider being "
+            "more elaborate.",
         }
 
     @staticmethod

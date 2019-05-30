@@ -102,12 +102,12 @@
       {% if formset %}
       {% if question.answerchoice_set.count > 0 %}
       <span class="padded">
-        <form style="display:inline" id="next" action="{% url 'sample-answer-form' question_id=question.id %}" method="get">
+        <form style="display:inline" id="next" action="{% url 'research-fix-expert-rationale' question_id=question.id %}" method="get">
           <button form="next" type="submit" class="mdc-button mdc-button--raised">{% trans 'Next' %}</button>
         </form>
       </span>
       <span class="padded">
-        <input form="answer-choice-form" class="mdc-button mdc-button--raised submit_button" type="submit" value="{% trans 'Save and next' %}" />
+        <input form="next" class="mdc-button mdc-button--raised submit_button" type="submit" value="{% trans 'Save and next' %}" />
       </span>
       {% else %}
       <span class="padded">
@@ -116,7 +116,7 @@
       {% endif %}
       {% else %}
       <span class="padded">
-        <form style="display:inline" id="next" action="{% url 'sample-answer-form' question_id=question.id %}" method="get">
+        <form style="display:inline" id="next" action="{% url 'research-fix-expert-rationale' question_id=question.id %}" method="get">
           <button form="next" type="submit" class="mdc-button mdc-button--raised">{% trans 'Next' %}</button>
         </form>
       </span>

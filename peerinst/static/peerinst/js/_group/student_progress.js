@@ -49,6 +49,9 @@ function toggleStudentProgress() {
 /********/
 
 function view() {
+  document
+    .querySelector("#student-progress")
+    .parentNode.parentNode.classList.remove("hidden");
   if (model.dataLoaded) {
     progressView();
   } else {
@@ -334,9 +337,9 @@ function animateCorrect(svg, reverse = false) {
       return function(t) {
         d.endAngle = interpolate(t);
         const newCount = interpolateCount(t);
-        path.style("fill", colourScale(newCount / total));
+        path.style("fill", colourScale((newCount / total) | 0));
         count.text(Math.floor(newCount));
-        count.style("fill", colourScale(newCount / total));
+        count.style("fill", colourScale((newCount / total) | 0));
         return arcData(d);
       };
     });

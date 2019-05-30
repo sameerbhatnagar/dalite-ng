@@ -140,7 +140,7 @@
       </div>
     </div>
 
-    <div class="foldable">
+    <div class="foldable hidden">
       <h2 class="foldable--title mdc-typography--display1 mdc-theme--secondary">
         {% trans 'Student progress' %}
       </h2>
@@ -182,9 +182,16 @@
               {% else %}
               {{ student.student.username }}
               {% endif %}
+              {% if assignment.distribution_date %}
               <span class="mdc-list-item__secondary-text">
-                {% trans "Started assignment: " %}{% if student.student.username in students_with_answers %}{% trans 'Yes' %}{% else %}{% trans 'No' %}{% endif %}
+                {% trans "Started assignment: " %}
+                {% if student.student.username in students_with_answers %}
+                {% trans 'Yes' %}
+                {% else %}
+                {% trans 'No' %}
+                {% endif %}
               </span>
+              {% endif %}
             </span>
             {% if student.student.email %}
             <span class="mdc-list-item__meta">

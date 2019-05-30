@@ -2,19 +2,18 @@
 from __future__ import unicode_literals
 
 import logging
-import smtplib
 from datetime import datetime
 from operator import itemgetter
 
 import pytz
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.core.mail import send_mail
 from django.core.urlresolvers import reverse
 from django.db import IntegrityError, models
 from django.template import loader
 from django.utils.translation import ugettext_lazy as _
 
+from ..tasks import send_email_async
 from ..students import create_student_token, get_student_username_and_password
 from .answer import Answer
 from .assignment import StudentGroupAssignment
@@ -175,20 +174,17 @@ class Student(models.Model):
                 context = {"signin_link": signin_link, "group": group}
 
                 if err is None:
-                    try:
-                        send_mail(
-                            subject,
-                            message,
-                            "noreply@myDALITE.org",
-                            [user_email],
-                            fail_silently=False,
-                            html_message=loader.render_to_string(
-                                template, context=context
-                            ),
-                        )
-                    except smtplib.SMTPException:
-                        err = "There was an error sending the email."
-                        logger.error(err)
+                    send_email_async(
+                        subject,
+                        message,
+                        "noreply@myDALITE.org",
+                        [user_email],
+                        fail_silently=False,
+                        html_message=loader.render_to_string(
+                            template, context=context
+                        ),
+                    )
+
         return err
 
     def join_group(self, group, mail_type=None):
@@ -479,25 +475,21 @@ class StudentAssignment(models.Model):
                 }
 
                 if err is None:
-                    try:
-                        send_mail(
-                            subject,
-                            message,
-                            "noreply@myDALITE.org",
-                            [user_email],
-                            fail_silently=False,
-                            html_message=loader.render_to_string(
-                                template, context=context
-                            ),
-                        )
-                        logger.info(
-                            "Email of type %s send for student assignment %d",
-                            mail_type,
-                            self.pk,
-                        )
-                    except smtplib.SMTPException:
-                        err = "There was an error sending the email."
-                        logger.error(err)
+                    send_email_async(
+                        subject,
+                        message,
+                        "noreply@myDALITE.org",
+                        [user_email],
+                        fail_silently=False,
+                        html_message=loader.render_to_string(
+                            template, context=context
+                        ),
+                    )
+                    logger.info(
+                        "Email of type %s send for student assignment %d",
+                        mail_type,
+                        self.pk,
+                    )
 
         return err
 

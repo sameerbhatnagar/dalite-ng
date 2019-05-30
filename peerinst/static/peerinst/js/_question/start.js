@@ -16,8 +16,8 @@ export function validateFormSubmit(event, url, quality) {
   fetch(url, req)
     .then(resp => resp.json())
     .then(failed => {
-      if (failed.length) {
-        toggleQualityError(failed);
+      if (failed.failed.length) {
+        toggleQualityError(failed.failed, failed.error_msg);
         document.querySelector("#answer-form").disabled = false;
       } else {
         toggleQualityError();
@@ -32,7 +32,7 @@ export function validateFormSubmit(event, url, quality) {
 /* view */
 /********/
 
-function toggleQualityError(data) {
+function toggleQualityError(data, errorMsg) {
   if (data) {
     const form = document.querySelector("#submit-answer-form");
 
@@ -43,7 +43,7 @@ function toggleQualityError(data) {
     clear(div);
 
     div.classList.add("errorlist");
-    div.textContent = "Your rationale didn't pass the following criterions: ";
+    div.textContent = errorMsg;
 
     const ul = document.createElement("ul");
     div.append(ul);

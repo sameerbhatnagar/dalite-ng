@@ -42,8 +42,8 @@
   <!-- Language selection -->
   <form id="switchLanguage" action="{% url 'set_language' %}" method="post">
     {% csrf_token %}
-    <input name="next" type="hidden" value={{ request.path|slice:"3:"|urlencode }} />
-    <input name="language" type="hidden" value={% if LANGUAGE_CODE == 'en' %}fr{% else %}en{% endif %} />
+    <input name="next" type="hidden" value={{ request.path|slice:"3:"|urlencode }}>
+    <input name="language" type="hidden" value={% if LANGUAGE_CODE == 'en' %}fr{% else %}en{% endif %}>
   </form>
 
   <svg id="corner" class="corner" width=35 height=35></svg>

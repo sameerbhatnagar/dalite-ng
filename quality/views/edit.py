@@ -12,12 +12,12 @@ from django.shortcuts import render
 from django.utils.datastructures import MultiValueDictKeyError
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_POST, require_safe
-
 from dalite.views.errors import response_400, response_403
 from peerinst.models import StudentGroup, StudentGroupAssignment, Teacher
 
 from ..models import Quality, QualityType, QualityUseType, UsesCriterion
 from .decorators import logged_in_non_student_required
+from ..utils import LazyEncoder
 
 logger = logging.getLogger("quality")
 
@@ -358,7 +358,11 @@ def index(req):
         },
     }
 
-    return render(req, "quality/edit/index.html", {"data": json.dumps(data)})
+    return render(
+        req,
+        "quality/edit/index.html",
+        {"data": json.dumps(data, cls=LazyEncoder)},
+    )
 
 
 @login_required

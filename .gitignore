@@ -25,4 +25,7 @@ scripts/
 mysql_scripts/
 .tern-port
 .data/
-dump.rdb
+*.tar.gz
+/redis*
+*.rdb
+celerybeat.pid

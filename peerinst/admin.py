@@ -19,6 +19,7 @@ from .models import (
     BlinkQuestion,
     BlinkRound,
     Category,
+    Collection,
     Discipline,
     Institution,
     LastLogout,
@@ -112,6 +113,11 @@ class AnswerInline(admin.StackedInline):
         return qs.filter(user_token="", show_to_others=True)
 
 
+@admin.register(Collection)
+class CollectionAdmin(admin.ModelAdmin):
+    pass
+
+
 @admin.register(Question)
 class QuestionAdmin(admin.ModelAdmin):
     fieldsets = [
@@ -120,6 +126,7 @@ class QuestionAdmin(admin.ModelAdmin):
             {
                 "fields": [
                     "title",
+                    "difficulty",
                     "user",
                     "collaborators",
                     "text",
@@ -155,12 +162,28 @@ class QuestionAdmin(admin.ModelAdmin):
         "rationale_selection_algorithm": admin.HORIZONTAL,
         "grading_scheme": admin.HORIZONTAL,
     }
-    readonly_fields = ["id", "parent", "created_on", "last_modified"]
+    readonly_fields = [
+        "id",
+        "parent",
+        "created_on",
+        "last_modified",
+        "difficulty",
+    ]
     inlines = [AnswerChoiceInline, AnswerInline]
-    list_display = ["title", "discipline"]
-    list_filter = ["category"]
+    list_display = ["title", "discipline", "difficulty"]
+    list_filter = ["category", "discipline"]
     ordering = ["discipline"]
     search_fields = ["title", "text", "category__title"]
+
+    def difficulty(self, obj):
+        try:
+            difficulty = obj.meta_search.get(
+                meta_feature__key="difficulty", meta_feature__type="S"
+            ).meta_feature.value
+        except exceptions.ObjectDoesNotExist:
+            difficulty = None
+
+        return difficulty
 
 
 @admin.register(QuestionFlagReason)

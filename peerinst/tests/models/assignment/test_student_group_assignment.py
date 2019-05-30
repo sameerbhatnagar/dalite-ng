@@ -76,7 +76,7 @@ def test__modify_due_date__wrong_format(student_group_assignment):
     assert abs(student_group_assignment.due_date - due_date) < timedelta(
         seconds=1
     )
-    assert abs(student_group_assignment.due_date - new_due_date) >= timedelta(
+    assert abs(new_due_date - student_group_assignment.due_date) >= timedelta(
         seconds=1
     )
 
