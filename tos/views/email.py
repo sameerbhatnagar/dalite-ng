@@ -42,14 +42,14 @@ def email_consent_update(req, role):
     username, role_ = _get_username_and_role(req, role)
     if isinstance(username, HttpResponse):
         return username
+    print(req.POST)
 
     consents = [
         {
             "user": req.user,
             "email_type": email_type,
-            "accepted": req.POST.get(
-                "{}-consent".format(email_type.type), False
-            ),
+            "accepted": req.POST.get("{}-consent".format(email_type.type), "")
+            == "on",
         }
         for email_type in EmailType.objects.filter(role=role_)
     ]
