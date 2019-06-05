@@ -13,11 +13,12 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.forms import PasswordResetForm
 from django.contrib.auth.models import Group, User
 from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import PermissionDenied
 from django.core.mail import mail_admins, send_mail
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.core.urlresolvers import reverse
 
 # reports
@@ -210,23 +211,34 @@ def dashboard(request):
             else:
                 protocol = "https"
 
-            # Notify user
-            email_context = dict(username=user.username, site_name="myDALITE")
-            send_mail(
-                _("Your myDALITE account has been activated"),
-                "Dear {},".format(user.username)
-                + "\n\nYour account has been recently activate."
-                "\n\nYou can login at:\n\n{}://{}".format(protocol, host)
-                + "\n\nCheers,\nThe myDalite Team",
-                "noreply@myDALITE.org",
-                [user.email],
-                fail_silently=True,
-                html_message=loader.render_to_string(
-                    html_email_template_name,
-                    context=email_context,
-                    request=request,
-                ),
+            link = "{}://{}{}".format(
+                protocol, host, reverse("password_reset")
             )
+            reset_password_form = PasswordResetForm(
+                data={"email": user.email, "verification": True}
+            )
+            print(reset_password_form.is_valid())
+            if reset_password_form.is_valid():
+                reset_password_form.save(request=request)
+
+            # Notify user
+            #  email_context = dict(username=user.username, site_name="myDALITE")
+            #  send_mail(
+            #  _("Please verify your myDALITE account"),
+            #  "Dear {},".format(user.username)
+            #  + "\n\nYour account has been recently activate. Please visit "
+            #  "the following link to set you password:\n\n"
+            #  + link
+            #  + "\n\nCheers,\nThe myDalite Team",
+            #  "noreply@myDALITE.org",
+            #  [user.email],
+            #  fail_silently=True,
+            #  html_message=loader.render_to_string(
+            #  html_email_template_name,
+            #  context=email_context,
+            #  request=request,
+            #  ),
+            #  )
 
     return TemplateResponse(
         request,
