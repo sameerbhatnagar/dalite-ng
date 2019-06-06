@@ -1,0 +1,26 @@
+{% load i18n %}
+
+{% autoescape off %}
+
+{% blocktrans %}
+
+<p>
+  Dear {{ user.get_username }},
+</p>
+<p>
+  Your account has been recently activate. Please visit the following link to
+  set you password:
+  <br>
+  <a href="{{ link }}">
+    {{ link }}
+  </a>
+</p>
+<p>
+ Cheers,
+ <br>
+ The myDalite Team
+</p>
+
+{% endblocktrans %}
+
+{% endautoescape %}

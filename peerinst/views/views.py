@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import base64
 import json
 import logging
 import random
@@ -13,8 +14,8 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.contrib.auth.forms import PasswordResetForm
 from django.contrib.auth.models import Group, User
+from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import PermissionDenied
 from django.core.mail import mail_admins, send_mail
@@ -37,6 +38,7 @@ from django.shortcuts import (
 from django.template import loader
 from django.template.response import TemplateResponse
 from django.utils import timezone
+from django.utils.encoding import force_bytes
 from django.utils.html import escape, format_html
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
@@ -186,7 +188,7 @@ def admin_check(user):
 @user_passes_test(admin_check, login_url="/welcome/", redirect_field_name=None)
 def dashboard(request):
 
-    html_email_template_name = "registration/account_activated_html.html"
+    html_email_template_name = "registration/verification_email.html"
 
     if request.method == "POST":
         form = forms.ActivateForm(request.POST)
@@ -204,7 +206,7 @@ def dashboard(request):
             ):
                 return response_500(request)
 
-            host = request.get_host()
+            host = settings.ALLOWED_HOSTS[0]
             if host == "localhost" or host == "127.0.0.1":
                 protocol = "http"
                 host = "{}:{}".format(host, settings.DEV_PORT)
@@ -212,33 +214,37 @@ def dashboard(request):
                 protocol = "https"
 
             link = "{}://{}{}".format(
-                protocol, host, reverse("password_reset")
+                protocol,
+                host,
+                reverse(
+                    "password_reset_confirm",
+                    kwargs={
+                        "uidb64": base64.urlsafe_b64encode(
+                            force_bytes(user.pk)
+                        ),
+                        "token": default_token_generator.make_token(user),
+                    },
+                ),
             )
-            reset_password_form = PasswordResetForm(
-                data={"email": user.email, "verification": True}
-            )
-            print(reset_password_form.is_valid())
-            if reset_password_form.is_valid():
-                reset_password_form.save(request=request)
 
             # Notify user
-            #  email_context = dict(username=user.username, site_name="myDALITE")
-            #  send_mail(
-            #  _("Please verify your myDALITE account"),
-            #  "Dear {},".format(user.username)
-            #  + "\n\nYour account has been recently activate. Please visit "
-            #  "the following link to set you password:\n\n"
-            #  + link
-            #  + "\n\nCheers,\nThe myDalite Team",
-            #  "noreply@myDALITE.org",
-            #  [user.email],
-            #  fail_silently=True,
-            #  html_message=loader.render_to_string(
-            #  html_email_template_name,
-            #  context=email_context,
-            #  request=request,
-            #  ),
-            #  )
+            email_context = {user: user, link: link}
+            send_mail(
+                _("Please verify your myDalite account"),
+                "Dear {},".format(user.username)
+                + "\n\nYour account has been recently activate. Please visit "
+                "the following link to set you password:\n\n"
+                + link
+                + "\n\nCheers,\nThe myDalite Team",
+                "noreply@myDALITE.org",
+                [user.email],
+                fail_silently=True,
+                html_message=loader.render_to_string(
+                    html_email_template_name,
+                    context={user: user, link: link},
+                    request=request,
+                ),
+            )
 
     return TemplateResponse(
         request,
