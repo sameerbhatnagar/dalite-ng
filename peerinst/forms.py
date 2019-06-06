@@ -317,18 +317,9 @@ class SignUpForm(ModelForm):
         ),
     )
 
-    #  def clean(self):
-    #  cleaned_data = super(SignUpForm, self).clean()
-    #  pwd = cleaned_data.get("password1")
-    #  if pwd:
-    #  password_validation.validate_password(pwd)
-    #
-    #  return cleaned_data
-
     class Meta:
         model = User
         fields = ["email", "username"]
-        #  fields = ["email", "username"]
 
 
 class ActivateForm(forms.Form):
