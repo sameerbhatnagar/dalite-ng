@@ -13,6 +13,7 @@ __all__ = [
     "discipline",
     "disciplines",
     "first_answers_no_shown",
+    "forum",
     "group",
     "question",
     "questions",
@@ -25,6 +26,8 @@ __all__ = [
     "students",
     "teacher",
     "teachers",
+    "thread",
+    "threads",
     "tos_student",
     "tos_teacher",
     "user",
@@ -46,6 +49,7 @@ from .assignment import (
 )
 from .auth import user
 from .collection import collection, collections
+from .forums import forum, thread, threads
 from .group import group
 from .question import add_answers, discipline, disciplines, question, questions
 from .student import (

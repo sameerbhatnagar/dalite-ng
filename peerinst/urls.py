@@ -634,6 +634,11 @@ def teacher_patterns():
             views.teacher.collections,
             name="teacher-page--collections",
         ),
+        url(
+            r"^teacher/page/messages/$",
+            views.teacher.messages,
+            name="teacher-page--messages",
+        ),
     ]
 
 

@@ -6,6 +6,7 @@ from datetime import datetime
 
 import pytz
 from django.conf import settings
+from django.core.urlresolvers import reverse
 from django.db import models
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
@@ -410,7 +411,49 @@ def messages(req, teacher):
     -------
     JSONResponse
         Response with json data
+            {
+                threads: [{
+                    title: str
+                        Title of the thread
+                    last_reply: {
+                        author: str
+                            Author of the post
+                        content: str
+                            Text of the post
+                    }
+                    n_new: int
+                        Number of new replies since last visit of page
+                    link: str
+                        Link to the thread in forums
+                }]
+            }
     """
+    threads = [s.thread for s in teacher.user.forum_subscriptions.iterator()]
+    last_replies = [thread.last_reply for thread in threads]
+    data = {
+        "threads": [
+            {
+                "title": thread.title,
+                "last_reply": {
+                    "author": last_reply.author.username,
+                    "content": last_reply.content,
+                },
+                "n_new": thread.replies.filter(
+                    created__gt=teacher.last_page_access
+                ).count(),
+                "link": reverse(
+                    "pinax_forums:thread", kwargs={"pk": thread.pk}
+                ),
+            }
+            for thread, last_reply in zip(threads, last_replies)
+        ]
+    }
+    return JsonResponse(data)
+
+
+@require_POST
+@teacher_required
+def unsubscribe_from_thread(req, teacher):
     pass
 
 
