@@ -39,6 +39,7 @@ from django.utils.translation import ugettext_lazy as _
 from quality.models import Quality
 from tos.models import Consent
 
+from .models import AnswerAnnotation
 from .utils import batch
 
 
@@ -71,9 +72,19 @@ def _base_selection_algorithm(
         .filter(accepted=False)
         .values_list("user__username")
     )
-    all_rationales = models.Answer.objects.filter(
-        question=question, show_to_others=True
-    ).exclude(user_token__in=usernames_to_exclude)
+    never_show = [
+        a.pk
+        for a in set(
+            AnswerAnnotation.objects.filter(score=0).values_list(
+                "answer", flat=True
+            )
+        )
+    ]
+    all_rationales = (
+        models.Answer.objects.filter(question=question, show_to_others=True)
+        .exclude(user_token__in=usernames_to_exclude)
+        .exclude(pk__in=never_show)
+    )
 
     try:
         quality = Quality.objects.get(
