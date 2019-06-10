@@ -7,6 +7,7 @@ from datetime import datetime
 import mock
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse
+from pinax.forums.models import ThreadSubscription
 
 from peerinst.models import AnswerAnnotation, GradingScheme
 from peerinst.tests.fixtures import *  # noqa
@@ -747,6 +748,7 @@ def test_messages(client, teacher, thread):
 
     assert len(data) == 1
     for thread in data:
+        assert "id" in thread
         assert "last_reply" in thread
         assert "author" in thread["last_reply"]
         assert "content" in thread["last_reply"]
@@ -755,6 +757,40 @@ def test_messages(client, teacher, thread):
         resp = client.get(thread["link"])
         assert resp.status_code == 200
         assert "pinax/forums/thread.html" in resp.template_name
+
+
+def test_unsubscribe_from_thread(client, teacher, thread):
+    assert login_teacher(client, teacher)
+    assert ThreadSubscription.objects.filter(
+        user=teacher.user, thread=thread
+    ).count()
+
+    resp = client.post(
+        reverse("teacher-page--unsubscribe-thread"),
+        json.dumps({"id": thread.pk}),
+        content_type="application/json",
+    )
+    assert resp.status_code == 200
+    assert not ThreadSubscription.objects.filter(
+        user=teacher.user, thread=thread
+    ).count()
+
+
+def test_unsubscribe_from_thread__missing_params(client, teacher, thread):
+    assert login_teacher(client, teacher)
+    assert ThreadSubscription.objects.filter(
+        user=teacher.user, thread=thread
+    ).count()
+
+    resp = client.post(
+        reverse("teacher-page--unsubscribe-thread"),
+        json.dumps({}),
+        content_type="application/json",
+    )
+    assert resp.status_code == 400
+    assert ThreadSubscription.objects.filter(
+        user=teacher.user, thread=thread
+    ).count()
 
 
 def test_evaluate_rationale(client, teacher, answers):

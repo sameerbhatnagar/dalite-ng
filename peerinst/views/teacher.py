@@ -12,6 +12,7 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.utils.translation import ugettext_lazy as translate
 from django.views.decorators.http import require_POST, require_safe
+from pinax.forums.models import ForumThread
 
 from dalite.views.errors import response_400
 from dalite.views.utils import get_json_params
@@ -413,6 +414,8 @@ def messages(req, teacher):
         Response with json data
             {
                 threads: [{
+                    if: int
+                        Primary key of the thread
                     title: str
                         Title of the thread
                     last_reply: {
@@ -433,6 +436,7 @@ def messages(req, teacher):
     data = {
         "threads": [
             {
+                "id": thread.pk,
                 "title": thread.title,
                 "last_reply": {
                     "author": last_reply.author.username,
@@ -454,7 +458,45 @@ def messages(req, teacher):
 @require_POST
 @teacher_required
 def unsubscribe_from_thread(req, teacher):
-    pass
+    """
+    Unsubscribes the `teacher` from a thread (won't appear in the messages).
+
+    Parameters
+    ----------
+    req : HttpRequest
+        Request with:
+            parameters:
+                id: int
+                    Thread primary key
+                score: int
+                    Given score
+    teacher : Teacher
+        Teacher instance returned by `teacher_required`
+
+    Returns
+    -------
+    HttpResponse
+        Error respones of empty 200 response
+    """
+    args = get_json_params(req, args=["id"])
+    if isinstance(args, HttpResponse):
+        return args
+    (id_,), _ = args
+    try:
+        thread = ForumThread.objects.get(pk=id_)
+    except ForumThread.DoesNotExist:
+        return response_400(
+            req,
+            msg=translate("The thread couldn't be found."),
+            logger_msg=(
+                "The thread with pk {} couldn't be found.".format(id_)
+            ),
+            log=logger.warning,
+        )
+
+    thread.subscriptions.filter(user=teacher.user).delete()
+
+    return HttpResponse("")
 
 
 @require_POST
