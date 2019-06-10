@@ -1,1 +1,4 @@
-from .fixtures import teacher  # noqa
+__all__ = ["login_teacher", "teacher"]
+
+from .fixtures import teacher
+from .utils import login_teacher

@@ -226,6 +226,7 @@ def dashboard(request):
                     },
                 ),
             )
+            print(link)
 
             # Notify user
             email_context = {user: user, link: link}

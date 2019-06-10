@@ -64,16 +64,19 @@ class Teacher(models.Model):
             group__in=current_groups
         ).values("assignment")
 
-        activity = (
-            Answer.objects.filter(assignment__in=all_assignments)
-            .filter(user_token__in=all_current_students)
-            .filter(
-                Q(datetime_start__gt=last_login)
-                | Q(datetime_first__gt=last_login)
-                | Q(datetime_second__gt=last_login)
+        if last_login is not None:
+            activity = (
+                Answer.objects.filter(assignment__in=all_assignments)
+                .filter(user_token__in=all_current_students)
+                .filter(
+                    Q(datetime_start__gt=last_login)
+                    | Q(datetime_first__gt=last_login)
+                    | Q(datetime_second__gt=last_login)
+                )
+                .count()
             )
-            .count()
-        )
+        else:
+            activity = 0
 
         return activity
 
