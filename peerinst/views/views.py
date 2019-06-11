@@ -2724,6 +2724,14 @@ def question_search(request):
             q_qs = []
             form_field_name = None
 
+        # Establish pool of questions for search
+        search_list = Question.unflagged_objects.all()
+
+        if limit_search == "true":
+            search_list = search_list.filter(
+                discipline__in=request.user.teacher.disciplines.all()
+            )
+
         # All matching questions
         search_string_split_list = search_string.split()
         search_terms = [search_string]
@@ -2737,12 +2745,7 @@ def question_search(request):
         # top that have the entire search_string included
         query_meta = {}
         for term in search_terms:
-            query_term = question_search_function(term)
-
-            if limit_search == "true":
-                query_term = query_term.filter(
-                    discipline__in=request.user.teacher.disciplines.all()
-                )
+            query_term = question_search_function(term, search_list)
 
             query_term = query_term.exclude(id__in=q_qs).distinct()
 
