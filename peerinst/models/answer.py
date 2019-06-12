@@ -12,10 +12,6 @@ from .assignment import Assignment
 from .question import GradingScheme, Question
 
 
-class QuestionManager(models.Manager):
-    pass
-
-
 class AnswerMayShowManager(models.Manager):
     def get_queryset(self):
         never_show = [
@@ -48,7 +44,7 @@ class AnswerChoice(models.Model):
 
 
 class Answer(models.Model):
-    objects = QuestionManager()
+    objects = models.Manager()
     may_show = AnswerMayShowManager()
 
     question = models.ForeignKey(Question)
