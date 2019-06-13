@@ -228,7 +228,6 @@ def dashboard(request):
             )
 
             # Notify user
-            email_context = {user: user, link: link}
             send_mail(
                 _("Please verify your myDalite account"),
                 "Dear {},".format(user.username)
@@ -241,7 +240,7 @@ def dashboard(request):
                 fail_silently=True,
                 html_message=loader.render_to_string(
                     html_email_template_name,
-                    context={user: user, link: link},
+                    context={"username": user.username, "link": link},
                     request=request,
                 ),
             )
