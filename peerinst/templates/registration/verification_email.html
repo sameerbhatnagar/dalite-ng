@@ -2,14 +2,15 @@
 
 {% autoescape off %}
 
-{% blocktrans %}
 
 <p>
   Dear {{ username }},
 </p>
 <p>
-  Your account has been recently activate. Please visit the following link to
+  {% blocktrans %}
+  Your account has been recently activated. Please visit the following link to
   set you password:
+  {% endblocktrans %}
   <br>
   <a href="{{ link }}">
     {{ link }}
@@ -21,6 +22,5 @@
  The myDalite Team
 </p>
 
-{% endblocktrans %}
 
 {% endautoescape %}

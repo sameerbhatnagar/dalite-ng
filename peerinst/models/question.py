@@ -7,6 +7,7 @@ from datetime import datetime
 
 import pytz
 from django.contrib.auth.models import User
+from django.contrib.contenttypes.fields import GenericRelation
 from django.core import exceptions
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -15,6 +16,7 @@ from django.utils.encoding import smart_bytes
 from django.utils.html import escape, strip_tags
 from django.utils.translation import ugettext_lazy as _
 
+from .search import MetaSearch
 from .. import rationale_choice
 
 
@@ -70,8 +72,54 @@ class QuestionManager(models.Manager):
         return self.get(title=title)
 
 
+class QuestionFlag(models.Model):
+    question = models.ForeignKey("Question")
+    flag_reason = models.ManyToManyField("QuestionFlagReason")
+    user = models.ForeignKey(User)
+    flag = models.BooleanField(default=True)
+    comment = models.CharField(max_length=200, null=True, blank=True)
+    datetime_created = models.DateTimeField(auto_now_add=True)
+    datetime_last_modified = models.DateTimeField(auto_now=True)
+
+    def __unicode__(self):
+        return "{} - {}- {}- {}".format(
+            self.question.pk, self.question, self.user.email, self.comment
+        )
+
+    class Meta:
+        verbose_name = _("flagged question")
+
+
+class FlaggedQuestionManager(models.Manager):
+    def get_queryset(self):
+        flagged_questions = QuestionFlag.objects.filter(flag=True).values_list(
+            "question", flat=True
+        )
+
+        return (
+            super(FlaggedQuestionManager, self)
+            .get_queryset()
+            .filter(pk__in=flagged_questions)
+        )
+
+
+class UnflaggedQuestionManager(models.Manager):
+    def get_queryset(self):
+        flagged_questions = QuestionFlag.objects.filter(flag=True).values_list(
+            "question", flat=True
+        )
+
+        return (
+            super(UnflaggedQuestionManager, self)
+            .get_queryset()
+            .exclude(pk__in=flagged_questions)
+        )
+
+
 class Question(models.Model):
     objects = QuestionManager()
+    flagged_objects = FlaggedQuestionManager()
+    unflagged_objects = UnflaggedQuestionManager()
 
     id = models.AutoField(
         primary_key=True,
@@ -224,6 +272,7 @@ class Question(models.Model):
             "correct answer."
         ),
     )
+    meta_search = GenericRelation(MetaSearch, related_query_name="questions")
 
     def __unicode__(self):
         if self.discipline:
@@ -455,21 +504,3 @@ class QuestionFlagReason(models.Model):
 
     class Meta:
         verbose_name = _("Question flag reason")
-
-
-class QuestionFlag(models.Model):
-    question = models.ForeignKey(Question)
-    flag_reason = models.ManyToManyField(QuestionFlagReason)
-    user = models.ForeignKey(User)
-    flag = models.BooleanField(default=True)
-    comment = models.CharField(max_length=200, null=True, blank=True)
-    datetime_created = models.DateTimeField(auto_now_add=True)
-    datetime_last_modified = models.DateTimeField(auto_now=True)
-
-    def __unicode__(self):
-        return "{} - {}- {}- {}".format(
-            self.question.pk, self.question, self.user.email, self.comment
-        )
-
-    class Meta:
-        verbose_name = _("flagged question")
