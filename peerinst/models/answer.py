@@ -15,7 +15,7 @@ from .question import GradingScheme, Question
 class AnswerMayShowManager(models.Manager):
     def get_queryset(self):
         never_show = [
-            a.pk
+            a
             for a in set(
                 AnswerAnnotation.objects.filter(score=0).values_list(
                     "answer", flat=True
