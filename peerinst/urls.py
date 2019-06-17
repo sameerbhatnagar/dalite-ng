@@ -610,6 +610,9 @@ def researcher_patterns():
 def teacher_patterns():
     return [
         url(
+            r"^teacher/page/$", views.teacher.teacher_page, name="teacher-page"
+        ),
+        url(
             r"^teacher/page/new-questions/$",
             views.teacher.new_questions,
             name="teacher-page--new-questions",
