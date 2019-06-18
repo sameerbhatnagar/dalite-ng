@@ -44,6 +44,7 @@ INSTALLED_APPS = (
 )
 
 MIDDLEWARE = (
+    "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.locale.LocaleMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -54,6 +55,7 @@ MIDDLEWARE = (
     "django.middleware.security.SecurityMiddleware",
     "peerinst.middleware.NotificationMiddleware",
     "dalite.custom_middleware.resp_405_middleware",
+    "dalite.custom_middleware.resp_set_headers_middleware",
     # Minify html
     "htmlmin.middleware.HtmlMinifyMiddleware",
     "htmlmin.middleware.MarkRequestMiddleware",
@@ -350,6 +352,16 @@ CELERY_BROKER_TRANSPORT_OPTIONS = {
     "interval_step": 0.4,
     "interval_max": 2,
 }
+
+# Security headers
+CSRF_COOKIE_SECURE = not DEBUG
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
+SECURE_HSTS_SECONDS = 3600
+SECURE_SSL_REDIRECT = not DEBUG
+SESSION_COOKIE_SECURE = not DEBUG
 
 try:
     from .local_settings import *  # noqa F403
