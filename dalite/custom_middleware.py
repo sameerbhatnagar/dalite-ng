@@ -34,19 +34,21 @@ def resp_set_headers_middleware(get_response):
                 "cdn.polyfill.io",
                 "www.youtube.com",
                 "'unsafe-inline'",
-                "https:",
             ],
             "style-src": [
                 "'self'",
                 "fonts.googleapis.com",
                 "unpkg.com",
                 "'unsafe-inline'",
-                "https:",
             ],
             "img-src": ["*", "data:"],
             "media-src": ["*", "data:"],
             "frame-src": ["*"],
-            "font-src": ["*"],
+            "font-src": [
+                "fonts.googleapis.com",
+                "fonts.gstatic.com",
+                "unpkg.com",
+            ],
         }
 
         resp["Content-Security-Policy"] = ";".join(
