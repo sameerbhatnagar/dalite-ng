@@ -33,7 +33,7 @@ def resp_set_headers_middleware(get_response):
                 "ajax.googleapis.com",
                 "cdn.polyfill.io",
                 "www.youtube.com",
-                "s.yytimg.com",
+                "s.ytimg.com",
                 "cdn.jsdelivr.net",
                 "'unsafe-inline'",
             ],
