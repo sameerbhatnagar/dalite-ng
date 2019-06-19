@@ -29,10 +29,10 @@ def resp_set_headers_middleware(get_response):
             "default-src": ["'self'", "*.mydalite.org"],
             "script-src": [
                 "'self'",
-                "*.mydalite.org",
                 "ajax.googleapis.com",
                 "cdn.polyfill.io",
                 "www.youtube.com",
+                "s.yytimg.com",
                 "'unsafe-inline'",
             ],
             "style-src": [
