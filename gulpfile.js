@@ -1,5 +1,6 @@
 const autoprefixer = require("autoprefixer");
 const babel = require("rollup-plugin-babel");
+const browserSync = require("browser-sync").create();
 const buffer = require("vinyl-buffer");
 const commonjs = require("rollup-plugin-commonjs");
 const concat = require("gulp-concat");
@@ -48,18 +49,10 @@ const scriptBuilds = [
 
 const babelConfig = {
   presets: [
+    "@babel/preset-flow",
     [
       "@babel/env",
       {
-        targets: {
-          browsers: [
-            "last 3 versions",
-            "iOS>=8",
-            "ie 11",
-            "Safari 9.1",
-            "not dead",
-          ],
-        },
         modules: false,
       },
     ],
@@ -78,8 +71,8 @@ const babelConfig = {
   babelrc: false,
 };
 
-function buildStyle(app, module) {
-  const build = gulp
+async function buildStyle(app, module) {
+  return gulp
     .src("./" + app + "/static/" + app + "/css/" + module + "/*.scss")
     .pipe(sourcemaps.init())
     .pipe(
@@ -103,25 +96,16 @@ function buildStyle(app, module) {
     )
     .pipe(concat(module + ".min.css"))
     .pipe(sourcemaps.write("."))
-    .pipe(gulp.dest("./" + app + "/static/" + app + "/css"));
-
-  return build;
+    .pipe(gulp.dest("./" + app + "/static/" + app + "/css"))
+    .pipe(browserSync.stream());
 }
 
-function watchStyle(app, module) {
-  gulp.watch(
-    "./" + app + "/static/" + app + "/css/" + module + "/*.scss",
-    () => buildStyle(app, module),
-  );
-}
-
-function buildScript(app, module) {
-  const name = module === "index" ? "bundle" : module;
-  const build = rollup({
+async function buildScript(app, module) {
+  return rollup({
     input: "./" + app + "/static/" + app + "/js/" + module + ".js",
     sourcemap: true,
     format: "iife",
-    name: name,
+    name: module === "index" ? "bundle" : module,
     globals: {
       flatpickr: "flatpickr", // eslint-disable-line
       "@babel/runtime": "@babel/runtime",
@@ -153,16 +137,14 @@ function buildScript(app, module) {
       "@material/toolbar",
     ],
     plugins: [
-      resolve({
-        jsnext: true,
-        main: true,
-        browser: true,
-      }),
-      commonjs(),
       eslint({
         exclude: ["**.css"],
       }),
       babel(babelConfig),
+      resolve({
+        mainFields: ["module", "main", "browser"],
+      }),
+      commonjs(),
       uglify(),
     ],
   })
@@ -170,19 +152,8 @@ function buildScript(app, module) {
     .pipe(buffer())
     .pipe(sourcemaps.init({ loadMaps: true }))
     .pipe(sourcemaps.write("."))
-    .pipe(gulp.dest("./" + app + "/static/" + app + "/js"));
-
-  return build;
-}
-
-function watchScript(app, module) {
-  gulp.watch(
-    [
-      "./" + app + "/static/" + app + "/js/_" + module + "/*.js",
-      "./" + app + "/static/" + app + "/js/" + module + ".js",
-    ],
-    () => buildScript(app, module),
-  );
+    .pipe(gulp.dest("./" + app + "/static/" + app + "/js"))
+    .pipe(browserSync.stream());
 }
 
 function stylesPeerinstMain() {
@@ -312,7 +283,35 @@ function icons() {
     .pipe(gulp.dest("./peerinst/static/peerinst/"));
 }
 
+function watchTemplate(app) {
+  gulp
+    .watch("./" + app + "/templates/" + app + "**/*.html")
+    .on("change", browserSync.reload);
+}
+
+function watchStyle(app, module) {
+  gulp.watch(
+    "./" + app + "/static/" + app + "/css/" + module + "/*.scss",
+    () => buildStyle(app, module),
+  );
+}
+
+function watchScript(app, module) {
+  gulp.watch(
+    [
+      "./" + app + "/static/" + app + "/js/_" + module + "/*.js",
+      "./" + app + "/static/" + app + "/js/" + module + ".js",
+    ],
+    () => buildScript(app, module),
+  );
+}
+
 function watch() {
+  browserSync.init({
+    server: "./dist",
+    notify: false,
+    open: false,
+  });
   gulp.watch("./peerinst/static/peerinst/css/*.scss", stylesPeerinstMain);
   gulp.watch("./peerinst/static/pinax/forums/css/*.scss", stylesPeerinstPinax);
   styleBuilds.forEach(s => s.modules.forEach(m => watchStyle(s.app, m)));
@@ -332,6 +331,7 @@ function watch() {
     () => buildScript("peerinst", "index"),
   );
   gulp.watch("./peerinst/static/peerinst/icons/*.svg", icons);
+  styleBuilds.forEach(s => watchTemplate(s.app));
 }
 
 const styles = gulp.parallel(
@@ -351,7 +351,10 @@ const scripts = gulp.parallel(
 
 const build = gulp.parallel(styles, scripts, icons);
 
+const dev = gulp.series(build, watch);
+
 exports.build = build;
+exports.dev = dev;
 exports.watch = watch;
 exports.styles = styles;
 exports.scripts = scripts;

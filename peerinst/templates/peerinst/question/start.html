@@ -1,6 +1,6 @@
 {% extends 'peerinst/question/base.html' %}
 
-{% load add_class i18n %}
+{% load add_class i18n staticfiles %}
 
 {% block body %}
 <main>
@@ -100,11 +100,13 @@
         <div>
           <input id="answer-form"
                  class="mdc-button mdc-button--raised padded-top"
+                 {% block submit_button_fct %}
                  onclick="question.validateFormSubmit(
-                  event,
-                  '{% url 'quality:validate' %}',
-                  {{ quality|default_if_none:'null' }}
+                    event,
+                    '{% url 'quality:validate' %}',
+                    {{ quality|default_if_none:'null' }}
                  )"
+                 {% endblock %}
                  type="submit"
                  value="{% block submit_button %}{% trans 'Next' %}{% endblock %}" />
         </div>
@@ -161,4 +163,9 @@
 
 </section>
 </main>
+{% endblock %}
+
+{% block scripts %}
+{{ block.super }}
+  <script src="{% static 'peerinst/js/question.min.js' %}"></script>
 {% endblock %}

@@ -46,10 +46,29 @@
   </div>
   {% endfor %}
 </div>
+<div id="review-alert">
+  <div>
+    <span>
+      {% blocktrans %}
+      You should take a bit more time to evaluate other answers
+      {% endblocktrans %}
+    </span>
+    <button class="mdc-button mdc-button--raised">
+      Ok
+    </button>
+  </div>
+</div>
 {% endblock %}
 
+{% block submit_button_fct %}{% endblock %}
 {% block submit_button %}{% trans 'Submit' %}{% endblock %}
 
 {% block scripts %}
+{{ block.super }}
   <script src="{% static 'peerinst/js/question_review.js' %}"></script>
+  <script>
+  window.addEventListener("load", function() {
+    question.initReview()
+  });
+  </script>
 {% endblock %}
