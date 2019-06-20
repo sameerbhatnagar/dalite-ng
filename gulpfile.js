@@ -31,7 +31,7 @@ const styleBuilds = [
   },
   {
     app: "reputation",
-    modules: ["teacher", "header"],
+    modules: ["header"],
   },
 ];
 
@@ -50,7 +50,7 @@ const scriptBuilds = [
   },
   {
     app: "reputation",
-    modules: ["teacher", "header"],
+    modules: ["header"],
   },
 ];
 

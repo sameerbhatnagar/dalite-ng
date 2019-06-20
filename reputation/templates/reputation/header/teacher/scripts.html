@@ -5,7 +5,7 @@
 {% endcompress %}
 <script type="text/javascript">
   window.addEventListener("load", function() {
-    header.init(
+    header.teacherInit(
       "{% url 'reputation:reputation' %}",
       "teacher",
       {{ request.user.teacher.pk }}
