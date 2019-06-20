@@ -10,6 +10,8 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 
+from security_headers.settings import *  # noqa
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Quick-start development settings - unsuitable for production
@@ -45,6 +47,8 @@ INSTALLED_APPS = (
 
 MIDDLEWARE = (
     "django.middleware.security.SecurityMiddleware",
+    "csp.middleware.CSPMiddleware",
+    "security_headers.middleware.extra_security_headers_middleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.locale.LocaleMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -55,7 +59,6 @@ MIDDLEWARE = (
     "django.middleware.security.SecurityMiddleware",
     "peerinst.middleware.NotificationMiddleware",
     "dalite.custom_middleware.resp_405_middleware",
-    "dalite.custom_middleware.resp_set_headers_middleware",
     # Minify html
     "htmlmin.middleware.HtmlMinifyMiddleware",
     "htmlmin.middleware.MarkRequestMiddleware",
@@ -353,15 +356,37 @@ CELERY_BROKER_TRANSPORT_OPTIONS = {
     "interval_max": 2,
 }
 
-# Security headers
-CSRF_COOKIE_SECURE = not DEBUG
-SECURE_BROWSER_XSS_FILTER = True
-SECURE_CONTENT_TYPE_NOSNIFF = True
-SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-SECURE_HSTS_PRELOAD = True
-SECURE_HSTS_SECONDS = 3600
-SECURE_SSL_REDIRECT = not DEBUG
-SESSION_COOKIE_SECURE = not DEBUG
+# CSP
+CSP_DEFAULT_SRC = ["'self'", "*.mydalite.org"]
+CSP_SCRIPT_SRC = [
+    "'self'",
+    "*.mydalite.org",
+    "ajax.googleapis.com",
+    "cdn.polyfill.io",
+    "www.youtube.com",
+    "s.ytimg.com",
+    "cdn.jsdelivr.net",
+    "'unsafe-inline'",
+]
+CSP_STYLE_SRC = [
+    "'self'",
+    "*.mydalite.org",
+    "fonts.googleapis.com",
+    "unpkg.com",
+    "cdn.jsdelivr.net",
+    "code.jquery.com",
+    "'unsafe-inline'",
+]
+CSP_FONT_SRC = [
+    "'self'",
+    "fonts.googleapis.com",
+    "fonts.gstatic.com",
+    "unpkg.com",
+]
+
+# External framing
+FRAMING_ALLOWED_FROM = ["*.moodle.ca", "*.moodle.com", "edx.com"]
+
 
 try:
     from .local_settings import *  # noqa F403
