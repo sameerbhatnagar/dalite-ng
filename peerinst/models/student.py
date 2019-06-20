@@ -13,8 +13,10 @@ from django.db import IntegrityError, models
 from django.template import loader
 from django.utils.translation import ugettext_lazy as _
 
-from ..tasks import send_email_async
+from reputation.models import Reputation
+
 from ..students import create_student_token, get_student_username_and_password
+from ..tasks import send_email_async
 from .answer import Answer
 from .assignment import StudentGroupAssignment
 from .group import StudentGroup
@@ -33,6 +35,9 @@ class Student(models.Model):
     )
     send_reminder_email_every_day = models.BooleanField(default=False)
     send_reminder_email_day_before = models.BooleanField(default=True)
+    reputation = models.OneToOneField(
+        Reputation, blank=True, null=True, on_delete=models.SET_NULL
+    )
 
     def __unicode__(self):
         return self.student.username
