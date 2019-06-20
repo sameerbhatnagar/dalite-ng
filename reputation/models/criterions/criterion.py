@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 from itertools import chain
 
+from django.core import validators
 from django.db import models
 
 from reputation.logger import logger
@@ -13,6 +14,11 @@ from ..reputation_type import ReputationType
 class Criterion(models.Model):
     version = models.AutoField(primary_key=True)
     for_reputation_types = models.ManyToManyField(ReputationType)
+    badge_threshold = models.FloatField(
+        default=0,
+        validators=[validators.MinValueValidator(0)],
+        help_text="Threshold for the badge to be awarded. If 0, is ignored.",
+    )
 
     class Meta:
         abstract = True
@@ -27,7 +33,10 @@ class Criterion(models.Model):
         """
         return chain(
             self.__class__.info().iteritems(),
-            {"version": self.version}.iteritems(),
+            {
+                "version": self.version,
+                "badge_threshold": self.badge_threshold,
+            }.iteritems(),
         )
 
     def __str__(self):
