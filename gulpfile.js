@@ -59,15 +59,6 @@ const babelConfig = {
     [
       "@babel/env",
       {
-        targets: {
-          browsers: [
-            "last 3 versions",
-            "iOS>=8",
-            "ie 11",
-            "Safari 9.1",
-            "not dead",
-          ],
-        },
         modules: false,
       },
     ],
@@ -96,19 +87,7 @@ function buildStyle(app, module) {
         includePaths: "./node_modules",
       }),
     )
-    .pipe(
-      postcss([
-        autoprefixer({
-          browsers: [
-            "last 3 versions",
-            "iOS>=8",
-            "ie 11",
-            "Safari 9.1",
-            "not dead",
-          ],
-        }),
-      ]),
-    )
+    .pipe(postcss([autoprefixer()]))
     .pipe(concat(module + ".min.css"))
     .pipe(sourcemaps.write("."))
     .pipe(gulp.dest("./" + app + "/static/" + app + "/css"));
@@ -162,9 +141,7 @@ function buildScript(app, module) {
     ],
     plugins: [
       resolve({
-        jsnext: true,
-        main: true,
-        browser: true,
+        mainFields: ["module", "main", "browser"],
       }),
       commonjs(),
       eslint({
@@ -203,19 +180,7 @@ function stylesPeerinstMain() {
         includePaths: "./node_modules",
       }),
     )
-    .pipe(
-      postcss([
-        autoprefixer({
-          browsers: [
-            "last 3 versions",
-            "iOS>=8",
-            "ie 11",
-            "Safari 9.1",
-            "not dead",
-          ],
-        }),
-      ]),
-    )
+    .pipe(postcss([autoprefixer()]))
     .pipe(
       rename(path => {
         path.extname = ".min.css";
