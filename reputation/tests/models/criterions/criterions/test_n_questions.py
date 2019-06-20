@@ -55,10 +55,3 @@ def test_info():
     assert "name" in info
     assert "full_name" in info
     assert "description" in info
-
-
-def test_create_default():
-    n = NQuestionsCriterion.objects.count()
-    criterion = NQuestionsCriterion.create_default()
-    assert isinstance(criterion, NQuestionsCriterion)
-    assert NQuestionsCriterion.objects.count() == n + 1

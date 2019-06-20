@@ -79,7 +79,3 @@ class Criterion(models.Model):
     @staticmethod
     def info():
         raise NotImplementedError("This method has to be implemented.")
-
-    @staticmethod
-    def create_default():
-        raise NotImplementedError("This method has to be implemented.")

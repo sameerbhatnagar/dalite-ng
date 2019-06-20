@@ -7,7 +7,6 @@ from django.core.validators import MinValueValidator
 from django.db import models
 
 from reputation.logger import logger
-from reputation.models.reputation_type import ReputationType
 
 from ..criterion import Criterion
 
@@ -64,12 +63,3 @@ class NQuestionsCriterion(Criterion):
             "description": "Gives a score between 0 and 100 representing the "
             "number of questions written by a teacher.",
         }
-
-    @staticmethod
-    def create_default():
-        criterion = NQuestionsCriterion.objects.create()
-        criterion.for_reputation_types.add(
-            ReputationType.objects.get(type="teacher")
-        )
-        criterion.save()
-        return criterion

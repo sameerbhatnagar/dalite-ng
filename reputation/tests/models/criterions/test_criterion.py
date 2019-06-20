@@ -57,18 +57,3 @@ def test_info__not_implemented():
 
         with pytest.raises(NotImplementedError):
             fake_criterion.info()
-
-
-@pytest.mark.filterwarnings("ignore::RuntimeWarning")
-def test_create_default__not_implemented():
-    class FakeCriterion(Criterion):
-        name = models.CharField(max_length=32, default="fake", editable=False)
-
-        class Meta:
-            app_label = "reputation"
-
-    with mixer.ctx(commit=False):
-        fake_criterion = mixer.blend(FakeCriterion)
-
-        with pytest.raises(NotImplementedError):
-            fake_criterion.create_default()
