@@ -21,7 +21,7 @@
   {{ form.title.errors }}
 </form>
 
-<script>
+<script nonce="{{ request.csp_nonce }}">
 'use strict';
 
 // Bind form submit to icon

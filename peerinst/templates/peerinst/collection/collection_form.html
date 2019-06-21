@@ -45,7 +45,7 @@
 </main>
 {% endblock %}
 {% block scripts %}
-<script>
+<script nonce="{{ request.csp_nonce }}">
   bundle.addDialog();
 </script>
 {% endblock %}

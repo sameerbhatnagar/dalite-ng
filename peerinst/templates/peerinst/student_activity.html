@@ -43,7 +43,7 @@
 {% endblock %}
 
 {% block scripts %}
-<script>
+<script nonce="{{ request.csp_nonce }}">
 let data = {{ json|safe }};
 
 function draw() {

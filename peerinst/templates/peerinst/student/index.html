@@ -111,7 +111,7 @@
   </section>
 </main>
 
-<script>
+<script nonce="{{ request.csp_nonce }}">
   window.addEventListener("load", function() {
     student.initStudentPage(
       {{ data|safe }}

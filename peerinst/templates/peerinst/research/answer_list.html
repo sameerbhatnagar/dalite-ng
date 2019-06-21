@@ -169,7 +169,7 @@
 {% endblock %}
 
 {% block scripts %}
-<script>
+<script nonce="{{ request.csp_nonce }}">
   var show = localStorage.getItem('collapse') === 'true';
   $('.hidable').toggle(show);
   $(".mdc-icon-toggle").each(function() {

@@ -9,7 +9,7 @@
 {% endblock %}
 
 {% block body %}
-<script>
+<script nonce="{{ request.csp_nonce }}">
 var desktop = window.matchMedia("(min-width:450px)").matches&&window.matchMedia("(min-height:450px)").matches;
 console.info(desktop);
 // Override default size of header to fill page based on window size
@@ -245,7 +245,7 @@ if (desktop) {
 
 {% block scripts %}
 {% compress js inline %}
-<script>
+<script nonce="{{ request.csp_nonce }}">
 // MDC binds
 var arrow = document.getElementById('scrollprompt');
 if (desktop) {
@@ -265,7 +265,7 @@ if (desktop) {
 }
 </script>
 
-<script>
+<script nonce="{{ request.csp_nonce }}">
 // Animations
 function logo(){
   'use strict';
@@ -557,7 +557,7 @@ logo();
 window.addEventListener("resize", logo);
 </script>
 
-<script>
+<script nonce="{{ request.csp_nonce }}">
 // Counts
 data = {{ json|safe }};
 labels = bundle.keys(data['All']);
@@ -696,7 +696,7 @@ function update(t,e) {
 }
 </script>
 
-<script>
+<script nonce="{{ request.csp_nonce }}">
 function icons() {
   'use strict';
 
@@ -953,7 +953,7 @@ icons();
 window.addEventListener('resize', icons);
 </script>
 
-<script>
+<script nonce="{{ request.csp_nonce }}">
 // History
 function timeline() {
   'use strict';
@@ -1209,7 +1209,7 @@ window.addEventListener('resize', timeline);
 
 </script>
 
-<script>
+<script nonce="{{ request.csp_nonce }}">
 function pillars() {
   var pillars = bundle.select("#pillars");
   pillars.attr("width",document.querySelector(".blurb").offsetWidth);
@@ -1463,7 +1463,7 @@ pillars();
 window.addEventListener('resize', pillars);
 </script>
 
-<script>
+<script nonce="{{ request.csp_nonce }}">
 // Async load video as per API
 // https://developers.google.com/youtube/iframe_api_reference#Loading_a_Video_Player
 var tag = document.createElement('script');

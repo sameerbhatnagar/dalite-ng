@@ -28,7 +28,7 @@
   </nav>
 </aside>
 
-<script>
+<script nonce="{{ request.csp_nonce }}">
 if (parent == window) {
   document.getElementById('logout-no-iframe').style.visibility = 'visible';
 }

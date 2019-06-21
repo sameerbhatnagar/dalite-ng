@@ -366,7 +366,6 @@ CSP_SCRIPT_SRC = [
     "www.youtube.com",
     "s.ytimg.com",
     "cdn.jsdelivr.net",
-    "'unsafe-inline'",
 ]
 CSP_STYLE_SRC = [
     "'self'",
@@ -375,7 +374,6 @@ CSP_STYLE_SRC = [
     "unpkg.com",
     "cdn.jsdelivr.net",
     "code.jquery.com",
-    "'unsafe-inline'",
 ]
 CSP_FONT_SRC = [
     "'self'",
@@ -385,7 +383,7 @@ CSP_FONT_SRC = [
 ]
 
 # External framing
-FRAMING_ALLOWED_FROM = ["*.moodle.ca", "*.moodle.com", "edx.com"]
+FRAMING_ALLOWED_FROM = ["*"]
 
 CSRF_COOKIE_SECURE = not DEBUG
 SECURE_SSL_REDIRECT = not DEBUG

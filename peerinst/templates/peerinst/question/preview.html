@@ -106,7 +106,7 @@ onclick="question.submitForm()"
 {% block scripts %}
 {{ block.super }}
 {% if question.type == "RO" %}
-<script>
+<script nonce="{{ request.csp_nonce }}">
 $('#submit-answer-form').remove();
 </script>
 {% endif %}

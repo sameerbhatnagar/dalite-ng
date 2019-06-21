@@ -48,7 +48,7 @@
 
 {% block scripts %}
 {% if not request.user.is_authenticated %}
-<script>
+<script nonce="{{ request.csp_nonce }}">
 function processResponse(text, status, obj) {
   console.info(text);
   console.info(status);

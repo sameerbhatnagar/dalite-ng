@@ -106,7 +106,7 @@
 {% block scripts %}
 <script src="{% static 'peerinst/js/search.min.js' %}"></script>
 {% compress js inline %}
-<script>
+<script nonce="{{ request.csp_nonce }}">
 bundle.toggleImages();
 bundle.toggleAnswers();
 

@@ -129,7 +129,7 @@
 {% endblock %}
 
 {% block scripts %}
-<script>
+<script nonce="{{ request.csp_nonce }}">
   // TinyMCE bind to textarea
   tinymce.init({
     selector: 'textArea',

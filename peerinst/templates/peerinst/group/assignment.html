@@ -219,7 +219,7 @@
 {% endblock %}
 
 {% block init-scripts %}
-<script>
+<script nonce="{{ request.csp_nonce }}">
   window.addEventListener("load", function() {
     group.initAssignment(
       {{ data|safe }}

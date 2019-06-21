@@ -386,7 +386,7 @@
 
 {% block scripts %}
 {% compress js inline %}
-<script>
+<script nonce="{{ request.csp_nonce }}">
   bundle.addDialog();
 
   // Hide all deleted questions and set global scope state variable

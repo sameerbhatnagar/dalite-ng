@@ -20,7 +20,7 @@
   </div>
 </form>
 
-<script>
+<script nonce="{{ request.csp_nonce }}">
 $.ajaxSetup({
     beforeSend: function(xhr, settings) {
         if (!bundle.csrfSafeMethod(settings.type) && !this.crossDomain) {

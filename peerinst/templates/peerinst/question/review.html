@@ -66,7 +66,7 @@
 {% block scripts %}
 {{ block.super }}
   <script src="{% static 'peerinst/js/question_review.js' %}"></script>
-  <script>
+  <script nonce="{{ request.csp_nonce }}">
   window.addEventListener("load", function() {
     question.initReview()
   });

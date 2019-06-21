@@ -104,7 +104,7 @@
 {% endblock %}
 
 {% block scripts %}
-<script>
+<script nonce="{{ request.csp_nonce }}">
 $("#create-group-assignment").submit(function(event) {
   event.preventDefault();
   var $form = $(this);

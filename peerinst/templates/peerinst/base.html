@@ -99,7 +99,7 @@
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
 
   {% compress js %}
-  <script>
+  <script nonce="{{ request.csp_nonce }}">
   // Fix potential CSRF token conflicts when loading multiple iframes in parallel,
   // if the user did not have a CSRF cookie set already.
   // The CSRF token in the HTML may be out of date, but the cookie value should be
@@ -124,7 +124,7 @@
   <!-- JS bundle -->
   {% compress js %}
   <script src="{% static 'peerinst/js/index.min.js' %}"></script>
-  <script>
+  <script nonce="{{ request.csp_nonce }}">
   if (document.querySelector('.mdc-drawer--temporary')){
     var drawer = new bundle.drawer.MDCTemporaryDrawer(document.querySelector('.mdc-drawer--temporary'));
     document.querySelector('#menu-icon').addEventListener('click', function() {
