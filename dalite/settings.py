@@ -387,6 +387,10 @@ CSP_FONT_SRC = [
 # External framing
 FRAMING_ALLOWED_FROM = ["*.moodle.ca", "*.moodle.com", "edx.com"]
 
+CSRF_COOKIE_SECURE = not DEBUG
+SECURE_SSL_REDIRECT = not DEBUG
+SESSION_COOKIE_SECURE = not DEBUG
+
 
 try:
     from .local_settings import *  # noqa F403
