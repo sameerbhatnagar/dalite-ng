@@ -3,7 +3,7 @@
 {% load staticfiles compress i18n %}
 
 {% block stylesheets %}
-<style>
+<style nonce="{{ request.csp_nonce }}">
   .question-list {
     position: relative;
   }

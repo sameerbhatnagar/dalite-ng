@@ -3,7 +3,7 @@
 {% load add_class staticfiles compress i18n %}
 
 {% block stylesheets %}
-<style>
+<style nonce="{{ request.csp_nonce }}">
   .sticky-header {
     position: -webkit-sticky;
     position: sticky;

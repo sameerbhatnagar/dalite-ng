@@ -4,7 +4,7 @@
 
 {% block stylesheets %}
 {% compress css inline %}
-<style>
+<style nonce="{{ request.csp_nonce }}">
   label {
     padding-right: 10px;
   }

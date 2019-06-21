@@ -3,7 +3,7 @@
 {% load compress i18n %}
 
 {% block stylesheets %}
-<style>
+<style nonce="{{ request.csp_nonce }}">
 .deleted {
   background-color: lightgray;
 }

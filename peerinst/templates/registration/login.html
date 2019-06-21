@@ -3,7 +3,7 @@
 {% load add_class i18n %}
 
 {% block stylesheets %}
-<style>
+<style nonce="{{ request.csp_nonce }}">
   h2 {
     margin-bottom:0px;
   }

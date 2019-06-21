@@ -5,7 +5,7 @@
 {% block stylesheets %}
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-<style>
+<style nonce="{{ request.csp_nonce }}">
 .flatpickr-input {
   width: 150px;
 }
