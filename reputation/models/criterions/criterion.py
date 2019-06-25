@@ -3,21 +3,39 @@ from __future__ import unicode_literals
 
 from itertools import chain
 
-from django.core import validators
+from django.core.exceptions import ValidationError
 from django.db import models
 
+from dalite.models.custom_fields import CommaSepField
 from reputation.logger import logger
 
 from ..reputation_type import ReputationType
 
 
+def validate_list_floats_greater_0(val):
+    for x in val:
+        try:
+            n = float(x)
+        except ValueError:
+            raise ValidationError(
+                "The values must be comma separated floats greather or equal "
+                "to 0."
+            )
+        if n < 0:
+            raise ValidationError(
+                "The values must be comma separated floats greather or equal "
+                "to 0."
+            )
+
+
 class Criterion(models.Model):
     version = models.AutoField(primary_key=True)
     for_reputation_types = models.ManyToManyField(ReputationType)
-    badge_threshold = models.FloatField(
-        default=0,
-        validators=[validators.MinValueValidator(0)],
-        help_text="Threshold for the badge to be awarded. If 0, is ignored.",
+    badge_thresholds = CommaSepField(
+        distinct=True,
+        blank=True,
+        validators=[validate_list_floats_greater_0],
+        help_text="Thresholds for the badges to be awarded.",
     )
 
     class Meta:
@@ -35,7 +53,7 @@ class Criterion(models.Model):
             self.__class__.info().iteritems(),
             {
                 "version": self.version,
-                "badge_threshold": self.badge_threshold,
+                "badge_thresholds": self.badge_thresholds,
             }.iteritems(),
         )
 

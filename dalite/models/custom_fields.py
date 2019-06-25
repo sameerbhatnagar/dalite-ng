@@ -67,7 +67,10 @@ class CommaSepField(models.TextField):
         return self.to_python(val)
 
     def get_prep_value(self, val):
-        return ",".join(val)
+        if not val:
+            return ""
+        else:
+            return ",".join(val)
 
     def formfield(self, **kwargs):
         defaults = kwargs

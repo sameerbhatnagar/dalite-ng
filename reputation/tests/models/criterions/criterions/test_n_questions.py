@@ -14,7 +14,7 @@ def test_dict(n_questions_criterion):
     assert "full_name" in data
     assert "description" in data
     assert "version" in data
-    assert "badge_threshold" in data
+    assert "badge_thresholds" in data
     assert len(data) == 5
 
 

@@ -26,7 +26,7 @@ def test_dict():
         data = dict(fake_criterion)
 
         assert "version" in data
-        assert "badge_threshold" in data
+        assert "badge_thresholds" in data
         assert "name" in data
         assert "full_name" in data
         assert "description" in data

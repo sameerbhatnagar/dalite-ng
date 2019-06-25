@@ -31,14 +31,18 @@ class NAnswersCriterion(Criterion):
         validators=[MinValueValidator(0.0)],
     )
 
-    def evaluate(self, question):
-        super(NAnswersCriterion, self).evaluate(question)
-        if question.__class__.__name__ != "Question":
+    def evaluate(self, instance):
+        super(NAnswersCriterion, self).evaluate(instance)
+        if instance.__class__.__name__ == "Question":
+            n_answers = instance.answer_set.count()
+        elif instance.__class__.__name__ == "Student":
+            n_answers = instance.answers.count()
+        else:
             msg = "`question` has to be of type Question."
             logger.error("TypeError: {}".format(msg))
             raise TypeError(msg)
 
-        n_answers = question.answer_set.count()
+        print(n_answers)
 
         if n_answers <= self.floor:
             return 0
@@ -47,8 +51,6 @@ class NAnswersCriterion(Criterion):
             return 1
 
         else:
-            if self.ceiling:
-                n_answers = self.ceiling - n_answers
             return (
                 1.0 / (1.0 + math.exp(-self.growth_rate * n_answers)) - 0.5
             ) * 2

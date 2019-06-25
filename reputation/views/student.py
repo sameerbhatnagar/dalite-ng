@@ -51,4 +51,5 @@ def student_reputation(req):
     reputation, reputations = student.reputation.evaluate()
 
     data = {"reputation": reputation, "reputations": reputations}
+    print(data)
     return JsonResponse(data, status=200)

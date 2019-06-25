@@ -319,6 +319,10 @@ class Student(models.Model):
     def notifications(self):
         return self.studentnotification_set.order_by("-created_on").all()
 
+    @property
+    def answers(self):
+        return Answer.objects.filter(user_token=self.student.username)
+
 
 class StudentGroupMembership(models.Model):
     student = models.ForeignKey(Student)

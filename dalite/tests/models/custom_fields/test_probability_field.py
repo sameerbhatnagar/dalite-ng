@@ -1,7 +1,7 @@
 import pytest
 from django.core import exceptions
 
-from quality.models.custom_fields import ProbabilityField
+from dalite.models.custom_fields import ProbabilityField
 
 
 def test_to_python():

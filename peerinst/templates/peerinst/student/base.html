@@ -3,12 +3,14 @@
 {% load compress staticfiles i18n %}
 
 {% block stylesheets %}
+{% include 'reputation/header/student/styles.html' %}
 {% compress css %}
 <link href="{% static 'peerinst/css/student.min.css' %}" rel="stylesheet">
 {% endcompress %}
 {% endblock %}
 
 {% block scripts %}
+{% include 'reputation/header/student/scripts.html' %}
 {% compress js %}
 <script src="{% static 'peerinst/js/student.min.js' %}"></script>
 <script type="text/javascript">
@@ -29,6 +31,9 @@
 
 {% block header-right %}
 {% if not request.session.LTI %}
+<div class="header">
+  {% include 'reputation/header/student/header.html' %}
+</div>
 <div class="header">
   {% include 'peerinst/student/header/notifications.html' %}
 </div>
