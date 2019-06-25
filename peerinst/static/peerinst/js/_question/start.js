@@ -1,19 +1,34 @@
 import { buildReq } from "../_ajax/utils.js";
 import { clear } from "../utils.js";
 
+/*********/
+/* model */
+/*********/
+
+let model;
+
+function initModel(submitUrl, quality) {
+  model = {
+    urls: {
+      submitUrl: submitUrl,
+    },
+    quality: quality,
+  };
+}
+
 /**********/
 /* update */
 /**********/
 
-export function validateFormSubmit(event, url, quality) {
+function validateFormSubmit(event) {
   event.preventDefault();
   const data = {
-    quality: quality,
+    quality: model.quality,
     rationale: document.querySelector("#id_rationale").value,
   };
 
   const req = buildReq(data, "post");
-  fetch(url, req)
+  fetch(model.urls.submitUrl, req)
     .then(resp => resp.json())
     .then(failed => {
       if (failed.failed.length) {
@@ -61,4 +76,27 @@ function toggleQualityError(data, errorMsg) {
       err.parentNode.removeChild(err);
     }
   }
+}
+
+/************/
+/* listners */
+/************/
+
+function initListeners() {
+  addSubmitListener();
+}
+
+function addSubmitListener() {
+  document.getElementById("answer-form").addEventListener("click", event => {
+    validateFormSubmit(event);
+  });
+}
+
+/********/
+/* init */
+/********/
+
+export function init(submitUrl, quality) {
+  initModel(submitUrl, quality);
+  initListeners();
 }

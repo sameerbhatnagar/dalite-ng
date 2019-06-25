@@ -664,6 +664,62 @@ export function joinGroup() {
     });
 }
 
+/*************/
+/* listeners */
+/*************/
+
+function initListeners() {
+  addLinkListeners();
+  addJoinGroupListeners();
+}
+
+function addLinkListeners() {
+  document
+    .getElementById("edit-user-btn")
+    .addLinkListener("click", function() {
+      edit_user();
+    });
+  document
+    .getElementById("modify-tos-btn")
+    .addLinkListener("click", function() {
+      modifyTos();
+    });
+}
+
+function addJoinGroupListeners() {
+  document
+    .querySelector("#student-add-group .admin-link")
+    .addEventListener("click", function() {
+      toggleJoinGroup();
+    });
+  document
+    .getElementById("student-add-group--box")
+    .addEventListener("click", function() {
+      event.stopPropagation;
+      student.toggleJoinGroup();
+    });
+  document
+    .querySelector("#student-add-group--box > div")
+    .addEventListener("click", function() {
+      event.stopPropagation;
+    });
+  document
+    .querySelector("#student-add-group--box input[name='new-group']")
+    .addEventListener("keyup", function(event) {
+      handleJoinGroupLinkInput(event);
+    });
+  document
+    .getElementById("join-group-btn")
+    .addEventListener("click", function() {
+      joinGroup();
+    });
+  document
+    .getElementById("cancel-join-group-btn")
+    .addEventListener("click", function() {
+      toggleJoinGroup();
+    });
+}
+
 /*********/
 /* utils */
 /*********/
@@ -702,4 +758,5 @@ function timeuntil(date1, date2) {
 export function initStudentPage(data) {
   initModel(data);
   initView();
+  initListeners();
 }

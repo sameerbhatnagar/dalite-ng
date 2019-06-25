@@ -25,7 +25,7 @@
 <ul class="mdc-list mdc-list--two-line">
   {% for t in threads %}
   <li role="separator" class="mdc-list-divider"></li>
-  <li class="mdc-list-item" onclick="window.location.href='{% url 'pinax_forums:thread' t.pk %}'" style="cursor:pointer;">
+  <li class="mdc-list-item pointer thread-link">
     <span class="mdc-list-item__graphic mdc-theme--primary">
       <i class="mdc-theme--primary material-icons md-48">message</i>
     </span>
@@ -43,4 +43,17 @@
   <li role="separator" class="mdc-list-divider"></li>
 </ul>
 
+{% endblock %}
+
+{% block extrascripts %}
+<script nonce="{{ request.csp_nonce }}">
+  window.addEventListener("load", function() {
+    const links = document.getElementsByClassName("thread-link")
+      {% for t in threads %}
+        links[{{ forloop.counter0 }}].addEventListener("click", function() {
+          window.location.href='{% url 'pinax_forums:thread' t.pk %}'
+        })
+      {% endfor %}
+  });
+</script>
 {% endblock %}

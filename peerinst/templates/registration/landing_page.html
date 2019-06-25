@@ -60,7 +60,7 @@ if (desktop) {
       </div>
       <p class="mdc-typography--headline">
         {% blocktrans %}
-        <span style="font-family: 'Cardo', serif;font-style:italic;">my</span>DALITE is a free open-source web-based platform that promotes <strong>conceptual learning</strong>. Its pedagogical foundations are guided by social learning and based on learning principles and practical know-how. It engages students in cognitive tasks that include written self-explanation, comparison and evaluation of explanations produced by peers, and reflection.
+        <span class="dalite-my">my</span>DALITE is a free open-source web-based platform that promotes <strong>conceptual learning</strong>. Its pedagogical foundations are guided by social learning and based on learning principles and practical know-how. It engages students in cognitive tasks that include written self-explanation, comparison and evaluation of explanations produced by peers, and reflection.
         {% endblocktrans %}
       </p>
     </div>
@@ -82,7 +82,7 @@ if (desktop) {
       </div>
       <p class="mdc-typography--headline">
         {% blocktrans %}
-        With <span style="font-family: 'Cardo', serif;font-style:italic;">my</span>DALITE, teachers can use the same questions <strong>in class</strong> in polling mode, or assign questions as <strong>out-of-class</strong> homework through any learning management system.  Teachers can peruse content based on analytics and get reports for how their students are doing over time.
+        With <span class="dalite-my">my</span>DALITE, teachers can use the same questions <strong>in class</strong> in polling mode, or assign questions as <strong>out-of-class</strong> homework through any learning management system.  Teachers can peruse content based on analytics and get reports for how their students are doing over time.
         {% endblocktrans %}
       </p>
     </div>
@@ -93,7 +93,7 @@ if (desktop) {
       </div>
       <p class="mdc-typography--headline">
         {% blocktrans %}
-        <span style="font-family: 'Cardo', serif;font-style:italic;">my</span>DALITE has a <strong>growing database</strong> of questions in subjects ranging from chemistry to the humanities. It is funded by the SALTISE/S4 grant and aims to be the home of an open-source community offering high-impact high-quality learning resources <strong>built for teachers by teachers</strong>. If you don't find the type of content you are looking for, you can author new question items and contribute to the ever-growing community!   The current top disciplines are:
+        <span class="dalite-my">my</span>DALITE has a <strong>growing database</strong> of questions in subjects ranging from chemistry to the humanities. It is funded by the SALTISE/S4 grant and aims to be the home of an open-source community offering high-impact high-quality learning resources <strong>built for teachers by teachers</strong>. If you don't find the type of content you are looking for, you can author new question items and contribute to the ever-growing community!   The current top disciplines are:
         {% endblocktrans %}
       </p>
       <div class="mdc-layout-grid">
@@ -110,7 +110,7 @@ if (desktop) {
       </div>
       <div class="mdc-chip-set mdc-chip-set--choice" data-mdc-auto-init="MDCChipSet">
         {% for d in disciplines %}
-        <div id="{{ d.name }}" class="mdc-chip" onclick="update(this,event)" tabindex="0" data-mdc-auto-init="MDCChip">
+        <div id="{{ d.name }}" class="mdc-chip" tabindex="0" data-mdc-auto-init="MDCChip">
           <div class="mdc-chip__checkmark">
             <svg class="mdc-chip__checkmark-svg" viewBox="-2 -3 30 30">
               <path class="mdc-chip__checkmark-path" fill="none" stroke="black"
@@ -140,9 +140,6 @@ if (desktop) {
       <svg id="history" width=350 height=450></svg>
     </div>
 
-    <!--
-    <blockquote class="mdc-theme--primary">{% blocktrans %}This research has shown my<span style="font-family: 'Montserrat', sans-serif;font-style:normal;">DALITE</span> to be an effective tool for supporting deep learning.{% endblocktrans %}</blockquote>
-    -->
   </section>
 
   <section>
@@ -181,8 +178,8 @@ if (desktop) {
           <svg class="browser icon-resize" width=80 height=80></svg>
       </div>
       <p class="mdc-typography--headline">
-        <span style="font-family: 'Cardo', serif;font-style:italic;">my</span>DALITE {% blocktrans %}supports the following browsers:{% endblocktrans %}
-        <ul class="mdc-typography--headline" style='padding-left:25%'>
+        <span class="mydalite-my">my</span>DALITE {% blocktrans %}supports the following browsers:{% endblocktrans %}
+        <ul class="mdc-typography--headline pad-l-25">
           <li>Google Chrome 65+</li>
           <li>Mozilla Firefox 58+</li>
           <li>Microsoft Edge 15+</li>
@@ -232,7 +229,7 @@ if (desktop) {
     <div class="footer_content">
       &copy 2018 SALTISE/S4
     </div>
-    <div class="footer_content" style="text-align:right;">
+    <div class="footer_content align-right">
       <a href="mailto:info@saltise.ca"><i class="icon ion-ios-mail"></i></a>
       <a href="https://www.saltise.ca"><i class="icon ion-md-globe"></i></a>
       <a href="https://www.facebook.com/SALTISE/"><i class="icon ion-logo-facebook"></i></a>
@@ -1503,6 +1500,15 @@ if (hStyles['position'] == 'relative') {
   h = document.querySelector('#Features');
   h.style.marginTop = '200px';
 }
+</script>
+<script nonce="{{ request.csp_nonce }}">
+  window.addEventListener("load", function() {
+    {% for d in disciplines %}
+    document.getElementById("{{ d.name }}").addEventListener("click", function(event) {
+      update(this, event)
+    })
+    {% endfor %}
+  })
 </script>
 {% endcompress %}
 {% endblock %}

@@ -85,15 +85,15 @@
       </div>
     </div>
 
-    <div id="filters" style="display:none;">
+    <div id="filters" class="hidden">
       <h2 class='mdc-typography--display1  mdc-theme--secondary'>{% trans 'Filters' %}</h2>
 
       <div id="select-filters">
-        <div id="discipline-filters" style="display:none;"><div style="margin-bottom:5px;">{% trans 'Disciplines: ' %}</div><span id="filter-on-discipline"></span></div>
+        <div id="discipline-filters" class="hidden"><div class="m-bot-5">{% trans 'Disciplines: ' %}</div><span id="filter-on-discipline"></span></div>
 
-        <div id="category-filters" style="margin-top:10px;display:none;"><div style="margin-bottom:5px;">{% trans 'Keywords: ' %}</div><span id="filter-on-category"></span></div>
+        <div id="category-filters m-top-10 hidden"><div class="m-bot-5">{% trans 'Keywords: ' %}</div><span id="filter-on-category"></span></div>
 
-        <button id="reset-filters" type="button" class='mdc-button mdc-button--raised padded-top' disabled=true onclick='search.reset()'>{% trans 'Clear' %}</button>
+        <button id="reset-filters" type="button" class='mdc-button mdc-button--raised padded-top' disabled=true>{% trans 'Clear' %}</button>
       </div>
     </div>
 
@@ -139,6 +139,13 @@ function toggleFavourite(pk) {
     console.info(data);
   })
 }
+</script>
+<script nonce="{{ request.csp_nonce }}">
+  window.addEventListener("load", function() {
+    document.getElementById("reset-filters").addEventListener("click", () => {
+      search.reset()
+    })
+  })
 </script>
 {% endcompress %}
 {% endblock %}

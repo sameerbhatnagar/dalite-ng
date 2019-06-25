@@ -191,6 +191,7 @@ h1 {
   -moz-osx-font-smoothing: grayscale;
   /* Support for Safari and Chrome. */
   text-rendering: optimizeLegibility;
+  vertical-align: middle;
 }
 .material-icons.md-15 {
   font-size: 15px;
@@ -542,9 +543,6 @@ div.input-ripple-wrapper input {
   color: grey !important;
 }
 
-.inline {
-  vertical-align: middle;
-}
 .iconify {
   background-color: $mdc-theme-primary;
   border: hidden;
@@ -736,4 +734,183 @@ div.input-ripple-wrapper input {
 
 .hidden {
   display: none;
+}
+
+.pt9 {
+  font-size: 9pt;
+}
+
+.dalite-my {
+  font-family: "Cardo", serif;
+  font-style: italic;
+}
+
+.dalite-dalite {
+  font-family: "Montserrat", sans-serif;
+  text-transform: uppercase;
+}
+
+.pad-l-25 {
+  padding-left: 25%;
+}
+
+.align-right {
+  text-align: right;
+}
+
+.no-whitespace {
+  margin: 0;
+  padding: 0;
+}
+
+.admin-link--padded {
+  padding-left: 0.3em;
+  padding-right: 0.5em;
+}
+
+.new-feature {
+  padding-left: 4px;
+}
+
+.m-bot-10 {
+  margin-bottom: 10pt;
+}
+
+.m-bot-10p {
+  margin-bottom: 10px;
+}
+
+.m-bot-5 {
+  margin-bottom: 5px;
+}
+
+.m-right-20 {
+  margin-right: 20px;
+}
+
+.m-left-20 {
+  margin-left: 20px;
+}
+
+.m-top-20 {
+  margin-top: 20px;
+}
+
+.m-top-10 {
+  margin-top: 10px;
+}
+
+.m-top-4 {
+  margin-top: 4px;
+}
+
+.m-top-5 {
+  margin-top: 5px;
+}
+
+.m-left-10 {
+  margin-left: 10px;
+}
+
+.m-left-right-16 {
+  margin-left: 16px;
+  margin-right: 16px;
+}
+
+.red {
+  color: red;
+}
+
+.white {
+  color: white;
+}
+
+.translate-4 {
+  transform: translateY(4pt);
+}
+
+.inline {
+  display: inline;
+}
+
+.block {
+  display: block;
+}
+
+.error-span {
+  color: red;
+  display: none;
+}
+
+.check-12 {
+  font-size: 12pt;
+  transform: translateY(3px);
+}
+
+.green {
+  color: green;
+}
+
+.goldenrod {
+  color: goldenrod;
+}
+
+.width-auto {
+  margin: auto;
+  width: fit-content;
+}
+
+.vertical-align {
+  vertical-align: middle;
+}
+
+.analytics-div {
+  display: inline-block;
+  vertical-align: top;
+  width: 175px;
+}
+
+.grey {
+  color: grey;
+}
+
+.overflow {
+  overflow: visible;
+}
+
+.width-100 {
+  width: 100%;
+}
+
+.p-left-0 {
+  padding-left: 0;
+}
+
+.p-bot-3 {
+  padding-bottom: 3px;
+}
+
+.f-size-20 {
+  font-size: 20px;
+}
+
+.f-left {
+  float: left;
+}
+
+.max-width-400 {
+  max-width: 400px;
+}
+
+.block-auto {
+  display: block;
+  margin: auto;
+}
+
+.clear-both {
+  clear: both;
+}
+
+.greenyellow {
+  color: greenyellow;
 }

@@ -23,7 +23,7 @@
 
         <div class="admin-link">
           <a href="{% url 'teacher' teacher.id %}">{% trans 'Back to My Account' %}</a>
-          <span style="padding-left:0.3em;padding-right:0.5em;">|</span><a href="{% url 'teacher-assignments' teacher.id %}">{% trans 'Back to My Assignments' %}</a>
+          <span class="admin-link--padded">|</span><a href="{% url 'teacher-assignments' teacher.id %}">{% trans 'Back to My Assignments' %}</a>
         </div>
 
         <h2 class="mdc-typography--display1 mdc-theme--secondary">{{ assignment.title }}</h2>
@@ -49,7 +49,7 @@
             <div class='field'>
               <div class='mdc-form-field'>
                 <label for='id_group'>{{ form.group.label }}:</label>
-                <div class='mdc-select' style='margin-right:20px;'>
+                <div class='mdc-select m-right-20'>
                   {{ form.group|add_class:"mdc-select__native-control" }}
                   <div class="mdc-select__bottom-line"></div>
                 </div>
