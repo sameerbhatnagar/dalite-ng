@@ -33,6 +33,7 @@ INSTALLED_APPS = (
     "grappelli",
     "password_validation",
     "csp",
+    "security_headers",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
