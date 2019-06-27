@@ -102,7 +102,7 @@ function reputationListHeaderView(container) {
 function reputationView(container, reputation) {
   const name = document.createElement("div");
   name.classList.add("reputation-icon__list__name");
-  name.textContent = `${reputation.full_name} v${reputation.version}`;
+  name.textContent = `${reputation.full_name}`;
   name.title = reputation.description;
   container.appendChild(name);
 
