@@ -15,7 +15,8 @@ def test_dict(n_answers_criterion):
     assert "description" in data
     assert "version" in data
     assert "badge_thresholds" in data
-    assert len(data) == 5
+    assert "badge_colour" in data
+    assert len(data) == 6
 
 
 def test_evaluate__wrong_model_type(n_answers_criterion, teacher):
