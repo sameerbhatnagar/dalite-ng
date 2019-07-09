@@ -56,6 +56,7 @@ const scriptBuilds = [
 
 const babelConfig = {
   presets: [
+    "@babel/preset-flow",
     [
       "@babel/env",
       {
@@ -64,6 +65,7 @@ const babelConfig = {
     ],
   ],
   plugins: [
+    "@babel/plugin-proposal-optional-chaining",
     [
       "@babel/plugin-transform-runtime",
       {
@@ -140,14 +142,14 @@ function buildScript(app, module) {
       "@material/toolbar",
     ],
     plugins: [
-      resolve({
-        mainFields: ["module", "main", "browser"],
-      }),
-      commonjs(),
       eslint({
         exclude: ["**.css"],
       }),
       babel(babelConfig),
+      resolve({
+        mainFields: ["module", "main", "browser"],
+      }),
+      commonjs(),
       uglify(),
     ],
   })

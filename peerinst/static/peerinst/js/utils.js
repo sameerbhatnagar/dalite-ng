@@ -1,12 +1,15 @@
+// @flow
 "use strict";
 
-export function clear(node) {
+export function clear(node: HTMLElement): HTMLElement {
   while (node.hasChildNodes()) {
+    // $FlowFixMe
     node.removeChild(node.lastChild);
   }
+  return node;
 }
 
-export function formatDatetime(datetime) {
+export function formatDatetime(datetime: Date): string {
   return (
     datetime.toLocaleString("en-ca", { year: "numeric" }) +
     "-" +
@@ -20,7 +23,7 @@ export function formatDatetime(datetime) {
   );
 }
 
-export function createSvg(name) {
+export function createSvg(name: string): Element {
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
   const use = document.createElementNS("http://www.w3.org/2000/svg", "use");
   use.setAttributeNS(

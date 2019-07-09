@@ -1,81 +1,21 @@
 @import "../../../../../peerinst/static/peerinst/css/variables";
 
-.reputation-icon {
-  position: relative;
-
-  & .reputation-icon__icon {
-    align-items: center;
-    border-radius: 20px;
-    cursor: pointer;
-    display: flex;
-    justify-content: space-between;
-    padding: 4px;
-    transition: 200ms;
-
-    &:hover {
-      background: rgba(255, 255, 255, 0.25);
-    }
-
-    &:active {
-      background: rgba(255, 255, 255, 0.5);
-    }
-
-    & .reputation-icon__icon__reputation {
-      text-align: center;
-      width: 45px;
-    }
-  }
-
+.student-reputation-icon {
   & .reputation-icon__list {
-    align-items: center;
-    background: #ffffff;
-    border-radius: 20px;
-    color: $mdc-theme-secondary;
-    display: grid;
-    font-size: 0.9rem;
-    grid-auto-rows: minmax(50px, max-content);
-    grid-template-columns: repeat(3, minmax(125px, max-content));
-    padding: 10px;
-    position: absolute;
-    right: 0;
-    text-align: center;
-    top: 40px;
-    transform: scale(0);
-    transform-origin: top right;
-    transition: transform 200ms, border-radius 200ms;
-    z-index: 10;
+    grid-template-columns: minmax(125px, max-content) 1fr;
+    width: 400px;
 
-    & .reputation-icon__list__header {
-      align-content: center;
-      color: $mdc-theme-primary;
-      font-size: 1.1rem;
-      font-weight: bold;
-      justify-content: center;
-      text-decoration: underline;
-      user-select: none;
-    }
+    & .student-badge {
+      height: 100%;
+      width: 100%;
+      & svg {
+        height: 100%;
+        width: 100%;
+      }
 
-    & .reputation-icon__list__name {
-      cursor: pointer;
-      text-decoration: underline;
-    }
-  }
-
-  &.reputation-icon--hidden {
-    display: none;
-  }
-
-  &.reputation-icon--open {
-    & .reputation-icon__icon {
-      background: #ffffff;
-      border-radius: 20px 20px 0 0;
-      color: $mdc-theme-primary;
-      fill: $mdc-theme-primary;
-    }
-
-    & .reputation-icon__list {
-      border-radius: 20px 0 20px 20px;
-      transform: scale(1);
+      & .student-badge__reputation {
+        user-select: none;
+      }
     }
   }
 }

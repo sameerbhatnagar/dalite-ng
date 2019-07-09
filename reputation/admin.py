@@ -5,7 +5,6 @@ from django.contrib import admin
 
 from . import models
 
-admin.site.register(models.Reputation)
 admin.site.register(models.NAnswersCriterion)
 admin.site.register(models.NQuestionsCriterion)
 admin.site.register(models.UsesCriterion)

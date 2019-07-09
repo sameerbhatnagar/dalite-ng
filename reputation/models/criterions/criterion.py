@@ -37,6 +37,7 @@ class Criterion(models.Model):
         validators=[validate_list_floats_greater_0],
         help_text="Thresholds for the badges to be awarded.",
     )
+    badge_colour = models.CharField(max_length=16, default="#0066ff")
 
     class Meta:
         abstract = True
@@ -54,6 +55,7 @@ class Criterion(models.Model):
             {
                 "version": self.version,
                 "badge_thresholds": self.badge_thresholds,
+                "badge_colour": self.badge_colour,
             }.iteritems(),
         )
 
