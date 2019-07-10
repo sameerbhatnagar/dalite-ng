@@ -607,7 +607,7 @@ def researcher_patterns():
     ]
 
 
-def collections_patterns():
+def collection_patterns():
     return []
 
 
@@ -618,7 +618,7 @@ urlpatterns = sum(
         student_patterns(),
         search_patterns(),
         researcher_patterns(),
-        collections_patterns(),
+        collection_patterns(),
     ],
     [],
 )
