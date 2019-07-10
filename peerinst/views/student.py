@@ -60,11 +60,11 @@ def validate_group_data(req):
         )
 
     try:
-        group_name = data["group_name"]
+        group_name = data["group_name"].strip()
         group_link = None
     except KeyError:
         try:
-            group_link = data["group_link"]
+            group_link = data["group_link"].strip()
             group_name = None
         except KeyError:
             return response_400(
