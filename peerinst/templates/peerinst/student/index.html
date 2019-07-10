@@ -114,7 +114,7 @@
 <script nonce="{{ request.csp_nonce }}">
   window.addEventListener("load", function() {
     student.initStudentPage(
-      {{ data|safe }}
+      {{ data|safe }}, "{{ group_student_id_needed }}"
     )
   });
 </script>

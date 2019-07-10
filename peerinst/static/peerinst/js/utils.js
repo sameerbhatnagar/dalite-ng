@@ -38,3 +38,30 @@ export function createSvg(name: string): Element {
   svg.append(use);
   return svg;
 }
+
+export function showAlert(msg: string) {
+  const fullPageBox = document.createElement("div");
+  fullPageBox.classList.add("alert-box__full-page");
+  fullPageBox.addEventListener("click", (event: MouseEvent) => {
+    event.stopPropagation();
+    fullPageBox.parentNode?.removeChild(fullPageBox);
+  });
+  document.body?.appendChild(fullPageBox);
+
+  const box = document.createElement("div");
+  box.classList.add("alert-box__box");
+  box.addEventListener("click", (event: MouseEvent) =>
+    event.stopPropagation(),
+  );
+  fullPageBox.appendChild(box);
+
+  const span = document.createElement("span");
+  span.classList.add("alert-box__msg");
+  span.textContent = msg;
+  box.appendChild(span);
+
+  const ok = document.createElement("button");
+  ok.classList.add("alert-box__btn", "mdc-button", "mdc-button--unelevated");
+  ok.textContent = "Ok";
+  box.appendChild(ok);
+}

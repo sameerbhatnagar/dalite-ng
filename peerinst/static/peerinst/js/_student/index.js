@@ -58,6 +58,7 @@ function initModel(data) {
       day: data.translations.day,
       days: data.translations.days,
       dueOn: data.translations.due_on,
+      editStudentId: data.translations.edit_student_id,
       expired: data.translations.expired,
       goToAssignment: data.translations.go_to_assignment,
       grade: data.translations.grade,
@@ -74,6 +75,7 @@ function initModel(data) {
       notSharing: data.translations.not_sharing,
       sharing: data.translations.sharing,
       studentId: data.translations.student_id,
+      studentIdNeeded: data.translations.student_id_needed,
     },
   };
 }
@@ -160,6 +162,17 @@ function copyStudentIdToClipboard(group, node) {
     .then(() => showCopyBubble(node));
 }
 
+export function goToAssignment(
+  group: { studentId: string, studentIdNeeded: boolean },
+  assignment: { link: string },
+) {
+  if (group.studentIdNeeded && group.studentId !== "") {
+    window.location = assignment.link;
+  } else {
+    toggleStudentIdNeededView(group);
+  }
+}
+
 export function modifyTos() {
   const url = model.urls.tosModify + "?next=" + window.location.href;
   window.location.href = url;
@@ -239,9 +252,9 @@ export function joinGroup() {
 /* view */
 /********/
 
-function view() {
+function view(groupStudentId: string) {
   identityView();
-  groupsView();
+  groupsView(groupStudentId);
   joinGroupView();
 }
 
@@ -328,12 +341,20 @@ function verifyJoinGroupDisabledStatus() {
   }
 }
 
-function groupsView() {
+function groupsView(groupStudentId: string) {
   const groups = document.getElementById("student-groups");
   clear(groups);
   model.groups
     .filter(group => group.memberOf)
     .map(group => groups.appendChild(groupView(group)));
+  if (groupStudentId) {
+    for (let i = 0; i < model.groups.length; i++) {
+      if (model.groups[i].name == groupStudentId) {
+        toggleStudentIdNeededView(model.groups[i]);
+        break;
+      }
+    }
+  }
 }
 
 function groupView(group) {
@@ -418,6 +439,7 @@ function groupTitleIdView(group) {
   editIcon.classList.add("material-icons", "md-28", "student-group--id__edit");
   editIcon.style.display = "flex";
   editIcon.textContent = "edit";
+  editIcon.title = model.translations.editStudentId;
   editIcon.addEventListener("click", () => editStudentId(group, div));
   div.appendChild(editIcon);
 
@@ -452,7 +474,7 @@ function groupAssignmentsView(group) {
   if (group.assignments.length) {
     const ul = document.createElement("ul");
     group.assignments.map(assignment =>
-      ul.appendChild(groupAssignmentView(assignment)),
+      ul.appendChild(groupAssignmentView(assignment, group)),
     );
     div.appendChild(ul);
   } else {
@@ -464,7 +486,7 @@ function groupAssignmentsView(group) {
   return div;
 }
 
-function groupAssignmentView(assignment) {
+function groupAssignmentView(assignment, group) {
   const a = document.createElement("a");
   a.href = assignment.link;
 
@@ -473,7 +495,9 @@ function groupAssignmentView(assignment) {
   if (assignment.done) {
     li.classList.add("student-group--assignment-complete");
   }
-  a.appendChild(li);
+  li.addEventListener("click", (event: MouseEvent) =>
+    goToAssignment(group, assignment),
+  );
 
   const almostExpiredMin = new Date(assignment.dueDate);
   almostExpiredMin.setDate(
@@ -555,7 +579,7 @@ function groupAssignmentView(assignment) {
     }
   }
   li.appendChild(date);
-  return a;
+  return li;
 }
 
 function leaveGroupView(group, groupNode) {
@@ -627,6 +651,7 @@ function editStudentId(group, node) {
   cancelBtn.style.display = "flex";
 
   input.focus();
+  toggleStudentIdNeededView(group);
 }
 
 function stopEditStudentId(group, node) {
@@ -645,6 +670,24 @@ function stopEditStudentId(group, node) {
   input.style.display = "none";
   confirmBtn.style.display = "none";
   cancelBtn.style.display = "none";
+}
+
+function toggleStudentIdNeededView(group) {
+  const node = document.querySelector(
+    `.student-group[data-group='${group.name}'] .student-group--id`,
+  );
+  if (
+    node.querySelector(".student-group--id__input")?.style.display === "none"
+  ) {
+    const alert = document.createElement("div");
+    alert.classList.add("student-group--id__alert");
+    alert.textContent = model.translations.studentIdNeeded;
+    node.appendChild(alert);
+    alert.scrollIntoView(true);
+  } else {
+    const alert = node.querySelector(".student-group--id__alert");
+    alert?.parentNode.removeChild(alert);
+  }
 }
 
 function toggleLeaveGroup(node) {
@@ -700,7 +743,7 @@ function timeuntil(date1, date2) {
 /* init */
 /********/
 
-export function initStudentPage(data) {
+export function initStudentPage(data, groupStudentId: string = "") {
   initModel(data);
-  view();
+  view(groupStudentId);
 }

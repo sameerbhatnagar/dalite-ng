@@ -1,5 +1,6 @@
 const autoprefixer = require("autoprefixer");
 const babel = require("rollup-plugin-babel");
+const browserSync = require("browser-sync").create();
 const buffer = require("vinyl-buffer");
 const commonjs = require("rollup-plugin-commonjs");
 const concat = require("gulp-concat");
