@@ -3,22 +3,12 @@ from __future__ import absolute_import, unicode_literals
 
 import logging
 import operator
-import smtplib
+
 from celery import shared_task
+
 from dalite.celery import try_async
-from django.core.mail import send_mail
 
 logger = logging.getLogger("peerinst-models")
-
-
-@try_async
-@shared_task
-def send_email_async(*args, **kwargs):
-    try:
-        send_mail(*args, **kwargs)
-    except smtplib.SMTPException:
-        err = "There was an error sending the email."
-        logger.error(err)
 
 
 @shared_task
@@ -48,3 +38,21 @@ def update_question_meta_search_difficulty():
         assert (
             q.meta_search.filter(meta_feature__key="difficulty").count() == 1
         )
+
+
+@try_async
+@shared_task
+def distribute_assignment_to_students_async(student_group_assignment_pk):
+    # Prevent circular import
+    from peerinst.models import StudentGroupAssignment
+
+    student_group_assignment = StudentGroupAssignment.objects.get(
+        pk=student_group_assignment_pk
+    )
+    for student in student_group_assignment.group.student_set.all():
+        logger.info(
+            "Adding assignment %d for student %d",
+            student_group_assignment.pk,
+            student.pk,
+        )
+        student.add_assignment(student_group_assignment)

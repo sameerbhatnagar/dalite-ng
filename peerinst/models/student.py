@@ -8,12 +8,12 @@ from operator import itemgetter
 import pytz
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.core.mail import send_mail
 from django.core.urlresolvers import reverse
 from django.db import IntegrityError, models
 from django.template import loader
 from django.utils.translation import ugettext_lazy as _
 
-from ..tasks import send_email_async
 from ..students import create_student_token, get_student_username_and_password
 from .answer import Answer
 from .assignment import StudentGroupAssignment
@@ -174,7 +174,7 @@ class Student(models.Model):
                 context = {"signin_link": signin_link, "group": group}
 
                 if err is None:
-                    send_email_async(
+                    send_mail(
                         subject,
                         message,
                         "noreply@myDALITE.org",
@@ -475,7 +475,7 @@ class StudentAssignment(models.Model):
                 }
 
                 if err is None:
-                    send_email_async(
+                    send_mail(
                         subject,
                         message,
                         "noreply@myDALITE.org",
@@ -486,7 +486,7 @@ class StudentAssignment(models.Model):
                         ),
                     )
                     logger.info(
-                        "Email of type %s send for student assignment %d",
+                        "Email of type %s sent for student assignment %d",
                         mail_type,
                         self.pk,
                     )
