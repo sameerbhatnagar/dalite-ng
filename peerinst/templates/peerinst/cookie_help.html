@@ -6,6 +6,7 @@
 
 {% block stylesheets %}
 <style nonce="{{ request.csp_nonce }}">
+{{ block.super }}
 p {
   margin: 20px 20px;
 }

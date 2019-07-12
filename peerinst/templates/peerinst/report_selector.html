@@ -72,6 +72,7 @@
 {% endblock %}
 
 {% block scripts %}
+{{ block.super }}
 <script nonce="{{ request.csp_nonce }}">
   bundle.bindCheckbox();
 </script>

@@ -47,6 +47,7 @@
 {% endblock %}
 
 {% block scripts %}
+{{ block.super }}
 {% if not request.user.is_authenticated %}
 <script nonce="{{ request.csp_nonce }}">
 function processResponse(text, status, obj) {

@@ -14,6 +14,7 @@ from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
 from quality.models import Quality
+from reputation.models import Reputation
 
 from ..tasks import distribute_assignment_to_students_async
 from .group import StudentGroup
@@ -37,6 +38,9 @@ class Assignment(models.Model):
     title = models.CharField(_("Title"), max_length=200)
     questions = models.ManyToManyField(Question, verbose_name=_("Questions"))
     owner = models.ManyToManyField(User, blank=True)
+    reputation = models.OneToOneField(
+        Reputation, blank=True, null=True, on_delete=models.SET_NULL
+    )
 
     def __unicode__(self):
         return self.identifier
@@ -385,3 +389,28 @@ class StudentGroupAssignment(models.Model):
     @property
     def days_to_expiry(self):
         return max(self.due_date - datetime.now(pytz.utc), timedelta()).days
+
+    @property
+    def link(self):
+        return reverse(
+            "group-assignment", kwargs={"assignment_hash": self.hash}
+        )
+
+    @property
+    def last_modified(self):
+        questions = self.questions
+        students = [
+            assignment.student.student.username
+            for assignment in self.studentassignment_set.iterator()
+        ]
+        return max(
+            answer.datetime_second
+            if answer.datetime_second
+            else answer.datetime_first
+            if answer.datetime_first
+            else answer.datetime_start
+            for question in questions
+            for answer in question.answer_set.filter(
+                user_token__in=students
+            ).exclude(datetime_start__isnull=True)
+        )

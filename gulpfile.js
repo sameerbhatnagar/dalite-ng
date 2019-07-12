@@ -30,6 +30,10 @@ const styleBuilds = [
     app: "quality",
     modules: ["edit"],
   },
+  {
+    app: "reputation",
+    modules: ["teacher", "header"],
+  },
 ];
 
 const scriptBuilds = [
@@ -52,6 +56,10 @@ const scriptBuilds = [
   {
     app: "quality",
     modules: ["edit"],
+  },
+  {
+    app: "reputation",
+    modules: ["teacher", "header"],
   },
 ];
 
