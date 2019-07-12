@@ -66,12 +66,12 @@ const scriptBuilds = [
 const babelConfig = {
   presets: [
     "@babel/preset-flow",
-    [
-      "@babel/env",
-      {
-        modules: false,
-      },
-    ],
+    // [
+    // "@babel/preset-env",
+    // {
+    // modules: false,
+    // },
+    // ],
   ],
   plugins: [
     "@babel/plugin-proposal-optional-chaining",
@@ -83,7 +83,6 @@ const babelConfig = {
       },
     ],
   ],
-
   exclude: "node_modules/**",
   babelrc: false,
 };
@@ -342,9 +341,11 @@ const scripts = gulp.parallel(
 );
 
 const build = gulp.parallel(styles, scripts, icons);
+const dev = gulp.series(build, watch);
 
 exports.build = build;
 exports.watch = watch;
+exports.dev = dev;
 exports.styles = styles;
 exports.scripts = scripts;
 exports.icons = icons;

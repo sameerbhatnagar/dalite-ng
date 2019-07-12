@@ -67,7 +67,6 @@ function iconView() {
 }
 
 function reputationListView() {
-  console.log(model.reputations);
   if (model.reputationListOpen) {
     document
       .querySelector(".reputation-icon")
