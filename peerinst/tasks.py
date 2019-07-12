@@ -3,8 +3,10 @@ from __future__ import absolute_import, unicode_literals
 
 import logging
 import operator
+import smtplib
 
 from celery import shared_task
+from django.core.mail import send_mail
 
 from dalite.celery import try_async
 
@@ -38,6 +40,16 @@ def update_question_meta_search_difficulty():
         assert (
             q.meta_search.filter(meta_feature__key="difficulty").count() == 1
         )
+
+
+@try_async
+@shared_task
+def send_mail_async(*args, **kwargs):
+    try:
+        send_mail(*args, **kwargs)
+    except smtplib.SMTPException:
+        err = "There was an error sending the email."
+        logger.error(err)
 
 
 @try_async

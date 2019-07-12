@@ -8,13 +8,13 @@ from operator import itemgetter
 import pytz
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.core.mail import send_mail
 from django.core.urlresolvers import reverse
 from django.db import IntegrityError, models
 from django.template import loader
 from django.utils.translation import ugettext_lazy as _
 
 from ..students import create_student_token, get_student_username_and_password
+from ..tasks import send_mail_async
 from .answer import Answer
 from .assignment import StudentGroupAssignment
 from .group import StudentGroup
@@ -174,7 +174,7 @@ class Student(models.Model):
                 context = {"signin_link": signin_link, "group": group}
 
                 if err is None:
-                    send_mail(
+                    send_mail_async(
                         subject,
                         message,
                         "noreply@myDALITE.org",
@@ -475,7 +475,7 @@ class StudentAssignment(models.Model):
                 }
 
                 if err is None:
-                    send_mail(
+                    send_mail_async(
                         subject,
                         message,
                         "noreply@myDALITE.org",
