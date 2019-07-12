@@ -14,11 +14,10 @@ from django.test import TestCase
 from django_lti_tool_provider.models import LtiUserData
 from django_lti_tool_provider.views import LTIView
 
+from peerinst.models import Answer, LtiEvent, Question, ShownRationale
+from peerinst.tests import factories
+from peerinst.util import SessionStageData
 from quality.models import UsesCriterion
-
-from ..models import Answer, LtiEvent, Question, ShownRationale
-from ..util import SessionStageData
-from . import factories
 
 
 class Grade(object):
@@ -290,7 +289,6 @@ class QuestionViewTest(QuestionViewTestCase):
             for row in response.context["answer_rows"]
             if first_choice_label in row[0]
         )
-        print(response.context)
         second_choice_row = next(
             row
             for row in response.context["answer_rows"]
