@@ -2,14 +2,10 @@ from __future__ import unicode_literals
 
 import logging
 
-from dalite.views.errors import response_400, response_403
 from django.utils.translation import ugettext_lazy as _
-from peerinst.models import (
-    Student,
-    StudentGroup,
-    StudentGroupAssignment,
-    Teacher,
-)
+
+from dalite.views.errors import response_400, response_403
+from peerinst.models import StudentGroup, StudentGroupAssignment, Teacher
 
 logger = logging.getLogger("peerinst-views")
 
@@ -112,7 +108,9 @@ def group_access_required(fct):
 
 def teacher_required(fct):
     def wrapper(req, *args, **kwargs):
-        if not Teacher.objects.filter(user=req.user).exists():
+        if hasattr(req.user, "teacher"):
+            return fct(req, *args, teacher=req.user.teacher, **kwargs)
+        else:
             return response_403(
                 req,
                 msg=_("You don't have access to this resource."),
@@ -121,16 +119,15 @@ def teacher_required(fct):
                 ),
                 log=logger.warning,
             )
-        return fct(req, *args, **kwargs)
 
     return wrapper
 
 
 def student_required(fct):
     def wrapper(req, *args, **kwargs):
-        try:
-            student = Student.objects.get(student=req.user)
-        except (Student.DoesNotExist, TypeError):
+        if hasattr(req.user, "student"):
+            return fct(req, *args, student=req.user.student, **kwargs)
+        else:
             return response_403(
                 req,
                 msg=_("You don't have access to this resource."),
@@ -139,7 +136,5 @@ def student_required(fct):
                 ),
                 log=logger.warning,
             )
-
-        return fct(req, *args, student=student, **kwargs)
 
     return wrapper
