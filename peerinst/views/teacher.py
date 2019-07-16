@@ -5,6 +5,7 @@ import logging
 from datetime import datetime
 
 import pytz
+from celery.result import AsyncResult
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.db import models
@@ -14,7 +15,7 @@ from django.utils.translation import ugettext_lazy as translate
 from django.views.decorators.http import require_POST, require_safe
 from pinax.forums.models import ForumThread
 
-from dalite.views.errors import response_400
+from dalite.views.errors import response_400, response_403
 from dalite.views.utils import get_json_params
 
 from ..models import (
@@ -23,9 +24,12 @@ from ..models import (
     AnswerAnnotation,
     Collection,
     Question,
+    StudentGroup,
+    StudentGroupAssignment,
     StudentGroupMembership,
 )
 from ..rationale_annotation import choose_rationales
+from ..tasks import compute_gradebook_async
 from .decorators import teacher_required
 
 logger = logging.getLogger("peerinst-views")
@@ -472,7 +476,7 @@ def unsubscribe_from_thread(req, teacher):
     Returns
     -------
     HttpResponse
-        Error respones of empty 200 response
+        Error response or empty 200 response
     """
     args = get_json_params(req, args=["id"])
     if isinstance(args, HttpResponse):
@@ -515,8 +519,8 @@ def evaluate_rationale(req, teacher):
 
     Returns
     -------
-    JSONResponse
-        Response with json data
+    HttpResponse
+        Error response or empty 200 response
     """
     args = get_json_params(req, args=["id", "score"])
     if isinstance(args, HttpResponse):
@@ -548,21 +552,149 @@ def evaluate_rationale(req, teacher):
     return HttpResponse("")
 
 
-@teacher_required
 @require_POST
+@teacher_required
+def request_report(req, teacher):
+    """
+    Request the generation of a report. An response containing the task id is
+    returned so the client can poll the server for the result until it's ready.
+
+    Parameters
+    ----------
+    req : HttpRequest
+        Request with:
+            parameters
+                group_id: int
+                    Primary key of the group for which the report is wanted
+            optional parameters:
+                assignment_id: int (default : None)
+                    Primary key of the assignment for which the report is
+                    wanted
+    teacher : Teacher
+        Teacher instance returned by `teacher_required`
+
+    Returns
+    -------
+    Either
+        JsonResponse
+            Response with json data if computation run asynchronously
+                {
+                    task_id: str
+                        Id corresponding to the celery task for use in polling
+                }
+            Response with json data if computation run synchronously
+                Either
+                    If group gradebook wanted
+                        {
+                            assignments: List[str]
+                                Assignment identifier
+                            school_id_needed: bool
+                                If a school id is needed
+                            results: [{
+                                school_id: Optional[str]
+                                    School id if needed
+                                email: str
+                                    Student email
+                                assignments: [{
+                                    n_completed: int
+                                        Number of completed questions
+                                    n_correct: int
+                                        Number of correct questions
+                                }]
+                            }]
+                        }
+                    If assignment gradebook wanted
+                        {
+                            questions: List[str]
+                                Question title
+                            school_id_needed: bool
+                                If a school id is needed
+                            results: [{
+                                school_id: Optional[str]
+                                    School id if needed
+                                email: str
+                                    Student email
+                                questions: List[float]
+                                    Grade for each question
+                            }]
+                        }
+        HttpResponse
+            Error response
+    """
+    args = get_json_params(req, args=["group_id"], opt_args=["assignment_id"])
+    if isinstance(args, HttpResponse):
+        return args
+    (group_pk,), (assignment_pk,) = args
+
+    try:
+        group = StudentGroup.objects.get(pk=group_pk)
+    except StudentGroup.DoesNotExist:
+        return response_400(
+            req,
+            msg=translate("The group doesn't exist."),
+            logger_msg=(
+                "Access to {} with an invalid group {}.".format(
+                    req.path, group_pk
+                )
+            ),
+            log=logger.warning,
+        )
+
+    if teacher not in group.teacher.all():
+        return response_403(
+            req,
+            msg=translate(
+                "You don't have access to this resource. You must be "
+                "registered as a teacher for the group."
+            ),
+            logger_msg=(
+                "Unauthorized access to group {} from teacher {}.".format(
+                    group.pk, teacher.pk
+                )
+            ),
+            log=logger.warning,
+        )
+
+    if (
+        assignment_pk is not None
+        and not StudentGroupAssignment.objects.filter(
+            pk=assignment_pk
+        ).exists()
+    ):
+        return response_400(
+            req,
+            msg=translate("The group or assignment don't exist."),
+            logger_msg=(
+                "Access to {} with an invalid assignment {}.".format(
+                    req.path, assignment_pk
+                )
+            ),
+            log=logger.warning,
+        )
+
+    result = compute_gradebook_async(group_pk, assignment_pk)
+
+    if isinstance(result, AsyncResult):
+        data = {"task_id": result.id}
+    else:
+        data = {"result": result}
+
+    return JsonResponse(data)
+
+
+@require_POST
+@teacher_required
 def get_report_result(req, teacher):
     """
     Returns the result of the previously asked for report. If the report isn't
     ready yet, will return a 102 response.
-
-
 
     Parameters
     ----------
     req : HttpRequest
         Request with:
             parameters:
-                task_id: int
+                task_id: str
                     Id of the celery task responsible for the report generation
                     sent with the first request for a report
     teacher : Teacher
@@ -573,9 +705,51 @@ def get_report_result(req, teacher):
     Either
         JsonResponse
             Response with json data
-                {
-                }
+                Either
+                    If group gradebook wanted
+                        {
+                            assignments: List[str]
+                                Assignment identifier
+                            school_id_needed: bool
+                                If a school id is needed
+                            results: [{
+                                school_id: Optional[str]
+                                    School id if needed
+                                email: str
+                                    Student email
+                                assignments: [{
+                                    n_completed: int
+                                        Number of completed questions
+                                    n_correct: int
+                                        Number of correct questions
+                                }]
+                            }]
+                        }
+                    If assignment gradebook wanted
+                        {
+                            questions: List[str]
+                                Question title
+                            school_id_needed: bool
+                                If a school id is needed
+                            results: [{
+                                school_id: Optional[str]
+                                    School id if needed
+                                email: str
+                                    Student email
+                                questions: List[float]
+                                    Grade for each question
+                            }]
+                        }
         HttpResponse
             Empty 102 response (Processing)
     """
-    pass
+    args = get_json_params(req, args=["task_id"])
+    if isinstance(args, HttpResponse):
+        return args
+    (task_id,), _ = args
+    result = AsyncResult(task_id)
+
+    if result.ready():
+        return JsonResponse(result.result)
+    else:
+        return HttpResponse(status_code=102)

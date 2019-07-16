@@ -5,6 +5,7 @@ import json
 from datetime import datetime
 
 import mock
+import pytest
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from pinax.forums.models import ThreadSubscription
@@ -893,3 +894,20 @@ def test_evaluate_rationale__wrong_score(client, teacher, answers):
 
     assert resp.status_code == 400
     assert AnswerAnnotation.objects.count() == n
+
+
+@pytest.mark.django_db(transaction=True)
+def test_request_report(client, teacher, group, celery_worker):
+    assert login_teacher(client, teacher)
+    group.teacher.add(teacher)
+
+    resp = client.post(
+        reverse("teacher-report--request"),
+        json.dumps({"group_id": group.pk}),
+        content_type="application/json",
+    )
+
+    assert resp.status_code == 200
+    data = json.loads(resp.content)
+    print(data)
+    assert False

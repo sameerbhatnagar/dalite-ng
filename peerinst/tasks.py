@@ -68,3 +68,63 @@ def distribute_assignment_to_students_async(student_group_assignment_pk):
             student.pk,
         )
         student.add_assignment(student_group_assignment)
+
+
+@try_async
+@shared_task
+def compute_gradebook_async(group_pk, assignment_pk):
+    """
+    Sends the compute_gradebook task to celery returning the task id.
+
+    Parameters
+    ----------
+    group_pk : int
+        Primary key of the group for which to compute the gradebook
+    assignment_pk : Optional[int] (default : None)
+        Primary key of the assignment for which to compute the gradebook
+
+    Returns
+    -------
+    Either
+        str
+            Task id if run asynchronously
+        Either
+            If run synchronously and group gradebook wanted
+                {
+                    assignments: List[str]
+                        Assignment identifier
+                    school_id_needed: bool
+                        If a school id is needed
+                    results: [{
+                        school_id: Optional[str]
+                            School id if needed
+                        email: str
+                            Student email
+                        assignments: [{
+                            n_completed: int
+                                Number of completed questions
+                            n_correct: int
+                                Number of correct questions
+                        }]
+                    }]
+                }
+            If run synchronously and assignment gradebook wanted
+                {
+                    questions: List[str]
+                        Question title
+                    school_id_needed: bool
+                        If a school id is needed
+                    results: [{
+                        school_id: Optional[str]
+                            School id if needed
+                        email: str
+                            Student email
+                        questions: List[float]
+                            Grade for each question
+                    }]
+                }
+    """
+    # Prevent circular import
+    from .gradebook import compute_gradebook
+
+    return compute_gradebook(group_pk, assignment_pk)

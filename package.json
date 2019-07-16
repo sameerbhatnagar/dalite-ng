@@ -21,6 +21,7 @@
     "@babel/core": "^7.5.4",
     "@babel/plugin-external-helpers": "^7.2.0",
     "@babel/plugin-proposal-optional-chaining": "^7.2.0",
+    "@babel/plugin-transform-async-to-generator": "^7.5.0",
     "@babel/plugin-transform-runtime": "^7.5.0",
     "@babel/preset-env": "^7.5.4",
     "@babel/preset-flow": "^7.0.0",
@@ -73,34 +74,19 @@
     "rules": {
       "strict": 0,
       "arrow-parens": "off",
-      "indent": [
-        "error",
-        2
-      ],
+      "indent": ["error", 2],
       "require-jsdoc": "off",
       "guard-for-in": "off",
-      "quotes": [
-        "error",
-        "double"
-      ],
+      "quotes": ["error", "double"],
       "spaced-comment": "off",
-      "object-curly-spacing": [
-        "error",
-        "always"
-      ]
+      "object-curly-spacing": ["error", "always"]
     }
   },
   "stylelint": {
-    "plugins": [
-      "stylelint-scss",
-      "stylelint-order"
-    ],
+    "plugins": ["stylelint-scss", "stylelint-order"],
     "extends": "stylelint-config-recommended-scss",
     "rules": {
-      "order/order": [
-        "custom-properties",
-        "declarations"
-      ],
+      "order/order": ["custom-properties", "declarations"],
       "order/properties-alphabetical-order": true,
       "no-descending-specificity": null
     }

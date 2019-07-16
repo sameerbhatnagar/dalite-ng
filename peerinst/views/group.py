@@ -10,7 +10,7 @@ from django.http import HttpResponse, JsonResponse, StreamingHttpResponse
 from django.shortcuts import render
 from django.utils.translation import ugettext
 from django.utils.translation import ugettext_lazy as _
-from django.views.decorators.http import require_http_methods
+from django.views.decorators.http import require_POST, require_safe
 
 from dalite.views.errors import response_400, response_500
 from peerinst.models import (
@@ -43,7 +43,7 @@ def validate_update_data(req):
 
 
 @login_required
-@require_http_methods(["GET"])
+@require_safe
 @group_access_required
 def group_details_page(req, group_hash, teacher, group):
 
@@ -55,7 +55,7 @@ def group_details_page(req, group_hash, teacher, group):
 
 
 @login_required
-@require_http_methods(["POST"])
+@require_POST
 @group_access_required
 def group_details_update(req, group_hash, teacher, group):
     """
@@ -121,7 +121,7 @@ def group_details_update(req, group_hash, teacher, group):
 
 
 @login_required
-@require_http_methods(["GET"])
+@require_safe
 @group_access_required
 def group_assignment_page(req, assignment_hash, teacher, group, assignment):
 
@@ -171,7 +171,7 @@ def group_assignment_page(req, assignment_hash, teacher, group, assignment):
 
 
 @login_required
-@require_http_methods(["POST"])
+@require_POST
 @group_access_required
 def group_assignment_remove(req, assignment_hash, teacher, group, assignment):
     assignment.delete()
@@ -179,7 +179,7 @@ def group_assignment_remove(req, assignment_hash, teacher, group, assignment):
 
 
 @login_required
-@require_http_methods(["POST"])
+@require_POST
 @group_access_required
 def group_assignment_update(req, assignment_hash, teacher, group, assignment):
 
@@ -196,7 +196,7 @@ def group_assignment_update(req, assignment_hash, teacher, group, assignment):
 
 
 @login_required
-@require_http_methods(["POST"])
+@require_POST
 @group_access_required
 def send_student_assignment(req, assignment_hash, teacher, group, assignment):
 
@@ -230,7 +230,7 @@ def send_student_assignment(req, assignment_hash, teacher, group, assignment):
 
 
 @login_required
-@require_http_methods(["GET"])
+@require_safe
 @group_access_required
 def get_assignment_student_progress(
     req, assignment_hash, teacher, group, assignment
@@ -241,7 +241,7 @@ def get_assignment_student_progress(
 
 
 @login_required
-@require_http_methods(["POST"])
+@require_POST
 @group_access_required
 def distribute_assignment(req, assignment_hash, teacher, group, assignment):
     """
@@ -258,7 +258,7 @@ def distribute_assignment(req, assignment_hash, teacher, group, assignment):
 
 
 @login_required
-@require_http_methods(["GET"])
+@require_safe
 @group_access_required
 def csv_gradebook(req, group_hash, teacher, group):
     """
@@ -288,7 +288,7 @@ def csv_gradebook(req, group_hash, teacher, group):
 
 
 @login_required
-@require_http_methods(["GET"])
+@require_safe
 @group_access_required
 def csv_assignment_gradebook(
     req, group_hash, assignment_hash, teacher, group, assignment

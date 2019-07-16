@@ -651,6 +651,11 @@ def teacher_patterns():
             views.teacher.unsubscribe_from_thread,
             name="teacher-page--unsubscribe-thread",
         ),
+        url(
+            r"^teacher/report/request$",
+            views.teacher.request_report,
+            name="teacher-report--request",
+        ),
     ]
 
 
