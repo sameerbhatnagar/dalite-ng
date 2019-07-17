@@ -86,6 +86,7 @@ from ..models import (
     StudentGroup,
     StudentGroupAssignment,
     Teacher,
+    Collection,
 )
 from ..util import (
     SessionStageData,
@@ -2013,6 +2014,18 @@ def teacher_toggle_favourite(request):
     else:
         return response_400(request)
 
+@login_required
+@user_passes_test(student_check, login_url="/access_denied_and_logout/")
+def teacher_toggle_follower(request):
+    print(request.POST)
+    collection = get_object_or_404(Collection, pk=request.POST.get("pk"))
+    teacher = get_object_or_404(Teacher, user=request.user)
+    if teacher not in collection.followers.all():
+        collection.followers.add(teacher)
+        return JsonResponse({"action": "added"})
+    else:
+        collection.followers.remove(teacher)
+        return JsonResponse({"action": "removed"})
 
 @login_required
 @user_passes_test(student_check, login_url="/access_denied_and_logout/")

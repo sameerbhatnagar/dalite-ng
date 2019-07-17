@@ -1,0 +1,1 @@
+{"version":3,"sources":["collection_list.scss"],"names":[],"mappings":"AAKA,WACE,iBAAkB,CACnB,4BAGC,UAAW","file":"collection.min.css","sourcesContent":["/* Load common sass variables */\n@import '../variables';\n\n\n/* Stylesheet */\n.card-icon {\n  padding-right: 8px;\n}\n\n.follower-button--following {\n  color: blue;\n\n}\n"]}

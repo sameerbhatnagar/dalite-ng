@@ -50,7 +50,9 @@ def old_patterns():
             name="question-update",
         ),
         url(
-            r"^question/delete", views.question_delete, name="question-delete"
+            r"^question/delete",
+            views.question_delete,
+            name="question-delete"
         ),
         url(
             r"^discipline/create$",
@@ -128,11 +130,7 @@ def old_patterns():
             name="question-search",
         ),
         url(r"^heartbeat/$", views.HeartBeatUrl.as_view(), name="heartbeat"),
-        url(
-            r"^collection/create$",
-            views.CollectionCreateView.as_view(),
-            name="collection-create",
-        ),
+
         # Standalone
         url(
             r"^live/access/(?P<token>[0-9A-Za-z=_-]+)/(?P<assignment_hash>[0-9A-Za-z=_-]+)$",  # noqa
@@ -605,7 +603,44 @@ def researcher_patterns():
             name="research-rationale-update-expert",
         ),
     ]
-
+def collection_patterns():
+    return [
+        url(
+            r"^collection/create/$",
+            views.CollectionCreateView.as_view(),
+            name="collection-create",
+        ),
+        url(
+            r"^collection/(?P<collection_id>[0-9]+)$",
+            views.CollectionDetailView.as_view(),
+            name="collection-detail",
+        ),
+        url(
+            r"^collection/update/(?P<collection_id>[0-9]+)$",
+            views.CollectionUpdateView.as_view(),
+            name="collection-update",
+        ),
+        url(
+            r"^collection/list/$",
+            views.CollectionListView.as_view(),
+            name="collection-list",
+        ),
+        url(
+            r"^collection/list/personal/$",
+            views.PersonalCollectionListView.as_view(),
+            name="personal-collection-list",
+        ),
+        url(
+            r"^collection/follower",
+            views.teacher_toggle_follower,
+            name="teacher-toggle-follower",
+        ),
+        url(
+            r"^collection/featured-data/$",
+            views.featured_collections,
+            name="collection-featured-data",
+        ),
+    ]
 
 urlpatterns = sum(
     [
@@ -614,6 +649,7 @@ urlpatterns = sum(
         student_patterns(),
         search_patterns(),
         researcher_patterns(),
+        collection_patterns(),
     ],
     [],
 )

@@ -19,6 +19,7 @@ class Collection(models.Model):
     )
     title = models.CharField(max_length=40)
     description = models.TextField(max_length=200)
+    private = models.BooleanField(default=False)
     image = models.ImageField(
         _("Thumbnail image"),
         blank=True,
