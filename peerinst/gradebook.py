@@ -233,12 +233,12 @@ def compute_gradebook(group_pk, assignment_pk=None):
                     "assignments": [
                         {
                             key: val
-                            for key, val in assignment.studentassignment_set.get(  # noqa
+                            for key, val in _assignment.studentassignment_set.get(  # noqa
                                 student=membership.student
                             ).results.items()
                             if key in ("n_completed", "n_correct")
                         }
-                        if assignment.studentassignment_set.filter(
+                        if _assignment.studentassignment_set.filter(
                             student=membership.student
                         ).exists()
                         else None

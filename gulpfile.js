@@ -20,7 +20,7 @@ const { uglify } = require("rollup-plugin-uglify");
 const styleBuilds = [
   {
     app: "peerinst",
-    modules: ["group", "student", "question"],
+    modules: ["group", "student", "question", "teacher"],
   },
   {
     app: "tos",
@@ -47,6 +47,7 @@ const scriptBuilds = [
       "index",
       "question",
       "teacher",
+      "custom_elements",
     ],
   },
   {
@@ -66,12 +67,13 @@ const scriptBuilds = [
 const babelConfig = {
   presets: [
     "@babel/preset-flow",
-    // [
-    // "@babel/preset-env",
-    // {
-    // modules: false,
-    // },
-    // ],
+    [
+      "@babel/preset-env",
+      {
+        modules: false,
+        exclude: ["@babel/plugin-transform-regenerator"],
+      },
+    ],
   ],
   plugins: [
     "@babel/plugin-proposal-optional-chaining",

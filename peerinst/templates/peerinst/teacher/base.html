@@ -4,13 +4,28 @@
 
 {% block stylesheets %}
 {% include 'reputation/header/styles.html' %}
+{% compress css %}
+<link href="{% static 'peerinst/css/teacher.min.css' %}" rel="stylesheet">
+{% endcompress %}
 {% endblock %}
 
 {% block scripts %}
 {% include 'reputation/header/scripts.html' %}
 {% compress js %}
 <script src="{% static 'peerinst/js/teacher.min.js' %}"></script>
+<script src="{% static 'peerinst/js/custom_elements.min.js' %}"></script>
 {% endcompress %}
+<script nonce="{{ request.csp_nonce }}">
+  window.addEventListener("load", function() {
+    teacher.initReport(
+      {
+        requestReport: "{% url 'teacher-report--request' %}",
+        reportResult: "{% url 'teacher-report--result' %}",
+        tasks: "{% url 'teacher-tasks' %}",
+      }
+    );
+  });
+</script>
 {% endblock %}
 
 {% block header-left %}
@@ -22,5 +37,8 @@
 {% block header-right %}
 <div class="header">
   {% include 'reputation/header/header.html' %}
+</div>
+<div class="header">
+  {% include 'peerinst/teacher/header/notifications.html' %}
 </div>
 {% endblock %}

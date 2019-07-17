@@ -1,0 +1,15 @@
+.report-button {
+  background: inherit;
+  border: none;
+  color: inherit;
+  font-family: inherit;
+  padding: 0;
+
+  &:active {
+    margin: 0;
+  }
+
+  & i {
+    margin: 0;
+  }
+}

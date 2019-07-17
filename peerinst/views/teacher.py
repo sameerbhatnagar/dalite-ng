@@ -24,6 +24,7 @@ from ..models import (
     AnswerAnnotation,
     Collection,
     Question,
+    RunningTask,
     StudentGroup,
     StudentGroupAssignment,
     StudentGroupMembership,
@@ -655,27 +656,35 @@ def request_report(req, teacher):
             log=logger.warning,
         )
 
-    if (
-        assignment_pk is not None
-        and not StudentGroupAssignment.objects.filter(
-            pk=assignment_pk
-        ).exists()
-    ):
-        return response_400(
-            req,
-            msg=translate("The group or assignment don't exist."),
-            logger_msg=(
-                "Access to {} with an invalid assignment {}.".format(
-                    req.path, assignment_pk
-                )
-            ),
-            log=logger.warning,
-        )
+    if assignment_pk is not None:
+        try:
+            assignment = StudentGroupAssignment.objects.get(pk=assignment_pk)
+        except StudentGroupAssignment.DoesNotExist:
+            return response_400(
+                req,
+                msg=translate("The group or assignment don't exist."),
+                logger_msg=(
+                    "Access to {} with an invalid assignment {}.".format(
+                        req.path, assignment_pk
+                    )
+                ),
+                log=logger.warning,
+            )
 
     result = compute_gradebook_async(group_pk, assignment_pk)
 
+    if assignment_pk is None:
+        description = "gradebook for group {}".format(group.name)
+    else:
+        description = "gradebook for assignment {} and group".format(
+            assignment.assignment.title, group.name
+        )
+
     if isinstance(result, AsyncResult):
         data = {"task_id": result.id}
+        task = RunningTask.objects.create(
+            id=result.id, description=description, teacher=teacher
+        )
     else:
         data = {"result": result}
 
@@ -753,3 +762,32 @@ def get_report_result(req, teacher):
         return JsonResponse(result.result)
     else:
         return HttpResponse(status_code=102)
+
+
+@require_safe
+@teacher_required
+def get_tasks(req, teacher):
+    tasks = [
+        {
+            "task_id": task.id,
+            "description": task.description,
+            "completed": AsyncResult(task.id).ready(),
+            "datetime": task.datetime.strftime("%Y-%m-%d %H:%M:%S.%f"),
+        }
+        for task in RunningTask.objects.filter(teacher=teacher).order_by(
+            "-datetime"
+        )
+    ]
+
+    tasks = [
+        {
+            "task_id": "test",
+            "description": "test",
+            "completed": False,
+            "datetime": "2019-07-17 11:16:18.000000",
+        }
+    ]
+
+    data = {"tasks": tasks}
+
+    return JsonResponse(data)
