@@ -642,6 +642,10 @@ def collection_patterns():
         ),
     ]
 
+def collection_patterns():
+    return []
+
+
 urlpatterns = sum(
     [
         old_patterns(),

@@ -22,6 +22,7 @@ from ..models import (
     Student,
     StudentAssignment,
     StudentGroup,
+    StudentGroupAssignment,
     StudentGroupMembership,
     StudentNotification,
 )
@@ -60,11 +61,11 @@ def validate_group_data(req):
         )
 
     try:
-        group_name = data["group_name"]
+        group_name = data["group_name"].strip()
         group_link = None
     except KeyError:
         try:
-            group_link = data["group_link"]
+            group_link = data["group_link"].strip()
             group_name = None
         except KeyError:
             return response_400(
@@ -234,6 +235,7 @@ def index_page(req):
     """
 
     token = req.GET.get("token")
+    group_student_id_needed = req.GET.get("group-student-id-needed", "")
 
     student, new_student = login_student(req, token)
     if isinstance(student, HttpResponse):
@@ -376,6 +378,7 @@ def index_page(req):
             "day": ugettext("day"),
             "days": ugettext("days"),
             "due_on": ugettext("Due on"),
+            "edit_student_id": ugettext("Edit student id"),
             "expired": ugettext("Expired"),
             "go_to_assignment": ugettext("Go to assignment"),
             "grade": ugettext("Grade"),
@@ -398,10 +401,17 @@ def index_page(req):
             "not_sharing": ugettext("Not sharing"),
             "sharing": ugettext("Sharing"),
             "student_id": ugettext("Student id"),
+            "student_id_needed": ugettext(
+                "You need to add your school's student id to do assignments "
+                "for this group."
+            ),
         },
     }
 
-    context = {"data": json.dumps(data)}
+    context = {
+        "data": json.dumps(data),
+        "group_student_id_needed": group_student_id_needed,
+    }
 
     return render(req, "peerinst/student/index.html", context)
 
@@ -547,9 +557,33 @@ def remove_notification(req, student):
         )
 
     try:
-        StudentNotification.objects.get(pk=notification_pk).delete()
+        notification = StudentNotification.objects.get(pk=notification_pk)
     except StudentNotification.DoesNotExist:
-        pass
+        return HttpResponse()
+
+    if notification.link == "":
+        notification.delete()
+        return HttpResponse()
+
+    # if this is a notification with a link to an assignment
+    assignment_hash = re.search(
+        r"live/access/[0-9A-Za-z=_-]+/([0-9A-Za-z=_-]+)$", notification.link
+    )
+    if assignment_hash:
+        group = StudentGroupAssignment.get(assignment_hash.group(1)).group
+        if not group.student_id_needed:
+            notification.delete()
+            return HttpResponse()
+
+        group_membership = StudentGroupMembership.objects.get(
+            student=student, group=group
+        )
+        print(group_membership.student_school_id)
+        if group_membership.student_school_id == "":
+            return HttpResponse(group.name)
+        else:
+            notification.delete()
+            return HttpResponse()
 
     return HttpResponse()
 
@@ -728,6 +762,7 @@ def get_notifications(req, student):
             for notification in student.notifications.order_by("-created_on")
         ],
         "urls": {
+            "student_page": reverse("student-page"),
             "remove_notification": reverse("student-remove-notification"),
             "remove_notifications": reverse("student-remove-notifications"),
         },

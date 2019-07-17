@@ -1,12 +1,15 @@
+// @flow
 "use strict";
 
-export function clear(node) {
+export function clear(node: HTMLElement): HTMLElement {
   while (node.hasChildNodes()) {
+    // $FlowFixMe
     node.removeChild(node.lastChild);
   }
+  return node;
 }
 
-export function formatDatetime(datetime) {
+export function formatDatetime(datetime: Date): string {
   return (
     datetime.toLocaleString("en-ca", { year: "numeric" }) +
     "-" +
@@ -20,7 +23,7 @@ export function formatDatetime(datetime) {
   );
 }
 
-export function createSvg(name) {
+export function createSvg(name: string): Element {
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
   const use = document.createElementNS("http://www.w3.org/2000/svg", "use");
   use.setAttributeNS(
@@ -34,4 +37,31 @@ export function createSvg(name) {
   );
   svg.append(use);
   return svg;
+}
+
+export function showAlert(msg: string) {
+  const fullPageBox = document.createElement("div");
+  fullPageBox.classList.add("alert-box__full-page");
+  fullPageBox.addEventListener("click", (event: MouseEvent) => {
+    event.stopPropagation();
+    fullPageBox.parentNode?.removeChild(fullPageBox);
+  });
+  document.body?.appendChild(fullPageBox);
+
+  const box = document.createElement("div");
+  box.classList.add("alert-box__box");
+  box.addEventListener("click", (event: MouseEvent) =>
+    event.stopPropagation(),
+  );
+  fullPageBox.appendChild(box);
+
+  const span = document.createElement("span");
+  span.classList.add("alert-box__msg");
+  span.textContent = msg;
+  box.appendChild(span);
+
+  const ok = document.createElement("button");
+  ok.classList.add("alert-box__btn", "mdc-button", "mdc-button--unelevated");
+  ok.textContent = "Ok";
+  box.appendChild(ok);
 }

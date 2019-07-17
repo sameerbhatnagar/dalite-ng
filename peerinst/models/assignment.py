@@ -15,6 +15,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from quality.models import Quality
 
+from ..tasks import distribute_assignment_to_students_async
 from .group import StudentGroup
 from .question import Question
 
@@ -237,12 +238,7 @@ class StudentGroupAssignment(models.Model):
             self.group.student_set.count(),
             self.pk,
         )
-
-        for student in self.group.student_set.all():
-            logger.info(
-                "Adding assignment %d for student %d", self.pk, student.pk
-            )
-            student.add_assignment(self)
+        distribute_assignment_to_students_async(self.pk)
 
     def update(self, name, value):
         """

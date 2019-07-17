@@ -14,6 +14,7 @@ function initModel(data) {
     notificationsOpen: false,
     notifications: data.notifications,
     urls: {
+      studentPage: data.urls.student_page,
       removeNotification: data.urls.remove_notification,
       removeNotifications: data.urls.remove_notifications,
     },
@@ -36,17 +37,19 @@ function markNotificationRead(notification) {
   };
   const req = buildReq(data, "post");
   fetch(url, req)
-    .then(function(resp) {
-      if (resp.ok) {
-        if (notification.link) {
-          window.location = notification.link;
-        } else {
-          model.notifications.splice(
-            model.notifications.indexOf(notification),
-            1,
-          );
-          notificationsView();
-        }
+    .then(resp => resp.text())
+    .then(groupName => {
+      if (groupName) {
+        window.location =
+          model.urls.studentPage + "?group-student-id-needed=" + groupName;
+      } else if (notification.link) {
+        window.location = notification.link;
+      } else {
+        model.notifications.splice(
+          model.notifications.indexOf(notification),
+          1,
+        );
+        notificationsView();
       }
     })
     .catch(function(err) {
