@@ -12,6 +12,7 @@ from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
 
 from quality.models import Quality
+from reputation.models import Reputation
 
 from .answer import Answer
 from .assignment import Assignment
@@ -47,6 +48,14 @@ class Teacher(models.Model):
     )
     quality = models.ForeignKey(
         Quality, blank=True, null=True, on_delete=models.SET_NULL
+    )
+    reputation = models.OneToOneField(
+        Reputation, blank=True, null=True, on_delete=models.SET_NULL
+    )
+    last_page_access = models.DateTimeField(
+        blank=True,
+        null=True,
+        help_text="Last time the teacher went on their teacher page.",
     )
 
     def get_absolute_url(self):

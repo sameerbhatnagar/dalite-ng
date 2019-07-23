@@ -30,6 +30,10 @@ const styleBuilds = [
     app: "quality",
     modules: ["edit"],
   },
+  {
+    app: "reputation",
+    modules: ["teacher", "header"],
+  },
 ];
 
 const scriptBuilds = [
@@ -44,6 +48,10 @@ const scriptBuilds = [
   {
     app: "quality",
     modules: ["edit"],
+  },
+  {
+    app: "reputation",
+    modules: ["teacher", "header"],
   },
 ];
 
@@ -136,14 +144,14 @@ function buildScript(app, module) {
       "@material/toolbar",
     ],
     plugins: [
-      eslint({
-        exclude: ["**.css"],
-      }),
-      babel(babelConfig),
       resolve({
         mainFields: ["module", "main", "browser"],
       }),
       commonjs(),
+      eslint({
+        exclude: ["**.css"],
+      }),
+      babel(babelConfig),
       uglify(),
     ],
   })
