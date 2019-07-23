@@ -6,10 +6,12 @@ import { clear, createSvg } from "../utils.js";
 /* model */
 /*********/
 
-type Notification = {
+export type Notification = {
   text: string,
   inProgress: boolean,
-  onClick: () => void,
+  error: boolean,
+  onClick: () => Promise<void>,
+  onCloseClick: () => Promise<void>,
 };
 
 let model: {
@@ -17,10 +19,10 @@ let model: {
   notifications: Array<Notification>,
 };
 
-function initModel(notifications: Array<Notification>): void {
+function initModel(): void {
   model = {
     notificationsOpen: false,
-    notifications: notifications,
+    notifications: [],
   };
 }
 
@@ -30,6 +32,11 @@ function initModel(notifications: Array<Notification>): void {
 
 function toggleNotifications(): void {
   model.notificationsOpen = !model.notificationsOpen;
+  notificationsView();
+}
+
+export function updateNotifications(notifications: Array<Notification>): void {
+  model.notifications = notifications;
   notificationsView();
 }
 
@@ -53,7 +60,9 @@ function notificationsView(): void {
   }
 
   if (model.notifications.length) {
-    badge.textContent = model.notifications.length.toString();
+    badge.textContent = model.notifications
+      .filter(notification => !notification.inProgress)
+      .length.toString();
     badge.style.display = "flex";
   } else {
     badge.textContent = "";
@@ -61,12 +70,23 @@ function notificationsView(): void {
   }
 
   clear(notificationsList);
+
   if (model.notifications.length) {
     model.notifications.map(function(notification) {
       notificationsList.appendChild(notificationView(notification));
     });
   } else {
     notificationsList.appendChild(noNotificationView());
+  }
+
+  if (model.notifications.some(notification => notification.inProgress)) {
+    document
+      .querySelector(".notifications__spinner")
+      ?.classList.add("notifications__spinner--loading");
+  } else {
+    document
+      .querySelector(".notifications__spinner")
+      ?.classList.remove("notifications__spinner--loading");
   }
 
   if (model.notificationsOpen) {
@@ -86,7 +106,18 @@ function notificationView(notification: Notification): HTMLDivElement {
     spinner.classList.add("notification__spinner");
     div.appendChild(spinner);
   } else {
-    const icon = createSvg("cloud_download");
+    let icon;
+    if (notification.error) {
+      icon = createSvg("error");
+      icon.classList.add("notification__icon--error");
+      const remove = createSvg("close");
+      remove.classList.add("notification__close");
+      remove.addEventListener("click", notification.onCloseClick);
+      div.appendChild(remove);
+    } else {
+      div.classList.add("notification--completed");
+      icon = createSvg("cloud_download");
+    }
     icon.classList.add("notification__icon");
     div.appendChild(icon);
   }
@@ -126,6 +157,7 @@ function addNotificationsOpenListener(): void {
     });
   document.body?.addEventListener("click", function(event: MouseEvent) {
     if (model.notificationsOpen) {
+      event.stopPropagation();
       toggleNotifications();
     }
   });
@@ -135,8 +167,8 @@ function addNotificationsOpenListener(): void {
 /* init */
 /********/
 
-export function init(notifications: Array<Notification>): void {
-  initModel(notifications);
+export function init(): void {
+  initModel();
   view();
   initEventListeners();
 }

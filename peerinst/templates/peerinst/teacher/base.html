@@ -17,10 +17,14 @@
 {% endcompress %}
 <script nonce="{{ request.csp_nonce }}">
   window.addEventListener("load", function() {
-    teacher.initReport(
+    teacher.initNotifications(
+    );
+    teacher.initGradebooks(
       {
-        requestReport: "{% url 'teacher-report--request' %}",
-        reportResult: "{% url 'teacher-report--result' %}",
+        requestGradebook: "{% url 'teacher-gradebook--request' %}",
+        gradebookResult: "{% url 'teacher-gradebook--result' %}",
+        removeFailedGradebook: "{% url 'teacher-gradebook--remove' %}",
+        downloadGradebook: "{% url 'teacher-gradebook--download' %}",
         tasks: "{% url 'teacher-tasks' %}",
       }
     );

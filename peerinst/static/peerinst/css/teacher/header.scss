@@ -46,12 +46,16 @@
       --spinner-ring-stroke: #{$mdc-theme-primary};
       --spinner-segment-stroke: #{lighten($mdc-theme-primary, 30%)};
       bottom: 0;
-      // display: none;
+      display: none;
       left: 0;
       position: absolute;
       right: 0;
       top: 0;
       transition: stroke 300ms;
+
+      &.notifications__spinner--loading {
+        display: block;
+      }
     }
   }
 
@@ -59,12 +63,10 @@
     align-items: center;
     background: #ffffff;
     border-radius: 20px 0 20px 20px;
-    // color: rgba(0, 0, 0, 0);
-    // display: none;
     display: grid;
     font-size: 1.1rem;
-    grid-auto-rows: minmax(50px, auto);
-    grid-template-columns: minmax(300px, 600px);
+    grid-auto-rows: 50px;
+    grid-template-columns: minmax(500px, 50%);
     padding: 20px 0;
     position: absolute;
     right: 21px;
@@ -83,25 +85,31 @@
       align-items: center;
       border-bottom: 1px solid rgba($mdc-theme-primary, 0.25);
       border-top: none;
-      cursor: pointer;
       display: grid;
-      grid-template-columns: 50px 1fr;
+      grid-template-columns: 50px 1fr 35px;
+      grid-template-rows: 1fr;
+      height: 30px;
       opacity: 0;
-      padding: 10px 20px 10px 0;
+      padding: 10px 0;
       text-align: start;
-
-      &:hover {
-        background: rgba($mdc-theme-primary, 0.25);
-        transition: background 300ms;
-      }
-
-      &:active {
-        background: rgba($mdc-theme-primary, 0.5);
-        transition: background 300ms;
-      }
+      user-select: none;
 
       &:first-child {
         border-top: 1px solid rgba($mdc-theme-primary, 0.25);
+      }
+
+      &.notification--completed {
+        cursor: pointer;
+
+        &:hover {
+          background: rgba($mdc-theme-primary, 0.25);
+          transition: background 300ms;
+        }
+
+        &:active {
+          background: rgba($mdc-theme-primary, 0.5);
+          transition: background 300ms;
+        }
       }
 
       & .notification__spinner {
@@ -114,6 +122,7 @@
 
       & .notification__description {
         grid-column: 2;
+        grid-row: 1;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
@@ -121,9 +130,34 @@
 
       & .notification__icon {
         fill: $mdc-theme-primary;
+        grid-row: 1;
         height: 25px;
         justify-self: center;
         width: 25px;
+
+        &.notification__icon--error {
+          fill: $error;
+        }
+      }
+
+      & .notification__close {
+        border-radius: 11px;
+        cursor: pointer;
+        fill: $mdc-theme-primary;
+        grid-column: 3;
+        grid-row: 1;
+        height: 20px;
+        padding: 2px;
+        transition: background 300ms;
+        width: 20px;
+
+        &:hover {
+          background: rgba(lighten($mdc-theme-primary, 10%), 0.25);
+        }
+
+        &:active {
+          background: rgba(lighten($mdc-theme-primary, 5%), 0.5);
+        }
       }
     }
   }
@@ -149,7 +183,6 @@
   }
 
   & .notifications__list {
-    // color: inherit;
     right: 0;
     top: 42px;
     transform: scale(1);
@@ -160,7 +193,3 @@
     }
   }
 }
-
-// .notifications--hidden {
-// display: none;
-// }

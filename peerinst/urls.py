@@ -652,14 +652,24 @@ def teacher_patterns():
             name="teacher-page--unsubscribe-thread",
         ),
         url(
-            r"^teacher/report/request/$",
-            views.teacher.request_report,
-            name="teacher-report--request",
+            r"^teacher/gradebook/request/$",
+            views.teacher.request_gradebook,
+            name="teacher-gradebook--request",
         ),
         url(
-            r"^teacher/report/result/$",
-            views.teacher.get_report_result,
-            name="teacher-report--result",
+            r"^teacher/gradebook/result/$",
+            views.teacher.get_gradebook_task_result,
+            name="teacher-gradebook--result",
+        ),
+        url(
+            r"^teacher/gradebook/remove/$",
+            views.teacher.remove_gradebook_task,
+            name="teacher-gradebook--remove",
+        ),
+        url(
+            r"^teacher/gradebook/download/$",
+            views.teacher.download_gradebook,
+            name="teacher-gradebook--download",
         ),
         url(
             r"^teacher/tasks/$", views.teacher.get_tasks, name="teacher-tasks"

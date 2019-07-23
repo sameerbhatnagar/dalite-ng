@@ -97,4 +97,6 @@ export function addEventListeners() {
   );
 }
 
-customElements.define("loading-spinner", LoadingSpinner);
+if (!customElements.get("loading-spinner")) {
+  customElements.define("loading-spinner", LoadingSpinner);
+}

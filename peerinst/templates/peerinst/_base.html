@@ -39,16 +39,6 @@
 </head>
 
 <body>
-  <!-- Language selection -->
-  <form id="switchLanguage" action="{% url 'set_language' %}" method="post">
-    {% csrf_token %}
-    <input name="next" type="hidden" value={{ request.path|slice:"3:"|urlencode }}>
-    <input name="language" type="hidden" value={% if LANGUAGE_CODE == 'en' %}fr{% else %}en{% endif %}>
-  </form>
-
-  <svg id="corner" class="corner" width=35 height=35></svg>
-
-  <!-- Custom header for local instance -->
   <header>
     <div id="header-left">
       {% block header-left %}{% endblock %}
@@ -76,9 +66,20 @@
     <div id="header-right">
       {% block header-right %}{% endblock %}
     </div>
+    <div id="header-background"></div>
   </header>
 
   <div class="site-content">
+    <form id="switchLanguage" action="{% url 'set_language' %}" method="post">
+      {% csrf_token %}
+      <input name="next"
+             type="hidden"
+             value={{ request.path|slice:"3:"|urlencode }}>
+      <input name="language"
+             type="hidden"
+             value={% if LANGUAGE_CODE == 'en' %}fr{% else %}en{% endif %}>
+    </form>
+    <svg id="corner" class="corner" width=35 height=35></svg>
     {% block body %}{% endblock %}
   </div>
 

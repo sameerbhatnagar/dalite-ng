@@ -163,6 +163,8 @@ def compute_gradebook(group_pk, assignment_pk=None):
     Either
         If group gradebook wanted
             {
+                group: str
+                    Title of the group
                 assignments: List[str]
                     Assignment identifier
                 school_id_needed: bool
@@ -173,15 +175,19 @@ def compute_gradebook(group_pk, assignment_pk=None):
                     email: str
                         Student email
                     assignments: [{
-                        n_completed: int
+                        n_completed: Optional[int]
                             Number of completed questions
-                        n_correct: int
+                        n_correct: Optional[int]
                             Number of correct questions
                     }]
                 }]
             }
         If assignment gradebook wanted
             {
+                group: str
+                    Title of the group
+                assignment: str
+                    Title of the assignment
                 questions: List[str]
                     Question title
                 school_id_needed: bool
@@ -191,7 +197,7 @@ def compute_gradebook(group_pk, assignment_pk=None):
                         School id if needed
                     email: str
                         Student email
-                    questions: List[float]
+                    questions: List[Optional[float]]
                         Grade for each question
                 }]
             }
@@ -219,6 +225,7 @@ def compute_gradebook(group_pk, assignment_pk=None):
             distribution_date__isnull=False
         ).order_by("distribution_date")
         results = {
+            "group": group.title,
             "assignments": [
                 _assignment.assignment.identifier
                 for _assignment in assignments
@@ -253,6 +260,8 @@ def compute_gradebook(group_pk, assignment_pk=None):
         answers = Answer.objects.filter(assignment=assignment.assignment)
         questions = assignment.questions
         results = {
+            "group": group.title,
+            "assignment": assignment.assignment.title,
             "questions": [question.title for question in questions],
             "school_id_needed": group.student_id_needed,
             "results": [
@@ -278,3 +287,106 @@ def compute_gradebook(group_pk, assignment_pk=None):
             ],
         }
     return results
+
+
+def convert_gradebook_to_csv(results):
+    """
+    Converts the gradebook results to a csv generator.
+    Parameters
+    ----------
+    results : Dict[str, Any]
+        Either
+            If group gradebook
+                {
+                    group: str
+                        Title of the group
+                    assignments: List[str]
+                        Assignment identifier
+                    school_id_needed: bool
+                        If a school id is needed
+                    results: [{
+                        school_id: Optional[str]
+                            School id if needed
+                        email: str
+                            Student email
+                        assignments: [{
+                            n_completed: Optional[int]
+                                Number of completed questions
+                            n_correct: Optional[int]
+                                Number of correct questions
+                        }]
+                    }]
+                }
+            If assignment gradebook
+                {
+                    group: str
+                        Title of the group
+                    assignment: str
+                        Title of the assignment
+                    questions: List[str]
+                        Question title
+                    school_id_needed: bool
+                        If a school id is needed
+                    results: [{
+                        school_id: Optional[str]
+                            School id if needed
+                        email: str
+                            Student email
+                        questions: List[Optional[float]]
+                            Grade for each question
+                    }]
+                }
+
+    Returns
+    -------
+    Iterator[str]
+        First call:
+            column names
+        Other calls:
+            each row of the csv
+    """
+    pseudo_buffer = Echo()
+    writer = csv.writer(pseudo_buffer)
+
+    if "assignment" in results:
+        header = (
+            (["Student ID"] if results["school_id_needed"] else [])
+            + ["Student Email"]
+            + results["questions"]
+        )
+        yield writer.writerow(header)
+
+        for student in results["results"]:
+            row = (
+                ([student["school_id"]] if results["school_id_needed"] else [])
+                + [student["email"]]
+                + [
+                    "-" if question is None else question
+                    for question in student["questions"]
+                ]
+            )
+            yield writer.writerow(row)
+
+    else:
+        header = (
+            (["Student ID"] if results["school_id_needed"] else [])
+            + ["Student Email"]
+            + [
+                "{} - {}".format(n, assignment)
+                for assignment in results["assignments"]
+                for n in ("n_correct", "n_completed")
+            ]
+        )
+        yield writer.writerow(header)
+
+        for student in results["results"]:
+            row = (
+                ([student["school_id"]] if results["school_id_needed"] else [])
+                + [student["email"]]
+                + [
+                    "-" if assignment[n] is None else str(assignment[n])
+                    for assignment in student["assignments"]
+                    for n in ("n_correct", "n_completed")
+                ]
+            )
+            yield writer.writerow(row)

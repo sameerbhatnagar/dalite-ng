@@ -45,7 +45,15 @@ section {
   padding-right: 20px;
 }
 .site-content {
-  margin: 20pt;
+  bottom: 0;
+  left: 0;
+  overflow: auto;
+  padding: 70px 20px 20px 20px;
+  padding: 20pt;
+  position: fixed;
+  right: 0;
+  top: 50px;
+  z-index: -1;
 }
 p {
   margin: 0.25em 0;
@@ -96,19 +104,39 @@ body {
 }
 header {
   align-items: center;
-  background-image: linear-gradient(
-    90deg,
-    $mdc-theme-primary 0%,
-    $mdc-theme-secondary 100%
-  );
+  background: #ffffff;
   color: white;
-  // width: 100%;
   display: flex;
   flex-direction: row;
-  // padding: 7px 10px;
   font-size: 18pt;
+  height: 50px;
   justify-content: space-between;
-  padding: 4pt;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 1;
+
+  & * {
+    z-index: 1;
+  }
+
+  & aside nav {
+    z-index: 2;
+  }
+
+  & #header-background {
+    background-image: linear-gradient(
+      90deg,
+      $mdc-theme-primary 0%,
+      $mdc-theme-secondary 100%
+    );
+    bottom: 0;
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+    z-index: 0;
+  }
 }
 header a {
   color: white;
@@ -250,10 +278,10 @@ h1 {
 }
 
 .corner {
-  bottom: 0%;
+  bottom: 0;
   cursor: pointer;
   position: fixed;
-  right: 0%;
+  right: 0;
 }
 
 a {
@@ -719,7 +747,7 @@ div.input-ripple-wrapper input {
     max-width: 100%;
   }
   .site-content {
-    margin: 2pt;
+    margin: 2px;
   }
   .rationales {
     margin-left: 20px;
