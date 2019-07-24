@@ -139,10 +139,10 @@ async function getGradebookResult(task: Task): Promise<void> {
 
   const resp = await fetch(url, req);
 
-  if (resp.ok) {
+  if (resp.status == 200) {
     task.completed = true;
     updateNotifications(getNotifications());
-  } else if (resp.status == 102) {
+  } else if (resp.status == 202) {
     await new Promise(resolve =>
       setTimeout(() => getGradebookResult(task), CHECK_EVERY * 1000),
     );

@@ -703,7 +703,7 @@ def request_gradebook(req, teacher):
 @teacher_required
 def get_gradebook_task_result(req, teacher):
     """
-    Returns a 200 response if the gradebook is ready. If not, will return a 102
+    Returns a 200 response if the gradebook is ready. If not, will return a 202
     response.
 
     Parameters
@@ -722,7 +722,7 @@ def get_gradebook_task_result(req, teacher):
     HttpResponse
         Either
             Empty 200 response (task done)
-            Empty 102 response (processing)
+            Empty 202 response (accepted, still processing)
             Empty 500 response (error)
     """
     args = get_json_params(req, args=["task_id"])
@@ -735,7 +735,7 @@ def get_gradebook_task_result(req, teacher):
         if result.ready():
             return HttpResponse("", status=200)
         else:
-            return HttpResponse("", status=102)
+            return HttpResponse("", status=202)
     except AttributeError:
         return response_500(
             req,

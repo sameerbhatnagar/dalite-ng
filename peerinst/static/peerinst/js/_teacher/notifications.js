@@ -59,10 +59,11 @@ function notificationsView(): void {
     return;
   }
 
-  if (model.notifications.length) {
-    badge.textContent = model.notifications
-      .filter(notification => !notification.inProgress)
-      .length.toString();
+  const completedNotifications = model.notifications.filter(
+    notification => !notification.inProgress,
+  );
+  if (completedNotifications.length > 0) {
+    badge.textContent = completedNotifications.length.toString();
     badge.style.display = "flex";
   } else {
     badge.textContent = "";
