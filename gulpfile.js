@@ -144,14 +144,14 @@ function buildScript(app, module) {
       "@material/toolbar",
     ],
     plugins: [
-      resolve({
-        mainFields: ["module", "main", "browser"],
-      }),
-      commonjs(),
       eslint({
         exclude: ["**.css"],
       }),
       babel(babelConfig),
+      resolve({
+        mainFields: ["module", "main", "browser"],
+      }),
+      commonjs(),
       uglify(),
     ],
   })
