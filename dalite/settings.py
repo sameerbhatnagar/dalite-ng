@@ -7,8 +7,10 @@ https://docs.djangoproject.com/en/1.8/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.8/ref/settings/
 """
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
+
+# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+import sys
 
 from security_headers.settings import *  # noqa
 
@@ -407,12 +409,19 @@ CSP_FONT_SRC = [
 # External framing
 FRAMING_ALLOWED_FROM = ["*"]
 
-CSRF_COOKIE_SECURE = not DEBUG
-SECURE_SSL_REDIRECT = not DEBUG
-SESSION_COOKIE_SECURE = not DEBUG
-
 CSP_INCLUDE_NONCE_IN = []
 
+if "runsslserver" in sys.argv:
+    SSL_CONTEXT = True
+else:
+    SSL_CONTEXT = False
+
+CSRF_COOKIE_SECURE = SSL_CONTEXT
+SECURE_SSL_REDIRECT = SSL_CONTEXT
+SESSION_COOKIE_SECURE = SSL_CONTEXT
+
+SECURE_HSTS_SECONDS = 60 * 60 * 24 * 365
+REFERRER_POLICY = "no-referrer, strict-origin-when-cross-origin"
 
 try:
     from .local_settings import *  # noqa F403
