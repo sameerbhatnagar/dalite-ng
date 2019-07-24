@@ -42,7 +42,6 @@ const scriptBuilds = [
     modules: [
       "group",
       "student",
-      "ajax",
       "search",
       "index",
       "question",

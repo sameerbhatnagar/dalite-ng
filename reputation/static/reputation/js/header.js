@@ -1,7 +1,7 @@
 "use strict";
 
-import { buildReq } from "../../../../peerinst/static/peerinst/js/_ajax/utils.js"; // eslint-disable-line
-import { clear } from "../../../../peerinst/static/peerinst/js/utils.js"; // eslint-disable-line
+import { buildReq } from "../../../../peerinst/static/peerinst/js/ajax.js";
+import { clear } from "../../../../peerinst/static/peerinst/js/utils.js";
 
 /*********/
 /* model */

@@ -1,4 +1,4 @@
-import { buildReq } from "../_ajax/utils.js";
+import { buildReq } from "../ajax.js";
 import { clear } from "../utils.js";
 
 /**********/
