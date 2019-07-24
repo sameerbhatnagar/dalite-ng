@@ -1,14 +1,7 @@
 export function getCsrfToken() {
-  const name = "csrftoken";
-  if (document.cookie && document.cookie !== "") {
-    return document.cookie
-      .split(";")
-      .map(c => c.trim())
-      .filter(c => c.substring(0, name.length + 1) === name + "=")
-      .map(c => decodeURIComponent(c.substring(name.length + 1)))[0];
-  } else {
-    return null;
-  }
+  return document
+    .getElementsByName("csrfmiddlewaretoken")[0]
+    .getAttribute("value");
 }
 
 export function buildReq(data, method) {
@@ -29,6 +22,7 @@ export function buildReq(data, method) {
         "Content-Type": "application/json",
         "X-CSRFToken": getCsrfToken(),
       },
+      credentials: "same-origin",
     };
   } else {
     throw Error(`Method ${method} not implemented yet.`);
