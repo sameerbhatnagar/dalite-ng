@@ -35,7 +35,6 @@ INSTALLED_APPS = (
     "password_validation",
     "csp",
     "security_headers",
-    "sslserver",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
