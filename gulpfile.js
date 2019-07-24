@@ -308,10 +308,6 @@ function watch() {
     proxy: "localhost:8000",
     notify: false,
     open: false,
-    https: {
-      key: "./localhost.key",
-      cert: "./localhost.crt",
-    },
   });
   gulp.watch("./peerinst/static/peerinst/css/*.scss", stylesPeerinstMain);
   gulp.watch("./peerinst/static/pinax/forums/css/*.scss", stylesPeerinstPinax);
