@@ -62,6 +62,7 @@ const babelConfig = {
       "@babel/env",
       {
         modules: false,
+        exclude: ["@babel/plugin-transform-regenerator"],
       },
     ],
   ],
