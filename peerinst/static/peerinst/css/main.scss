@@ -45,15 +45,7 @@ section {
   padding-right: 20px;
 }
 .site-content {
-  bottom: 0;
-  left: 0;
-  overflow: auto;
-  padding: 70px 20px 20px 20px;
-  padding: 20pt;
-  position: fixed;
-  right: 0;
-  top: 50px;
-  z-index: -1;
+  margin: 20pt;
 }
 p {
   margin: 0.25em 0;
@@ -109,17 +101,12 @@ header {
   display: flex;
   flex-direction: row;
   font-size: 18pt;
-  height: 50px;
   justify-content: space-between;
-  position: fixed;
-  top: 0;
-  width: 100%;
-  z-index: 1;
+  position: relative;
 
   & * {
     z-index: 1;
   }
-
   & aside nav {
     z-index: 2;
   }
@@ -136,6 +123,10 @@ header {
     right: 0;
     top: 0;
     z-index: 0;
+  }
+
+  & .mdc-toolbar {
+    height: auto;
   }
 }
 header a {

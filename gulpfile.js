@@ -20,7 +20,7 @@ const { uglify } = require("rollup-plugin-uglify");
 const styleBuilds = [
   {
     app: "peerinst",
-    modules: ["group", "student", "question", "teacher"],
+    modules: ["group", "student", "question", "teacher", "layout"],
   },
   {
     app: "tos",

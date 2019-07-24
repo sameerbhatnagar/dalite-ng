@@ -38,7 +38,7 @@
   {% block stylesheets %}{% endblock %}
 </head>
 
-<body>
+<body {% block logged_in_layout_class %}{% endblock %} >
   <header>
     <div id="header-left">
       {% block header-left %}{% endblock %}
@@ -81,9 +81,9 @@
     </form>
     <svg id="corner" class="corner" width=35 height=35></svg>
     {% block body %}{% endblock %}
-  </div>
 
   {% block footer %}{% endblock %}
+  </div>
 
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
 

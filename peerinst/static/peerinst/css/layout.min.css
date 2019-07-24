@@ -1,0 +1,5 @@
+.logged-in-layout .site-content{bottom:0;left:0;margin:0;overflow:auto;padding:50px 20px 20px 20px;position:fixed;right:0;top:0;z-index:-1}
+
+.logged-in-layout header{height:50px;position:fixed;top:0;width:100%;z-index:1}.logged-in-layout header #header-background{background-image:linear-gradient(90deg, #54c0db 0%, #004266 100%);bottom:0;left:0;position:absolute;right:0;top:0;z-index:0}
+
+/*# sourceMappingURL=layout.min.css.map */

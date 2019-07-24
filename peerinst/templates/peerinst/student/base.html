@@ -5,6 +5,7 @@
 {% block stylesheets %}
 {% compress css %}
 <link href="{% static 'peerinst/css/student.min.css' %}" rel="stylesheet">
+<link href="{% static 'peerinst/css/layout.min.css' %}" rel="stylesheet">
 {% endcompress %}
 {% endblock %}
 
@@ -19,6 +20,10 @@
   });
 </script>
 {% endcompress %}
+{% endblock %}
+
+{% block logged_in_layout_class %}
+class="logged-in-layout"
 {% endblock %}
 
 {% block header-left %}

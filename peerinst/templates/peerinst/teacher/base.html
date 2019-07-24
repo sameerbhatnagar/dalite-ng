@@ -6,6 +6,7 @@
 {% include 'reputation/header/styles.html' %}
 {% compress css %}
 <link href="{% static 'peerinst/css/teacher.min.css' %}" rel="stylesheet">
+<link href="{% static 'peerinst/css/layout.min.css' %}" rel="stylesheet">
 {% endcompress %}
 {% endblock %}
 
@@ -30,6 +31,10 @@
     );
   });
 </script>
+{% endblock %}
+
+{% block logged_in_layout_class %}
+class="logged-in-layout"
 {% endblock %}
 
 {% block header-left %}
