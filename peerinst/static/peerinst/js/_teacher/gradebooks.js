@@ -1,5 +1,5 @@
 // @flow
-import { buildReq } from "../_ajax/utils.js";
+import { buildReq } from "../ajax.js";
 import { updateNotifications } from "./notifications.js";
 import type { Notification } from "./notifications.js";
 
