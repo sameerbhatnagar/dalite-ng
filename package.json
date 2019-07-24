@@ -18,19 +18,20 @@
   },
   "homepage": "https://github.com/SALTISES4/dalite-ng#readme",
   "devDependencies": {
-    "@babel/core": "^7.4.5",
+    "@babel/core": "^7.5.5",
     "@babel/plugin-external-helpers": "^7.2.0",
     "@babel/plugin-proposal-optional-chaining": "^7.2.0",
-    "@babel/plugin-transform-runtime": "^7.4.4",
-    "@babel/preset-env": "^7.4.5",
+    "@babel/plugin-transform-async-to-generator": "^7.5.0",
+    "@babel/plugin-transform-runtime": "^7.5.5",
+    "@babel/preset-env": "^7.5.5",
     "@babel/preset-flow": "^7.0.0",
-    "autoprefixer": "^9.6.0",
+    "autoprefixer": "^9.6.1",
     "babel-eslint": "^10.0.2",
     "browser-sync": "^2.26.7",
-    "d3": "^5.9.2",
-    "eslint": "^5.16.0",
+    "d3": "^5.9.7",
+    "eslint": "^6.1.0",
     "eslint-config-google": "^0.13.0",
-    "flow-bin": "^0.102.0",
+    "flow-bin": "^0.103.0",
     "gulp": "^4.0.2",
     "gulp-cli": "^2.2.0",
     "gulp-concat": "^2.6.1",
@@ -43,24 +44,24 @@
     "material-components-web": "^0.34.1",
     "merge-stream": "^2.0.0",
     "postcss": "^7.0.17",
-    "rollup": "^1.15.6",
-    "rollup-plugin-babel": "^4.3.2",
+    "rollup": "^1.17.0",
+    "rollup-plugin-babel": "^4.3.3",
     "rollup-plugin-commonjs": "^8.4.1",
-    "rollup-plugin-eslint": "^6.0.0",
+    "rollup-plugin-eslint": "^7.0.0",
     "rollup-plugin-node-resolve": "^4.2.4",
     "rollup-plugin-uglify": "^6.0.2",
     "rollup-stream": "^1.24.1",
-    "sass": "^1.21.0",
+    "sass": "^1.22.7",
     "stylelint": "^10.1.0",
     "stylelint-config-recommended": "^2.2.0",
     "stylelint-config-recommended-scss": "^3.3.0",
-    "stylelint-order": "^3.0.0",
-    "stylelint-scss": "^3.8.0",
+    "stylelint-order": "^3.0.1",
+    "stylelint-scss": "^3.9.2",
     "vinyl-buffer": "^1.0.1",
     "vinyl-source-stream": "^2.0.0"
   },
   "dependencies": {
-    "@babel/runtime": "^7.4.5"
+    "@babel/runtime": "^7.5.5"
   },
   "prettier": {
     "printWidth": 79,
@@ -73,19 +74,34 @@
     "rules": {
       "strict": 0,
       "arrow-parens": "off",
-      "indent": ["error", 2],
+      "indent": [
+        "error",
+        2
+      ],
       "require-jsdoc": "off",
       "guard-for-in": "off",
-      "quotes": ["error", "double"],
+      "quotes": [
+        "error",
+        "double"
+      ],
       "spaced-comment": "off",
-      "object-curly-spacing": ["error", "always"]
+      "object-curly-spacing": [
+        "error",
+        "always"
+      ]
     }
   },
   "stylelint": {
-    "plugins": ["stylelint-scss", "stylelint-order"],
+    "plugins": [
+      "stylelint-scss",
+      "stylelint-order"
+    ],
     "extends": "stylelint-config-recommended-scss",
     "rules": {
-      "order/order": ["custom-properties", "declarations"],
+      "order/order": [
+        "custom-properties",
+        "declarations"
+      ],
       "order/properties-alphabetical-order": true,
       "no-descending-specificity": null
     }
