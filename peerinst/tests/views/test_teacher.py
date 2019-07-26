@@ -902,7 +902,7 @@ def test_request_gradebook(client, teacher, group, celery_worker):
     group.teacher.add(teacher)
 
     resp = client.post(
-        reverse("teacher-report--gradebook"),
+        reverse("teacher-gradebook--request"),
         json.dumps({"group_id": group.pk}),
         content_type="application/json",
     )
