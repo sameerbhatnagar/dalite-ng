@@ -1,5 +1,4 @@
-"use strict";
-import { buildReq } from "../_ajax/utils.js";
+import { buildReq } from "../ajax.js";
 
 export function removeAssignment(event, url) {
   event.stopPropagation();
