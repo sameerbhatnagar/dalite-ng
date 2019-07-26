@@ -3,6 +3,7 @@
 {% load staticfiles compress i18n %}
 
 {% block stylesheets %}
+{{ block.super }}
 {% compress css %}
 <link href="{% static 'peerinst/css/search.min.css' %}" rel="stylesheet">
 {% endcompress %}
@@ -104,6 +105,7 @@
 {% endblock %}
 
 {% block scripts %}
+{{ block.super }}
 <script src="{% static 'peerinst/js/search.min.js' %}"></script>
 {% compress js inline %}
 <script nonce="{{ request.csp_nonce }}">
@@ -113,7 +115,7 @@ bundle.toggleAnswers();
 $.ajaxSetup({
     beforeSend: function(xhr, settings) {
         if (!bundle.csrfSafeMethod(settings.type) && !this.crossDomain) {
-            xhr.setRequestHeader("X-CSRFToken", bundle.getCookie('csrftoken'));
+            xhr.setRequestHeader("X-CSRFToken", bundle.getCsrfToken());
         }
     }
 });

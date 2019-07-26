@@ -62,6 +62,7 @@
 {% endblock %}
 
 {% block scripts %}
+{{ block.super }}
 <script nonce="{{ request.csp_nonce }}">
 function reset(){
   location="{% url 'blink-reset' pk=object.pk %}"

@@ -3,6 +3,7 @@
 {% load compress staticfiles add_class i18n %}
 
 {% block stylesheets %}
+{{ block.super }}
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <style nonce="{{ request.csp_nonce }}">
@@ -104,6 +105,7 @@
 {% endblock %}
 
 {% block scripts %}
+{{ block.super }}
 <script nonce="{{ request.csp_nonce }}">
 $("#create-group-assignment").submit(function(event) {
   event.preventDefault();

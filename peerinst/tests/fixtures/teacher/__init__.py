@@ -1,4 +1,4 @@
-__all__ = ["login_teacher", "teacher"]
+__all__ = ["login_teacher", "teacher", "teachers"]
 
-from .fixtures import teacher
+from .fixtures import teacher, teachers
 from .utils import login_teacher

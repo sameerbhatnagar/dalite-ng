@@ -652,6 +652,49 @@ def collection_patterns():
     ]
 
 
+def teacher_patterns():
+    return [
+        url(
+            r"^teacher/page/$", views.teacher.teacher_page, name="teacher-page"
+        ),
+        url(
+            r"^teacher/page/new-questions/$",
+            views.teacher.new_questions,
+            name="teacher-page--new-questions",
+        ),
+        url(
+            r"^teacher/page/student-activity/$",
+            views.teacher.student_activity,
+            name="teacher-page--student-activity",
+        ),
+        url(
+            r"^teacher/page/rationales/evaluate$",
+            views.teacher.evaluate_rationale,
+            name="teacher-page--evaluate-rationale",
+        ),
+        url(
+            r"^teacher/page/rationales/$",
+            views.teacher.rationales_to_score,
+            name="teacher-page--rationales",
+        ),
+        url(
+            r"^teacher/page/collections/$",
+            views.teacher.collections,
+            name="teacher-page--collections",
+        ),
+        url(
+            r"^teacher/page/messages/$",
+            views.teacher.messages,
+            name="teacher-page--messages",
+        ),
+        url(
+            r"^teacher/page/unsubscribe-thread/$",
+            views.teacher.unsubscribe_from_thread,
+            name="teacher-page--unsubscribe-thread",
+        ),
+    ]
+
+
 urlpatterns = sum(
     [
         old_patterns(),
@@ -660,6 +703,7 @@ urlpatterns = sum(
         search_patterns(),
         researcher_patterns(),
         collection_patterns(),
+        teacher_patterns(),
     ],
     [],
 )

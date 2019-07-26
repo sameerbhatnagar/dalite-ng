@@ -1,6 +1,5 @@
-"use strict";
-
-import { buildReq } from "../_ajax/utils.js";
+// @flow
+import { buildReq } from "../ajax.js";
 import { clear } from "../utils.js";
 
 /*********/

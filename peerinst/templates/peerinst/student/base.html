@@ -1,4 +1,4 @@
-{% extends 'peerinst/base.html' %}
+{% extends 'peerinst/_base.html' %}
 
 {% load compress staticfiles i18n %}
 
@@ -19,4 +19,18 @@
   });
 </script>
 {% endcompress %}
+{% endblock %}
+
+{% block header-left %}
+<div class="header">
+    {% include 'peerinst/student/header/menu.html' %}
+</div>
+{% endblock %}
+
+{% block header-right %}
+{% if not request.session.LTI %}
+<div class="header">
+  {% include 'peerinst/student/header/notifications.html' %}
+</div>
+{% endif %}
 {% endblock %}

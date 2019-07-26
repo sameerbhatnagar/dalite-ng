@@ -662,6 +662,10 @@ class StudentAssignment(models.Model):
             "grade": sum(map(itemgetter("grade"), results)),
         }
 
+    @property
+    def grade(self):
+        return sum(map(itemgetter("grade"), self.detailed_results))
+
 
 class StudentNotificationType(models.Model):
     type = models.CharField(max_length=32, unique=True)

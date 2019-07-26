@@ -13,7 +13,7 @@ from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.utils.translation import ugettext
 from django.utils.translation import ugettext_lazy as _
-from django.views.decorators.http import require_http_methods
+from django.views.decorators.http import require_POST, require_safe
 
 from dalite.views.errors import response_400, response_403
 from tos.models import Consent
@@ -227,7 +227,7 @@ def login_student(req, token=None):
     return student, new_student
 
 
-@require_http_methods(["GET"])
+@require_safe
 def index_page(req):
     """
     Main student page. Accessed through a link sent by email containing
@@ -417,7 +417,7 @@ def index_page(req):
 
 
 @student_required
-@require_http_methods(["POST"])
+@require_POST
 def join_group(req, student):
     group = validate_group_data(req)
     if isinstance(group, HttpResponse):
@@ -486,7 +486,7 @@ def join_group(req, student):
 
 
 @student_required
-@require_http_methods(["POST"])
+@require_POST
 def leave_group(req, student):
     group = validate_group_data(req)
     if isinstance(group, HttpResponse):
@@ -498,7 +498,7 @@ def leave_group(req, student):
 
 
 @student_required
-@require_http_methods(["POST"])
+@require_POST
 def toggle_group_notifications(req, student):
     group = validate_group_data(req)
     if isinstance(group, HttpResponse):
@@ -517,7 +517,7 @@ def toggle_group_notifications(req, student):
 
 
 @student_required
-@require_http_methods(["POST"])
+@require_POST
 def remove_notification(req, student):
     """
     Removes the notification with the pk given as post value.
@@ -589,7 +589,7 @@ def remove_notification(req, student):
 
 
 @student_required
-@require_http_methods(["POST"])
+@require_POST
 def remove_notifications(req, student):
     """
     Removes all notifications for the student.
@@ -612,7 +612,7 @@ def remove_notifications(req, student):
 
 
 @student_required
-@require_http_methods(["POST"])
+@require_POST
 def update_student_id(req, student):
     """
     Updates the student id.
@@ -693,12 +693,12 @@ def update_student_id(req, student):
     return JsonResponse(data)
 
 
-@require_http_methods(["GET"])
+@require_safe
 def login_page(req):
     return render(req, "peerinst/student/login.html")
 
 
-@require_http_methods(["POST"])
+@require_POST
 def send_signin_link(req):
     try:
         email = req.POST["email"].lower()
@@ -734,7 +734,7 @@ def send_signin_link(req):
 
 
 @student_required
-@require_http_methods(["GET"])
+@require_safe
 def get_notifications(req, student):
     """
     Returns the notification data for the current student.
@@ -768,3 +768,11 @@ def get_notifications(req, student):
         },
     }
     return JsonResponse(data)
+
+
+@student_required
+@require_safe
+def student_page(req, student):
+    context = {}
+
+    return render(req, "peerinst/student/page.html", context)

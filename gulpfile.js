@@ -30,12 +30,16 @@ const styleBuilds = [
     app: "quality",
     modules: ["edit"],
   },
+  {
+    app: "reputation",
+    modules: ["teacher", "header"],
+  },
 ];
 
 const scriptBuilds = [
   {
     app: "peerinst",
-    modules: ["group", "student", "ajax", "search", "index", "question", "collection"],
+    modules: ["group", "student", "search", "index", "question", "collection"],
   },
   {
     app: "tos",
@@ -44,6 +48,10 @@ const scriptBuilds = [
   {
     app: "quality",
     modules: ["edit"],
+  },
+  {
+    app: "reputation",
+    modules: ["teacher", "header"],
   },
 ];
 
@@ -54,6 +62,7 @@ const babelConfig = {
       "@babel/env",
       {
         modules: false,
+        exclude: ["@babel/plugin-transform-regenerator"],
       },
     ],
   ],

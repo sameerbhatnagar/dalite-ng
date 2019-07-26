@@ -7,7 +7,6 @@ https://docs.djangoproject.com/en/1.8/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.8/ref/settings/
 """
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 
 from security_headers.settings import *  # noqa
@@ -27,6 +26,7 @@ DEV_PORT = 8000  # port used during development
 # Application definition
 
 INSTALLED_APPS = (
+    "reputation",
     "quality",
     "tos",
     "peerinst",
@@ -51,6 +51,7 @@ MIDDLEWARE = (
     "django.middleware.security.SecurityMiddleware",
     "csp.middleware.CSPMiddleware",
     "security_headers.middleware.extra_security_headers_middleware",
+    "django_cookies_samesite.middleware.CookiesSameSite",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.locale.LocaleMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -254,6 +255,18 @@ LOGGING = {
             "formatter": "complete",
             "stream": "ext://sys.stdout",
         },
+        "reputation_file_log": {
+            "level": "DEBUG" if DEBUG else "INFO",
+            "class": "logging.FileHandler",
+            "formatter": "complete",
+            "filename": os.path.join(BASE_DIR, "log", "reputation.log"),
+        },
+        "reputation_console_log": {
+            "level": "DEBUG" if DEBUG else "INFO",
+            "class": "logging.StreamHandler",
+            "formatter": "complete",
+            "stream": "ext://sys.stdout",
+        },
     },
     "loggers": {
         "django.request": {
@@ -313,6 +326,11 @@ LOGGING = {
         },
         "quality": {
             "handlers": ["quality_file_log", "quality_console_log"],
+            "level": "DEBUG" if DEBUG else "INFO",
+            "propagate": True,
+        },
+        "reputation": {
+            "handlers": ["reputation_file_log", "reputation_console_log"],
             "level": "DEBUG" if DEBUG else "INFO",
             "propagate": True,
         },
@@ -389,12 +407,12 @@ CSP_FONT_SRC = [
 # External framing
 FRAMING_ALLOWED_FROM = ["*"]
 
-CSRF_COOKIE_SECURE = not DEBUG
-SECURE_SSL_REDIRECT = not DEBUG
-SESSION_COOKIE_SECURE = not DEBUG
-
 CSP_INCLUDE_NONCE_IN = []
 
+CSRF_COOKIE_HTTPONLY = True
+
+SECURE_HSTS_SECONDS = 60 * 60 * 24 * 365
+REFERRER_POLICY = "no-referrer, strict-origin-when-cross-origin"
 
 try:
     from .local_settings import *  # noqa F403

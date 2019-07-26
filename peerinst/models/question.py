@@ -16,8 +16,10 @@ from django.utils.encoding import smart_bytes
 from django.utils.html import escape, strip_tags
 from django.utils.translation import ugettext_lazy as _
 
-from .search import MetaSearch
+from reputation.models import Reputation
+
 from .. import rationale_choice
+from .search import MetaSearch
 
 
 def no_hyphens(value):
@@ -271,6 +273,9 @@ class Question(models.Model):
             "0.5 points if they subsequently stick with or change to the "
             "correct answer."
         ),
+    )
+    reputation = models.OneToOneField(
+        Reputation, blank=True, null=True, on_delete=models.SET_NULL
     )
     meta_search = GenericRelation(MetaSearch, related_query_name="questions")
 

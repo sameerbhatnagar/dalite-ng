@@ -3,6 +3,7 @@
 {% load i18n get_value %}
 
 {% block stylesheets %}
+{{ block.super }}
 <!--
 DataTables
 https://datatables.net/extensions/buttons/examples/styling/jqueryui.html
@@ -254,6 +255,7 @@ https://datatables.net/extensions/buttons/examples/styling/jqueryui.html
 {% endblock %}
 
 {% block scripts %}
+{{ block.super }}
 <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
 <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.19/js/dataTables.jqueryui.min.js"></script>
 <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/1.5.2/js/dataTables.buttons.min.js"></script>

@@ -1,0 +1,15 @@
+{% load compress staticfiles %}
+
+{% compress js %}
+<script src="{% static 'reputation/js/header.min.js' %}"></script>
+{% endcompress %}
+<script type="text/javascript">
+  window.addEventListener("load", function() {
+    header.init(
+      "{% url 'reputation:reputation' %}",
+      "teacher",
+      {{ request.user.teacher.pk }}
+    )
+  });
+</script>
+

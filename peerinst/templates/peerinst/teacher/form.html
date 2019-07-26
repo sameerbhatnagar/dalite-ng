@@ -1,8 +1,9 @@
-{% extends 'peerinst/base.html' %}
+{% extends 'peerinst/teacher/base.html' %}
 
 {% load i18n add_class compress %}
 
 {% block stylesheets %}
+{{ block.super }}
 {% compress css inline %}
 <style nonce="{{ request.csp_nonce }}">
   label {
@@ -66,6 +67,7 @@
 {% endblock %}
 
 {% block scripts %}
+{{ block.super }}
 <script nonce="{{ request.csp_nonce }}">
   bundle.bindAjaxTextInputForm('show_discipline_form', 'discipline_form', "{% url 'disciplines-create' %}");
 </script>
