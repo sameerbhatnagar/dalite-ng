@@ -9,9 +9,6 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 """
 import os
 
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-import sys
-
 from security_headers.settings import *  # noqa
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -412,15 +409,10 @@ FRAMING_ALLOWED_FROM = ["*"]
 
 CSP_INCLUDE_NONCE_IN = []
 
-if "runsslserver" in sys.argv:
-    SSL_CONTEXT = True
-else:
-    SSL_CONTEXT = False
-
-CSRF_COOKIE_SECURE = SSL_CONTEXT
+CSRF_COOKIE_SECURE = True
 CSRF_COOKIE_HTTPONLY = True
-SECURE_SSL_REDIRECT = SSL_CONTEXT
-SESSION_COOKIE_SECURE = SSL_CONTEXT
+SECURE_SSL_REDIRECT = True
+SESSION_COOKIE_SECURE = True
 
 SECURE_HSTS_SECONDS = 60 * 60 * 24 * 365
 REFERRER_POLICY = "no-referrer, strict-origin-when-cross-origin"
