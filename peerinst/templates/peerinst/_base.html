@@ -88,29 +88,6 @@
 
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
 
-  {% compress js %}
-  <script>
-  // Fix potential CSRF token conflicts when loading multiple iframes in parallel,
-  // if the user did not have a CSRF cookie set already.
-  // The CSRF token in the HTML may be out of date, but the cookie value should be
-  // accurate by the time we submit the form.
-  $(function() {
-    var getCookie = function(name) {
-      var match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
-      if (match) { return match[2]; }
-    };
-    $(document).on('submit','form', function(){
-      var csrf_token = getCookie('__Host-csrftoken');
-      if (csrf_token) {
-        $('input[name=csrfmiddlewaretoken]').each(function() {
-          $(this).val(csrf_token);
-        });
-      }
-    });
-  });
-  </script>
-  {% endcompress %}
-
   <!-- JS bundle -->
   {% compress js %}
   <script src="{% static 'peerinst/js/index.min.js' %}"></script>
