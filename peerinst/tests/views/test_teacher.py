@@ -897,17 +897,15 @@ def test_evaluate_rationale__wrong_score(client, teacher, answers):
 
 
 @pytest.mark.django_db(transaction=True)
-def test_request_report(client, teacher, group, celery_worker):
+def test_request_gradebook(client, teacher, group, celery_worker):
     assert login_teacher(client, teacher)
     group.teacher.add(teacher)
 
     resp = client.post(
-        reverse("teacher-report--request"),
+        reverse("teacher-report--gradebook"),
         json.dumps({"group_id": group.pk}),
         content_type="application/json",
     )
 
     assert resp.status_code == 200
     data = json.loads(resp.content)
-    print(data)
-    assert False
