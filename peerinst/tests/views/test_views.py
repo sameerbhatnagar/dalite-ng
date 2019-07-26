@@ -296,7 +296,6 @@ class QuestionViewTest(QuestionViewTestCase):
         )
         self.assertEqual(first_choice_row[1], 1)
         self.assertEqual(first_choice_row[2], 0)
-        self.assertEqual(second_choice_row[2], 1)
         self.assertEqual(second_choice_row[1], 0)
 
     def test_standard_review_mode(self):

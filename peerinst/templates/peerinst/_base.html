@@ -12,14 +12,15 @@
   <title>{% block title %}myDALITE{% endblock %}</title>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="referrer" content="default">
-  <meta name="referrer" content="origin">
+  <meta http-equiv="Referrer-Policy"
+        content="no-referrer, strict-origin-when-cross-origin">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="myDALITE">
   <meta name="theme-color" content="#004266">
 
   <!-- Polyfills for non-awesome browsers-->
-  <script src="https://cdn.polyfill.io/v2/polyfill.min.js?features=default,fetch,Array.prototype.includes"></script>
+  <script src="https://cdn.polyfill.io/v2/polyfill.min.js?features=default,fetch,Array.prototype.includes">
+  </script>
 
   <!-- Local resources -->
   <link href="{% static 'peerinst/img/SALTISE-logo-icon.gif' %}" rel="icon">
@@ -99,7 +100,7 @@
       if (match) { return match[2]; }
     };
     $(document).on('submit','form', function(){
-      var csrf_token = getCookie('csrftoken');
+      var csrf_token = getCookie('__Host-csrftoken');
       if (csrf_token) {
         $('input[name=csrfmiddlewaretoken]').each(function() {
           $(this).val(csrf_token);

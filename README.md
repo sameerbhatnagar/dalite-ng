@@ -37,7 +37,7 @@ Setting up the development server
 
 5. Run the Django development server.
 
-        $ ./manage.py runserver
+        $ ./manage.py runsslserver
 
 
 6. Add Sample Consent Form
