@@ -21,7 +21,7 @@ from peerinst.models import (
     Teacher,
 )
 
-from ..gradebook import group_gradebook, groupassignment_gradebook
+from ..gradebooks import group_gradebook, groupassignment_gradebook
 from .decorators import group_access_required
 
 logger = logging.getLogger("peerinst-views")

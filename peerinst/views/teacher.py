@@ -19,7 +19,7 @@ from pinax.forums.models import ForumThread
 from dalite.views.errors import response_400, response_403, response_500
 from dalite.views.utils import get_json_params
 
-from ..gradebook import convert_gradebook_to_csv
+from ..gradebooks import convert_gradebook_to_csv
 from ..models import (
     QUESTION_TYPES,
     Answer,

@@ -125,6 +125,6 @@ def compute_gradebook_async(group_pk, assignment_pk):
                 }
     """
     # Prevent circular import
-    from .gradebook import compute_gradebook
+    from .gradebooks import compute_gradebook
 
     return compute_gradebook(group_pk, assignment_pk)
