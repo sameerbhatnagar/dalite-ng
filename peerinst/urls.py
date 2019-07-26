@@ -50,9 +50,7 @@ def old_patterns():
             name="question-update",
         ),
         url(
-            r"^question/delete",
-            views.question_delete,
-            name="question-delete"
+            r"^question/delete", views.question_delete, name="question-delete"
         ),
         url(
             r"^discipline/create$",
@@ -130,7 +128,6 @@ def old_patterns():
             name="question-search",
         ),
         url(r"^heartbeat/$", views.HeartBeatUrl.as_view(), name="heartbeat"),
-
         # Standalone
         url(
             r"^live/access/(?P<token>[0-9A-Za-z=_-]+)/(?P<assignment_hash>[0-9A-Za-z=_-]+)$",  # noqa
@@ -603,6 +600,8 @@ def researcher_patterns():
             name="research-rationale-update-expert",
         ),
     ]
+
+
 def collection_patterns():
     return [
         url(
@@ -611,12 +610,12 @@ def collection_patterns():
             name="collection-create",
         ),
         url(
-            r"^collection/(?P<collection_id>[0-9]+)$",
+            r"^collection/(?P<pk>[0-9]+)$",
             views.CollectionDetailView.as_view(),
             name="collection-detail",
         ),
         url(
-            r"^collection/update/(?P<collection_id>[0-9]+)$",
+            r"^collection/update/(?P<pk>[0-9]+)$",
             views.CollectionUpdateView.as_view(),
             name="collection-update",
         ),
@@ -631,9 +630,19 @@ def collection_patterns():
             name="personal-collection-list",
         ),
         url(
+            r"^collection/followed/$",
+            views.FollowedCollectionListView.as_view(),
+            name="followed-collection-list",
+        ),
+        url(
             r"^collection/follower",
             views.teacher_toggle_follower,
             name="teacher-toggle-follower",
+        ),
+        url(
+            r"^collection/follower/update",
+            views.follower_update,
+            name="follower-update",
         ),
         url(
             r"^collection/featured-data/$",
@@ -641,9 +650,6 @@ def collection_patterns():
             name="collection-featured-data",
         ),
     ]
-
-def collection_patterns():
-    return []
 
 
 urlpatterns = sum(
