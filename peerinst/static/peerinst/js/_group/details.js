@@ -1,4 +1,3 @@
-"use strict";
 import { buildReq } from "../ajax.js";
 
 export function removeAssignment(event, url) {

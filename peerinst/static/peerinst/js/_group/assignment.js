@@ -1,5 +1,3 @@
-"use strict";
-
 import { initStudentProgress } from "./student_progress.js";
 import { formatDatetime } from "../utils.js";
 import { buildReq } from "../ajax.js";

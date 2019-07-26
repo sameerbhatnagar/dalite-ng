@@ -1,5 +1,3 @@
-"use strict";
-
 import { buildReq } from "../ajax.js";
 import { clear } from "../utils.js";
 
