@@ -3,6 +3,7 @@
 
 bandit
 # black
+django-sslserver
 flake8
 pre-commit
 safety
