@@ -3,7 +3,8 @@ from __future__ import unicode_literals
 
 import logging
 
-from django.template.response import HttpResponse, TemplateResponse
+from django.http import HttpResponse
+from django.template.response import TemplateResponse
 
 logger = logging.getLogger("dalite")
 
