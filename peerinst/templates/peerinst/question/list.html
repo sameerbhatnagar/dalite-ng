@@ -161,6 +161,7 @@
 {% endblock %}
 
 {% block scripts %}
+{{ block.super }}
 {% compress js inline %}
 <script nonce="{{ request.csp_nonce }}">
 bundle.addDialog();
