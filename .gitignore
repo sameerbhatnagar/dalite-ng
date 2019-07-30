@@ -14,6 +14,7 @@ locust*
 partner*.png
 .pytest_cache/
 .venv
+/venv/
 tags
 *.mypy_cache/
 /htmlcov
