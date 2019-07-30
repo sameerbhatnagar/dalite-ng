@@ -91,7 +91,7 @@ def response_403(req, msg="", logger_msg="", log=None, use_template=True):
             req, "403.html", context={"message": msg}, status=403
         )
     else:
-        return HttpResponse(msg, status=400)
+        return HttpResponse(msg, status=403)
 
 
 def response_404(req, msg="", logger_msg="", log=None, use_template=True):
@@ -134,7 +134,7 @@ def response_404(req, msg="", logger_msg="", log=None, use_template=True):
             req, "404.html", context={"message": msg}, status=404
         ).render()
     else:
-        return HttpResponse(msg, status=400)
+        return HttpResponse(msg, status=404)
 
 
 def response_500(req, msg="", logger_msg="", log=None, use_template=True):
@@ -177,4 +177,4 @@ def response_500(req, msg="", logger_msg="", log=None, use_template=True):
             req, "500.html", context={"message": msg}, status=500
         )
     else:
-        return HttpResponse(msg, status=400)
+        return HttpResponse(msg, status=500)
