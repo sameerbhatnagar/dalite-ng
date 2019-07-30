@@ -69,7 +69,7 @@ MIDDLEWARE = (
 
 ROOT_URLCONF = "dalite.urls"
 
-CUSTOM_SETTINGS = os.environ.get("CUSTOM_SETTINGS", "default")
+CUSTOM_SETTINGS = os.environ.get("CUSTOM_SETTINGS", "SALTISES4")
 
 TEMPLATES = [
     {
