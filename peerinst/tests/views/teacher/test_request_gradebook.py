@@ -184,6 +184,22 @@ def test_request_gradebook__invalid_group(client, teacher):
     assert RunningTask.objects.count() == n
 
 
+def test_request_gradebook__invalid_assignment(client, teacher, group):
+    assert login_teacher(client, teacher)
+    group.teacher.add(teacher)
+
+    n = RunningTask.objects.count()
+
+    resp = client.post(
+        reverse("teacher-gradebook--request"),
+        json.dumps({"group_id": group.pk, "assignment_id": 1}),
+        content_type="application/json",
+    )
+
+    assert resp.status_code == 400
+    assert RunningTask.objects.count() == n
+
+
 def test_request_gradebook__no_teacher_access(client, teacher, group):
     assert login_teacher(client, teacher)
 
@@ -207,7 +223,7 @@ def test_request_gradebook__invalid_assignment(client, teacher, group):
 
     resp = client.post(
         reverse("teacher-gradebook--request"),
-        json.dumps({"group_id": 1, "assignment_id": 1}),
+        json.dumps({"group_id": group.pk, "assignment_id": 1}),
         content_type="application/json",
     )
 

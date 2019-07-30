@@ -56,3 +56,15 @@ def test_gradebook_task_result__celery_error(client, teacher):
         )
 
         assert resp.status_code == 500
+
+
+def test_gradebook_task_result__missing_params(client, teacher):
+    assert login_teacher(client, teacher)
+
+    resp = client.post(
+        reverse("teacher-gradebook--result"),
+        json.dumps({}),
+        content_type="application/json",
+    )
+
+    assert resp.status_code == 400

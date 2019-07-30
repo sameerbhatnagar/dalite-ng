@@ -729,6 +729,7 @@ def get_gradebook_task_result(req, teacher):
     if isinstance(args, HttpResponse):
         return args
     (task_id,), _ = args
+
     result = AsyncResult(task_id)
 
     try:
@@ -883,16 +884,15 @@ def download_gradebook(req, teacher, results=None):
                     req,
                     msg="The gradebook isn't ready.",
                     logger_msg="Not completed gradebook {}".format(task_id)
-                    + "accessed by teacher {}".format(teacher.user.username),
+                    + " accessed by teacher {}".format(teacher.user.username),
                 )
         except AttributeError:
-            return response_400(
+            return response_500(
                 req,
                 msg="There is no gradebook corresponding to this url. "
                 "Please ask for a new one.",
-                logger_msg="Error getting gradebook for teacher {}".format(
-                    teacher.user.username
-                )
+                logger_msg="Celery error getting gradebook"
+                " for teacher {}".format(teacher.user.username)
                 + " and task {}.".format(task_id),
                 log=logger.warning,
                 use_template=False,
@@ -900,10 +900,8 @@ def download_gradebook(req, teacher, results=None):
 
         results = result.result
 
-        try:
-            task = RunningTask.objects.get(id=task_id).delete()
-        except RunningTask.DoesNotExist:
-            return HttpResponse("")
+        if RunningTask.objects.filter(id=task_id):
+            RunningTask.objects.get(id=task_id).delete()
 
     if "assignment" in results:
         filename = "myDALITE_gradebook_{}_{}.csv".format(

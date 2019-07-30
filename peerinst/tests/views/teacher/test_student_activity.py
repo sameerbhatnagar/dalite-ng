@@ -331,3 +331,29 @@ def test_student_activity__some_questions_done_wrong_first_and_second(
         assert assignment["new"] is True
         assert assignment["expired"] is False
         assert assignment["link"].endswith(assignment_.hash + "/")
+
+
+def test_student_activity__protocol(
+    client,
+    settings,
+    teacher,
+    group,
+    students,
+    student_group_assignments,
+    student_assignments,
+):
+    assert login_teacher(client, teacher)
+    group.teacher.add(teacher)
+    teacher.current_groups.add(group)
+
+    resp = client.post(reverse("teacher-page--student-activity"))
+    data = json.loads(resp.content)["groups"][0]
+    for assignment in data["assignments"]:
+        assert assignment["link"].startswith("http")
+
+    settings.ALLOWED_HOSTS = ["testserver"]
+
+    resp = client.post(reverse("teacher-page--student-activity"))
+    data = json.loads(resp.content)["groups"][0]
+    for assignment in data["assignments"]:
+        assert assignment["link"].startswith("https")

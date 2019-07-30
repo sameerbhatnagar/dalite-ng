@@ -70,15 +70,15 @@ def test_collections__with_params(client, collections, teachers, discipline):
         assert collection["n_followers"] == collection_.followers.count()
 
 
-def test_collections__wrong_params(client, teachers):
-    assert login_teacher(client, teachers[0])
+def test_collections__wrong_params(client, teacher):
+    assert login_teacher(client, teacher)
 
     with mock.patch(
         "peerinst.views.teacher.get_json_params",
         return_value=HttpResponse("", status=400),
     ):
         resp = client.post(
-            reverse("teacher-page--new-questions"),
+            reverse("teacher-page--collections"),
             json.dumps({}),
             content_type="application/json",
         )

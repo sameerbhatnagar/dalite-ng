@@ -165,6 +165,7 @@ def compute_gradebook(group_pk, assignment_pk=None):
                 for membership in memberships
             ],
         }
+
     return results
 
 

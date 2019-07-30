@@ -39,3 +39,14 @@ def test_unsubscribe_from_thread__missing_params(client, teacher, thread):
     assert ThreadSubscription.objects.filter(
         user=teacher.user, thread=thread
     ).count()
+
+
+def test_unsubscribe_from_thread__wrong_thread(client, teacher):
+    assert login_teacher(client, teacher)
+
+    resp = client.post(
+        reverse("teacher-page--unsubscribe-thread"),
+        json.dumps({"id": 1}),
+        content_type="application/json",
+    )
+    assert resp.status_code == 400

@@ -32,3 +32,15 @@ def test_remove_gradebook_task__doesn_t_exists(client, teacher):
     )
 
     assert resp.status_code == 200
+
+
+def test_remove_gradebook_task__missing_params(client, teacher):
+    assert login_teacher(client, teacher)
+
+    resp = client.post(
+        reverse("teacher-gradebook--remove"),
+        json.dumps({}),
+        content_type="application/json",
+    )
+
+    assert resp.status_code == 400
