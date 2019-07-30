@@ -680,8 +680,8 @@ def request_gradebook(req, teacher):
     if assignment_pk is None:
         description = "gradebook for group {}".format(group.name)
     else:
-        description = "gradebook for assignment {} and group".format(
-            assignment.assignment.title, group.name
+        description = "gradebook for assignment {} and group {}".format(
+            assignment.assignment.identifier, group.name
         )
 
     if isinstance(result, AsyncResult):
