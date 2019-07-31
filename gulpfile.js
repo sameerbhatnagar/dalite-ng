@@ -39,7 +39,14 @@ const styleBuilds = [
 const scriptBuilds = [
   {
     app: "peerinst",
-    modules: ["group", "student", "search", "index", "question"],
+    modules: [
+      "group",
+      "student",
+      "search",
+      "index",
+      "question",
+      "custom_elements",
+    ],
   },
   {
     app: "tos",
