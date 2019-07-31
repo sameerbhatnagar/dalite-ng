@@ -386,7 +386,6 @@ CSP_SCRIPT_SRC = [
     "www.youtube.com",
     "s.ytimg.com",
     "cdn.jsdelivr.net",
-    "'unsafe-inline'",
 ]
 CSP_STYLE_SRC = [
     "'self'",
@@ -395,7 +394,6 @@ CSP_STYLE_SRC = [
     "unpkg.com",
     "cdn.jsdelivr.net",
     "code.jquery.com",
-    "'unsafe-inline'",
 ]
 CSP_FONT_SRC = [
     "'self'",
@@ -406,10 +404,6 @@ CSP_FONT_SRC = [
 
 # External framing
 FRAMING_ALLOWED_FROM = ["*"]
-
-CSP_INCLUDE_NONCE_IN = []
-
-CSRF_COOKIE_HTTPONLY = True
 
 SECURE_HSTS_SECONDS = 60 * 60 * 24 * 365
 REFERRER_POLICY = "no-referrer, strict-origin-when-cross-origin"

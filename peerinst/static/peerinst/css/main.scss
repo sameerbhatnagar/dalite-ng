@@ -177,8 +177,15 @@ footer a {
   color: white;
   padding-left: 10px;
 }
+.align-right {
+   text-align: right;
+}
 h1 {
   color: $mdc-theme-primary;
+}
+
+.landing-page-ul {
+  padding-left: 15%;
 }
 
 /* - MDC icons */

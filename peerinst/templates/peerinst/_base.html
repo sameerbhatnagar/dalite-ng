@@ -1,4 +1,4 @@
-{% load staticfiles i18n compress admin_urls tz piwik %}
+{% load csp staticfiles i18n compress admin_urls tz piwik %}
 
 {% get_current_language as LANGUAGE_CODE %}
 
@@ -106,7 +106,10 @@
   {% endcompress %}
 
   {% block scripts %}{% endblock %}
+  
+  {% script type="text/javascript" %}
   {% piwik %}
+  {% endscript %}
 </body>
 
 </html>
