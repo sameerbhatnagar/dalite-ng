@@ -1,4 +1,4 @@
-{% load i18n %}
+{% load bleach_html i18n %}
 
 <h2 id="results_list" class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Results' %}</h2>
 
@@ -50,7 +50,7 @@
       </div>
 
       <div class="mdc-typography--body1 question-text">
-        {{ g.bleached_text|safe }}
+        {{ g.text|bleach_html|safe }}
       </div>
 
       {% if g.image %}
@@ -66,7 +66,7 @@
       <div class="question-answers display-none">
         <ul>
           {% for label, choice in g.get_choices %}
-            <li class="dense-list">{{ label }}. {{ choice|safe }}
+            <li class="dense-list">{{ label }}. {{ choice|bleach_html|safe }}
             {% for c in g.answerchoice_set.all %}
               {% if forloop.counter == forloop.parentloop.counter %}
                 {% if c.correct %}
