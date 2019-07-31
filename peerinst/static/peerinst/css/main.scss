@@ -56,6 +56,12 @@ p {
   padding-left: 0.3em;
   padding-right: 0.5em;
 }
+.display-none {
+  display: none;
+}
+.display-inline {
+  display: inline;
+}
 h2 ~ .admin-link {
   font-size: 9pt;
   margin-bottom: 12pt;
@@ -534,7 +540,7 @@ input[type="submit"].thumbs-button {
 .mdc-list-item__text.no-icon {
   max-width: 100%;
 }
-#check {
+.check {
   color: $mdc-theme-primary;
 }
 #timer-bg {

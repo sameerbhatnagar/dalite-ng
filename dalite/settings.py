@@ -391,6 +391,7 @@ CSP_STYLE_SRC = [
     "'self'",
     "*.mydalite.org",
     "fonts.googleapis.com",
+    "ajax.googleapis.com",
     "unpkg.com",
     "cdn.jsdelivr.net",
     "code.jquery.com",
@@ -401,6 +402,7 @@ CSP_FONT_SRC = [
     "fonts.gstatic.com",
     "unpkg.com",
 ]
+CSP_OBJECT_SRC = ["*"]
 
 # External framing
 FRAMING_ALLOWED_FROM = ["*"]

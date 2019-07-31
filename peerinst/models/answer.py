@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import bleach
+
 from django.contrib.auth.models import User
 from django.db import models
 from django.utils import timezone
@@ -33,6 +35,30 @@ class AnswerChoice(models.Model):
     question = models.ForeignKey(Question)
     text = models.CharField(_("Text"), max_length=500)
     correct = models.BooleanField(_("Correct?"))
+
+    @property
+    def bleached_text(self):
+        return bleach.clean(
+            self.text,
+            tags=[
+                "a",
+                "abbr",
+                "acronym",
+                "b",
+                "blockquote",
+                "br",
+                "code",
+                "em",
+                "i",
+                "li",
+                "ol",
+                "p",
+                "strong",
+                "ul",
+            ],
+            styles=[],
+            strip=True,
+        )
 
     def __unicode__(self):
         return self.text

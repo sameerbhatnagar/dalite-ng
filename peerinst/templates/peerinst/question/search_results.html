@@ -49,12 +49,12 @@
         #{{ g.id|safe }} {% if g.user %}{% trans 'by' %} {{ g.user.username|safe }}{% endif %}
       </div>
 
-      <div class="mdc-typography--body1" style="margin-top:5px;">
-        {{ g.text|safe }}
+      <div class="mdc-typography--body1 question-text">
+        {{ g.bleached_text|safe }}
       </div>
 
       {% if g.image %}
-        <img class="question-image" style="display:none;" src="{{ g.image.url|safe }}" alt="g.image_alt_text">
+        <img class="question-image display-none" src="{{ g.image.url|safe }}" alt="g.image_alt_text">
       {% endif %}
 
       {% if g.video_url %}
@@ -63,15 +63,14 @@
       </div>
       {% endif %}
 
-
-      <div class="question-answers" style="display:none;">
+      <div class="question-answers display-none">
         <ul>
           {% for label, choice in g.get_choices %}
             <li class="dense-list">{{ label }}. {{ choice|safe }}
             {% for c in g.answerchoice_set.all %}
               {% if forloop.counter == forloop.parentloop.counter %}
                 {% if c.correct %}
-                  <i id="check" class="material-icons" style="-webkit-transform: translateY(3px);font-size:12pt;">check</i>
+                  <i class="check material-icons">check</i>
                 {% endif %}
               {% endif %}
             {% endfor %}
@@ -82,7 +81,7 @@
 
       <div class="mdc-card__actions">
 
-        <div class="mdc-card__action-buttons" style="color:grey;">
+        <div class="mdc-card__action-buttons">
           <div class="mdc-typography--caption">
             <div>
               {% trans 'Discipline' %}: {{ g.discipline|safe }}
@@ -129,7 +128,7 @@
           </i>
           {% endif %}
           {% else %}
-          <form style="display:inline" method="post" action="#{{ g.id|slugify }}">
+          <form class="display-inline" method="post" action="#{{ g.id|slugify }}">
             {% csrf_token %}
             <input type="hidden" name="{{ form_field_name|safe }}" value="{{ g.pk|safe }}" />
             <input class="material-icons small-button mdc-button mdc-card__action mdc-card__action--button mdc-button--raised" style="margin-left:20px;" type="submit" value="add" />

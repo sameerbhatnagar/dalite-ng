@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import bleach
 import itertools
 import string
 from datetime import datetime
@@ -284,6 +285,30 @@ class Question(models.Model):
             return "{} - {}".format(self.discipline, self.title)
         return self.title
 
+    @property
+    def bleached_text(self):
+        return bleach.clean(
+            self.text,
+            tags=[
+                "a",
+                "abbr",
+                "acronym",
+                "b",
+                "blockquote",
+                "br",
+                "code",
+                "em",
+                "i",
+                "li",
+                "ol",
+                "p",
+                "strong",
+                "ul",
+            ],
+            styles=[],
+            strip=True,
+        )
+
     def get_start_form_class(self):
         from ..forms import FirstAnswerForm
 
@@ -366,7 +391,7 @@ class Question(models.Model):
     def get_choices(self):
         """Return a list of pairs (answer label, answer choice text)."""
         return [
-            (label, choice.text)
+            (label, choice.bleached_text)
             for label, choice in zip(
                 self.get_choice_label_iter(), self.answerchoice_set.all()
             )
