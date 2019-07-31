@@ -23,7 +23,7 @@ class Criterion(models.Model):
         "length or have one more element than Thresholds.",
     )
     thresholds = CommaSepField(
-        default=[],
+        default="",
         verbose_name="Thresholds",
         help_text="Thresholds for number of point change. If empty, all "
         "criterion points will give the same number of points. If one less "
