@@ -3,8 +3,11 @@ from __future__ import unicode_literals
 
 from itertools import chain
 
+from django.core.exceptions import ValidationError
 from django.db import models
+from django.utils.translation import gettext_lazy as translate
 
+from dalite.models.custom_fields import CommaSepField
 from reputation.logger import logger
 
 from ..reputation_type import ReputationType
@@ -13,6 +16,21 @@ from ..reputation_type import ReputationType
 class Criterion(models.Model):
     version = models.AutoField(primary_key=True)
     for_reputation_types = models.ManyToManyField(ReputationType)
+    points_per_threshold = CommaSepField(
+        verbose_name="Points per threshold",
+        help_text="Number of reputation points for each criterion point up to "
+        "the next threadhold, split by commas. This list should have the same "
+        "length or have one more element than Thresholds.",
+    )
+    thresholds = CommaSepField(
+        default="",
+        verbose_name="Thresholds",
+        help_text="Thresholds for number of point change. If empty, all "
+        "criterion points will give the same number of points. If one less "
+        "than `Points per threshold`, the last point number goes to infinity. "
+        "If it's the same length, the last number indicates the threshold "
+        "after which points aren't gained.",
+    )
 
     class Meta:
         abstract = True
@@ -27,7 +45,11 @@ class Criterion(models.Model):
         """
         return chain(
             self.__class__.info().iteritems(),
-            {"version": self.version}.iteritems(),
+            {
+                "version": self.version,
+                "points_per_threshold": self.points_per_threshold,
+                "thresholds": self.thresholds,
+            }.iteritems(),
         )
 
     def __str__(self):
@@ -45,7 +67,7 @@ class Criterion(models.Model):
 
         Returns
         -------
-        float in [0,1]
+        float
             Reputation as evaluated by the criterion
 
         Raises
@@ -74,12 +96,17 @@ class Criterion(models.Model):
                 "different from the others or it may lead to some trouble "
                 "down the line."
             )
+        if len(self.points_per_threshold) != len(self.thresholds) and len(
+            self.points_per_threshold
+        ) - 1 != len(self.thresholds):
+            raise ValidationError(
+                translate(
+                    "The length of `Points per threshold` must be the same "
+                    "as `Thresholds` or one more."
+                )
+            )
         super(Criterion, self).save(*args, **kwargs)
 
     @staticmethod
     def info():
-        raise NotImplementedError("This method has to be implemented.")
-
-    @staticmethod
-    def create_default():
         raise NotImplementedError("This method has to be implemented.")
