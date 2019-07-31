@@ -281,7 +281,7 @@ function scriptsPeerinstPinax() {
 
 function icons() {
   return gulp
-    .src("./peerinst/static/peerinst/icons/*.svg")
+    .src("./templates/icons/*.svg")
     .pipe(
       svgSprite({
         mode: {
@@ -291,11 +291,15 @@ function icons() {
         },
         svg: {
           namespaceIDs: false,
+          rootAttributes: {
+            class: "svg-sprite",
+          },
+          transform: [svg => svg.replace(/style="[^"]*"/g, "")],
         },
       }),
     )
     .pipe(rename("icons.svg"))
-    .pipe(gulp.dest("./peerinst/static/peerinst/"));
+    .pipe(gulp.dest("./templates/"));
 }
 
 function watch() {
