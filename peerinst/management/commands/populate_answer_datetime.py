@@ -17,26 +17,29 @@ LOGGER = logging.getLogger("peerinst-models")
 
 class Command(BaseCommand):
     help = """
-    Populate Answer.datetime_start field from LtiEvents.
+    Populate Answer.datetime fields from LtiEvents.
     """
+
+    def add_arguments(self, parser):
+        parser.add_argument("event_type", nargs="+", type=str)
 
     def handle(self, *args, **options):
         start = time.time()
 
         start_date = datetime.datetime(
-            day=1, month=9, year=2018, tzinfo=pytz.utc
+            day=2, month=9, year=2018, tzinfo=pytz.utc
         )
         end_date = datetime.datetime(
-            day=24, month=1, year=2019, tzinfo=pytz.utc
+            day=1, month=10, year=2018, tzinfo=pytz.utc
         )
 
-        event_type = "problem_show"
+        event_type = options["event_type"][0]
 
         for day_of_logs in make_daterange(start_date, end_date):
-            LOGGER.INFO(day_of_logs)
+            LOGGER.info(day_of_logs)
             populate_answer_start_time_from_ltievent_logs(
                 day_of_logs=day_of_logs, event_type=event_type
             )
 
-        LOGGER.INFO("Completed populating datetime_start for Answer objects")
-        LOGGER.INFO("Took {:.2f} seconds".format(time.time() - start))
+        LOGGER.info("Completed populating datetime_start for Answer objects")
+        LOGGER.info("Took {:.2f} seconds".format(time.time() - start))

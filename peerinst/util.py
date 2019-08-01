@@ -1110,13 +1110,17 @@ def get_answer_corresponding_to_ltievent_log(event_json):
     Returns: object of type peerinst.models.Answer
     """
     try:
-        answer_obj = Answer.objects.get(
-            user_token=event_json["username"],
-            question_id=event_json["event"]["question_id"],
-            assignment_id=event_json["event"]["assignment_id"],
-        )
-    except Answer.MultipleObjectsReturned:
-        logger.INFO(event_json)
+        try:
+            answer_obj = Answer.objects.get(
+                user_token=event_json["username"],
+                question_id=event_json["event"]["question_id"],
+                assignment_id=event_json["event"]["assignment_id"],
+            )
+        except Answer.MultipleObjectsReturned:
+            logger.info(event_json)
+            answer_obj = None
+    except Answer.DoesNotExist:
+        logger.info(event_json)
         answer_obj = None
 
     return answer_obj
@@ -1147,18 +1151,17 @@ def populate_answer_start_time_from_ltievent_logs(day_of_logs, event_type):
         # The correct log does not have the "rationales" key in the log
         # If "rationales" in in event log, ignore this log event
         if event_type == "problem_check" and "rationales" in e_json["event"]:
+            logger.info("skipping log event")
             continue
 
         # we are ignoring save_problem_success events, as they have already
         # been handled
         if e_json["event_type"] == event_type:
 
-            try:
-
-                answer_obj = get_answer_corresponding_to_ltievent_log(
-                    event_json=e_json
-                )
-
+            answer_obj = get_answer_corresponding_to_ltievent_log(
+                event_json=e_json
+            )
+            if answer_obj:
                 # keep the latest time at which student accessed
                 # problem start page
                 if getattr(answer_obj, field):
@@ -1173,14 +1176,13 @@ def populate_answer_start_time_from_ltievent_logs(day_of_logs, event_type):
                     answer_obj.save()
                     i += 1
 
-            except Answer.DoesNotExist:
-                pass
-                # print(
-                #     "Not found : ",
-                #     e_json["username"],
-                #     e_json["event"]["question_id"],
-                #     e_json["event"]["assignment_id"],
-                # )
+            else:
+                logger.info(
+                    "Not found : ",
+                    e_json["username"],
+                    e_json["event"]["question_id"],
+                    e_json["event"]["assignment_id"],
+                )
 
-    logger.INFO("{} answer start times updated".format(i))
+    logger.info("{} answer start times updated".format(i))
     return
