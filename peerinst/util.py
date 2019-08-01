@@ -5,7 +5,7 @@ import itertools
 import string
 import datetime
 from collections import defaultdict, Counter
-
+import logging
 
 from django.utils.safestring import mark_safe
 from django.db.models import (
@@ -29,6 +29,8 @@ from peerinst.models import (
     LtiEvent,
     ShownRationale,
 )
+
+logger = logging.getLogger("peerinst_console_log")
 
 
 def get_object_or_none(model_class, *args, **kwargs):
@@ -1101,6 +1103,25 @@ def get_average_time_spent_on_all_question_start(question_id):
     return result
 
 
+def get_answer_corresponding_to_ltievent_log(event_json):
+    """
+    Argument: Given a json log that came from `peerinst.views.emit_event`,
+    retrieve corresponding Answer object from database
+    Returns: object of type peerinst.models.Answer
+    """
+    try:
+        answer_obj = Answer.objects.get(
+            user_token=event_json["username"],
+            question_id=event_json["event"]["question_id"],
+            assignment_id=event_json["event"]["assignment_id"],
+        )
+    except Answer.MultipleObjectsReturned:
+        logger.INFO(event_json)
+        answer_obj = None
+
+    return answer_obj
+
+
 def populate_answer_start_time_from_ltievent_logs(day_of_logs):
     """
     Given a date, filter event logs to populate Answer.datetime_start field for
@@ -1118,10 +1139,8 @@ def populate_answer_start_time_from_ltievent_logs(day_of_logs):
 
             try:
 
-                answer_obj = Answer.objects.get(
-                    user_token=e_json["username"],
-                    question_id=e_json["event"]["question_id"],
-                    assignment_id=e_json["event"]["assignment_id"],
+                answer_obj = get_answer_corresponding_to_ltievent_log(
+                    event_json=e_json
                 )
 
                 # keep the latest time at which student accessed
@@ -1147,5 +1166,5 @@ def populate_answer_start_time_from_ltievent_logs(day_of_logs):
                 #     e_json["event"]["assignment_id"],
                 # )
 
-    print("{} answer start times updated".format(i))
+    logger.INFO("{} answer start times updated".format(i))
     return
