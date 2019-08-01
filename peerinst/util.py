@@ -1128,6 +1128,8 @@ def populate_answer_start_time_from_ltievent_logs(day_of_logs):
     answer instances already in database
     """
 
+    field = "datetime_start"
+
     event_logs = LtiEvent.objects.filter(
         timestamp__gte=day_of_logs,
         timestamp__lte=day_of_logs + datetime.timedelta(hours=24),
@@ -1145,15 +1147,15 @@ def populate_answer_start_time_from_ltievent_logs(day_of_logs):
 
                 # keep the latest time at which student accessed
                 # problem start page
-                if answer_obj.datetime_start:
-                    if answer_obj.datetime_start < e.timestamp:
-                        answer_obj.datetime_start = e.timestamp
+                if getattr(answer_obj, field):
+                    if getattr(answer_obj, field) < e.timestamp:
+                        setattr(answer_obj, field, e.timestamp)
                         answer_obj.save()
                         i += 1
                     else:
                         pass
                 else:
-                    answer_obj.datetime_start = e.timestamp
+                    setattr(answer_obj, field, e.timestamp)
                     answer_obj.save()
                     i += 1
 
