@@ -151,5 +151,12 @@ function toggleFavourite(pk) {
   })
 }
 </script>
+<script nonce="{{ request.csp_nonce }}">
+  window.addEventListener("load", function() {
+    document.getElementById("reset-filters").addEventListener("click", () => {
+      search.reset()
+    })
+  })
+</script>
 {% endscript %}
 {% endblock %}

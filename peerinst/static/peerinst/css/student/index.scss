@@ -4,6 +4,10 @@ i {
   vertical-align: middle;
 }
 
+#student-page ul {
+  padding-top: 0;
+}
+
 #student-add-group {
   & .admin-link {
     color: rgba($mdc-theme-secondary, 0.75);
@@ -15,6 +19,7 @@ i {
     align-items: center;
     background: rgba(0, 0, 0, 0.5);
     cursor: auto;
+    display: none;
     height: 100%;
     justify-content: center;
     left: 0;
@@ -349,6 +354,10 @@ i {
       }
     }
   }
+}
+
+#student-old-groups {
+  display: none;
 }
 
 .blinking {

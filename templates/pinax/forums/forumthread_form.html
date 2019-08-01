@@ -41,7 +41,7 @@
   <div class='file-upload'>
     {{ form.pdf.errors }}
     <p class="file-upload-label">{% trans 'Upload a pdf (max 1MB)' %}</p>
-    {{ form.pdf }}<span class='mdc-typography--body1 bold' id='warning' style='display:none;color:red;'>{% trans 'Max file size exceeded.' %}</span>
+    {{ form.pdf }}<span class='mdc-typography--body1 bold error-span' id='warning'>{% trans 'Max file size exceeded.' %}</span>
     <p class="mdc-typography--caption">{% trans 'You are responsible for content you post to the site.  <strong>Do not upload copyrighted materials.</strong>' %}</p>
   </div>
 

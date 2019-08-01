@@ -82,13 +82,13 @@
           <div class='field-container'>
             <div class='number-box flush-to-textbox'><span class='number'></span></div>
             <div class='field'>
-              <div class='mdc-form-field' style="display:block; padding-top:15px; margin-bottom:10px;">
+              <div class='mdc-form-field id-text-field'>
                 <label for="id_text"> {{ form.text.label }}</label>
               </div>
               <div class="mdc-text-field mdc-text-field--textarea">
                 {{ form.text }}
               </div>
-              <p style='margin-left:16px;margin-right:16px;' class="mdc-text-field-helper-text mdc-text-field-helper-text--persistent" aria-hidden="true">
+              <p class="mdc-text-field-helper-text mdc-text-field-helper-text--persistent id-text-field-helper" aria-hidden="true">
                 {{ form.text.help_text|safe }}
               </p>
               {{ form.text.errors }}
@@ -115,12 +115,12 @@
           <div class='field-container'>
             <div class='number-box'><span class='number'></span></div>
             <div class='field'>
-              <div class='mdc-form-field' style="display:block;">
+              <div class='mdc-form-field block'>
                 <label for='id_image'>{{ form.image.label }}</label>
               </div>
               <div class='image-field'>
                 {{form.image}}
-                <span class='mdc-typography--body1 bold' id='warning' style='display:none;color:red;'>{% trans 'Max file size 1MB' %}</span>
+                <span class='mdc-typography--body1 bold error-span' id='warning'>{% trans 'Max file size 1MB' %}</span>
               </div>
               <p class="form-helper-text" aria-hidden="true">
                 {{ form.image.help_text|safe }}
@@ -213,7 +213,7 @@
 
               <div id='current_categories' class='mdc-chip-set mdc-chip-set--input' data-mdc-auto-init='MDCChipSet'>
                 {% for c in object.category.all %}
-                  <div d="{{c.username}}" v="{{c.pk}}" class='mdc-chip mdc-typography--caption category' onclick="updateSelect(this,'#id_category');" tabindex='0' data-mdc-auto-init='MDCChip'>
+                  <div d="{{c.username}}" v="{{c.pk}}" class='mdc-chip mdc-typography--caption category' tabindex='0' data-mdc-auto-init='MDCChip'>
                     <div class='mdc-chip__text'>{{c.title|title}}</div>
                     <i class='material-icons mdc-chip__icon mdc-chip__icon--trailing' tabindex='0' role='button'>cancel</i>
                     </div>
@@ -322,7 +322,7 @@
           {% if not object or object.user == request.user %}
           <div>
           {% else %}
-          <div style="display:none;">
+          <div class="hidden">
           {% endif %}
             <h3>{% trans 'Authorship' %}</h3>
 
@@ -349,7 +349,7 @@
 
                 <div id='current_collaborators' class='mdc-chip-set mdc-chip-set--input' data-mdc-auto-init='MDCChipSet'>
                   {% for c in object.collaborators.all %}
-                    <div d="{{c.username}}" v="{{c.pk}}" class='mdc-chip mdc-typography--caption collaborator' onclick="updateSelect(this,'#id_collaborators');" tabindex='0' data-mdc-auto-init='MDCChip'>
+                    <div d="{{c.username}}" v="{{c.pk}}" class='mdc-chip mdc-typography--caption collaborator' tabindex='0' data-mdc-auto-init='MDCChip'>
                       <div class='mdc-chip__text'>{{c.username}}</div>
                       <i class='material-icons mdc-chip__icon mdc-chip__icon--trailing' tabindex='0' role='button'>cancel</i>
                       </div>
@@ -404,18 +404,18 @@
         </div>
       {% endif %}
 
-      <div style="margin-top:20px;">
+      <div class="m-top-20">
         {% if form %}
           {% if object %}
             {% if question.type == "PI" %}
               <span class="padded">
-                <form style="display:inline" id="next" action="{% url 'answer-choice-form' question_id=object.pk %}" method="get">
+                <form class="inline" id="next" action="{% url 'answer-choice-form' question_id=object.pk %}" method="get">
                   <button form="next" type="submit" class="mdc-button mdc-button--raised">{% trans 'Next' %}</button>
                 </form>
               </span>
             {% else %}
               <span class="padded">
-                <form style="display:inline" id="next" action="{% url 'sample-answer-form' question_id=question.id %}" method="get">
+                <form class="inline" id="next" action="{% url 'sample-answer-form' question_id=question.id %}" method="get">
                   <button form="next" type="submit" class="mdc-button mdc-button--raised">{% trans 'Next' %}</button>
                 </form>
               </span>
@@ -430,12 +430,12 @@
           {% endif %}
         {% else %}
           <span class="padded">
-            <form style="display:inline;" id="next" action="{% url 'sample-answer-form' question_id=object.pk %}" method="get">
+            <form class="inline" id="next" action="{% url 'sample-answer-form' question_id=object.pk %}" method="get">
               <button form="next" type="submit" class="mdc-button mdc-button--raised">{% trans 'Next' %}</button>
             </form>
           </span>
           <span class="padded">
-            <button type="button" class="mdc-button mdc-button--raised" onclick="window.location.href='{% url 'question-clone' pk=object.pk %}'">{% trans 'Clone' %}</button>
+            <button id="clone-btn" type="button" class="mdc-button mdc-button--raised">{% trans 'Clone' %}</button>
           </span>
         {% endif %}
       </div>
@@ -555,10 +555,26 @@
       event.preventDefault();
       $(this).val("");
 
-      $(currentIds).append("<div d="+ui.item.label+" v="+ui.item.value+" class='mdc-chip mdc-typography--caption "+className+"' onclick=\"updateSelect(this,\'"+formId+"\');\" tabindex='0' data-mdc-auto-init='MDCChip'>\
-        <div class='mdc-chip__text'>"+ui.item.label+"</div>\
-        <i class='material-icons mdc-chip__icon mdc-chip__icon--trailing' tabindex='0' role='button'>cancel</i>\
-        </div>");
+      const newDiv = document.createElement("div")
+      newDiv.setAttribute("d", ui.item.label)
+      newDiv.setAttribute("v", ui.item.value)
+      newDiv.setAttribute("tabindex", "0")
+      newDiv.setAttribute("data-mdc-auto-init", "MDCChip")
+      newDiv.classList.add("mdc-chip mdc-typography--caption",className)
+      newDiv.addEventListener("click", () => {
+        updateSelect(this, formId)
+      })
+      const text = document.createElement("div")
+      text.classList.add("mdc-chip__text")
+      div.textContent = ui.item.label
+      newDiv.appendChild(text)
+      const icon = document.createElement("i")
+      icon.classList.add("material-icons","mdc-chip__icon","mdc-chip__icon--trailing")
+      icon.setAttribute("tabindex", "0")
+      icon.setAttribute("role", "button")
+      icon.textContent = "cancel"
+      newDiv.appendChild(icon)
+      document.getElementById(currentIds).appendChild(newDiv)
 
       $(formId).append("<option selected='selected' value="+ui.item.value+">"+ui.item.label+"</option>");
     }
@@ -614,6 +630,19 @@
     link_assume_external_targets: true,
     default_link_target: '_blank',
   });
+</script>
+<script nonce="{{ request.csp_nonce }}">
+  window.addEventListener("load", function() {
+    [...document.getElementsByClassName("collaborator")].forEach(btn => {
+      btn.addEventListener("click", function() {
+        updateSelect(this,'#id_collaborators');
+      });
+
+    })
+    document.getElementById("clone-btn").addEventListener("click", () => {
+      window.location.href='{% url 'question-clone' pk=object.pk %}'
+    })
+  })
 </script>
 {% endif %}
 {% endblock %}
