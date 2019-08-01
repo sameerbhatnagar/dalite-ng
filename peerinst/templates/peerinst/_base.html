@@ -19,6 +19,7 @@
   <!-- Polyfills for non-awesome browsers-->
   <script src="https://cdn.polyfill.io/v2/polyfill.min.js?features=default,fetch,Array.prototype.includes">
   </script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.3/jquery.min.js"></script>
 
   <!-- Local resources -->
   <link href="{% static 'peerinst/img/SALTISE-logo-icon.gif' %}" rel="icon">
@@ -82,8 +83,6 @@
   </div>
 
   {% block footer %}{% endblock %}
-
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
 
   <!-- JS bundle -->
   <script src="{% static 'peerinst/js/index.min.js' %}"></script>
