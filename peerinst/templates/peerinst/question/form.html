@@ -80,10 +80,10 @@
           </div>
 
           <div class='field-container'>
-            <div class='number-box flush-to-textbox'><span class='number'></span></div>
+            <div class='number-box'><span class='number'></span></div>
             <div class='field'>
               <div class='mdc-form-field id-text-field'>
-                <label for="id_text"> {{ form.text.label }}</label>
+                <label for="id_text" class='p-bottom-10'> {{ form.text.label }}</label>
               </div>
               <div class="mdc-text-field mdc-text-field--textarea">
                 {{ form.text }}
@@ -555,26 +555,26 @@
       event.preventDefault();
       $(this).val("");
 
-      const newDiv = document.createElement("div")
-      newDiv.setAttribute("d", ui.item.label)
-      newDiv.setAttribute("v", ui.item.value)
-      newDiv.setAttribute("tabindex", "0")
-      newDiv.setAttribute("data-mdc-auto-init", "MDCChip")
-      newDiv.classList.add("mdc-chip mdc-typography--caption",className)
-      newDiv.addEventListener("click", () => {
+      const newDiv = document.createElement("div");
+      newDiv.setAttribute("d", ui.item.label);
+      newDiv.setAttribute("v", ui.item.value);
+      newDiv.setAttribute("tabindex", "0");
+      newDiv.setAttribute("data-mdc-auto-init", "MDCChip");
+      newDiv.classList.add("mdc-chip", "mdc-typography--caption", className);
+      newDiv.addEventListener("click", function() {
         updateSelect(this, formId)
       })
-      const text = document.createElement("div")
-      text.classList.add("mdc-chip__text")
-      div.textContent = ui.item.label
-      newDiv.appendChild(text)
-      const icon = document.createElement("i")
-      icon.classList.add("material-icons","mdc-chip__icon","mdc-chip__icon--trailing")
-      icon.setAttribute("tabindex", "0")
-      icon.setAttribute("role", "button")
-      icon.textContent = "cancel"
-      newDiv.appendChild(icon)
-      document.getElementById(currentIds).appendChild(newDiv)
+      const text = document.createElement("div");
+      text.classList.add("mdc-chip__text");
+      text.textContent = ui.item.label;
+      newDiv.appendChild(text);
+      const icon = document.createElement("i");
+      icon.classList.add("material-icons","mdc-chip__icon","mdc-chip__icon--trailing");
+      icon.setAttribute("tabindex", "0");
+      icon.setAttribute("role", "button");
+      icon.textContent = "cancel";
+      newDiv.appendChild(icon);
+      document.getElementById(currentIds).appendChild(newDiv);
 
       $(formId).append("<option selected='selected' value="+ui.item.value+">"+ui.item.label+"</option>");
     }
@@ -595,7 +595,7 @@
     response: response('.collaborator', '#search_collaborators'),
     search: search('#search_collaborators'),
     focus: focus,
-    select: select('#current_collaborators', 'collaborator', '#id_collaborators'),
+    select: select('current_collaborators', 'collaborator', '#id_collaborators'),
     autoFocus: true,
   });
 
@@ -610,12 +610,11 @@
       response: response('.category', '#search_categories'),
       search: search('#search_categories'),
       focus: focus,
-      select: select('#current_categories', 'category', '#id_category'),
+      select: select('current_categories', 'category', '#id_category'),
       autoFocus: true,
     });
   }
   bindCategoryAutofill();
-
 
   // TinyMCE bind to textarea
   $('#id_text').removeAttr('required');
@@ -623,14 +622,15 @@
     selector: 'textArea',
     elementpath: false,
     branding: false,
-    plugins: ['autolink', 'autosave', 'charmap', 'code', 'link', 'paste', 'textcolor'],
+    plugins: ['autolink', 'autosave', 'charmap', 'code', 'link', 'paste'],
     menubar: false,
-    toolbar: 'undo redo | bold italic  underline superscript subscript forecolor | link | charmap | code',
+    toolbar: 'undo redo | bold italic underline superscript subscript | link | charmap | code',
     content_css: "{% static 'peerinst/css/tiny.min.css' %}",
     link_assume_external_targets: true,
     default_link_target: '_blank',
   });
 </script>
+
 <script nonce="{{ request.csp_nonce }}">
   window.addEventListener("load", function() {
     [...document.getElementsByClassName("collaborator")].forEach(btn => {
@@ -639,9 +639,12 @@
       });
 
     })
-    document.getElementById("clone-btn").addEventListener("click", function() {
-      window.location.href=this.getAttribute('href');
-    })
+    var cloneBtn = document.getElementById("clone-btn");
+    if (cloneBtn != null) {
+      cloneBtn.addEventListener("click", function() {
+        window.location.href=this.getAttribute('href');
+      });
+    }
   })
 </script>
 {% endif %}

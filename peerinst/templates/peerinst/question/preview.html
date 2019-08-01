@@ -5,9 +5,9 @@
 {% block extra_title %}
 <h2 class="mdc-typography--display1 mdc-theme--secondary">
   {% if question.type == "PI" %}
-    {% trans 'Step 4: Example answers' %}
+    {% trans 'Step 3: Example answers' %}
   {% else %}
-    {% trans 'Step 3: Preview' %}
+    {% trans 'Step 2: Preview' %}
   {% endif %}
 </h2>
 
@@ -108,11 +108,4 @@ $('#submit-answer-form').remove();
 </script>
 {% endif %}
 
-<script nonce="{{ request.csp_nonce }}">
-  window.addEventListener("load", function() {
-    document.getElementById("answer-form").addEventListener("click", event => {
-      question.submitForm(event);
-    });
-  })
-</script>
 {% endblock %}
