@@ -1122,13 +1122,16 @@ def get_answer_corresponding_to_ltievent_log(event_json):
     return answer_obj
 
 
-def populate_answer_start_time_from_ltievent_logs(day_of_logs):
+def populate_answer_start_time_from_ltievent_logs(day_of_logs, event_type):
     """
     Given a date, filter event logs to populate Answer.datetime_start field for
     answer instances already in database
     """
 
-    field = "datetime_start"
+    if event_type == "problem_show":
+        field = "datetime_start"
+    elif event_type == "problem_check":
+        field = "datetime_first"
 
     event_logs = LtiEvent.objects.filter(
         timestamp__gte=day_of_logs,
@@ -1137,7 +1140,18 @@ def populate_answer_start_time_from_ltievent_logs(day_of_logs):
     i = 0
     for e in event_logs.iterator():
         e_json = e.event_log
-        if e_json["event_type"] == "problem_show":
+
+        # problem_check events have two associated logs each
+        # the earlier one will correspond to when the first_answer was saved
+        # and hence is the one we want assocated with datetime_first.
+        # The correct log does not have the "rationales" key in the log
+        # If "rationales" in in event log, ignore this log event
+        if event_type == "problem_check" and "rationales" in e_json["event"]:
+            continue
+
+        # we are ignoring save_problem_success events, as they have already
+        # been handled
+        if e_json["event_type"] == event_type:
 
             try:
 

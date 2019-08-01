@@ -12,7 +12,7 @@ from peerinst.util import (
     make_daterange,
 )
 
-LOGGER = logging.getLogger("peerinst")
+LOGGER = logging.getLogger("peerinst-models")
 
 
 class Command(BaseCommand):
@@ -30,9 +30,13 @@ class Command(BaseCommand):
             day=24, month=1, year=2019, tzinfo=pytz.utc
         )
 
-        for day_of_logs in make_daterange(start_date, end_date):
-            print(day_of_logs)
-            populate_answer_start_time_from_ltievent_logs(day_of_logs)
+        event_type = "problem_show"
 
-        print("Completed populating datetime_start for Answer objects")
-        print("Took {:.2f} seconds".format(time.time() - start))
+        for day_of_logs in make_daterange(start_date, end_date):
+            LOGGER.INFO(day_of_logs)
+            populate_answer_start_time_from_ltievent_logs(
+                day_of_logs=day_of_logs, event_type=event_type
+            )
+
+        LOGGER.INFO("Completed populating datetime_start for Answer objects")
+        LOGGER.INFO("Took {:.2f} seconds".format(time.time() - start))
