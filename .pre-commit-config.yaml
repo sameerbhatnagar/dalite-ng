@@ -33,15 +33,15 @@ repos:
         exclude: "^.*\\.min\\..*$"
         additional_dependencies: ['stylelint@9.9.0', 'stylelint-config-recommended-scss@3.2.0', 'stylelint-config-recommended@2.1.0']
   - repo: https://github.com/Lucas-C/pre-commit-hooks-safety
-    sha: v1.1.0
+    rev: v1.1.0
     hooks:
     - id: python-safety-dependencies-check
-    always_run: true
+      always_run: true
   - repo: local
     hooks:
-    - id: yarn-audit
-      name: yarn-audit
+    - id: npm-audit
+      name: npm-audit
       language: system
-      entry: yarn audit
+      entry: npm audit
       always_run: true
       exclude: ".*"

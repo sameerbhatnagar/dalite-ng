@@ -46,10 +46,24 @@
         {% trans "By clicking on 'Register' you agree to the " %}<a href="{% url 'terms_teacher' %}">{% trans 'Terms of Service' %}</a>.
       </p>
       <div>
-        <input class="mdc-button mdc-button--raised padded-top" onclick="this.form.submit();if (this.form.reportValidity()){this.disabled=true;}" type="submit" value="{% trans 'Register' %}"/>
+        <input id="submit-btn" class="mdc-button mdc-button--raised padded-top" type="submit" value="{% trans 'Register' %}"/>
       </div>
     </form>
     <br>
   </section>
 </main>
+{% endblock %}
+
+{% block scripts %}
+{{ block.super }}
+<script nonce="{{ request.csp_nonce }}">
+  window.addEventListener("load", function() {
+    document.getElementById("submit-btn").addEventListener("click", function() {
+      this.form.submit();
+      if (this.form.reportValidity()) {
+        this.disabled=true;
+      }
+    })
+  })
+</script>
 {% endblock %}

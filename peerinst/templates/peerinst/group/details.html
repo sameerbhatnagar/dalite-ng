@@ -36,7 +36,7 @@
                 </span>
               </span>
               <span class="mdc-list-item__meta">
-                <i onclick="group.editField(event, 'text', 'mdc-list-item__secondary-text')" title="Edit" class="material-icons md-24 mdc-ripple-surface icon-list">edit</i>
+                <i title="Edit" class="material-icons md-24 mdc-ripple-surface icon-list edit-btn">edit</i>
               </span>
             </li>
             <li class="mdc-list-divider" role="separator"></li>
@@ -52,7 +52,7 @@
                 </span>
               </span>
               <span class="mdc-list-item__meta">
-                <i onclick="group.editField(event, 'text', 'mdc-list-item__secondary-text')" title="Edit" class="material-icons md-24 mdc-ripple-surface icon-list">edit</i>
+                <i title="Edit" class="material-icons md-24 mdc-ripple-surface icon-list edit-btn">edit</i>
               </span>
             </li>
             <li class="mdc-list-divider" role="separator"></li>
@@ -101,19 +101,11 @@
                 <div class="switch-button">
                   {% if group.student_id_needed %}
                   <input type="checkbox"
-                         class="switch-button__input"
-                         onclick="group.toggleStudentIdNeeded(
-                            event,
-                           '{% url 'group-details-update' group.hash %}'
-                         )"
+                         class="switch-button__input toggle-id-btn"
                          checked>
                   {% else %}
                   <input type="checkbox"
-                         class="switch-button__input"
-                         onclick="group.toggleStudentIdNeeded(
-                            event,
-                           '{% url 'group-details-update' group.hash %}'
-                         )">
+                         class="switch-button__input toggle-id-btn">
                   {% endif %}
                   <div class="switch-button__background"></div>
                   <div class="switch-button__button"></div>
@@ -122,14 +114,14 @@
             </li>
             <li class="mdc-list-divider" role="separator"></li>
 
-            <li class="mdc-list-item" style="height:auto;padding: 12px 12px;">
+            <li class="mdc-list-item verified_user">
               <span class="mdc-list-item__graphic mdc-theme--primary">
                 <i class="mdc-theme--primary material-icons md-48">verified_user</i>
               </span>
               <span class="mdc-list-item__text mdc-theme--secondary bold">
                 {% trans 'Teachers with access' %}
                 <div name="teacher" class="mdc-list-item__secondary-text">
-                  <ul style="padding-left:0px;">
+                  <ul>
                     {% for t in group.teacher.all %}
                     <li class="mdc-list-item__secondary-text">
                       {{ t.user.username }}
@@ -139,7 +131,7 @@
                 </div>
               </span>
               <span class="mdc-list-item__meta">
-                <i onclick="group.editField(event, 'textList', 'mdc-list-item__secondary-text')" title="Add" class="material-icons md-24 mdc-ripple-surface icon-list">add</i>
+                <i title="Add" class="material-icons md-24 mdc-ripple-surface icon-list edit-btn">add</i>
               </span>
             </li>
             <li class="mdc-list-divider" role="separator"></li>
@@ -154,7 +146,7 @@
                 {% trans 'Submission quality' %}
                 <div class="mdc-list-item__secondary-text">
                   {% if group.quality %}
-                  <ul style="padding-left:0px;">
+                  <ul class="p-left-0">
                     {% for criterion in assignment.quality.criterions.all %}
                     <li class="mdc-list-item__secondary-text">
                       {{ criterion.name }} v{{ criterion.version }}
@@ -188,7 +180,7 @@
           {% for a in assignments %}
 
           <li class="mdc-list-divider" role="separator"></li>
-          <li onclick="window.location.href='{% url 'group-assignment' a.hash %}'" class="mdc-list-item" style="cursor: pointer;">
+          <li class="mdc-list-item pointer assignment-link">
             <span class="mdc-list-item__graphic mdc-theme--primary">
               <i class="mdc-theme--primary material-icons md-48">work</i>
             </span>
@@ -202,7 +194,7 @@
               </span>
             </span>
             <span class="mdc-list-item__meta">
-              <i onclick="group.removeAssignment(event, '{% url 'group-assignment' a.hash %}')" class="material-icons md-24 mdc-ripple-surface icon-list">delete</i>
+              <i>delete</i>
               <a href="{% url 'group-assignment' a.hash %}">
               <i class="material-icons md-24 mdc-ripple-surface icon-list">edit</i>
               </a>
@@ -250,7 +242,7 @@
               </span>
             </span>
             <span class="mdc-list-item__meta">
-              <span class="bold" style="font-size:20px;">{{ forloop.counter }}</span>
+              <span class="bold f-size-20">{{ forloop.counter }}</span>
               </a>
             </span>
           </li>
@@ -268,4 +260,32 @@
 
   </section>
 </main>
+{% endblock %}
+
+{% block scripts %}
+{{ block.super }}
+<script nonce="{{ request.csp_nonce }}">
+  window.addEventListener("load", function() {
+    [...document.getElementsByClassName("edit-btn")].forEach(btn => {
+      btn.addEventListener("click", event => {
+        group.editField(event, 'text', 'mdc-list-item__secondary-text')       
+      })
+    })
+    [...document.getElementsByClassName("toggle-id-btn")].forEach(btn => {
+      btn.addEventListener("click", event => {
+        group.toggleStudentIdNeeded(event, '{% url 'group-details-update' group.hash %}')
+      })
+    })
+    const links = document.getElementsByClassName("assignment-link")
+    const btns = document.getElementsByClassName("delete-btn")
+    {% for a in assignments %}
+    links[{{ forloop.counter0 }}].addEventListener("click", () => {
+      window.location.href='{% url 'group-assignment' a.hash %}'
+    })
+    btns[{{ forloop.counter0 }}].addEventListener("click", event => {
+      group.removeAssignment(event, '{% url 'group-assignment' a.hash %}')
+    })
+    {% endfor %}
+  })
+</script>
 {% endblock %}

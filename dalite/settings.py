@@ -69,7 +69,7 @@ MIDDLEWARE = (
 
 ROOT_URLCONF = "dalite.urls"
 
-CUSTOM_SETTINGS = os.environ.get("CUSTOM_SETTINGS", "default")
+CUSTOM_SETTINGS = os.environ.get("CUSTOM_SETTINGS", "SALTISES4")
 
 TEMPLATES = [
     {
@@ -386,16 +386,15 @@ CSP_SCRIPT_SRC = [
     "www.youtube.com",
     "s.ytimg.com",
     "cdn.jsdelivr.net",
-    "'unsafe-inline'",
 ]
 CSP_STYLE_SRC = [
     "'self'",
     "*.mydalite.org",
     "fonts.googleapis.com",
+    "ajax.googleapis.com",
     "unpkg.com",
     "cdn.jsdelivr.net",
     "code.jquery.com",
-    "'unsafe-inline'",
 ]
 CSP_FONT_SRC = [
     "'self'",
@@ -403,13 +402,10 @@ CSP_FONT_SRC = [
     "fonts.gstatic.com",
     "unpkg.com",
 ]
+CSP_OBJECT_SRC = ["*"]
 
 # External framing
 FRAMING_ALLOWED_FROM = ["*"]
-
-CSP_INCLUDE_NONCE_IN = []
-
-CSRF_COOKIE_HTTPONLY = True
 
 SECURE_HSTS_SECONDS = 60 * 60 * 24 * 365
 REFERRER_POLICY = "no-referrer, strict-origin-when-cross-origin"

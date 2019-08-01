@@ -1,5 +1,5 @@
 export function showReplyForm(id) {
-  $("#"+id).toggle();
+  $("#" + id).toggle();
 }
 
 // Setup ajax call and attach a submit handler to the form
@@ -12,8 +12,8 @@ $.ajaxSetup({
 });
 
 export function toggleFollow(el, subscribe, unsubscribe) {
-  console.info(el.getAttribute("aria-pressed")=="false");
-  if (el.getAttribute("aria-pressed")=="false") {
+  console.info(el.getAttribute("aria-pressed") == "false");
+  if (el.getAttribute("aria-pressed") == "false") {
     console.info("Subscribing to thread");
     const posting = $.post(subscribe);
     posting.done(function(data) {
@@ -39,9 +39,12 @@ initFollows();
 function sizeEmbeddedContent() {
   document.querySelectorAll(".embedded-object").forEach(function(el) {
     const aspectRatio = +el.getAttribute("width") / +el.getAttribute("height");
-    const w = Math.min(700, document.querySelector("section").offsetWidth-30);
+    const w = Math.min(
+      700,
+      document.querySelector("section").offsetWidth - 30,
+    );
     el.setAttribute("width", w);
-    el.setAttribute("height", w/aspectRatio);
+    el.setAttribute("height", w / aspectRatio);
   });
 }
 

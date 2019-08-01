@@ -1,4 +1,4 @@
-{% load staticfiles i18n compress admin_urls tz piwik %}
+{% load csp staticfiles i18n compress admin_urls tz piwik %}
 
 {% get_current_language as LANGUAGE_CODE %}
 
@@ -86,8 +86,9 @@
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
 
   <!-- JS bundle -->
-  {% compress js %}
   <script src="{% static 'peerinst/js/index.min.js' %}"></script>
+
+  {% script type="text/javascript" %}
   <script>
   if (document.querySelector('.mdc-drawer--temporary')){
     var drawer = new bundle.drawer.MDCTemporaryDrawer(document.querySelector('.mdc-drawer--temporary'));
@@ -103,10 +104,13 @@
     $('#'+$(this).attr('form')).submit();
   })
   </script>
-  {% endcompress %}
+  {% endscript %}
 
   {% block scripts %}{% endblock %}
+
+  {% script type="text/javascript" %}
   {% piwik %}
+  {% endscript %}
 </body>
 
 </html>

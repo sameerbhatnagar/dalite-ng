@@ -24,7 +24,7 @@
 
     {% for g in object_list %}
     <div class="mdc-card">
-      <div class="mdc-typography--title bold" style="margin-bottom:5px;">
+      <div class="mdc-typography--title bold m-bot-5">
         {{g.title|safe}}
       </div>
 
@@ -43,7 +43,7 @@
       {% endif %}
 
       <div class="mdc-card__actions">
-        <div class="mdc-card__action-buttons" style="color:grey;">
+        <div class="mdc-card__action-buttons grey">
           <div class="mdc-typography--caption">
             <div>
               {% trans 'Discipline' %}: {{g.discipline}}
@@ -71,7 +71,7 @@
             <span id="rating-{{g.id}}"></span>
           </div>
           <a href="{% url 'question' assignment_id=assignment.pk question_id=g.pk %}">
-            <i style="overflow:visible;" class="material-icons md-36 analytics-tags ripple-icon mdc-theme--primary mdc-ripple-surface--primary md-32">play_arrow</i>
+            <i class="material-icons md-36 analytics-tags ripple-icon mdc-theme--primary mdc-ripple-surface--primary md-32 overflow">play_arrow</i>
           </a>
         </div>
       </div>
@@ -140,9 +140,9 @@
         </header>
         <section id="description" class="mdc-dialog__body">
           <div id="{{ g.id }}" name="analytics" class="items-for-question">
-            <svg id="first-frequency-{{ g.id }}" width="300" height="80" style="vertical-align:middle"></svg>
-            <svg id="matrix-{{ g.id }}" width="60" height="60" style="vertical-align:middle"></svg>
-            <svg id="second-frequency-{{ g.id }}" width="300" height="80" style="vertical-align:middle"></svg>
+            <svg id="first-frequency-{{ g.id }}" width="300" height="80" class="vertical-align"></svg>
+            <svg id="matrix-{{ g.id }}" width="60" height="60" class="vertical-align"></svg>
+            <svg id="second-frequency-{{ g.id }}" width="300" height="80" class="vertical-align"></svg>
           </div>
         </section>
         <footer class="mdc-dialog__footer">
@@ -161,6 +161,7 @@
 {% endblock %}
 
 {% block scripts %}
+{{ block.super }}
 {% compress js inline %}
 <script nonce="{{ request.csp_nonce }}">
 bundle.addDialog();
