@@ -435,7 +435,7 @@
             </form>
           </span>
           <span class="padded">
-            <button id="clone-btn" type="button" class="mdc-button mdc-button--raised">{% trans 'Clone' %}</button>
+            <button id="clone-btn" href="{% url 'question-clone' pk=object.pk %}" type="button" class="mdc-button mdc-button--raised">{% trans 'Clone' %}</button>
           </span>
         {% endif %}
       </div>
@@ -639,8 +639,8 @@
       });
 
     })
-    document.getElementById("clone-btn").addEventListener("click", () => {
-      window.location.href='{% url 'question-clone' pk=object.pk %}'
+    document.getElementById("clone-btn").addEventListener("click", function() {
+      window.location.href=this.getAttribute('href');
     })
   })
 </script>

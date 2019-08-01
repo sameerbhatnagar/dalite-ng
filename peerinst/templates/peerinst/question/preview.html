@@ -107,10 +107,7 @@
 $('#submit-answer-form').remove();
 </script>
 {% endif %}
-{% endblock %}
 
-{% block scripts %}
-{{ block.super }}
 <script nonce="{{ request.csp_nonce }}">
   window.addEventListener("load", function() {
     document.getElementById("answer-form").addEventListener("click", event => {
