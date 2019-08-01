@@ -620,6 +620,11 @@ def collection_patterns():
             name="collection-update",
         ),
         url(
+            r"^collection/delete/(?P<pk>[0-9]+)$",
+            views.CollectionDeleteView.as_view(),
+            name="collection-delete",
+        ),
+        url(
             r"^collection/list/$",
             views.CollectionListView.as_view(),
             name="collection-list",
@@ -635,14 +640,14 @@ def collection_patterns():
             name="followed-collection-list",
         ),
         url(
+            r"^collection/featured/$",
+            views.FeaturedCollectionListView.as_view(),
+            name="featured-collection-list",
+        ),
+        url(
             r"^collection/follower",
             views.teacher_toggle_follower,
             name="teacher-toggle-follower",
-        ),
-        url(
-            r"^collection/follower/update",
-            views.follower_update,
-            name="follower-update",
         ),
         url(
             r"^collection/featured-data/$",

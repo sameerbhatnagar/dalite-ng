@@ -1,0 +1,33 @@
+{% extends 'peerinst/base.html' %}
+
+{% load compress staticfiles add_class i18n %}
+
+{% block body %}
+<main>
+  <section>
+    <div>
+    <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Update Your Collection of Assignments' %}</h2>
+
+        <div class='field-container'>
+          <div class='number-box'><span class='number'>?</span></div>
+          <div class='field'>
+            <p><small>
+              {% blocktrans %}
+              Are you sure you would like to delete your Collection of Assignments?
+              Your Collection has {{form.followers.count}} followers.
+              {% endblocktrans %}
+            </small></p>
+          </div>
+        </div>
+
+<form>
+
+      <input class="mdc-button mdc-button--raised padded-top" type="submit" value="Delete" />
+
+</form>
+
+
+
+</section>
+</main>
+{% endblock %}

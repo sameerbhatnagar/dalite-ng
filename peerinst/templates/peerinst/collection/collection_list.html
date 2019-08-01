@@ -6,6 +6,16 @@
 {% compress css %}
 <link href="{% static 'peerinst/css/collection.min.css' %}" rel="stylesheet">
 {% endcompress %}
+<style nonce="{{ request.csp_nonce }}">
+
+
+
+.click-box:hover {
+    cursor:pointer;
+  }
+
+
+</style>
 {% endblock %}
 {% block body %}
 <main>
@@ -18,28 +28,15 @@
     <div class="admin-link"><a href="{% url 'admin_index_wrapper' %}">Click here to access admin</a></div>
   {% endif %}
 
-<div class="search">
-  <div class="mdc-text-field mdc-text-field--outlined mdc-text-field--dense" data-mdc-auto-init="MDCTextField">
-    <label class="mdc-floating-label" for="search-bar">{% trans 'Search' %}</label>
-    <input class="mdc-text-field__input" id="search-bar" oninput="search()">
-    <div class="mdc-notched-outline">
-      <svg>
-      <path class="mdc-notched-outline__path"/>
-      </svg>
-    </div>
-    <div class="mdc-notched-outline__idle"></div>
-  </div>
-  <p class="mdc-text-field-helper-text mdc-text-field-helper-text--persistent" aria-hidden="true">
-    {% trans 'The collection list will be filtered for titles that contain the above string.' %}
-  </p>
-</div>
 
 <ul>
 
 {% for obj in object_list %}
+
 <li class="dense-list searchable">
 <div class="mdc-card" id="card-{{ obj.id }}" {% if obj.featured == True %}
      style="background-color:powderblue;"  {% endif %}>
+     <div class='click-box'  onclick="location.href='{{ obj.pk }}';">
   <div class="mdc-typography--title bold">
     {{ obj.title }}
   </div>
@@ -51,6 +48,7 @@
   <div class="mdc-typography--body1" style="margin-top:5px;">
     {{ obj.description }}
   </div>
+  </div>
 
   <div class="mdc-card__actions">
 
@@ -60,7 +58,7 @@
           {% trans 'Discipline' %}: {{ obj.discipline }}
         </div>
         <div>
-          {% trans 'Followers' %}: {{ obj.followers.count }}
+
         </div>
         <div>
           {% trans 'Published on' %} {{obj.created_on}}
@@ -71,18 +69,17 @@
   <div class="mdc-card__action-icons">
 
 
-    <i class="mdc-icon-toggle material-icons mdc-theme--primary follower-button"
+    <i class="mdc-icon-toggle material-icons mdc-theme--primary"
         role="button"
         aria-pressed="false"
         aria-label="Add to favorites" tabindex="0"
-        {% if teacher in obj.followers.all %}
+        {% if request.user.teacher in obj.followers.all %}
         data-toggle-off='{"label": "Remove from favourites", "content": "favorite"}'
         data-toggle-on='{"label": "Add to favourites", "content": "favorite_border"}'
         {% else %}
         data-toggle-on='{"label": "Remove from favourites", "content": "favorite"}'
         data-toggle-off='{"label": "Add to favourites", "content": "favorite_border"}'
         {% endif %}
-        data-collection-pk="{{obj.pk}}"
         onclick="toggleFollower({{ obj.pk }})">
         favorite_border
     </i>
@@ -90,6 +87,7 @@
   </div>
 </div>
 </div>
+
 
   </li>
 {% empty %}
@@ -103,16 +101,33 @@
 {% endblock %}
 
 {% block scripts %}
-<script src="{% static 'peerinst/js/search.min.js' %}"></script>
-<script src="{% static 'peerinst/js/collection.min.js' %}"></script>
 {% compress js inline %}
 <script nonce="{{ request.csp_nonce }}">
 
-collection.init("{% url 'teacher-toggle-follower' %}");
+[].forEach.call(document.querySelectorAll(".mdc-icon-toggle"), el => {
+  bundle.iconToggle.MDCIconToggle.attachTo(el);
+});
 
-function changeURL() {
-  window.location.assign = "www.google.com";
+$.ajaxSetup({
+    beforeSend: function(xhr, settings) {
+        if (!bundle.csrfSafeMethod(settings.type) && !this.crossDomain) {
+            xhr.setRequestHeader("X-CSRFToken", bundle.getCookie('csrftoken'));
+        }
+    }
+});
+
+
+function toggleFollower(pk) {
+  var posting = $.post("{% url 'teacher-toggle-follower' %}", {pk: pk});
+  posting.done(function(data) {
+    console.info(data);
+  })
 }
+
+
+
+
 </script>
+
 {% endcompress %}
 {% endblock %}

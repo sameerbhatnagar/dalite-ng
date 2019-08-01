@@ -20,7 +20,7 @@
 {% block body %}
 <main>
 <section>
-<h1 class="mdc-typography--display3">{% trans 'Browse Your Collections' %}
+<h1 class="mdc-typography--display3">{% trans 'Browse Your Featured Collections' %}
   <svg class="underline" width=150 height=4></svg>
 </h1>
 
@@ -98,4 +98,36 @@
 
 </section>
 </main>
+{% endblock %}
+
+{% block scripts %}
+{% compress js inline %}
+<script nonce="{{ request.csp_nonce }}">
+
+[].forEach.call(document.querySelectorAll(".mdc-icon-toggle"), el => {
+  bundle.iconToggle.MDCIconToggle.attachTo(el);
+});
+
+$.ajaxSetup({
+    beforeSend: function(xhr, settings) {
+        if (!bundle.csrfSafeMethod(settings.type) && !this.crossDomain) {
+            xhr.setRequestHeader("X-CSRFToken", bundle.getCookie('csrftoken'));
+        }
+    }
+});
+
+
+function toggleFollower(pk) {
+  var posting = $.post("{% url 'teacher-toggle-follower' %}", {pk: pk});
+  posting.done(function(data) {
+    console.info(data);
+  })
+}
+
+
+
+
+</script>
+
+{% endcompress %}
 {% endblock %}
