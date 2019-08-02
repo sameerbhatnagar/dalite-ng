@@ -70,6 +70,10 @@
   }
 }
 
+:host {
+  font-family: var(--font-family, inherit);
+}
+
 :host([hidden]) {
   display: none;
 }
