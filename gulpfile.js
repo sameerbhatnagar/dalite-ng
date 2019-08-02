@@ -299,7 +299,8 @@ function icons() {
       }),
     )
     .pipe(rename("icons.svg"))
-    .pipe(gulp.dest("./templates/"));
+    .pipe(gulp.dest("./templates/"))
+    .pipe(gulp.dest("./peerinst/static/peerinst/"));
 }
 
 function watch() {
