@@ -360,3 +360,5 @@ Tools
 
   `make test`:
     Runs pytest with migration and coverage options
+  `make test-cdb`:
+    Runs pytest with migration and coverage options, re-creating the db

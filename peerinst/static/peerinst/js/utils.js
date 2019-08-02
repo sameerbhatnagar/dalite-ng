@@ -23,18 +23,22 @@ export function formatDatetime(datetime: Date): string {
   );
 }
 
-export function createSvg(name: string): Element {
+export function createSvg(name: string, useSprite: boolean = true): Element {
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
   const use = document.createElementNS("http://www.w3.org/2000/svg", "use");
-  use.setAttributeNS(
-    "http://www.w3.org/1999/xlink",
-    "href",
-    window.location.protocol +
-      "//" +
-      window.location.host +
-      "/static/peerinst/icons.svg#" +
-      name,
-  );
+  if (useSprite) {
+    use.setAttributeNS("http://www.w3.org/1999/xlink", "href", `#${name}`);
+  } else {
+    use.setAttributeNS(
+      "http://www.w3.org/1999/xlink",
+      "href",
+      window.location.protocol +
+        "//" +
+        window.location.host +
+        "/static/peerinst/icons.svg#" +
+        name,
+    );
+  }
   svg.append(use);
   return svg;
 }
