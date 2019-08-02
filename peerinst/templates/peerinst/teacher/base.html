@@ -3,11 +3,15 @@
 {% load compress staticfiles i18n %}
 
 {% block stylesheets %}
-{% comment %} {% include 'reputation/header/styles.html' %} {% endcomment %}
+  {% compress css %}
+  <link href="{% static 'reputation/css/header.min.css' %}" rel="stylesheet">
+  {% endcompress %}
 {% endblock %}
 
 {% block scripts %}
+  {% compress js %}
   <script src="{% static 'reputation/js/header.min.js' %}"></script>
+  {% endcompress %}
 {% endblock %}
 
 {% block header-left %}

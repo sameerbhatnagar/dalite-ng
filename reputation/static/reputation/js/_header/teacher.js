@@ -46,7 +46,7 @@ export class TeacherReputationHeader extends HTMLElement {
     return this.hasAttribute("hidden");
   }
   get open() {
-    return this.hasAttribute("hidden");
+    return this.hasAttribute("open");
   }
   set hidden(val: boolean) {
     if (val) {
@@ -57,9 +57,9 @@ export class TeacherReputationHeader extends HTMLElement {
   }
   set open(val: boolean) {
     if (val) {
-      this.setAttribute("hidden", "");
+      this.setAttribute("open", "");
     } else {
-      this.removeAttribute("hidden");
+      this.removeAttribute("open");
     }
   }
 
@@ -67,6 +67,8 @@ export class TeacherReputationHeader extends HTMLElement {
     super();
 
     const shadow = this.attachShadow({ mode: "open" });
+
+    this.hidden = true;
 
     this.init(shadow);
   }
@@ -84,8 +86,8 @@ export class TeacherReputationHeader extends HTMLElement {
 
     type Model = {
       id: number,
+      element: TeacherReputationHeader,
       nonce: string,
-      open: boolean,
       reputation: ?number,
       reputationType: string,
       reputationUrl: string,
@@ -95,8 +97,8 @@ export class TeacherReputationHeader extends HTMLElement {
 
     const model: Model = {
       id: parseInt(this.reputationId),
+      element: this,
       nonce: this.nonce,
-      open: this.open,
       reputation: null,
       reputationType: this.reputationType,
       reputationUrl: this.reputationUrl,
@@ -110,6 +112,9 @@ export class TeacherReputationHeader extends HTMLElement {
 
     async function update() {
       await getReputation();
+      if (model.reputation !== null) {
+        model.element.hidden = false;
+      }
     }
 
     async function getReputation() {
@@ -119,7 +124,6 @@ export class TeacherReputationHeader extends HTMLElement {
       };
       const req = buildReq(postData, "post");
       const resp = await fetch(model.reputationUrl, req);
-      console.log(resp);
       const data = await resp.json();
       model.reputation = data.reputation;
       model.reputations = data.reputations.map(reputation => ({
@@ -127,10 +131,13 @@ export class TeacherReputationHeader extends HTMLElement {
         description: reputation.description,
         reputation: reputation.reputation,
       }));
+      iconView();
+      listView();
     }
 
     function toggleReputationList() {
-      model.open = !model.open;
+      model.element.open = !model.element.open;
+      iconView();
       listView();
     }
 
@@ -139,48 +146,63 @@ export class TeacherReputationHeader extends HTMLElement {
     /********/
 
     function view() {
+      shadow.appendChild(styleView());
+
       const container = document.createElement("div");
       container.id = "container";
-      container.title = "Reputation";
       shadow.appendChild(container);
 
       container.appendChild(iconView());
       container.appendChild(listView());
-      container.appendChild(styleView());
     }
 
     function iconView() {
-      const icon = document.createElement("div");
-      icon.id = "icon";
-      icon.addEventListener("click", (event: MouseEvent) => {
-        event.stopPropagation();
-      });
+      let icon = shadow.getElementById("icon");
 
-      const star = createSvg("star");
-      star.id = "icon__icon";
-      star.addEventListener("click", (event: MouseEvent) => {
-        toggleReputationList();
-      });
-      icon.appendChild(star);
-
-      const span = document.createElement("span");
-      span.id = "icon__reputation";
-      icon.appendChild(span);
-
-      document.body?.addEventListener("click", (event: MouseEvent) => {
-        if (model.open) {
+      if (!icon) {
+        icon = document.createElement("div");
+        icon.id = "icon";
+        icon.title = "Reputation";
+        icon.addEventListener("click", (event: MouseEvent) => {
+          event.stopPropagation();
           toggleReputationList();
+        });
+
+        const star = createSvg("star", false);
+        star.id = "icon__icon";
+        icon.appendChild(star);
+
+        const span = document.createElement("span");
+        span.id = "icon__reputation";
+        if (model.reputation !== null && model.reputation !== undefined) {
+          span.textContent = model.reputation.toString();
         }
-      });
+        icon.appendChild(span);
+
+        document.body?.addEventListener("click", (event: MouseEvent) => {
+          if (model.element.open) {
+            toggleReputationList();
+          }
+        });
+      } else {
+        if (model.reputation !== null && model.reputation !== undefined) {
+          shadow.getElementById(
+            "icon__reputation",
+          ).textContent = model.reputation.toString();
+        }
+      }
 
       return icon;
     }
 
     function listView() {
-      let list = document.getElementById("list");
+      let list = shadow.getElementById("list");
       if (!list) {
         list = document.createElement("div");
         list.id = "list";
+        list.addEventListener("click", (event: MouseEvent) => {
+          event.stopPropagation();
+        });
       }
 
       clear(list);
@@ -221,93 +243,15 @@ export class TeacherReputationHeader extends HTMLElement {
     }
 
     function styleView() {
-      const style = document.createElement("style");
-      style.textContent = `
-        #container {
-          position: relative;
-        }
-
-        #icon {
-          align-items: center;
-          border-radius: 20px;
-          cursor: pointer;
-          display: flex;
-          justify-content: space-between;
-          padding: 4px;
-          transition: 200ms;
-        }
-
-        #icon:hover {
-          background: rgba(255, 255, 255, 0.25);
-        }
-
-        #icon:active {
-          background: rgba(255, 255, 255, 0.5);
-        }
-
-        #icon__icon {
-          fill: var(--reputation-icon-colour, #ffffff);
-          height: 30px;
-          width: 30px;
-        }
-
-        #reputation {
-          text-align: center;
-          width: 45px;
-        }
-
-        #list {
-          align-items: center;
-          background: #ffffff;
-          border-radius: 20px;
-          color: var(--reputation-text-colour, #000000);
-          display: grid;
-          font-size: 0.9rem;
-          grid-auto-rows: minmax(50px, max-content);
-          grid-template-columns: repeat(3, minmax(125px, max-content));
-          padding: 10px;
-          position: absolute;
-          right: 0;
-          text-align: center;
-          top: 40px;
-          transform: scale(0);
-          transform-origin: top right;
-          transition: transform 200ms, border-radius 200ms;
-          z-index: 10;
-        }
-
-        .list__header {
-          align-content: center;
-          color: var(--reputation-header-colour, #000000)
-          font-size: 1.1rem;
-          font-weight: bold;
-          justify-content: center;
-          text-decoration: underline;
-          user-select: none;
-        }
-
-        .list__name {
-          cursor: pointer;
-          text-decoration: underline;
-        }
-
-        :host([hidden]) {
-            display: none;
-        }
-
-        :host([open]) #icon {
-          background: #ffffff;
-          border-radius: 20px 20px 0 0;
-          color: var(--reputation-colour, #d3d3d3);
-          fill: var(--reputation-colour, #d3d3d3);
-        }
-
-        :host([open]) #list {
-          border-radius: 20px 0 20px 20px;
-          transform: scale(1);
-        }
-      `;
-      style.setAttribute("nonce", model.nonce);
+      const style = document.createElement("link");
+      style.setAttribute(
+        "href",
+        window.location.protocol +
+          "//" +
+          window.location.host +
+          "/static/reputation/css/teacher-header.min.css",
+      );
+      style.setAttribute("rel", "stylesheet");
       return style;
     }
 
@@ -315,7 +259,7 @@ export class TeacherReputationHeader extends HTMLElement {
     /* init */
     /********/
 
-    await update();
     view();
+    await update();
   }
 }

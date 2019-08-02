@@ -22,7 +22,7 @@ def test_calculate_points__no_threshold(question_reputation):
     model = mock.Mock()
     criterion.evaluate.return_value = 50
     criterion.thresholds = []
-    criterion.points_per_threshold = [2]
+    criterion.points_per_threshold = ["2"]
 
     assert reputation_type._calculate_points(criterion, model) == 100
 
@@ -33,8 +33,8 @@ def test_calculate_points__threshold_same__as_points(question_reputation):
     criterion = mock.Mock()
     model = mock.Mock()
     criterion.evaluate.return_value = 50
-    criterion.thresholds = [10, 20, 30, 40]
-    criterion.points_per_threshold = [4, 3, 2, 1]
+    criterion.thresholds = ["10", "20", "30", "40"]
+    criterion.points_per_threshold = ["4", "3", "2", "1"]
 
     assert reputation_type._calculate_points(criterion, model) == 10 * (
         4 + 3 + 2 + 1
@@ -47,8 +47,8 @@ def test_calculate_points__threshold_less_than_points(question_reputation):
     criterion = mock.Mock()
     model = mock.Mock()
     criterion.evaluate.return_value = 50
-    criterion.thresholds = [10, 20, 30, 40]
-    criterion.points_per_threshold = [5, 4, 3, 2, 1]
+    criterion.thresholds = ["10", "20", "30", "40"]
+    criterion.points_per_threshold = ["5", "4", "3", "2", "1"]
 
     assert reputation_type._calculate_points(criterion, model) == 10 * (
         5 + 4 + 3 + 2 + 1

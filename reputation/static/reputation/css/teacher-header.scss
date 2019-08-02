@@ -1,16 +1,17 @@
-@import "../../../../../peerinst/static/peerinst/css/variables";
+@import "../../../../peerinst/static/peerinst/css/variables";
 
-.reputation-icon {
+#container {
   position: relative;
 
-  & .reputation-icon__icon {
+  & #icon {
     align-items: center;
     border-radius: 20px;
+    color: #ffffff;
     cursor: pointer;
     display: flex;
     justify-content: space-between;
     padding: 4px;
-    transition: 200ms;
+    transition: 250ms;
 
     &:hover {
       background: rgba(255, 255, 255, 0.25);
@@ -20,34 +21,41 @@
       background: rgba(255, 255, 255, 0.5);
     }
 
-    & .reputation-icon__icon__reputation {
+    & #icon__icon {
+      fill: #ffffff;
+      height: 32px;
+      transition: 250ms;
+      width: 32px;
+    }
+
+    & #icon__reputation {
       text-align: center;
       width: 45px;
     }
   }
 
-  & .reputation-icon__list {
+  & #list {
     align-items: center;
     background: #ffffff;
     border-radius: 20px;
-    color: $mdc-theme-secondary;
+    color: var(--reputation-text-colour, #000000);
     display: grid;
     font-size: 0.9rem;
     grid-auto-rows: minmax(50px, max-content);
-    grid-template-columns: repeat(3, minmax(125px, max-content));
+    grid-template-columns: repeat(2, minmax(125px, max-content));
     padding: 10px;
     position: absolute;
     right: 0;
     text-align: center;
-    top: 40px;
+    top: 38px;
     transform: scale(0);
     transform-origin: top right;
-    transition: transform 200ms, border-radius 200ms;
+    transition: transform 250ms, border-radius 250ms;
     z-index: 10;
 
-    & .reputation-icon__list__header {
+    .list__header {
       align-content: center;
-      color: $mdc-theme-primary;
+      color: $mdc-theme-secondary;
       font-size: 1.1rem;
       font-weight: bold;
       justify-content: center;
@@ -55,25 +63,29 @@
       user-select: none;
     }
 
-    & .reputation-icon__list__name {
+    .list__name {
       cursor: pointer;
       text-decoration: underline;
     }
   }
+}
 
-  &.reputation-icon--hidden {
-    display: none;
-  }
+:host([hidden]) {
+  display: none;
+}
 
-  &.reputation-icon--open {
-    & .reputation-icon__icon {
+:host([open]) {
+  & #container {
+    & #icon {
       background: #ffffff;
       border-radius: 20px 20px 0 0;
       color: $mdc-theme-primary;
-      fill: $mdc-theme-primary;
+      & #icon__icon {
+        fill: $mdc-theme-primary;
+      }
     }
 
-    & .reputation-icon__list {
+    & #list {
       border-radius: 20px 0 20px 20px;
       transform: scale(1);
     }

@@ -56,11 +56,7 @@ class ReputationType(models.Model):
                 )
 
         else:
-            points = criterion.points_per_threshold[0] * evaluation
-
-        print("TEST")
-        print(evaluation)
-        print(points)
+            points = float(criterion.points_per_threshold[0]) * evaluation
 
         return points
 
@@ -121,7 +117,6 @@ class ReputationType(models.Model):
                 for c in self.criteria.all()
             )
         ]
-        print(reputations)
         reputation = sum(r["reputation"] for r in reputations)
 
         return reputation, reputations
