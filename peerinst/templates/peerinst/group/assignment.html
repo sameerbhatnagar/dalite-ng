@@ -13,7 +13,7 @@
 
     <div class="admin-link">
       <a href="{% url 'teacher' request.user.teacher.id %}">{% trans 'Back to My Account' %}</a>
-      <span style="padding-left:0.3em;padding-right:0.5em;">|</span><a href="{% url 'group-details' group.hash %}">{% trans 'Back to group' %}</a>
+      <span class="admin-link--padded">|</span><a href="{% url 'group-details' group.hash %}">{% trans 'Back to group' %}</a>
     </div>
 
     <div class="foldable foldable__unfolded">
@@ -45,7 +45,7 @@
                 </span>
               </span>
               <span class="mdc-list-item__meta">
-                <i onclick="group.editField(event, 'datetime', 'mdc-list-item__secondary-text')" title="Edit" class="material-icons md-24 mdc-ripple-surface icon-list">edit</i>
+                <i title="Edit" class="material-icons md-24 mdc-ripple-surface icon-list edit-btn">edit</i>
               </span>
             </li>
             <li class="mdc-list-divider" role="separator"></li>
@@ -84,7 +84,7 @@
                 {% trans 'Submission quality' %}
                 <div class="mdc-list-item__secondary-text">
                   {% if assignment.quality %}
-                  <ul style="padding-left:0px;">
+                  <ul class="p-left-0">
                     {% for criterion in assignment.quality.criterions.all %}
                     <li class="mdc-list-item__secondary-text">
                       {{ criterion.name }} v{{ criterion.version }}
@@ -112,7 +112,7 @@
       <h2 class="foldable--title mdc-typography--display1 mdc-theme--secondary">
         {% trans 'Questions' %}
       </h2>
-      <div class="foldable--body" style="padding-bottom:3px;">
+      <div class="foldable--body p-bot-3">
         <ul id="question-list" class="mdc-list mdc-list--two-line mdc-list--non-interactive">
           {% for q in questions %}
           <li class="draggable mdc-list-item" data-draggable-name="{{ q.title }}" draggable="true">
