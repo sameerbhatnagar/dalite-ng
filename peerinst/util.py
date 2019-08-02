@@ -1081,18 +1081,42 @@ def load_shown_rationales_from_ltievent_logs(day_of_logs):
     return
 
 
-def get_average_time_spent_on_all_question_start(question_id):
+def get_average_time_spent_on_all_question_start(
+    question_id, question_stage="whole", student_list=None
+):
     """
     Given a question id, return average time taken by all students to
     submit answer. If not enough data, return None
+    Optional argument:
+        - "question_stage", as a default, makes so that the total
+        time student spends is calculated. Use
+            - "first_answer_choice" to get time for first step,
+            - "second_answer_choice" for second step only.
+        - "student_list". default calculates the time for all students who have
+        attempted this question. If array of user_tokens given,  will limit
+        to those students only
     """
+    if question_stage == "whole":
+        expression = F("datetime_second") - F("datetime_start")
+    elif question_stage == "first_answer_choice":
+        expression = F("datetime_first") - F("datetime_start")
+    elif question_stage == "second_answer_choice":
+        expression = F("datetime_second") - F("datetime_first")
+    else:
+        return None
 
-    expression = F("datetime_second") - F("datetime_start")
     wrapped_expression = ExpressionWrapper(expression, DurationField())
+
+    if not student_list:
+        qs = Answer.objects.filter(question_id=question_id)
+    else:
+        qs = Answer.objects.filter(
+            question_id=question_id, user_token__in=student_list
+        )
+
     try:
         result = (
-            Answer.objects.filter(question_id=question_id)
-            .annotate(time_spent=wrapped_expression)
+            qs.annotate(time_spent=wrapped_expression)
             .values("time_spent")
             .aggregate(Avg("time_spent"))["time_spent__avg"]
             .seconds

@@ -27,10 +27,10 @@ class Command(BaseCommand):
         start = time.time()
 
         start_date = datetime.datetime(
-            day=2, month=9, year=2018, tzinfo=pytz.utc
+            day=15, month=8, year=2018, tzinfo=pytz.utc
         )
         end_date = datetime.datetime(
-            day=1, month=10, year=2018, tzinfo=pytz.utc
+            day=31, month=5, year=2019, tzinfo=pytz.utc
         )
 
         event_type = options["event_type"][0]
