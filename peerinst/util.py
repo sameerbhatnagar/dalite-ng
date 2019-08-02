@@ -1165,7 +1165,10 @@ def populate_answer_start_time_from_ltievent_logs(day_of_logs, event_type):
                 # keep the latest time at which student accessed
                 # problem start page
                 if getattr(answer_obj, field):
-                    if getattr(answer_obj, field) < e.timestamp:
+                    if (
+                        getattr(answer_obj, field) < e.timestamp
+                        and event_type == "problem_show"
+                    ):
                         setattr(answer_obj, field, e.timestamp)
                         answer_obj.save()
                         i += 1
@@ -1184,5 +1187,5 @@ def populate_answer_start_time_from_ltievent_logs(day_of_logs, event_type):
                     e_json["event"]["assignment_id"],
                 )
 
-    logger.info("{} answer start times updated".format(i))
+    logger.info("{} answer {} times updated".format(i, field))
     return
