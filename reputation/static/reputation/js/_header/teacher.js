@@ -76,7 +76,24 @@ export class TeacherReputationHeader extends HTMLElement {
     /* model */
     /*********/
 
-    const model = {
+    type Reputation = {
+      name: string,
+      description: string,
+      reputation: number,
+    };
+
+    type Model = {
+      id: number,
+      nonce: string,
+      open: boolean,
+      reputation: ?number,
+      reputationType: string,
+      reputationUrl: string,
+      reputations: Array<Reputation>,
+      shadow: ShadowRoot,
+    };
+
+    const model: Model = {
       id: parseInt(this.reputationId),
       nonce: this.nonce,
       open: this.open,
@@ -92,7 +109,7 @@ export class TeacherReputationHeader extends HTMLElement {
     /**********/
 
     async function update() {
-      // await getReputation();
+      await getReputation();
     }
 
     async function getReputation() {
@@ -102,9 +119,14 @@ export class TeacherReputationHeader extends HTMLElement {
       };
       const req = buildReq(postData, "post");
       const resp = await fetch(model.reputationUrl, req);
+      console.log(resp);
       const data = await resp.json();
       model.reputation = data.reputation;
-      model.reputations = data.reputations;
+      model.reputations = data.reputations.map(reputation => ({
+        name: reputation.full_name,
+        description: reputation.description,
+        reputation: reputation.reputation,
+      }));
     }
 
     function toggleReputationList() {
@@ -172,7 +194,7 @@ export class TeacherReputationHeader extends HTMLElement {
       return list;
     }
 
-    function headerView(list) {
+    function headerView(list: HTMLElement) {
       const name = document.createElement("div");
       name.classList.add("list__header");
       name.textContent = "Name";
@@ -184,15 +206,17 @@ export class TeacherReputationHeader extends HTMLElement {
       list.appendChild(rep);
     }
 
-    function reputationView(list, reputation) {
+    function reputationView(list: HTMLElement, reputation: Reputation) {
       const name = document.createElement("div");
       name.classList.add("list__name");
-      name.textContent = `${reputation.full_name}`;
+      name.textContent = `${reputation.name}`;
       name.title = reputation.description;
       list.appendChild(name);
 
       const rep = document.createElement("div");
-      rep.textContent = Math.round(reputation.reputation * 100) / 100;
+      rep.textContent = (
+        Math.round(reputation.reputation * 100) / 100
+      ).toString();
       list.appendChild(rep);
     }
 

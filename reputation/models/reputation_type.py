@@ -42,7 +42,8 @@ class ReputationType(models.Model):
 
         if criterion.thresholds:
             points = sum(
-                points_ * (min(evaluation, threshold) - prev_threshold)
+                float(points_)
+                * (min(evaluation, float(threshold)) - float(prev_threshold))
                 for points_, threshold, prev_threshold in zip(
                     criterion.points_per_threshold,
                     criterion.thresholds,
@@ -50,12 +51,16 @@ class ReputationType(models.Model):
                 )
             )
             if len(criterion.points_per_threshold) > len(criterion.thresholds):
-                points = points + criterion.points_per_threshold[-1] * (
-                    evaluation - criterion.thresholds[-1]
+                points = points + float(criterion.points_per_threshold[-1]) * (
+                    evaluation - float(criterion.thresholds[-1])
                 )
 
         else:
             points = criterion.points_per_threshold[0] * evaluation
+
+        print("TEST")
+        print(evaluation)
+        print(points)
 
         return points
 

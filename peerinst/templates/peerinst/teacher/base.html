@@ -3,11 +3,11 @@
 {% load compress staticfiles i18n %}
 
 {% block stylesheets %}
-{% include 'reputation/header/styles.html' %}
+{% comment %} {% include 'reputation/header/styles.html' %} {% endcomment %}
 {% endblock %}
 
 {% block scripts %}
-{% include 'reputation/header/scripts.html' %}
+  <script src="{% static 'reputation/js/header.min.js' %}"></script>
 {% endblock %}
 
 {% block header-left %}
@@ -18,6 +18,11 @@
 
 {% block header-right %}
 <div class="header">
-  {% include 'reputation/header/header.html' %}
+  <teacher-reputation-header
+    reputation-url="{% url 'reputation:reputation' %}"
+    reputation-type="teacher"
+    reputation-id="{{ request.user.teacher.pk }}"
+    nonce="{{ request.csp_nonce }}">
+  </teacher-reputation-header>
 </div>
 {% endblock %}
