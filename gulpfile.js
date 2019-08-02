@@ -90,10 +90,13 @@ const babelConfig = {
 
 function buildStyle(app, module) {
   const build = gulp
-    .src([
-      "./" + app + "/static/" + app + "/css/" + module + "/*.scss",
-      "./" + app + "/static/" + app + "/css/" + module + ".scss",
-    ])
+    .src(
+      [
+        "./" + app + "/static/" + app + "/css/" + module + "/*.scss",
+        "./" + app + "/static/" + app + "/css/" + module + ".scss",
+      ],
+      { allowEmpty: true },
+    )
     .pipe(sourcemaps.init())
     .pipe(
       sass({
