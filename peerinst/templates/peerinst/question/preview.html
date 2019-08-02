@@ -33,9 +33,6 @@
 </div>
 {% endblock %}
 
-{% block submit_button_fct %}
-onclick="question.submitForm()"
-{% endblock %}
 {% block submit_button %}{% trans 'Submit example answer' %}{% endblock %}
 {% block extra_content %}
 {% if question.type == "PI" %}
@@ -76,14 +73,14 @@ onclick="question.submitForm()"
 </form>
 {% endif %}
 
-<div style="margin-top:20px;">
+<div class="m-top-20">
   <span class="padded">
     {% if question.type == "PI" %}
-      <form style="display:inline" id="back" action="{% url 'answer-choice-form' question_id=question.id %}" method="get">
+      <form class="inline" id="back" action="{% url 'answer-choice-form' question_id=question.id %}" method="get">
         <button form="back" type="submit" class="mdc-button mdc-button--raised">Back</button>
       </form>
     {% else %}
-      <form style="display:inline" id="back" action="{% url 'question-update' pk=question.id %}" method="get">
+      <form class="inline" id="back" action="{% url 'question-update' pk=question.id %}" method="get">
         <button form="back" type="submit" class="mdc-button mdc-button--raised">Back</button>
       </form>
     {% endif %}
@@ -94,7 +91,7 @@ onclick="question.submitForm()"
         <input form="add_question_to_assignment" type="submit" class="mdc-button mdc-button--raised submit_button" value="{% trans 'Done' %}">
       {% endif %}
     {% else %}
-      <form style="display:inline" id="done" action="{% url 'welcome' %}" method="get">
+      <form class="inline" id="done" action="{% url 'welcome' %}" method="get">
         <button form="done" type="submit" class="mdc-button mdc-button--raised">Done</button>
       </form>
     {% endif %}
@@ -110,4 +107,5 @@ onclick="question.submitForm()"
 $('#submit-answer-form').remove();
 </script>
 {% endif %}
+
 {% endblock %}

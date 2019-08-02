@@ -1,3 +1,4 @@
+bleach
 celery[redis]
 django-celery-beat
 django-analytical
