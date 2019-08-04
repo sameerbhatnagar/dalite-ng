@@ -5,7 +5,7 @@ import itertools
 import string
 import datetime
 from collections import defaultdict, Counter
-
+import logging
 
 from django.utils.safestring import mark_safe
 from django.db.models import (
@@ -29,6 +29,8 @@ from peerinst.models import (
     LtiEvent,
     ShownRationale,
 )
+
+logger = logging.getLogger("peerinst_console_log")
 
 
 def get_object_or_none(model_class, *args, **kwargs):
@@ -740,7 +742,7 @@ def report_data_by_assignment(assignment_list, student_groups):
                     ).rationale
                 else:
                     d_q_a["chosen_rationale"] = "Stick to my own rationale"
-                d_q_a["submitted"] = student_response.datetime_first
+                d_q_a["submitted"] = student_response.datetime_second
 
                 if q.sequential_review:
                     d_q_a["upvotes"] = student_response.upvotes
@@ -1079,18 +1081,42 @@ def load_shown_rationales_from_ltievent_logs(day_of_logs):
     return
 
 
-def get_average_time_spent_on_all_question_start(question_id):
+def get_average_time_spent_on_all_question_start(
+    question_id, question_stage="whole", student_list=None
+):
     """
     Given a question id, return average time taken by all students to
     submit answer. If not enough data, return None
+    Optional argument:
+        - "question_stage", as a default, makes so that the total
+        time student spends is calculated. Use
+            - "first_answer_choice" to get time for first step,
+            - "second_answer_choice" for second step only.
+        - "student_list". default calculates the time for all students who have
+        attempted this question. If array of user_tokens given,  will limit
+        to those students only
     """
+    if question_stage == "whole":
+        expression = F("datetime_second") - F("datetime_start")
+    elif question_stage == "first_answer_choice":
+        expression = F("datetime_first") - F("datetime_start")
+    elif question_stage == "second_answer_choice":
+        expression = F("datetime_second") - F("datetime_first")
+    else:
+        return None
 
-    expression = F("datetime_second") - F("datetime_start")
     wrapped_expression = ExpressionWrapper(expression, DurationField())
+
+    if not student_list:
+        qs = Answer.objects.filter(question_id=question_id)
+    else:
+        qs = Answer.objects.filter(
+            question_id=question_id, user_token__in=student_list
+        )
+
     try:
         result = (
-            Answer.objects.filter(question_id=question_id)
-            .annotate(time_spent=wrapped_expression)
+            qs.annotate(time_spent=wrapped_expression)
             .values("time_spent")
             .aggregate(Avg("time_spent"))["time_spent__avg"]
             .seconds
@@ -1101,11 +1127,39 @@ def get_average_time_spent_on_all_question_start(question_id):
     return result
 
 
-def populate_answer_start_time_from_ltievent_logs(day_of_logs):
+def get_answer_corresponding_to_ltievent_log(event_json):
+    """
+    Argument: Given a json log that came from `peerinst.views.emit_event`,
+    retrieve corresponding Answer object from database
+    Returns: object of type peerinst.models.Answer
+    """
+    try:
+        try:
+            answer_obj = Answer.objects.get(
+                user_token=event_json["username"],
+                question_id=event_json["event"]["question_id"],
+                assignment_id=event_json["event"]["assignment_id"],
+            )
+        except Answer.MultipleObjectsReturned:
+            logger.info(event_json)
+            answer_obj = None
+    except Answer.DoesNotExist:
+        logger.info(event_json)
+        answer_obj = None
+
+    return answer_obj
+
+
+def populate_answer_start_time_from_ltievent_logs(day_of_logs, event_type):
     """
     Given a date, filter event logs to populate Answer.datetime_start field for
     answer instances already in database
     """
+
+    if event_type == "problem_show":
+        field = "datetime_start"
+    elif event_type == "problem_check":
+        field = "datetime_first"
 
     event_logs = LtiEvent.objects.filter(
         timestamp__gte=day_of_logs,
@@ -1114,38 +1168,48 @@ def populate_answer_start_time_from_ltievent_logs(day_of_logs):
     i = 0
     for e in event_logs.iterator():
         e_json = e.event_log
-        if e_json["event_type"] == "problem_show":
 
-            try:
+        # problem_check events have two associated logs each
+        # the earlier one will correspond to when the first_answer was saved
+        # and hence is the one we want assocated with datetime_first.
+        # The correct log does not have the "rationales" key in the log
+        # If "rationales" in in event log, ignore this log event
+        if event_type == "problem_check" and "rationales" in e_json["event"]:
+            logger.info("skipping log event")
+            continue
 
-                answer_obj = Answer.objects.get(
-                    user_token=e_json["username"],
-                    question_id=e_json["event"]["question_id"],
-                    assignment_id=e_json["event"]["assignment_id"],
-                )
+        # we are ignoring save_problem_success events, as they have already
+        # been handled
+        if e_json["event_type"] == event_type:
 
+            answer_obj = get_answer_corresponding_to_ltievent_log(
+                event_json=e_json
+            )
+            if answer_obj:
                 # keep the latest time at which student accessed
                 # problem start page
-                if answer_obj.datetime_start:
-                    if answer_obj.datetime_start < e.timestamp:
-                        answer_obj.datetime_start = e.timestamp
+                if getattr(answer_obj, field):
+                    if (
+                        getattr(answer_obj, field) < e.timestamp
+                        and event_type == "problem_show"
+                    ):
+                        setattr(answer_obj, field, e.timestamp)
                         answer_obj.save()
                         i += 1
                     else:
                         pass
                 else:
-                    answer_obj.datetime_start = e.timestamp
+                    setattr(answer_obj, field, e.timestamp)
                     answer_obj.save()
                     i += 1
 
-            except Answer.DoesNotExist:
-                pass
-                # print(
-                #     "Not found : ",
-                #     e_json["username"],
-                #     e_json["event"]["question_id"],
-                #     e_json["event"]["assignment_id"],
-                # )
+            else:
+                logger.info(
+                    "Not found : ",
+                    e_json["username"],
+                    e_json["event"]["question_id"],
+                    e_json["event"]["assignment_id"],
+                )
 
-    print("{} answer start times updated".format(i))
+    logger.info("{} answer {} times updated".format(i, field))
     return

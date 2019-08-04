@@ -4,9 +4,9 @@ from __future__ import unicode_literals
 import importlib
 
 from ..logger import logger
-from .criterions.errors import CriterionDoesNotExistError
+from .criteria.errors import CriterionDoesNotExistError
 
-criterions = {
+criteria = {
     "n_answers": "NAnswersCriterion",
     "n_questions": "NQuestionsCriterion",
 }
@@ -34,9 +34,9 @@ def get_criterion(criterion):
     try:
         return getattr(
             importlib.import_module(
-                ".criterions", package=".".join(__name__.split(".")[:-1])
+                ".criteria", package=".".join(__name__.split(".")[:-1])
             ),
-            criterions[criterion],
+            criteria[criterion],
         )
     except (KeyError, AttributeError):
         msg = "There is not criterion with the name {}.".format(criterion)

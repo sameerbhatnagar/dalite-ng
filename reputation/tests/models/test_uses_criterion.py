@@ -33,15 +33,13 @@ def test_dict(question_reputation):
             reputation_type=question_reputation.reputation_type,
             name="fake",
             version=1,
-            weight=1,
         )
         data = dict(criterion)
-        assert data["weight"] == 1
         assert "version" in data
         assert "name" in data
         assert "full_name" in data
         assert "description" in data
-        assert len(data) == 5
+        assert len(data) == 4
 
 
 def test_str(question_reputation):
@@ -49,7 +47,6 @@ def test_str(question_reputation):
         reputation_type=question_reputation.reputation_type,
         name="fake",
         version=1,
-        weight=1,
     )
     assert str(criterion) == "fake for reputation type {}".format(
         question_reputation.reputation_type.type

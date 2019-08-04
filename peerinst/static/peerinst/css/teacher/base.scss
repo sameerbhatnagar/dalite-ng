@@ -1,0 +1,7 @@
+@import "../variables";
+
+:root {
+  --reputation-header-colour: #{$mdc-theme-primary};
+  --reputation-text-colour: #{$mdc-theme-secondary};
+  --reputation-colour: #{$mdc-theme-primary};
+}

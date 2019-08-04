@@ -26,9 +26,9 @@ class Reputation(models.Model):
         Returns
         -------
         Optional[float]
-            Quality of the answer or None of no criterions present
+            Quality of the answer or None of no criteria present
         List[Dict[str, Any]]
-            Individual criterions under the format
+            Individual criteria under the format
                 [{
                     name: str
                     full_name: str

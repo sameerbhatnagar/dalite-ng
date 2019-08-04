@@ -89,9 +89,10 @@ h4 ~ .admin-link {
   font-weight: bold;
 }
 body {
+  --font-family: #{$mdc-typography-font-family};
   background-color: $mdc-theme-background;
   color: $mdc-theme-secondary;
-  font-family: "Montserrat", sans-serif;
+  font-family: $mdc-typography-font-family;
   font-size: 12pt;
   font-weight: 400;
   margin: 0pt;
@@ -118,6 +119,10 @@ header a {
 header .icon {
   font-size: 28px;
   margin-right: 10px;
+}
+
+.svg-sprite {
+  display: none;
 }
 
 header i {
@@ -518,10 +523,10 @@ input[type="submit"].thumbs-button {
   max-height: 450px;
 }
 .mdc-card {
-  @include mdc-card-corner-radius($radius);
   background-color: white;
   margin-bottom: 10px;
   padding: 20px 20px 12px;
+  @include mdc-card-corner-radius($radius);
 }
 
 #logo {

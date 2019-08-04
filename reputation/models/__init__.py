@@ -8,6 +8,6 @@ __all__ = [
     "UsesCriterion",
 ]
 
-from .criterions import Criterion, NAnswersCriterion, NQuestionsCriterion
+from .criteria import Criterion, NAnswersCriterion, NQuestionsCriterion
 from .reputation import Reputation, ReputationHistory
 from .reputation_type import ReputationType, UsesCriterion

@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 import pytest
 
-from reputation.models.criterions.errors import CriterionDoesNotExistError
+from reputation.models.criteria.errors import CriterionDoesNotExistError
 
 
 def test_criterion_does_not_exists__no_msg():
