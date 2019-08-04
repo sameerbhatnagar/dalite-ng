@@ -33,15 +33,6 @@ export class TeacherReputationHeader extends HTMLElement {
     }
     return id;
   }
-  get nonce(): string {
-    const nonce = this.getAttribute("nonce");
-    if (!nonce) {
-      throw new Error(
-        "The teacher-reputation-header needs a `nonce` attribute",
-      );
-    }
-    return nonce;
-  }
   get hidden() {
     return this.hasAttribute("hidden");
   }
@@ -87,7 +78,6 @@ export class TeacherReputationHeader extends HTMLElement {
     type Model = {
       id: number,
       element: TeacherReputationHeader,
-      nonce: string,
       reputation: ?number,
       reputationType: string,
       reputationUrl: string,
@@ -98,7 +88,6 @@ export class TeacherReputationHeader extends HTMLElement {
     const model: Model = {
       id: parseInt(this.reputationId),
       element: this,
-      nonce: this.nonce,
       reputation: null,
       reputationType: this.reputationType,
       reputationUrl: this.reputationUrl,
