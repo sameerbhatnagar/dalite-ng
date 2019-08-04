@@ -252,6 +252,7 @@ export class TeacherReputationHeader extends HTMLElement {
           "/static/reputation/css/teacher-header.min.css",
       );
       style.setAttribute("rel", "stylesheet");
+      style.setAttribute("nonce", model.nonce);
       return style;
     }
 
