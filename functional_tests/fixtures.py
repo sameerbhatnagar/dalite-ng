@@ -108,10 +108,12 @@ def browser(live_server):
 
     # Update find_*() to add logging to click() of passed WebElement
     for method in dir(driver):
-        if "find_element_" in method or method == "get":
+        if "find_element_" in method:
             _method = getattr(driver, method)
             if callable(_method):
-                setattr(driver, method, partial(add_log, _method, driver))
+                setattr(
+                    driver, method, partial(click_with_log, _method, driver)
+                )
 
     driver.server_url = live_server.url
     yield driver
