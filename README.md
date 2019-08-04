@@ -329,7 +329,7 @@ Bruce][entypo].
 Coverage
 --------
 
-`$ py.test --cov-config .coveragerc --cov-report html --cov=peerinst --cov=dalite --cov=tos ./`
+`$ pytest --cov --cov-report html`
 
 
 Celery, beat, and Redis

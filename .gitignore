@@ -30,3 +30,4 @@ mysql_scripts/
 /redis*
 *.rdb
 celerybeat.pid
+.DS_Store

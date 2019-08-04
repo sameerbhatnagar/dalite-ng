@@ -4,22 +4,23 @@ import time
 from selenium import webdriver
 from selenium.common.exceptions import TimeoutException, WebDriverException
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.expected_conditions import (
     element_to_be_clickable,
     presence_of_element_located,
     text_to_be_present_in_element,
 )
-from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support.ui import Select, WebDriverWait
 
 from django.conf import settings
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import Group, Permission
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.core.urlresolvers import reverse
-from peerinst.models import Assignment, Question, User
+from peerinst.models import Assignment, Category, Discipline, Question, User
 from tos.models import Role, Tos
 
-timeout = 3
+timeout = 10
 
 
 def ready_user(pk):
@@ -79,6 +80,10 @@ class NewUserTests(StaticLiveServerTestCase):
 
         self.assertFalse(self.validated_teacher.get_all_permissions())
 
+        # Add a discipline and category
+        Discipline.objects.create(title="Physics")
+        Category.objects.create(title="Kinematics")
+
         # Add TOS for teachers
         role = Role.objects.get(role="teacher")
         new_TOS = Tos(version=1, text="Test", current=True, role=role)
@@ -90,6 +95,7 @@ class NewUserTests(StaticLiveServerTestCase):
     def test_new_user(self):
         # Hit landing page
         self.browser.get(self.live_server_url + "/#Features")
+        print(self.browser.get_log("browser"))
         self.assertIn(
             "Features", self.browser.find_element_by_tag_name("h1").text
         )
@@ -114,17 +120,11 @@ class NewUserTests(StaticLiveServerTestCase):
         inputbox = self.browser.find_element_by_id("id_username")
         inputbox.send_keys("test")
 
-        inputbox = self.browser.find_element_by_id("id_password1")
-        inputbox.send_keys("jka+sldfa+soih")
-
-        inputbox = self.browser.find_element_by_id("id_password2")
-        inputbox.send_keys("jka+sldfa+soih")
-
         inputbox = self.browser.find_element_by_id("id_url")
         inputbox.clear()
         inputbox.send_keys("http://www.mydalite.org")
 
-        inputbox.submit()
+        self.browser.find_element_by_id("submit-btn").click()
 
         # New user redirected post sign up
         try:
@@ -144,7 +144,7 @@ class NewUserTests(StaticLiveServerTestCase):
         inputbox = self.browser.find_element_by_id("id_password")
         inputbox.send_keys("jka+sldfa+soih")
 
-        inputbox.submit()
+        self.browser.find_element_by_id("submit-btn").click()
 
         # Small pause to see last page
         time.sleep(1)
@@ -168,17 +168,11 @@ class NewUserTests(StaticLiveServerTestCase):
             inputbox = self.browser.find_element_by_id("id_username")
             inputbox.send_keys("test")
 
-            inputbox = self.browser.find_element_by_id("id_password1")
-            inputbox.send_keys("jka+sldfa+soih")
-
-            inputbox = self.browser.find_element_by_id("id_password2")
-            inputbox.send_keys("jka+sldfa+soih")
-
             inputbox = self.browser.find_element_by_id("id_url")
             inputbox.clear()
             inputbox.send_keys("http://www.mydalite.org")
 
-            inputbox.submit()
+            self.browser.find_element_by_id("submit-btn").click()
 
             time.sleep(1)
 
@@ -194,7 +188,7 @@ class NewUserTests(StaticLiveServerTestCase):
         inputbox = self.browser.find_element_by_id("id_password")
         inputbox.send_keys(self.inactive_user.text_pwd)
 
-        inputbox.submit()
+        self.browser.find_element_by_id("submit-btn").click()
 
         time.sleep(1)
 
@@ -222,7 +216,7 @@ class NewUserTests(StaticLiveServerTestCase):
         inputbox = self.browser.find_element_by_id("id_password")
         inputbox.send_keys(self.validated_teacher.text_pwd)
 
-        inputbox.submit()
+        self.browser.find_element_by_id("submit-btn").click()
 
         try:
             account_link = WebDriverWait(self.browser, timeout).until(
@@ -266,7 +260,7 @@ class NewUserTests(StaticLiveServerTestCase):
         inputbox = self.browser.find_element_by_id("id_password")
         inputbox.send_keys(self.validated_teacher.text_pwd)
 
-        inputbox.submit()
+        self.browser.find_element_by_id("submit-btn").click()
 
         account_link = self.browser.find_element_by_xpath(
             "//a[text()='Go to My Account']"
@@ -275,8 +269,8 @@ class NewUserTests(StaticLiveServerTestCase):
 
         try:
             WebDriverWait(self.browser, timeout).until(
-                presence_of_element_located(
-                    (By.XPATH, "//h1[text()='My Account']")
+                text_to_be_present_in_element(
+                    (By.TAG_NAME, "h1"), "My Account"
                 )
             )
         except TimeoutException:
@@ -333,7 +327,16 @@ class NewUserTests(StaticLiveServerTestCase):
         ifrinputbox.send_keys("Test text")
         self.browser.switch_to.default_content()
 
-        inputbox.submit()
+        Select(
+            self.browser.find_element_by_id("id_discipline")
+        ).select_by_value("1")
+
+        category = self.browser.find_element_by_id("autofill_categories")
+        category.send_keys("Kinematics")
+        time.sleep(2)
+        category.send_keys(Keys.ENTER)
+
+        self.browser.find_element_by_id("question-create-form").submit()
 
         try:
             WebDriverWait(self.browser, timeout).until(

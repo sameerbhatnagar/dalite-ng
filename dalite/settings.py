@@ -404,11 +404,26 @@ CSP_FONT_SRC = [
 ]
 CSP_OBJECT_SRC = ["*"]
 
+FEATURE_POLICY = [
+    "autoplay 'none'",
+    "camera 'none'",
+    "encrypted-media 'none'",
+    "fullscreen *",
+    "geolocation 'none'",
+    "microphone 'none'",
+    "midi 'none'",
+    "payment 'none'",
+    "vr *",
+]
+
 # External framing
 FRAMING_ALLOWED_FROM = ["*"]
 
 SECURE_HSTS_SECONDS = 60 * 60 * 24 * 365
 REFERRER_POLICY = "no-referrer, strict-origin-when-cross-origin"
+
+# Functional tests that scrape web console logs currently require chromedriver
+TESTING_BROWSER = "chrome"
 
 try:
     from .local_settings import *  # noqa F403
