@@ -1,14 +1,30 @@
 @import "../custom_elements";
 @import "../variables";
+@import "../functions";
 
 #assignment-distribution {
+  max-width: calc(100% - 56px);
+
   & button {
     border-radius: 20px;
     box-shadow: none;
+    width: max-content;
   }
   & button:disabled {
     background: $mdc-theme-primary;
     opacity: 0.6;
+  }
+  & .assignment-distribution__warning {
+    color: text-color(dark, secondary);
+    display: inline-block;
+    font-size: 0.9rem;
+    font-style: italic;
+    font-weight: normal;
+    line-height: 1rem;
+    overflow-wrap: break-word;
+    padding-left: 10px;
+    white-space: normal;
+    width: calc(100% - 200px);
   }
 }
 
