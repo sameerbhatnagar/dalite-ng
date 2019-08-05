@@ -315,7 +315,7 @@ def old_patterns():
             name="password_reset_done",
         ),
         url(
-            r"^reset/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$",  # noqa
+            r"^reset/(?P<uidb64>[0-9A-Za-z_\-=]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$",  # noqa
             password_views.password_reset_confirm,
             name="password_reset_confirm",
         ),
@@ -607,6 +607,53 @@ def researcher_patterns():
     ]
 
 
+def collection_patterns():
+    return []
+
+
+def teacher_patterns():
+    return [
+        url(
+            r"^teacher/page/$", views.teacher.teacher_page, name="teacher-page"
+        ),
+        url(
+            r"^teacher/page/new-questions/$",
+            views.teacher.new_questions,
+            name="teacher-page--new-questions",
+        ),
+        url(
+            r"^teacher/page/student-activity/$",
+            views.teacher.student_activity,
+            name="teacher-page--student-activity",
+        ),
+        url(
+            r"^teacher/page/rationales/evaluate$",
+            views.teacher.evaluate_rationale,
+            name="teacher-page--evaluate-rationale",
+        ),
+        url(
+            r"^teacher/page/rationales/$",
+            views.teacher.rationales_to_score,
+            name="teacher-page--rationales",
+        ),
+        url(
+            r"^teacher/page/collections/$",
+            views.teacher.collections,
+            name="teacher-page--collections",
+        ),
+        url(
+            r"^teacher/page/messages/$",
+            views.teacher.messages,
+            name="teacher-page--messages",
+        ),
+        url(
+            r"^teacher/page/unsubscribe-thread/$",
+            views.teacher.unsubscribe_from_thread,
+            name="teacher-page--unsubscribe-thread",
+        ),
+    ]
+
+
 urlpatterns = sum(
     [
         old_patterns(),
@@ -614,6 +661,8 @@ urlpatterns = sum(
         student_patterns(),
         search_patterns(),
         researcher_patterns(),
+        collection_patterns(),
+        teacher_patterns(),
     ],
     [],
 )

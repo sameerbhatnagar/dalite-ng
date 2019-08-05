@@ -1,27 +1,29 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+
 import string
+
+from django.contrib.auth import logout
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.models import User
+from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.db.models import Count
 from django.forms import (
     ModelForm,
     ModelMultipleChoiceField,
     modelformset_factory,
 )
-from django.contrib.auth import logout
-from django.contrib.auth.decorators import login_required, user_passes_test
-from django.contrib.auth.models import User
-from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.shortcuts import get_object_or_404, render
-from django.utils.translation import ugettext_lazy as _
 from django.urls import reverse
+from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_http_methods
 from django.views.generic.edit import UpdateView
 
 from ..mixins import student_check
 from ..models import (
-    Assignment,
     Answer,
     AnswerAnnotation,
+    Assignment,
     Discipline,
     Question,
     QuestionFlag,
@@ -75,7 +77,7 @@ def get_question_annotation_counts(discipline_title, annotator, assignment_id):
         if q.pk in flagged_by_user:
             d1["flag_color_code"] = "red"
         elif q in flagged_questions:
-            d1["flag_color_code"] = "#EDAA1E"
+            d1["flag_color_code"] = "goldenrod"
             d1["flagged_reasons"] = "; ".join(
                 (
                     [

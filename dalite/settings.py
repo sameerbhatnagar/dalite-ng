@@ -7,8 +7,9 @@ https://docs.djangoproject.com/en/1.8/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.8/ref/settings/
 """
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
+
+from security_headers.settings import *  # noqa
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -25,11 +26,14 @@ DEV_PORT = 8000  # port used during development
 # Application definition
 
 INSTALLED_APPS = (
+    "reputation",
     "quality",
     "tos",
     "peerinst",
     "grappelli",
     "password_validation",
+    "csp",
+    "security_headers",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -44,6 +48,10 @@ INSTALLED_APPS = (
 )
 
 MIDDLEWARE = (
+    "django.middleware.security.SecurityMiddleware",
+    "csp.middleware.CSPMiddleware",
+    "security_headers.middleware.extra_security_headers_middleware",
+    "django_cookies_samesite.middleware.CookiesSameSite",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.locale.LocaleMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -61,7 +69,7 @@ MIDDLEWARE = (
 
 ROOT_URLCONF = "dalite.urls"
 
-CUSTOM_SETTINGS = os.environ.get("CUSTOM_SETTINGS", "default")
+CUSTOM_SETTINGS = os.environ.get("CUSTOM_SETTINGS", "SALTISES4")
 
 TEMPLATES = [
     {
@@ -247,6 +255,18 @@ LOGGING = {
             "formatter": "complete",
             "stream": "ext://sys.stdout",
         },
+        "reputation_file_log": {
+            "level": "DEBUG" if DEBUG else "INFO",
+            "class": "logging.FileHandler",
+            "formatter": "complete",
+            "filename": os.path.join(BASE_DIR, "log", "reputation.log"),
+        },
+        "reputation_console_log": {
+            "level": "DEBUG" if DEBUG else "INFO",
+            "class": "logging.StreamHandler",
+            "formatter": "complete",
+            "stream": "ext://sys.stdout",
+        },
     },
     "loggers": {
         "django.request": {
@@ -309,6 +329,11 @@ LOGGING = {
             "level": "DEBUG" if DEBUG else "INFO",
             "propagate": True,
         },
+        "reputation": {
+            "handlers": ["reputation_file_log", "reputation_console_log"],
+            "level": "DEBUG" if DEBUG else "INFO",
+            "propagate": True,
+        },
     },
 }
 
@@ -350,6 +375,55 @@ CELERY_BROKER_TRANSPORT_OPTIONS = {
     "interval_step": 0.4,
     "interval_max": 2,
 }
+
+# CSP
+CSP_DEFAULT_SRC = ["'self'", "*.mydalite.org"]
+CSP_SCRIPT_SRC = [
+    "'self'",
+    "*.mydalite.org",
+    "ajax.googleapis.com",
+    "cdn.polyfill.io",
+    "www.youtube.com",
+    "s.ytimg.com",
+    "cdn.jsdelivr.net",
+]
+CSP_STYLE_SRC = [
+    "'self'",
+    "*.mydalite.org",
+    "fonts.googleapis.com",
+    "ajax.googleapis.com",
+    "unpkg.com",
+    "cdn.jsdelivr.net",
+    "code.jquery.com",
+]
+CSP_FONT_SRC = [
+    "'self'",
+    "fonts.googleapis.com",
+    "fonts.gstatic.com",
+    "unpkg.com",
+]
+CSP_OBJECT_SRC = ["*"]
+
+FEATURE_POLICY = [
+    "autoplay 'none'",
+    "camera 'none'",
+    "encrypted-media 'none'",
+    "fullscreen *",
+    "geolocation 'none'",
+    "microphone 'none'",
+    "midi 'none'",
+    "payment 'none'",
+    "vr *",
+]
+
+# External framing
+FRAMING_ALLOWED_FROM = ["*"]
+
+SECURE_HSTS_SECONDS = 60 * 60 * 24 * 365
+REFERRER_POLICY = "no-referrer, strict-origin-when-cross-origin"
+
+# Functional tests that scrape web console logs currently require chromedriver
+TESTING_BROWSER = "chrome"
 
 try:
     from .local_settings import *  # noqa F403

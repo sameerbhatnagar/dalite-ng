@@ -1,0 +1,29 @@
+{% extends 'peerinst/_base.html' %}
+
+{% load compress staticfiles i18n %}
+
+{% block stylesheets %}
+{% endblock %}
+
+{% block scripts %}
+  {% compress js %}
+  <script src="{% static 'reputation/js/header.min.js' %}"></script>
+  {% endcompress %}
+{% endblock %}
+
+{% block header-left %}
+<div class="header">
+  {% include 'peerinst/teacher/header/menu.html' %}
+</div>
+{% endblock %}
+
+{% block header-right %}
+<div class="header">
+  <teacher-reputation-header
+    reputation-url="{% url 'reputation:reputation' %}"
+    reputation-type="teacher"
+    reputation-id="{{ request.user.teacher.pk }}"
+    nonce="{{ request.csp_nonce }}">
+  </teacher-reputation-header>
+</div>
+{% endblock %}

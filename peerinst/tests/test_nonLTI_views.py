@@ -6,6 +6,7 @@ from django.contrib.auth.models import Group, Permission, User
 from django.core import mail
 from django.core.urlresolvers import reverse
 from django.test import TestCase, TransactionTestCase
+
 from quality.models import UsesCriterion
 from tos.models import Consent, Role, Tos
 
@@ -74,22 +75,6 @@ class SignUpTest(TestCase):
             response, "registration/sign_up_admin_email_html.html"
         )
 
-    def test_password_mismatch(self):
-        response = self.client.post(
-            reverse("sign_up"),
-            data={
-                "username": "abc",
-                "password1": "jdefngath4",
-                "password2": "jdefngath",
-                "email": "abc@def.com",
-                "url": "http://abc.com",
-            },
-        )
-        self.assertIn(
-            "The two password fields didn't match",
-            response.content.replace("&#39;", "'"),
-        )
-
     def test_email_error(self):
 
         with self.settings(EMAIL_BACKEND=""):
@@ -132,7 +117,7 @@ class AdminTest(TestCase):
 
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(
-            mail.outbox[0].subject, "Your myDALITE account has been activated"
+            mail.outbox[0].subject, "Please verify your myDalite account"
         )
 
         inactive_user = User.objects.get(pk=3)

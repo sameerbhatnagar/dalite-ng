@@ -1,8 +1,7 @@
-"use strict";
-
 import { initStudentProgress } from "./student_progress.js";
 import { formatDatetime } from "../utils.js";
-import { buildReq } from "../_ajax/utils.js";
+import { buildReq } from "../ajax.js";
+import { editField } from "./common.js";
 
 /*********/
 /* model */
@@ -148,6 +147,7 @@ function initListeners() {
   addQuestionListDragListeners();
   addSendAssignmentEmailListeners();
   addDistributeListener();
+  addEditBtnsListeners();
 }
 
 function addDistributeListener() {
@@ -171,6 +171,14 @@ function addSendAssignmentEmailListeners() {
   Array.from(document.querySelectorAll(".email-btn")).map(x =>
     x.addEventListener("click", event => sendAssignmentEmail(event)),
   );
+}
+
+function addEditBtnsListeners() {
+  [...document.getElementsByClassName("edit-btn")].forEach(btn => {
+    btn.addEventListener("click", event => {
+      editField(event, "datetime", "mdc-list-item__secondary-text");
+    });
+  });
 }
 
 /********/

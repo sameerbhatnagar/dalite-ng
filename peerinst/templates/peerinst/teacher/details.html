@@ -1,9 +1,10 @@
-{% extends 'peerinst/base.html' %}
+{% extends 'peerinst/teacher/base.html' %}
 
 {% load compress i18n %}
 
 {% block stylesheets %}
-<style>
+{{ block.super }}
+<style nonce="{{ request.csp_nonce }}">
 .deleted {
   background-color: lightgray;
 }
@@ -24,7 +25,7 @@
       <div class="foldable--body">
         <div class="admin-link">
           <a href="{% url 'teacher-groups' teacher.id %}">{% trans 'Manage groups' %}</a>
-          <span style="padding-left:0.3em;padding-right:0.5em;">|</span><a href="{% url 'group-assignments' teacher.id %}">{% trans 'Homework list' %}</a>
+          <span class="admin-link--padded">|</span><a href="{% url 'group-assignments' teacher.id %}">{% trans 'Homework list' %}</a>
         </div>
         {% if not object.current_groups.all %}
         <p class='mdc-typography--body1'>{% blocktrans %}You have no active student groups.{% endblocktrans %}</p>
@@ -32,7 +33,7 @@
         <ul class="mdc-list mdc-list--two-line">
           {% for g in object.current_groups.all %}
           <li role="separator" class="mdc-list-divider"></li>
-          <li class="mdc-list-item" onclick="window.location.href='{% url 'group-details' g.hash %}'" style="cursor:pointer;">
+          <li class="mdc-list-item pointer group-link">
             <span class="mdc-list-item__graphic mdc-theme--primary">
               <i class="mdc-theme--primary material-icons md-48">group</i>
             </span>
@@ -67,7 +68,7 @@
       <div class="foldable--body">
         <div class="admin-link">
             <a href="{% url 'teacher-assignments' teacher.id %}">{% trans 'Manage assignments' %}</a>
-            <span style="padding-left:0.3em;padding-right:0.5em;">|</span><a href="{% url 'report_selector' %}">{% trans 'Custom reports' %}</a>
+            <span class="admin-link--padded">|</span><a href="{% url 'report_selector' %}">{% trans 'Custom reports' %}</a>
           </span>
         </div>
         {% if not object.assignments.all %}
@@ -78,7 +79,7 @@
           <li role="separator" class="mdc-list-divider"></li>
           <li class="mdc-list-item">
             <span class="mdc-list-item__graphic mdc-theme--primary">
-              <i class="mdc-theme--primary material-icons md-48" onclick="window.location.href='{% url 'question-list' a.pk %}'" style="cursor:pointer;">assignment</i>
+              <i class="mdc-theme--primary material-icons md-48 pointer assignment-link">assignment</i>
             </span>
             <span class="mdc-list-item__text mdc-theme--secondary bold">
               {{ a.identifier }}
@@ -156,7 +157,7 @@
       <div class="foldable--body">
         <div class="admin-link">
           <a href="{% url 'question-create' %}">{% trans 'Create new' %}</a>
-          <span style="padding-left:0.3em;padding-right:0.5em;">|</span><span id='show-deleted-questions' class='toggle-deleted-questions fake-link clickable'>{% trans 'Show deleted' %}</span><span id='hide-deleted-questions' class='toggle-deleted-questions fake-link clickable'>{% trans 'Hide deleted' %}</span>
+          <span class="admin-link--padded">|</span><span id='show-deleted-questions' class='toggle-deleted-questions fake-link clickable'>{% trans 'Show deleted' %}</span><span id='hide-deleted-questions' class='toggle-deleted-questions fake-link clickable'>{% trans 'Hide deleted' %}</span>
         </div>
 
         <h3>{% trans 'My questions' %}</h3>
@@ -229,7 +230,7 @@
         <div class="admin-link">
           <a href="{% url 'blinkAssignment-create' %}">{% trans 'Add script' %}</a>
         </div>
-        <p style="margin-bottom:10pt;">{% trans 'Student link' %}: <span class="bold">{{ request.get_host}}{% url 'blink-get-current' object.user.username %}</span></p>
+        <p class="m-bot-10">{% trans 'Student link' %}: <span class="bold">{{ request.get_host}}{% url 'blink-get-current' object.user.username %}</span></p>
 
         {% if not object.blinkassignment_set.all %}
         <p class='mdc-typography--body1'>{% blocktrans %}A blink script is a series of blink questions strung together into one activity.  You do not have any blink scripts.{% endblocktrans %}</p>
@@ -240,7 +241,7 @@
           {% for a in object.blinkassignment_set.all %}
           <li role="separator" class="mdc-list-divider"></li>
           {% if a.blinkassignmentquestion_set.all|length > 0 %}
-          <li class="mdc-list-item blink" id="edit-blink-{{a.pk}}" onclick="window.location.href='{% url 'blink-waiting' username=object.user.username assignment=a.key %}'" style="cursor:pointer;">
+          <li class="mdc-list-item blink pointer" id="edit-blink-{{a.pk}}">
           {% else %}
           <li class="mdc-list-item blink" id="edit-blink-{{a.pk}}">
           {% endif %}
@@ -275,10 +276,9 @@
       <div class="foldable--body">
         <ul class="mdc-list mdc-list--two-line">
           <li role="separator" class="mdc-list-divider"></li>
-          <li class="mdc-list-item"
+          <li class="mdc-list-item pointer"
               title="{% trans 'Quality evaluation for allowing rationale submission' %}"
-              onclick="window.location.href='{% url 'quality:edit' %}?type=validation&teacher=true&next={{ request.path }}'"
-              style="cursor: pointer;">
+              id="quality-eval-edit">
             <span class="mdc-list-item__graphic mdc-theme--primary">
               <i class="mdc-theme--primary material-icons md-48">
                 assistant
@@ -308,7 +308,7 @@
       <div class="foldable--body">
         <ul class="mdc-list mdc-list--two-line">
           <li role="separator" class="mdc-list-divider"></li>
-          <li class="mdc-list-item" onclick="edit_user()" style="cursor:pointer;">
+          <li class="mdc-list-item pointer" id="edit-user-btn">
             <span class="mdc-list-item__graphic mdc-theme--primary"><i class="material-icons md-48">account_circle</i></span>
             <span class="mdc-list-item__text mdc-theme--secondary bold">
               {{ object.user.username }}
@@ -322,7 +322,7 @@
             <span class="mdc-list-item__meta"><i class="material-icons md-24">lock</i></span>
           </li>
           <li role="separator" class="mdc-list-divider"></li>
-          <li class="mdc-list-item" onclick="edit_identity()" style="cursor:pointer;">
+          <li class="mdc-list-item pointer edit-identity-btn">
             <span class="mdc-list-item__graphic mdc-theme--primary"><i class="material-icons md-48">book</i></span>
             <span class="mdc-list-item__text mdc-theme--secondary bold">
               {% for d in object.disciplines.all %}
@@ -335,7 +335,7 @@
             <span class="mdc-list-item__meta"><i class="material-icons md-24">settings</i></span>
           </li>
           <li role="separator" class="mdc-list-divider"></li>
-          <li class="mdc-list-item" onclick="edit_identity()" style="cursor:pointer;">
+          <li class="mdc-list-item pointer edit-identity-btn">
             <span class="mdc-list-item__graphic mdc-theme--primary"><i class="material-icons md-48">school</i></span>
             <span class="mdc-list-item__text mdc-theme--secondary bold">
               {% for i in object.institutions.all %}
@@ -348,13 +348,13 @@
             <span class="mdc-list-item__meta"><i class="material-icons md-24">settings</i></span>
           </li>
           <li role="separator" class="mdc-list-divider"></li>
-          <li class="mdc-list-item" onclick="window.location.href='{% url 'tos:tos_modify' 'teacher' %}?next={{ request.path }}'" style="cursor:pointer;">
+          <li class="mdc-list-item pointer" id="tos-modify-btn">
             {% if tos_accepted %}
               <span class="mdc-list-item__graphic mdc-theme--primary"><i class="material-icons md-48">check</i></span>
               <span class="mdc-list-item__text mdc-theme--secondary bold">
               {% trans 'Terms of service: Sharing' %}
             {% else %}
-              <span class="mdc-list-item__graphic mdc-theme--primary"><i class="material-icons md-48" style="color:red;">clear</i></span>
+              <span class="mdc-list-item__graphic mdc-theme--primary red"><i class="material-icons md-48">clear</i></span>
               <span class="mdc-list-item__text mdc-theme--secondary bold">
               {% trans 'Terms of service: Not sharing' %}
               {% endif %}
@@ -365,7 +365,7 @@
             <span class="mdc-list-item__meta"><i class="material-icons md-24">settings</i></span>
           </li>
           <li role="separator" class="mdc-list-divider"></li>
-          <li class="mdc-list-item" onclick="window.location.href='{% url 'tos:email_modify' 'teacher' %}?next={{ request.path }}'" style="cursor:pointer;">
+          <li class="mdc-list-item pointer" id="email-modify-btn">
             <span class="mdc-list-item__graphic mdc-theme--primary"><i class="material-icons md-48">email</i></span>
             <span class="mdc-list-item__text mdc-theme--secondary bold">
               {% trans "Email settings" %}
@@ -385,8 +385,8 @@
 {% endblock %}
 
 {% block scripts %}
-{% compress js inline %}
-<script>
+{{ block.super }}
+<script nonce="{{ request.csp_nonce }}">
   bundle.addDialog();
 
   // Hide all deleted questions and set global scope state variable
@@ -405,7 +405,7 @@
   $.ajaxSetup({
       beforeSend: function(xhr, settings) {
           if (!bundle.csrfSafeMethod(settings.type) && !this.crossDomain) {
-              xhr.setRequestHeader("X-CSRFToken", bundle.getCookie('csrftoken'));
+              xhr.setRequestHeader("X-CSRFToken", bundle.getCsrfToken());
           }
       }
   });
@@ -418,5 +418,42 @@
     location="{% url 'teacher-update' teacher.id %}";
   }
 </script>
-{% endcompress %}
+<script nonce="{{ request.csp_nonce }}">
+  window.addEventListener("load", function() {
+    let links = document.getElementsByClassName("group-link");
+    {% for g in object.current_groups.all %}
+    links[{{ forloop.counter0 }}].addEventListener("click", function() {
+      window.location.href='{% url 'group-details' g.hash %}'
+    });
+    {% endfor %}
+    links = document.getElementsByClassName("assignment-link");
+    {% for a in object.assignments.all %}
+    links[{{ forloop.counter0 }}].addEventListener("click", function() {
+      window.location.href='{% url 'question-list' a.pk %}'
+    });
+    {% endfor %}
+    {% for a in object.blinkassignment_set.all %}
+    document.getElementById("edit-blink-{{a.pk}}").addEventListener("click", function() {
+      window.location.href='{% url 'blink-waiting' username=object.user.username assignment=a.key %}'
+    });
+    {% endfor %}
+    document.getElementById("quality-eval-edit").addEventListener("click", function() {
+      window.location.href='{% url 'quality:edit' %}?type=validation&teacher=true&next={{ request.path }}'
+    });
+    document.getElementById("edit-user-btn").addEventListener("click", function() {
+      edit_user()
+    });
+    [...document.getElementsByClassName("edit-identity-btn")].forEach(function(btn) {
+      btn.addEventListener("click", function() {
+        edit_identity();
+      });
+    });
+    document.getElementById("tos-modify-btn").addEventListener("click", function() {
+      window.location.href='{% url 'tos:tos_modify' 'teacher' %}?next={{ request.path }}'
+    });
+    document.getElementById("email-modify-btn").addEventListener("click", function() {
+      window.location.href='{% url 'tos:email_modify' 'teacher' %}?next={{ request.path }}'
+    });
+  });
+</script>
 {% endblock %}

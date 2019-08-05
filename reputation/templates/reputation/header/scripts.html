@@ -1,0 +1,16 @@
+{% load compress csp staticfiles %}
+
+{% compress js %}
+<script src="{% static 'reputation/js/header.min.js' %}"></script>
+{% endcompress %}
+
+<script nonce="{{ request.csp_nonce }}">
+  window.addEventListener("load", function() {
+    header.init(
+      "{% url 'reputation:reputation' %}",
+      "teacher",
+      {{ request.user.teacher.pk }}
+    )
+  });
+</script>
+

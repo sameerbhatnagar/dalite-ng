@@ -13,7 +13,7 @@
     {% if user.teacher and assignment %}
     <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Waiting for students' %}</h2>
 
-    <p style="margin-bottom:10pt;">{% trans 'Student link' %}: <span class="bold">{{ request.get_host}}{% url 'blink-get-current' teacher.user.username %}</span></p>
+    <p class="m-bot-10">{% trans 'Student link' %}: <span class="bold">{{ request.get_host}}{% url 'blink-get-current' teacher.user.username %}</span></p>
 
     <form method="post" action="{% url 'blinkAssignment-set-time' assignment %}">
       {% csrf_token %}
@@ -47,8 +47,9 @@
 {% endblock %}
 
 {% block scripts %}
+{{ block.super }}
 {% if not request.user.is_authenticated %}
-<script>
+<script nonce="{{ request.csp_nonce }}">
 function processResponse(text, status, obj) {
   console.info(text);
   console.info(status);

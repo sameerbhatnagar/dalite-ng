@@ -11,7 +11,7 @@
 {% block scripts %}
 {% compress js %}
 <script src="{% static 'quality/js/edit.min.js' %}"></script>
-<script type="text/javascript">
+<script nonce="{{ request.csp_nonce }}">
   edit.init({{ data|safe }})
 </script>
 {% endcompress %}
