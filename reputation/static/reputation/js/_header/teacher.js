@@ -234,6 +234,7 @@ export class TeacherReputationHeader extends HTMLElement {
       list.appendChild(name);
 
       const rep = document.createElement("div");
+      rep.classList.add("list__reputation");
       rep.textContent = (
         Math.round(reputation.reputation * 100) / 100
       ).toString();

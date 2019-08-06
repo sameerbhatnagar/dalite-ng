@@ -1,0 +1,1 @@
+{"version":3,"sources":["base.scss"],"names":[],"mappings":"AAEA,MACE,mCAA2B,CAC3B,iCAAyB,CACzB,4BAAoB","file":"teacher.min.css","sourcesContent":["@import \"../variables\";\n\n:root {\n  --reputation-header-colour: #{$mdc-theme-primary};\n  --reputation-text-colour: #{$mdc-theme-secondary};\n  --reputation-colour: #{$mdc-theme-primary};\n}\n"]}
