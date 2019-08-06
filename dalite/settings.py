@@ -386,6 +386,7 @@ CSP_SCRIPT_SRC = [
     "www.youtube.com",
     "s.ytimg.com",
     "cdn.jsdelivr.net",
+    "unpkg.com",
 ]
 CSP_STYLE_SRC = [
     "'self'",
