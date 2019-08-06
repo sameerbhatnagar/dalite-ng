@@ -90,3 +90,24 @@ def test_new_user_signup_with_email_server_error(browser, assert_, settings):
     )
 
     time.sleep(1)
+
+
+def test_inactive_user_login(browser, assert_, inactive_user):
+    browser.get(browser.server_url + "/login")
+
+    # Inactive user cannot login
+    inputbox = browser.find_element_by_id("id_username")
+    inputbox.send_keys(inactive_user.username)
+
+    inputbox = browser.find_element_by_id("id_password")
+    inputbox.send_keys(inactive_user.password)
+
+    browser.find_element_by_id("submit-btn").click()
+
+    browser.wait_for(
+        assert_(
+            "your account has not yet been activated" in browser.page_source
+        )
+    )
+
+    time.sleep(1)
