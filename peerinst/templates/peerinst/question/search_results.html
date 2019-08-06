@@ -167,7 +167,7 @@
 {% block scripts %}
 <script nonce="{{ request.csp_nonce }}">
   window.addEventListener("load", function() {
-    [...document.getElementsByClassName("search-nav")].forEach(btn => {
+    document.querySelectorAll(".search-nav").forEach(btn => {
       if (btn.classList.contains("search-nav--back")) {
         btn.addEventListener("click", () => {
           pageNav({{ paginator.previous_page_number }})

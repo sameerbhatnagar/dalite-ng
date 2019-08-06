@@ -633,7 +633,7 @@
 
 <script nonce="{{ request.csp_nonce }}">
   window.addEventListener("load", function() {
-    [...document.getElementsByClassName("collaborator")].forEach(btn => {
+    document.querySelectorAll(".collaborator").forEach(btn => {
       btn.addEventListener("click", function() {
         updateSelect(this,'#id_collaborators');
       });
