@@ -125,7 +125,6 @@
 {% endblock %}
 
 {% block scripts %}
-{% compress js inline %}
 <script nonce="{{ request.csp_nonce }}">
   window.addEventListener("load", function() {
     const links = document.getElementsByClassName("group-link")
@@ -136,5 +135,4 @@
     {% endfor %}
   })
 </script>
-{% endcompress %}
 {% endblock %}

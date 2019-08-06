@@ -742,7 +742,7 @@ def report_data_by_assignment(assignment_list, student_groups):
                     ).rationale
                 else:
                     d_q_a["chosen_rationale"] = "Stick to my own rationale"
-                d_q_a["submitted"] = student_response.datetime_first
+                d_q_a["submitted"] = student_response.datetime_second
 
                 if q.sequential_review:
                     d_q_a["upvotes"] = student_response.upvotes
@@ -1081,18 +1081,42 @@ def load_shown_rationales_from_ltievent_logs(day_of_logs):
     return
 
 
-def get_average_time_spent_on_all_question_start(question_id):
+def get_average_time_spent_on_all_question_start(
+    question_id, question_stage="whole", student_list=None
+):
     """
     Given a question id, return average time taken by all students to
     submit answer. If not enough data, return None
+    Optional argument:
+        - "question_stage", as a default, makes so that the total
+        time student spends is calculated. Use
+            - "first_answer_choice" to get time for first step,
+            - "second_answer_choice" for second step only.
+        - "student_list". default calculates the time for all students who have
+        attempted this question. If array of user_tokens given,  will limit
+        to those students only
     """
+    if question_stage == "whole":
+        expression = F("datetime_second") - F("datetime_start")
+    elif question_stage == "first_answer_choice":
+        expression = F("datetime_first") - F("datetime_start")
+    elif question_stage == "second_answer_choice":
+        expression = F("datetime_second") - F("datetime_first")
+    else:
+        return None
 
-    expression = F("datetime_second") - F("datetime_start")
     wrapped_expression = ExpressionWrapper(expression, DurationField())
+
+    if not student_list:
+        qs = Answer.objects.filter(question_id=question_id)
+    else:
+        qs = Answer.objects.filter(
+            question_id=question_id, user_token__in=student_list
+        )
+
     try:
         result = (
-            Answer.objects.filter(question_id=question_id)
-            .annotate(time_spent=wrapped_expression)
+            qs.annotate(time_spent=wrapped_expression)
             .values("time_spent")
             .aggregate(Avg("time_spent"))["time_spent__avg"]
             .seconds
@@ -1165,7 +1189,10 @@ def populate_answer_start_time_from_ltievent_logs(day_of_logs, event_type):
                 # keep the latest time at which student accessed
                 # problem start page
                 if getattr(answer_obj, field):
-                    if getattr(answer_obj, field) < e.timestamp:
+                    if (
+                        getattr(answer_obj, field) < e.timestamp
+                        and event_type == "problem_show"
+                    ):
                         setattr(answer_obj, field, e.timestamp)
                         answer_obj.save()
                         i += 1
@@ -1184,5 +1211,5 @@ def populate_answer_start_time_from_ltievent_logs(day_of_logs, event_type):
                     e_json["event"]["assignment_id"],
                 )
 
-    logger.info("{} answer start times updated".format(i))
+    logger.info("{} answer {} times updated".format(i, field))
     return

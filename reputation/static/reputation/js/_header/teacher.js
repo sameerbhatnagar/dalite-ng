@@ -87,7 +87,6 @@ export class TeacherReputationHeader extends HTMLElement {
     type Model = {
       id: number,
       element: TeacherReputationHeader,
-      nonce: string,
       reputation: ?number,
       reputationType: string,
       reputationUrl: string,
@@ -98,7 +97,6 @@ export class TeacherReputationHeader extends HTMLElement {
     const model: Model = {
       id: parseInt(this.reputationId),
       element: this,
-      nonce: this.nonce,
       reputation: null,
       reputationType: this.reputationType,
       reputationUrl: this.reputationUrl,

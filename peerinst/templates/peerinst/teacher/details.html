@@ -386,7 +386,6 @@
 
 {% block scripts %}
 {{ block.super }}
-{% compress js inline %}
 <script nonce="{{ request.csp_nonce }}">
   bundle.addDialog();
 
@@ -421,41 +420,40 @@
 </script>
 <script nonce="{{ request.csp_nonce }}">
   window.addEventListener("load", function() {
-    let links = document.getElementsByClassName("group-link")
+    let links = document.getElementsByClassName("group-link");
     {% for g in object.current_groups.all %}
     links[{{ forloop.counter0 }}].addEventListener("click", function() {
       window.location.href='{% url 'group-details' g.hash %}'
-    })
+    });
     {% endfor %}
-    links = document.getElementsByClassName("assignment-link")
+    links = document.getElementsByClassName("assignment-link");
     {% for a in object.assignments.all %}
     links[{{ forloop.counter0 }}].addEventListener("click", function() {
       window.location.href='{% url 'question-list' a.pk %}'
-    })
+    });
     {% endfor %}
     {% for a in object.blinkassignment_set.all %}
     document.getElementById("edit-blink-{{a.pk}}").addEventListener("click", function() {
       window.location.href='{% url 'blink-waiting' username=object.user.username assignment=a.key %}'
-      })
+    });
     {% endfor %}
     document.getElementById("quality-eval-edit").addEventListener("click", function() {
       window.location.href='{% url 'quality:edit' %}?type=validation&teacher=true&next={{ request.path }}'
-    })
+    });
     document.getElementById("edit-user-btn").addEventListener("click", function() {
       edit_user()
-    })
-    document.querySelectorAll(".edit-identity-btn").forEach(function(btn) {
+    });
+    [...document.getElementsByClassName("edit-identity-btn")].forEach(function(btn) {
       btn.addEventListener("click", function() {
-        edit_identity()
-      })
-    })
+        edit_identity();
+      });
+    });
     document.getElementById("tos-modify-btn").addEventListener("click", function() {
       window.location.href='{% url 'tos:tos_modify' 'teacher' %}?next={{ request.path }}'
-    })
+    });
     document.getElementById("email-modify-btn").addEventListener("click", function() {
       window.location.href='{% url 'tos:email_modify' 'teacher' %}?next={{ request.path }}'
-    })
-  })
+    });
+  });
 </script>
-{% endcompress %}
 {% endblock %}
