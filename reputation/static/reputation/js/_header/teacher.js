@@ -33,8 +33,8 @@ export class TeacherReputationHeader extends HTMLElement {
     }
     return id;
   }
-  get nonce(): string {
-    const nonce = this.getAttribute("nonce");
+  get nonce_(): string {
+    const nonce = this.getAttribute("nonce") || this.nonce;
     if (!nonce) {
       throw new Error(
         "The teacher-reputation-header needs a `nonce` attribute",
@@ -252,6 +252,7 @@ export class TeacherReputationHeader extends HTMLElement {
           "/static/reputation/css/teacher-header.min.css",
       );
       style.setAttribute("rel", "stylesheet");
+      style.setAttribute("nonce", model.nonce);
       return style;
     }
 

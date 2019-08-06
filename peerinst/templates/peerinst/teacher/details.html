@@ -444,7 +444,7 @@
     document.getElementById("edit-user-btn").addEventListener("click", function() {
       edit_user()
     })
-    [...document.getElementsByClassName("edit-identity-btn")].forEach(function(btn) {
+    document.querySelectorAll(".edit-identity-btn").forEach(function(btn) {
       btn.addEventListener("click", function() {
         edit_identity()
       })
