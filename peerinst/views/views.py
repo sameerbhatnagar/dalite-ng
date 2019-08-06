@@ -2731,6 +2731,9 @@ def question_search(request):
                 discipline__in=request.user.teacher.disciplines.all()
             )
 
+        # if meta_search:
+        #    search_list = filter(meta_search, search_list)
+
         # All matching questions
         search_string_split_list = search_string.split()
         search_terms = [search_string]
