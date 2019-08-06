@@ -33,9 +33,9 @@ logger = logging.getLogger("peerinst-views")
 
 @require_safe
 @teacher_required
-def teacher_page(req, teacher):
+def dashboard(req, teacher):
     """
-    View that sends basic teacher page template skeleton.
+    View that sends basic teacher dashboard template skeleton.
 
     Parameters
     ----------
@@ -49,10 +49,10 @@ def teacher_page(req, teacher):
     HttpResponse
         Html response with basic template skeleton
     """
-    teacher.last_page_access = datetime.now(pytz.utc)
+    teacher.last_dashboard_access = datetime.now(pytz.utc)
     context = {"teacher": teacher}
 
-    return render(req, "peerinst/teacher/page.html", context)
+    return render(req, "peerinst/teacher/dashboard.html", context)
 
 
 @require_POST
@@ -117,8 +117,9 @@ def student_activity(req, teacher):
             "assignments": [
                 {
                     "title": assignment.assignment.title,
-                    "new": assignment.last_modified > teacher.last_page_access
-                    if teacher.last_page_access
+                    "new": assignment.last_modified
+                    > teacher.last_dashboard_access
+                    if teacher.last_dashboard_access
                     else True,
                     "expired": assignment.expired,
                     "link": "{}://{}{}".format(
@@ -425,7 +426,7 @@ def messages(req, teacher):
                             Text of the post
                     }
                     n_new: int
-                        Number of new replies since last visit of page
+                        Number of new replies since last visit of dashboard
                     link: str
                         Link to the thread in forums
                 }]
@@ -443,8 +444,10 @@ def messages(req, teacher):
                     "content": last_reply.content,
                 },
                 "n_new": thread.replies.filter(
-                    created__gt=teacher.last_page_access
-                ).count(),
+                    created__gt=teacher.last_dashboard_access
+                ).count()
+                if teacher.last_dashboard_access is not None
+                else thread.replies.count(),
                 "link": reverse(
                     "pinax_forums:thread", kwargs={"pk": thread.pk}
                 ),

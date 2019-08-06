@@ -52,10 +52,10 @@ class Teacher(models.Model):
     reputation = models.OneToOneField(
         Reputation, blank=True, null=True, on_delete=models.SET_NULL
     )
-    last_page_access = models.DateTimeField(
+    last_dashboard_access = models.DateTimeField(
         blank=True,
         null=True,
-        help_text="Last time the teacher went on their teacher page.",
+        help_text="Last time the teacher went on their teacher dashboard.",
     )
 
     def get_absolute_url(self):

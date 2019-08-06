@@ -28,7 +28,7 @@ def test_student_activity__no_questions_done(
     teacher.current_groups.add(group)
 
     resp = client.post(
-        reverse("teacher-page--student-activity"),
+        reverse("teacher-dashboard--student-activity"),
         json.dumps({}),
         content_type="application/json",
     )
@@ -75,7 +75,7 @@ def test_student_activity__all_questions_done_correct_first_and_second(
             )
 
     resp = client.post(
-        reverse("teacher-page--student-activity"),
+        reverse("teacher-dashboard--student-activity"),
         json.dumps({}),
         content_type="application/json",
     )
@@ -122,7 +122,7 @@ def test_student_activity__all_questions_done_correct_first_wrong_second(
             )
 
     resp = client.post(
-        reverse("teacher-page--student-activity"),
+        reverse("teacher-dashboard--student-activity"),
         json.dumps({}),
         content_type="application/json",
     )
@@ -171,7 +171,7 @@ def test_student_activity__all_questions_done_wrong_first_and_second(
             )
 
     resp = client.post(
-        reverse("teacher-page--student-activity"),
+        reverse("teacher-dashboard--student-activity"),
         json.dumps({}),
         content_type="application/json",
     )
@@ -218,7 +218,7 @@ def test_student_activity__some_questions_done_correct_first_and_second(
             )
 
     resp = client.post(
-        reverse("teacher-page--student-activity"),
+        reverse("teacher-dashboard--student-activity"),
         json.dumps({}),
         content_type="application/json",
     )
@@ -265,7 +265,7 @@ def test_student_activity__some_questions_done_correct_first_wrong_second(
             )
 
     resp = client.post(
-        reverse("teacher-page--student-activity"),
+        reverse("teacher-dashboard--student-activity"),
         json.dumps({}),
         content_type="application/json",
     )
@@ -318,7 +318,7 @@ def test_student_activity__some_questions_done_wrong_first_and_second(
             )
 
     resp = client.post(
-        reverse("teacher-page--student-activity"),
+        reverse("teacher-dashboard--student-activity"),
         json.dumps({}),
         content_type="application/json",
     )
@@ -352,7 +352,7 @@ def test_collections(client, collections, teachers, discipline):
         collection.followers.remove(*teachers[: -i - 1])
 
     resp = client.post(
-        reverse("teacher-page--collections"),
+        reverse("teacher-dashboard--collections"),
         json.dumps({}),
         content_type="application/json",
     )
@@ -383,7 +383,7 @@ def test_collections__with_params(client, collections, teachers, discipline):
         collection.followers.remove(*teachers[: -i - 1])
 
     resp = client.post(
-        reverse("teacher-page--collections"),
+        reverse("teacher-dashboard--collections"),
         json.dumps({"n": 1}),
         content_type="application/json",
     )
@@ -410,7 +410,7 @@ def test_collections__wrong_params(client, teachers):
         return_value=HttpResponse("", status=400),
     ):
         resp = client.post(
-            reverse("teacher-page--new-questions"),
+            reverse("teacher-dashboard--new-questions"),
             json.dumps({}),
             content_type="application/json",
         )
@@ -430,7 +430,7 @@ def test_new_questions(client, teacher, questions, assignment, disciplines):
     teacher.disciplines.add(disciplines[0])
 
     resp = client.post(
-        reverse("teacher-page--new-questions"),
+        reverse("teacher-dashboard--new-questions"),
         json.dumps({}),
         content_type="application/json",
     )
@@ -471,7 +471,7 @@ def test_new_questions__with_params(
     teacher.disciplines.add(disciplines[0])
 
     resp = client.post(
-        reverse("teacher-page--new-questions"),
+        reverse("teacher-dashboard--new-questions"),
         json.dumps({"n": 2}),
         content_type="application/json",
     )
@@ -500,7 +500,7 @@ def test_new_questions__with_params(
             ) >= datetime.strptime(q["last_modified"], "%Y-%m-%dT%H:%M:%S.%fZ")
 
     resp = client.post(
-        reverse("teacher-page--new-questions"),
+        reverse("teacher-dashboard--new-questions"),
         json.dumps(
             {
                 "current": [
@@ -535,7 +535,7 @@ def test_new_questions__with_params(
             ) >= datetime.strptime(q["last_modified"], "%Y-%m-%dT%H:%M:%S.%fZ")
 
     resp = client.post(
-        reverse("teacher-page--new-questions"),
+        reverse("teacher-dashboard--new-questions"),
         json.dumps(
             {
                 "n": 2,
@@ -579,7 +579,7 @@ def test_new_questions__wrong_params(client, teacher):
         return_value=HttpResponse("", status=400),
     ):
         resp = client.post(
-            reverse("teacher-page--new-questions"),
+            reverse("teacher-dashboard--new-questions"),
             json.dumps({}),
             content_type="application/json",
         )
@@ -602,7 +602,7 @@ def test_rationales_to_score(client, teacher, answers, discipline):
         ]
 
         resp = client.post(
-            reverse("teacher-page--rationales"),
+            reverse("teacher-dashboard--rationales"),
             json.dumps({}),
             content_type="application/json",
         )
@@ -645,7 +645,7 @@ def test_rationales_to_score__with_params(
         ]
 
         resp = client.post(
-            reverse("teacher-page--rationales"),
+            reverse("teacher-dashboard--rationales"),
             json.dumps({"n": 3}),
             content_type="application/json",
         )
@@ -670,7 +670,7 @@ def test_rationales_to_score__with_params(
             )
 
         resp = client.post(
-            reverse("teacher-page--rationales"),
+            reverse("teacher-dashboard--rationales"),
             json.dumps({"current": [a.pk for a in answers[-3:]]}),
             content_type="application/json",
         )
@@ -695,7 +695,7 @@ def test_rationales_to_score__with_params(
             )
 
         resp = client.post(
-            reverse("teacher-page--rationales"),
+            reverse("teacher-dashboard--rationales"),
             json.dumps({"n": 3, "current": [a.pk for a in answers[-3:]]}),
             content_type="application/json",
         )
@@ -728,7 +728,7 @@ def test_rationales_to_score__wrong_params(client, teacher):
         return_value=HttpResponse("", status=400),
     ):
         resp = client.post(
-            reverse("teacher-page--rationales"),
+            reverse("teacher-dashboard--rationales"),
             json.dumps({}),
             content_type="application/json",
         )
@@ -739,10 +739,10 @@ def test_messages(client, teacher, thread):
     assert login_teacher(client, teacher)
 
     replies = thread.replies.order_by("-created").all()
-    teacher.last_page_access = replies[len(replies) // 2].created
+    teacher.last_dashboard_access = replies[len(replies) // 2].created
     teacher.save()
 
-    resp = client.post(reverse("teacher-page--messages"))
+    resp = client.post(reverse("teacher-dashboard--messages"))
     assert resp.status_code == 200
     data = json.loads(resp.content)["threads"]
 
@@ -766,7 +766,7 @@ def test_unsubscribe_from_thread(client, teacher, thread):
     ).count()
 
     resp = client.post(
-        reverse("teacher-page--unsubscribe-thread"),
+        reverse("teacher-dashboard--unsubscribe-thread"),
         json.dumps({"id": thread.pk}),
         content_type="application/json",
     )
@@ -783,7 +783,7 @@ def test_unsubscribe_from_thread__missing_params(client, teacher, thread):
     ).count()
 
     resp = client.post(
-        reverse("teacher-page--unsubscribe-thread"),
+        reverse("teacher-dashboard--unsubscribe-thread"),
         json.dumps({}),
         content_type="application/json",
     )
@@ -801,7 +801,7 @@ def test_evaluate_rationale(client, teacher, answers):
     n = AnswerAnnotation.objects.count()
 
     resp = client.post(
-        reverse("teacher-page--evaluate-rationale"),
+        reverse("teacher-dashboard--evaluate-rationale"),
         json.dumps({"id": answer.pk, "score": 0}),
         content_type="application/json",
     )
@@ -818,7 +818,7 @@ def test_evaluate_rationale__missing_params(client, teacher, answers):
     n = AnswerAnnotation.objects.count()
 
     resp = client.post(
-        reverse("teacher-page--evaluate-rationale"),
+        reverse("teacher-dashboard--evaluate-rationale"),
         json.dumps({"id": answer.pk}),
         content_type="application/json",
     )
@@ -827,7 +827,7 @@ def test_evaluate_rationale__missing_params(client, teacher, answers):
     assert AnswerAnnotation.objects.count() == n
 
     resp = client.post(
-        reverse("teacher-page--evaluate-rationale"),
+        reverse("teacher-dashboard--evaluate-rationale"),
         json.dumps({"score": 0}),
         content_type="application/json",
     )
@@ -836,7 +836,7 @@ def test_evaluate_rationale__missing_params(client, teacher, answers):
     assert AnswerAnnotation.objects.count() == n
 
     resp = client.post(
-        reverse("teacher-page--evaluate-rationale"),
+        reverse("teacher-dashboard--evaluate-rationale"),
         json.dumps({}),
         content_type="application/json",
     )
@@ -851,7 +851,7 @@ def test_evaluate_rationale__wrong_answer_pk(client, teacher):
     n = AnswerAnnotation.objects.count()
 
     resp = client.post(
-        reverse("teacher-page--evaluate-rationale"),
+        reverse("teacher-dashboard--evaluate-rationale"),
         json.dumps({"id": 0, "score": 0}),
         content_type="application/json",
     )
@@ -868,7 +868,7 @@ def test_evaluate_rationale__wrong_score(client, teacher, answers):
     n = AnswerAnnotation.objects.count()
 
     resp = client.post(
-        reverse("teacher-page--evaluate-rationale"),
+        reverse("teacher-dashboard--evaluate-rationale"),
         json.dumps({"id": 0, "score": 4}),
         content_type="application/json",
     )
@@ -877,7 +877,7 @@ def test_evaluate_rationale__wrong_score(client, teacher, answers):
     assert AnswerAnnotation.objects.count() == n
 
     resp = client.post(
-        reverse("teacher-page--evaluate-rationale"),
+        reverse("teacher-dashboard--evaluate-rationale"),
         json.dumps({"id": 0, "score": -1}),
         content_type="application/json",
     )
@@ -886,7 +886,7 @@ def test_evaluate_rationale__wrong_score(client, teacher, answers):
     assert AnswerAnnotation.objects.count() == n
 
     resp = client.post(
-        reverse("teacher-page--evaluate-rationale"),
+        reverse("teacher-dashboard--evaluate-rationale"),
         json.dumps({"id": 0, "score": "0"}),
         content_type="application/json",
     )

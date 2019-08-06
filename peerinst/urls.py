@@ -614,42 +614,44 @@ def collection_patterns():
 def teacher_patterns():
     return [
         url(
-            r"^teacher/page/$", views.teacher.teacher_page, name="teacher-page"
+            r"^teacher/dashboard/$",
+            views.teacher.dashboard,
+            name="teacher-dashboard",
         ),
         url(
-            r"^teacher/page/new-questions/$",
+            r"^teacher/dashboard/new-questions/$",
             views.teacher.new_questions,
-            name="teacher-page--new-questions",
+            name="teacher-dashboard--new-questions",
         ),
         url(
-            r"^teacher/page/student-activity/$",
+            r"^teacher/dashboard/student-activity/$",
             views.teacher.student_activity,
-            name="teacher-page--student-activity",
+            name="teacher-dashboard--student-activity",
         ),
         url(
-            r"^teacher/page/rationales/evaluate$",
+            r"^teacher/dashboard/rationales/evaluate$",
             views.teacher.evaluate_rationale,
-            name="teacher-page--evaluate-rationale",
+            name="teacher-dashboard--evaluate-rationale",
         ),
         url(
-            r"^teacher/page/rationales/$",
+            r"^teacher/dashboard/rationales/$",
             views.teacher.rationales_to_score,
-            name="teacher-page--rationales",
+            name="teacher-dashboard--rationales",
         ),
         url(
-            r"^teacher/page/collections/$",
+            r"^teacher/dashboard/collections/$",
             views.teacher.collections,
-            name="teacher-page--collections",
+            name="teacher-dashboard--collections",
         ),
         url(
-            r"^teacher/page/messages/$",
+            r"^teacher/dashboard/messages/$",
             views.teacher.messages,
-            name="teacher-page--messages",
+            name="teacher-dashboard--messages",
         ),
         url(
-            r"^teacher/page/unsubscribe-thread/$",
+            r"^teacher/dashboard/unsubscribe-thread/$",
             views.teacher.unsubscribe_from_thread,
-            name="teacher-page--unsubscribe-thread",
+            name="teacher-dashboard--unsubscribe-thread",
         ),
     ]
 
