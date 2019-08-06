@@ -719,12 +719,12 @@ function initListeners() {
 function addLinkListeners() {
   document
     .getElementById("edit-user-btn")
-    .addLinkListener("click", function() {
+    .addEventListener("click", function() {
       edit_user();
     });
   document
     .getElementById("modify-tos-btn")
-    .addLinkListener("click", function() {
+    .addEventListener("click", function() {
       modifyTos();
     });
 }
