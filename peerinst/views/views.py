@@ -339,7 +339,8 @@ def welcome(request):
         if teacher_group:
             if teacher_group not in teacher.user.groups.all():
                 teacher.user.groups.add(teacher_group)
-        return HttpResponseRedirect(reverse("browse-database"))
+        #  return HttpResponseRedirect(reverse("browse-database"))
+        return HttpResponseRedirect(reverse("teacher-dashboard"))
 
     elif Student.objects.filter(student=request.user).exists():
         return HttpResponseRedirect(reverse("student-page"))

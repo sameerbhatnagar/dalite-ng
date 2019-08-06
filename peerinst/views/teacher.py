@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import json
 import logging
 from datetime import datetime
 
@@ -50,7 +51,9 @@ def dashboard(req, teacher):
         Html response with basic template skeleton
     """
     teacher.last_dashboard_access = datetime.now(pytz.utc)
-    context = {"teacher": teacher}
+
+    data = {"urls": {"collections": reverse("teacher-dashboard--collections")}}
+    context = {"data": json.dumps(data)}
 
     return render(req, "peerinst/teacher/dashboard.html", context)
 
@@ -70,7 +73,7 @@ def student_activity(req, teacher):
 
     Returns
     -------
-    JSONResponse
+    JsonResponse
         Response with json data:
             {
                 groups: [{
@@ -199,7 +202,7 @@ def collections(req, teacher):
 
     Returns
     -------
-    JSONResponse
+    JsonResponse
         Response with json data:
             {
                 "collections": [
@@ -264,7 +267,7 @@ def new_questions(req, teacher):
 
     Returns
     -------
-    JSONResponse
+    JsonResponse
         Response with json data:
             {
                 questions: [{
@@ -332,10 +335,16 @@ def saltise_message(req, teacher):
 
     Returns
     -------
-    JSONResponse
-        Response with json data
+    JsonResponse
+        Response with json data {
+            message: Optional[str]
+                Message to show
+            link: Optional[str]
+                Link to go to when clicked
+        }
     """
-    pass
+    data = {"message": None, "link": None}
+    return JsonResponse(data)
 
 
 @require_POST
@@ -359,8 +368,25 @@ def rationales_to_score(req, teacher):
 
     Returns
     -------
-    JSONResponse
-        Response with json data
+    JsonResponse
+        Response with json data: {
+            rationales: [
+                {
+                    id : int
+                        Id the answer
+                    title : str
+                        Title of the question
+                    rationale : str
+                        Rationale of the answer
+                    choice : int
+                        Index of the answer choice
+                    text : string
+                        Text of the answer choice
+                    correct : bool
+                        If the answer choice is correct or not
+                }
+            ]
+        }
     """
     args = get_json_params(req, opt_args=["n", "current"])
     if isinstance(args, HttpResponse):
@@ -411,7 +437,7 @@ def messages(req, teacher):
 
     Returns
     -------
-    JSONResponse
+    JsonResponse
         Response with json data
             {
                 threads: [{
@@ -522,7 +548,7 @@ def evaluate_rationale(req, teacher):
 
     Returns
     -------
-    JSONResponse
+    JsonResponse
         Response with json data
     """
     args = get_json_params(req, args=["id", "score"])

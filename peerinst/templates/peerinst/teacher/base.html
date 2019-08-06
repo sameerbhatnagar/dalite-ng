@@ -3,10 +3,14 @@
 {% load compress staticfiles i18n %}
 
 {% block stylesheets %}
+  {% compress css %}
+  <link href="{% static 'peerinst/css/teacher.min.css' %}" rel="stylesheet">
+  {% endcompress %}
 {% endblock %}
 
 {% block scripts %}
   {% compress js %}
+  <script src="{% static 'peerinst/js/teacher.min.js' %}"></script>
   <script src="{% static 'reputation/js/header.min.js' %}"></script>
   {% endcompress %}
 {% endblock %}
