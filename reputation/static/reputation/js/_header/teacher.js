@@ -33,6 +33,15 @@ export class TeacherReputationHeader extends HTMLElement {
     }
     return id;
   }
+  get nonce_(): string {
+    const nonce = this.getAttribute("nonce") || this.nonce;
+    if (!nonce) {
+      throw new Error(
+        "The teacher-reputation-header needs a `nonce` attribute",
+      );
+    }
+    return nonce;
+  }
   get hidden() {
     return this.hasAttribute("hidden");
   }
@@ -225,6 +234,7 @@ export class TeacherReputationHeader extends HTMLElement {
       list.appendChild(name);
 
       const rep = document.createElement("div");
+      rep.classList.add("list__reputation");
       rep.textContent = (
         Math.round(reputation.reputation * 100) / 100
       ).toString();
@@ -241,6 +251,7 @@ export class TeacherReputationHeader extends HTMLElement {
           "/static/reputation/css/teacher-header.min.css",
       );
       style.setAttribute("rel", "stylesheet");
+      style.setAttribute("nonce", model.nonce);
       return style;
     }
 

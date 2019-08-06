@@ -266,12 +266,12 @@
 {{ block.super }}
 <script nonce="{{ request.csp_nonce }}">
   window.addEventListener("load", function() {
-    [...document.getElementsByClassName("edit-btn")].forEach(btn => {
+    document.querySelectorAll(".edit-btn").forEach(btn => {
       btn.addEventListener("click", event => {
         group.editField(event, 'text', 'mdc-list-item__secondary-text')       
       })
     })
-    [...document.getElementsByClassName("toggle-id-btn")].forEach(btn => {
+    document.querySelectorAll(".toggle-id-btn").forEach(btn => {
       btn.addEventListener("click", event => {
         group.toggleStudentIdNeeded(event, '{% url 'group-details-update' group.hash %}')
       })
