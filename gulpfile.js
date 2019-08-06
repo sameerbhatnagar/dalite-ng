@@ -50,7 +50,7 @@ const scriptBuilds = [
   },
   {
     app: "tos",
-    modules: ["tos", "email"],
+    modules: ["email"],
   },
   {
     app: "quality",
