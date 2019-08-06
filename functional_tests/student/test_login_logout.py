@@ -50,12 +50,13 @@ def access_logged_in_account_from_landing_page(browser, student):
     assert re.search(r"student/", browser.current_url)
 
 
-def logout(browser):
+def logout(browser, assert_):
     icon = browser.find_element_by_xpath("//i[contains(text(), 'menu')]")
     icon.click()
 
-    link = browser.find_element_by_xpath("//a[contains(text(), 'Logout')]")
-    link.click()
+    logout_button = browser.find_element_by_link_text("Logout")
+    browser.wait_for(assert_(logout_button.is_enabled()))
+    logout_button.click()
 
     assert browser.current_url == browser.server_url + "/en/"
 
@@ -93,10 +94,10 @@ def test_fake_link(browser):
     browser.find_element_by_xpath("//*[contains(text(), '{}')]".format(err))
 
 
-def test_student_login_logout(browser, student):
+def test_student_login_logout(browser, assert_, student):
     signin(browser, student, new=False)
     access_logged_in_account_from_landing_page(browser, student)
-    logout(browser)
+    logout(browser, assert_)
 
 
 def test_new_student_login(browser, student_new):

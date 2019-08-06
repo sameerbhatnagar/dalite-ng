@@ -11,3 +11,8 @@ def new_user():
 @pytest.fixture
 def inactive_user():
     return f.UserFactory(is_active=False)
+
+
+@pytest.fixture
+def new_teacher():
+    return f.TeacherFactory()

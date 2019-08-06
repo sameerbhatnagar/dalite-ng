@@ -16,6 +16,7 @@ __all__ = [
     "forum",
     "group",
     "inactive_user",
+    "new_teacher",
     "new_user",
     "question",
     "questions",
@@ -64,4 +65,4 @@ from .student import (
 )
 from .teacher import teacher, teachers
 from .tos import tos_student, tos_teacher
-from .user import inactive_user, new_user
+from .user import inactive_user, new_teacher, new_user
