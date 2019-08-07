@@ -329,7 +329,7 @@ Bruce][entypo].
 Coverage
 --------
 
-`$ py.test --cov-config .coveragerc --cov-report html --cov=peerinst --cov=dalite --cov=tos ./`
+`$ pytest --cov --cov-report html`
 
 
 Celery, beat, and Redis
@@ -352,3 +352,13 @@ Requires Redis 5.0.0
  (env) $ celery -A dalite beat -l debug --scheduler django_celery_beat.schedulers:DatabaseScheduler
 
  - Schedule tasks at: /admin/django_celery_beat/
+
+Tools
+-----
+`makefile`:
+  Command shortcuts
+
+  `make test`:
+    Runs pytest with migration and coverage options
+  `make test-cdb`:
+    Runs pytest with migration and coverage options, re-creating the db

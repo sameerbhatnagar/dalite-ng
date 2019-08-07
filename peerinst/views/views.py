@@ -271,7 +271,7 @@ def sign_up(request):
             if not settings.EMAIL_BACKEND.startswith(
                 "django.core.mail.backends"
             ):
-                return response_500(request)
+                return HttpResponse(status=503)
 
             host = request.get_host()
             if host == "localhost" or host == "127.0.0.1":
@@ -2730,6 +2730,9 @@ def question_search(request):
             search_list = search_list.filter(
                 discipline__in=request.user.teacher.disciplines.all()
             )
+
+        # if meta_search:
+        #    search_list = filter(meta_search, search_list)
 
         # All matching questions
         search_string_split_list = search_string.split()

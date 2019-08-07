@@ -12,6 +12,7 @@
 {% block scripts %}
 {% compress js %}
 <script src="{% static 'peerinst/js/student.min.js' %}"></script>
+{% endcompress %}
 <script nonce="{{ request.csp_nonce }}">
   window.addEventListener("load", function() {
     student.initStudentHeader(
@@ -19,7 +20,6 @@
     )
   });
 </script>
-{% endcompress %}
 {% endblock %}
 
 {% block logged_in_layout_class %}

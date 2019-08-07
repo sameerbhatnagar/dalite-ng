@@ -15,6 +15,7 @@
 {% compress js %}
 <script src="{% static 'peerinst/js/teacher.min.js' %}"></script>
 <script src="{% static 'peerinst/js/custom_elements.min.js' %}"></script>
+<script src="{% static 'reputation/js/header.min.js' %}"></script>
 {% endcompress %}
 <script nonce="{{ request.csp_nonce }}">
   window.addEventListener("load", function() {
@@ -45,7 +46,12 @@ class="logged-in-layout"
 
 {% block header-right %}
 <div class="header">
-  {% include 'reputation/header/header.html' %}
+  <teacher-reputation-header
+    reputation-url="{% url 'reputation:reputation' %}"
+    reputation-type="teacher"
+    reputation-id="{{ request.user.teacher.pk }}"
+    nonce="{{ request.csp_nonce }}">
+  </teacher-reputation-header>
 </div>
 <div class="header">
   {% include 'peerinst/teacher/header/notifications.html' %}

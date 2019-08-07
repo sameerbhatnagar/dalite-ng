@@ -3,6 +3,7 @@
 {% load compress i18n staticfiles %}
 
 {% block stylesheets %}
+{{ block.super }}
 {% compress css %}
 <link href="{% static 'pinax/forums/css/forums.min.css' %}" rel="stylesheet">
 {% endcompress %}
@@ -28,5 +29,6 @@
 {% endblock %}
 
 {% block scripts %}
+{{ block.super }}
 {% block extrascripts %}{% endblock %}
 {% endblock %}

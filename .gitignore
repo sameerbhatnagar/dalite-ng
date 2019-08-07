@@ -6,6 +6,7 @@
 *.rdb
 *.tar.gz
 .*requirements-timestamp
+.DS_Store
 .coverage
 .data/
 .pytest_cache/
@@ -16,16 +17,15 @@
 /htmlcov
 /log
 /media
-/media
 /node_modules
 /redis*
 /sent_emails
 /static
+/venv/
 celerybeat.pid
 locust*
 mysql_scripts/
 partner*.png
 pytest-logs.txt
 scripts/
-src
 tags

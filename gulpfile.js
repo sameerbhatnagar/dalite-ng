@@ -32,7 +32,7 @@ const styleBuilds = [
   },
   {
     app: "reputation",
-    modules: ["teacher", "header"],
+    modules: ["teacher-header"],
   },
 ];
 
@@ -51,7 +51,7 @@ const scriptBuilds = [
   },
   {
     app: "tos",
-    modules: ["tos", "email"],
+    modules: ["email"],
   },
   {
     app: "quality",
@@ -90,7 +90,13 @@ const babelConfig = {
 
 function buildStyle(app, module) {
   const build = gulp
-    .src("./" + app + "/static/" + app + "/css/" + module + "/*.scss")
+    .src(
+      [
+        "./" + app + "/static/" + app + "/css/" + module + "/*.scss",
+        "./" + app + "/static/" + app + "/css/" + module + ".scss",
+      ],
+      { allowEmpty: true },
+    )
     .pipe(sourcemaps.init())
     .pipe(
       sass({
@@ -109,7 +115,10 @@ function buildStyle(app, module) {
 
 function watchStyle(app, module) {
   gulp.watch(
-    "./" + app + "/static/" + app + "/css/" + module + "/*.scss",
+    [
+      "./" + app + "/static/" + app + "/css/" + module + "/*.scss",
+      "./" + app + "/static/" + app + "/css/" + module + ".scss",
+    ],
     () => buildStyle(app, module),
   );
 }
@@ -299,7 +308,8 @@ function icons() {
       }),
     )
     .pipe(rename("icons.svg"))
-    .pipe(gulp.dest("./templates/"));
+    .pipe(gulp.dest("./templates/"))
+    .pipe(gulp.dest("./peerinst/static/peerinst/"));
 }
 
 function watch() {

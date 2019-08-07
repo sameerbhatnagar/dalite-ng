@@ -62,6 +62,7 @@ MIDDLEWARE = (
     "django.middleware.security.SecurityMiddleware",
     "peerinst.middleware.NotificationMiddleware",
     "dalite.custom_middleware.resp_405_middleware",
+    "dalite.custom_middleware.resp_503_middleware",
     # Minify html
     "htmlmin.middleware.HtmlMinifyMiddleware",
     "htmlmin.middleware.MarkRequestMiddleware",
@@ -69,7 +70,7 @@ MIDDLEWARE = (
 
 ROOT_URLCONF = "dalite.urls"
 
-CUSTOM_SETTINGS = os.environ.get("CUSTOM_SETTINGS", "default")
+CUSTOM_SETTINGS = os.environ.get("CUSTOM_SETTINGS", "SALTISES4")
 
 TEMPLATES = [
     {
@@ -391,16 +392,16 @@ CSP_SCRIPT_SRC = [
     "www.youtube.com",
     "s.ytimg.com",
     "cdn.jsdelivr.net",
-    "'unsafe-inline'",
+    "unpkg.com",
 ]
 CSP_STYLE_SRC = [
     "'self'",
     "*.mydalite.org",
     "fonts.googleapis.com",
+    "ajax.googleapis.com",
     "unpkg.com",
     "cdn.jsdelivr.net",
     "code.jquery.com",
-    "'unsafe-inline'",
 ]
 CSP_FONT_SRC = [
     "'self'",
@@ -408,6 +409,21 @@ CSP_FONT_SRC = [
     "fonts.gstatic.com",
     "unpkg.com",
 ]
+CSP_OBJECT_SRC = ["*"]
+
+FEATURE_POLICY = [
+    "autoplay 'none'",
+    "camera 'none'",
+    "encrypted-media 'none'",
+    "fullscreen *",
+    "geolocation 'none'",
+    "microphone 'none'",
+    "midi 'none'",
+    "payment 'none'",
+    "vr *",
+]
+
+REFERRER_POLICY = "no-referrer, strict-origin-when-cross-origin"
 
 # External framing
 FRAMING_ALLOWED_FROM = ["*"]
@@ -416,6 +432,9 @@ CSP_INCLUDE_NONCE_IN = []
 
 SECURE_HSTS_SECONDS = 60 * 60 * 24 * 365
 REFERRER_POLICY = "no-referrer, strict-origin-when-cross-origin"
+
+# Functional tests that scrape web console logs currently require chromedriver
+TESTING_BROWSER = "chrome"
 
 try:
     from .local_settings import *  # noqa F403

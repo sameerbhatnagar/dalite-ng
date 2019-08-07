@@ -40,11 +40,9 @@ repos:
         language: system
         always_run: true
         exclude: ".*"
-  - repo: local
-    hooks:
-    - id: yarn-audit
-      name: yarn-audit
-      language: system
-      entry: yarn audit
-      always_run: true
-      exclude: ".*"
+      - id: npm-audit
+        name: npm-audit
+        language: system
+        entry: npm audit
+        always_run: true
+        exclude: ".*"
