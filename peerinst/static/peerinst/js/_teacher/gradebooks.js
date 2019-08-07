@@ -7,7 +7,7 @@ import type { Notification } from "./notifications.js";
 /* model */
 /*********/
 
-const CHECK_EVERY = 0.5;
+const CHECK_EVERY = 1;
 
 type Task = {
   id: string,
