@@ -186,6 +186,9 @@ export function handleJoinGroupLinkInput(event) {
   if (event.key === "Enter") {
     joinGroup();
   } else {
+    if (event.currentTarget.value) {
+      joinGroupErrorView("", false);
+    }
     verifyJoinGroupDisabledStatus();
   }
 }
@@ -207,7 +210,8 @@ export function joinGroup() {
       group_name: select.value,
     };
   } else {
-    console.log("Empty input");
+    joinGroupErrorView("A URL is needed.", true);
+    return;
   }
 
   const req = buildReq(data, "post");
@@ -243,7 +247,7 @@ export function joinGroup() {
       groupsView();
     })
     .catch(function(err) {
-      console.log(err);
+      joinGroupErrorView("There is no group with that link.", true);
     });
 }
 
@@ -303,8 +307,24 @@ function joinGroupView() {
   if (model.joiningGroup) {
     joinGroupsSelectView();
     box.style.display = "flex";
+    document
+      .querySelector("#student-add-group--box input")
+      .classList.remove("input--error");
   } else {
     box.style.display = "none";
+  }
+}
+
+function joinGroupErrorView(msg: string, show: boolean) {
+  const error = document.getElementById("student-add-group__error");
+  const input = document.querySelector("#student-add-group--box input");
+  error.textContent = msg;
+  if (show) {
+    error.removeAttribute("hidden");
+    input.classList.add("input--error");
+  } else {
+    error.setAttribute("hidden", "");
+    input.classList.remove("input--error");
   }
 }
 
@@ -317,6 +337,7 @@ function joinGroupsSelectView() {
       groupsSelect.appendChild(joinGroupSelectView(group)),
     );
     groupsSelect.style.display = "inline-block";
+    verifyJoinGroupDisabledStatus();
   } else {
     groupsSelect.style.display = "none";
   }
@@ -740,7 +761,6 @@ function addJoinGroupListeners() {
     .getElementById("student-add-group--box")
     .addEventListener("click", function() {
       event.stopPropagation;
-      student.toggleJoinGroup();
     });
   document
     .querySelector("#student-add-group--box > div")
