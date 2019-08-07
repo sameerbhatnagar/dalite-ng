@@ -92,7 +92,11 @@ def browser(live_server):
             print("Logs checked after: " + fct.__name__)
 
         # Ignore network errors during testing
-        filtered_logs = [d for d in logs if d["source"] != "network"]
+        filtered_logs = [
+            d
+            for d in logs
+            if d["source"] != "network" and "tinymce" not in d["message"]
+        ]
         assert len(filtered_logs) == 0, logs
 
         return result
