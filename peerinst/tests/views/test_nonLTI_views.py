@@ -129,8 +129,8 @@ class AdminTest(TestCase):
             )
             self.assertTrue(User.objects.get(pk=3).is_active)
             self.assertTrue(Teacher.objects.get(user__pk=3))
-            self.assertEqual(response.status_code, 500)
-            self.assertTemplateUsed(response, "500.html")
+            self.assertEqual(response.status_code, 503)
+            self.assertTemplateUsed(response, "503.html")
 
 
 class TeacherTest(TestCase):

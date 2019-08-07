@@ -1,10 +1,13 @@
-import time
+import re
 
 from functional_tests.fixtures import *  # noqa
 from tos.models import Role, Tos
 
 
-def test_new_user_signup(browser, assert_):
+def test_new_user_signup_workflow(
+    browser, assert_, admin, mailoutbox, settings
+):
+    settings.ADMINS = (admin.username, admin.email)
 
     # Hit landing page
     browser.get(browser.server_url + "/#Features")
@@ -61,7 +64,74 @@ def test_new_user_signup(browser, assert_):
         )
     )
 
-    time.sleep(1)
+    # Admins receive notification
+    assert len(mailoutbox) == 1
+    assert list(mailoutbox[0].to) == [a[1] for a in settings.ADMINS]
+
+    # Admin approves on their dashboard
+    m = re.search("http[s]*://.*/dashboard/", mailoutbox[0].body)
+    dashboard_link = m.group(0)
+    browser.get(dashboard_link)
+
+    inputbox = browser.find_element_by_id("id_username")
+    inputbox.send_keys(admin.username)
+
+    inputbox = browser.find_element_by_id("id_password")
+    inputbox.send_keys("default_password")
+
+    browser.find_element_by_id("submit-btn").click()
+
+    browser.wait_for(assert_("Inactive users" in browser.page_source))
+
+    form = browser.find_element_by_xpath("//form[contains(@id, 'activate')]")
+    browser.find_element_by_xpath("//input[@type='checkbox']").click()
+    form.submit()
+
+    browser.wait_for(assert_("No users to add" in browser.page_source))
+
+    browser.get(browser.server_url + "/logout")
+
+    # Notification email is sent to teacher
+    assert len(mailoutbox) == 2
+    assert list(mailoutbox[1].to) == ["test@test.com"]
+
+    m = re.search("http[s]*://.*/reset/.*", mailoutbox[1].body)
+    verification_link = m.group(0)
+    browser.get(verification_link)
+
+    # Enter new password
+    inputbox = browser.find_element_by_id("id_new_password1")
+    inputbox.send_keys("jklasdf987")
+
+    inputbox = browser.find_element_by_id("id_new_password2")
+    inputbox.send_keys("jklasdf987")
+
+    inputbox.submit()
+
+    # Succesful save
+    browser.wait_for(assert_("Success!" in browser.page_source))
+
+    browser.find_element_by_link_text("Login").click()
+
+    browser.wait_for(assert_("login" in browser.current_url))
+
+    # Sign in
+    browser.get(browser.server_url + "/login")
+    inputbox = browser.find_element_by_id("id_username")
+    inputbox.send_keys("test")
+
+    inputbox = browser.find_element_by_id("id_password")
+    inputbox.send_keys("jklasdf987")
+
+    browser.find_element_by_id("submit-btn").click()
+
+    # Redirected to Browse Database
+    browser.wait_for(
+        assert_(
+            "Browse Database"
+            in browser.find_elements_by_tag_name("h1")[0].text
+        )
+    )
 
 
 def test_new_user_signup_with_email_server_error(browser, assert_, settings):
@@ -91,12 +161,10 @@ def test_new_user_signup_with_email_server_error(browser, assert_, settings):
         )
     )
 
-    time.sleep(1)
-
 
 def test_inactive_user_login(browser, assert_, inactive_user):
 
-    # Inactive user cannot login
+    # Any inactive user cannot login
     browser.get(browser.server_url + "/login")
     inputbox = browser.find_element_by_id("id_username")
     inputbox.send_keys(inactive_user.username)
@@ -111,8 +179,6 @@ def test_inactive_user_login(browser, assert_, inactive_user):
             "your account has not yet been activated" in browser.page_source
         )
     )
-
-    time.sleep(1)
 
 
 def test_new_teacher(browser, assert_, new_teacher, tos_teacher):
@@ -208,5 +274,3 @@ def test_new_teacher(browser, assert_, new_teacher, tos_teacher):
             in browser.find_elements_by_tag_name("h1")[0].text
         )
     )
-
-    time.sleep(1)

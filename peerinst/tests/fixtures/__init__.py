@@ -1,6 +1,7 @@
 __all__ = [
     "add_answers",
     "add_to_group",
+    "admin",
     "answer_choice",
     "answer_choices",
     "answers",
@@ -64,4 +65,4 @@ from .student import (
 )
 from .teacher import teacher, teachers
 from .tos import tos_student, tos_teacher
-from .user import inactive_user, new_teacher, new_user, user
+from .user import admin, inactive_user, new_teacher, new_user, user
