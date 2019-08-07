@@ -11,10 +11,11 @@ from selenium.webdriver.remote.webelement import WebElement
 from peerinst.tests.fixtures import *  # noqa
 
 
+MAX_WAIT = 30
+
+
 # Wait decorator
 def wait(fn):
-    MAX_WAIT = 30
-
     def modified_fn(*args, **kwargs):
         start_time = time.time()
         while True:
@@ -76,6 +77,7 @@ def browser(live_server):
         return fn()
 
     driver.wait_for = wait_for
+    driver.implicitly_wait(MAX_WAIT)
 
     # Add assertion that web console logs are null after any get() or click()
     # Log function for get
@@ -89,7 +91,13 @@ def browser(live_server):
         else:
             print("Logs checked after: " + fct.__name__)
 
-        assert len(logs) == 0, logs
+        # Ignore network errors during testing
+        filtered_logs = [
+            d
+            for d in logs
+            if d["source"] != "network" and "tinymce" not in d["message"]
+        ]
+        assert len(filtered_logs) == 0, logs
 
         return result
 

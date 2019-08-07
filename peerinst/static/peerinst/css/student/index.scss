@@ -10,9 +10,8 @@ i {
 
 #student-add-group {
   & .admin-link {
-    color: rgba($mdc-theme-secondary, 0.75);
+    color: #a9a9a9;
     cursor: pointer;
-    margin-left: 50px;
   }
 
   & #student-add-group--box {
@@ -30,11 +29,11 @@ i {
 
     & div {
       background: #ffffff;
-      border: 1px solid $mdc-theme-primary;
+      border: 1px solid $mdc-theme-secondary;
       border-radius: 5px;
-      box-shadow: 0 1px 1px 1px darken($mdc-theme-primary, 30%);
-      color: #000000;
-      padding: 25px 50px;
+      color: $mdc-theme-secondary;
+      max-width: 85%;
+      padding: 15px;
       text-align: center;
       width: 500px;
 
@@ -46,7 +45,7 @@ i {
         color: $error;
         display: block;
         font-style: italic;
-        height: 25px;
+        // height: 25px;
         margin: 0;
         margin-top: 10px;
         text-align: center;
@@ -57,9 +56,11 @@ i {
       }
 
       & input {
-        border: 1px solid rgba(0, 0, 0, 0.25);
+        border: 1px solid lightgray;
         border-radius: 5px;
-        margin: 10px 100px 0 100px;
+        display: block;
+        margin: 25px auto 0 auto;
+        max-width: 100%;
         padding: 5px 10px;
         width: 180px;
 

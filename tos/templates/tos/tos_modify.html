@@ -84,7 +84,6 @@
 {% endblock %}
 
 {% block scripts %}
-  <script src="{% static 'tos/js/tos.min.js' %}" type="text/javascript"></script>
   {% if user.student %}
   <script src="{% static 'peerinst/js/student.min.js' %}"></script>
   <script nonce="{{ request.csp_nonce }}">

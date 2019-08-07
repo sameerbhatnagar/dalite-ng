@@ -1,14 +1,8 @@
+import time
+
 from django.core.urlresolvers import reverse
-from selenium.common.exceptions import TimeoutException
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.expected_conditions import (
-    presence_of_element_located,
-)
-from selenium.webdriver.support.ui import WebDriverWait
 
 from functional_tests.fixtures import *  # noqa
-
-timeout = 3
 
 
 def login(browser, teacher):
@@ -37,25 +31,19 @@ def login(browser, teacher):
 
 def access_logged_in_account_from_landing_page(browser, teacher):
     browser.get(browser.server_url)
-    link = browser.find_element_by_link_text(
+    browser.find_element_by_link_text(
         "Welcome back {}".format(teacher.user.username)
-    )
-    link.click()
+    ).click()
     assert browser.current_url.endswith("browse/")
 
 
-def logout(browser):
+def logout(browser, assert_):
     icon = browser.find_element_by_xpath("//i[contains(text(), 'menu')]")
     icon.click()
 
-    try:
-        WebDriverWait(browser, timeout).until(
-            presence_of_element_located(
-                (By.XPATH, "//a[contains(text(), 'Logout')]")
-            )
-        ).click()
-    except TimeoutException:
-        assert False
+    logout_button = browser.find_element_by_link_text("Logout")
+    browser.wait_for(assert_(logout_button.is_enabled()))
+    logout_button.click()
 
     assert browser.current_url == browser.server_url + "/en/"
 
@@ -63,7 +51,9 @@ def logout(browser):
     browser.find_element_by_link_text("Signup")
 
 
-def test_teacher_login_logout(browser, teacher):
+def test_teacher_login_logout(browser, assert_, teacher):
     login(browser, teacher)
+    time.sleep(1)
     access_logged_in_account_from_landing_page(browser, teacher)
-    logout(browser)
+    logout(browser, assert_)
+    time.sleep(1)

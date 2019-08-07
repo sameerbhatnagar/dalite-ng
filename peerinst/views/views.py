@@ -271,7 +271,7 @@ def sign_up(request):
             if not settings.EMAIL_BACKEND.startswith(
                 "django.core.mail.backends"
             ):
-                return response_500(request)
+                return HttpResponse(status=503)
 
             host = request.get_host()
             if host == "localhost" or host == "127.0.0.1":

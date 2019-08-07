@@ -52,7 +52,9 @@ def join_group_with_link(browser, group):
         reverse("signup-through-link", kwargs={"group_hash": group.hash}),
     )
 
-    add_group = browser.find_element_by_xpath("//span[text()='Add group']")
+    add_group = browser.find_element_by_xpath(
+        "//span[contains(string(), 'Add group')]"
+    )
     add_group.click()
 
     input_ = browser.find_element_by_name("new-group")
@@ -81,31 +83,27 @@ def leave_group(browser, group):
     )
     leaveBtn.click()
 
-    try:
-        leave = WebDriverWait(browser, timeout).until(
-            presence_of_element_located((By.XPATH, "//button[text()='Leave']"))
-        )
-    except TimeoutException:
-        assert False
-
+    leave = browser.find_element_by_xpath("//button[text()='Leave']")
     leave.click()
 
-    try:
-        WebDriverWait(browser, timeout).until(
-            invisibility_of_element_located(
-                (
-                    By.XPATH,
-                    "//div[@class='student-group--title']/"
-                    "h3[text()='{}']".format(group.title),
-                )
-            )
-        )
-    except TimeoutException:
-        assert False
+    # try:
+    #     WebDriverWait(browser, timeout).until(
+    #         invisibility_of_element_located(
+    #             (
+    #                 By.XPATH,
+    #                 "//div[@class='student-group--title']/"
+    #                 "h3[text()='{}']".format(group.title),
+    #             )
+    #         )
+    #     )
+    # except TimeoutException:
+    #     assert False
 
 
 def join_old_group(browser, group):
-    add_group = browser.find_element_by_xpath("//span[text()='Add group']")
+    add_group = browser.find_element_by_xpath(
+        "//span[contains(string(), 'Add group')]"
+    )
     add_group.click()
 
     select = Select(browser.find_element_by_id("student-old-groups"))
@@ -114,18 +112,10 @@ def join_old_group(browser, group):
     join = browser.find_element_by_xpath("//button[text()='Join']")
     join.click()
 
-    try:
-        WebDriverWait(browser, timeout).until(
-            presence_of_element_located(
-                (
-                    By.XPATH,
-                    "//div[@class='student-group--title']/"
-                    "h3[text()='{}']".format(group.title),
-                )
-            )
-        )
-    except TimeoutException:
-        assert False
+    browser.find_element_by_xpath(
+        "//div[@class='student-group--title']/"
+        "h3[text()='{}']".format(group.title)
+    )
 
 
 def toggle_notification(browser):

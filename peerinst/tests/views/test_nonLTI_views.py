@@ -7,10 +7,9 @@ from django.core import mail
 from django.core.urlresolvers import reverse
 from django.test import TestCase, TransactionTestCase
 
+from peerinst.models import Assignment, Discipline, Question, Teacher
 from quality.models import UsesCriterion
 from tos.models import Consent, Role, Tos
-
-from ..models import Assignment, Discipline, Question, Teacher
 
 
 def ready_user(pk):
@@ -89,8 +88,8 @@ class SignUpTest(TestCase):
                 },
                 follow=True,
             )
-        self.assertEqual(response.status_code, 500)
-        self.assertTemplateUsed(response, "500.html")
+        self.assertEqual(response.status_code, 503)
+        self.assertTemplateUsed(response, "503.html")
 
 
 class AdminTest(TestCase):

@@ -304,15 +304,15 @@ function identityView() {
 
 function joinGroupView() {
   const box = document.getElementById("student-add-group--box");
+  const input = document.querySelector("#student-add-group--box input");
   if (model.joiningGroup) {
     joinGroupsSelectView();
     box.style.display = "flex";
-    document
-      .querySelector("#student-add-group--box input")
-      .classList.remove("input--error");
   } else {
     box.style.display = "none";
+    input.value = "";
   }
+  joinGroupErrorView("", false);
 }
 
 function joinGroupErrorView(msg: string, show: boolean) {
