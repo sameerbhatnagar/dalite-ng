@@ -16,6 +16,50 @@ class ReputationType(models.Model):
     def __str__(self):
         return self.type
 
+    def _calculate_points(self, criterion, model):
+        """
+        Calculates the number of points returned by the model based on the
+        criterion evaluation and its point thresholds.
+
+        Parameters
+        ----------
+        criterion : Criterion
+            Criterion used for the evaluation
+        model : Union[Question, Assignment, Teacher]
+            Model for which to evaluate the reputation
+
+        Returns
+        -------
+        float
+            Reputation as evaluated by the criterion
+
+        Raises
+        ------
+        TypeError
+            If the given `model` doesn't correspond to the `type`
+        """
+        evaluation = criterion.evaluate(model)
+
+        if criterion.thresholds:
+            points = sum(
+                float(points_)
+                * (min(evaluation, float(threshold)) - float(prev_threshold))
+                for points_, threshold, prev_threshold in zip(
+                    criterion.points_per_threshold,
+                    criterion.thresholds,
+                    [0] + criterion.thresholds[:-1],
+                )
+            )
+            if len(criterion.points_per_threshold) > len(criterion.thresholds):
+                points = points + float(
+                    criterion.points_per_threshold[-1]
+                ) * max(0, evaluation - float(criterion.thresholds[-1]))
+
+        else:
+            points = float(criterion.points_per_threshold[0]) * evaluation
+
+        return points
+
     def evaluate(self, model):
         """
         Returns the reputation of the linked model as a tuple of the quality
@@ -29,9 +73,9 @@ class ReputationType(models.Model):
         Returns
         -------
         Optional[float]
-            Quality of the answer or None of no criterions present
+            Quality of the answer or None of no criteria present
         List[Dict[str, Any]]
-            Individual criterions under the format
+            Individual criteria under the format
                 [{
                     name: str
                     full_name: str
@@ -56,53 +100,39 @@ class ReputationType(models.Model):
             logger.error("TypeError: {}".format(msg))
             raise TypeError(msg)
 
-        if not self.criterions.exists():
+        if not self.criteria.exists():
             return None, []
-
-        criterions = [
-            {
-                "criterion": get_criterion(c.name).objects.get(
-                    version=c.version
-                ),
-                "weight": c.weight,
-            }
-            for c in self.criterions.all()
-        ]
 
         reputations = [
             dict(
                 chain(
                     {
-                        "reputation": c["criterion"].evaluate(model),
-                        "weight": c["weight"],
+                        "reputation": self._calculate_points(criterion, model)
                     }.items(),
-                    c["criterion"].__iter__(),
+                    criterion.__iter__(),
                 )
             )
-            for c in criterions
+            for criterion in (
+                get_criterion(c.name).objects.get(version=c.version)
+                for c in self.criteria.all()
+            )
         ]
-
-        reputation = float(
-            sum(r["reputation"] * r["weight"] for r in reputations)
-        ) / float(sum(r["weight"] for r in reputations))
+        reputation = sum(r["reputation"] for r in reputations)
 
         return reputation, reputations
 
 
 class UsesCriterion(models.Model):
     reputation_type = models.ForeignKey(
-        ReputationType, related_name="criterions"
+        ReputationType, related_name="criteria"
     )
     name = models.CharField(max_length=32)
     version = models.PositiveIntegerField()
-    weight = models.PositiveIntegerField()
 
     def __iter__(self):
         criterion_class = get_criterion(self.name)
         criterion = criterion_class.objects.get(version=self.version)
-        data = dict(criterion)
-        data.update({"weight": self.weight})
-        return ((field, value) for field, value in data.items())
+        return iter(criterion)
 
     def __str__(self):
         return "{} for reputation type {}".format(

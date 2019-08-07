@@ -47,9 +47,8 @@ def email_consent_update(req, role):
         {
             "user": req.user,
             "email_type": email_type,
-            "accepted": req.POST.get(
-                "{}-consent".format(email_type.type), False
-            ),
+            "accepted": req.POST.get("{}-consent".format(email_type.type), "")
+            == "on",
         }
         for email_type in EmailType.objects.filter(role=role_)
     ]

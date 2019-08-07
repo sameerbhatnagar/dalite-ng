@@ -1,6 +1,6 @@
 // @flow
-import { buildReq } from "../../../../../peerinst/static/peerinst/js/_ajax/utils.js"; // eslint-disable-line
-import { clear } from "../../../../../peerinst/static/peerinst/js/utils.js"; // eslint-disable-line
+import { buildReq } from "../../../../../peerinst/static/peerinst/js/ajax.js";
+import { clear } from "../../../../../peerinst/static/peerinst/js/utils.js";
 import * as d3 from "d3";
 
 /*********/
@@ -142,7 +142,7 @@ function progressView(
 
   svg
     .append("text")
-    .attr("data-val", Math.round(reputation * 100))
+    .attr("data-val", reputation)
     .attr("dominant-baseline", "central")
     .attr("x", 5 * scale)
     .attr("y", 10 * scale)
@@ -168,7 +168,7 @@ function progressView(
     .attr("x", 20 * scale)
     .attr("y", ((20 - height) / 2) * scale)
     .attr("height", height * scale)
-    .attr("width", Math.min(75 * reputation, height / 2) * scale)
+    .attr("width", Math.min((75 * reputation) / 100, height / 2) * scale)
     .attr("rx", (height / 2) * scale)
     .attr("ry", (height / 2) * scale)
     .attr("stroke", model.mdcThemePrimary)
@@ -189,16 +189,16 @@ function progressView(
       .attr(
         "transform",
         "translate(" +
-          `${(20 + threshold * 75 - height / 2) * scale}, ` +
+          `${(20 + (threshold * 75) / 100 - height / 2) * scale}, ` +
           `${10 * scale}` +
           ")" +
           " rotate(180)",
       );
 
     if (reputation < threshold) {
-      badge.append("title").text(`Next badge at ${threshold * 100}`);
+      badge.append("title").text(`Next badge at ${threshold}`);
     } else {
-      badge.append("title").text(`Obtained at ${threshold * 100}`);
+      badge.append("title").text(`Obtained at ${threshold}`);
     }
 
     badge
@@ -253,7 +253,7 @@ function toggleReputationView() {
         .tween("text", function() {
           const interpolate = d3.interpolate(
             this.textContent, // eslint-disable-line
-            Math.round(reputation * 100),
+            reputation,
           );
           return function(t) {
             this.textContent = Math.round(interpolate(t)); // eslint-disable-line
@@ -263,7 +263,7 @@ function toggleReputationView() {
         .transition()
         .duration(duration)
         .ease(d3.easeCubicInOut)
-        .attr("width", 75 * scale * reputation);
+        .attr("width", (75 * scale * reputation) / 100);
     } else {
       count
         .transition()
@@ -279,7 +279,7 @@ function toggleReputationView() {
         .transition()
         .duration(duration)
         .ease(d3.easeCubicInOut)
-        .attr("width", Math.min(75 * reputation, height / 2) * scale);
+        .attr("width", Math.min((75 * reputation) / 100, height / 2) * scale);
     }
   }
 }

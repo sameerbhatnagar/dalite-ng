@@ -24,9 +24,15 @@
     </div>
 
   <div>
-    <div style="margin:auto;width:150px">
-      <input type="submit" class="thumbs-button thumbs-up mdc-button--raised" style="background-image: url({% static 'peerinst/img/thumbs-up.svg' %});" name="upvote" value="Thumbs up" />
-      <input type="submit" class="thumbs-button thumbs-down mdc-button--raised" style="background-image: url({% static 'peerinst/img/thumbs-down.svg' %});" name="downvote" value="Thumbs down" />
+    <div class="review-voting-btns">
+      <div class="mdc-button--raised review-voting-btn">
+        <i class="material-icons">thumb_up</i>
+        <input type="submit" name="upvote" value="Thumbs up" />
+      </div>
+      <div class="mdc-button--raised review-voting-btn">
+        <i class="material-icons">thumb_down</i>
+        <input type="submit" name="downvote" value="Thumbs down">
+      </div>
     </div>
   </div>
 </form>

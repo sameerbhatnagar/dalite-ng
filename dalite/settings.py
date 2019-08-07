@@ -7,8 +7,9 @@ https://docs.djangoproject.com/en/1.8/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.8/ref/settings/
 """
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
+
+from security_headers.settings import *  # noqa
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -31,6 +32,8 @@ INSTALLED_APPS = (
     "peerinst",
     "grappelli",
     "password_validation",
+    "csp",
+    "security_headers",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -45,6 +48,10 @@ INSTALLED_APPS = (
 )
 
 MIDDLEWARE = (
+    "django.middleware.security.SecurityMiddleware",
+    "csp.middleware.CSPMiddleware",
+    "security_headers.middleware.extra_security_headers_middleware",
+    "django_cookies_samesite.middleware.CookiesSameSite",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.locale.LocaleMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -55,6 +62,7 @@ MIDDLEWARE = (
     "django.middleware.security.SecurityMiddleware",
     "peerinst.middleware.NotificationMiddleware",
     "dalite.custom_middleware.resp_405_middleware",
+    "dalite.custom_middleware.resp_503_middleware",
     # Minify html
     "htmlmin.middleware.HtmlMinifyMiddleware",
     "htmlmin.middleware.MarkRequestMiddleware",
@@ -62,7 +70,7 @@ MIDDLEWARE = (
 
 ROOT_URLCONF = "dalite.urls"
 
-CUSTOM_SETTINGS = os.environ.get("CUSTOM_SETTINGS", "default")
+CUSTOM_SETTINGS = os.environ.get("CUSTOM_SETTINGS", "SALTISES4")
 
 TEMPLATES = [
     {
@@ -368,6 +376,56 @@ CELERY_BROKER_TRANSPORT_OPTIONS = {
     "interval_step": 0.4,
     "interval_max": 2,
 }
+
+# CSP
+CSP_DEFAULT_SRC = ["'self'", "*.mydalite.org"]
+CSP_SCRIPT_SRC = [
+    "'self'",
+    "*.mydalite.org",
+    "ajax.googleapis.com",
+    "cdn.polyfill.io",
+    "www.youtube.com",
+    "s.ytimg.com",
+    "cdn.jsdelivr.net",
+    "unpkg.com",
+]
+CSP_STYLE_SRC = [
+    "'self'",
+    "*.mydalite.org",
+    "fonts.googleapis.com",
+    "ajax.googleapis.com",
+    "unpkg.com",
+    "cdn.jsdelivr.net",
+    "code.jquery.com",
+]
+CSP_FONT_SRC = [
+    "'self'",
+    "fonts.googleapis.com",
+    "fonts.gstatic.com",
+    "unpkg.com",
+]
+CSP_OBJECT_SRC = ["*"]
+
+FEATURE_POLICY = [
+    "autoplay 'none'",
+    "camera 'none'",
+    "encrypted-media 'none'",
+    "fullscreen *",
+    "geolocation 'none'",
+    "microphone 'none'",
+    "midi 'none'",
+    "payment 'none'",
+    "vr *",
+]
+
+REFERRER_POLICY = "no-referrer, strict-origin-when-cross-origin"
+
+# External framing
+FRAMING_ALLOWED_FROM = ["*"]
+
+
+# Functional tests that scrape web console logs currently require chromedriver
+TESTING_BROWSER = "chrome"
 
 try:
     from .local_settings import *  # noqa F403

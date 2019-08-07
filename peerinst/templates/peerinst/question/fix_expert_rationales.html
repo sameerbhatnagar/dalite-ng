@@ -29,8 +29,7 @@
 {% for message in messages %}
 <div class="message-box">
   <div class="message">{{ message }}</div>
-  <i class="clear mdc-theme--secondary material-icons md-24 mdc-ripple-surface icon-list"
-    onclick="$(this).parent().remove();">
+  <i class="clear mdc-theme--secondary material-icons md-24 mdc-ripple-surface icon-list">
       clear
   </i>
 </div>
@@ -62,19 +61,19 @@
 <hr class="simple-hr">
 
 
-<div style="margin-top:20px;">
+<div class="m-top-20">
   <span class="padded">
       {% if save_allowed %}
         {% if assignment_id %}
-          <form style="display:inline" id="done" action="{% url 'research-assignment-question-index-by-assignment' assignment_id=assignment_id %}" method="get">
+          <form class="inline" id="done" action="{% url 'research-assignment-question-index-by-assignment' assignment_id=assignment_id %}" method="get">
             <button form="done" type="submit" class="mdc-button mdc-button--raised submit_button">{% trans 'Done' %}</<button>
           </form>
         {% elif question_id %}
-        <form style="display:inline" id="next" action="{% url 'sample-answer-form' question_id=question_id %}" method="get">
+        <form class="inline" id="next" action="{% url 'sample-answer-form' question_id=question_id %}" method="get">
           <button form="next" type="submit" class="mdc-button mdc-button--raised submit_button">{% trans 'Next: Distractor Rationales' %}</<button>
         </form>
         {% else %}
-          <form style="display:inline" id="done" action="{% url 'research-discipline-question-index-by-discipline' discipline_title=question.discipline.title %}#{{ question.pk }}" method="get">
+          <form class="inline" id="done" action="{% url 'research-discipline-question-index-by-discipline' discipline_title=question.discipline.title %}#{{ question.pk }}" method="get">
             <button form="done" type="submit" class="mdc-button mdc-button--raised submit_button">{% trans 'Done' %}</<button>
           </form>
         {% endif %}
@@ -86,8 +85,13 @@
 
 {% block scripts %}
 {% if question.type == "RO" %}
-<script>
+<script nonce="{{ request.csp_nonce }}">
 $('#submit-answer-form').remove();
+window.addEventListener("load", function() {
+  document.getElementsByClassName("clear")[0].addEventListener("click", function() {
+    $(this).parent().remove();
+  })
+})
 </script>
 {% endif %}
 {% endblock %}

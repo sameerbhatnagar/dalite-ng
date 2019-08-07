@@ -5,7 +5,7 @@
 {% block stylesheets %}
 {{ block.super }}
 {% compress css inline %}
-<style>
+<style nonce="{{ request.csp_nonce }}">
   label {
     padding-right: 10px;
   }
@@ -68,7 +68,7 @@
 
 {% block scripts %}
 {{ block.super }}
-<script>
+<script nonce="{{ request.csp_nonce }}">
   bundle.bindAjaxTextInputForm('show_discipline_form', 'discipline_form', "{% url 'disciplines-create' %}");
 </script>
 {% endblock %}

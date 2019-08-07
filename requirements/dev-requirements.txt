@@ -3,5 +3,8 @@
 
 bandit
 # black
+django-sslserver
 flake8
 pre-commit
+safety
+-e git+https://github.com/jsumnerPhD/http-observatory#egg=httpobs

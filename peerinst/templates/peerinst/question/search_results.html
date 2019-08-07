@@ -1,4 +1,4 @@
-{% load i18n %}
+{% load bleach_html i18n %}
 
 <h2 id="results_list" class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Results' %}</h2>
 
@@ -10,7 +10,7 @@
       <div class="pagination">
           <span>
               {% if paginator.has_previous %}
-                  <span class="search-nav" onclick="pageNav({{ paginator.previous_page_number }})"><i class="icon ion-ios-arrow-back"></i></span>
+                  <span class="search-nav search-nav--back"><i class="icon ion-ios-arrow-back"></i></span>
               {% endif %}
 
               <span class="current">
@@ -18,7 +18,7 @@
               </span>
 
               {% if paginator.has_next %}
-                  <span class="search-nav" onclick="pageNav({{ paginator.next_page_number }})"><i class="icon ion-ios-arrow-forward"></i></span>
+                  <span class="search-nav search-nav--forward"><i class="icon ion-ios-arrow-forward"></i></span>
               {% endif %}
           </span>
       </div>
@@ -49,12 +49,12 @@
         #{{ g.id|safe }} {% if g.user %}{% trans 'by' %} {{ g.user.username|safe }}{% endif %}
       </div>
 
-      <div class="mdc-typography--body1" style="margin-top:5px;">
-        {{ g.text|safe }}
+      <div class="mdc-typography--body1 question-text">
+        {{ g.text|bleach_html|safe }}
       </div>
 
       {% if g.image %}
-        <img class="question-image" style="display:none;" src="{{ g.image.url|safe }}" alt="g.image_alt_text">
+        <img class="question-image display-none" src="{{ g.image.url|safe }}" alt="g.image_alt_text">
       {% endif %}
 
       {% if g.video_url %}
@@ -63,15 +63,14 @@
       </div>
       {% endif %}
 
-
-      <div class="question-answers" style="display:none;">
+      <div class="question-answers display-none">
         <ul>
           {% for label, choice in g.get_choices %}
-            <li class="dense-list">{{ label }}. {{ choice|safe }}
+            <li class="dense-list">{{ label }}. {{ choice|bleach_html|safe }}
             {% for c in g.answerchoice_set.all %}
               {% if forloop.counter == forloop.parentloop.counter %}
                 {% if c.correct %}
-                  <i id="check" class="material-icons" style="-webkit-transform: translateY(3px);font-size:12pt;">check</i>
+                  <i class="check material-icons">check</i>
                 {% endif %}
               {% endif %}
             {% endfor %}
@@ -82,7 +81,7 @@
 
       <div class="mdc-card__actions">
 
-        <div class="mdc-card__action-buttons" style="color:grey;">
+        <div class="mdc-card__action-buttons">
           <div class="mdc-typography--caption">
             <div>
               {% trans 'Discipline' %}: {{ g.discipline|safe }}
@@ -110,10 +109,10 @@
           </div>
 
           {% if assignment %}
-          <button onclick="ajax.updateAssignmentQuestionList('{% url 'assignment-edit-ajax' %}', '{{ g.id|safe }}', '{{ assignment.identifier|safe }}')" class="material-icons small-button mdc-button mdc-card__action mdc-card__action--button mdc-button--raised" style="margin-left:20px;">add</button>
+          <button class="material-icons small-button mdc-button mdc-card__action mdc-card__action--button mdc-button--raised m-left-20 update-questions-btn">add</button>
           {% elif type == None %}
           {% if request.user.teacher %}
-          <i class="mdc-icon-toggle material-icons mdc-theme--primary"
+          <i class="mdc-icon-toggle material-icons mdc-theme--primary favourite-btn"
               role="button"
               aria-pressed="false"
               aria-label="Add to favorites" tabindex="0"
@@ -123,16 +122,15 @@
               {% else %}
               data-toggle-on='{"label": "Remove from favourites", "content": "favorite"}'
               data-toggle-off='{"label": "Add to favourites", "content": "favorite_border"}'
-              {% endif %}
-              onclick="toggleFavourite({{ g.pk|safe }})">
+              {% endif %}>
               favorite_border
           </i>
           {% endif %}
           {% else %}
-          <form style="display:inline" method="post" action="#{{ g.id|slugify }}">
+          <form class="display-inline" method="post" action="#{{ g.id|slugify }}">
             {% csrf_token %}
             <input type="hidden" name="{{ form_field_name|safe }}" value="{{ g.pk|safe }}" />
-            <input class="material-icons small-button mdc-button mdc-card__action mdc-card__action--button mdc-button--raised" style="margin-left:20px;" type="submit" value="add" />
+            <input class="material-icons small-button mdc-button mdc-card__action mdc-card__action--button mdc-button--raised m-left-20" type="submit" value="add" />
           </form>
           {% endif %}
         </div>
@@ -150,7 +148,7 @@
       <div class="pagination">
           <span>
               {% if paginator.has_previous %}
-                  <span class="search-nav" onclick="pageNav({{ paginator.previous_page_number }})"><i class="icon ion-ios-arrow-back"></i></span>
+                  <span class="search-nav search-nav--back"><i class="icon ion-ios-arrow-back"></i></span>
               {% endif %}
 
               <span class="current">
@@ -158,10 +156,40 @@
               </span>
 
               {% if paginator.has_next %}
-                  <span class="search-nav" onclick="pageNav({{ paginator.next_page_number }})"><i class="icon ion-ios-arrow-forward"></i></span>
+                  <span class="search-nav search-nav--forward"><i class="icon ion-ios-arrow-forward"></i></span>
               {% endif %}
           </span>
       </div>
     {% endif %}
   {% endif %}
 {% endfor %}
+
+{% block scripts %}
+<script nonce="{{ request.csp_nonce }}">
+  window.addEventListener("load", function() {
+    document.querySelectorAll(".search-nav").forEach(btn => {
+      if (btn.classList.contains("search-nav--back")) {
+        btn.addEventListener("click", () => {
+          pageNav({{ paginator.previous_page_number }})
+        })
+      } else {
+        btn.addEventListener("click", () => {
+          pageNav({{ paginator.next_page_number }})
+        })
+      }
+
+    })
+    const updateBtns = document.getElementsByClassName("update-questions-btn")
+    const favouriteBtns = document.getElementsByClassName("favourite-btn")
+    {% for g in search_results_term.questions|dictsortreversed:"answer_count"  %}
+    updateBtns[{{ forloop.counter0 }}].addEventListener("click", () => {
+      ajax.updateAssignmentQuestionList('{% url 'assignment-edit-ajax' %}', '{{ g.id|safe }}', '{{ assignment.identifier|safe }}')
+    })
+    favouriteBtns[{{ forloop.counter0 }}].addEventListener("click", () => {
+      toggleFavourite({{ g.pk|safe }})
+    })
+    {% endfor %}
+
+  })
+</script>
+{% endblock %}

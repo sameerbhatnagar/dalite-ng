@@ -315,7 +315,7 @@ def old_patterns():
             name="password_reset_done",
         ),
         url(
-            r"^reset/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$",  # noqa
+            r"^reset/(?P<uidb64>[0-9A-Za-z_\-=]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$",  # noqa
             password_views.password_reset_confirm,
             name="password_reset_confirm",
         ),
@@ -607,6 +607,10 @@ def researcher_patterns():
     ]
 
 
+def collection_patterns():
+    return []
+
+
 def teacher_patterns():
     return [
         url(
@@ -657,6 +661,7 @@ urlpatterns = sum(
         student_patterns(),
         search_patterns(),
         researcher_patterns(),
+        collection_patterns(),
         teacher_patterns(),
     ],
     [],

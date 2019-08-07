@@ -13,14 +13,14 @@
 {% include 'reputation/header/student/scripts.html' %}
 {% compress js %}
 <script src="{% static 'peerinst/js/student.min.js' %}"></script>
-<script type="text/javascript">
+{% endcompress %}
+<script nonce="{{ request.csp_nonce }}">
   window.addEventListener("load", function() {
     student.initStudentHeader(
       "{% url 'student-get-notifications' %}"
     )
   });
 </script>
-{% endcompress %}
 {% endblock %}
 
 {% block header-left %}

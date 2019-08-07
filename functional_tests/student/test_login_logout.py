@@ -1,4 +1,5 @@
 import re
+import time
 
 from django.core.urlresolvers import reverse
 from selenium.webdriver.common.keys import Keys
@@ -50,12 +51,13 @@ def access_logged_in_account_from_landing_page(browser, student):
     assert re.search(r"student/", browser.current_url)
 
 
-def logout(browser):
+def logout(browser, assert_):
     icon = browser.find_element_by_xpath("//i[contains(text(), 'menu')]")
     icon.click()
 
-    link = browser.find_element_by_xpath("//a[contains(text(), 'Logout')]")
-    link.click()
+    logout_button = browser.find_element_by_link_text("Logout")
+    browser.wait_for(assert_(logout_button.is_enabled()))
+    logout_button.click()
 
     assert browser.current_url == browser.server_url + "/en/"
 
@@ -64,10 +66,7 @@ def logout(browser):
 
 
 def consent_to_tos(browser):
-    share = browser.find_element_by_xpath(
-        "//button[contains(text(), 'Share')]"
-    )
-    share.click()
+    browser.find_element_by_id("tos-accept").click()
 
     sharing = browser.find_element_by_id("student-tos-sharing--sharing")
     assert sharing.text == "Sharing"
@@ -91,14 +90,19 @@ def test_fake_link(browser):
         "You may try asking for another one."
     )
     browser.find_element_by_xpath("//*[contains(text(), '{}')]".format(err))
+    time.sleep(1)
 
 
-def test_student_login_logout(browser, student):
+def test_student_login_logout(browser, assert_, student):
     signin(browser, student, new=False)
+    time.sleep(1)
     access_logged_in_account_from_landing_page(browser, student)
-    logout(browser)
+    logout(browser, assert_)
+    time.sleep(1)
 
 
 def test_new_student_login(browser, student_new):
     signin(browser, student_new, new=True)
+    time.sleep(1)
     consent_to_tos(browser)
+    time.sleep(1)

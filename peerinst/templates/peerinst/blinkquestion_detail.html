@@ -24,7 +24,7 @@
     {% endif %}
 
     <div>
-      <div style="display:inline;float:left;max-width:400px;">
+      <div class="inline f-left max-width-400">
         <ul>
         {% for label, choice in object.question.get_choices %}
           <li class="dense-list">
@@ -37,10 +37,10 @@
         {% endfor %}
         </ul>
       </div>
-    <svg id="timer" width=300 height=200 style="display:block;margin: auto;"></svg>
-    <svg id="results" width=300 height=200 style="display:none;margin: auto;"></svg>
+    <svg id="timer" class="block-auto" width=300 height=200></svg>
+    <svg id="results" class="block-auto" width=300 height=200></svg>
     </div>
-    <div style="clear:both;"></div>
+    <div class="clear-both"></div>
 
     <div class="note">
       Round: {{round}}<br>
@@ -50,11 +50,11 @@
     </div>
 
     {% if request.user.is_authenticated %}
-    <input class="mdc-button mdc-button--raised" id="reset_button" type="button" style="display:none;" value="Reset" onclick="reset()">
+    <input class="mdc-button mdc-button--raised hidden" id="reset_button" type="button" value="Reset">
     {% endif %}
 
     {% if request.user.is_authenticated %}
-    <input class="mdc-button mdc-button--raised" id="next_button" type="button" style="margin-left:20px;display:none;" value="Next" onclick="next()">
+    <input class="mdc-button mdc-button--raised hidden m-left-20" id="next_button" type="button" value="Next">
     {% endif %}
 
   </section>
@@ -63,7 +63,7 @@
 
 {% block scripts %}
 {{ block.super }}
-<script>
+<script nonce="{{ request.csp_nonce }}">
 function reset(){
   location="{% url 'blink-reset' pk=object.pk %}"
 }
@@ -291,5 +291,16 @@ function showResults(data){
 
   // show average response time per choice1
 }
+</script>
+<script nonce="{{ request.csp_nonce }}">
+  window.addEventListener("load", function() {
+    document.getElementById("reset_button").addEventListener("click", () => {
+      reset()
+    })
+    document.getElementById("next_button").addEventListener("click", () => {
+      next()
+    })
+
+  })
 </script>
 {% endblock %}

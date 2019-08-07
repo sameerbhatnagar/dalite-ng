@@ -16,16 +16,15 @@
 <div>
   <h2 class="mdc-typography--display1 mdc-theme--secondary with-follow">{{ thread.title }}
     <i class="mdc-icon-toggle material-icons mdc-theme--primary follow"
-        role="button"
-        aria-label="{% trans 'Follow' %}" tabindex="0"
-        data-toggle-on='{"label": "{% trans 'Unfollow' %}", "content": "favorite"}'
-        data-toggle-off='{"label": "{% trans 'Follow' %}", "content": "favorite_border"}'
-        {% if subscribed %}
-        aria-pressed="true"
-        {% else %}
-        aria-pressed="false"
-        {% endif %}
-        onclick="thread.toggleFollow(this, '{% url 'pinax_forums:subscribe' thread.id %}', '{% url 'pinax_forums:unsubscribe' thread.id %}');">
+       role="button"
+       aria-label="{% trans 'Follow' %}" tabindex="0"
+       data-toggle-on='{"label": "{% trans 'Unfollow' %}", "content": "favorite"}'
+       data-toggle-off='{"label": "{% trans 'Follow' %}", "content": "favorite_border"}'
+       {% if subscribed %}
+       aria-pressed="true"
+       {% else %}
+       aria-pressed="false"
+       {% endif %}>
         favorite_border
     </i>
   </h2>
@@ -75,7 +74,7 @@
 
     <div class="mdc-card__action-icons">
       {% if can_create_reply %}
-        <i class="material-icons md-18 icon-list mdc-ripple-surface mdc-theme--primary" onclick="thread.showReplyForm('reply-{{p.id}}')">reply</i>
+        <i class="material-icons md-18 icon-list mdc-ripple-surface mdc-theme--primary reply-btn">reply</i>
       {% endif %}
       {% if request.user == p.author and p.editable %}
         <a class="mdc-theme--primary" href="{% url 'pinax_forums:post_edit_reply' p.pk %}"><i class="material-icons md-18 icon-list mdc-ripple-surface mdc-theme--primary">mode_edit</i></a>
@@ -93,7 +92,7 @@
 
   <div class="mdc-card__actions">
     <div class="mdc-card__action-buttons">
-        <div class="mdc-typography--caption" style="color:white;">
+        <div class="mdc-typography--caption white">
         {% if r.created|date:"d M" != right_now %}
           {{ r.author }} &middot; {{ r.created|date:"SHORT_DATE_FORMAT" }}
         {% else %}
@@ -104,7 +103,7 @@
 
     <div class="mdc-card__action-icons">
       {% if request.user == r.author and r.editable %}
-        <a class="mdc-theme--primary" href="{% url 'pinax_forums:post_edit_reply' r.pk %}"><i class="material-icons md-18 icon-list mdc-ripple-surface" style="color: white;">mode_edit</i></a>
+        <a class="mdc-theme--primary" href="{% url 'pinax_forums:post_edit_reply' r.pk %}"><i class="material-icons md-18 icon-list mdc-ripple-surface white">mode_edit</i></a>
       {% endif %}
     </div>
   </div>
@@ -150,4 +149,14 @@
 {% compress js %}
 <script src="{% static 'pinax/forums/js/thread.min.js' %}"></script>
 {% endcompress %}
+<script nonce="{{ request.csp_nonce }}">
+  window.addEventListener("load", function() {
+    document.getElementsByClassName("follow")[0].addEventListener("click", function() {
+      thread.toggleFollow(this, '{% url 'pinax_forums:subscribe' thread.id %}', '{% url 'pinax_forums:unsubscribe' thread.id %}');
+    })
+    document.getElementsByClassName("reply-btn")[0].addEventListener("click", function() {
+      thread.showReplyForm('reply-{{p.id}}')
+    })
+  })
+</script>
 {% endblock %}

@@ -1,9 +1,10 @@
-{% load compress staticfiles %}
+{% load compress csp staticfiles %}
 
 {% compress js %}
 <script src="{% static 'reputation/js/header.min.js' %}"></script>
 {% endcompress %}
-<script type="text/javascript">
+
+<script nonce="{{ request.csp_nonce }}">
   window.addEventListener("load", function() {
     header.teacherInit(
       "{% url 'reputation:reputation' %}",

@@ -4,10 +4,9 @@ from __future__ import unicode_literals
 import re
 from datetime import datetime
 
-import password_validation
 import pytz
 from django import forms
-from django.contrib.auth.forms import PasswordResetForm, UserCreationForm
+from django.contrib.auth.forms import PasswordResetForm
 from django.contrib.auth.models import User
 from django.db.models import Count, Q
 from django.forms import ModelForm
@@ -300,10 +299,13 @@ class AddBlinkForm(forms.Form):
     blink = forms.ModelChoiceField(queryset=BlinkQuestion.objects.all())
 
 
-class SignUpForm(UserCreationForm):
+class SignUpForm(ModelForm):
     """Form to register a new user (teacher) with e-mail address.
 
     The clean method is overridden to add basic password validation."""
+
+    email = forms.CharField(label=_("Email address"))
+    username = forms.CharField(label=_("Username"))
 
     url = forms.URLField(
         label=_("Website"),
@@ -314,14 +316,6 @@ class SignUpForm(UserCreationForm):
             "faculty member and showing your e-mail address."
         ),
     )
-
-    def clean(self):
-        cleaned_data = super(SignUpForm, self).clean()
-        pwd = cleaned_data.get("password1")
-        if pwd:
-            password_validation.validate_password(pwd)
-
-        return cleaned_data
 
     class Meta:
         model = User

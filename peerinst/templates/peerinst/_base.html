@@ -1,4 +1,4 @@
-{% load staticfiles i18n compress admin_urls tz piwik %}
+{% load csp staticfiles i18n compress admin_urls tz piwik %}
 
 {% get_current_language as LANGUAGE_CODE %}
 
@@ -12,14 +12,16 @@
   <title>{% block title %}myDALITE{% endblock %}</title>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="referrer" content="default">
-  <meta name="referrer" content="origin">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="myDALITE">
   <meta name="theme-color" content="#004266">
 
   <!-- Polyfills for non-awesome browsers-->
-  <script src="https://cdn.polyfill.io/v2/polyfill.min.js?features=default,fetch,Array.prototype.includes"></script>
+  <script src="https://cdn.polyfill.io/v2/polyfill.min.js?features=default,fetch,Array.prototype.includes">
+  </script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.3/jquery.min.js"></script>
+  <script src="https://unpkg.com/@webcomponents/webcomponentsjs@^2/webcomponents-loader.js">
+  </script>
 
   <!-- Local resources -->
   <link href="{% static 'peerinst/img/SALTISE-logo-icon.gif' %}" rel="icon">
@@ -84,34 +86,10 @@
 
   {% block footer %}{% endblock %}
 
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
-
-  {% compress js %}
-  <script>
-  // Fix potential CSRF token conflicts when loading multiple iframes in parallel,
-  // if the user did not have a CSRF cookie set already.
-  // The CSRF token in the HTML may be out of date, but the cookie value should be
-  // accurate by the time we submit the form.
-  $(function() {
-    var getCookie = function(name) {
-      var match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
-      if (match) { return match[2]; }
-    };
-    $(document).on('submit','form', function(){
-      var csrf_token = getCookie('csrftoken');
-      if (csrf_token) {
-        $('input[name=csrfmiddlewaretoken]').each(function() {
-          $(this).val(csrf_token);
-        });
-      }
-    });
-  });
-  </script>
-  {% endcompress %}
-
   <!-- JS bundle -->
-  {% compress js %}
   <script src="{% static 'peerinst/js/index.min.js' %}"></script>
+
+  {% script type="text/javascript" %}
   <script>
   if (document.querySelector('.mdc-drawer--temporary')){
     var drawer = new bundle.drawer.MDCTemporaryDrawer(document.querySelector('.mdc-drawer--temporary'));
@@ -127,10 +105,14 @@
     $('#'+$(this).attr('form')).submit();
   })
   </script>
-  {% endcompress %}
+  {% endscript %}
 
   {% block scripts %}{% endblock %}
+
+  {% script type="text/javascript" %}
   {% piwik %}
+  {% endscript %}
+  {% include 'icons.svg' %}
 </body>
 
 </html>

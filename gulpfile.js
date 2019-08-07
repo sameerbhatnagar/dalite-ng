@@ -1,5 +1,6 @@
 const autoprefixer = require("autoprefixer");
 const babel = require("rollup-plugin-babel");
+const browserSync = require("browser-sync").create();
 const buffer = require("vinyl-buffer");
 const commonjs = require("rollup-plugin-commonjs");
 const concat = require("gulp-concat");
@@ -31,18 +32,25 @@ const styleBuilds = [
   },
   {
     app: "reputation",
-    modules: ["header"],
+    modules: ["teacher-header"],
   },
 ];
 
 const scriptBuilds = [
   {
     app: "peerinst",
-    modules: ["group", "student", "ajax", "search", "index", "question"],
+    modules: [
+      "group",
+      "student",
+      "search",
+      "index",
+      "question",
+      "custom_elements",
+    ],
   },
   {
     app: "tos",
-    modules: ["tos", "email"],
+    modules: ["email"],
   },
   {
     app: "quality",
@@ -61,6 +69,7 @@ const babelConfig = {
       "@babel/env",
       {
         modules: false,
+        exclude: ["@babel/plugin-transform-regenerator"],
       },
     ],
   ],
@@ -81,7 +90,13 @@ const babelConfig = {
 
 function buildStyle(app, module) {
   const build = gulp
-    .src("./" + app + "/static/" + app + "/css/" + module + "/*.scss")
+    .src(
+      [
+        "./" + app + "/static/" + app + "/css/" + module + "/*.scss",
+        "./" + app + "/static/" + app + "/css/" + module + ".scss",
+      ],
+      { allowEmpty: true },
+    )
     .pipe(sourcemaps.init())
     .pipe(
       sass({
@@ -92,14 +107,18 @@ function buildStyle(app, module) {
     .pipe(postcss([autoprefixer()]))
     .pipe(concat(module + ".min.css"))
     .pipe(sourcemaps.write("."))
-    .pipe(gulp.dest("./" + app + "/static/" + app + "/css"));
+    .pipe(gulp.dest("./" + app + "/static/" + app + "/css"))
+    .pipe(browserSync.stream());
 
   return build;
 }
 
 function watchStyle(app, module) {
   gulp.watch(
-    "./" + app + "/static/" + app + "/css/" + module + "/*.scss",
+    [
+      "./" + app + "/static/" + app + "/css/" + module + "/*.scss",
+      "./" + app + "/static/" + app + "/css/" + module + ".scss",
+    ],
     () => buildStyle(app, module),
   );
 }
@@ -157,7 +176,8 @@ function buildScript(app, module) {
     .pipe(buffer())
     .pipe(sourcemaps.init({ loadMaps: true }))
     .pipe(sourcemaps.write("."))
-    .pipe(gulp.dest("./" + app + "/static/" + app + "/js"));
+    .pipe(gulp.dest("./" + app + "/static/" + app + "/js"))
+    .pipe(browserSync.stream());
 
   return build;
 }
@@ -270,7 +290,7 @@ function scriptsPeerinstPinax() {
 
 function icons() {
   return gulp
-    .src("./peerinst/static/peerinst/icons/*.svg")
+    .src("./templates/icons/*.svg")
     .pipe(
       svgSprite({
         mode: {
@@ -280,14 +300,25 @@ function icons() {
         },
         svg: {
           namespaceIDs: false,
+          rootAttributes: {
+            class: "svg-sprite",
+          },
+          transform: [svg => svg.replace(/style="[^"]*"/g, "")],
         },
       }),
     )
     .pipe(rename("icons.svg"))
+    .pipe(gulp.dest("./templates/"))
     .pipe(gulp.dest("./peerinst/static/peerinst/"));
 }
 
 function watch() {
+  browserSync.init({
+    port: 8000,
+    proxy: "localhost:8000",
+    notify: false,
+    open: false,
+  });
   gulp.watch("./peerinst/static/peerinst/css/*.scss", stylesPeerinstMain);
   gulp.watch("./peerinst/static/pinax/forums/css/*.scss", stylesPeerinstPinax);
   styleBuilds.forEach(s => s.modules.forEach(m => watchStyle(s.app, m)));

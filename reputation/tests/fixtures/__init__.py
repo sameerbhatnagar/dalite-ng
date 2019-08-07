@@ -7,7 +7,7 @@ __all__ = [
     "teacher_reputation",
 ]
 
-from .criterions import n_answers_criterion, n_questions_criterion
+from .criteria import n_answers_criterion, n_questions_criterion
 from .reputation import (
     assignment_reputation,
     question_reputation,
