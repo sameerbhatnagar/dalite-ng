@@ -3,7 +3,6 @@
 {% load compress staticfiles i18n %}
 
 {% block stylesheets %}
-{% include 'reputation/header/styles.html' %}
 {% compress css %}
 <link href="{% static 'peerinst/css/teacher.min.css' %}" rel="stylesheet">
 <link href="{% static 'peerinst/css/layout.min.css' %}" rel="stylesheet">
@@ -11,7 +10,6 @@
 {% endblock %}
 
 {% block scripts %}
-{% include 'reputation/header/scripts.html' %}
 {% compress js %}
 <script src="{% static 'peerinst/js/teacher.min.js' %}"></script>
 <script src="{% static 'peerinst/js/custom_elements.min.js' %}"></script>
