@@ -1,6 +1,12 @@
 import pytest
 
 from . import factories as f
+from .generators import add_users, new_users
+
+
+@pytest.fixture
+def user():
+    return add_users(new_users(1))[0]
 
 
 @pytest.fixture
@@ -14,5 +20,5 @@ def inactive_user():
 
 
 @pytest.fixture
-def new_teacher():
+def new_teacher(new_user):
     return f.TeacherFactory()
