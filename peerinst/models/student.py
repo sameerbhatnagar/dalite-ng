@@ -91,7 +91,7 @@ class Student(models.Model):
 
         return student, created
 
-    def send_email(self, mail_type, group=None):
+    def send_email(self, mail_type, group=None, request=None):
         """
         Sends an email to announce a new assignment or an assignment update.
 
@@ -128,13 +128,18 @@ class Student(models.Model):
 
             else:
 
-                host = settings.ALLOWED_HOSTS[0]
+                if request:
+                    host = request.get_host()
+                    protocol = request.scheme
 
-                if host == "localhost" or host == "127.0.0.1":
-                    protocol = "http"
-                    host = "{}:{}".format(host, settings.DEV_PORT)
                 else:
-                    protocol = "https"
+                    host = settings.ALLOWED_HOSTS[0]
+
+                    if host == "localhost" or host == "127.0.0.1":
+                        protocol = "http"
+                        host = "{}:{}".format(host, settings.DEV_PORT)
+                    else:
+                        protocol = "https"
 
                 token = create_student_token(username, user_email)
 

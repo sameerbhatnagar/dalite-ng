@@ -48,12 +48,11 @@ def browser(live_server):
     else:
         browser = "firefox"
 
+    options = webdriver.ChromeOptions()
+
     if hasattr(settings, "HEADLESS_TESTING") and settings.HEADLESS_TESTING:
         os.environ["MOZ_HEADLESS"] = "1"
-        options = webdriver.ChromeOptions()
         options.add_argument("headless")
-    else:
-        options = webdriver.ChromeOptions()
 
     if browser == "firefox":
         try:
