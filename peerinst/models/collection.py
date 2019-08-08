@@ -11,7 +11,7 @@ from .teacher import Teacher
 
 
 class Collection(models.Model):
-    assignments = models.ManyToManyField(Assignment)
+    assignments = models.ManyToManyField(Assignment, blank=True)
     discipline = models.ForeignKey(Discipline)
     owner = models.ForeignKey(Teacher, related_name="owner")
     followers = models.ManyToManyField(

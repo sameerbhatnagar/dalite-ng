@@ -128,6 +128,7 @@
       </p>
       {{ form.image.errors }}
     </div>
+    </div>
 
 <div class='field-container'>
   <div class='number-box'><span class='number'></span></div>
@@ -154,60 +155,102 @@
     {{ form.private.errors }}
   </div>
   </div>
+<div>
+      <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Your assignments' %}</h2>
 
-  <div class="mdc-list-group">
-        <h3 class="mdc-list-group__subheader">{% trans 'Your Assignments' %}</h3>
-        <ul class="mdc-list mdc-list--two-line mdc-list--avatar-list demo-list demo-list--with-avatars demo-list--icon-placeholders" aria-orientation="vertical">
+      <p>{% trans 'These are the assignments for which you are an author, and have editing rights.' %}</p>
 
-          {% for assignment in my_assignments %}
+      {% if not owned_assignments %}
+        <p>{% blocktrans %} You currently do not have editing rights on any assignments. Make a new assignment of your own with the form above to be able to modify it.{% endblocktrans %}</p>
+      {% endif %}
 
-          <li class="mdc-list-item">
-            <span class="mdc-list-item__text">
-              <span class="mdc-list-item__primary-text">{{assignment.title}}</span>
-              <span class="mdc-list-item__secondary-text">{{assignment.questions.count}} {% trans 'Questions' %}</span>
+      <ul class="mdc-list mdc-list--two-line mdc-list--non-interactive">
+        {% for a in owned_assignments %}
+        <li role="separator" class="mdc-list-divider"></li>
+        <li class="mdc-list-item">
+          <span class="mdc-list-item__graphic mdc-theme--primary">
+              <a class="translate-4" href="{% url 'question-list' a.pk %}">
+                <i class="mdc-theme--primary material-icons md-48">assignment</i>
+              </a>
+          </span>
+          <span class="mdc-list-item__text mdc-theme--secondary bold">
+            {{ a.identifier }}
+            <span class="mdc-list-item__secondary-text">
+              {{ a.questions.count }} {% trans "questions" %}
             </span>
-            <div class='field'>
-              <div class='mdc-form-field'>
-                <label for="assignments"></label>
-                <div class="mdc-checkbox" style='right: 0px;'>
-                  {{ form.assignments|add_class:'mdc-checkbox__native-control'}}
-                  <div class="mdc-checkbox__background">
-                    <svg class="mdc-checkbox__checkmark"
-                         viewBox="0 0 24 24">
-                      <path class="mdc-checkbox__checkmark-path"
-                            fill="none"
-                            stroke="white"
-                            d="M1.73,12.91 8.1,19.28 22.79,4.59"/>
-                    </svg>
-                    <div class="mdc-checkbox__mixedmark"></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </li>
+          </span>
+          <span class="mdc-list-item__meta">
+            <i class="mdc-icon-toggle material-icons mdc-theme--primary follower-btn"
+                role="button"
+                aria-pressed="false"
+                aria-label="Add to favorites" tabindex="0"
+                {% if g in form.assignments.all %}
+                data-toggle-off='{"label": "Remove from favourites", "content": "favorite"}'
+                data-toggle-on='{"label": "Add to favourites", "content": "favorite_border"}'
+                {% else %}
+                data-toggle-on='{"label": "Remove from favourites", "content": "favorite"}'
+                data-toggle-off='{"label": "Add to favourites", "content": "favorite_border"}'
+                {% endif %}
+                pk="{{ a.pk }}"
+                ppk="{{ form.pk }}">
+                favorite_border
+            </i>
+          </span>
+        </li>
+        {% endfor %}
+        <li role="separator" class="mdc-list-divider"></li>
+      </ul>
 
-          {% endfor %}
 
-        </ul>
-        <hr class="mdc-list-divider mdc-list-divider--inset">
-        <h3 class="mdc-list-group__subheader">{% trans 'Your Favorited Assignments' %}</h3>
-        <ul class="mdc-list mdc-list--two-line mdc-list--avatar-list demo-list demo-list--with-avatars demo-list--icon-placeholders" aria-orientation="vertical">
 
-          {% for assignment in followed_assignments %}
 
-          <li class="mdc-list-item">
-            <span class="mdc-list-item__text">
-              <span class="mdc-list-item__primary-text">{{assignment.title}}</span>
-              <span class="mdc-list-item__secondary-text">{{assignment.questions.count}} {% trans 'Questions' %}</span>
+      <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Followed Assignments' %}</h2>
+
+      <p>{% blocktrans %} These are the assignments you are following, and for which reports will be available (based on your selected groups).{% endblocktrans %}</p>
+
+      {% if not teacher.assignments.all %}
+      <p>{% blocktrans %} You do not have any assignments. {% endblocktrans %}</p>
+      {% endif %}
+
+      <ul class="mdc-list mdc-list--two-line mdc-list--non-interactive">
+        {% for g in teacher.assignments.all %}
+        <li role="separator" class="mdc-list-divider"></li>
+        <li class="mdc-list-item">
+          <span class="mdc-list-item__graphic mdc-theme--primary">
+              <a class="translate-4" href="{% url 'question-list' g.pk %}">
+                <i class="mdc-theme--primary material-icons md-48">assignment</i>
+              </a>
+          </span>
+          <span class="mdc-list-item__text mdc-theme--secondary bold">
+            {{ g.identifier }}
+            <span class="mdc-list-item__secondary-text">
+              {{ g.questions.count }} {% trans "questions" %}
             </span>
-            <a href="#" class="mdc-list-item__meta material-icons" aria-label="View more information" title="More info" onclick="event.preventDefault();" tabindex="-1">
-              info
-            </a>
-          </li>
+          </span>
+          <span class="mdc-list-item__meta">
 
-          {% endfor %}
 
-        </ul>
+            <i class="mdc-icon-toggle material-icons mdc-theme--primary follower-btn"
+                role="button"
+                aria-pressed="false"
+                aria-label="Add to favorites" tabindex="0"
+                {% if g in form.assignments.all %}
+                data-toggle-off='{"label": "Remove from favourites", "content": "favorite"}'
+                data-toggle-on='{"label": "Add to favourites", "content": "favorite_border"}'
+                {% else %}
+                data-toggle-on='{"label": "Remove from favourites", "content": "favorite"}'
+                data-toggle-off='{"label": "Add to favourites", "content": "favorite_border"}'
+                {% endif %}
+                pk="{{ g.pk }}"
+                ppk="{{ form.pk }}">
+                favorite_border
+            </i>
+
+          </span>
+        </li>
+        {% endfor %}
+        <li role="separator" class="mdc-list-divider"></li>
+      </ul>
       </div>
 
 
@@ -217,7 +260,7 @@
       <input type="hidden" name="owner" value="">
 </form>
 
-
+</div>
 
 </section>
 </main>
@@ -228,6 +271,33 @@
   <script nonce="{{ request.csp_nonce }}">
     'use strict';
     bundle.bindCheckbox();
+
+    [].forEach.call(document.querySelectorAll(".mdc-icon-toggle"), el => {
+      bundle.iconToggle.MDCIconToggle.attachTo(el);
+    });
+
+    $.ajaxSetup({
+        beforeSend: function(xhr, settings) {
+            if (!bundle.csrfSafeMethod(settings.type) && !this.crossDomain) {
+                xhr.setRequestHeader("X-CSRFToken", bundle.getCsrfToken());
+            }
+        }
+    });
+
+
+    function toggleFollower(pk, ppk) {
+      var posting = $.post("{% url 'collection-toggle-assignment' %}", {pk: pk}, {ppk: ppk});
+      posting.done(function(data) {
+        console.info(data);
+      })
+    }
+
+
+    [].forEach.call(document.querySelectorAll(".follower-btn"), el => {
+      el.addEventListener("click", () => {
+        toggleFollower(el.getAttribute('pk'), el.getAttribute('ppk'));
+      });
+    });
 
 
     function updateForm(){

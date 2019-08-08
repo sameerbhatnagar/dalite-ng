@@ -9,10 +9,13 @@
 <style nonce="{{ request.csp_nonce }}">
 
 
+#card-featured {
+  background-color:powderblue;
+}
 
-.click-box:hover {
-    cursor:pointer;
-  }
+#collection-view {
+  color:#004266;
+}
 
 
 </style>
@@ -27,6 +30,12 @@
   {% if user.is_staff %}
     <div class="admin-link"><a href="{% url 'admin_index_wrapper' %}">Click here to access admin</a></div>
   {% endif %}
+  <div class="admin-link">
+  <a href="{% url 'personal-collection-list' %}">{% trans 'View your collections' %}</a> |
+  <a href="{% url 'followed-collection-list' %}">{% trans 'View your followed collections' %}</a> |
+  <a href="{% url 'featured-collection-list' %}">{% trans 'View featured collections' %}</a> |
+  <a href="{% url 'collection-create' %}">{% trans 'Create a collection' %}</a></div>
+
 
 
 <ul>
@@ -34,9 +43,9 @@
 {% for obj in object_list %}
 
 <li class="dense-list searchable">
-<div class="mdc-card" id="card-{{ obj.id }}" {% if obj.featured == True %}
-     style="background-color:powderblue;"  {% endif %}>
-     <div class='click-box'  onclick="location.href='{{ obj.pk }}';">
+<div class="mdc-card" id="card{% if obj.featured == True %}-featured{% endif %}">
+     <div class='click-box'>
+
   <div class="mdc-typography--title bold">
     {{ obj.title }}
   </div>
@@ -58,18 +67,16 @@
           {% trans 'Discipline' %}: {{ obj.discipline }}
         </div>
         <div>
-
-        </div>
-        <div>
           {% trans 'Published on' %} {{obj.created_on}}
         </div>
+          <a id="collection-view" href="{% url 'collection-detail' obj.pk %}"><b>{% trans 'Click Here to View' %}</b></a>
       </div>
     </div>
 
   <div class="mdc-card__action-icons">
 
 
-    <i class="mdc-icon-toggle material-icons mdc-theme--primary"
+    <i class="mdc-icon-toggle material-icons mdc-theme--primary follower-btn"
         role="button"
         aria-pressed="false"
         aria-label="Add to favorites" tabindex="0"
@@ -80,9 +87,10 @@
         data-toggle-on='{"label": "Remove from favourites", "content": "favorite"}'
         data-toggle-off='{"label": "Add to favourites", "content": "favorite_border"}'
         {% endif %}
-        onclick="toggleFollower({{ obj.pk }})">
+        pk="{{ obj.pk }}">
         favorite_border
     </i>
+
 
   </div>
 </div>
@@ -101,7 +109,7 @@
 {% endblock %}
 
 {% block scripts %}
-{% compress js inline %}
+
 <script nonce="{{ request.csp_nonce }}">
 
 [].forEach.call(document.querySelectorAll(".mdc-icon-toggle"), el => {
@@ -111,11 +119,10 @@
 $.ajaxSetup({
     beforeSend: function(xhr, settings) {
         if (!bundle.csrfSafeMethod(settings.type) && !this.crossDomain) {
-            xhr.setRequestHeader("X-CSRFToken", bundle.getCookie('csrftoken'));
+            xhr.setRequestHeader("X-CSRFToken", bundle.getCsrfToken());
         }
     }
 });
-
 
 function toggleFollower(pk) {
   var posting = $.post("{% url 'teacher-toggle-follower' %}", {pk: pk});
@@ -124,10 +131,13 @@ function toggleFollower(pk) {
   })
 }
 
-
-
+[].forEach.call(document.querySelectorAll(".follower-btn"), el => {
+  el.addEventListener("click", () => {
+    toggleFollower(el.getAttribute('pk'));
+  });
+});
 
 </script>
 
-{% endcompress %}
+
 {% endblock %}

@@ -630,7 +630,7 @@ def collection_patterns():
             name="collection-list",
         ),
         url(
-            r"^collection/list/personal/$",
+            r"^collection/personal/$",
             views.PersonalCollectionListView.as_view(),
             name="personal-collection-list",
         ),
@@ -648,6 +648,11 @@ def collection_patterns():
             r"^collection/follower",
             views.teacher_toggle_follower,
             name="teacher-toggle-follower",
+        ),
+        url(
+            r"^collection/assignment",
+            views.collection_toggle_assignment,
+            name="collection-toggle-assignment",
         ),
         url(
             r"^collection/featured-data/$",

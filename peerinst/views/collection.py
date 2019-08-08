@@ -6,7 +6,7 @@ from django.core import serializers
 from django.views.generic.edit import CreateView
 from django.views.generic import ListView, DetailView, UpdateView, DeleteView
 from django.forms import ModelForm
-from ..models import Collection, Teacher
+from ..models import Collection, Teacher, Assignment
 from ..mixins import LoginRequiredMixin, NoStudentsMixin
 from django.shortcuts import get_object_or_404
 from django.core.urlresolvers import reverse
@@ -52,8 +52,7 @@ class CollectionCreateView(LoginRequiredMixin, NoStudentsMixin, CreateView):
     form_class = CollectionForm
 
     def get_success_url(self):
-        teacher = get_object_or_404(Teacher, user=self.request.user)
-        return reverse("teacher", kwargs={"pk": teacher.pk})
+        return reverse("collection-update", kwargs={"pk": self.object.pk})
 
     def get_form_kwargs(self):
         kwargs = super(CollectionCreateView, self).get_form_kwargs()
@@ -108,14 +107,17 @@ class CollectionUpdateView(LoginRequiredMixin, NoStudentsMixin, UpdateView):
         teacher = get_object_or_404(Teacher, user=self.request.user)
         return Collection.objects.filter(owner=teacher)
 
-    def form_valid(self, form):
-        teacher = get_object_or_404(Teacher, user=self.request.user)
-        form.instance.owner = teacher
-        return super(CollectionCreateView, self).form_valid(form)
-
     def get_success_url(self):
         teacher = get_object_or_404(Teacher, user=self.request.user)
         return reverse("teacher", kwargs={"pk": teacher.pk})
+
+    def get_context_data(self, **kwargs):
+        context = super(UpdateView, self).get_context_data(**kwargs)
+        context["teacher"] = get_object_or_404(Teacher, user=self.request.user)
+        context["owned_assignments"] = Assignment.objects.filter(
+            owner=self.request.user
+        )
+        return context
 
 
 class CollectionDeleteView(LoginRequiredMixin, NoStudentsMixin, DeleteView):

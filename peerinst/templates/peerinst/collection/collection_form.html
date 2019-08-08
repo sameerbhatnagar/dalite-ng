@@ -45,7 +45,7 @@
           <div class='field'>
             <p><small>
               {% blocktrans %}
-              Please use this page to edit your collection of assignments. Please provide what discipline this collection would be most pertinent for,
+              Please use this page to create your collection of assignments. Please provide what discipline this collection would be most pertinent for,
               as well as a description which would help your colleagues understand how best to incorporate it into their pedagogy.
               {% endblocktrans %}
             </small></p>
@@ -154,63 +154,6 @@
     {{ form.private.errors }}
   </div>
   </div>
-
-  <div class="mdc-list-group">
-        <h3 class="mdc-list-group__subheader">{% trans 'Your Assignments' %}</h3>
-        <ul class="mdc-list mdc-list--two-line mdc-list--avatar-list demo-list demo-list--with-avatars demo-list--icon-placeholders" aria-orientation="vertical">
-
-          {% for assignment in my_assignments %}
-
-          <li class="mdc-list-item">
-            <span class="mdc-list-item__text">
-              <span class="mdc-list-item__primary-text">{{assignment.title}}</span>
-              <span class="mdc-list-item__secondary-text">{{assignment.questions.count}} {% trans 'Questions' %}</span>
-            </span>
-            <div class='field'>
-              <div class='mdc-form-field'>
-                <label for="assignments"></label>
-                <div class="mdc-checkbox" style='right: 0px;'>
-                  {{ form.assignments|add_class:'mdc-checkbox__native-control'}}
-                  <div class="mdc-checkbox__background">
-                    <svg class="mdc-checkbox__checkmark"
-                         viewBox="0 0 24 24">
-                      <path class="mdc-checkbox__checkmark-path"
-                            fill="none"
-                            stroke="white"
-                            d="M1.73,12.91 8.1,19.28 22.79,4.59"/>
-                    </svg>
-                    <div class="mdc-checkbox__mixedmark"></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </li>
-
-          {% endfor %}
-
-        </ul>
-        <hr class="mdc-list-divider mdc-list-divider--inset">
-        <h3 class="mdc-list-group__subheader">{% trans 'Your Favorited Assignments' %}</h3>
-        <ul class="mdc-list mdc-list--two-line mdc-list--avatar-list demo-list demo-list--with-avatars demo-list--icon-placeholders" aria-orientation="vertical">
-
-          {% for assignment in followed_assignments %}
-
-          <li class="mdc-list-item">
-            <span class="mdc-list-item__text">
-              <span class="mdc-list-item__primary-text">{{assignment.title}}</span>
-              <span class="mdc-list-item__secondary-text">{{assignment.questions.count}} {% trans 'Questions' %}</span>
-            </span>
-            <a href="#" class="mdc-list-item__meta material-icons" aria-label="View more information" title="More info" onclick="event.preventDefault();" tabindex="-1">
-              info
-            </a>
-          </li>
-
-          {% endfor %}
-
-        </ul>
-      </div>
-
-
 
       <input class="mdc-button mdc-button--raised padded-top" type="submit" value="Create" />
 

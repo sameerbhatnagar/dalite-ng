@@ -2014,10 +2014,10 @@ def teacher_toggle_favourite(request):
     else:
         return response_400(request)
 
+
 @login_required
 @user_passes_test(student_check, login_url="/access_denied_and_logout/")
 def teacher_toggle_follower(request):
-    print(request.POST)
     collection = get_object_or_404(Collection, pk=request.POST.get("pk"))
     teacher = get_object_or_404(Teacher, user=request.user)
     if teacher not in collection.followers.all():
@@ -2026,6 +2026,20 @@ def teacher_toggle_follower(request):
     else:
         collection.followers.remove(teacher)
         return JsonResponse({"action": "removed"})
+
+
+@login_required
+@user_passes_test(student_check, login_url="/access_denied_and_logout/")
+def collection_toggle_assignment(request):
+    collection = get_object_or_404(Collection, pk=request.POST.get("ppk"))
+    assignment = get_object_or_404(Assignment, pk=request.POST.get("pk"))
+    if assignment not in collection.assignments.all():
+        collection.assignments.add(assignment)
+        return JsonResponse({"action": "added"})
+    else:
+        collection.assignments.remove(assignment)
+        return JsonResponse({"action": "removed"})
+
 
 @login_required
 @user_passes_test(student_check, login_url="/access_denied_and_logout/")
