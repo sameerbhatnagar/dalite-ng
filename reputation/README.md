@@ -1,7 +1,7 @@
 # Adding a new criterion
 
 ## Implementation
-- Add a new file in `models/criterions/criterions/`
+- Add a new file in `models/criteria/criteria/`
 - Implement a model inheriting from `model.criterion.criterion.Criterion`
   - This model needs to have a `name` field, `info` static method and `evaluate` method (see `min_words` for an example)
 - Add this model to all the `__init__.py` files until `models/__init__.py`

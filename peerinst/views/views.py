@@ -53,7 +53,7 @@ from django_lti_tool_provider.signals import Signals
 from opaque_keys import InvalidKeyError
 from opaque_keys.edx.keys import CourseKey
 
-from dalite.views.errors import response_400, response_404, response_500
+from dalite.views.errors import response_400, response_404
 
 # tos
 from tos.models import Consent, Tos
@@ -205,18 +205,11 @@ def dashboard(request):
             if not settings.EMAIL_BACKEND.startswith(
                 "django.core.mail.backends"
             ):
-                return response_500(request)
-
-            host = settings.ALLOWED_HOSTS[0]
-            if host == "localhost" or host == "127.0.0.1":
-                protocol = "http"
-                host = "{}:{}".format(host, settings.DEV_PORT)
-            else:
-                protocol = "https"
+                return HttpResponse(status=503)
 
             link = "{}://{}{}".format(
-                protocol,
-                host,
+                request.scheme,
+                request.get_host(),
                 reverse(
                     "password_reset_confirm",
                     kwargs={
@@ -232,8 +225,9 @@ def dashboard(request):
             send_mail(
                 _("Please verify your myDalite account"),
                 "Dear {},".format(user.username)
-                + "\n\nYour account has been recently activate. Please visit "
-                "the following link to set you password:\n\n"
+                + "\n\nYour account has been recently activated. Please visit "
+                "the following link to verify your email address and "
+                "to set your password:\n\n"
                 + link
                 + "\n\nCheers,\nThe myDalite Team",
                 "noreply@myDALITE.org",
@@ -272,14 +266,7 @@ def sign_up(request):
             if not settings.EMAIL_BACKEND.startswith(
                 "django.core.mail.backends"
             ):
-                return response_500(request)
-
-            host = request.get_host()
-            if host == "localhost" or host == "127.0.0.1":
-                protocol = "http"
-                host = "{}:{}".format(host, settings.DEV_PORT)
-            else:
-                protocol = "https"
+                return HttpResponse(status=503)
 
             email_context = dict(
                 user=form.cleaned_data["username"],
@@ -298,7 +285,9 @@ def sign_up(request):
                 + "\nVerification url: {}".format(form.cleaned_data["url"])
                 + "\n\nAccess your administrator account to activate this "
                 "new user."
-                "\n\n{}://{}{}".format(protocol, host, reverse("dashboard"))
+                "\n\n{}://{}{}".format(
+                    request.scheme, request.get_host(), reverse("dashboard")
+                )
                 + "\n\nCheers,"
                 "\nThe myDalite Team",
                 fail_silently=True,
@@ -308,7 +297,6 @@ def sign_up(request):
                     request=request,
                 ),
             )
-            mail_admins("", "")
 
             return TemplateResponse(request, "registration/sign_up_done.html")
         else:
@@ -2757,6 +2745,9 @@ def question_search(request):
             search_list = search_list.filter(
                 discipline__in=request.user.teacher.disciplines.all()
             )
+
+        # if meta_search:
+        #    search_list = filter(meta_search, search_list)
 
         # All matching questions
         search_string_split_list = search_string.split()

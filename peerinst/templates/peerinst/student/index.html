@@ -16,7 +16,7 @@
         {% trans 'Identity' %}
       </h2>
       <div class="foldable--body">
-        <ul class="mdc-list mdc-list--non-interactive mdc-list--two-line">
+        <ul class="mdc-list mdc-list--non-interactive mdc-list--two-line p-bottom-0">
           <li role="separator" class="mdc-list-divider"></li>
           <li id="edit-user-btn" class="mdc-list-item">
             <span class="mdc-list-item__graphic mdc-theme--primary">
@@ -79,6 +79,7 @@
                   the link in the box below.
                   {% endblocktrans %}
                 </p>
+                <p id="student-add-group__error" hidden></p>
                 <input type="text"
                        name="new-group"
                        value=""

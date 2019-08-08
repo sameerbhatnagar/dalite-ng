@@ -62,6 +62,7 @@ MIDDLEWARE = (
     "django.middleware.security.SecurityMiddleware",
     "peerinst.middleware.NotificationMiddleware",
     "dalite.custom_middleware.resp_405_middleware",
+    "dalite.custom_middleware.resp_503_middleware",
     # Minify html
     "htmlmin.middleware.HtmlMinifyMiddleware",
     "htmlmin.middleware.MarkRequestMiddleware",
@@ -386,6 +387,7 @@ CSP_SCRIPT_SRC = [
     "www.youtube.com",
     "s.ytimg.com",
     "cdn.jsdelivr.net",
+    "unpkg.com",
 ]
 CSP_STYLE_SRC = [
     "'self'",
@@ -404,11 +406,26 @@ CSP_FONT_SRC = [
 ]
 CSP_OBJECT_SRC = ["*"]
 
+FEATURE_POLICY = [
+    "autoplay 'none'",
+    "camera 'none'",
+    "encrypted-media 'none'",
+    "fullscreen *",
+    "geolocation 'none'",
+    "microphone 'none'",
+    "midi 'none'",
+    "payment 'none'",
+    "vr *",
+]
+
+REFERRER_POLICY = "no-referrer, strict-origin-when-cross-origin"
+
 # External framing
 FRAMING_ALLOWED_FROM = ["*"]
 
-SECURE_HSTS_SECONDS = 60 * 60 * 24 * 365
-REFERRER_POLICY = "no-referrer, strict-origin-when-cross-origin"
+
+# Functional tests that scrape web console logs currently require chromedriver
+TESTING_BROWSER = "chrome"
 
 try:
     from .local_settings import *  # noqa F403

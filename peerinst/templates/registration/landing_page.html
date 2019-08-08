@@ -1465,7 +1465,7 @@ window.addEventListener('resize', pillars);
 // https://developers.google.com/youtube/iframe_api_reference#Loading_a_Video_Player
 var tag = document.createElement('script');
 tag.setAttribute("nonce", "{{ request.csp_nonce }}");
-tag.src = "https://www.youtube.com/iframe_api";
+tag.src = "https://www.youtube.com/iframe_api?enablejsapi=1&origin="+window.location.origin;
 var firstScriptTag = document.getElementsByTagName('script')[0];
 firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 var player;

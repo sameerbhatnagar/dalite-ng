@@ -162,7 +162,7 @@ function copyStudentIdToClipboard(group, node) {
 }
 
 export function goToAssignment(
-  group: { studentId: string, studentIdNeeded: boolean },
+  group: { studentId: string, studentIdNeeded: boolean, name: string },
   assignment: { link: string },
 ) {
   if (group.studentIdNeeded && group.studentId !== "") {
@@ -186,6 +186,9 @@ export function handleJoinGroupLinkInput(event) {
   if (event.key === "Enter") {
     joinGroup();
   } else {
+    if (event.currentTarget.value) {
+      joinGroupErrorView("", false);
+    }
     verifyJoinGroupDisabledStatus();
   }
 }
@@ -207,7 +210,8 @@ export function joinGroup() {
       group_name: select.value,
     };
   } else {
-    console.log("Empty input");
+    joinGroupErrorView("A URL is needed.", true);
+    return;
   }
 
   const req = buildReq(data, "post");
@@ -243,7 +247,7 @@ export function joinGroup() {
       groupsView();
     })
     .catch(function(err) {
-      console.log(err);
+      joinGroupErrorView("There is no group with that link.", true);
     });
 }
 
@@ -300,11 +304,27 @@ function identityView() {
 
 function joinGroupView() {
   const box = document.getElementById("student-add-group--box");
+  const input = document.querySelector("#student-add-group--box input");
   if (model.joiningGroup) {
     joinGroupsSelectView();
     box.style.display = "flex";
   } else {
     box.style.display = "none";
+    input.value = "";
+  }
+  joinGroupErrorView("", false);
+}
+
+function joinGroupErrorView(msg: string, show: boolean) {
+  const error = document.getElementById("student-add-group__error");
+  const input = document.querySelector("#student-add-group--box input");
+  error.textContent = msg;
+  if (show) {
+    error.removeAttribute("hidden");
+    input.classList.add("input--error");
+  } else {
+    error.setAttribute("hidden", "");
+    input.classList.remove("input--error");
   }
 }
 
@@ -317,6 +337,7 @@ function joinGroupsSelectView() {
       groupsSelect.appendChild(joinGroupSelectView(group)),
     );
     groupsSelect.style.display = "inline-block";
+    verifyJoinGroupDisabledStatus();
   } else {
     groupsSelect.style.display = "none";
   }
@@ -340,7 +361,7 @@ function verifyJoinGroupDisabledStatus() {
   }
 }
 
-function groupsView(groupStudentId: string) {
+function groupsView(groupStudentId: string = "") {
   const groups = document.getElementById("student-groups");
   clear(groups);
   model.groups
@@ -546,7 +567,7 @@ function groupAssignmentView(assignment, group) {
   const date = document.createElement("span");
   date.classList.add("student-group--assignment-date");
   if (assignment.done) {
-    date.title = null;
+    date.removeAttribute("title");
     date.textContent = model.translations.completed;
   } else if (assignment.dueDate <= new Date(Date.now())) {
     date.title = model.translations.assignmentExpired;
@@ -570,7 +591,6 @@ function groupAssignmentView(assignment, group) {
     remainingTimeSpan.textContent = timeuntil(
       assignment.dueDate,
       new Date(Date.now()),
-      true,
     );
     date.appendChild(remainingTimeSpan);
     if (almostExpiredMin <= new Date(Date.now())) {
@@ -595,14 +615,16 @@ function leaveGroupView(group, groupNode) {
   const box = document.createElement("div");
   box.classList.add("student-group--remove-confirmation-box");
   box.style.display = "none";
-  box.addEventListener("click", function(event) {
+  box.addEventListener("click", function(event: MouseEvent) {
     event.stopPropagation;
     toggleLeaveGroup(groupNode);
   });
   div.appendChild(box);
 
   const boxDiv = document.createElement("div");
-  boxDiv.addEventListener("click", event => event.stopPropagation());
+  boxDiv.addEventListener("click", (event: MouseEvent) =>
+    event.stopPropagation(),
+  );
   box.appendChild(boxDiv);
 
   const title = document.createElement("h3");
@@ -719,12 +741,12 @@ function initListeners() {
 function addLinkListeners() {
   document
     .getElementById("edit-user-btn")
-    .addLinkListener("click", function() {
+    .addEventListener("click", function() {
       edit_user();
     });
   document
     .getElementById("modify-tos-btn")
-    .addLinkListener("click", function() {
+    .addEventListener("click", function() {
       modifyTos();
     });
 }
@@ -739,7 +761,6 @@ function addJoinGroupListeners() {
     .getElementById("student-add-group--box")
     .addEventListener("click", function() {
       event.stopPropagation;
-      student.toggleJoinGroup();
     });
   document
     .querySelector("#student-add-group--box > div")
