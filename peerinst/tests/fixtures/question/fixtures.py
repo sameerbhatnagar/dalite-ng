@@ -1,5 +1,6 @@
 import pytest
 
+from . import factories as f
 from ..teacher import teacher  # noqa
 from .generators import (
     add_disciplines,
@@ -28,6 +29,11 @@ def rationale_only_question():
 @pytest.fixture
 def rationale_only_questions():
     return add_rationale_only_questions(new_questions(2))
+
+
+@pytest.fixture
+def category():
+    return f.CategoryFactory()
 
 
 @pytest.fixture
