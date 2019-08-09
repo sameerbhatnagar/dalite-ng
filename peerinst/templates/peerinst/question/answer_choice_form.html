@@ -3,6 +3,7 @@
 {% load compress staticfiles add_class i18n %}
 
 {% block stylesheets %}
+{{ block.super }}
 <!-- Self-hosted tinyMCE -->
 <script src="{% static 'peerinst/js/tinymce/js/tinymce/tinymce.min.js' %}"></script>
 {% endblock %}
@@ -129,6 +130,7 @@
 {% endblock %}
 
 {% block scripts %}
+{{ block.super }}
 <script nonce="{{ request.csp_nonce }}">
   // TinyMCE bind to textarea
   tinymce.init({

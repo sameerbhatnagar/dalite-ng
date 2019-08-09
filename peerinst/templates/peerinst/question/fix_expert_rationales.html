@@ -84,6 +84,7 @@
 {% endblock %}
 
 {% block scripts %}
+
 {% if question.type == "RO" %}
 <script nonce="{{ request.csp_nonce }}">
 $('#submit-answer-form').remove();

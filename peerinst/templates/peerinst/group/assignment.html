@@ -146,7 +146,7 @@
       </h2>
       <div class="foldable--body">
         <div class="admin-link">
-          <a href="{% url 'report_selector' %}">{% trans 'Generate report' %}</a>
+          <a href="{% url 'report-custom' %}?groups={{group.pk}}&assignments={{assignment.assignment.identifier}}">{% trans 'Generate report' %}</a>
         </div>
         <ul id="student-progress"
             class="mdc-list mdc-list--two-line mdc-list--non-interactive">
