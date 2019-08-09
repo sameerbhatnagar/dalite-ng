@@ -202,8 +202,8 @@ function getNotifications(): Array<Notification> {
     text: task.completed
       ? task.error
         ? `There was an error creating the gradebook for ${task.description}.`
-        : `The gradebook for ${task.description} is ready.`
-      : `Computing the gradebook for ${task.description}...`,
+        : `The ${task.description} is ready.`
+      : `Computing the ${task.description}...`,
     inProgress: !task.completed,
     error: task.error,
     onClick:

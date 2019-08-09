@@ -57,7 +57,7 @@ export class LoadingSpinner extends HTMLElement {
     transform: rotate(360deg);
   }
 }`;
-    const nonce = this.getAttribute("nonce");
+    const nonce = this.getAttribute("nonce") || this.nonce;
     if (nonce) {
       style.setAttribute("nonce", nonce);
     }

@@ -10,7 +10,7 @@
     cursor: pointer;
     position: relative;
     transition: background 300ms, border-radius 300ms;
-    z-index: 10;
+    z-index: 3;
 
     &:hover {
       background: rgba(255, 255, 255, 0.25);
@@ -39,7 +39,7 @@
       right: 2px;
       top: 2px;
       width: 22px;
-      z-index: 11;
+      z-index: 4;
     }
 
     & .notifications__spinner {
@@ -75,7 +75,7 @@
     transform: scale(0);
     transform-origin: top right;
     transition: transform 300ms, top 300ms, right 300ms;
-    z-index: 9;
+    z-index: 2;
 
     & .notifications__notifications {
       display: contents;
@@ -186,7 +186,7 @@
     right: 0;
     top: 42px;
     transform: scale(1);
-    z-index: 10;
+    z-index: 3;
 
     & .notification {
       opacity: 1;
