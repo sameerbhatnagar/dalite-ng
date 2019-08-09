@@ -428,8 +428,6 @@ REFERRER_POLICY = "no-referrer, strict-origin-when-cross-origin"
 # External framing
 FRAMING_ALLOWED_FROM = ["*"]
 
-CSP_INCLUDE_NONCE_IN = []
-
 SECURE_HSTS_SECONDS = 60 * 60 * 24 * 365
 REFERRER_POLICY = "no-referrer, strict-origin-when-cross-origin"
 
