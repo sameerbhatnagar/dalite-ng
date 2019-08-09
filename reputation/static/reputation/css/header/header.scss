@@ -1,4 +1,4 @@
-@import "../../../../peerinst/static/peerinst/css/variables";
+@import "../../../../../peerinst/static/peerinst/css/variables";
 
 #container {
   position: relative;
@@ -42,7 +42,6 @@
     display: grid;
     font-size: 0.9rem;
     grid-auto-rows: minmax(50px, max-content);
-    grid-template-columns: repeat(2, minmax(125px, max-content));
     padding: 10px;
     position: absolute;
     right: 0;

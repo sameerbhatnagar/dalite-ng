@@ -3,24 +3,16 @@
 {% load compress staticfiles i18n %}
 
 {% block stylesheets %}
-{% include 'reputation/header/student/styles.html' %}
 {% compress css %}
 <link href="{% static 'peerinst/css/student.min.css' %}" rel="stylesheet">
 {% endcompress %}
 {% endblock %}
 
 {% block scripts %}
-{% include 'reputation/header/student/scripts.html' %}
 {% compress js %}
 <script src="{% static 'peerinst/js/student.min.js' %}"></script>
+<script src="{% static 'reputation/js/header/student.min.js' %}"></script>
 {% endcompress %}
-<script nonce="{{ request.csp_nonce }}">
-  window.addEventListener("load", function() {
-    student.initStudentHeader(
-      "{% url 'student-get-notifications' %}"
-    )
-  });
-</script>
 {% endblock %}
 
 {% block header-left %}
@@ -32,7 +24,11 @@
 {% block header-right %}
 {% if not request.session.LTI %}
 <div class="header">
-  {% include 'reputation/header/student/header.html' %}
+  <student-reputation-header
+    reputation-url="{% url 'reputation:reputation' %}"
+    reputation-id="{{ request.user.student.pk }}"
+    nonce="{{ request.csp_nonce }}">
+  </student-reputation-header>
 </div>
 <div class="header">
   {% include 'peerinst/student/header/notifications.html' %}

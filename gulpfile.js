@@ -32,7 +32,7 @@ const styleBuilds = [
   },
   {
     app: "reputation",
-    modules: ["teacher-header"],
+    modules: ["header/teacher", "header/student"],
   },
 ];
 
@@ -58,7 +58,7 @@ const scriptBuilds = [
   },
   {
     app: "reputation",
-    modules: ["header"],
+    modules: ["header/teacher", "header/student"],
   },
 ];
 
@@ -128,6 +128,7 @@ function buildScript(app, module) {
   const build = rollup({
     input: "./" + app + "/static/" + app + "/js/" + module + ".js",
     sourcemap: true,
+    extend: true,
     format: "iife",
     name: name,
     globals: {
