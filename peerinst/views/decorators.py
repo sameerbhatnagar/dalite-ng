@@ -113,7 +113,7 @@ def group_access_required(fct):
 
 def teacher_required(fct):
     def wrapper(req, *args, **kwargs):
-        if not Teacher.objects.filter(user=req.user).exists():
+        if Teacher.objects.filter(user=req.user).exists():
             return fct(req, *args, teacher=req.user.teacher, **kwargs)
         else:
             return response_403(
@@ -130,7 +130,7 @@ def teacher_required(fct):
 
 def student_required(fct):
     def wrapper(req, *args, **kwargs):
-        if not Student.objects.filter(student=req.user).exists():
+        if Student.objects.filter(student=req.user).exists():
             return fct(req, *args, student=req.user.student, **kwargs)
         else:
             return response_403(
