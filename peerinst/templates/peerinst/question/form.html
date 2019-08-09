@@ -3,6 +3,7 @@
 {% load compress staticfiles add_class i18n %}
 
 {% block stylesheets %}
+{{ block.super }}
 <!-- Self-hosted tinyMCE -->
 <script src="{% static 'peerinst/js/tinymce/js/tinymce/tinymce.min.js' %}"></script>
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
@@ -447,6 +448,7 @@
 {% endblock %}
 
 {% block scripts %}
+{{ block.super }}
 {% if form %}
 <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
 <script nonce="{{ request.csp_nonce }}">

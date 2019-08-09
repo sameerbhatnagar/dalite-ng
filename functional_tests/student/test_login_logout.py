@@ -11,7 +11,7 @@ from peerinst.students import (
 )
 
 
-def signin(browser, student, new=False):
+def signin(browser, student, mailoutbox, new=False):
     email = student.student.email
 
     browser.get("{}{}".format(browser.server_url, reverse("login")))
@@ -24,12 +24,13 @@ def signin(browser, student, new=False):
     input_.send_keys(email)
     input_.send_keys(Keys.ENTER)
 
-    username, _ = get_student_username_and_password(email)
-    token = create_student_token(username, email)
+    assert len(mailoutbox) == 1
+    assert list(mailoutbox[0].to) == [email]
 
-    signin_link = "{}{}?token={}".format(
-        browser.server_url, reverse("student-page"), token
-    )
+    m = re.search(
+        "http[s]*://.*/student/\?token=.*", mailoutbox[0].body
+    )  # noqa W605
+    signin_link = m.group(0)
 
     browser.get(signin_link)
 
@@ -57,6 +58,9 @@ def logout(browser, assert_):
 
     logout_button = browser.find_element_by_link_text("Logout")
     browser.wait_for(assert_(logout_button.is_enabled()))
+    # FIXME:
+    # Assertion shoud include logout_button.is_displayed() but throws w3c error
+    time.sleep(2)
     logout_button.click()
 
     assert browser.current_url == browser.server_url + "/en/"
@@ -90,19 +94,14 @@ def test_fake_link(browser):
         "You may try asking for another one."
     )
     browser.find_element_by_xpath("//*[contains(text(), '{}')]".format(err))
-    time.sleep(1)
 
 
-def test_student_login_logout(browser, assert_, student):
-    signin(browser, student, new=False)
-    time.sleep(1)
+def test_student_login_logout(browser, assert_, mailoutbox, student):
+    signin(browser, student, mailoutbox, new=False)
     access_logged_in_account_from_landing_page(browser, student)
     logout(browser, assert_)
-    time.sleep(1)
 
 
-def test_new_student_login(browser, student_new):
-    signin(browser, student_new, new=True)
-    time.sleep(1)
+def test_new_student_login(browser, student_new, mailoutbox):
+    signin(browser, student_new, mailoutbox, new=True)
     consent_to_tos(browser)
-    time.sleep(1)

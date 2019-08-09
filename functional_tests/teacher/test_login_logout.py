@@ -43,6 +43,9 @@ def logout(browser, assert_):
 
     logout_button = browser.find_element_by_link_text("Logout")
     browser.wait_for(assert_(logout_button.is_enabled()))
+    # FIXME:
+    # Assertion shoud include logout_button.is_displayed() but throws w3c error
+    time.sleep(2)
     logout_button.click()
 
     assert browser.current_url == browser.server_url + "/en/"
@@ -53,7 +56,5 @@ def logout(browser, assert_):
 
 def test_teacher_login_logout(browser, assert_, teacher):
     login(browser, teacher)
-    time.sleep(1)
     access_logged_in_account_from_landing_page(browser, teacher)
     logout(browser, assert_)
-    time.sleep(1)

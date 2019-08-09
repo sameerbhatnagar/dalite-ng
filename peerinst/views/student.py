@@ -724,7 +724,7 @@ def send_signin_link(req):
         student = student.filter(student__username=username).first()
 
     if student:
-        err = student.send_email(mail_type="signin")
+        err = student.send_email(mail_type="signin", request=req)
         if err is None:
             context = {"error": False}
         else:

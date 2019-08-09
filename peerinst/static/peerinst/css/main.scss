@@ -29,6 +29,10 @@
 /* Load other files */
 @import "custom_elements";
 
+.svg-sprite {
+  display: none;
+}
+
 /* Stylesheet */
 /* - Layout */
 main {
@@ -105,13 +109,12 @@ header {
     $mdc-theme-secondary 100%
   );
   color: white;
-  // width: 100%;
   display: flex;
   flex-direction: row;
-  // padding: 7px 10px;
   font-size: 18pt;
   justify-content: space-between;
   padding: 4pt;
+  position: relative;
 }
 header a {
   color: white;
@@ -119,10 +122,6 @@ header a {
 header .icon {
   font-size: 28px;
   margin-right: 10px;
-}
-
-.svg-sprite {
-  display: none;
 }
 
 header i {
@@ -189,7 +188,7 @@ footer a {
   padding-left: 10px;
 }
 .align-right {
-   text-align: right;
+  text-align: right;
 }
 h1 {
   color: $mdc-theme-primary;
@@ -265,10 +264,10 @@ h1 {
 }
 
 .corner {
-  bottom: 0%;
+  bottom: 0;
   cursor: pointer;
   position: fixed;
-  right: 0%;
+  right: 0;
 }
 
 a {
@@ -731,7 +730,7 @@ div.input-ripple-wrapper input {
     max-width: 100%;
   }
   .site-content {
-    margin: 2pt;
+    margin: 2px;
   }
   .rationales {
     margin-left: 20px;

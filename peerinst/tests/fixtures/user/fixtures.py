@@ -15,10 +15,15 @@ def new_user():
 
 
 @pytest.fixture
+def admin():
+    return f.UserFactory(is_staff=True, is_superuser=True)
+
+
+@pytest.fixture
 def inactive_user():
     return f.UserFactory(is_active=False)
 
 
 @pytest.fixture
-def new_teacher(new_user):
+def new_teacher():
     return f.TeacherFactory()

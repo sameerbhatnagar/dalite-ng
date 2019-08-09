@@ -2,7 +2,7 @@ from __future__ import unicode_literals
 
 import logging
 
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 
 from dalite.views.errors import response_400, response_403
@@ -113,10 +113,19 @@ def group_access_required(fct):
 
 
 def teacher_required(fct):
-    @login_required
     def wrapper(req, *args, **kwargs):
+        if not isinstance(req.user, User):
+            return response_403(
+                req,
+                msg=_("You don't have access to this resource."),
+                logger_msg=(
+                    "Access to {} from a non teacher user.".format(req.path)
+                ),
+                log=logger.warning,
+            )
         try:
             teacher = Teacher.objects.get(user=req.user)
+            return fct(req, *args, teacher=teacher, **kwargs)
         except Teacher.DoesNotExist:
             return response_403(
                 req,
@@ -126,16 +135,25 @@ def teacher_required(fct):
                 ),
                 log=logger.warning,
             )
-        return fct(req, *args, teacher=teacher, **kwargs)
 
     return wrapper
 
 
 def student_required(fct):
     def wrapper(req, *args, **kwargs):
+        if not isinstance(req.user, User):
+            return response_403(
+                req,
+                msg=_("You don't have access to this resource."),
+                logger_msg=(
+                    "Access to {} from a non student user.".format(req.path)
+                ),
+                log=logger.warning,
+            )
         try:
             student = Student.objects.get(student=req.user)
-        except (Student.DoesNotExist, TypeError):
+            return fct(req, *args, student=student, **kwargs)
+        except Student.DoesNotExist:
             return response_403(
                 req,
                 msg=_("You don't have access to this resource."),
@@ -144,7 +162,5 @@ def student_required(fct):
                 ),
                 log=logger.warning,
             )
-
-        return fct(req, *args, student=student, **kwargs)
 
     return wrapper

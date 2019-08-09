@@ -6,5 +6,9 @@ bandit
 django-sslserver
 flake8
 pre-commit
+pytest
+pytest-cov
+pytest-django
+pytest-rerunfailures
 safety
 -e git+https://github.com/jsumnerPhD/http-observatory#egg=httpobs
