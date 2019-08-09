@@ -108,7 +108,7 @@ def group_access_required(fct):
 
 def teacher_required(fct):
     def wrapper(req, *args, **kwargs):
-        if hasattr(req.user, "teacher"):
+        if getattr(req.user, "teacher", None):
             return fct(req, *args, teacher=req.user.teacher, **kwargs)
         else:
             return response_403(
@@ -125,7 +125,7 @@ def teacher_required(fct):
 
 def student_required(fct):
     def wrapper(req, *args, **kwargs):
-        if hasattr(req.user, "student"):
+        if getattr(req.user, "student", None):
             return fct(req, *args, student=req.user.student, **kwargs)
         else:
             return response_403(
