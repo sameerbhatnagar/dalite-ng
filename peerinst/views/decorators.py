@@ -5,7 +5,12 @@ import logging
 from django.utils.translation import ugettext_lazy as _
 
 from dalite.views.errors import response_400, response_403
-from peerinst.models import StudentGroup, StudentGroupAssignment, Teacher
+from peerinst.models import (
+    Student,
+    StudentGroup,
+    StudentGroupAssignment,
+    Teacher,
+)
 
 logger = logging.getLogger("peerinst-views")
 
@@ -108,7 +113,7 @@ def group_access_required(fct):
 
 def teacher_required(fct):
     def wrapper(req, *args, **kwargs):
-        if getattr(req.user, "teacher", None):
+        if not Teacher.objects.filter(user=req.user).exists():
             return fct(req, *args, teacher=req.user.teacher, **kwargs)
         else:
             return response_403(
@@ -125,7 +130,7 @@ def teacher_required(fct):
 
 def student_required(fct):
     def wrapper(req, *args, **kwargs):
-        if getattr(req.user, "student", None):
+        if not Student.objects.filter(student=req.user).exists():
             return fct(req, *args, student=req.user.student, **kwargs)
         else:
             return response_403(
