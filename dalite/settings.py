@@ -423,6 +423,7 @@ REFERRER_POLICY = "no-referrer, strict-origin-when-cross-origin"
 # External framing
 FRAMING_ALLOWED_FROM = ["*"]
 
+REFERRER_POLICY = "no-referrer, strict-origin-when-cross-origin"
 
 # Functional tests that scrape web console logs currently require chromedriver
 TESTING_BROWSER = "chrome"

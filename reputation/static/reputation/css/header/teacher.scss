@@ -1,0 +1,17 @@
+@import "./header";
+
+#container {
+  & #list {
+    grid-template-columns: repeat(2, minmax(125px, max-content));
+
+    .list__header {
+      align-content: center;
+      color: $mdc-theme-secondary;
+      font-size: 1.1rem;
+      font-weight: bold;
+      justify-content: center;
+      text-decoration: underline;
+      user-select: none;
+    }
+  }
+}
