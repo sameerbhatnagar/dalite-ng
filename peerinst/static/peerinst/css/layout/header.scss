@@ -6,7 +6,6 @@
     position: fixed;
     top: 0;
     width: 100%;
-    z-index: 1;
 
     & #header-background {
       background-image: linear-gradient(
@@ -33,15 +32,21 @@
   font-size: 18pt;
   justify-content: space-between;
   position: relative;
+  z-index: 1;
 
   & .mdc-toolbar {
     height: auto;
   }
 
-  & * {
-    z-index: 1;
-  }
-  & aside nav {
+  & #header-left {
     z-index: 2;
+
+    & #header-menu {
+      z-index: 1;
+    }
+  }
+
+  #header-right {
+    z-index: 1;
   }
 }
