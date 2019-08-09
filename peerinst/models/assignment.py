@@ -20,6 +20,11 @@ from ..tasks import distribute_assignment_to_students_async
 from .group import StudentGroup
 from .question import Question
 
+from ..util import (
+    get_average_time_spent_on_all_question_start,
+    student_list_from_student_groups,
+)
+
 logger = logging.getLogger("peerinst-models")
 
 
@@ -362,6 +367,12 @@ class StudentGroupAssignment(models.Model):
                     result[i]["first_correct"] for result in results
                 ),
                 "n_correct": sum(result[i]["correct"] for result in results),
+                "time_spent": get_average_time_spent_on_all_question_start(
+                    student_list=student_list_from_student_groups(
+                        group_list=[self.group.pk]
+                    ),
+                    question_id=question.pk,
+                ),
             }
             for i, question in enumerate(self.questions)
         ]
