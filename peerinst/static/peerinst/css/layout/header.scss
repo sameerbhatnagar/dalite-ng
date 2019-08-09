@@ -1,7 +1,7 @@
 @import "../variables";
 
 .logged-in-layout {
-  & header {
+  & #header {
     height: 50px;
     position: fixed;
     top: 0;
@@ -21,5 +21,27 @@
       top: 0;
       z-index: 0;
     }
+  }
+}
+
+#header {
+  align-items: center;
+  background: #ffffff;
+  color: white;
+  display: flex;
+  flex-direction: row;
+  font-size: 18pt;
+  justify-content: space-between;
+  position: relative;
+
+  & .mdc-toolbar {
+    height: auto;
+  }
+
+  & * {
+    z-index: 1;
+  }
+  & aside nav {
+    z-index: 2;
   }
 }
