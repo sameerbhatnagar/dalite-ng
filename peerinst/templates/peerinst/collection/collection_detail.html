@@ -6,29 +6,6 @@
 {% compress css %}
 <link href="{% static 'peerinst/css/collection.min.css' %}" rel="stylesheet">
 {% endcompress %}
-<style nonce="{{ request.csp_nonce }}">
-
-#desciption {
-  margin-top:10px;
-}
-
-.mdc-card__action-buttons {
-  color:grey;
-}
-
-#obj.desc {
-  margin-top:5px;
-}
-
-#card-assign {
-  background-color:powderblue;
-}
-
-#assignment-view {
-  color:#004266;
-}
-
-</style>
 {% endblock %}
 {% block body %}
 <main>
@@ -37,18 +14,12 @@
   <svg class="underline" width=150 height=4></svg>
 </h1>
 
-  {% if user.is_staff %}
-    <div class="admin-link"><a href="{% url 'admin_index_wrapper' %}">Click here to access admin</a></div>
-  {% endif %}
   <div class="admin-link">
   {% if request.user.teacher == object.owner %}
-    <a href="{% url 'collection-update' object.pk %}">{% trans 'Edit Collection' %}</a> |
-    <a href="{% url 'collection-delete' object.pk %}">{% trans 'Delete Collection' %}</a> |
-
-
-  {% endif %}
-
-  <a href="{% url 'collection-create' %}">{ % trans 'Create a collection' %}</a><div>
+  <a href="{% url 'collection-update' object.pk %}">{% trans 'Edit' %}</a>
+  <span class="links-divider">|</span><a href="{% url 'collection-delete' object.pk %}">{% trans 'Delete' %}</a>
+  <span class="links-divider">|</span>{% endif %}<a href="{% url 'collection-create' %}">{% trans 'Create' %}</a>
+<div>
 
 
   <div class="mdc-card" id="desciption">
@@ -154,22 +125,22 @@
     {% endfor %}
   </div>
 
-  <div class="mdc-typography--body1" style="margin-top:-20px;">
+  <div class="mdc-typography--body1">
 
 
 
 
-          <div class="mdc-card" id="desciption" style="margin-top:10px;">
+          <div class="mdc-card" id="desciption">
 
 
 
-            <div class="mdc-typography--body1" style="margin-top:5px;">
+            <div class="mdc-typography--body1">
                 <b>{% trans 'Assignment Statistics' %}</b>
             </div>
 
             <div class="mdc-card__actions">
 
-              <div class="mdc-card__action-buttons" style="color:grey;">
+              <div class="mdc-card__action-buttons">
                 <div class="mdc-typography--caption">
                   <div>
                     {% trans 'Total Answers' %}: {{ assignment_data|get_value:obj.pk|get_value:"total_answers" }}
@@ -204,7 +175,7 @@
                 <h1 class="foldable--title mdc-typography--display1 mdc-theme--secondary">
                   {{ obj.questions.count }} {% trans 'Questions' %}
                 </h1>
-                <div class="foldable--body" style="margin-top:10px;">
+                <div class="foldable--body">
 
 <ul>
 
@@ -225,7 +196,7 @@
                 {{ question.id }} {% if question.user %}{% trans 'by' %} {{ question.user.username }}{% endif %}
               </div>
 
-              <div class="mdc-typography--body1" style="margin-top:5px;">
+              <div class="mdc-typography--body1">
                 {{ question.text|safe }}
               </div>
 
@@ -299,7 +270,7 @@
 
   <div class="mdc-card__actions">
 
-    <div class="mdc-card__action-buttons" style="color:grey;">
+    <div class="mdc-card__action-buttons">
       <div class="mdc-typography--caption">
         <div class="admin-link"><a id="assignment-view" href="{% url 'question-list' obj.pk %}"><b>View Assignment</b></a></div>
       </div>
@@ -311,7 +282,7 @@
 </ul>
 </li>
 {% empty %}
-<li>{% trans 'No assignments available.' %}</li>
+{% trans 'No assignments available.' %}
 {% endfor %}
 
 

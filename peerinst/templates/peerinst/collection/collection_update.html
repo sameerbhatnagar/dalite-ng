@@ -184,7 +184,7 @@
                 role="button"
                 aria-pressed="false"
                 aria-label="Add to favorites" tabindex="0"
-                {% if g in form.assignments.all %}
+                {% if g in object.assignments.all %}
                 data-toggle-off='{"label": "Remove from favourites", "content": "favorite"}'
                 data-toggle-on='{"label": "Add to favourites", "content": "favorite_border"}'
                 {% else %}
@@ -192,7 +192,7 @@
                 data-toggle-off='{"label": "Add to favourites", "content": "favorite_border"}'
                 {% endif %}
                 pk="{{ a.pk }}"
-                ppk="{{ form.pk }}">
+                ppk="{{ object.pk }}">
                 favorite_border
             </i>
           </span>
@@ -234,7 +234,7 @@
                 role="button"
                 aria-pressed="false"
                 aria-label="Add to favorites" tabindex="0"
-                {% if g in form.assignments.all %}
+                {% if g in object.assignments.all %}
                 data-toggle-off='{"label": "Remove from favourites", "content": "favorite"}'
                 data-toggle-on='{"label": "Add to favourites", "content": "favorite_border"}'
                 {% else %}
@@ -242,7 +242,7 @@
                 data-toggle-off='{"label": "Add to favourites", "content": "favorite_border"}'
                 {% endif %}
                 pk="{{ g.pk }}"
-                ppk="{{ form.pk }}">
+                ppk="{{ object.pk }}">
                 favorite_border
             </i>
 
@@ -269,8 +269,6 @@
 
   <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
   <script nonce="{{ request.csp_nonce }}">
-    'use strict';
-    bundle.bindCheckbox();
 
     [].forEach.call(document.querySelectorAll(".mdc-icon-toggle"), el => {
       bundle.iconToggle.MDCIconToggle.attachTo(el);
@@ -285,8 +283,8 @@
     });
 
 
-    function toggleFollower(pk, ppk) {
-      var posting = $.post("{% url 'collection-toggle-assignment' %}", {pk: pk}, {ppk: ppk});
+    function toggleAssignment(pk, ppk) {
+      var posting = $.post("{% url 'collection-toggle-assignment' %}", {pk: pk, ppk: ppk});
       posting.done(function(data) {
         console.info(data);
       })
@@ -295,32 +293,10 @@
 
     [].forEach.call(document.querySelectorAll(".follower-btn"), el => {
       el.addEventListener("click", () => {
-        toggleFollower(el.getAttribute('pk'), el.getAttribute('ppk'));
+        toggleAssignment(el.getAttribute('pk'), el.getAttribute('ppk'));
       });
     });
 
-
-    function updateForm(){
-      if ($('#id_type').val() == "RO") {
-        $('.peerinst').toggle(false);
-      }
-      else {
-        $('.peerinst').toggle(true);
-      }
-      enumerate();
-    }
-
-    $('#id_type').change(function(){
-      if (this.value != "{{question.type}}") {
-        $('#next').find('button').attr('disabled', 'true');
-      }
-      else {
-        $('#next').find('button').attr('disabled', false);
-      }
-      updateForm();
-    });
-
-    updateForm();
 
     function limitFileSize() {
       var imageForm = document.getElementById('id_image');
@@ -347,66 +323,6 @@
 
     limitFileSize();
 
-    // Generators for autocomplete
-    const response = function(searchClass, spinnerId) {
-      return function( event, ui ) {
-        // NB: Pass by reference.  ui can be modified, but not recreated.
-        let currentList = $.map($(searchClass), function(obj, i) {
-          return $(obj).attr('d');
-        });
-
-        let tmp = ui.content.filter( function(el) {
-          return !currentList.includes(el.label);
-        });
-
-        let l = ui.content.length
-        while (l > 0) {
-          ui.content.pop();
-          l = ui.content.length;
-        }
-
-        for (let i = 0; i < tmp.length; i++) {
-          ui.content.push(tmp[i]);
-        }
-
-        if (ui.content.length == 0) {
-          // Could add hint that there are no results
-        }
-
-        $(spinnerId).css('opacity', 0);
-        return;
-      }
-    }
-
-    const search = function(spinnerId) {
-      return function( event, ui ) {
-        $(spinnerId).css('opacity', 1);
-      }
-    }
-
-    const focus = function( event, ui ) {
-      event.preventDefault();
-      $(this).val(ui.item.label);
-    }
-
-    const select = function(currentIds, className, formId) {
-      return function( event, ui ) {
-        event.preventDefault();
-        $(this).val("");
-
-        $(currentIds).append("<div d="+ui.item.label+" v="+ui.item.value+" class='mdc-chip mdc-typography--caption "+className+"' onclick=\"updateSelect(this,\'"+formId+"\');\" tabindex='0' data-mdc-auto-init='MDCChip'>\
-          <div class='mdc-chip__text'>"+ui.item.label+"</div>\
-          <i class='material-icons mdc-chip__icon mdc-chip__icon--trailing' tabindex='0' role='button'>cancel</i>\
-          </div>");
-
-        $(formId).append("<option selected='selected' value="+ui.item.value+">"+ui.item.label+"</option>");
-      }
-    }
-
-    function updateSelect(el, formId) {
-      el.remove();
-      $(formId).find("[value="+$(el).attr('v')+"]").remove();
-    }
   bundle.addDialog();
   bundle.bindCheckbox();
   function enumerate(){

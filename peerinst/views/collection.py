@@ -36,14 +36,7 @@ class CollectionForm(ModelForm):
 class CollectionFormUpdate(ModelForm):
     class Meta:
         model = Collection
-        fields = [
-            "title",
-            "description",
-            "image",
-            "assignments",
-            "discipline",
-            "private",
-        ]
+        fields = ["title", "description", "image", "discipline", "private"]
 
 
 class CollectionCreateView(LoginRequiredMixin, NoStudentsMixin, CreateView):

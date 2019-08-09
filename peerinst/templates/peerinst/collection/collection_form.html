@@ -2,6 +2,9 @@
 
 {% load compress staticfiles add_class i18n %}
 {% block stylesheets %}
+{% compress css %}
+<link href="{% static 'peerinst/css/collection.min.css' %}" rel="stylesheet">
+{% endcompress %}
 
 <script src="{% static 'peerinst/js/tinymce/js/tinymce/tinymce.min.js' %}"></script>
 <style nonce="{{ request.csp_nonce }}">
@@ -24,12 +27,6 @@
   color: rgba(0,0,0,0.87);
   font-size: 14px;
   font-family: 'Montserrat', sans-serif;
-}
-.mdc-text-field__input {
-    width:100%;
-}
-:not(.mdc-list--non-interactive)>.mdc-list-item::before, :not(.mdc-list--non-interactive)>.mdc-list-item::after{
-  background-color: #F4F4F4;
 }
 
 </style>
@@ -84,7 +81,7 @@
                 {{ form.description|add_class:"mdc-text-field__input" }}
                 {{ form.description.label_tag|add_class:"mdc-floating-label"|cut:":" }}
               </div>
-              <p style="margin-left:16px;margin-right:16px;" class="mdc-text-field-helper-text mdc-text-field-helper-text--persistent" aria-hidden="true">
+              <p class="mdc-text-field-helper-text mdc-text-field-helper-text--persistent" aria-hidden="true">
                 {% trans 'Enter the description text.'  %}
               </p>
 
@@ -116,12 +113,12 @@
   <div class='field-container'>
     <div class='number-box'><span class='number'></span></div>
     <div class='field'>
-      <div class='mdc-form-field' style="display:block;">
+      <div class='mdc-form-field'>
         <label for='id_image'>{{ form.image.label }}</label>
       </div>
       <div class='image-field'>
         {{form.image}}
-        <span class='mdc-typography--body1 bold' id='warning' style='display:none;color:red;'>{% trans 'Max file size 1MB' %}</span>
+        <span class='mdc-typography--body1 bold' id='warning'>{% trans 'Max file size 1MB' %}</span>
       </div>
       <p class="form-helper-text" aria-hidden="true">
         {{ form.image.help_text|safe }}

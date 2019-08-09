@@ -6,34 +6,21 @@
 {% compress css %}
 <link href="{% static 'peerinst/css/collection.min.css' %}" rel="stylesheet">
 {% endcompress %}
-<style nonce="{{ request.csp_nonce }}">
-
-
-#collection-view {
-    color:#004266;
-  }
-
-
-#card-featured {
-  background-color:powderblue;
-}
-
-</style>
 {% endblock %}
 {% block body %}
 <main>
 <section>
-<h1 class="mdc-typography--display3">{% trans 'Browse Your Followed Collections' %}
+<h1 class="mdc-typography--display3">{% trans 'Followed Collections' %}
   <svg class="underline" width=150 height=4></svg>
 </h1>
-
+  <div class="admin-link">
   {% if user.is_staff %}
-    <div class="admin-link"><a href="{% url 'admin_index_wrapper' %}">Click here to access admin</a></div>
-  {% endif %}
-  <div class="admin-link"><a href="{% url 'collection-list' %}">{% trans 'View all collections' %}</a> |
-  <a href="{% url 'personal-collection-list' %}">{% trans 'View your collections' %}</a> |
-  <a href="{% url 'featured-collection-list' %}">{% trans 'View featured collections' %}</a> |
-  <a href="{% url 'collection-create' %}">{% trans 'Create a collection' %}</a></div>
+  <a href="{% url 'admin_index_wrapper' %}">Click here to access admin</a>
+  <span class="links-divider">|</span>{% endif %}<a href="{% url 'collection-list' %}">{% trans 'All' %}</a>
+  <span class="links-divider">|</span><a href="{% url 'personal-collection-list' %}">{% trans 'Owned' %}</a>
+  <span class="links-divider">|</span><a href="{% url 'featured-collection-list' %}">{% trans 'Featured' %}</a>
+  <span class="links-divider">|</span><a href="{% url 'collection-create' %}">{% trans 'Create' %}</a>
+</div>
 
 <ul>
 
@@ -49,14 +36,14 @@
     {% trans 'Created by' %} {{ obj.owner.user.username }}
   </div>
 
-  <div class="mdc-typography--body1" style="margin-top:5px;">
+  <div class="mdc-typography--body1">
     {{ obj.description }}
   </div>
-  </div>
+
 
   <div class="mdc-card__actions">
 
-    <div class="mdc-card__action-buttons" style="color:grey;">
+    <div class="mdc-card__action-buttons">
       <div class="mdc-typography--caption">
         <div>
           {% trans 'Discipline' %}: {{ obj.discipline }}
@@ -64,7 +51,7 @@
         <div>
           {% trans 'Published on' %} {{obj.created_on}}
         </div>
-      </div>
+      <div>
         <a id="collection-view" href="{% url 'collection-detail' obj.pk %}"><b>{% trans 'Click Here to View' %}</b></a>
     </div>
       </div>
