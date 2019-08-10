@@ -259,6 +259,29 @@ def create_PI_question(
         "of the correct answer choices above" in browser.page_source
     )
 
+    # Enter another one for A
+    # FIXME: Why is sleep required here to avoid a stale element error?
+    time.sleep(1)
+    browser.find_element_by_id("id_first_answer_choice_0").click()
+
+    rationale = browser.find_element_by_id("id_rationale")
+    rationale.clear()
+    rationale.send_keys(
+        "This is another expert rationale for answer choice A."
+    )
+
+    browser.find_element_by_id("answer-form").click()
+
+    # Check minimum number of rationales entered
+    browser.wait_for(
+        assert_(
+            "You must submit some at least one expert rationale for each "
+            "of the correct answer choices above" in browser.page_source
+        )
+    )
+
+    # FIXME
+    time.sleep(1)
     browser.find_element_by_id("id_first_answer_choice_1").click()
 
     rationale = browser.find_element_by_id("id_rationale")
@@ -270,7 +293,7 @@ def create_PI_question(
         lambda: assert_("Expert rationale saved" in browser.page_source)
     )
 
-    # FIXME: Why is sleep required here to avoid a stale element error?
+    # FIXME
     time.sleep(1)
     browser.find_element_by_id("back").click()
 
@@ -291,28 +314,82 @@ def create_PI_question(
 
     browser.wait_for(
         lambda: assert_(
-            "Step 3" in browser.find_element_by_tag_name("h2").text
-        )
-    )
-
-    browser.find_element_by_id("next").click()
-
-    browser.wait_for(
-        lambda: assert_(
             "This is an expert rationale for answer choice A."
             in browser.page_source
-        )
-    )
-    browser.wait_for(
-        lambda: assert_(
-            "This is an expert rationale for answer choice B."
+            and "This is another expert rationale for answer choice A."
+            in browser.page_source
+            and "This is an expert rationale for answer choice B."
             in browser.page_source
         )
     )
 
     # Access expert rationale update page and return > no change
+    browser.find_elements_by_class_name("click-to-edit")[0].click()
 
-    # Remove expert rationale and return > gone
+    browser.wait_for(
+        lambda: assert_(
+            "Approve Expert Rationale"
+            in browser.find_elements_by_tag_name("h2")[0].text
+        )
+    )
+
+    browser.find_element_by_id("update-button").click()
+
+    browser.wait_for(
+        lambda: assert_(
+            "This is an expert rationale for answer choice A."
+            in browser.page_source
+            and "This is another expert rationale for answer choice A."
+            in browser.page_source
+            and "This is an expert rationale for answer choice B."
+            in browser.page_source
+        )
+    )
+
+    # Remove expert rationale for B and return > gone and min rationale error
+    browser.find_elements_by_class_name("click-to-edit")[2].click()
+
+    browser.find_element_by_id("id_expert").click()
+
+    browser.find_element_by_id("update-button").click()
+
+    browser.wait_for(
+        lambda: assert_(
+            "This is an expert rationale for answer choice A."
+            in browser.page_source
+            and "This is another expert rationale for answer choice A."
+            in browser.page_source
+        )
+    )
+
+    browser.wait_for(
+        assert_(
+            "You must submit some at least one expert rationale for each "
+            "of the correct answer choices above" in browser.page_source
+        )
+    )
+
+    assert (
+        "This is an expert rationale for answer choice B."
+        not in browser.page_source
+    )
+
+    # FIXME
+    time.sleep(1)
+    browser.find_element_by_id("id_first_answer_choice_1").click()
+
+    rationale = browser.find_element_by_id("id_rationale")
+    rationale.send_keys(
+        "This is another expert rationale for answer choice B."
+    )
+
+    browser.find_element_by_id("answer-form").click()
+
+    browser.wait_for(
+        lambda: assert_("Expert rationale saved" in browser.page_source)
+    )
+
+    browser.find_element_by_id("next").click()
 
     # Step 4
     # ------
