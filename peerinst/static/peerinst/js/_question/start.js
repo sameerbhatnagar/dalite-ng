@@ -80,18 +80,21 @@ function toggleQualityError(data, errorMsg) {
   }
 }
 
-/************/
-/* listners */
-/************/
+/*************/
+/* listeners */
+/*************/
 
 function initListeners() {
   addSubmitListener();
 }
 
 function addSubmitListener() {
-  document.getElementById("answer-form").addEventListener("click", event => {
-    validateFormSubmit(event);
-  });
+  const input = document.getElementById("answer-form");
+  if (input) {
+    input.addEventListener("click", event => {
+      validateFormSubmit(event);
+    });
+  }
 }
 
 /********/

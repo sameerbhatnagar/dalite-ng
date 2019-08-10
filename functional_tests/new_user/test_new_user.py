@@ -12,7 +12,9 @@ def test_new_user_signup_workflow(
     # Hit landing page
     browser.get(browser.server_url + "/#Features")
     browser.wait_for(
-        assert_("Features" in browser.find_element_by_tag_name("h1").text)
+        lambda: assert_(
+            "Features" in browser.find_element_by_tag_name("h1").text
+        )
     )
     assert (
         "Login" in browser.find_element_by_id("link-to-login-or-welcome").text
@@ -21,11 +23,13 @@ def test_new_user_signup_workflow(
 
     # Sign up page rendered
     browser.wait_for(
-        assert_("Sign Up" in browser.find_element_by_tag_name("h1").text)
+        lambda: assert_(
+            "Sign Up" in browser.find_element_by_tag_name("h1").text
+        )
     )
 
     # New user can sign up
-    browser.wait_for(assert_(browser.find_element_by_tag_name("form")))
+    browser.wait_for(lambda: assert_(browser.find_element_by_tag_name("form")))
     form = browser.find_element_by_tag_name("form")
     assert form.get_attribute("method").lower() == "post"
 
@@ -43,7 +47,7 @@ def test_new_user_signup_workflow(
 
     # New user redirected post sign up
     browser.wait_for(
-        assert_(
+        lambda: assert_(
             "Processing Request" in browser.find_element_by_tag_name("h1").text
         )
     )
@@ -59,7 +63,7 @@ def test_new_user_signup_workflow(
     browser.find_element_by_id("submit-btn").click()
 
     browser.wait_for(
-        assert_(
+        lambda: assert_(
             "your account has not yet been activated" in browser.page_source
         )
     )
@@ -81,13 +85,13 @@ def test_new_user_signup_workflow(
 
     browser.find_element_by_id("submit-btn").click()
 
-    browser.wait_for(assert_("Inactive users" in browser.page_source))
+    browser.wait_for(lambda: assert_("Inactive users" in browser.page_source))
 
     form = browser.find_element_by_xpath("//form[contains(@id, 'activate')]")
     browser.find_element_by_xpath("//input[@type='checkbox']").click()
     form.submit()
 
-    browser.wait_for(assert_("No users to add" in browser.page_source))
+    browser.wait_for(lambda: assert_("No users to add" in browser.page_source))
 
     browser.get(browser.server_url + "/logout")
 
@@ -109,11 +113,11 @@ def test_new_user_signup_workflow(
     inputbox.submit()
 
     # Succesful save
-    browser.wait_for(assert_("Success!" in browser.page_source))
+    browser.wait_for(lambda: assert_("Success!" in browser.page_source))
 
     browser.find_element_by_link_text("Login").click()
 
-    browser.wait_for(assert_("login" in browser.current_url))
+    browser.wait_for(lambda: assert_("login" in browser.current_url))
 
     # Sign in
     browser.get(browser.server_url + "/login")
@@ -127,7 +131,7 @@ def test_new_user_signup_workflow(
 
     # Redirected to Browse Database
     browser.wait_for(
-        assert_(
+        lambda: assert_(
             "Browse Database"
             in browser.find_elements_by_tag_name("h1")[0].text
         )
@@ -155,7 +159,7 @@ def test_new_user_signup_with_email_server_error(browser, assert_, settings):
     browser.find_element_by_id("submit-btn").click()
 
     browser.wait_for(
-        assert_(
+        lambda: assert_(
             "An error occurred while processing your request"
             in browser.page_source
         )
@@ -175,7 +179,7 @@ def test_inactive_user_login(browser, assert_, inactive_user):
     browser.find_element_by_id("submit-btn").click()
 
     browser.wait_for(
-        assert_(
+        lambda: assert_(
             "your account has not yet been activated" in browser.page_source
         )
     )
@@ -195,7 +199,7 @@ def test_new_teacher(browser, assert_, new_teacher, tos_teacher):
 
     # Redirected to Browse Database
     browser.wait_for(
-        assert_(
+        lambda: assert_(
             "Browse Database"
             in browser.find_elements_by_tag_name("h1")[0].text
         )
@@ -205,7 +209,7 @@ def test_new_teacher(browser, assert_, new_teacher, tos_teacher):
 
     # Access to account redirected to TOS if no TOS registered
     browser.wait_for(
-        assert_(
+        lambda: assert_(
             "Terms of Service"
             in browser.find_elements_by_tag_name("h1")[0].text
         )
@@ -215,7 +219,7 @@ def test_new_teacher(browser, assert_, new_teacher, tos_teacher):
 
     # Redirected to My Account and show TOS status
     browser.wait_for(
-        assert_(
+        lambda: assert_(
             "My Account" in browser.find_elements_by_tag_name("h1")[0].text
         )
     )
@@ -225,7 +229,9 @@ def test_new_teacher(browser, assert_, new_teacher, tos_teacher):
     browser.get(browser.server_url)
     welcome = browser.find_element_by_id("link-to-login-or-welcome")
     browser.wait_for(
-        assert_("Welcome back " + new_teacher.user.username in welcome.text)
+        lambda: assert_(
+            "Welcome back " + new_teacher.user.username in welcome.text
+        )
     )
 
     # Logout and log back in -> skip tos step
@@ -243,7 +249,7 @@ def test_new_teacher(browser, assert_, new_teacher, tos_teacher):
     browser.find_element_by_xpath("//a[text()='Go to My Account']").click()
 
     browser.wait_for(
-        assert_(
+        lambda: assert_(
             "My Account" in browser.find_elements_by_tag_name("h1")[0].text
         )
     )
@@ -258,7 +264,7 @@ def test_new_teacher(browser, assert_, new_teacher, tos_teacher):
     browser.find_element_by_xpath("//a[text()='Go to My Account']").click()
 
     browser.wait_for(
-        assert_(
+        lambda: assert_(
             "Terms of Service"
             in browser.find_elements_by_tag_name("h1")[0].text
         )
@@ -269,7 +275,7 @@ def test_new_teacher(browser, assert_, new_teacher, tos_teacher):
     browser.get(browser.server_url + "/login")
 
     browser.wait_for(
-        assert_(
+        lambda: assert_(
             "Browse Database"
             in browser.find_elements_by_tag_name("h1")[0].text
         )
