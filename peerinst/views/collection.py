@@ -101,13 +101,16 @@ class CollectionUpdateView(LoginRequiredMixin, NoStudentsMixin, UpdateView):
         return Collection.objects.filter(owner=teacher)
 
     def get_success_url(self):
-        teacher = get_object_or_404(Teacher, user=self.request.user)
-        return reverse("teacher", kwargs={"pk": teacher.pk})
+        return reverse("collection-detail", kwargs={"pk": self.object.pk})
 
     def get_context_data(self, **kwargs):
         context = super(UpdateView, self).get_context_data(**kwargs)
         context["teacher"] = get_object_or_404(Teacher, user=self.request.user)
+        teacher = get_object_or_404(Teacher, user=self.request.user)
         context["owned_assignments"] = Assignment.objects.filter(
+            owner=self.request.user
+        )
+        context["followed_assignments"] = teacher.assignments.all().exclude(
             owner=self.request.user
         )
         return context

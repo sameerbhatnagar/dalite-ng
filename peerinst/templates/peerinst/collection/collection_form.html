@@ -5,37 +5,12 @@
 {% compress css %}
 <link href="{% static 'peerinst/css/collection.min.css' %}" rel="stylesheet">
 {% endcompress %}
-
-<script src="{% static 'peerinst/js/tinymce/js/tinymce/tinymce.min.js' %}"></script>
-<style nonce="{{ request.csp_nonce }}">
-.spinning {
-  opacity: 0;
-  vertical-align: sub;
-  animation: 1s ease-in-out infinite spin;
-}
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(-180deg); }
-}
-.mdc-chip__icon--trailing {
-  pointer-events: none;
-}
-.image-field {
-  padding-top:6px;
-  padding-bottom: 6px;
-  padding-left: 16px;
-  color: rgba(0,0,0,0.87);
-  font-size: 14px;
-  font-family: 'Montserrat', sans-serif;
-}
-
-</style>
 {% endblock %}
 {% block body %}
 <main>
   <section>
     <div>
-    <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Create a Collection of Assignments' %}</h2>
+    <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Create a Collection' %}</h2>
 
         <div class='field-container'>
           <div class='number-box'><span class='number'>?</span></div>
@@ -118,7 +93,6 @@
       </div>
       <div class='image-field'>
         {{form.image}}
-        <span class='mdc-typography--body1 bold' id='warning'>{% trans 'Max file size 1MB' %}</span>
       </div>
       <p class="form-helper-text" aria-hidden="true">
         {{ form.image.help_text|safe }}
@@ -166,119 +140,7 @@
 
   <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
   <script nonce="{{ request.csp_nonce }}">
-    'use strict';
-    bundle.bindCheckbox();
 
-
-    function updateForm(){
-      if ($('#id_type').val() == "RO") {
-        $('.peerinst').toggle(false);
-      }
-      else {
-        $('.peerinst').toggle(true);
-      }
-      enumerate();
-    }
-
-    $('#id_type').change(function(){
-      if (this.value != "{{question.type}}") {
-        $('#next').find('button').attr('disabled', 'true');
-      }
-      else {
-        $('#next').find('button').attr('disabled', false);
-      }
-      updateForm();
-    });
-
-    updateForm();
-
-    function limitFileSize() {
-      var imageForm = document.getElementById('id_image');
-      var warning = document.getElementById('warning');
-      imageForm.setAttribute('accept', '.png, .jpg, .jpeg, .gif');
-      imageForm.onchange = function() {
-        var fileSize = imageForm.files[0].size;
-        if (fileSize > 1000000) {
-          window.alert('File too big: '+fileSize/1000+'kB');
-          warning.style.display = 'inline';
-          $('.mdc-button').each(function() {
-            $(this).attr('disabled',true);
-          });
-        }
-        else {
-          warning.style.display = 'none';
-          $('.mdc-button').each(function() {
-            $(this).attr('disabled',false);
-          });
-        }
-        return;
-      }
-    }
-
-    limitFileSize();
-
-    // Generators for autocomplete
-    const response = function(searchClass, spinnerId) {
-      return function( event, ui ) {
-        // NB: Pass by reference.  ui can be modified, but not recreated.
-        let currentList = $.map($(searchClass), function(obj, i) {
-          return $(obj).attr('d');
-        });
-
-        let tmp = ui.content.filter( function(el) {
-          return !currentList.includes(el.label);
-        });
-
-        let l = ui.content.length
-        while (l > 0) {
-          ui.content.pop();
-          l = ui.content.length;
-        }
-
-        for (let i = 0; i < tmp.length; i++) {
-          ui.content.push(tmp[i]);
-        }
-
-        if (ui.content.length == 0) {
-          // Could add hint that there are no results
-        }
-
-        $(spinnerId).css('opacity', 0);
-        return;
-      }
-    }
-
-    const search = function(spinnerId) {
-      return function( event, ui ) {
-        $(spinnerId).css('opacity', 1);
-      }
-    }
-
-    const focus = function( event, ui ) {
-      event.preventDefault();
-      $(this).val(ui.item.label);
-    }
-
-    const select = function(currentIds, className, formId) {
-      return function( event, ui ) {
-        event.preventDefault();
-        $(this).val("");
-
-        $(currentIds).append("<div d="+ui.item.label+" v="+ui.item.value+" class='mdc-chip mdc-typography--caption "+className+"' onclick=\"updateSelect(this,\'"+formId+"\');\" tabindex='0' data-mdc-auto-init='MDCChip'>\
-          <div class='mdc-chip__text'>"+ui.item.label+"</div>\
-          <i class='material-icons mdc-chip__icon mdc-chip__icon--trailing' tabindex='0' role='button'>cancel</i>\
-          </div>");
-
-        $(formId).append("<option selected='selected' value="+ui.item.value+">"+ui.item.label+"</option>");
-      }
-    }
-
-    function updateSelect(el, formId) {
-      el.remove();
-      $(formId).find("[value="+$(el).attr('v')+"]").remove();
-    }
-  bundle.addDialog();
-  bundle.bindCheckbox();
   function enumerate(){
     var counter = 1;
     $('.number-box:visible').each(function() {

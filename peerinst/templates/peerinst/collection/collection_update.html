@@ -2,43 +2,15 @@
 
 {% load compress staticfiles add_class i18n %}
 {% block stylesheets %}
-
-<script src="{% static 'peerinst/js/tinymce/js/tinymce/tinymce.min.js' %}"></script>
-<style nonce="{{ request.csp_nonce }}">
-.spinning {
-  opacity: 0;
-  vertical-align: sub;
-  animation: 1s ease-in-out infinite spin;
-}
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(-180deg); }
-}
-.mdc-chip__icon--trailing {
-  pointer-events: none;
-}
-.image-field {
-  padding-top:6px;
-  padding-bottom: 6px;
-  padding-left: 16px;
-  color: rgba(0,0,0,0.87);
-  font-size: 14px;
-  font-family: 'Montserrat', sans-serif;
-}
-.mdc-text-field__input {
-    width:100%;
-}
-:not(.mdc-list--non-interactive)>.mdc-list-item::before, :not(.mdc-list--non-interactive)>.mdc-list-item::after{
-  background-color: #F4F4F4;
-}
-
-</style>
+{% compress css %}
+<link href="{% static 'peerinst/css/collection.min.css' %}" rel="stylesheet">
+{% endcompress %}
 {% endblock %}
 {% block body %}
 <main>
   <section>
     <div>
-    <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Update Your Collection of Assignments' %}</h2>
+    <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Edit Your Collection' %}</h2>
 
         <div class='field-container'>
           <div class='number-box'><span class='number'>?</span></div>
@@ -84,7 +56,7 @@
                 {{ form.description|add_class:"mdc-text-field__input" }}
                 {{ form.description.label_tag|add_class:"mdc-floating-label"|cut:":" }}
               </div>
-              <p style="margin-left:16px;margin-right:16px;" class="mdc-text-field-helper-text mdc-text-field-helper-text--persistent" aria-hidden="true">
+              <p class="mdc-text-field-helper-text mdc-text-field-helper-text--persistent" aria-hidden="true">
                 {% trans 'Enter the description text.'  %}
               </p>
 
@@ -116,12 +88,11 @@
   <div class='field-container'>
     <div class='number-box'><span class='number'></span></div>
     <div class='field'>
-      <div class='mdc-form-field' style="display:block;">
+      <div class='mdc-form-field'>
         <label for='id_image'>{{ form.image.label }}</label>
       </div>
       <div class='image-field'>
         {{form.image}}
-        <span class='mdc-typography--body1 bold' id='warning' style='display:none;color:red;'>{% trans 'Max file size 1MB' %}</span>
       </div>
       <p class="form-helper-text" aria-hidden="true">
         {{ form.image.help_text|safe }}
@@ -161,7 +132,7 @@
       <p>{% trans 'These are the assignments for which you are an author, and have editing rights.' %}</p>
 
       {% if not owned_assignments %}
-        <p>{% blocktrans %} You currently do not have editing rights on any assignments. Make a new assignment of your own with the form above to be able to modify it.{% endblocktrans %}</p>
+        <p>{% blocktrans %} You currently do not have editing rights on any assignments. {% endblocktrans %}</p>
       {% endif %}
 
       <ul class="mdc-list mdc-list--two-line mdc-list--non-interactive">
@@ -206,14 +177,14 @@
 
       <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Followed Assignments' %}</h2>
 
-      <p>{% blocktrans %} These are the assignments you are following, and for which reports will be available (based on your selected groups).{% endblocktrans %}</p>
+      <p>{% blocktrans %} These are the assignments you are following.{% endblocktrans %}</p>
 
       {% if not teacher.assignments.all %}
-      <p>{% blocktrans %} You do not have any assignments. {% endblocktrans %}</p>
+      <p>{% blocktrans %} You do not have any followed assignments. {% endblocktrans %}</p>
       {% endif %}
 
       <ul class="mdc-list mdc-list--two-line mdc-list--non-interactive">
-        {% for g in teacher.assignments.all %}
+        {% for g in followed_assignments %}
         <li role="separator" class="mdc-list-divider"></li>
         <li class="mdc-list-item">
           <span class="mdc-list-item__graphic mdc-theme--primary">
@@ -297,34 +268,6 @@
       });
     });
 
-
-    function limitFileSize() {
-      var imageForm = document.getElementById('id_image');
-      var warning = document.getElementById('warning');
-      imageForm.setAttribute('accept', '.png, .jpg, .jpeg, .gif');
-      imageForm.onchange = function() {
-        var fileSize = imageForm.files[0].size;
-        if (fileSize > 1000000) {
-          window.alert('File too big: '+fileSize/1000+'kB');
-          warning.style.display = 'inline';
-          $('.mdc-button').each(function() {
-            $(this).attr('disabled',true);
-          });
-        }
-        else {
-          warning.style.display = 'none';
-          $('.mdc-button').each(function() {
-            $(this).attr('disabled',false);
-          });
-        }
-        return;
-      }
-    }
-
-    limitFileSize();
-
-  bundle.addDialog();
-  bundle.bindCheckbox();
   function enumerate(){
     var counter = 1;
     $('.number-box:visible').each(function() {

@@ -34,7 +34,7 @@
 
 
   <div class="mdc-typography--title bold">
-    {{ obj.title }}
+    {% if obj.image %}<img src="{{obj.image.url}}">&nbsp;&nbsp;{% endif %}{{ obj.title }}
   </div>
 
   <div class="mdc-typography--caption">

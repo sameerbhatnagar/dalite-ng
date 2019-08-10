@@ -56,3 +56,15 @@
   padding-left: 16px;
   padding-top:6px;
 }
+
+img {
+border-radius:50%;
+height: 50px;
+margin-bottom:-9px;
+width: 50px;
+}
+
+.foldable__unfolded>.foldable--body {
+margin-top:10px;
+max-height: none;
+}
