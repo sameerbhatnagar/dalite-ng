@@ -1,3 +1,4 @@
+from faker import Faker
 import time
 
 from selenium.webdriver.common.keys import Keys
@@ -5,6 +6,8 @@ from selenium.webdriver.support.ui import Select
 
 from functional_tests.fixtures import *  # noqa
 from .utils import go_to_account, login, logout
+
+fake = Faker()
 
 
 def create_category():
@@ -162,12 +165,14 @@ def create_PI_question(
     assert "Step 1" in browser.find_element_by_tag_name("h2").text
 
     inputbox = browser.find_element_by_id("id_title")
-    inputbox.send_keys("Test title")
+    inputbox.send_keys(fake.sentence(nb_words=4))
 
     tinymce_embed = browser.find_element_by_tag_name("iframe")
     browser.switch_to.frame(tinymce_embed)
     ifrinputbox = browser.find_element_by_id("tinymce")
-    ifrinputbox.send_keys("Test text")
+    ifrinputbox.send_keys(
+        fake.paragraph(nb_sentences=8, variable_nb_sentences=False)
+    )
     browser.switch_to.default_content()
 
     Select(browser.find_element_by_id("id_discipline")).select_by_value("1")
@@ -192,7 +197,7 @@ def create_PI_question(
     )
     browser.switch_to.frame(tinymce_embed)
     ifrinputbox = browser.find_element_by_id("tinymce")
-    ifrinputbox.send_keys("Answer 1")
+    ifrinputbox.send_keys(fake.sentence(nb_words=10))
     browser.switch_to.default_content()
 
     tinymce_embed = browser.find_element_by_id(
@@ -200,7 +205,7 @@ def create_PI_question(
     )
     browser.switch_to.frame(tinymce_embed)
     ifrinputbox = browser.find_element_by_id("tinymce")
-    ifrinputbox.send_keys("Answer 2")
+    ifrinputbox.send_keys(fake.sentence(nb_words=10))
     browser.switch_to.default_content()
 
     browser.find_element_by_id("id_answerchoice_set-0-correct").click()
