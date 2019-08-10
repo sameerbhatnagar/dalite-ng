@@ -15,6 +15,10 @@ from quality.models import Quality, UsesCriterion
 
 
 MAX_WAIT = 30
+try:
+    WATCH = settings.WATCH
+except AttributeError:
+    WATCH = False
 
 
 # Wait decorator
@@ -81,6 +85,9 @@ def browser(live_server):
     # Add assertion that web console logs are null after any get() or click()
     # Log function for get
     def add_log(fct, driver, *args, **kwargs):
+        if WATCH:
+            time.sleep(1)
+
         result = fct(*args, **kwargs)
 
         logs = driver.get_log("browser")

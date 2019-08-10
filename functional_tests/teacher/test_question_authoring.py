@@ -147,10 +147,12 @@ def create_PI_question(
     browser, assert_, category, discipline, quality_criterion
 ):
     # Teacher can create a question
+    # -----------------------------
     browser.find_element_by_id("question-section").click()
     browser.find_element_by_link_text("Create new").click()
 
     # Step 1
+    # ------
     browser.wait_for(
         lambda: assert_(
             "Question" in browser.find_element_by_tag_name("h1").text
@@ -178,6 +180,7 @@ def create_PI_question(
     browser.find_element_by_id("question-create-form").submit()
 
     # Step 2
+    # ------
     browser.wait_for(
         lambda: assert_(
             "Step 2" in browser.find_element_by_tag_name("h2").text
@@ -208,6 +211,7 @@ def create_PI_question(
     inputbox.submit()
 
     # Step 3
+    # ------
     browser.wait_for(
         lambda: assert_(
             "Step 3" in browser.find_element_by_tag_name("h2").text
@@ -249,6 +253,7 @@ def create_PI_question(
 
     assert "Expert rationale saved" not in browser.page_source
 
+    # Check minimum number of rationales entered
     assert (
         "You must submit some at least one expert rationale for each "
         "of the correct answer choices above" in browser.page_source
@@ -269,6 +274,7 @@ def create_PI_question(
     time.sleep(1)
     browser.find_element_by_id("back").click()
 
+    # Nav buttons work
     browser.wait_for(
         lambda: assert_(
             "Step 2" in browser.find_element_by_tag_name("h2").text
@@ -283,15 +289,29 @@ def create_PI_question(
         )
     )
 
+    browser.wait_for(
+        lambda: assert_(
+            "Step 3" in browser.find_element_by_tag_name("h2").text
+        )
+    )
+
     browser.find_element_by_id("next").click()
 
     browser.wait_for(
         lambda: assert_(
-            "Step 4" in browser.find_element_by_tag_name("h2").text
+            "This is an expert rationale for answer choice A."
+            in browser.page_source
+        )
+    )
+    browser.wait_for(
+        lambda: assert_(
+            "This is an expert rationale for answer choice B."
+            in browser.page_source
         )
     )
 
-    time.sleep(10)
+    # Remove expert rationale
+
     # browser.find_element_by_id("add_question_to_assignment").submit()
     #
     # browser.wait_for(
