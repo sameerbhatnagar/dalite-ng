@@ -691,7 +691,7 @@ def answer_choice_form(request, question_id):
         AnswerChoice,
         form=forms.AnswerChoiceForm,
         fields=("text", "correct"),
-        widgets={"text": Textarea(attrs={"style": "width: 100%;", "rows": 3})},
+        widgets={"text": Textarea(attrs={"rows": 3})},
         formset=admin.AnswerChoiceInlineFormSet,
         max_num=5,
         extra=5,
@@ -717,7 +717,7 @@ def answer_choice_form(request, question_id):
                 instances = formset.save()
                 return HttpResponseRedirect(
                     reverse(
-                        "sample-answer-form",
+                        "research-fix-expert-rationale",
                         kwargs={"question_id": question.pk},
                     )
                 )

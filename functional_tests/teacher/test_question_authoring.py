@@ -143,13 +143,18 @@ def create_discipline():
 #     assert "Forbidden" in browser.page_source
 
 
-def create_PI_question(browser, assert_, category, discipline):
+def create_PI_question(
+    browser, assert_, category, discipline, quality_criterion
+):
     # Teacher can create a question
     browser.find_element_by_id("question-section").click()
     browser.find_element_by_link_text("Create new").click()
 
+    # Step 1
     browser.wait_for(
-        assert_("Question" in browser.find_element_by_tag_name("h1").text)
+        lambda: assert_(
+            "Question" in browser.find_element_by_tag_name("h1").text
+        )
     )
 
     assert "Step 1" in browser.find_element_by_tag_name("h2").text
@@ -172,8 +177,11 @@ def create_PI_question(browser, assert_, category, discipline):
 
     browser.find_element_by_id("question-create-form").submit()
 
+    # Step 2
     browser.wait_for(
-        assert_("Step 2" in browser.find_element_by_tag_name("h2").text)
+        lambda: assert_(
+            "Step 2" in browser.find_element_by_tag_name("h2").text
+        )
     )
 
     tinymce_embed = browser.find_element_by_id(
@@ -193,27 +201,114 @@ def create_PI_question(browser, assert_, category, discipline):
     browser.switch_to.default_content()
 
     browser.find_element_by_id("id_answerchoice_set-0-correct").click()
+    browser.find_element_by_id("id_answerchoice_set-1-correct").click()
 
     inputbox = browser.find_element_by_id("answer-choice-form")
 
     inputbox.submit()
 
+    # Step 3
     browser.wait_for(
-        assert_("Step 3" in browser.find_element_by_tag_name("h2").text)
+        lambda: assert_(
+            "Step 3" in browser.find_element_by_tag_name("h2").text
+        )
     )
 
-    browser.find_element_by_id("add_question_to_assignment").submit()
+    browser.find_element_by_id("id_first_answer_choice_0").click()
+
+    # Bad quality throws error
+    rationale = browser.find_element_by_id("id_rationale")
+    rationale.send_keys("Two words.")
+
+    browser.find_element_by_id("answer-form").click()
+
+    error = browser.find_elements_by_class_name("errorlist")[0]
 
     browser.wait_for(
-        assert_("My Account" in browser.find_element_by_tag_name("h2").text)
+        lambda: assert_(
+            "That does not seem like a clear explanation of your reasoning"
+            in error.text
+        )
     )
 
-    assert "Test title" in browser.page_source
+    assert "Expert rationale saved" not in browser.page_source
+
+    browser.find_element_by_id("id_first_answer_choice_0").click()
+
+    rationale = browser.find_element_by_id("id_rationale")
+    rationale.clear()
+    rationale.send_keys("This is an expert rationale for answer choice A.")
+
+    browser.find_element_by_id("answer-form").click()
+
+    browser.wait_for(
+        lambda: assert_("Expert rationale saved" in browser.page_source)
+    )
+
+    browser.find_element_by_id("clear_message").click()
+
+    assert "Expert rationale saved" not in browser.page_source
+
+    assert (
+        "You must submit some at least one expert rationale for each "
+        "of the correct answer choices above" in browser.page_source
+    )
+
+    browser.find_element_by_id("id_first_answer_choice_1").click()
+
+    rationale = browser.find_element_by_id("id_rationale")
+    rationale.send_keys("This is an expert rationale for answer choice B.")
+
+    browser.find_element_by_id("answer-form").click()
+
+    browser.wait_for(
+        lambda: assert_("Expert rationale saved" in browser.page_source)
+    )
+
+    # FIXME: Why is sleep required here to avoid a stale element error?
+    time.sleep(1)
+    browser.find_element_by_id("back").click()
+
+    browser.wait_for(
+        lambda: assert_(
+            "Step 2" in browser.find_element_by_tag_name("h2").text
+        )
+    )
+
+    browser.find_element_by_id("answer-choice-form").submit()
+
+    browser.wait_for(
+        lambda: assert_(
+            "Step 3" in browser.find_element_by_tag_name("h2").text
+        )
+    )
+
+    browser.find_element_by_id("next").click()
+
+    browser.wait_for(
+        lambda: assert_(
+            "Step 4" in browser.find_element_by_tag_name("h2").text
+        )
+    )
+
+    time.sleep(10)
+    # browser.find_element_by_id("add_question_to_assignment").submit()
+    #
+    # browser.wait_for(
+    #     lambda: assert_(
+    #    "My Account" in browser.find_element_by_tag_name("h2").text)
+    # )
+    #
+    # assert "Test title" in browser.page_source
 
 
-def test_create_question(browser, assert_, category, discipline, teacher):
+def test_create_question(
+    browser, assert_, category, discipline, teacher, quality_min_words
+):
     login(browser, teacher)
     go_to_account(browser)
-    create_PI_question(browser, assert_, category, discipline)
+    create_PI_question(
+        browser, assert_, category, discipline, quality_min_words
+    )
     # edit_PI_question
     logout(browser, assert_)

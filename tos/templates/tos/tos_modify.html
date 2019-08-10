@@ -3,6 +3,7 @@
 {% load staticfiles i18n compress %}
 
 {% block stylesheets %}
+{{ block.super }}
   {% compress css %}
     <link rel="stylesheet" href="{% static 'tos/css/styles.min.css' %}"></link>
     {% if user.student %}

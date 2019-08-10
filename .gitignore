@@ -20,6 +20,7 @@
 /node_modules
 /redis*
 /sent_emails
+/src
 /static
 /venv/
 celerybeat.pid
