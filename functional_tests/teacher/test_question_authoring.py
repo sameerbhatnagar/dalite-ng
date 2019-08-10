@@ -156,12 +156,7 @@ def create_PI_question(
 
     # Step 1
     # ------
-    browser.wait_for(
-        lambda: assert_(
-            "Question" in browser.find_element_by_tag_name("h1").text
-        )
-    )
-
+    assert "Question" in browser.find_element_by_tag_name("h1").text
     assert "Step 1" in browser.find_element_by_tag_name("h2").text
 
     inputbox = browser.find_element_by_id("id_title")
@@ -186,11 +181,7 @@ def create_PI_question(
 
     # Step 2
     # ------
-    browser.wait_for(
-        lambda: assert_(
-            "Step 2" in browser.find_element_by_tag_name("h2").text
-        )
-    )
+    assert "Step 2" in browser.find_element_by_tag_name("h2").text
 
     tinymce_embed = browser.find_element_by_id(
         "id_answerchoice_set-0-text_ifr"
@@ -208,6 +199,14 @@ def create_PI_question(
     ifrinputbox.send_keys(fake.sentence(nb_words=10))
     browser.switch_to.default_content()
 
+    tinymce_embed = browser.find_element_by_id(
+        "id_answerchoice_set-2-text_ifr"
+    )
+    browser.switch_to.frame(tinymce_embed)
+    ifrinputbox = browser.find_element_by_id("tinymce")
+    ifrinputbox.send_keys(fake.sentence(nb_words=10))
+    browser.switch_to.default_content()
+
     browser.find_element_by_id("id_answerchoice_set-0-correct").click()
     browser.find_element_by_id("id_answerchoice_set-1-correct").click()
 
@@ -217,29 +216,21 @@ def create_PI_question(
 
     # Step 3
     # ------
-    browser.wait_for(
-        lambda: assert_(
-            "Step 3" in browser.find_element_by_tag_name("h2").text
-        )
-    )
+    assert "Step 3" in browser.find_element_by_tag_name("h2").text
 
     browser.find_element_by_id("id_first_answer_choice_0").click()
 
-    # Bad quality throws error
+    # Low quality throws error
     rationale = browser.find_element_by_id("id_rationale")
     rationale.send_keys("Two words.")
 
     browser.find_element_by_id("answer-form").click()
 
     error = browser.find_elements_by_class_name("errorlist")[0]
-
-    browser.wait_for(
-        lambda: assert_(
-            "That does not seem like a clear explanation of your reasoning"
-            in error.text
-        )
+    assert (
+        "That does not seem like a clear explanation of your reasoning"
+        in error.text
     )
-
     assert "Expert rationale saved" not in browser.page_source
 
     browser.find_element_by_id("id_first_answer_choice_0").click()
@@ -255,7 +246,6 @@ def create_PI_question(
     )
 
     browser.find_element_by_id("clear_message").click()
-
     assert "Expert rationale saved" not in browser.page_source
 
     # Check minimum number of rationales entered
@@ -303,19 +293,11 @@ def create_PI_question(
     browser.find_element_by_id("back").click()
 
     # Nav buttons work
-    browser.wait_for(
-        lambda: assert_(
-            "Step 2" in browser.find_element_by_tag_name("h2").text
-        )
-    )
+    assert "Step 2" in browser.find_element_by_tag_name("h2").text
 
     browser.find_element_by_id("answer-choice-form").submit()
 
-    browser.wait_for(
-        lambda: assert_(
-            "Step 3" in browser.find_element_by_tag_name("h2").text
-        )
-    )
+    assert "Step 3" in browser.find_element_by_tag_name("h2").text
 
     browser.wait_for(
         lambda: assert_(
@@ -331,11 +313,9 @@ def create_PI_question(
     # Access expert rationale update page and return > no change
     browser.find_elements_by_class_name("click-to-edit")[0].click()
 
-    browser.wait_for(
-        lambda: assert_(
-            "Approve Expert Rationale"
-            in browser.find_elements_by_tag_name("h2")[0].text
-        )
+    assert (
+        "Approve Expert Rationale"
+        in browser.find_elements_by_tag_name("h2")[0].text
     )
 
     browser.find_element_by_id("update-button").click()
@@ -398,10 +378,93 @@ def create_PI_question(
 
     # Step 4
     # ------
-
     # Check nav buttons
+    browser.find_element_by_id("back").click()
+
+    assert "Step 3" in browser.find_elements_by_tag_name("h2")[0].text
+
+    browser.find_element_by_id("next").click()
 
     # Add low quality sample rationale
+    assert "Step 4" in browser.find_elements_by_tag_name("h2")[0].text
+
+    browser.find_element_by_id("id_first_answer_choice_0").click()
+
+    rationale = browser.find_element_by_id("id_rationale")
+    rationale.send_keys("Short rationale.")
+
+    browser.find_element_by_id("answer-form").click()
+
+    # FIXME
+    time.sleep(1)
+    error = browser.find_elements_by_class_name("errorlist")[0]
+    assert (
+        "That does not seem like a clear explanation of your reasoning"
+        in error.text
+    )
+    assert "Sample answer saved" not in browser.page_source
+
+    browser.find_element_by_id("id_first_answer_choice_0").click()
+
+    rationale = browser.find_element_by_id("id_rationale")
+    rationale.clear()
+    rationale.send_keys("This is an acceptable sample answer.")
+
+    browser.find_element_by_id("answer-form").click()
+    browser.wait_for(
+        assert_(lambda: "Sample answer saved" in browser.page_source)
+    )
+
+    # FIXME
+    time.sleep(1)
+    error = browser.find_elements_by_class_name("errorlist")[0]
+    assert (
+        "You must submit some at least one example rationale for each of the answer choices above"  # noqa
+        in error.text
+    )
+
+    # FIXME
+    time.sleep(1)
+    browser.find_element_by_id("id_first_answer_choice_1").click()
+
+    rationale = browser.find_element_by_id("id_rationale")
+    rationale.clear()
+    rationale.send_keys("This is an acceptable sample answer.")
+
+    browser.find_element_by_id("answer-form").click()
+    browser.wait_for(
+        assert_(lambda: "Sample answer saved" in browser.page_source)
+    )
+
+    # FIXME
+    time.sleep(1)
+    error = browser.find_elements_by_class_name("errorlist")[0]
+    assert (
+        "You must submit some at least one example rationale for each of the answer choices above"  # noqa
+        in error.text
+    )
+
+    # FIXME
+    time.sleep(1)
+    browser.find_element_by_id("id_first_answer_choice_2").click()
+
+    rationale = browser.find_element_by_id("id_rationale")
+    rationale.clear()
+    rationale.send_keys("This is an acceptable sample answer.")
+
+    browser.find_element_by_id("answer-form").click()
+    browser.wait_for(
+        assert_(lambda: "Sample answer saved" in browser.page_source)
+    )
+
+    # FIXME
+    time.sleep(1)
+    browser.find_element_by_id("clear_message").click()
+    assert "Sample answer saved" not in browser.page_source
+
+    done = browser.find_element_by_id("done").click()
+
+    assert "My Account" in browser.find_elements_by_tag_name("h1")[0].text
 
     # Check for minimum requirements
 

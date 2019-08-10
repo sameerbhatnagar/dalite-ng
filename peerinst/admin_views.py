@@ -615,7 +615,7 @@ class QuestionPreviewViewBase(
         )
         answer.save()
         messages.add_message(
-            self.request, messages.INFO, _("Example answer saved.")
+            self.request, messages.INFO, _("Sample answer saved.")
         )
         return super(QuestionPreviewViewBase, self).form_valid(form)
 

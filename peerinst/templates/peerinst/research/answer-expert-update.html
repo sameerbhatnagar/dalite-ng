@@ -107,7 +107,6 @@
       <form id="expert-form" method="post">
         {% csrf_token %}
         <div class="mdc-form-field">
-          <label for="id_expert">{% trans 'The rationale associated with the correct answer is appropriate for students to use as a study aid' %}: </label>
           <div class="mdc-checkbox">
             <input type="checkbox"
                    name="expert"
@@ -125,6 +124,7 @@
               <div class="mdc-checkbox__mixedmark"></div>
             </div>
           </div>
+          <label for="id_expert">{% trans 'Is the rationale associated with the correct answer appropriate for students to use as a study aid?' %}</label>
         </div>
 
       </form>
