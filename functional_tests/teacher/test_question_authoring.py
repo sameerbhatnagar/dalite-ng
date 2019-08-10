@@ -310,8 +310,20 @@ def create_PI_question(
         )
     )
 
-    # Remove expert rationale
+    # Access expert rationale update page and return > no change
 
+    # Remove expert rationale and return > gone
+
+    # Step 4
+    # ------
+
+    # Check nav buttons
+
+    # Add low quality sample rationale
+
+    # Check for minimum requirements
+
+    # Use auto add feature
     # browser.find_element_by_id("add_question_to_assignment").submit()
     #
     # browser.wait_for(
@@ -321,8 +333,18 @@ def create_PI_question(
     #
     # assert "Test title" in browser.page_source
 
+    # Save
 
-def test_create_question(
+
+def edit_PI_question():
+    pass
+
+    # Access question edit prior to student answers existing
+
+    # Access question edit post student answers existing
+
+
+def test_create_PI_question(
     browser, assert_, category, discipline, teacher, quality_min_words
 ):
     login(browser, teacher)
@@ -330,5 +352,17 @@ def test_create_question(
     create_PI_question(
         browser, assert_, category, discipline, quality_min_words
     )
-    # edit_PI_question
+    edit_PI_question()
     logout(browser, assert_)
+
+
+def test_create_RO_question():
+    pass
+
+
+def test_clone_PI_question():
+    pass
+
+
+def test_clone_RO_question():
+    pass
