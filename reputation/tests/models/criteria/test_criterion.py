@@ -27,10 +27,12 @@ def test_dict():
 
         data = dict(fake_criterion)
 
-        assert len(data) == 6
+        assert len(data) == 8
         assert "version" in data
         assert "points_per_threshold" in data
         assert "thresholds" in data
+        assert "badge_thresholds" in data
+        assert "badge_colour" in data
         assert "name" in data
         assert "full_name" in data
         assert "description" in data
