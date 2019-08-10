@@ -194,13 +194,17 @@
               </span>
             </span>
             <span class="mdc-list-item__meta">
-              <i>delete</i>
+              <i class="delete-btn">delete</i>
               <a href="{% url 'group-assignment' a.hash %}">
               <i class="material-icons md-24 mdc-ripple-surface icon-list">edit</i>
               </a>
-              <a href="{% url 'group-assignment-gradebook' group_hash=group.hash assignment_hash=a.hash %}">
-              <i class="material-icons md-24 mdc-ripple-surface icon-list">bar_chart</i>
-              </a>
+              <button class="gradebook-button"
+                      data-group="{{ group.pk }}"
+                      data-assignment="{{ a.pk }}">
+                <i class="material-icons md-24 mdc-ripple-surface icon-list">
+                  bar_chart
+                </i>
+              </button>
             </span>
           </li>
           {% empty %}

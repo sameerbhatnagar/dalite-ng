@@ -9,6 +9,9 @@ from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.remote.webelement import WebElement
 
 from peerinst.tests.fixtures import *  # noqa
+from quality.tests.fixtures import *  # noqa
+
+from quality.models import Quality, UsesCriterion
 
 
 MAX_WAIT = 30
@@ -33,10 +36,7 @@ def wait(fn):
 @pytest.fixture
 def assert_():
     def fct(statement):
-        def f():
-            assert statement
-
-        return f
+        assert statement
 
     return fct
 
@@ -48,12 +48,11 @@ def browser(live_server):
     else:
         browser = "firefox"
 
+    options = webdriver.ChromeOptions()
+
     if hasattr(settings, "HEADLESS_TESTING") and settings.HEADLESS_TESTING:
         os.environ["MOZ_HEADLESS"] = "1"
-        options = webdriver.ChromeOptions()
         options.add_argument("headless")
-    else:
-        options = webdriver.ChromeOptions()
 
     if browser == "firefox":
         try:
@@ -74,7 +73,7 @@ def browser(live_server):
     # Add an implicit wait function to handle latency in page loads
     @wait
     def wait_for(fn):
-        return fn()
+        return fn
 
     driver.wait_for = wait_for
     driver.implicitly_wait(MAX_WAIT)
@@ -128,3 +127,19 @@ def browser(live_server):
     driver.close()
     if os.path.exists("geckodriver.log"):
         os.remove("geckodriver.log")
+
+
+@pytest.fixture
+def quality_min_words(min_words_criterion, min_words_rules):
+    quality = Quality.objects.get(
+        quality_type__type="global", quality_use_type__type="validation"
+    )
+    min_words_rules.min_words = 3
+    min_words_rules.save()
+    UsesCriterion.objects.create(
+        quality=quality,
+        name="min_words",
+        version=min_words_criterion.version,
+        rules=min_words_rules.pk,
+        weight=1,
+    )

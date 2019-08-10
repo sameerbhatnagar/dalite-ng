@@ -376,6 +376,11 @@ CELERY_BROKER_TRANSPORT_OPTIONS = {
     "interval_step": 0.4,
     "interval_max": 2,
 }
+CELERY_RESULT_BACKEND = "redis://localhost:6379/0"
+CELERY_RESULT_SERIALIZER = "json"
+CELERY_TASK_SERIALIZER = "json"
+CELERY_ACKS_LATE = True
+CELERYD_PREFETCH_MULTIPLIER = 1
 
 # CSP
 CSP_DEFAULT_SRC = ["'self'", "*.mydalite.org"]
@@ -422,7 +427,6 @@ REFERRER_POLICY = "no-referrer, strict-origin-when-cross-origin"
 
 # External framing
 FRAMING_ALLOWED_FROM = ["*"]
-
 
 # Functional tests that scrape web console logs currently require chromedriver
 TESTING_BROWSER = "chrome"

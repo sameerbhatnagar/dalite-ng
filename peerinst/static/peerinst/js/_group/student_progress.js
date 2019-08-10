@@ -23,6 +23,7 @@ function initModel(data) {
       nCompleted: question.n_completed,
       nFirstCorrect: question.n_first_correct,
       nCorrect: question.n_correct,
+      timeSpent: question.time_spent,
     })),
   };
   progressView();
@@ -89,7 +90,11 @@ function questionView(question) {
   const nStudents = document.createElement("span");
   nStudents.classList.add("mdc-list-item__secondary-text");
   nStudents.textContent = question.nStudents + " students";
+  const timeSpent = document.createElement("span");
+  timeSpent.classList.add("mdc-list-item__secondary-text");
+  timeSpent.textContent = question.timeSpent + " seconds";
   title.append(nStudents);
+  title.append(timeSpent);
   li.append(title);
 
   const progress = document.createElement("span");

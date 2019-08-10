@@ -9,6 +9,7 @@ __all__ = [
     "assignment",
     "assignment",
     "assignments",
+    "category",
     "collection",
     "collections",
     "discipline",
@@ -54,7 +55,14 @@ from .assignment import (
 from .collection import collection, collections
 from .forums import forum, thread, threads
 from .group import group
-from .question import add_answers, discipline, disciplines, question, questions
+from .question import (
+    add_answers,
+    category,
+    discipline,
+    disciplines,
+    question,
+    questions,
+)
 from .student import (
     add_to_group,
     student,

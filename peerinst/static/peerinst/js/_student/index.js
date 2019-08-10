@@ -1,4 +1,3 @@
-// @flow
 import { buildReq } from "../ajax.js";
 import { clear } from "../utils.js";
 
@@ -255,7 +254,7 @@ export function joinGroup() {
 /* view */
 /********/
 
-function view(groupStudentId: string) {
+function view(groupStudentId) {
   identityView();
   groupsView(groupStudentId);
   joinGroupView();
@@ -819,7 +818,7 @@ function timeuntil(date1, date2) {
 /* init */
 /********/
 
-export function initStudentPage(data, groupStudentId: string = "") {
+export function initStudentPage(data, groupStudentId = "") {
   initModel(data);
   view(groupStudentId);
   initListeners();

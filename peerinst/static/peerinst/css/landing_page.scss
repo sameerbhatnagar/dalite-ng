@@ -23,7 +23,12 @@ header {
   margin-top: 10px;
 }
 .site-content {
-  margin-bottom: 80pt;
+  // margin-bottom: 80pt;
+  padding: 0;
+
+  & main {
+    margin-bottom: 80pt;
+  }
 }
 .blurb {
   margin-bottom: 40pt;
