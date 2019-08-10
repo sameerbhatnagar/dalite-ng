@@ -1,18 +1,15 @@
 import os
-import pytest
 import time
-
-from django.conf import settings
 from functools import partial
+
+import pytest
+from django.conf import settings
 from selenium import webdriver
 from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.remote.webelement import WebElement
 
 from peerinst.tests.fixtures import *  # noqa
 from quality.tests.fixtures import *  # noqa
-
-from quality.models import Quality, UsesCriterion
-
 
 MAX_WAIT = 30
 try:
@@ -134,19 +131,3 @@ def browser(live_server):
     driver.close()
     if os.path.exists("geckodriver.log"):
         os.remove("geckodriver.log")
-
-
-@pytest.fixture
-def quality_min_words(min_words_criterion, min_words_rules):
-    quality = Quality.objects.get(
-        quality_type__type="global", quality_use_type__type="validation"
-    )
-    min_words_rules.min_words = 3
-    min_words_rules.save()
-    UsesCriterion.objects.create(
-        quality=quality,
-        name="min_words",
-        version=min_words_criterion.version,
-        rules=min_words_rules.pk,
-        weight=1,
-    )
