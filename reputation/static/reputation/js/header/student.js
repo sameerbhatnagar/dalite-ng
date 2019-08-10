@@ -4,7 +4,6 @@ import { buildReq } from "../../../../../peerinst/static/peerinst/js/ajax.js";
 import {
   clear,
   createSvg,
-  svgLink,
 } from "../../../../../peerinst/static/peerinst/js/utils.js";
 import * as d3 from "d3";
 import { ReputationHeader } from "./header.js";
@@ -133,6 +132,7 @@ class StudentReputationHeader extends ReputationHeader {
       clear(list);
 
       model.reputations.forEach(reputation => {
+        // $FlowFixMe
         reputationView(list, reputation);
       });
 
@@ -146,52 +146,39 @@ class StudentReputationHeader extends ReputationHeader {
       name.title = reputation.description;
       list.appendChild(name);
 
-      list.appendChild(
-        progressView(
-          reputation.name,
-          reputation.reputation,
-          reputation.badgeThresholds,
-          reputation.badgeColour,
-        ),
-      );
+      list.appendChild(progressView(reputation));
     }
 
-    function progressView(
-      name: string,
-      reputation: number,
-      badgeThresholds: Array<number>,
-      badgeColour: string,
-    ): HTMLElement {
+    function progressView(reputation: Reputation): HTMLElement {
       const container = document.createElement("div");
       container.classList.add("badge");
 
-      const scale = 2;
-      const height = 8;
+      const width = Math.max(...reputation.badgeThresholds);
 
       const svg = d3
         .select(container)
         .append("svg")
-        .attr("viewBox", `0 0 ${100 * scale} ${20 * scale}`)
+        .attr("viewBox", "0 0 200 40")
         .append("g");
 
       svg
         .append("text")
-        .attr("data-val", reputation)
+        .attr("data-val", reputation.reputation)
         .attr("dominant-baseline", "central")
-        .attr("x", 5 * scale)
-        .attr("y", 10 * scale)
+        .attr("x", 10)
+        .attr("y", 20)
         .attr("class", "fill-primary badge__reputation")
-        .attr("font-size", 8 * scale)
+        .attr("font-size", 16)
         .text(0);
 
       svg
         .append("rect")
-        .attr("x", 20 * scale)
-        .attr("y", ((20 - height) / 2) * scale)
-        .attr("height", height * scale)
-        .attr("width", 75 * scale)
-        .attr("rx", (height / 2) * scale)
-        .attr("ry", (height / 2) * scale)
+        .attr("x", 40)
+        .attr("y", 12)
+        .attr("height", 16)
+        .attr("width", 150)
+        .attr("rx", 8)
+        .attr("ry", 8)
         .attr("stroke", "var(--reputation-colour)")
         .attr("stroke-width", 1)
         .attr("fill", "none");
@@ -199,92 +186,77 @@ class StudentReputationHeader extends ReputationHeader {
       svg
         .append("rect")
         .attr("class", "badge__bar")
-        .attr("x", 20 * scale)
-        .attr("y", ((20 - height) / 2) * scale)
-        .attr("height", height * scale)
-        .attr("width", Math.min((75 * reputation) / 100, height / 2) * scale)
-        .attr("rx", (height / 2) * scale)
-        .attr("ry", (height / 2) * scale)
+        .attr("x", 40)
+        .attr(
+          "y",
+          12 +
+            Math.max(
+              0,
+              8 - Math.sqrt(16 * ((150 * reputation.reputation) / width)) / 2,
+            ),
+        )
+        .attr(
+          "height",
+          Math.min(
+            Math.sqrt(16 * ((150 * reputation.reputation) / width)),
+            16,
+          ),
+        )
+        .attr("rx", 8)
+        .attr("ry", 8)
         .attr("stroke", "var(--reputation-colour)")
         .attr("stroke-width", 1)
         .attr("fill", "var(--reputation-colour)");
 
-      badgeThresholds.forEach(threshold => {
-        const badge = svg
-          .append("g")
-          .attr("height", height * scale)
-          .attr("width", height * scale)
-          .attr("fill", badgeColour)
-          .attr("fill-opacity", reputation < threshold ? 0.5 : 1);
-        badge.append("use").attr("xlink:href", svgLink("donut_small", false));
+      reputation.badgeThresholds.forEach(threshold => {
+        const badge = svg.append("g");
+        badge
+          .append("path")
+          .attr(
+            "d",
+            "M11 9.16V2c-5 .5-9 4.79-9 10s4 9.5 9 " +
+              "10v-7.16c-1-.41-2-1.52-2-2.84s1-2.43 " +
+              "2-2.84zM14.86 11H22c-.48-4.75-4-8.53-9-9v7.16c1 " +
+              ".3 1.52.98 1.86 1.84zM13 14.84V22c5-.47 8.52-4.25 " +
+              "9-9h-7.14c-.34.86-.86 1.54-1.86 1.84z",
+          )
+          .attr("height", 10)
+          .attr("width", 10)
+          .attr("fill", reputation.badgeColour)
+          .attr("fill-opacity", reputation.reputation < threshold ? 0.5 : 1)
+          .attr(
+            "transform",
+            "translate(" +
+              `${Math.min(
+                172.5,
+                Math.max(38.5, 30 + (150 * threshold) / width),
+              )}, ` +
+              `${10.65}` +
+              ")" +
+              ` scale(${19.5 / 25})`,
+          );
 
-        if (reputation < threshold) {
+        if (reputation.reputation < threshold) {
           badge.append("title").text(`Next badge at ${threshold}`);
         } else {
           badge.append("title").text(`Obtained at ${threshold}`);
         }
       });
 
-      // const badgeArc = d3
-      // .arc()
-      // .innerRadius(((height * 5) / 32) * scale)
-      // .outerRadius((height / 2) * scale)
-      // .padAngle(0.9)
-      // .padRadius((height / 8) * scale);
-      // const badgeArcs = d3.pie()([2, 1, 1]);
-      //
-      // badgeThresholds.forEach(threshold => {
-      // const badge = svg
-      // .append("g")
-      // .attr(
-      // "transform",
-      // "translate(" +
-      // `${(20 + (threshold * 75) / 100 - height / 2) * scale}, ` +
-      // `${10 * scale}` +
-      // ")" +
-      // " rotate(180)",
-      // );
-      //
-      // if (reputation < threshold) {
-      // badge.append("title").text(`Next badge at ${threshold}`);
-      // } else {
-      // badge.append("title").text(`Obtained at ${threshold}`);
-      // }
-      //
-      // badge
-      // .append("circle")
-      // .attr("cx", 0)
-      // .attr("cy", 0)
-      // .attr("r", (height / 2) * scale)
-      // .attr("fill", "#ffffff");
-      //
-      // badge
-      // .selectAll("arc")
-      // .data(badgeArcs)
-      // .enter()
-      // .append("g")
-      // .attr("class", "arc")
-      // .append("path")
-      // .attr("d", badgeArc)
-      // .attr("fill", badgeColour)
-      // .attr("fill-opacity", reputation < threshold ? 0.5 : 1);
-      // });
-
       return container;
     }
 
     function toggleReputationView() {
       const duration = 500;
-      const scale = 2;
-      const height = 8;
 
       const counts = model.shadow.querySelectorAll(".badge__reputation");
       const bars = model.shadow.querySelectorAll(".badge__bar");
 
       for (let i = 0; i < model.reputations.length; i++) {
-        const reputation = model.reputations[i].reputation;
+        const reputation = model.reputations[i];
         const count = d3.select(counts[i]);
         const bar = d3.select(bars[i]);
+        const width = Math.max(...reputation.badgeThresholds);
         if (model.element.open) {
           count
             .transition()
@@ -293,7 +265,7 @@ class StudentReputationHeader extends ReputationHeader {
             .tween("text", function() {
               const interpolate = d3.interpolate(
                 this.textContent, // eslint-disable-line
-                reputation,
+                reputation.reputation,
               );
               return function(t) {
                 this.textContent = Math.round(interpolate(t)); // eslint-disable-line
@@ -303,7 +275,10 @@ class StudentReputationHeader extends ReputationHeader {
             .transition()
             .duration(duration)
             .ease(d3.easeCubicInOut)
-            .attr("width", (75 * scale * reputation) / 100);
+            .attr(
+              "width",
+              Math.min((150 * reputation.reputation) / width, 150),
+            );
         } else {
           count
             .transition()
@@ -319,10 +294,7 @@ class StudentReputationHeader extends ReputationHeader {
             .transition()
             .duration(duration)
             .ease(d3.easeCubicInOut)
-            .attr(
-              "width",
-              Math.min((75 * reputation) / 100, height / 2) * scale,
-            );
+            .attr("width", 0);
         }
       }
     }

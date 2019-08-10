@@ -324,7 +324,7 @@ function watch() {
     .replace("\n", "");
   browserSync.init({
     port: 8001,
-    proxy: "https://localhost:8000",
+    proxy: "https://127.0.0.1:8000",
     notify: false,
     open: false,
     https: {

@@ -49,6 +49,8 @@ def student_reputation(req):
         student.save()
 
     reputation, reputations = student.reputation.evaluate()
+    for r in reputations:
+        r["reputation"] = 1
 
     data = {"reputation": reputation, "reputations": reputations}
     return JsonResponse(data, status=200)

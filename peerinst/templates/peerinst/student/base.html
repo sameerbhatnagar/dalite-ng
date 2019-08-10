@@ -14,6 +14,15 @@
 <script src="{% static 'peerinst/js/student.min.js' %}"></script>
 <script src="{% static 'reputation/js/header/student.min.js' %}"></script>
 {% endcompress %}
+{% if not request.session.LTI %}
+<script nonce="{{ request.csp_nonce }}">
+  window.addEventListener("load", function() {
+    student.initStudentHeader(
+      "{% url 'student-get-notifications' %}"
+    )
+  });
+</script>
+{% endif %}
 {% endblock %}
 
 {% block logged_in_layout_class %}
