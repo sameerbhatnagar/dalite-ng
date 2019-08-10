@@ -48,12 +48,12 @@
   {% endif %}
   <ul class="mdc-list">
     {% for sample in expert_rationales|dictsort:'first_answer_choice' %}
-        <li>
-          <a href="{% url 'research-rationale-update-expert' pk=sample.id %}">
-          <i class="material-icons md-24 mdc-ripple-surface icon-list">check_circle_outline</i>
-          </a>
-          <span class='mdc-theme--primary bold'>{{ sample.first_answer_choice_label }}</span>: {{ sample.rationale|safe|striptags }}.
-        </li>
+      <li>
+        <a href="{% url 'research-rationale-update-expert' pk=sample.id %}">
+        <i class="material-icons md-24 mdc-ripple-surface icon-list">check_circle_outline</i>
+        </a>
+        <span class='mdc-theme--primary bold'>{{ sample.first_answer_choice_label }}</span>: {{ sample.rationale|safe|striptags }}.
+      </li>
     {% endfor %}
   </ul>
 {% endif %}
@@ -102,7 +102,7 @@ $('#submit-answer-form').remove();
 
 <script nonce="{{ request.csp_nonce }}">
 window.addEventListener("load", function() {
-  var clearButton = document.getElementById("clear_message");
+  const clearButton = document.getElementById("clear_message");
   if (clearButton) {
     clearButton.addEventListener("click", function() {
       $(this).parent().remove();
