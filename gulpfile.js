@@ -315,16 +315,15 @@ function icons() {
     .pipe(gulp.dest("./peerinst/static/peerinst/"));
 }
 
-async function watch() {
+function watch() {
   const dir = execSync(
     "echo $(dirname $(which python))" +
       "/../lib/python2.7/site-packages/sslserver/certs",
   )
     .toString()
     .replace("\n", "");
-  console.log(dir);
   browserSync.init({
-    port: 8000,
+    port: 8001,
     proxy: "https://localhost:8000",
     notify: false,
     open: false,
