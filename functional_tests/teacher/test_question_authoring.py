@@ -147,10 +147,10 @@ def create_discipline():
 
 
 def create_PI_question(
-    browser, assert_, category, discipline, quality_criterion
+    browser, assert_, category, discipline, quality_criterion, assignment
 ):
-    # Teacher can create a question
-    # -----------------------------
+    # Teacher can create a PI question
+    # --------------------------------
     browser.find_element_by_id("question-section").click()
     browser.find_element_by_link_text("Create new").click()
 
@@ -159,9 +159,12 @@ def create_PI_question(
     assert "Question" in browser.find_element_by_tag_name("h1").text
     assert "Step 1" in browser.find_element_by_tag_name("h2").text
 
+    # Title
+    title = fake.sentence(nb_words=4)
     inputbox = browser.find_element_by_id("id_title")
-    inputbox.send_keys(fake.sentence(nb_words=4))
+    inputbox.send_keys(title)
 
+    # Text
     tinymce_embed = browser.find_element_by_tag_name("iframe")
     browser.switch_to.frame(tinymce_embed)
     ifrinputbox = browser.find_element_by_id("tinymce")
@@ -170,8 +173,10 @@ def create_PI_question(
     )
     browser.switch_to.default_content()
 
+    # Discipline
     Select(browser.find_element_by_id("id_discipline")).select_by_value("1")
 
+    # Category
     input_category = browser.find_element_by_id("autofill_categories")
     input_category.send_keys(category.title)
     time.sleep(1)
@@ -254,7 +259,7 @@ def create_PI_question(
         "of the correct answer choices above" in browser.page_source
     )
 
-    # Enter another one for A
+    # Enter another for A
     # FIXME: Why is sleep required here to avoid a stale element error?
     time.sleep(1)
     browser.find_element_by_id("id_first_answer_choice_0").click()
@@ -462,23 +467,26 @@ def create_PI_question(
     browser.find_element_by_id("clear_message").click()
     assert "Sample answer saved" not in browser.page_source
 
-    done = browser.find_element_by_id("done").click()
-
-    assert "My Account" in browser.find_elements_by_tag_name("h1")[0].text
-
-    # Check for minimum requirements
-
     # Use auto add feature
-    # browser.find_element_by_id("add_question_to_assignment").submit()
-    #
-    # browser.wait_for(
-    #     lambda: assert_(
-    #    "My Account" in browser.find_element_by_tag_name("h2").text)
-    # )
-    #
-    # assert "Test title" in browser.page_source
+    Select(browser.find_element_by_id("id_assignments")).select_by_value(
+        assignment.identifier
+    )
 
     # Save
+    done = browser.find_element_by_id("done").click()
+    assert "My Account" in browser.find_elements_by_tag_name("h1")[0].text
+
+    # New question in their list of questions
+    browser.find_element_by_id("question-section").click()
+    browser.wait_for(assert_(lambda: title in browser.page_source))
+
+    # Check for question in assignment
+    browser.find_element_by_id("assignment-section").click()
+    browser.find_element_by_link_text(assignment.identifier).click()
+
+    assert assignment.title in browser.find_elements_by_tag_name("h1")[0].text
+
+    time.sleep(10)
 
 
 def edit_PI_question():
@@ -490,12 +498,20 @@ def edit_PI_question():
 
 
 def test_create_PI_question(
-    browser, assert_, category, discipline, teacher, quality_min_words
+    browser,
+    assert_,
+    category,
+    discipline,
+    teacher,
+    quality_min_words,
+    assignment,
 ):
+    teacher.assignments.add(assignment)
+    assignment.owner.add(teacher.user)
     login(browser, teacher)
     go_to_account(browser)
     create_PI_question(
-        browser, assert_, category, discipline, quality_min_words
+        browser, assert_, category, discipline, quality_min_words, assignment
     )
     edit_PI_question()
     logout(browser, assert_)
