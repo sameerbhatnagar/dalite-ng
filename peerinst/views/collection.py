@@ -130,8 +130,7 @@ class CollectionDeleteView(LoginRequiredMixin, NoStudentsMixin, DeleteView):
         return super(CollectionCreateView, self).form_valid(form)
 
     def get_success_url(self):
-        teacher = get_object_or_404(Teacher, user=self.request.user)
-        return reverse("teacher", kwargs={"pk": teacher.pk})
+        return reverse("collection-list")
 
 
 class CollectionListView(LoginRequiredMixin, NoStudentsMixin, ListView):

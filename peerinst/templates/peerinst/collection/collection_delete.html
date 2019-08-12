@@ -18,7 +18,7 @@
             </small></p>
             <p><small>
               {% blocktrans %}
-              You will be unable to retrieve any information regarding this collection. 
+              You will be unable to retrieve any information regarding this collection.
               {% endblocktrans %}
             </small></p>
           </div>
@@ -28,7 +28,7 @@
         <form id="collection-delete-form" method="post">
             {% csrf_token %}
 
-      <input class="mdc-button mdc-button--raised padded-top" type="submit" value="Confirm" />
+      <input class="mdc-button mdc-button--raised padded-top" id="id_delete" type="submit" value="Confirm" />
 
 </form>
 
