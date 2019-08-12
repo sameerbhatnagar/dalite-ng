@@ -19,7 +19,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_http_methods
 from django.views.generic.edit import UpdateView
 
-from ..mixins import student_check
+from ..mixins import student_check, LoginRequiredMixin, NoStudentsMixin
 from ..models import (
     Answer,
     AnswerAnnotation,
@@ -374,7 +374,7 @@ def flag_question_form(
     return render(request, template, context)
 
 
-class AnswerExpertUpdateView(UpdateView):
+class AnswerExpertUpdateView(LoginRequiredMixin, NoStudentsMixin, UpdateView):
     model = Answer
     fields = ["expert"]
     template_name = "peerinst/research/answer-expert-update.html"
@@ -383,6 +383,7 @@ class AnswerExpertUpdateView(UpdateView):
         context = super(AnswerExpertUpdateView, self).get_context_data(
             **kwargs
         )
+        context["teacher"] = self.request.user.teacher
         context["question"] = Question.objects.get(pk=self.object.question_id)
         return context
 

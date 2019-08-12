@@ -523,7 +523,7 @@ class TeacherTest(TestCase):
             reverse("sample-answer-form", kwargs={"question_id": 29}),
             {
                 "first_answer_choice": 1,
-                "rationale": "Test sample rationale",
+                "rationale": "Test sample rationale 1",
                 "datetime_start": datetime.now(pytz.utc).strftime(
                     "%Y-%m-%d %H:%M:%S.%f"
                 ),
@@ -531,8 +531,52 @@ class TeacherTest(TestCase):
             follow=True,
         )
         self.assertEqual(response.status_code, 200)
+        response = self.client.post(
+            reverse("sample-answer-form", kwargs={"question_id": 29}),
+            {
+                "first_answer_choice": 2,
+                "rationale": "Test sample rationale 2",
+                "datetime_start": datetime.now(pytz.utc).strftime(
+                    "%Y-%m-%d %H:%M:%S.%f"
+                ),
+            },
+            follow=True,
+        )
+        response = self.client.post(
+            reverse("sample-answer-form", kwargs={"question_id": 29}),
+            {
+                "first_answer_choice": 3,
+                "rationale": "Test sample rationale 3",
+                "datetime_start": datetime.now(pytz.utc).strftime(
+                    "%Y-%m-%d %H:%M:%S.%f"
+                ),
+            },
+            follow=True,
+        )
+        response = self.client.post(
+            reverse("sample-answer-form", kwargs={"question_id": 29}),
+            {
+                "first_answer_choice": 4,
+                "rationale": "Test sample rationale 4",
+                "datetime_start": datetime.now(pytz.utc).strftime(
+                    "%Y-%m-%d %H:%M:%S.%f"
+                ),
+            },
+            follow=True,
+        )
+        response = self.client.post(
+            reverse("sample-answer-form", kwargs={"question_id": 29}),
+            {
+                "first_answer_choice": 5,
+                "rationale": "Test sample rationale 5",
+                "datetime_start": datetime.now(pytz.utc).strftime(
+                    "%Y-%m-%d %H:%M:%S.%f"
+                ),
+            },
+            follow=True,
+        )
         self.assertEqual(
-            answer_count + 1,
+            answer_count + 5,
             Question.objects.get(pk=29)
             .answer_set.filter(user_token__exact="")
             .count(),
@@ -547,8 +591,9 @@ class TeacherTest(TestCase):
         )
         self.assertTrue(logged_in)
 
+        # Check that form is there if allowed
         response = self.client.get(
-            reverse("sample-answer-form", kwargs={"question_id": 31})
+            reverse("sample-answer-form", kwargs={"question_id": 29})
         )
         self.assertContains(response, 'id="add_question_to_assignment"')
 

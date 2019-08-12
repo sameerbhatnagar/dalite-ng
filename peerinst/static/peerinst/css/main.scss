@@ -346,7 +346,7 @@ ul li.error {
   display: block;
   font-size: 15px;
   line-height: 1.41575em;
-  margin: 0 0 20px;
+  margin: 10px 0px 20px 0px;
   padding: 20px;
 }
 li.error h3 {
@@ -385,7 +385,9 @@ input[type="submit"].thumbs-button {
   height: 100px;
   width: 50%;
 }
-
+.italic {
+  font-style: italic;
+}
 .message-box {
   background-color: rgba(0, 66, 102, 0.05);
   border-bottom: solid 3px $mdc-theme-secondary;
@@ -547,6 +549,7 @@ input[type="submit"].thumbs-button {
 }
 .check {
   color: $mdc-theme-primary;
+  transform: translateY(-2px);
 }
 #timer-bg {
   fill: $mdc-theme-primary;
