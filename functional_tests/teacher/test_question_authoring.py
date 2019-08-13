@@ -10,8 +10,14 @@ from .utils import go_to_account, login, logout
 fake = Faker()
 
 
-def create_category():
-    pass
+def create_category(browser, assert_):
+    # Teacher can create a question
+    # -----------------------------
+    browser.find_element_by_id("question-section").click()
+    browser.find_element_by_link_text("Create new").click()
+
+    browser.find_element_by_id("show_category_form").click()
+    browser.find_element_by_id("category_create_form").click()
 
 
 def create_discipline():
@@ -149,8 +155,8 @@ def create_discipline():
 def create_PI_question(
     browser, assert_, category, discipline, quality_criterion, assignment
 ):
-    # Teacher can create a PI question
-    # --------------------------------
+    # Teacher can create a question
+    # -----------------------------
     browser.find_element_by_id("question-section").click()
     browser.find_element_by_link_text("Create new").click()
 
@@ -495,6 +501,13 @@ def edit_PI_question():
     # Access question edit prior to student answers existing
 
     # Access question edit post student answers existing
+
+
+def test_create_category(browser, assert_, teacher):
+    login(browser, teacher)
+    go_to_account(browser)
+    create_category(browser, assert_)
+    logout(browser, assert_)
 
 
 def test_create_PI_question(

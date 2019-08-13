@@ -865,6 +865,8 @@ def category_select_form(request, pk=None):
     else:
         form = forms.CategorySelectForm()
 
+    print(form)
+
     return TemplateResponse(
         request, "peerinst/category_select_form.html", context={"form": form}
     )

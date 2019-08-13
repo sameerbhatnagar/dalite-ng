@@ -95,9 +95,19 @@ export { getCsrfToken } from "./ajax.js";
  * @function
  * @param {String} idToBind
  * @param {String} formToReplace
- * @param {String} url
+ * @param {String} createUrl
+ * @param {String} formUrl
+ * @param {Function} init
+ * @param {String} searchUrl
  */
-export function bindAjaxTextInputForm(idToBind, formToReplace, url) {
+export function bindAjaxTextInputForm(
+  idToBind,
+  formToReplace,
+  createUrl,
+  formUrl,
+  init,
+  searchUrl,
+) {
   const d = document.getElementById(idToBind);
   if (d) {
     d.onclick = function() {
@@ -109,10 +119,201 @@ export function bindAjaxTextInputForm(idToBind, formToReplace, url) {
         bundle.autoInit();
         const input = this.querySelector(".mdc-text-field__input");
         input.focus();
+        init(idToBind, formToReplace, createUrl, formUrl, init, searchUrl);
       }
-      $("#" + formToReplace).load(url, callback);
+      $("#" + formToReplace).load(createUrl, callback);
     };
   }
+}
+
+/** Callback for category creation
+ * @function
+ * @param {String} idToBind
+ * @param {String} formToReplace
+ * @param {String} createUrl
+ * @param {String} formUrl
+ * @param {Function} init
+ * @param {String} searchUrl
+ */
+export function categoryForm(
+  idToBind,
+  formToReplace,
+  createUrl,
+  formUrl,
+  init,
+  searchUrl,
+) {
+  // Handle clear
+  $("#clear_category_form").click(function() {
+    $("#category_form").load(formUrl, function() {
+      bundle.bindAjaxTextInputForm(
+        idToBind,
+        formToReplace,
+        createUrl,
+        formUrl,
+        init,
+        searchUrl,
+      );
+      bundle.bindCategoryAutofill(searchUrl);
+      bundle.autoInit();
+    });
+  });
+
+  // Setup ajax call and attach a submit handler to the form
+  $.ajaxSetup({
+    beforeSend: function(xhr, settings) {
+      if (!bundle.csrfSafeMethod(settings.type) && !this.crossDomain) {
+        xhr.setRequestHeader("X-CSRFToken", bundle.getCsrfToken());
+      }
+    },
+  });
+
+  $("#submit_category_form").click(
+    /** The callback
+     * @function
+     * @param {Object} event
+     * @this Callback
+     */
+    function() {
+      const title = $("#category_form")
+        .find("input[name='title']")
+        .val();
+
+      // Send the data using post
+      const posting = $.post(createUrl, { title: title });
+
+      // Put the results in a div
+      posting.success(function(data) {
+        console.log(data);
+        $("#category_form")
+          .empty()
+          .append(data);
+        bundle.bindAjaxTextInputForm(
+          idToBind,
+          formToReplace,
+          createUrl,
+          formUrl,
+          init,
+          searchUrl,
+        );
+        bundle.bindCategoryAutofill(searchUrl);
+        bundle.autoInit();
+        $("#autofill_categories")
+          .val(title)
+          .focus()
+          .autocomplete("search");
+      });
+    },
+  );
+}
+
+/** Callback for category autofill
+ * @function
+ * @param {String} source
+ */
+export function bindCategoryAutofill(source) {
+  function updateSelect(el, formId) {
+    el.remove();
+    $(formId)
+      .find("[value=" + $(el).attr("v") + "]")
+      .remove();
+  }
+
+  // Generators for autocomplete
+  const response = function(searchClass, spinnerId) {
+    return function(event, ui) {
+      // NB: Pass by reference.  ui can be modified, but not recreated.
+      const currentList = $.map($(searchClass), function(obj, i) {
+        return $(obj).attr("d");
+      });
+
+      const tmp = ui.content.filter(function(el) {
+        return !currentList.includes(el.label);
+      });
+
+      let l = ui.content.length;
+      while (l > 0) {
+        ui.content.pop();
+        l = ui.content.length;
+      }
+
+      for (let i = 0; i < tmp.length; i++) {
+        ui.content.push(tmp[i]);
+      }
+
+      if (ui.content.length == 0) {
+        // Could add hint that there are no results
+      }
+
+      $(spinnerId).css("opacity", 0);
+      return;
+    };
+  };
+
+  const search = function(spinnerId) {
+    return function(event, ui) {
+      $(spinnerId).css("opacity", 1);
+    };
+  };
+
+  const focus = function(event, ui) {
+    event.preventDefault();
+    $(this).val(ui.item.label); // eslint-disable-line no-invalid-this
+  };
+
+  const select = function(currentIds, className, formId) {
+    return function(event, ui) {
+      event.preventDefault();
+      $(this).val(""); // eslint-disable-line no-invalid-this
+
+      const newDiv = document.createElement("div");
+      newDiv.setAttribute("d", ui.item.label);
+      newDiv.setAttribute("v", ui.item.value);
+      newDiv.setAttribute("tabindex", "0");
+      newDiv.setAttribute("data-mdc-auto-init", "MDCChip");
+      newDiv.classList.add("mdc-chip", "mdc-typography--caption", className);
+      newDiv.addEventListener("click", function() {
+        updateSelect(this, formId); // eslint-disable-line no-invalid-this
+      });
+      const text = document.createElement("div");
+      text.classList.add("mdc-chip__text");
+      text.textContent = ui.item.label;
+      newDiv.appendChild(text);
+      const icon = document.createElement("i");
+      icon.classList.add(
+        "material-icons",
+        "mdc-chip__icon",
+        "mdc-chip__icon--trailing",
+      );
+      icon.setAttribute("tabindex", "0");
+      icon.setAttribute("role", "button");
+      icon.textContent = "cancel";
+      newDiv.appendChild(icon);
+      document.getElementById(currentIds).appendChild(newDiv);
+
+      $(formId).append(
+        "<option selected='selected' value=" +
+          ui.item.value +
+          ">" +
+          ui.item.label +
+          "</option>",
+      );
+    };
+  };
+
+  $("#autofill_categories").autocomplete({
+    delay: 300,
+    minLength: 2,
+    classes: {
+      "ui-autocomplete": "mdc-typography--body1",
+    },
+    source: source,
+    response: response(".category", "#search_categories"),
+    search: search("#search_categories"),
+    focus: focus,
+    select: select("current_categories", "category", "#id_category"),
+    autoFocus: true,
+  });
 }
 
 // Custom functions

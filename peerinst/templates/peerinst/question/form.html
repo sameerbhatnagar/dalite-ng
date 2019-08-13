@@ -455,8 +455,18 @@
   'use strict';
   bundle.bindCheckbox();
   bundle.bindAjaxTextInputForm('show_discipline_form', 'discipline_form', "{% url 'discipline-create' %}");
-  bundle.bindAjaxTextInputForm('show_category_form', 'category_form', "{% url 'category-create' %}");
+  bundle.bindAjaxTextInputForm('show_category_form', 'category_form', "{% url 'category-create' %}", "{% url 'category-form' %}", bundle.categoryForm, "{% url 'search-categories' %}");
 
+
+  // Enumerate form
+  function enumerate(){
+    $('.number-box:visible').each(function(i) {
+      $(this).children('.number')[0].innerHTML = i+1;
+    });
+  }
+
+
+  // Update form is question type changes
   function updateForm(){
     if ($('#id_type').val() == "RO") {
       $('.peerinst').toggle(false);
@@ -479,6 +489,8 @@
 
   updateForm();
 
+
+  // Set file size limit
   function limitFileSize() {
     var imageForm = document.getElementById('id_image');
     var warning = document.getElementById('warning');
@@ -504,11 +516,6 @@
 
   limitFileSize();
 
-  function enumerate(){
-    $('.number-box:visible').each(function(i) {
-      $(this).children('.number')[0].innerHTML = i+1;
-    });
-  }
 
   // Generators for autocomplete
   const response = function(searchClass, spinnerId) {
@@ -601,22 +608,7 @@
     autoFocus: true,
   });
 
-  function bindCategoryAutofill() {
-    $('#autofill_categories').autocomplete({
-      delay: 300,
-      minLength: 2,
-      classes: {
-        "ui-autocomplete" : "mdc-typography--body1"
-      },
-      source: "{% url 'search-categories' %}",
-      response: response('.category', '#search_categories'),
-      search: search('#search_categories'),
-      focus: focus,
-      select: select('current_categories', 'category', '#id_category'),
-      autoFocus: true,
-    });
-  }
-  bindCategoryAutofill();
+  bundle.bindCategoryAutofill("{% url 'search-categories' %}");
 
   // TinyMCE bind to textarea
   $('#id_text').removeAttr('required');
