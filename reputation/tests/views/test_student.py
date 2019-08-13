@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 import json
 
+from peerinst.models import Student
 from peerinst.tests.fixtures import *  # noqa
 from reputation.tests.fixtures import *  # noqa
 from reputation.views.student import (
@@ -57,16 +58,17 @@ def test_student_reputation__missing_params(rf, student_reputation, student):
 
 
 def test_student_reputation__wrong_id(rf, student_reputation, student):
-    data = {"id": 2}
+    data = {"id": student.pk}
     req = rf.post("/test", json.dumps(data), content_type="application/json")
     req.user = student.student
+    Student.objects.get(pk=student.pk).delete()
 
     resp = student_reputation_view(req)
 
     reputation, details = student_reputation.evaluate()
 
-    assert resp.status_code == 403
-    assert resp.template_name == "403.html"
+    assert resp.status_code == 400
+    assert resp.template_name == "400.html"
 
 
 def test_student_reputation__other_student(rf, student_reputation, students):

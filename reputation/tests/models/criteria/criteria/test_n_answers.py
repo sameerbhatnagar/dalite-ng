@@ -21,10 +21,17 @@ def test_dict(n_answers_criterion):
     assert "description" in data
 
 
-def test_evaluate(n_answers_criterion, question, answers):
+def test_evaluate__question(n_answers_criterion, question, answers):
     assert n_answers_criterion.evaluate(question)[0] == len(
         [a for a in answers if a.question == question]
     )
+
+
+def test_evaluate__student(n_answers_criterion, student, answers):
+    for answer in answers:
+        answer.user_token = student.student.username
+        answer.save()
+    assert n_answers_criterion.evaluate(student)[0] == len(answers)
 
 
 def test_evaluate__wrong_model_type(n_answers_criterion, teacher):

@@ -8,6 +8,7 @@ from django.db import models
 from mixer.backend.django import mixer
 
 from reputation.models import Criterion
+from reputation.models.criteria.criterion import validate_list_floats_greater_0
 
 
 @pytest.mark.filterwarnings("ignore::RuntimeWarning")
@@ -198,3 +199,20 @@ def test_info__past_thresholds():
             == "A test. The points are awarded as 1 for each between 0 and 5, "
             "and 2 for each over 5."
         )
+
+
+def test_validate_list_floats_greater_0__ok():
+    validate_list_floats_greater_0([1.0])
+    validate_list_floats_greater_0([1])
+    validate_list_floats_greater_0(["1"])
+
+
+def test_validate_list_floats_greater_0__wrong_type():
+    with pytest.raises(ValidationError):
+        validate_list_floats_greater_0(["a"])
+
+
+def test_validate_list_floats_greater_0__smaller_than_0():
+    with pytest.raises(ValidationError):
+        validate_list_floats_greater_0([0])
+        validate_list_floats_greater_0([-1])

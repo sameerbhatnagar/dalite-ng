@@ -34,7 +34,7 @@ def student_reputation(req):
 
     try:
         student = Student.objects.get(pk=student_id)
-    except (Student.DoesNotExist, AttributeError):
+    except Student.DoesNotExist:
         return response_400(
             req,
             msg=_("This student doesn't exist."),
