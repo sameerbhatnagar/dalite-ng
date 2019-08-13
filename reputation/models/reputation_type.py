@@ -30,15 +30,19 @@ class ReputationType(models.Model):
 
         Returns
         -------
-        float
-            Reputation as evaluated by the criterion
+        Dict[str, Any]
+            Reputation as evaluated by the criterion as
+            {
+                reputation: float,
+                details: Dict[str, Any]
+            }
 
         Raises
         ------
         TypeError
             If the given `model` doesn't correspond to the `type`
         """
-        evaluation = criterion.evaluate(model)
+        evaluation, details = criterion.evaluate(model)
 
         if criterion.thresholds:
             points = sum(
@@ -58,7 +62,7 @@ class ReputationType(models.Model):
         else:
             points = float(criterion.points_per_threshold[0]) * evaluation
 
-        return points
+        return {"reputation": points, "details": details}
 
     def evaluate(self, model):
         """
@@ -106,9 +110,7 @@ class ReputationType(models.Model):
         reputations = [
             dict(
                 chain(
-                    {
-                        "reputation": self._calculate_points(criterion, model)
-                    }.items(),
+                    self._calculate_points(criterion, model).items(),
                     criterion.__iter__(),
                 )
             )

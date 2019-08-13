@@ -20,11 +20,14 @@ def test_calculate_points__no_threshold(question_reputation):
 
     criterion = mock.Mock()
     model = mock.Mock()
-    criterion.evaluate.return_value = 50
+    criterion.evaluate.return_value = 50, {}
     criterion.thresholds = []
     criterion.points_per_threshold = ["2"]
 
-    assert reputation_type._calculate_points(criterion, model) == 100
+    assert (
+        reputation_type._calculate_points(criterion, model)["reputation"]
+        == 100
+    )
 
 
 def test_calculate_points__threshold_same__as_points(question_reputation):
@@ -32,13 +35,13 @@ def test_calculate_points__threshold_same__as_points(question_reputation):
 
     criterion = mock.Mock()
     model = mock.Mock()
-    criterion.evaluate.return_value = 50
+    criterion.evaluate.return_value = 50, {}
     criterion.thresholds = ["10", "20", "30", "40"]
     criterion.points_per_threshold = ["4", "3", "2", "1"]
 
-    assert reputation_type._calculate_points(criterion, model) == 10 * (
-        4 + 3 + 2 + 1
-    )
+    assert reputation_type._calculate_points(criterion, model)[
+        "reputation"
+    ] == 10 * (4 + 3 + 2 + 1)
 
 
 def test_calculate_points__threshold_less_than_points(question_reputation):
@@ -46,13 +49,13 @@ def test_calculate_points__threshold_less_than_points(question_reputation):
 
     criterion = mock.Mock()
     model = mock.Mock()
-    criterion.evaluate.return_value = 50
+    criterion.evaluate.return_value = 50, {}
     criterion.thresholds = ["10", "20", "30", "40"]
     criterion.points_per_threshold = ["5", "4", "3", "2", "1"]
 
-    assert reputation_type._calculate_points(criterion, model) == 10 * (
-        5 + 4 + 3 + 2 + 1
-    )
+    assert reputation_type._calculate_points(criterion, model)[
+        "reputation"
+    ] == 10 * (5 + 4 + 3 + 2 + 1)
 
 
 def test_evaluate(question_reputation):
@@ -73,7 +76,7 @@ def test_evaluate(question_reputation):
 
         criterion = mock.MagicMock()
         criterion.__iter__.side_effect = {}.__iter__
-        calculate_points.return_value = 1
+        calculate_points.return_value = {"reputation": 1, "details": {}}
 
         criterion_class.objects.get.return_value = criterion
 

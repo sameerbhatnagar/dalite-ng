@@ -22,7 +22,7 @@ def test_dict(n_answers_criterion):
 
 
 def test_evaluate(n_answers_criterion, question, answers):
-    assert n_answers_criterion.evaluate(question) == len(
+    assert n_answers_criterion.evaluate(question)[0] == len(
         [a for a in answers if a.question == question]
     )
 

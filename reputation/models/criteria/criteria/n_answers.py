@@ -24,6 +24,8 @@ class NAnswersCriterion(Criterion):
         -------
         float
             Reputation as evaluated by the criterion
+        Dict[str, Any]
+            Details about the calculation
 
         Raises
         ------
@@ -32,9 +34,9 @@ class NAnswersCriterion(Criterion):
         """
         super(NAnswersCriterion, self).evaluate(instance)
         if instance.__class__.__name__ == "Question":
-            return instance.answer_set.count()
+            return instance.answer_set.count(), {}
         elif instance.__class__.__name__ == "Student":
-            return instance.answers.count()
+            return instance.answers.count(), {}
         else:
             msg = "`question` has to be of type Question."
             logger.error("TypeError: {}".format(msg))

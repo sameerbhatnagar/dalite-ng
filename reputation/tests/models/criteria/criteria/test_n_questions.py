@@ -22,7 +22,7 @@ def test_dict(n_questions_criterion):
 
 
 def test_evaluate(n_questions_criterion, teacher, questions):
-    assert n_questions_criterion.evaluate(teacher) == len(
+    assert n_questions_criterion.evaluate(teacher)[0] == len(
         [q for q in questions if q.user == teacher.user]
     )
 
