@@ -4,29 +4,36 @@ from __future__ import unicode_literals
 import json
 import logging
 from datetime import datetime
+from itertools import chain
 
 import pytz
+from celery.result import AsyncResult
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.db import models
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse, StreamingHttpResponse
 from django.shortcuts import render
 from django.utils.translation import ugettext_lazy as translate
 from django.views.decorators.http import require_POST, require_safe
 from pinax.forums.models import ForumThread
 
-from dalite.views.errors import response_400
+from dalite.views.errors import response_400, response_403, response_500
 from dalite.views.utils import get_json_params
 
+from ..gradebooks import convert_gradebook_to_csv
 from ..models import (
     QUESTION_TYPES,
     Answer,
     AnswerAnnotation,
     Collection,
     Question,
+    RunningTask,
+    StudentGroup,
+    StudentGroupAssignment,
     StudentGroupMembership,
 )
 from ..rationale_annotation import choose_rationales
+from ..tasks import compute_gradebook_async
 from .decorators import teacher_required
 
 logger = logging.getLogger("peerinst-views")
@@ -63,10 +70,6 @@ def dashboard(req, teacher):
 def student_activity(req, teacher):
     """
     View that returns data on the teacher's student activity.
-
-    Parameters
-    ----------
-    req : HttpRequest
         Request
     teacher : Teacher
         Teacher instance returned by `teacher_required`
@@ -505,7 +508,7 @@ def unsubscribe_from_thread(req, teacher):
     Returns
     -------
     HttpResponse
-        Error respones of empty 200 response
+        Error response or empty 200 response
     """
     args = get_json_params(req, args=["id"])
     if isinstance(args, HttpResponse):
@@ -548,8 +551,8 @@ def evaluate_rationale(req, teacher):
 
     Returns
     -------
-    JsonResponse
-        Response with json data
+    HttpResponse
+        Error response or empty 200 response
     """
     args = get_json_params(req, args=["id", "score"])
     if isinstance(args, HttpResponse):
@@ -579,3 +582,363 @@ def evaluate_rationale(req, teacher):
     )
 
     return HttpResponse("")
+
+
+@require_POST
+@teacher_required
+def request_gradebook(req, teacher):
+    """
+    Request the generation of a gradebook. An response containing the task id
+    is returned so the client can poll the server for the result until it's
+    ready.
+
+    Parameters
+    ----------
+    req : HttpRequest
+        Request with:
+            parameters
+                group_id: int
+                    Primary key of the group for which the gradebook is wanted
+            optional parameters:
+                assignment_id: int (default : None)
+                    Primary key of the assignment for which the gradebook is
+                    wanted
+    teacher : Teacher
+        Teacher instance returned by `teacher_required`
+
+    Returns
+    -------
+    Either
+        JsonResponse with json data
+            Response 201 (created) with json data if computation run
+            asynchronously
+                {
+                    task_id: str
+                        Id corresponding to the celery task for use in polling
+                }
+            Response 200 with json data if computation run synchronously
+                Either
+                    If group gradebook wanted
+                        {
+                            assignments: List[str]
+                                Assignment identifier
+                            school_id_needed: bool
+                                If a school id is needed
+                            results: [{
+                                school_id: Optional[str]
+                                    School id if needed
+                                email: str
+                                    Student email
+                                assignments: [{
+                                    n_completed: int
+                                        Number of completed questions
+                                    n_correct: int
+                                        Number of correct questions
+                                }]
+                            }]
+                        }
+                    If assignment gradebook wanted
+                        {
+                            questions: List[str]
+                                Question title
+                            school_id_needed: bool
+                                If a school id is needed
+                            results: [{
+                                school_id: Optional[str]
+                                    School id if needed
+                                email: str
+                                    Student email
+                                questions: List[float]
+                                    Grade for each question
+                            }]
+                        }
+        HttpResponse
+            Error response
+    """
+    args = get_json_params(req, args=["group_id"], opt_args=["assignment_id"])
+    if isinstance(args, HttpResponse):
+        return args
+    (group_pk,), (assignment_pk,) = args
+
+    try:
+        group = StudentGroup.objects.get(pk=group_pk)
+    except StudentGroup.DoesNotExist:
+        return response_400(
+            req,
+            msg=translate("The group doesn't exist."),
+            logger_msg=(
+                "Access to {} with an invalid group {}.".format(
+                    req.path, group_pk
+                )
+            ),
+            log=logger.warning,
+        )
+
+    if teacher not in group.teacher.all():
+        return response_403(
+            req,
+            msg=translate(
+                "You don't have access to this resource. You must be "
+                "registered as a teacher for the group."
+            ),
+            logger_msg=(
+                "Unauthorized access to group {} from teacher {}.".format(
+                    group.pk, teacher.pk
+                )
+            ),
+            log=logger.warning,
+        )
+
+    if assignment_pk is not None:
+        try:
+            assignment = StudentGroupAssignment.objects.get(pk=assignment_pk)
+        except StudentGroupAssignment.DoesNotExist:
+            return response_400(
+                req,
+                msg=translate("The group or assignment don't exist."),
+                logger_msg=(
+                    "Access to {} with an invalid assignment {}.".format(
+                        req.path, assignment_pk
+                    )
+                ),
+                log=logger.warning,
+            )
+
+    result = compute_gradebook_async(group_pk, assignment_pk)
+
+    if assignment_pk is None:
+        description = "gradebook for group {}".format(group.name)
+    else:
+        description = "gradebook for assignment {} and group {}".format(
+            assignment.assignment.identifier, group.name
+        )
+
+    if isinstance(result, AsyncResult):
+        task = RunningTask.objects.create(
+            id=result.id, description=description, teacher=teacher
+        )
+        data = {
+            "id": task.id,
+            "description": task.description,
+            "completed": False,
+            "datetime": task.datetime.strftime("%Y-%m-%d %H:%M:%S.%f"),
+        }
+        return JsonResponse(data, status=201)
+    else:
+        return download_gradebook(req, results=result)
+
+
+@require_POST
+@teacher_required
+def get_gradebook_task_result(req, teacher):
+    """
+    Returns a 200 response if the gradebook is ready. If not, will return a 202
+    response.
+
+    Parameters
+    ----------
+    req : HttpRequest
+        Request with:
+            parameters:
+                task_id: str
+                    Id of the celery task responsible for the gradebook
+                    generation sent with the first request for a gradebook
+    teacher : Teacher
+        Teacher instance returned by `teacher_required` (not used)
+
+    Returns
+    -------
+    HttpResponse
+        Either
+            Empty 200 response (task done)
+            Empty 202 response (accepted, still processing)
+            Empty 500 response (error)
+    """
+    args = get_json_params(req, args=["task_id"])
+    if isinstance(args, HttpResponse):
+        return args
+    (task_id,), _ = args
+
+    result = AsyncResult(task_id)
+
+    try:
+        if result.ready():
+            return HttpResponse("", status=200)
+        else:
+            return HttpResponse("", status=202)
+    except AttributeError:
+        return response_500(
+            req,
+            msg="",
+            logger_msg="Error computing gradebook for teacher {}".format(
+                teacher.user.username
+            )
+            + " and task {}.".format(task_id),
+            log=logger.warning,
+            use_template=False,
+        )
+
+
+@require_POST
+@teacher_required
+def remove_gradebook_task(req, teacher):
+    """
+    Removes the failed gradebook task from the running tasks.
+
+    Parameters
+    ----------
+    req : HttpRequest
+        Request with:
+            parameters:
+                task_id: str
+                    Id of the celery task responsible for the gradebook
+                    generation sent with the first request for a gradebook
+    teacher : Teacher
+        Teacher instance returned by `teacher_required` (not used)
+
+    Returns
+    -------
+    HttpResponse
+        Empty 200 response
+    """
+    args = get_json_params(req, args=["task_id"])
+    if isinstance(args, HttpResponse):
+        return args
+    (task_id,), _ = args
+
+    try:
+        task = RunningTask.objects.get(id=task_id)
+    except RunningTask.DoesNotExist:
+        return HttpResponse("")
+
+    task.delete()
+    return HttpResponse("")
+
+
+@require_safe
+@teacher_required
+def get_tasks(req, teacher):
+    tasks = [
+        {
+            "id": task.id,
+            "description": task.description,
+            "completed": AsyncResult(task.id).ready(),
+            "datetime": task.datetime.strftime("%Y-%m-%d %H:%M:%S.%f"),
+        }
+        for task in RunningTask.objects.filter(teacher=teacher).order_by(
+            "-datetime"
+        )
+    ]
+
+    data = {"tasks": tasks}
+
+    return JsonResponse(data)
+
+
+@require_POST
+@teacher_required
+def download_gradebook(req, teacher, results=None):
+    """
+    Download the wanted gradebook.
+
+    Parameters
+    ----------
+    req : HttpRequest
+        Request with:
+            parameters:
+                task_id: str
+                    Id of the celery task responsible for the gradebook
+                    generation sent with the first request for a gradebook
+    teacher : Teacher
+        Teacher instance returned by `teacher_required` (not used)
+    results : Optional[Dict[str, Any]]
+        Either
+            If group gradebook
+                {
+                    group: str
+                        Title of the group
+                    assignments: List[str]
+                        Assignment identifier
+                    school_id_needed: bool
+                        If a school id is needed
+                    results: [{
+                        school_id: Optional[str]
+                            School id if needed
+                        email: str
+                            Student email
+                        assignments: [{
+                            n_completed: Optional[int]
+                                Number of completed questions
+                            n_correct: Optional[int]
+                                Number of correct questions
+                        }]
+                    }]
+                }
+            If assignment gradebook
+                {
+                    group: str
+                        Title of the group
+                    assignment: str
+                        Title of the assignment
+                    questions: List[str]
+                        Question title
+                    school_id_needed: bool
+                        If a school id is needed
+                    results: [{
+                        school_id: Optional[str]
+                            School id if needed
+                        email: str
+                            Student email
+                        questions: List[Optional[float]]
+                            Grade for each question
+                    }]
+                }
+
+    Returns
+    -------
+    StreamingHttpResponse
+        csv file with the gradebook results
+    """
+    if results is None:
+        args = get_json_params(req, args=["task_id"])
+        if isinstance(args, HttpResponse):
+            return args
+        (task_id,), _ = args
+
+        result = AsyncResult(task_id)
+
+        try:
+            if not result.ready():
+                return response_400(
+                    req,
+                    msg="The gradebook isn't ready.",
+                    logger_msg="Not completed gradebook {}".format(task_id)
+                    + " accessed by teacher {}".format(teacher.user.username),
+                )
+        except AttributeError:
+            return response_500(
+                req,
+                msg="There is no gradebook corresponding to this url. "
+                "Please ask for a new one.",
+                logger_msg="Celery error getting gradebook"
+                " for teacher {}".format(teacher.user.username)
+                + " and task {}.".format(task_id),
+                log=logger.warning,
+                use_template=False,
+            )
+
+        results = result.result
+
+        if RunningTask.objects.filter(id=task_id):
+            RunningTask.objects.get(id=task_id).delete()
+
+    if "assignment" in results:
+        filename = "myDALITE_gradebook_{}_{}.csv".format(
+            results["group"], results["assignment"]
+        )
+    else:
+        filename = "myDALITE_gradebook_{}.csv".format(results["group"])
+    gradebook_gen = convert_gradebook_to_csv(results)
+    data = chain(iter((filename + "\n",)), gradebook_gen)
+    resp = StreamingHttpResponse(data, content_type="text/csv")
+    return resp

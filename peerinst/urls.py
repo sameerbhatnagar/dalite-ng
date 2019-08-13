@@ -462,17 +462,6 @@ def group_patterns():
             name="get-assignment-student-progress",
         ),
         url(
-            r"^group/(?P<group_hash>[0-9A-Za-z=_-]+)/csv_gradebook/$",
-            views.csv_gradebook,
-            name="group-csv-gradebook",
-        ),
-        url(
-            r"^group/(?P<group_hash>[0-9A-Za-z=_-]+)/csv_gradebook/"
-            "(?P<assignment_hash>[0-9A-Za-z=_-]+)/$",
-            views.csv_assignment_gradebook,
-            name="group-assignment-gradebook",
-        ),
-        url(
             r"^group-assignment/(?P<assignment_hash>[0-9A-Za-z=_-]+)/"
             r"distribute/$",
             views.distribute_assignment,
@@ -652,6 +641,29 @@ def teacher_patterns():
             r"^teacher/dashboard/unsubscribe-thread/$",
             views.teacher.unsubscribe_from_thread,
             name="teacher-dashboard--unsubscribe-thread",
+        ),
+        url(
+            r"^teacher/gradebook/request/$",
+            views.teacher.request_gradebook,
+            name="teacher-gradebook--request",
+        ),
+        url(
+            r"^teacher/gradebook/result/$",
+            views.teacher.get_gradebook_task_result,
+            name="teacher-gradebook--result",
+        ),
+        url(
+            r"^teacher/gradebook/remove/$",
+            views.teacher.remove_gradebook_task,
+            name="teacher-gradebook--remove",
+        ),
+        url(
+            r"^teacher/gradebook/download/$",
+            views.teacher.download_gradebook,
+            name="teacher-gradebook--download",
+        ),
+        url(
+            r"^teacher/tasks/$", views.teacher.get_tasks, name="teacher-tasks"
         ),
     ]
 

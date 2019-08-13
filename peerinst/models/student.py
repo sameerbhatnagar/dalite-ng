@@ -8,13 +8,13 @@ from operator import itemgetter
 import pytz
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.core.mail import send_mail
 from django.core.urlresolvers import reverse
 from django.db import IntegrityError, models
 from django.template import loader
 from django.utils.translation import ugettext_lazy as _
 
 from ..students import create_student_token, get_student_username_and_password
+from ..tasks import send_mail_async
 from .answer import Answer
 from .assignment import StudentGroupAssignment
 from .group import StudentGroup
@@ -91,7 +91,7 @@ class Student(models.Model):
 
         return student, created
 
-    def send_email(self, mail_type, group=None):
+    def send_email(self, mail_type, group=None, request=None):
         """
         Sends an email to announce a new assignment or an assignment update.
 
@@ -128,13 +128,18 @@ class Student(models.Model):
 
             else:
 
-                host = settings.ALLOWED_HOSTS[0]
+                if request:
+                    host = request.get_host()
+                    protocol = request.scheme
 
-                if host == "localhost" or host == "127.0.0.1":
-                    protocol = "http"
-                    host = "{}:{}".format(host, settings.DEV_PORT)
                 else:
-                    protocol = "https"
+                    host = settings.ALLOWED_HOSTS[0]
+
+                    if host == "localhost" or host == "127.0.0.1":
+                        protocol = "http"
+                        host = "{}:{}".format(host, settings.DEV_PORT)
+                    else:
+                        protocol = "https"
 
                 token = create_student_token(username, user_email)
 
@@ -174,7 +179,7 @@ class Student(models.Model):
                 context = {"signin_link": signin_link, "group": group}
 
                 if err is None:
-                    send_mail(
+                    send_mail_async(
                         subject,
                         message,
                         "noreply@myDALITE.org",
@@ -475,7 +480,7 @@ class StudentAssignment(models.Model):
                 }
 
                 if err is None:
-                    send_mail(
+                    send_mail_async(
                         subject,
                         message,
                         "noreply@myDALITE.org",

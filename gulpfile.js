@@ -20,7 +20,7 @@ const { uglify } = require("rollup-plugin-uglify");
 const styleBuilds = [
   {
     app: "peerinst",
-    modules: ["group", "student", "question", "teacher"],
+    modules: ["group", "student", "question", "teacher", "layout"],
   },
   {
     app: "tos",
@@ -45,13 +45,14 @@ const scriptBuilds = [
       "search",
       "index",
       "question",
+      "teacher",
       "custom_elements",
       "teacher",
     ],
   },
   {
     app: "tos",
-    modules: ["tos", "email"],
+    modules: ["email"],
   },
   {
     app: "quality",
@@ -67,7 +68,7 @@ const babelConfig = {
   presets: [
     "@babel/preset-flow",
     [
-      "@babel/env",
+      "@babel/preset-env",
       {
         modules: false,
         exclude: ["@babel/plugin-transform-regenerator"],
@@ -84,7 +85,6 @@ const babelConfig = {
       },
     ],
   ],
-
   exclude: "node_modules/**",
   babelrc: false,
 };
@@ -319,6 +319,10 @@ function watch() {
     proxy: "localhost:8000",
     notify: false,
     open: false,
+    https: {
+      key: "./localhost.key",
+      cert: "./localhost.crt",
+    },
   });
   gulp.watch("./peerinst/static/peerinst/css/*.scss", stylesPeerinstMain);
   gulp.watch("./peerinst/static/pinax/forums/css/*.scss", stylesPeerinstPinax);
@@ -357,9 +361,11 @@ const scripts = gulp.parallel(
 );
 
 const build = gulp.parallel(styles, scripts, icons);
+const dev = gulp.series(build, watch);
 
 exports.build = build;
 exports.watch = watch;
+exports.dev = dev;
 exports.styles = styles;
 exports.scripts = scripts;
 exports.icons = icons;

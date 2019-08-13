@@ -1,5 +1,6 @@
 __all__ = [
     "add_answers",
+    "category",
     "discipline",
     "disciplines",
     "question",
@@ -9,6 +10,7 @@ __all__ = [
 ]
 
 from .fixtures import (
+    category,
     discipline,
     disciplines,
     question,

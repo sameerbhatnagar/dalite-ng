@@ -29,6 +29,10 @@
 /* Load other files */
 @import "custom_elements";
 
+.svg-sprite {
+  display: none;
+}
+
 /* Stylesheet */
 /* - Layout */
 main {
@@ -72,10 +76,10 @@ h4 ~ .admin-link {
   margin-bottom: 12pt;
   margin-top: -20px;
 }
-.foldable--body > .admin-link {
+.foldable--body .admin-link {
   font-size: 9pt;
   margin-bottom: 12pt;
-  margin-left: 50px;
+  margin-left: 58px;
   margin-top: 0px;
 }
 /* - Theming */
@@ -105,13 +109,12 @@ header {
     $mdc-theme-secondary 100%
   );
   color: white;
-  // width: 100%;
   display: flex;
   flex-direction: row;
-  // padding: 7px 10px;
   font-size: 18pt;
   justify-content: space-between;
   padding: 4pt;
+  position: relative;
 }
 header a {
   color: white;
@@ -119,10 +122,6 @@ header a {
 header .icon {
   font-size: 28px;
   margin-right: 10px;
-}
-
-.svg-sprite {
-  display: none;
 }
 
 header i {
@@ -189,7 +188,7 @@ footer a {
   padding-left: 10px;
 }
 .align-right {
-   text-align: right;
+  text-align: right;
 }
 h1 {
   color: $mdc-theme-primary;
@@ -265,10 +264,10 @@ h1 {
 }
 
 .corner {
-  bottom: 0%;
+  bottom: 0;
   cursor: pointer;
   position: fixed;
-  right: 0%;
+  right: 0;
 }
 
 a {
@@ -347,7 +346,7 @@ ul li.error {
   display: block;
   font-size: 15px;
   line-height: 1.41575em;
-  margin: 0 0 20px;
+  margin: 10px 0px 20px 0px;
   padding: 20px;
 }
 li.error h3 {
@@ -386,7 +385,9 @@ input[type="submit"].thumbs-button {
   height: 100px;
   width: 50%;
 }
-
+.italic {
+  font-style: italic;
+}
 .message-box {
   background-color: rgba(0, 66, 102, 0.05);
   border-bottom: solid 3px $mdc-theme-secondary;
@@ -548,6 +549,7 @@ input[type="submit"].thumbs-button {
 }
 .check {
   color: $mdc-theme-primary;
+  transform: translateY(-2px);
 }
 #timer-bg {
   fill: $mdc-theme-primary;
@@ -731,7 +733,7 @@ div.input-ripple-wrapper input {
     max-width: 100%;
   }
   .site-content {
-    margin: 2pt;
+    margin: 2px;
   }
   .rationales {
     margin-left: 20px;
@@ -906,6 +908,10 @@ div.input-ripple-wrapper input {
 
 .p-bottom-10 {
   padding-bottom: 10px;
+}
+
+.p-bottom-0 {
+  padding-bottom: 0px;
 }
 
 .f-size-20 {

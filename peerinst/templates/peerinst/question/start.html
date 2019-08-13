@@ -32,6 +32,7 @@
 
       <h2 class="mdc-typography--display1 mdc-theme--secondary">{{question.title}}</h2>
 
+      {% block messages %}
       {% if messages %}
       <ul class="messages">
         {% for message in messages %}
@@ -39,6 +40,7 @@
         {% endfor %}
       </ul>
       {% endif %}
+      {% endblock %}
 
       <div class="mdc-typography--body1">
         {{ question.text|safe }}

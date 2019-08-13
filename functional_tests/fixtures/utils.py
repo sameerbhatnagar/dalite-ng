@@ -1,20 +1,23 @@
 import os
-import pytest
 import time
-
-from django.conf import settings
 from functools import partial
+
+import pytest
+from django.conf import settings
 from selenium import webdriver
 from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.remote.webelement import WebElement
 
-from peerinst.tests.fixtures import *  # noqa
+
+MAX_WAIT = 30
+try:
+    WATCH = settings.WATCH
+except AttributeError:
+    WATCH = False
 
 
 # Wait decorator
 def wait(fn):
-    MAX_WAIT = 30
-
     def modified_fn(*args, **kwargs):
         start_time = time.time()
         while True:
@@ -32,10 +35,7 @@ def wait(fn):
 @pytest.fixture
 def assert_():
     def fct(statement):
-        def f():
-            assert statement
-
-        return f
+        assert statement
 
     return fct
 
@@ -47,12 +47,11 @@ def browser(live_server):
     else:
         browser = "firefox"
 
+    options = webdriver.ChromeOptions()
+
     if hasattr(settings, "HEADLESS_TESTING") and settings.HEADLESS_TESTING:
         os.environ["MOZ_HEADLESS"] = "1"
-        options = webdriver.ChromeOptions()
         options.add_argument("headless")
-    else:
-        options = webdriver.ChromeOptions()
 
     if browser == "firefox":
         try:
@@ -73,13 +72,17 @@ def browser(live_server):
     # Add an implicit wait function to handle latency in page loads
     @wait
     def wait_for(fn):
-        return fn()
+        return fn
 
     driver.wait_for = wait_for
+    driver.implicitly_wait(MAX_WAIT)
 
     # Add assertion that web console logs are null after any get() or click()
     # Log function for get
     def add_log(fct, driver, *args, **kwargs):
+        if WATCH:
+            time.sleep(1)
+
         result = fct(*args, **kwargs)
 
         logs = driver.get_log("browser")
@@ -89,7 +92,13 @@ def browser(live_server):
         else:
             print("Logs checked after: " + fct.__name__)
 
-        assert len(logs) == 0, logs
+        # Ignore network errors during testing
+        filtered_logs = [
+            d
+            for d in logs
+            if d["source"] != "network" and "tinymce" not in d["message"]
+        ]
+        assert len(filtered_logs) == 0, logs
 
         return result
 

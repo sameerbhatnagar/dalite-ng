@@ -1,4 +1,3 @@
-// @flow
 import { buildReq } from "../ajax.js";
 import { clear } from "../utils.js";
 
@@ -186,6 +185,9 @@ export function handleJoinGroupLinkInput(event) {
   if (event.key === "Enter") {
     joinGroup();
   } else {
+    if (event.currentTarget.value) {
+      joinGroupErrorView("", false);
+    }
     verifyJoinGroupDisabledStatus();
   }
 }
@@ -207,7 +209,8 @@ export function joinGroup() {
       group_name: select.value,
     };
   } else {
-    console.log("Empty input");
+    joinGroupErrorView("A URL is needed.", true);
+    return;
   }
 
   const req = buildReq(data, "post");
@@ -243,7 +246,7 @@ export function joinGroup() {
       groupsView();
     })
     .catch(function(err) {
-      console.log(err);
+      joinGroupErrorView("There is no group with that link.", true);
     });
 }
 
@@ -251,7 +254,7 @@ export function joinGroup() {
 /* view */
 /********/
 
-function view(groupStudentId: string) {
+function view(groupStudentId) {
   identityView();
   groupsView(groupStudentId);
   joinGroupView();
@@ -300,11 +303,27 @@ function identityView() {
 
 function joinGroupView() {
   const box = document.getElementById("student-add-group--box");
+  const input = document.querySelector("#student-add-group--box input");
   if (model.joiningGroup) {
     joinGroupsSelectView();
     box.style.display = "flex";
   } else {
     box.style.display = "none";
+    input.value = "";
+  }
+  joinGroupErrorView("", false);
+}
+
+function joinGroupErrorView(msg: string, show: boolean) {
+  const error = document.getElementById("student-add-group__error");
+  const input = document.querySelector("#student-add-group--box input");
+  error.textContent = msg;
+  if (show) {
+    error.removeAttribute("hidden");
+    input.classList.add("input--error");
+  } else {
+    error.setAttribute("hidden", "");
+    input.classList.remove("input--error");
   }
 }
 
@@ -317,6 +336,7 @@ function joinGroupsSelectView() {
       groupsSelect.appendChild(joinGroupSelectView(group)),
     );
     groupsSelect.style.display = "inline-block";
+    verifyJoinGroupDisabledStatus();
   } else {
     groupsSelect.style.display = "none";
   }
@@ -740,7 +760,6 @@ function addJoinGroupListeners() {
     .getElementById("student-add-group--box")
     .addEventListener("click", function() {
       event.stopPropagation;
-      student.toggleJoinGroup();
     });
   document
     .querySelector("#student-add-group--box > div")
@@ -799,7 +818,7 @@ function timeuntil(date1, date2) {
 /* init */
 /********/
 
-export function initStudentPage(data, groupStudentId: string = "") {
+export function initStudentPage(data, groupStudentId = "") {
   initModel(data);
   view(groupStudentId);
   initListeners();

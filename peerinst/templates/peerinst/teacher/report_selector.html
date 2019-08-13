@@ -1,7 +1,13 @@
-{% extends 'peerinst/base.html' %}
+{% extends 'peerinst/teacher/base.html' %}
 
 {% load compress i18n add_class %}
 {% block body %}
+
+<style nonce="{{ request.csp_nonce }}">
+  .mdc-checkbox {
+    vertical-align: middle;
+  }
+</style>
 
 <main>
   <section>
@@ -42,8 +48,8 @@
         <span>{{ fields.label }}</span>
         {% for field in fields %}
           <div>
-              <label for="{{ field.id_for_label }}">
-                  <div class="mdc-checkbox inline">
+              <label for="{{ field.id_for_label }}"></label>
+                  <div class="mdc-checkbox">
                     {{ field.tag|add_class:'mdc-checkbox__native-control'}}
                     <div class="mdc-checkbox__background">
                       <svg class="mdc-checkbox__checkmark"
