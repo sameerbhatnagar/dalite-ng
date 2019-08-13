@@ -125,11 +125,7 @@ def init_message_types(sender, **kwargs):
             "removable": False,
             "colour": "#1976bc",
         },
-        {
-            "type": "dalite_annoncement",
-            "removable": False,
-            "colour": "#54c0db",
-        },
+        {"type": "dalite_annoncement", "removable": True, "colour": "#54c0db"},
     ]
     for type_ in types:
         if not MessageType.objects.filter(type=type_["type"]).exists():
