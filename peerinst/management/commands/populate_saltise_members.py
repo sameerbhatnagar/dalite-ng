@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 import os
 import re
-import urllib
+import shutil
 
 import bs4
 import requests
@@ -38,8 +38,12 @@ class Command(BaseCommand):
         for member in members:
             if not SaltiseMember.objects.filter(name=member["name"]).exists():
                 member_ = SaltiseMember.objects.create(name=member["name"])
-                resp = urllib.retrieve(member["picture_link"])
-                member_.picture.save(
-                    os.path.basename(member["picture_link"]),
-                    File(open(resp[0], "r")),
-                )
+                resp = requests.get(member["picture_link"])
+                resp.raw.decode_content = True
+                with open(os.path.basename(member["picture_link"]), "wb") as f:
+                    shutil.copyfileobj(resp.raw, f)
+                with open(os.path.basename(member["picture_link"]), "rb") as f:
+                    member_.picture.save(
+                        os.path.basename(member["picture_link"]), File(f)
+                    )
+                os.remove(os.path.basename(member["picture_link"]))
