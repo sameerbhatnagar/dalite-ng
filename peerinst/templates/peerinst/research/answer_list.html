@@ -3,6 +3,7 @@
 {% load staticfiles compress i18n %}
 
 {% block stylesheets %}
+{{ block.super }}
 <style nonce="{{ request.csp_nonce }}">
   .sticky-header {
     position: -webkit-sticky;
@@ -167,6 +168,7 @@
 {% endblock %}
 
 {% block scripts %}
+{{ block.super }}
 <script nonce="{{ request.csp_nonce }}">
   var show = localStorage.getItem('collapse') === 'true';
   $('.hidable').toggle(show);
