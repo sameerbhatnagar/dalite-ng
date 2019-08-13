@@ -7,4 +7,5 @@ from . import models
 
 admin.site.register(models.NAnswersCriterion)
 admin.site.register(models.NQuestionsCriterion)
+admin.site.register(models.ConvincingRationalesCriterion)
 admin.site.register(models.UsesCriterion)

@@ -17,7 +17,7 @@ from reputation.models import Reputation
 
 from ..students import create_student_token, get_student_username_and_password
 from ..tasks import send_mail_async
-from .answer import Answer
+from .answer import Answer, ShownRationale
 from .assignment import StudentGroupAssignment
 from .group import StudentGroup
 
@@ -327,6 +327,16 @@ class Student(models.Model):
     @property
     def answers(self):
         return Answer.objects.filter(user_token=self.student.username)
+
+    @property
+    def answers_chosen_by_others(self):
+        return Answer.objects.filter(
+            chosen_rationale_id__in=self.answers.values_list("pk", flat=True)
+        )
+
+    @property
+    def answers_shown_to_others(self):
+        return ShownRationale.objects.filter(shown_answer__in=self.answers)
 
 
 class StudentGroupMembership(models.Model):
