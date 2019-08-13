@@ -1,4 +1,13 @@
-__all__ = ["Criterion", "NAnswersCriterion", "NQuestionsCriterion"]
+__all__ = [
+    "Criterion",
+    "NAnswersCriterion",
+    "NQuestionsCriterion",
+    "ConvincingRationalesCriterion",
+]
 
-from .criteria import NAnswersCriterion, NQuestionsCriterion
+from .criteria import (
+    NAnswersCriterion,
+    NQuestionsCriterion,
+    ConvincingRationalesCriterion,
+)
 from .criterion import Criterion
