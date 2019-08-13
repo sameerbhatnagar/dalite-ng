@@ -34,7 +34,10 @@ class ConvincingRationalesCriterion(Criterion):
         """
         super(ConvincingRationalesCriterion, self).evaluate(instance)
         if instance.__class__.__name__ == "Student":
-            return instance.answers_chosen_by_others.count()
+            return (
+                instance.answers_chosen_by_others.count(),
+                {"times_shown": instance.answers_shown_to_others.count()},
+            )
         else:
             msg = "`instance` has to be of type Student."
             logger.error("TypeError: {}".format(msg))
