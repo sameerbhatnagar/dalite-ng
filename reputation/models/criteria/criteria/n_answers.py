@@ -17,8 +17,8 @@ class NAnswersCriterion(Criterion):
 
         Parameters
         ----------
-        question : Question
-            Question to evaluate
+        instance : Question | Student
+            Question or Student to evaluate
 
         Returns
         -------
@@ -30,7 +30,7 @@ class NAnswersCriterion(Criterion):
         Raises
         ------
         TypeError
-            If `question` isn't of type Question
+            If `instance` isn't of type Question or Student
         """
         super(NAnswersCriterion, self).evaluate(instance)
         if instance.__class__.__name__ == "Question":
