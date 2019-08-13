@@ -171,8 +171,7 @@ export function categoryForm(
   $("#submit_category_form").click(
     /** The callback
      * @function
-     * @param {Object} event
-     * @this Callback
+     * @this form
      */
     function() {
       const title = $("#category_form")
@@ -183,25 +182,41 @@ export function categoryForm(
       const posting = $.post(createUrl, { title: title });
 
       // Put the results in a div
-      posting.success(function(data) {
-        console.log(data);
+      posting.success(function(data, status) {
         $("#category_form")
           .empty()
           .append(data);
-        bundle.bindAjaxTextInputForm(
-          idToBind,
-          formToReplace,
-          createUrl,
-          formUrl,
-          init,
-          searchUrl,
-        );
-        bundle.bindCategoryAutofill(searchUrl);
-        bundle.autoInit();
-        $("#autofill_categories")
-          .val(title)
-          .focus()
-          .autocomplete("search");
+
+        const formType = $("#create_new_category");
+        if (formType.length) {
+          categoryForm(
+            idToBind,
+            formToReplace,
+            createUrl,
+            formUrl,
+            init,
+            searchUrl,
+          );
+          bundle.autoInit();
+          $("#category_form")
+            .find("input[name='title']")[0]
+            .focus();
+        } else {
+          bundle.bindAjaxTextInputForm(
+            idToBind,
+            formToReplace,
+            createUrl,
+            formUrl,
+            init,
+            searchUrl,
+          );
+          bundle.bindCategoryAutofill(searchUrl);
+          bundle.autoInit();
+          $("#autofill_categories")
+            .val(title)
+            .focus()
+            .autocomplete("search");
+        }
       });
     },
   );
