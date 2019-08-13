@@ -40,11 +40,12 @@ class ConvincingRationalesCriterion(Criterion):
             logger.error("TypeError: {}".format(msg))
             raise TypeError(msg)
 
-    @staticmethod
-    def info():
-        return {
-            "name": "convincing_rationales",
-            "full_name": "Convincing Rationales",
-            "description": "Number of times the rationales you "
-            "wrote were chosen by other students as convincing.",
-        }
+    def info(self):
+        return super(ConvincingRationalesCriterion, self).info(
+            {
+                "name": "convincing_rationales",
+                "full_name": "Convincing Rationales",
+                "description": "Number of times the rationales you "
+                "wrote were chosen by other students as convincing.",
+            }
+        )
