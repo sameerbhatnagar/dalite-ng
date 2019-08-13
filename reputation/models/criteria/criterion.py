@@ -68,7 +68,7 @@ class Criterion(models.Model):
         to combine them.
         """
         return chain(
-            self.__class__.info().iteritems(),
+            self.info().iteritems(),
             {
                 "version": self.version,
                 "badge_thresholds": self.badge_thresholds,
@@ -133,6 +133,34 @@ class Criterion(models.Model):
             )
         super(Criterion, self).save(*args, **kwargs)
 
-    @staticmethod
-    def info():
-        raise NotImplementedError("This method has to be implemented.")
+    def info(self, info):
+        point_description = " The points are awarded as "
+        if not self.thresholds:
+            point_description = point_description + "{} for each.".format(
+                self.points_per_threshold[0]
+            )
+        else:
+            point_description = "{}{}".format(
+                point_description,
+                ", ".join(
+                    "{} for each between {} and {}".format(point, t0, t1)
+                    for point, t0, t1 in zip(
+                        self.points_per_threshold,
+                        [0] + self.thresholds[:-1],
+                        self.thresholds,
+                    )
+                ),
+            )
+            if len(self.thresholds) == len(self.points_per_threshold):
+                point_description = point_description + "."
+            else:
+                point_description = "{}{}.".format(
+                    point_description,
+                    ", and {} for each over {}".format(
+                        self.points_per_threshold[-1], self.thresholds[-1]
+                    ),
+                )
+
+        info["description"] = info["description"] + point_description
+
+        return info

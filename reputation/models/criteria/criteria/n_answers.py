@@ -40,11 +40,12 @@ class NAnswersCriterion(Criterion):
             logger.error("TypeError: {}".format(msg))
             raise TypeError(msg)
 
-    @staticmethod
-    def info():
-        return {
-            "name": "n_answers",
-            "full_name": "Number of answers",
-            "description": "Gives a score between 0 and 100 representing the "
-            "number of answers for a question.",
-        }
+    def info(self):
+        return super(NAnswersCriterion, self).info(
+            {
+                "name": "n_answers",
+                "full_name": "Number of answers",
+                "description": "Gives a score representing the number of "
+                "answers.",
+            }
+        )

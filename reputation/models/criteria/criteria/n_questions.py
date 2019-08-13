@@ -40,11 +40,12 @@ class NQuestionsCriterion(Criterion):
 
         return teacher.user.question_set.count()
 
-    @staticmethod
-    def info():
-        return {
-            "name": "n_questions",
-            "full_name": "Number of questions",
-            "description": "Gives a score between 0 and 100 representing the "
-            "number of questions written by a teacher.",
-        }
+    def info(self):
+        return super(NQuestionsCriterion, self).info(
+            {
+                "name": "n_questions",
+                "full_name": "Number of questions",
+                "description": "Gives a score representing the number of "
+                "questions.",
+            }
+        )

@@ -122,15 +122,79 @@ def test_save__points_len_less_than_thresholds_length():
 
 
 @pytest.mark.filterwarnings("ignore::RuntimeWarning")
-def test_info__not_implemented():
+def test_info__no_threshold():
     class FakeCriterion(Criterion):
         name = models.CharField(max_length=32, default="fake", editable=False)
 
         class Meta:
             app_label = "reputation"
 
+        def info(self):
+            return super(FakeCriterion, self).info(
+                {"name": "test", "full_name": "test", "description": "A test."}
+            )
+
     with mixer.ctx(commit=False):
         fake_criterion = mixer.blend(FakeCriterion)
+        fake_criterion.points_per_threshold = [1]
+        fake_criterion.thresholds = []
 
-        with pytest.raises(NotImplementedError):
-            fake_criterion.info()
+        info = fake_criterion.info()
+        assert len(info) == 3
+        assert (
+            info["description"]
+            == "A test. The points are awarded as 1 for each."
+        )
+
+
+@pytest.mark.filterwarnings("ignore::RuntimeWarning")
+def test_info__same_thresholds():
+    class FakeCriterion(Criterion):
+        name = models.CharField(max_length=32, default="fake", editable=False)
+
+        class Meta:
+            app_label = "reputation"
+
+        def info(self):
+            return super(FakeCriterion, self).info(
+                {"name": "test", "full_name": "test", "description": "A test."}
+            )
+
+    with mixer.ctx(commit=False):
+        fake_criterion = mixer.blend(FakeCriterion)
+        fake_criterion.points_per_threshold = [1]
+        fake_criterion.thresholds = [5]
+
+        info = fake_criterion.info()
+        assert len(info) == 3
+        assert (
+            info["description"]
+            == "A test. The points are awarded as 1 for each between 0 and 5."
+        )
+
+
+@pytest.mark.filterwarnings("ignore::RuntimeWarning")
+def test_info__past_thresholds():
+    class FakeCriterion(Criterion):
+        name = models.CharField(max_length=32, default="fake", editable=False)
+
+        class Meta:
+            app_label = "reputation"
+
+        def info(self):
+            return super(FakeCriterion, self).info(
+                {"name": "test", "full_name": "test", "description": "A test."}
+            )
+
+    with mixer.ctx(commit=False):
+        fake_criterion = mixer.blend(FakeCriterion)
+        fake_criterion.points_per_threshold = [1, 2]
+        fake_criterion.thresholds = [5]
+
+        info = fake_criterion.info()
+        assert len(info) == 3
+        assert (
+            info["description"]
+            == "A test. The points are awarded as 1 for each between 0 and 5, "
+            "and 2 for each over 5."
+        )

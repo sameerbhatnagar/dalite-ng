@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 import pytest
 
 from peerinst.tests.fixtures import *  # noqa
-from reputation.models import NAnswersCriterion, ReputationType
+from reputation.models import ReputationType
 from reputation.tests.fixtures import *  # noqa
 
 
@@ -38,8 +38,9 @@ def test_evaluate__wrong_model_type(n_answers_criterion, teacher):
         n_answers_criterion.evaluate(teacher)
 
 
-def test_info():
-    info = NAnswersCriterion.info()
+def test_info(n_answers_criterion):
+    info = n_answers_criterion.info()
+    assert len(info) == 3
     assert "name" in info
     assert "full_name" in info
     assert "description" in info
