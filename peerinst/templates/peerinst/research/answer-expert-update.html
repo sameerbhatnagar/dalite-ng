@@ -91,7 +91,9 @@
               {% if forloop.counter == forloop.parentloop.counter %}
                 {% if c.correct %}
                   <i class="check material-icons">check</i><br>
-                  <blockquote class="italic">{{ answer.rationale|safe|striptags }}</blockquote>
+                  {% if answer.first_answer_choice_label == label %}
+                  <blockquote class="italic">{{ answer.first_answer_choice_label }}. {{ answer.rationale|safe|striptags }}</blockquote>
+                  {% endif %}
                 {% endif %}
               {% endif %}
             {% endfor %}
@@ -105,10 +107,10 @@
       <form id="expert-form" method="post">
         {% csrf_token %}
         <div class="mdc-form-field">
-          <label for="my-checkbox">{% trans 'The rationale associated with the correct answer is appropriate for students to use as a study aid' %}: </label>
           <div class="mdc-checkbox">
             <input type="checkbox"
-                   id="my-checkbox"
+                   name="expert"
+                   id="id_expert"
                    class="mdc-checkbox__native-control"
                    {% if answer.expert %}checked{% endif %}/>
             <div class="mdc-checkbox__background">
@@ -122,12 +124,13 @@
               <div class="mdc-checkbox__mixedmark"></div>
             </div>
           </div>
+          <label for="id_expert">{% trans 'Is the rationale associated with the correct answer appropriate for students to use as a study aid?' %}</label>
         </div>
 
       </form>
     </div>
 
-    <input type="submit" form="expert-form" class="mdc-button mdc-button--raised padded-top" value="{% trans 'Update' %}">
+    <input id="update-button" type="submit" form="expert-form" class="mdc-button mdc-button--raised padded-top" value="{% trans 'Update' %}">
 
   </section>
 </main>

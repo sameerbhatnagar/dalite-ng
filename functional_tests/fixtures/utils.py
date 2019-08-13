@@ -8,8 +8,6 @@ from selenium import webdriver
 from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.remote.webelement import WebElement
 
-from peerinst.tests.fixtures import *  # noqa
-from quality.tests.fixtures import *  # noqa
 
 MAX_WAIT = 30
 try:

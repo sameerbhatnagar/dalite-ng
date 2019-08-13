@@ -50,7 +50,7 @@
     {% for sample in expert_rationales|dictsort:'first_answer_choice' %}
       <li>
         <a href="{% url 'research-rationale-update-expert' pk=sample.id %}">
-        <i class="material-icons md-24 mdc-ripple-surface icon-list">check_circle_outline</i>
+        <i class="material-icons md-24 mdc-ripple-surface icon-list click-to-edit">check_circle_outline</i>
         </a>
         <span class='mdc-theme--primary bold'>{{ sample.first_answer_choice_label }}</span>: {{ sample.rationale|safe|striptags }}.
       </li>
@@ -62,19 +62,17 @@
 
 <div class="m-top-20">
   <span class="padded">
-    {% if question_id %}
-    <span class="padded">
-      <form class="inline" id="back" action="{% url 'answer-choice-form' question_id=question_id %}" method="get">
-        <button form="back" type="submit" class="mdc-button mdc-button--raised">{% trans 'Back' %}</button>
-      </form>
-    </span>
-    {% endif %}
     {% if save_allowed %}
       {% if assignment_id %}
         <form class="inline" id="done" action="{% url 'research-assignment-question-index-by-assignment' assignment_id=assignment_id %}" method="get">
           <button form="done" type="submit" class="mdc-button mdc-button--raised submit_button">{% trans 'Done' %}</<button>
         </form>
       {% elif question_id %}
+      <span class="padded">
+        <form class="inline" id="back" action="{% url 'answer-choice-form' question_id=question_id %}" method="get">
+          <button form="back" type="submit" class="mdc-button mdc-button--raised">{% trans 'Back' %}</button>
+        </form>
+      </span>
       <span class="padded">
         <form class="inline" id="next" action="{% url 'sample-answer-form' question_id=question_id %}" method="get">
           <button form="next" type="submit" class="mdc-button mdc-button--raised submit_button">{% trans 'Next' %}</<button>

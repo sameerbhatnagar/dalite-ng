@@ -1,6 +1,6 @@
 {% extends user.student|yesno:'peerinst/student/base.html,peerinst/base.html' %}
 
-{% load compress i18n %}
+{% load bleach_html compress i18n %}
 
 {% block body %}
 <main>
@@ -11,7 +11,7 @@
 
     {% if user in assignment.owner.all and assignment.editable or user.is_staff %}
     <div class="admin-link">
-      <a href="{% url 'assignment-update' assignment_id=assignment.identifier%}">{% trans 'Edit question list' %}</a>
+      <a href="{% url 'assignment-update' assignment_id=assignment.identifier%}">{% trans 'Edit question list' %}</a><span class="admin-link--padded">|</span>
     </div>
     {% endif %}
 
@@ -25,11 +25,11 @@
     {% for g in object_list %}
     <div class="mdc-card">
       <div class="mdc-typography--title bold m-bot-5">
-        {{g.title|safe}}
+        {{g.title|bleach_html|safe}}
       </div>
 
       <div class="mdc-typography--body1">
-        {{g.text|safe}}
+        {{g.text|bleach_html|safe}}
       </div>
 
       {% if g.image %}
@@ -162,7 +162,6 @@
 
 {% block scripts %}
 {{ block.super }}
-{% compress js inline %}
 <script nonce="{{ request.csp_nonce }}">
 bundle.addDialog();
 
@@ -192,6 +191,4 @@ function showAnalytics(id){
   bundle.plot({{ obj.get_matrix|safe }},{{ obj.get_frequency|safe|striptags }},{{ obj.id }});
 {% endfor %}
 </script>
-
-{% endcompress %}
 {% endblock %}
