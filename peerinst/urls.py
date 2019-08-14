@@ -644,6 +644,11 @@ def collection_patterns():
             name="collection-toggle-assignment",
         ),
         url(
+            r"^collection/add/assignment",
+            views.collection_add_assignment,
+            name="collection-add-assignment",
+        ),
+        url(
             r"^collection/featured-data/$",
             views.featured_collections,
             name="collection-featured-data",

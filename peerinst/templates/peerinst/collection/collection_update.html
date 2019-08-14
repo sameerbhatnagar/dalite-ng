@@ -2,6 +2,7 @@
 
 {% load compress staticfiles add_class i18n %}
 {% block stylesheets %}
+{{ block.super }}
 {% compress css %}
 <link href="{% static 'peerinst/css/collection.min.css' %}" rel="stylesheet">
 {% endcompress %}
@@ -14,178 +15,154 @@
     </h1>
     <div>
     <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Edit Your Collection' %}</h2>
-
-        <div class='field-container'>
-          <div class='number-box'><span class='number'>?</span></div>
-          <div class='field'>
-            <p><small>
-              {% blocktrans %}
-              Please use this page to edit your collection of assignments. Please provide what discipline this collection would be most pertinent for,
-              as well as a description which would help your colleagues understand how best to incorporate it into their pedagogy.
-              {% endblocktrans %}
-            </small></p>
-          </div>
-        </div>
-
-
-<form id="collection-update-form" enctype="multipart/form-data" method="post">
-    {% csrf_token %}
-
-
-  <div class='field-container'>
-    <div class='number-box flush-to-textbox'><span class='number'></span></div>
-    <div class='field'>
-      <div class="mdc-text-field mdc-text-field--outlined mdc-text-field--dense" data-mdc-auto-init="MDCTextField">
-        {{ form.title|add_class:"mdc-text-field__input" }}
-        {{ form.title.label_tag|add_class:"mdc-floating-label"|cut:":" }}
-        <div class="mdc-notched-outline">
-          <svg>
-            <path class="mdc-notched-outline__path"/>
-          </svg>
-        </div>
-        <div class="mdc-notched-outline__idle"></div>
+    <div class='field-container'>
+      <div class='number-box'><span class='number'>?</span></div>
+      <div class='field'>
+        <p><small>
+          {% blocktrans %}
+          Please use this page to edit your collection of assignments. Please provide what discipline this collection would be most pertinent for,
+          as well as a description which would help your colleagues understand how best to incorporate it into their pedagogy.
+          {% endblocktrans %}
+        </small></p>
       </div>
-      <p class="mdc-text-field-helper-text mdc-text-field-helper-text--persistent" aria-hidden="true">
-        {{ form.title.help_text|safe }}
-      </p>
-      {{ form.title.errors }}
     </div>
-  </div>
-
-  <div class='field-container'>
-    <div class='number-box flush-to-textbox'><span class='number'></span></div>
-    <div class="field">
-              <div class="mdc-text-field mdc-text-field--textarea mdc-text-field--dense" data-mdc-auto-init="MDCTextField">
-                {{ form.description|add_class:"mdc-text-field__input" }}
-                {{ form.description.label_tag|add_class:"mdc-floating-label"|cut:":" }}
-              </div>
-              <p class="mdc-text-field-helper-text mdc-text-field-helper-text--persistent" aria-hidden="true">
-                {% trans 'Enter the description text.'  %}
-              </p>
-
+    <form id="collection-update-form" enctype="multipart/form-data" method="post">
+      {% csrf_token %}
+      <div class='field-container'>
+        <div class='number-box flush-to-textbox'><span class='number'></span></div>
+        <div class='field'>
+          <div class="mdc-text-field mdc-text-field--outlined mdc-text-field--dense" data-mdc-auto-init="MDCTextField">
+            {{ form.title|add_class:"mdc-text-field__input" }}
+            {{ form.title.label_tag|add_class:"mdc-floating-label"|cut:":" }}
+            <div class="mdc-notched-outline">
+              <svg>
+                <path class="mdc-notched-outline__path"/>
+              </svg>
             </div>
-  </div>
-
-
-  <div class='field-container'>
-    <div class='number-box'><span class='number'></span></div>
-    <div class='field'>
-      <div id='discipline_form'>
-        <div class='mdc-form-field'>
-          <label for='id_discipline'>{{ form.discipline.label }}:</label>
-          <div class='mdc-select'>
-            {{ form.discipline|add_class:"mdc-select__native-control" }}
-            <div class="mdc-select__bottom-line"></div>
+            <div class="mdc-notched-outline__idle"></div>
           </div>
-
-        </div>
-
-      </div>
-      <p class="form-helper-text" aria-hidden="true">
-        {{ form.discipline.help_text|safe }}
-      </p>
-      {{ form.discipline.errors }}
-    </div>
-  </div>
-
-  <div class='field-container'>
-    <div class='number-box'><span class='number'></span></div>
-    <div class='field'>
-      <div class='mdc-form-field'>
-        <label for='id_image'>{{ form.image.label }}</label>
-      </div>
-      <div class='image-field'>
-        {{form.image}}
-      </div>
-      <p class="form-helper-text" aria-hidden="true">
-        {{ form.image.help_text|safe }}
-      </p>
-      {{ form.image.errors }}
-    </div>
-    </div>
-
-<div class='field-container'>
-  <div class='number-box'><span class='number'></span></div>
-  <div class='field'>
-    <div class='mdc-form-field'>
-      <label for="private">{{ form.private.label }}</label>
-      <div class="mdc-checkbox">
-        {{ form.private|add_class:'mdc-checkbox__native-control'}}
-        <div class="mdc-checkbox__background">
-          <svg class="mdc-checkbox__checkmark"
-               viewBox="0 0 24 24">
-            <path class="mdc-checkbox__checkmark-path"
-                  fill="none"
-                  stroke="white"
-                  d="M1.73,12.91 8.1,19.28 22.79,4.59"/>
-          </svg>
-          <div class="mdc-checkbox__mixedmark"></div>
+          <p class="mdc-text-field-helper-text mdc-text-field-helper-text--persistent" aria-hidden="true">
+            {{ form.title.help_text|safe }}
+          </p>
+          {{ form.title.errors }}
         </div>
       </div>
-    </div>
-    <p class="form-helper-text" aria-hidden="true">
-      {{ form.private.help_text|safe }}
-    </p>
-    {{ form.private.errors }}
-  </div>
-  </div>
-<div>
+      <div class='field-container'>
+        <div class='number-box flush-to-textbox'><span class='number'></span></div>
+        <div class="field">
+          <div class="mdc-text-field mdc-text-field--textarea mdc-text-field--dense" data-mdc-auto-init="MDCTextField">
+            {{ form.description|add_class:"mdc-text-field__input" }}
+            {{ form.description.label_tag|add_class:"mdc-floating-label"|cut:":" }}
+          </div>
+          <p class="mdc-text-field-helper-text mdc-text-field-helper-text--persistent" aria-hidden="true">
+            {% trans 'Enter the description text.'  %}
+          </p>
+        </div>
+      </div>
+      <div class='field-container'>
+        <div class='number-box'><span class='number'></span></div>
+        <div class='field'>
+          <div id='discipline_form'>
+            <div class='mdc-form-field'>
+              <label for='id_discipline'>{{ form.discipline.label }}:</label>
+              <div class='mdc-select'>
+                {{ form.discipline|add_class:"mdc-select__native-control" }}
+                <div class="mdc-select__bottom-line"></div>
+              </div>
+            </div>
+          </div>
+          <p class="form-helper-text" aria-hidden="true">
+            {{ form.discipline.help_text|safe }}
+          </p>
+            {{ form.discipline.errors }}
+        </div>
+      </div>
+      <div class='field-container'>
+        <div class='number-box'><span class='number'></span></div>
+        <div class='field'>
+          <div class='mdc-form-field'>
+            <label for='id_image'>{{ form.image.label }}</label>
+          </div>
+          <div class='image-field'>
+            {{form.image}}
+          </div>
+          <p class="form-helper-text" aria-hidden="true">
+            {{ form.image.help_text|safe }}
+          </p>
+          {{ form.image.errors }}
+        </div>
+      </div>
+      <div class='field-container'>
+        <div class='number-box'><span class='number'></span></div>
+        <div class='field'>
+          <div class='mdc-form-field'>
+            <label for="private">{{ form.private.label }}</label>
+            <div class="mdc-checkbox">
+              {{ form.private|add_class:'mdc-checkbox__native-control'}}
+              <div class="mdc-checkbox__background">
+                <svg class="mdc-checkbox__checkmark" viewBox="0 0 24 24">
+                  <path class="mdc-checkbox__checkmark-path"
+                    fill="none"
+                    stroke="white"
+                    d="M1.73,12.91 8.1,19.28 22.79,4.59"/>
+                </svg>
+                <div class="mdc-checkbox__mixedmark"></div>
+              </div>
+            </div>
+          </div>
+          <p class="form-helper-text" aria-hidden="true">
+            {{ form.private.help_text|safe }}
+          </p>
+            {{ form.private.errors }}
+        </div>
+      </div>
+      <div>
       <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Your assignments' %}</h2>
-
       <p>{% trans 'These are the assignments for which you are an author, and have editing rights.' %}</p>
-
       {% if not owned_assignments %}
-        <p>{% blocktrans %} You currently do not have editing rights on any assignments. {% endblocktrans %}</p>
+      <p>{% blocktrans %} You currently do not have editing rights on any assignments. {% endblocktrans %}</p>
       {% endif %}
-
       <ul class="mdc-list mdc-list--two-line mdc-list--non-interactive">
         {% for a in owned_assignments %}
         <li role="separator" class="mdc-list-divider"></li>
-        <li class="mdc-list-item">
-          <span class="mdc-list-item__graphic mdc-theme--primary">
+          <li class="mdc-list-item">
+            <span class="mdc-list-item__graphic mdc-theme--primary">
               <a class="translate-4" href="{% url 'question-list' a.pk %}">
                 <i class="mdc-theme--primary material-icons md-48">assignment</i>
               </a>
-          </span>
-          <span class="mdc-list-item__text mdc-theme--secondary bold">
-            {{ a.identifier }}
-            <span class="mdc-list-item__secondary-text">
-              {{ a.questions.count }} {% trans "questions" %}
             </span>
-          </span>
-          <span class="mdc-list-item__meta">
-            <i class="mdc-icon-toggle material-icons mdc-theme--primary follower-btn"
-                role="button"
-                aria-pressed="false"
-                aria-label="Add to favorites" tabindex="0"
-                {% if g in object.assignments.all %}
-                data-toggle-off='{"label": "Remove from favourites", "content": "favorite"}'
-                data-toggle-on='{"label": "Add to favourites", "content": "favorite_border"}'
-                {% else %}
-                data-toggle-on='{"label": "Remove from favourites", "content": "favorite"}'
-                data-toggle-off='{"label": "Add to favourites", "content": "favorite_border"}'
-                {% endif %}
-                pk="{{ a.pk }}"
-                ppk="{{ object.pk }}">
-                favorite_border
-            </i>
-          </span>
-        </li>
-        {% endfor %}
-        <li role="separator" class="mdc-list-divider"></li>
-      </ul>
-
-
-
-
+            <span class="mdc-list-item__text mdc-theme--secondary bold">
+              {{ a.identifier }}
+              <span class="mdc-list-item__secondary-text">
+                {{ a.questions.count }} {% trans "questions" %}
+              </span>
+            </span>
+            <span class="mdc-list-item__meta">
+              <i class="mdc-icon-toggle material-icons mdc-theme--primary follower-btn"
+                  role="button"
+                  aria-pressed="false"
+                  aria-label="Add to favorites" tabindex="0"
+                  {% if a in object.assignments.all %}
+                  data-toggle-off='{"label": "Remove from favourites", "content": "favorite"}'
+                  data-toggle-on='{"label": "Add to favourites", "content": "favorite_border"}'
+                  {% else %}
+                  data-toggle-on='{"label": "Remove from favourites", "content": "favorite"}'
+                  data-toggle-off='{"label": "Add to favourites", "content": "favorite_border"}'
+                  {% endif %}
+                  pk="{{ a.pk }}"
+                  ppk="{{ object.pk }}">
+                  favorite_border
+              </i>
+            </span>
+          </li>
+          {% endfor %}
+          <li role="separator" class="mdc-list-divider"></li>
+        </ul>
       <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Followed Assignments' %}</h2>
-
       <p>{% blocktrans %} These are the assignments you are following.{% endblocktrans %}</p>
-
       {% if not teacher.assignments.all %}
       <p>{% blocktrans %} You do not have any followed assignments. {% endblocktrans %}</p>
       {% endif %}
-
       <ul class="mdc-list mdc-list--two-line mdc-list--non-interactive">
         {% for g in followed_assignments %}
         <li role="separator" class="mdc-list-divider"></li>
@@ -202,8 +179,6 @@
             </span>
           </span>
           <span class="mdc-list-item__meta">
-
-
             <i class="mdc-icon-toggle material-icons mdc-theme--primary follower-btn"
                 role="button"
                 aria-pressed="false"
@@ -219,27 +194,21 @@
                 ppk="{{ object.pk }}">
                 favorite_border
             </i>
-
           </span>
         </li>
         {% endfor %}
         <li role="separator" class="mdc-list-divider"></li>
       </ul>
-      </div>
-
-
-
-      <input class="mdc-button mdc-button--raised padded-top" type="submit" value="Update" />
-
-      <input type="hidden" name="owner" value="">
-</form>
-
-</div>
-
+    </div>
+    <input class="mdc-button mdc-button--raised padded-top" type="submit" value="Update" id="id_update"/>
+    <input type="hidden" name="owner" value="">
+  </form>
+  </div>
 </section>
 </main>
 {% endblock %}
 {% block scripts %}
+{{ block.super }}
 
   <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
   <script nonce="{{ request.csp_nonce }}">

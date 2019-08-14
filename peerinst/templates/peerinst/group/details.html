@@ -217,6 +217,10 @@
 
           {% endfor %}
           <li class="mdc-list-divider" role="separator"></li>
+          <button id="collection-select"
+                  class="mdc-button mdc-button--raised"
+                  data-pk="{{ group.pk }}">Move to Collection
+          </button>
 
         </ul>
       </div>
@@ -272,7 +276,7 @@
   window.addEventListener("load", function() {
     document.querySelectorAll(".edit-btn").forEach(btn => {
       btn.addEventListener("click", event => {
-        group.editField(event, 'text', 'mdc-list-item__secondary-text')       
+        group.editField(event, 'text', 'mdc-list-item__secondary-text')
       })
     })
     document.querySelectorAll(".toggle-id-btn").forEach(btn => {
@@ -291,5 +295,34 @@
     })
     {% endfor %}
   })
+
+  $.ajaxSetup({
+      beforeSend: function(xhr, settings) {
+          if (!bundle.csrfSafeMethod(settings.type) && !this.crossDomain) {
+              xhr.setRequestHeader("X-CSRFToken", bundle.getCsrfToken());
+          }
+      }
+  });
+
+
+  function collectionCreate(pk) {
+    var posting = $.post("{% url 'collection-add-assignment' %}", {pk: pk});
+    posting.done(function(data) {
+      console.info(data);
+    })
+  }
+
+
+  const el = document.getElementById("collection-select");
+  el.addEventListener(
+    "click",
+    () => group.createCollection(
+      el.getAttribute('data-pk'),
+      "{% url 'collection-add-assignment' %}",
+      "{% url 'collection-update' 0 %}"
+    )
+  );
+
+
 </script>
 {% endblock %}

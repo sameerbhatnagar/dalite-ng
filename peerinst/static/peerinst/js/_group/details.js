@@ -44,3 +44,14 @@ export function toggleStudentIdNeeded(event, url) {
       console.log(err);
     });
 }
+
+export async function createCollection(
+  groupPk,
+  addAssignmentUrl,
+  collectionUpdateUrl,
+) {
+  const req = buildReq({ group_pk: groupPk }, "post");
+  const resp = await fetch(addAssignmentUrl, req);
+  const data = await resp.json();
+  window.location.replace(collectionUpdateUrl.replace("0", `${data.pk}`));
+}

@@ -3,38 +3,34 @@
 {% load get_value staticfiles compress i18n %}
 
 {% block stylesheets %}
+{{ block.super }}
 {% compress css %}
 <link href="{% static 'peerinst/css/collection.min.css' %}" rel="stylesheet">
 {% endcompress %}
 {% endblock %}
 {% block body %}
 <main>
-<section>
-<h1 class="mdc-typography--display3">{{ object.title }}
-  <svg class="underline" width=150 height=4></svg>
-</h1>
-
-  <div class="admin-link">
-  {% if request.user.teacher == object.owner %}
-  <a href="{% url 'collection-update' object.pk %}">{% trans 'Edit' %}</a>
-  <span class="links-divider">|</span><a href="{% url 'collection-delete' object.pk %}">{% trans 'Delete' %}</a>
-  <span class="links-divider">|</span>{% endif %}<a href="{% url 'collection-create' %}">{% trans 'Create' %}</a>
-<div>
-
-
-  <div class="mdc-card" id="desciption">
-
-
-    <div class="mdc-typography--caption">
-      {% trans 'Created by' %} {{ object.owner.user.username }}
+  <section>
+    <h1 class="mdc-typography--display3">Collections
+      <svg class="underline" width=150 height=4></svg>
+    </h1>
+    <div class="admin-link">
+      {% if request.user.teacher == object.owner %}
+      <a href="{% url 'collection-update' object.pk %}">{% trans 'Edit' %}</a>
+      <span class="links-divider">|</span><a href="{% url 'collection-delete' object.pk %}">{% trans 'Delete' %}</a>
+      <span class="links-divider">|</span>{% endif %}<a href="{% url 'collection-create' %}">{% trans 'Create' %}</a>
     </div>
-
-    <div class="mdc-typography--body1" id="obj.desc">
-      {{ object.description }}
+    <div>
+      <h2 class="mdc-typography--display1 mdc-theme--secondary">{{ object.title }}</h2>
     </div>
-
+    <div class="mdc-card" id="desciption">
+      <div class="mdc-typography--caption">
+        {% trans 'Created by' %} {{ object.owner.user.username }}
+      </div>
+      <div class="mdc-typography--body1" id="obj.desc">
+        {{ object.description }}
+      </div>
     <div class="mdc-card__actions">
-
       <div class="mdc-card__action-buttons">
         <div class="mdc-typography--caption">
           <div>
@@ -48,51 +44,39 @@
           </div>
         </div>
       </div>
-
-    <div class="mdc-card__action-icons">
-
-      <i class="mdc-icon-toggle material-icons mdc-theme--primary follower-btn"
-          role="button"
-          aria-pressed="false"
-          aria-label="Add to favorites" tabindex="0"
-          {% if request.user.teacher in object.followers.all %}
-          data-toggle-off='{"label": "Remove from favourites", "content": "favorite"}'
-          data-toggle-on='{"label": "Add to favourites", "content": "favorite_border"}'
-          {% else %}
-          data-toggle-on='{"label": "Remove from favourites", "content": "favorite"}'
-          data-toggle-off='{"label": "Add to favourites", "content": "favorite_border"}'
-          {% endif %}
-          pk="{{ object.pk }}">
-          favorite_border
-      </i>
-
-
+      <div class="mdc-card__action-icons">
+        <i class="mdc-icon-toggle material-icons mdc-theme--primary follower-btn"
+            role="button"
+            aria-pressed="false"
+            aria-label="Add to favorites" tabindex="0"
+            {% if request.user.teacher in object.followers.all %}
+            data-toggle-off='{"label": "Remove from favourites", "content": "favorite"}'
+            data-toggle-on='{"label": "Add to favourites", "content": "favorite_border"}'
+            {% else %}
+            data-toggle-on='{"label": "Remove from favourites", "content": "favorite"}'
+            data-toggle-off='{"label": "Add to favourites", "content": "favorite_border"}'
+            {% endif %}
+            pk="{{ object.pk }}">
+            favorite_border
+        </i>
       </div>
+    </div>
+    </div>
+    <div class="mdc-card" id="desciption">
+      <div class="mdc-typography--body1" id="obj.desc">
+        <b>{% trans 'Collection Statistics' %}</b>
       </div>
-      </div>
-
-
-      <div class="mdc-card" id="desciption">
-
-
-
-        <div class="mdc-typography--body1" id="obj.desc">
-            <b>{% trans 'Collection Statistics' %}</b>
-        </div>
-
-        <div class="mdc-card__actions">
-
-          <div class="mdc-card__action-buttons">
-            <div class="mdc-typography--caption">
-              <div>
-                {% trans 'Total Answers' %}: {{ collection_data.total_answers }}
-              </div>
-              <div>
-                {% trans 'Answers Switched' %}: {{ collection_data.switches }}
-              </div>
+      <div class="mdc-card__actions">
+        <div class="mdc-card__action-buttons">
+          <div class="mdc-typography--caption">
+            <div>
+              {% trans 'Total Answers' %}: {{ collection_data.total_answers }}
+            </div>
+            <div>
+              {% trans 'Answers Switched' %}: {{ collection_data.switches }}
             </div>
           </div>
-
+        </div>
         <div class="mdc-card__action-icons">
           <div class="mdc-card__action-buttons">
             <div class="mdc-typography--caption">
@@ -104,42 +88,27 @@
               </div>
             </div>
           </div>
-
+        </div>
+      </div>
+    </div>
+    {% for obj in object.assignments.all %}
+    <ul>
+      <li class="dense-list searchable">
+        <div class="mdc-card" id="card-assign">
+          <div class="mdc-typography--title bold">
+            {{ obj.title }}
           </div>
-          </div>
-          </div>
-
-
-
-{% for obj in object.assignments.all %}
-<ul>
-<li class="dense-list searchable">
-<div class="mdc-card" id="card-assign">
-  <div class="mdc-typography--title bold">
-    {{ obj.title }}
-  </div>
-
-  <div class="mdc-typography--caption">
-    {% trans 'Created by' %} {% for c in obj.owner.all %}
-    {{ c }}{% if not forloop.last %}, {% endif %}
-    {% endfor %}
-  </div>
-
-  <div class="mdc-typography--body1">
-
-
-
-
+        <div class="mdc-typography--caption">
+          {% trans 'Created by' %} {% for c in obj.owner.all %}
+          {{ c }}{% if not forloop.last %}, {% endif %}
+          {% endfor %}
+        </div>
+        <div class="mdc-typography--body1">
           <div class="mdc-card" id="desciption">
-
-
-
             <div class="mdc-typography--body1">
                 <b>{% trans 'Assignment Statistics' %}</b>
             </div>
-
             <div class="mdc-card__actions">
-
               <div class="mdc-card__action-buttons">
                 <div class="mdc-typography--caption">
                   <div>
@@ -150,149 +119,110 @@
                   </div>
                 </div>
               </div>
-
-
-
-
-            <div class="mdc-card__action-icons">
-              <div class="mdc-card__action-buttons">
-                <div class="mdc-typography--caption">
-                  <div>
-                    {% trans 'Correct Answers on First Attempt' %}: {{ assignment_data|get_value:obj.pk|get_value:"correct_first_answers" }}
-                  </div>
-                  <div>
-                    {% trans 'Correct Answers on Second Attempt' %}: {{ assignment_data|get_value:obj.pk|get_value:"correct_second_answers" }}
-                  </div>
-                </div>
-              </div>
-              </div>
-
-              </div>
-              </div>
-
-
-              <div class="foldable">
-                <h1 class="foldable--title mdc-typography--display1 mdc-theme--secondary">
-                  {{ obj.questions.count }} {% trans 'Questions' %}
-                </h1>
-                <div class="foldable--body">
-
-<ul>
-
-
-
-            {% for question in obj.questions.all %}
-            <li class="dense-list searchable">
-            <div class="mdc-card"
-                 id="{{ obj.id }}"
-                 discipline="'{{ obj.discipline }}'"
-                 category="{% for c in obj.category.all %}{{ c.title }} {% endfor %}"
-                 matrix="{{ obj.get_matrix|safe }}">
-              <div class="mdc-typography--title bold">
-                {{ question.title|safe }}
-              </div>
-
-              <div class="mdc-typography--caption">
-                {{ question.id }} {% if question.user %}{% trans 'by' %} {{ question.user.username }}{% endif %}
-              </div>
-
-              <div class="mdc-typography--body1">
-                {{ question.text|safe }}
-              </div>
-
-
-              <div class="mdc-card__actions">
-
+              <div class="mdc-card__action-icons">
                 <div class="mdc-card__action-buttons">
                   <div class="mdc-typography--caption">
                     <div>
-                      {% trans 'Discipline' %}: {{ question.discipline|safe }}
+                      {% trans 'Correct Answers on First Attempt' %}: {{ assignment_data|get_value:obj.pk|get_value:"correct_first_answers" }}
                     </div>
                     <div>
-                      {% trans 'Categories' %}:
-                      {% for c in question.category.all %}
-                      {{ c.title|safe }}{% if not forloop.last %}, {% endif %}
-                      {% empty %}
-                      {% trans 'Uncategorized' %}
-                      {% endfor %}
-                    </div>
-                    <div>
-                      {% trans 'Student answers' %}: {{ obj.answer_set.all.count }}
+                      {% trans 'Correct Answers on Second Attempt' %}: {{ assignment_data|get_value:obj.pk|get_value:"correct_second_answers" }}
                     </div>
                   </div>
-                </div>
-
-                <div class="mdc-card__action-icons">
-
-                  <div id="stats-{{ question.id|safe }}" class="stats">
-                    <i id="activate-dialog-analytics-{{ question.id|safe }}"
-                    ref_id="{{ question.id|safe }}" class="material-icons md-24 analytics-tags">assessment</i>
-                    <span id="rating-{{ question.id|safe }}"></span>
-                  </div>
-
-                  <i class="mdc-icon-toggle material-icons mdc-theme--primary favourite-btn"
-                      role="button"
-                      aria-pressed="false"
-                      aria-label="Add to favorites" tabindex="0"
-                      {% if question in request.user.teacher.favourite_questions.all %}
-                      data-toggle-off='{"label": "Remove from favourites", "content": "favorite"}'
-                      data-toggle-on='{"label": "Add to favourites", "content": "favorite_border"}'
-                      {% else %}
-                      data-toggle-on='{"label": "Remove from favourites", "content": "favorite"}'
-                      data-toggle-off='{"label": "Add to favourites", "content": "favorite_border"}'
-                      {% endif %}
-                      pk="{{ question.pk }}">
-                      favorite_border
-                  </i>
-
                 </div>
               </div>
             </div>
-            {% endfor %}
-
-</li>
-</ul>
-
-
-
-
-
-
-
-
-
-
-
-
+          </div>
+          <div class="foldable">
+            <h1 class="foldable--title mdc-typography--display1 mdc-theme--secondary">
+              {{ obj.questions.count }} {% trans 'Questions' %}
+            </h1>
+            <div class="foldable--body">
+              <ul>
+                {% for question in obj.questions.all %}
+                <li class="dense-list searchable">
+                  <div class="mdc-card"
+                       id="{{ obj.id }}"
+                       discipline="'{{ obj.discipline }}'"
+                       category="{% for c in obj.category.all %}{{ c.title }} {% endfor %}"
+                       matrix="{{ obj.get_matrix|safe }}">
+                    <div class="mdc-typography--title bold">
+                      {{ question.title|safe }}
+                    </div>
+                    <div class="mdc-typography--caption">
+                      {{ question.id }} {% if question.user %}{% trans 'by' %} {{ question.user.username }}{% endif %}
+                    </div>
+                    <div class="mdc-typography--body1">
+                      {{ question.text|safe }}
+                    </div>
+                    <div class="mdc-card__actions">
+                      <div class="mdc-card__action-buttons">
+                        <div class="mdc-typography--caption">
+                          <div>
+                            {% trans 'Discipline' %}: {{ question.discipline|safe }}
+                          </div>
+                          <div>
+                            {% trans 'Categories' %}:
+                            {% for c in question.category.all %}
+                            {{ c.title|safe }}{% if not forloop.last %}, {% endif %}
+                            {% empty %}
+                            {% trans 'Uncategorized' %}
+                            {% endfor %}
+                          </div>
+                          <div>
+                            {% trans 'Student answers' %}: {{ obj.answer_set.all.count }}
+                          </div>
+                        </div>
+                      </div>
+                      <div class="mdc-card__action-icons">
+                        <div id="stats-{{ question.id|safe }}" class="stats">
+                          <i id="activate-dialog-analytics-{{ question.id|safe }}"
+                          ref_id="{{ question.id|safe }}" class="material-icons md-24 analytics-tags">assessment</i>
+                          <span id="rating-{{ question.id|safe }}"></span>
+                        </div>
+                        <i class="mdc-icon-toggle material-icons mdc-theme--primary favourite-btn"
+                            role="button"
+                            aria-pressed="false"
+                            aria-label="Add to favorites" tabindex="0"
+                            {% if question in request.user.teacher.favourite_questions.all %}
+                            data-toggle-off='{"label": "Remove from favourites", "content": "favorite"}'
+                            data-toggle-on='{"label": "Add to favourites", "content": "favorite_border"}'
+                            {% else %}
+                            data-toggle-on='{"label": "Remove from favourites", "content": "favorite"}'
+                            data-toggle-off='{"label": "Add to favourites", "content": "favorite_border"}'
+                            {% endif %}
+                            pk="{{ question.pk }}">
+                            favorite_border
+                        </i>
+                      </div>
+                    </div>
+                  </div>
+                  {% endfor %}
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="mdc-card__actions">
+          <div class="mdc-card__action-buttons">
+            <div class="mdc-typography--caption">
+              <div class="admin-link">
+                <a id="assignment-view" href="{% url 'question-list' obj.pk %}"><b>View Assignment</b></a>
+              </div>
+            </div>
+          </div>
       </div>
-  </div>
-  </div>
-
-  <div class="mdc-card__actions">
-
-    <div class="mdc-card__action-buttons">
-      <div class="mdc-typography--caption">
-        <div class="admin-link"><a id="assignment-view" href="{% url 'question-list' obj.pk %}"><b>View Assignment</b></a></div>
-      </div>
-    </div>
-</div>
-</div>
-
-
-</ul>
-</li>
-{% empty %}
-{% trans 'No assignments available.' %}
-{% endfor %}
-
-
-
-</section>
+        </div>
+      </ul>
+    </li>
+    {% empty %}
+    {% trans 'No assignments available.' %}
+    {% endfor %}
+  </section>
 </main>
 {% endblock %}
-
 {% block scripts %}
-
+{{ block.super }}
 <script nonce="{{ request.csp_nonce }}">
 
   [].forEach.call(document.querySelectorAll(".mdc-icon-toggle"), el => {
@@ -320,7 +250,6 @@
     });
   });
 
-
   function toggleFavourite(pk) {
     var posting = $.post("{% url 'teacher-toggle-favourite' %}", {pk: pk});
     posting.done(function(data) {
@@ -334,9 +263,5 @@
     });
   });
 
-
-
-
 </script>
-
 {% endblock %}

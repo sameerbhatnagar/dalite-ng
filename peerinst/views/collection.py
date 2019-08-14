@@ -1,17 +1,20 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.core import serializers
 from django.views.generic.edit import CreateView
 from django.views.generic import ListView, DetailView, UpdateView, DeleteView
 from django.forms import ModelForm
-from ..models import Collection, Teacher, Assignment
+from ..models import Collection, Teacher, Assignment, StudentGroup
 from ..mixins import LoginRequiredMixin, NoStudentsMixin
 from django.shortcuts import get_object_or_404
 from django.core.urlresolvers import reverse
 from peerinst.admin_views import get_assignment_aggregates
 import collections
+from dalite.views.utils import get_json_params
+from .decorators import teacher_required
+from django.views.decorators.http import require_POST
 
 
 class CollectionForm(ModelForm):
@@ -106,7 +109,9 @@ class CollectionUpdateView(LoginRequiredMixin, NoStudentsMixin, UpdateView):
     def get_context_data(self, **kwargs):
         context = super(UpdateView, self).get_context_data(**kwargs)
         context["teacher"] = get_object_or_404(Teacher, user=self.request.user)
+        collection = self.get_object()
         teacher = get_object_or_404(Teacher, user=self.request.user)
+        context["collection_assignments"] = collection.assignments.all()
         context["owned_assignments"] = Assignment.objects.filter(
             owner=self.request.user
         )
@@ -182,3 +187,25 @@ def featured_collections(request):
         "json", Collection.objects.filter(featured=True)
     )
     return JsonResponse(data, safe=False)
+
+
+@teacher_required
+@require_POST
+def collection_add_assignment(request, teacher):
+    args = get_json_params(request, args=["group_pk"])
+    if isinstance(args, HttpResponse):
+        return args
+    (group_pk,), _ = args
+
+    collection = Collection.objects.create(
+        discipline=teacher.disciplines.get(id=1),
+        owner=teacher,
+        title="temporary title",
+        description="temporary description",
+    )
+    student_group = get_object_or_404(StudentGroup, pk=group_pk)
+    student_group_assignments = student_group.studentgroupassignment_set.all()
+    for assignment in student_group_assignments:
+        if assignment.assignment not in collection.assignments.all():
+            collection.assignments.add(assignment.assignment)
+            return JsonResponse({"pk": collection.pk})

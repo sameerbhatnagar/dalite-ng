@@ -3,6 +3,7 @@
 {% load staticfiles compress i18n %}
 
 {% block stylesheets %}
+{{ block.super }}
 {% compress css %}
 <link href="{% static 'peerinst/css/collection.min.css' %}" rel="stylesheet">
 {% endcompress %}
@@ -10,7 +11,7 @@
 {% block body %}
 <main>
 <section>
-<h1 class="mdc-typography--display3">{% trans 'Featured Collections' %}
+<h1 class="mdc-typography--display3">{% trans 'Collections' %}
   <svg class="underline" width=150 height=4></svg>
 </h1>
 <div class="admin-link">
@@ -22,6 +23,10 @@
 <span class="links-divider">|</span><a href="{% url 'collection-create' %}">{% trans 'Create' %}</a>
 </div>
 
+<div>
+<h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Featured Collections' %}</h2>
+</div>
+
 <ul>
 
 {% for obj in object_list %}
@@ -31,11 +36,9 @@
   <div class="mdc-typography--title bold">
     {% if obj.image %}<img src="{{obj.image.url}}">&nbsp;&nbsp;{% endif %}{{ obj.title }}
   </div>
-
   <div class="mdc-typography--caption">
     {% trans 'Created by' %} {{ obj.owner.user.username }}
   </div>
-
   <div class="mdc-typography--body1">
     {{ obj.description }}
   </div>
@@ -59,8 +62,6 @@
 
 
   <div class="mdc-card__action-icons">
-
-
     <i class="mdc-icon-toggle material-icons mdc-theme--primary"
         role="button"
         aria-pressed="false"
@@ -75,7 +76,6 @@
         pk="{{ obj.pk }}">
         favorite_border
     </i>
-
   </div>
 </div>
 </div>
@@ -93,7 +93,8 @@
 {% endblock %}
 
 {% block scripts %}
-{% compress js inline %}
+{{ block.super }}
+
 <script nonce="{{ request.csp_nonce }}">
 
   [].forEach.call(document.querySelectorAll(".mdc-icon-toggle"), el => {
@@ -126,5 +127,5 @@
 
 </script>
 
-{% endcompress %}
+
 {% endblock %}

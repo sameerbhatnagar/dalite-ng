@@ -3,6 +3,7 @@
 {% load staticfiles compress i18n %}
 
 {% block stylesheets %}
+{{ block.super }}
 {% compress css %}
 <link href="{% static 'peerinst/css/collection.min.css' %}" rel="stylesheet">
 {% endcompress %}
@@ -10,95 +11,76 @@
 {% block body %}
 <main>
 <section>
-<h1 class="mdc-typography--display3">{% trans 'Browse Collections' %}
-  <svg class="underline" width=150 height=4></svg>
-</h1>
-
-  <div class="admin-link">
-  {% if user.is_staff %}
-  <a href="{% url 'admin_index_wrapper' %}">Click here to access admin</a>
-  <span class="links-divider">|</span>{% endif %}<a href="{% url 'personal-collection-list' %}">{% trans 'Owned' %}</a>
-  <span class="links-divider">|</span><a href="{% url 'followed-collection-list' %}">{% trans 'Followed' %}</a>
-  <span class="links-divider">|</span><a href="{% url 'featured-collection-list' %}">{% trans 'Featured' %}</a>
-  <span class="links-divider">|</span><a href="{% url 'collection-create' %}">{% trans 'Create' %}</a>
-</div>
-
-
-
-<ul>
-
-{% for obj in object_list %}
-
-<li class="dense-list searchable">
-<div class="mdc-card" id="card{% if obj.featured == True %}-featured{% endif %}">
-
-
-  <div class="mdc-typography--title bold">
-    {% if obj.image %}<img src="{{obj.image.url}}">&nbsp;&nbsp;{% endif %}{{ obj.title }}
-  </div>
-
-  <div class="mdc-typography--caption">
-    {% trans 'Created by' %} {{ obj.owner.user.username }}
-  </div>
-
-  <div class="mdc-typography--body1">
-    {{ obj.description }}
-  </div>
-
-
-  <div class="mdc-card__actions">
-
-    <div class="mdc-card__action-buttons">
-      <div class="mdc-typography--caption">
-        <div>
-          {% trans 'Discipline' %}: {{ obj.discipline }}
-        </div>
-        <div>
-          {% trans 'Published on' %} {{obj.created_on}}
-          </div>
-        <div>
-          <a id="collection-view" href="{% url 'collection-detail' obj.pk %}"><b>{% trans 'Click Here to View' %}</b></a>
-      </div>
-      </div>
+  <h1 class="mdc-typography--display3">{% trans 'Collections' %}
+    <svg class="underline" width=150 height=4></svg>
+  </h1>
+  <div>
+    <div class="admin-link">
+      {% if user.is_staff %}
+      <a href="{% url 'admin_index_wrapper' %}">Click here to access admin</a>
+      <span class="links-divider">|</span>{% endif %}<a href="{% url 'personal-collection-list' %}">{% trans 'Owned' %}</a>
+      <span class="links-divider">|</span><a href="{% url 'followed-collection-list' %}">{% trans 'Followed' %}</a>
+      <span class="links-divider">|</span><a href="{% url 'featured-collection-list' %}">{% trans 'Featured' %}</a>
+      <span class="links-divider">|</span><a href="{% url 'collection-create' %}">{% trans 'Create' %}</a>
     </div>
-
-  <div class="mdc-card__action-icons">
-
-
-    <i class="mdc-icon-toggle material-icons mdc-theme--primary follower-btn"
-        role="button"
-        aria-pressed="false"
-        aria-label="Add to favorites" tabindex="0"
-        {% if request.user.teacher in obj.followers.all %}
-        data-toggle-off='{"label": "Remove from favourites", "content": "favorite"}'
-        data-toggle-on='{"label": "Add to favourites", "content": "favorite_border"}'
-        {% else %}
-        data-toggle-on='{"label": "Remove from favourites", "content": "favorite"}'
-        data-toggle-off='{"label": "Add to favourites", "content": "favorite_border"}'
-        {% endif %}
-        pk="{{ obj.pk }}">
-        favorite_border
-    </i>
-
-
   </div>
-</div>
-</div>
-
-
-  </li>
-{% empty %}
-  <li>{% trans 'No collections available.' %}</li>
-{% endfor %}
-</ul>
-
-
-</section>
+  <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Browse Collections' %}</h2>
+  <ul>
+    {% for obj in object_list %}
+    <li class="dense-list searchable">
+      <div class="mdc-card" id="card{% if obj.featured == True %}-featured{% endif %}">
+        <div class="mdc-typography--title bold">
+          {% if obj.image %}<img src="{{obj.image.url}}">&nbsp;&nbsp;{% endif %}{{ obj.title }}
+        </div>
+      <div class="mdc-typography--caption">
+        {% trans 'Created by' %} {{ obj.owner.user.username }}
+      </div>
+      <div class="mdc-typography--body1">
+        {{ obj.description }}
+      </div>
+      <div class="mdc-card__actions">
+        <div class="mdc-card__action-buttons">
+          <div class="mdc-typography--caption">
+            <div>
+              {% trans 'Discipline' %}: {{ obj.discipline }}
+            </div>
+            <div>
+              {% trans 'Published on' %} {{obj.created_on}}
+            </div>
+            <div>
+              <a id="collection-view" href="{% url 'collection-detail' obj.pk %}"><b>{% trans 'Click Here to View' %}</b></a>
+            </div>
+          </div>
+        </div>
+        <div class="mdc-card__action-icons">
+            <i class="mdc-icon-toggle material-icons mdc-theme--primary follower-btn"
+              role="button"
+              aria-pressed="false"
+              aria-label="Add to favorites" tabindex="0"
+              {% if request.user.teacher in obj.followers.all %}
+              data-toggle-off='{"label": "Remove from favourites", "content": "favorite"}'
+              data-toggle-on='{"label": "Add to favourites", "content": "favorite_border"}'
+              {% else %}
+              data-toggle-on='{"label": "Remove from favourites", "content": "favorite"}'
+              data-toggle-off='{"label": "Add to favourites", "content": "favorite_border"}'
+              {% endif %}
+              pk="{{ obj.pk }}">
+              favorite_border
+            </i>
+          </div>
+        </div>
+      </div>
+    </li>
+    {% empty %}
+    <li>{% trans 'No collections available.' %}</li>
+    {% endfor %}
+    </ul>
+  </section>
 </main>
 {% endblock %}
 
 {% block scripts %}
-
+{{ block.super }}
 <script nonce="{{ request.csp_nonce }}">
 
 [].forEach.call(document.querySelectorAll(".mdc-icon-toggle"), el => {
