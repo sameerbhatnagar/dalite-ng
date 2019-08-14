@@ -1,0 +1,188 @@
+@import "../../variables";
+
+.messages {
+  color: $mdc-theme-secondary;
+  font-size: 0.8rem;
+  position: relative;
+
+  & .messages__icon {
+    background: none;
+    border-radius: 20px;
+    cursor: pointer;
+    height: 42px;
+    position: relative;
+    transition: background 300ms, border-radius 300ms;
+    width: 42px;
+    z-index: 3;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.25);
+
+      & svg:hover {
+        background: none;
+      }
+    }
+
+    & svg {
+      fill: #ffffff;
+      height: 28px;
+      padding: 7px;
+      transition: fill 300ms;
+      width: 28px;
+    }
+
+    & .messages__icon__badge {
+      align-items: center;
+      background: #b30000;
+      border-radius: 11px;
+      color: #ffffff;
+      display: none;
+      font-size: 17px;
+      height: 22px;
+      justify-content: center;
+      position: absolute;
+      right: 2px;
+      top: 2px;
+      width: 22px;
+      z-index: 4;
+    }
+  }
+
+  & .messages__list {
+    align-items: center;
+    background: #ffffff;
+    border-radius: 20px 0 20px 20px;
+    display: grid;
+    grid-template-columns: minmax(400px, 50%);
+    grid-template-rows: 1fr 40px;
+    max-height: 50vh;
+    padding-top: 20px;
+    position: absolute;
+    right: 21px;
+    text-align: center;
+    top: 21px;
+    transform: scale(0);
+    transform-origin: top right;
+    transition: transform 300ms, top 300ms, right 300ms;
+    z-index: 2;
+
+    & .messages__messages {
+      display: grid;
+      grid-auto-rows: max-content;
+      grid-template-columns: 1fr;
+      height: 100%;
+      overflow-y: auto;
+
+      & .message {
+        align-items: center;
+        border-bottom: 1px solid rgba($mdc-theme-primary, 0.25);
+        border-top: none;
+        display: grid;
+        grid-template-columns: 50px max-content 1fr max-content;
+        grid-template-rows: 1fr max-content;
+        min-height: 30px;
+        opacity: 0;
+        padding: 10px 0;
+        text-align: start;
+        user-select: none;
+
+        &:first-child {
+          border-top: 1px solid rgba($mdc-theme-primary, 0.25);
+        }
+
+        &.message--new {
+          background: rgba($mdc-theme-primary, 0.05);
+        }
+
+        & .message__icon {
+          fill: $mdc-theme-primary;
+          grid-column: 1;
+          height: 28px;
+          justify-self: center;
+          width: 28px;
+        }
+
+        & .message__new {
+          color: $mdc-theme-secondary;
+          font-size: 0.75rem;
+          font-style: italic;
+          grid-column: 2;
+        }
+
+        & .message__title {
+          font-weight: bold;
+          grid-column: 3;
+          overflow: hidden;
+          padding: 0 10px;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+
+        & .message__mark-read {
+          cursor: pointer;
+          font-size: 0.6rem;
+          font-style: italic;
+          grid-column: 4;
+          padding-right: 10px;
+          text-decoration: underline;
+        }
+
+        & .message__last-reply {
+          font-size: 0.75rem;
+          grid-column: 3;
+          grid-row: 2;
+          overflow: hidden;
+          padding-left: 10px;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+
+          & .message__last-reply__author {
+            &::after {
+              content: ":";
+            }
+          }
+
+          & .message__last-reply__content {
+            font-style: italic;
+            padding-left: 10px;
+          }
+        }
+      }
+    }
+
+    & .messages__read-all-btn {
+      align-self: center;
+      cursor: pointer;
+      font-size: 0.8rem;
+      justify-self: center;
+      text-align: center;
+      text-decoration: underline;
+    }
+  }
+
+  &.messages--open {
+    & .messages__icon {
+      background: #ffffff;
+      border-radius: 20px 20px 0 0;
+
+      &:hover {
+        background: #ffffff;
+      }
+
+      & svg {
+        fill: $mdc-theme-primary;
+      }
+    }
+
+    & .messages__list {
+      right: 0;
+      top: 42px;
+      transform: scale(1);
+      z-index: 3;
+
+      & .message {
+        opacity: 1;
+      }
+    }
+  }
+}

@@ -5,16 +5,22 @@ import json
 import logging
 from datetime import datetime
 from itertools import chain
+from operator import attrgetter
 
 import pytz
 from celery.result import AsyncResult
 from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.http import HttpResponse, JsonResponse, StreamingHttpResponse
 from django.shortcuts import render
 from django.utils.translation import ugettext_lazy as translate
-from django.views.decorators.http import require_POST, require_safe
+from django.views.decorators.http import (
+    require_GET,
+    require_POST,
+    require_safe,
+)
 from pinax.forums.models import ForumThread
 
 from dalite.views.errors import response_400, response_403, response_500
@@ -31,6 +37,7 @@ from ..models import (
     StudentGroup,
     StudentGroupAssignment,
     StudentGroupMembership,
+    TeacherNotification,
 )
 from ..rationale_annotation import choose_rationales
 from ..tasks import compute_gradebook_async
@@ -425,7 +432,7 @@ def rationales_to_score(req, teacher):
     return JsonResponse(data)
 
 
-@require_POST
+@require_GET
 @teacher_required
 def messages(req, teacher):
     """
@@ -461,7 +468,16 @@ def messages(req, teacher):
                 }]
             }
     """
-    threads = [s.thread for s in teacher.user.forum_subscriptions.iterator()]
+    threads = list(
+        sorted(
+            (s.thread for s in teacher.user.forum_subscriptions.iterator()),
+            key=attrgetter("last_reply"),
+            reverse=True,
+        )
+    )
+    notification_type = ContentType.objects.get(
+        app_label="pinax_forums", model="ThreadSubscription"
+    )
     last_replies = [thread.last_reply for thread in threads]
     data = {
         "threads": [
@@ -472,11 +488,9 @@ def messages(req, teacher):
                     "author": last_reply.author.username,
                     "content": last_reply.content,
                 },
-                "n_new": thread.replies.filter(
-                    created__gt=teacher.last_dashboard_access
-                ).count()
-                if teacher.last_dashboard_access is not None
-                else thread.replies.count(),
+                "n_new": TeacherNotification.objects.filter(
+                    teacher=teacher, notification_type=notification_type
+                ).count(),
                 "link": reverse(
                     "pinax_forums:thread", kwargs={"pk": thread.pk}
                 ),
@@ -485,6 +499,48 @@ def messages(req, teacher):
         ]
     }
     return JsonResponse(data)
+
+
+@require_POST
+@teacher_required
+def mark_message_read(req, teacher):
+    """
+    Unsubscribes the `teacher` from a thread (won't appear in the messages).
+
+    Parameters
+    ----------
+    req : HttpRequest
+        Request with:
+            optional parameters:
+                id: int
+                    Thread primary key
+    teacher : Teacher
+        Teacher instance returned by `teacher_required`
+
+    Returns
+    -------
+    HttpResponse
+        Error response or empty 200 response
+    """
+    args = get_json_params(req, opt_args=["id"])
+    if isinstance(args, HttpResponse):
+        return args
+    _, (id_,) = args
+
+    notification_type = ContentType.objects.get(
+        app_label="pinax_forums", model="ThreadSubscription"
+    )
+
+    if id_ is None:
+        TeacherNotification.objects.filter(
+            teacher=teacher, notification_type=notification_type
+        ).delete()
+    else:
+        TeacherNotification.objects.filter(
+            teacher=teacher, notification_type=notification_type, object_id=id_
+        ).delete()
+
+    return HttpResponse("")
 
 
 @require_POST
@@ -500,8 +556,6 @@ def unsubscribe_from_thread(req, teacher):
             parameters:
                 id: int
                     Thread primary key
-                score: int
-                    Given score
     teacher : Teacher
         Teacher instance returned by `teacher_required`
 

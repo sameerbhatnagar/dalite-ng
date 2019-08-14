@@ -93,7 +93,7 @@ function buildStyle(app, module) {
   const build = gulp
     .src(
       [
-        "./" + app + "/static/" + app + "/css/" + module + "/*.scss",
+        "./" + app + "/static/" + app + "/css/" + module + "/**/*.scss",
         "./" + app + "/static/" + app + "/css/" + module + ".scss",
       ],
       { allowEmpty: true },
@@ -117,7 +117,7 @@ function buildStyle(app, module) {
 function watchStyle(app, module) {
   gulp.watch(
     [
-      "./" + app + "/static/" + app + "/css/" + module + "/*.scss",
+      "./" + app + "/static/" + app + "/css/" + module + "/**/*.scss",
       "./" + app + "/static/" + app + "/css/" + module + ".scss",
     ],
     () => buildStyle(app, module),
@@ -186,7 +186,7 @@ function buildScript(app, module) {
 function watchScript(app, module) {
   gulp.watch(
     [
-      "./" + app + "/static/" + app + "/js/_" + module + "/*.js",
+      "./" + app + "/static/" + app + "/js/_" + module + "/**/*.js",
       "./" + app + "/static/" + app + "/js/" + module + ".js",
     ],
     () => buildScript(app, module),

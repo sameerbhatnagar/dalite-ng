@@ -1,6 +1,6 @@
 // @flow
 
-import { clear, createSvg } from "../utils.js";
+import { clear, createSvg } from "../../utils.js";
 
 /*********/
 /* model */

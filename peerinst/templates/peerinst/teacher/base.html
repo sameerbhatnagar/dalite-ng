@@ -17,7 +17,12 @@
 {% endcompress %}
 <script nonce="{{ request.csp_nonce }}">
   window.addEventListener("load", function() {
-    teacher.initNotifications(
+    teacher.initNotifications();
+    teacher.initMessages(
+      {
+        markReadUrl: "{% url 'teacher-dashboard--messages--read' %}",
+        messagesUrl: "{% url 'teacher-dashboard--messages' %}"
+      }
     );
     teacher.initGradebooks(
       {
@@ -50,6 +55,9 @@ class="logged-in-layout"
     reputation-id="{{ request.user.teacher.pk }}"
     nonce="{{ request.csp_nonce }}">
   </teacher-reputation-header>
+</div>
+<div class="header">
+  {% include 'peerinst/teacher/header/messages.html' %}
 </div>
 <div class="header">
   {% include 'peerinst/teacher/header/notifications.html' %}

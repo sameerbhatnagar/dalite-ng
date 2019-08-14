@@ -638,6 +638,11 @@ def teacher_patterns():
             name="teacher-dashboard--messages",
         ),
         url(
+            r"^teacher/dashboard/messages/read$",
+            views.teacher.mark_message_read,
+            name="teacher-dashboard--messages--read",
+        ),
+        url(
             r"^teacher/dashboard/unsubscribe-thread/$",
             views.teacher.unsubscribe_from_thread,
             name="teacher-dashboard--unsubscribe-thread",

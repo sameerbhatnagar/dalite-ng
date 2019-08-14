@@ -1,0 +1,263 @@
+// @flow
+import { buildReq } from "../../ajax.js";
+import { clear, createSvg } from "../../utils.js";
+
+/*********/
+/* model */
+/*********/
+
+type Thread = {
+  id: number,
+  title: string,
+  lastReply: {
+    author: string,
+    content: string,
+  },
+  nNew: number,
+  link: string,
+};
+
+type Message = Thread;
+
+let model: {
+  open: boolean,
+  messages: Array<Message>,
+  urls: {
+    markReadUrl: string,
+    messagesUrl: string,
+  },
+};
+
+function initModel(urls: { markReadUrl: string, messagesUrl: string }): void {
+  model = {
+    open: false,
+    messages: [],
+    urls: urls,
+  };
+}
+
+/**********/
+/* update */
+/**********/
+
+function update(): void {
+  getMessages();
+}
+
+function toggleMessages(): void {
+  model.open = !model.open;
+  messagesView();
+}
+
+function getMessages(): void {
+  const url = model.urls.messagesUrl;
+  const req = buildReq({}, "get");
+
+  fetch(url, req)
+    .then(resp => resp.json())
+    .then(data => {
+      model.messages = data.threads.map(message => ({
+        id: message.id,
+        title: message.title,
+        lastReply: {
+          author: message.last_reply.author,
+          content: message.last_reply.content,
+        },
+        nNew: message.n_new,
+        link: message.link,
+      }));
+      messagesView();
+    });
+}
+
+async function markAllRead(): Promise<void> {
+  const req = buildReq({}, "post");
+  const resp = await fetch(model.urls.markReadUrl, req);
+  if (resp.ok) {
+    model.messages.forEach(message => {
+      message.nNew = 0;
+    });
+  }
+  messagesView();
+}
+
+async function markRead(
+  event: MouseEvent,
+  message: Message,
+  div: HTMLDivElement,
+): Promise<void> {
+  event.stopPropagation();
+  const req = buildReq({ id: message.id }, "post");
+  const resp = await fetch(model.urls.markReadUrl, req);
+  if (resp.ok) {
+    message.nNew = 0;
+  }
+  messageView(message, div);
+  badgeView();
+}
+
+/********/
+/* view */
+/********/
+
+function view(): void {
+  messagesView();
+}
+
+function messagesView(): void {
+  const messages = document.querySelector(".messages");
+  const badge = messages?.querySelector(".messages__icon__badge");
+  const messagesList = messages?.querySelector(".messages__messages");
+
+  if (!messages || !badge || !messagesList) {
+    return;
+  }
+
+  badgeView();
+
+  clear(messagesList);
+
+  if (model.messages.length) {
+    model.messages.map(function(message) {
+      messagesList.appendChild(messageView(message));
+    });
+  } else {
+    messagesList.appendChild(noMessageView());
+  }
+
+  if (model.open) {
+    messages.classList.add("messages--open");
+  } else {
+    messages.classList.remove("messages--open");
+  }
+}
+
+function badgeView(): void {
+  const badge = document.querySelector(".messages__icon__badge");
+
+  const nNew = model.messages.filter(message => message.nNew > 0).length;
+  if (nNew) {
+    badge.textContent = nNew.toString();
+    badge.style.display = "flex";
+  } else {
+    badge.textContent = "";
+    badge.style.display = "none";
+  }
+}
+
+function messageView(
+  message: Message,
+  div: ?HTMLDivElement = null,
+): HTMLDivElement {
+  if (div) {
+    clear(div);
+  } else {
+    div = document.createElement("div");
+    div.classList.add("message");
+    div.addEventListener("click", () => {
+      window.location.href = message.link;
+    });
+  }
+
+  if (message.nNew) {
+    div.classList.add("message--new");
+  } else {
+    div.classList.remove("message--new");
+  }
+
+  const icon = createSvg("chat_bubble");
+  icon.classList.add("message__icon");
+  div.appendChild(icon);
+
+  if (message.nNew) {
+    const new_ = document.createElement("span");
+    new_.classList.add("message__new");
+    new_.textContent = `( ${message.nNew} new )`;
+    div.appendChild(new_);
+  }
+
+  const title = document.createElement("span");
+  title.classList.add("message__title");
+  title.textContent = message.title;
+  div.appendChild(title);
+
+  if (message.nNew) {
+    const markReadBtn = document.createElement("span");
+    markReadBtn.classList.add("message__mark-read");
+    markReadBtn.textContent = "Mark read";
+    markReadBtn.addEventListener("click", (event: MouseEvent) =>
+      markRead(event, message, div),
+    );
+    div.appendChild(markReadBtn);
+  }
+
+  const lastReply = document.createElement("div");
+  lastReply.classList.add("message__last-reply");
+  div.appendChild(lastReply);
+
+  const author = document.createElement("span");
+  author.classList.add("message__last-reply__author");
+  author.textContent = message.lastReply.author;
+  lastReply.appendChild(author);
+
+  const content = document.createElement("span");
+  content.classList.add("message__last-reply__content");
+  content.textContent = message.lastReply.content;
+  lastReply.appendChild(content);
+
+  return div;
+}
+
+function noMessageView(): HTMLDivElement {
+  const div = document.createElement("div");
+  div.textContent = "No messages";
+  return div;
+}
+
+/*************/
+/* listeners */
+/*************/
+
+function initEventListeners(): void {
+  addMessagesOpenListener();
+  addMarkAllReadListener();
+}
+
+function addMessagesOpenListener(): void {
+  document
+    .querySelector(".messages")
+    ?.addEventListener("click", function(event: MouseEvent) {
+      event.stopPropagation();
+    });
+  document
+    .querySelector(".messages__icon")
+    ?.addEventListener("click", function(event: MouseEvent) {
+      toggleMessages();
+    });
+  document.body?.addEventListener("click", function(event: MouseEvent) {
+    if (model.open) {
+      event.stopPropagation();
+      toggleMessages();
+    }
+  });
+}
+
+function addMarkAllReadListener(): void {
+  document
+    .querySelector(".messages__read-all-btn")
+    ?.addEventListener("click", () => markAllRead());
+}
+
+/********/
+/* init */
+/********/
+
+export function init(urls: {
+  markReadUrl: string,
+  messagesUrl: string,
+}): void {
+  initModel(urls);
+  update();
+  view();
+  initEventListeners();
+}

@@ -1,4 +1,4 @@
-@import "../variables";
+@import "../../variables";
 
 .notifications {
   color: $mdc-theme-secondary;
@@ -161,35 +161,35 @@
       }
     }
   }
-}
 
-.notifications--open {
-  & .notifications__icon {
-    background: #ffffff;
-    border-radius: 20px 20px 0 0;
-
-    &:hover {
+  &.notifications--open {
+    & .notifications__icon {
       background: #ffffff;
+      border-radius: 20px 20px 0 0;
+
+      &:hover {
+        background: #ffffff;
+      }
+
+      & i {
+        color: $mdc-theme-primary;
+      }
+
+      & .notifications__spinner {
+        --spinner-ring-stroke: #{lighten($mdc-theme-primary, 30%)};
+        --spinner-segment-stroke: #{$mdc-theme-primary};
+      }
     }
 
-    & i {
-      color: $mdc-theme-primary;
-    }
+    & .notifications__list {
+      right: 0;
+      top: 42px;
+      transform: scale(1);
+      z-index: 3;
 
-    & .notifications__spinner {
-      --spinner-ring-stroke: #{lighten($mdc-theme-primary, 30%)};
-      --spinner-segment-stroke: #{$mdc-theme-primary};
-    }
-  }
-
-  & .notifications__list {
-    right: 0;
-    top: 42px;
-    transform: scale(1);
-    z-index: 3;
-
-    & .notification {
-      opacity: 1;
+      & .notification {
+        opacity: 1;
+      }
     }
   }
 }
