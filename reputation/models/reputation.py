@@ -18,32 +18,49 @@ class Reputation(models.Model):
             self.pk, self.reputation_type, self.reputation_model
         )
 
-    def evaluate(self):
+    def evaluate(self, criterion=None):
         """
         Returns the reputation of the linked model as a tuple of the quality
         and the different criterion results.
+
+        Parameters
+        ----------
+        criterion : Optional[str] (default : None)
+            Name of the criterion for which reputation is calculated. If None,
+            evaluates for all criteria
 
         Returns
         -------
         Optional[float]
             Quality of the answer or None of no criteria present
-        List[Dict[str, Any]]
-            Individual criteria under the format
-                [{
-                    name: str
-                    full_name: str
-                    description: str
-                    version: int
-                    weight: int
-                    reputation: float
-                }]
+        Either
+            List[Dict[str, Any]]
+                If `criterion` is None, individual criteria under the format
+                    [{
+                        name: str
+                        full_name: str
+                        description: str
+                        version: int
+                        weight: int
+                        reputation: float
+                    }]
+            Dict[str, Any]
+                If `criterion` is specified, details under the format
+                    {
+                        name: str
+                        full_name: str
+                        description: str
+                        version: int
+                        weight: int
+                        reputation: float
+                    }
 
         Raises
         ------
         ValueError
             If this reputation doesn't correspond to any type of reputation
         """
-        return self.reputation_type.evaluate(self.reputation_model)
+        return self.reputation_type.evaluate(self.reputation_model, criterion)
 
     @property
     def reputation_model(self):

@@ -64,7 +64,7 @@ class ReputationType(models.Model):
 
         return {"reputation": points, "details": details}
 
-    def evaluate(self, model):
+    def evaluate(self, model, criterion=None):
         """
         Returns the reputation of the linked model as a tuple of the quality
         and the different criterion results.
@@ -73,21 +73,35 @@ class ReputationType(models.Model):
         ----------
         model : Union[Question, Assignment, Teacher]
             Model for which to evaluate the reputation
+        criterion : Optional[str] (default : None)
+            Name of the criterion for which reputation is calculated. If None,
+            evaluates for all criteria
 
         Returns
         -------
         Optional[float]
             Quality of the answer or None of no criteria present
-        List[Dict[str, Any]]
-            Individual criteria under the format
-                [{
-                    name: str
-                    full_name: str
-                    description: str
-                    version: int
-                    weight: int
-                    reputation: float
-                }]
+        Either
+            List[Dict[str, Any]]
+                If `criterion` is None, individual criteria under the format
+                    [{
+                        name: str
+                        full_name: str
+                        description: str
+                        version: int
+                        weight: int
+                        reputation: float
+                    }]
+            Dict[str, Any]
+                If `criterion` is specified, details under the format
+                    {
+                        name: str
+                        full_name: str
+                        description: str
+                        version: int
+                        weight: int
+                        reputation: float
+                    }
 
         Raises
         ------
@@ -107,19 +121,39 @@ class ReputationType(models.Model):
         if not self.criteria.exists():
             return None, []
 
-        reputations = [
-            dict(
+        if criterion is None:
+            reputations = [
+                dict(
+                    chain(
+                        self._calculate_points(criterion_, model).items(),
+                        criterion_.__iter__(),
+                    )
+                )
+                for criterion_ in (
+                    get_criterion(c.name).objects.get(version=c.version)
+                    for c in self.criteria.all()
+                )
+            ]
+            reputation = sum(r["reputation"] for r in reputations)
+        else:
+            try:
+                criterion_ = next(
+                    c for c in self.criteria.all() if c.name == criterion
+                )
+            except StopIteration:
+                msg = "The criterion {} isn't part of the criteria".format(
+                    criterion
+                ) + " for reputation_type {}.".format(self.type)
+                logger.error("ValueError: {}".format(msg))
+                raise ValueError(msg)
+
+            reputations = dict(
                 chain(
-                    self._calculate_points(criterion, model).items(),
-                    criterion.__iter__(),
+                    self._calculate_points(criterion_, model).items(),
+                    criterion_.__iter__(),
                 )
             )
-            for criterion in (
-                get_criterion(c.name).objects.get(version=c.version)
-                for c in self.criteria.all()
-            )
-        ]
-        reputation = sum(r["reputation"] for r in reputations)
+            reputation = reputations["reputation"]
 
         return reputation, reputations
 
