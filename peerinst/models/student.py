@@ -14,6 +14,7 @@ from django.template import loader
 from django.utils.translation import ugettext_lazy as _
 
 from reputation.models import Reputation
+from reputation.models.criteria import ConvincingRationalesCriterion
 
 from ..students import create_student_token, get_student_username_and_password
 from ..tasks import send_mail_async
@@ -349,6 +350,11 @@ class Student(models.Model):
             .exclude(pk__in=self.answers)
             .filter(chosen_rationale_id__in=chosen_by_student)
         )
+
+    @property
+    def convincing_rationale_reputation(self):
+        c = ConvincingRationalesCriterion.objects.last()
+        return c.evaluate(self)[0]
 
 
 class StudentGroupMembership(models.Model):
