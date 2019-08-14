@@ -292,14 +292,12 @@ class Question(models.Model):
         first_answer_choice = int(form.cleaned_data["first_answer_choice"])
         correct = view.question.is_correct(first_answer_choice)
         rationale = form.cleaned_data["rationale"]
-        datetime_start = form.cleaned_data["datetime_start"]
         datetime_first = datetime.now(pytz.utc).strftime(
             "%Y-%m-%d %H:%M:%S.%f"
         )
         view.stage_data.update(
             first_answer_choice=first_answer_choice,
             rationale=rationale,
-            datetime_start=datetime_start,
             datetime_first=datetime_first,
             completed_stage="start",
         )

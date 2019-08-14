@@ -164,7 +164,7 @@ export function goToAssignment(
   group: { studentId: string, studentIdNeeded: boolean, name: string },
   assignment: { link: string },
 ) {
-  if (group.studentIdNeeded && group.studentId !== "") {
+  if (!group.studentIdNeeded || group.studentId !== "") {
     window.location = assignment.link;
   } else {
     toggleStudentIdNeededView(group);
