@@ -8,6 +8,7 @@ __all__ = [
     "min_words_rules",
     "quality_min_words",
     "questions",
+    "student_reputation_with_criteria",
     "teacher",
     "tos_teacher",
 ]
@@ -21,4 +22,5 @@ from .peerinst_ import (
     tos_teacher,
 )
 from .quality_ import min_words_criterion, min_words_rules, quality_min_words
+from .reputation_ import student_reputation_with_criteria
 from .utils import assert_, browser

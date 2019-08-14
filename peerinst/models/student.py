@@ -13,9 +13,11 @@ from django.db import IntegrityError, models
 from django.template import loader
 from django.utils.translation import ugettext_lazy as _
 
+from reputation.models import Reputation
+
 from ..students import create_student_token, get_student_username_and_password
 from ..tasks import send_mail_async
-from .answer import Answer
+from .answer import Answer, ShownRationale
 from .assignment import StudentGroupAssignment
 from .group import StudentGroup
 
@@ -33,6 +35,9 @@ class Student(models.Model):
     )
     send_reminder_email_every_day = models.BooleanField(default=False)
     send_reminder_email_day_before = models.BooleanField(default=True)
+    reputation = models.OneToOneField(
+        Reputation, blank=True, null=True, on_delete=models.SET_NULL
+    )
 
     def __unicode__(self):
         return self.student.username
@@ -318,6 +323,20 @@ class Student(models.Model):
     @property
     def notifications(self):
         return self.studentnotification_set.order_by("-created_on").all()
+
+    @property
+    def answers(self):
+        return Answer.objects.filter(user_token=self.student.username)
+
+    @property
+    def answers_chosen_by_others(self):
+        return Answer.objects.filter(
+            chosen_rationale_id__in=self.answers.values_list("pk", flat=True)
+        )
+
+    @property
+    def answers_shown_to_others(self):
+        return ShownRationale.objects.filter(shown_answer__in=self.answers)
 
 
 class StudentGroupMembership(models.Model):
