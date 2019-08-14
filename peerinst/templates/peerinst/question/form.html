@@ -207,10 +207,6 @@
               <div id='category_form'>
                 {% include 'peerinst/category_select_form.html' %}
               </div>
-              <p class="form-helper-text" aria-hidden="true">
-                {{ form.category.help_text|safe }}
-              </p>
-              {{ form.category.errors }}
 
               <div id='current_categories' class='mdc-chip-set mdc-chip-set--input' data-mdc-auto-init='MDCChipSet'>
                 {% for c in object.category.all %}
@@ -453,6 +449,13 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
 <script nonce="{{ request.csp_nonce }}">
   'use strict';
+
+  // No form submission on ENTER key
+  $("#question-create-form").keypress(function( event ) {
+    if ( event.which == 13 ) {
+      event.preventDefault();
+    }
+  });
   bundle.bindCheckbox();
   bundle.bindAjaxTextInputForm('show_discipline_form', 'discipline_form', "{% url 'discipline-create' %}");
   bundle.bindAjaxTextInputForm('show_category_form', 'category_form', "{% url 'category-create' %}", "{% url 'category-form' %}", bundle.categoryForm, "{% url 'search-categories' %}");
@@ -627,19 +630,26 @@
 
 <script nonce="{{ request.csp_nonce }}">
   window.addEventListener("load", function() {
+
     document.querySelectorAll(".collaborator").forEach(btn => {
       btn.addEventListener("click", function() {
         updateSelect(this,'#id_collaborators');
       });
+    });
 
-    })
-    var cloneBtn = document.getElementById("clone-btn");
+    document.querySelectorAll(".category").forEach(btn => {
+      btn.addEventListener("click", function() {
+        updateSelect(this,'#id_category');
+      });
+    });
+
+    const cloneBtn = document.getElementById("clone-btn");
     if (cloneBtn != null) {
       cloneBtn.addEventListener("click", function() {
         window.location.href=this.getAttribute('href');
       });
     }
-  })
+  });
 </script>
 {% endif %}
 {% endblock %}

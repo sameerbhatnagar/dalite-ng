@@ -83,12 +83,7 @@ export function csrfSafeMethod(method) {
   return /^(GET|HEAD|OPTIONS|TRACE)$/.test(method);
 }
 
-/** Get csrf token using jQuery
- *   https://docs.djangoproject.com/en/1.8/ref/csrf/
- * @function
- * @param {String} name
- * @return {String}
- */
+// Get csrf token
 export { getCsrfToken } from "./ajax.js";
 
 /** Replace element with text input form using Ajax
@@ -143,6 +138,16 @@ export function categoryForm(
   init,
   searchUrl,
 ) {
+  // Define ENTER key
+  const form = $("#category_form").find("#id_title");
+  if (form.length) {
+    $(form).keypress(function(event) {
+      if (event.which == 13) {
+        $("#submit_category_form").click();
+      }
+    });
+  }
+
   // Handle clear
   $("#clear_category_form").click(function() {
     $("#category_form").load(formUrl, function() {

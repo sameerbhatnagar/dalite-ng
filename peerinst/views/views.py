@@ -810,7 +810,7 @@ def discipline_select_form(request, pk=None):
 
 
 class DisciplinesCreateView(LoginRequiredMixin, NoStudentsMixin, CreateView):
-    """View to create a new discipline outside of admin."""
+    """ View to create a new discipline outside of admin. """
 
     model = Discipline
     fields = ["title"]
@@ -841,7 +841,7 @@ def disciplines_select_form(request):
 class CategoryCreateView(
     LoginRequiredMixin, NoStudentsMixin, TOSAcceptanceRequiredMixin, CreateView
 ):
-    """View to create a new discipline outside of admin."""
+    """ View to create a new category outside of admin. """
 
     model = Category
     fields = ["title"]
@@ -864,8 +864,6 @@ def category_select_form(request, pk=None):
         )
     else:
         form = forms.CategorySelectForm()
-
-    print(form)
 
     return TemplateResponse(
         request, "peerinst/category_select_form.html", context={"form": form}

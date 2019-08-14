@@ -17,7 +17,44 @@ def create_category(browser, assert_):
     browser.find_element_by_link_text("Create new").click()
 
     browser.find_element_by_id("show_category_form").click()
-    browser.find_element_by_id("category_create_form").click()
+
+    browser.wait_for(
+        lambda: assert_(
+            "Enter the name of a new question category." in browser.page_source
+        )
+    )
+
+    input = browser.find_element_by_xpath(
+        "//div[@id='create_new_category']/input[@id='id_title']"
+    )
+    # ENTER on a blank field throws form error
+    input.send_keys(Keys.ENTER)
+    browser.wait_for(
+        lambda: assert_("This field is required" in browser.page_source)
+    )
+
+    # New category is accepted and switches to select form
+    time.sleep(1)
+    input = browser.find_element_by_xpath(
+        "//div[@id='create_new_category']/input[@id='id_title']"
+    )
+    input.send_keys("Fun new category")
+    input.send_keys(Keys.ENTER)
+    input = browser.find_element_by_id("autofill_categories")
+    input.send_keys(Keys.ENTER)
+
+    browser.wait_for(
+        lambda: assert_(
+            "Fun new category"
+            in browser.find_element_by_id("current_categories").text
+        )
+    )
+
+    # Clicking chip removes category
+
+    # Adding existing category throws error
+
+    # Cancel works
 
 
 def create_discipline():
@@ -280,7 +317,7 @@ def create_PI_question(
 
     # Check minimum number of rationales entered
     browser.wait_for(
-        assert_(
+        lambda: assert_(
             "You must submit some at least one expert rationale for each "
             "of the correct answer choices above" in browser.page_source
         )
@@ -491,8 +528,6 @@ def create_PI_question(
     browser.find_element_by_link_text(assignment.identifier).click()
 
     assert assignment.title in browser.find_elements_by_tag_name("h1")[0].text
-
-    time.sleep(10)
 
 
 def edit_PI_question():

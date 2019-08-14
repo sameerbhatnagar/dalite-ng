@@ -32,7 +32,7 @@ class Category(models.Model):
         _("Category Name"),
         unique=True,
         max_length=100,
-        help_text=_("Name of a category questions can be sorted into."),
+        help_text=_("Enter the name of a new question category."),
         validators=[no_hyphens],
     )
 
@@ -49,7 +49,7 @@ class Discipline(models.Model):
         _("Discipline name"),
         unique=True,
         max_length=100,
-        help_text=_("Name of a discipline."),
+        help_text=_("Enter the name of a new discipline."),
         validators=[no_hyphens],
     )
 
@@ -216,8 +216,8 @@ class Question(models.Model):
         Category,
         _("Categories"),
         help_text=_(
-            "Select at least one category for this question. You can select "
-            "multiple categories."
+            "Type to search and select at least one category for this "
+            "question. You can select multiple categories."
         ),
     )
     discipline = models.ForeignKey(
@@ -234,8 +234,7 @@ class Question(models.Model):
         default=False,
         help_text=_(
             "Add random fake attributions consisting of username and country "
-            "to rationales. You can configure the lists of fake values and "
-            "countries from the start page of the admin interface."
+            "to rationales. "
         ),
     )
     sequential_review = models.BooleanField(

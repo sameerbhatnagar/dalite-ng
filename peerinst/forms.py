@@ -358,7 +358,13 @@ class DisciplinesSelectForm(forms.Form):
 
 
 class CategorySelectForm(forms.Form):
-    category = forms.ModelMultipleChoiceField(queryset=Category.objects.all())
+    category = forms.ModelMultipleChoiceField(
+        queryset=Category.objects.all(),
+        help_text=_(
+            "Type to search and select at least one category for this "
+            "question. You can select multiple categories."
+        ),
+    )
 
 
 class ReportSelectForm(forms.Form):
