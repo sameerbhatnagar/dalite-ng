@@ -338,6 +338,18 @@ class Student(models.Model):
     def answers_shown_to_others(self):
         return ShownRationale.objects.filter(shown_answer__in=self.answers)
 
+    @property
+    def answers_also_chosen_by_others(self):
+        chosen_by_student = self.answers.exclude(
+            chosen_rationale_id__isnull=True
+        ).values_list("chosen_rationale_id", flat=True)
+
+        return (
+            Answer.objects.exclude(chosen_rationale_id__isnull=True)
+            .exclude(pk__in=self.answers)
+            .filter(chosen_rationale_id__in=chosen_by_student)
+        )
+
 
 class StudentGroupMembership(models.Model):
     student = models.ForeignKey(Student)
