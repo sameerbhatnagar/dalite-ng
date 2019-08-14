@@ -194,10 +194,6 @@
               <div id='discipline_form'>
                 {% include 'peerinst/discipline_select_form.html' %}
               </div>
-              <p class="form-helper-text" aria-hidden="true">
-                {{ form.discipline.help_text|safe }}
-              </p>
-              {{ form.discipline.errors }}
             </div>
           </div>
 
@@ -457,7 +453,7 @@
     }
   });
   bundle.bindCheckbox();
-  bundle.bindAjaxTextInputForm('show_discipline_form', 'discipline_form', "{% url 'discipline-create' %}");
+  bundle.bindAjaxTextInputForm('show_discipline_form', 'discipline_form', "{% url 'discipline-create' %}", "{% url 'discipline-form' %}", bundle.disciplineForm, null);
   bundle.bindAjaxTextInputForm('show_category_form', 'category_form', "{% url 'category-create' %}", "{% url 'category-form' %}", bundle.categoryForm, "{% url 'search-categories' %}");
 
 

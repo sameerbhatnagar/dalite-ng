@@ -343,7 +343,13 @@ class DisciplineForm(forms.ModelForm):
 
 
 class DisciplineSelectForm(forms.Form):
-    discipline = forms.ModelChoiceField(queryset=Discipline.objects.all())
+    discipline = forms.ModelChoiceField(
+        queryset=Discipline.objects.all(),
+        help_text=_(
+            "Optional. Select the discipline to which this question should "
+            "be associated."
+        ),
+    )
 
 
 class DisciplinesSelectForm(forms.Form):

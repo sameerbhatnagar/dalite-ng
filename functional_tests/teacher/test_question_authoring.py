@@ -11,8 +11,6 @@ fake = Faker()
 
 
 def create_category(browser, assert_):
-    # Teacher can create a question
-    # -----------------------------
     browser.find_element_by_id("question-section").click()
     browser.find_element_by_link_text("Create new").click()
 
@@ -98,11 +96,38 @@ def create_category(browser, assert_):
         )
     )
 
-    time.sleep(2)
 
+def create_discipline(browser, assert_):
+    browser.find_element_by_id("question-section").click()
+    browser.find_element_by_link_text("Create new").click()
 
-def create_discipline():
-    pass
+    browser.find_element_by_id("show_discipline_form").click()
+
+    browser.wait_for(
+        lambda: assert_(
+            "Enter the name of a new discipline." in browser.page_source
+        )
+    )
+
+    input = browser.find_element_by_xpath(
+        "//div[@id='discipline_create_form']/input[@id='id_title']"
+    )
+    # ENTER on a blank field throws form error
+    input.send_keys(Keys.ENTER)
+    browser.wait_for(
+        lambda: assert_("This field is required" in browser.page_source)
+    )
+
+    # New discipline is accepted and switches to select form
+    time.sleep(1)
+    input = browser.find_element_by_xpath(
+        "//div[@id='discipline_create_form']/input[@id='id_title']"
+    )
+    input.send_keys("Fun new discipline")
+    browser.find_element_by_id("submit_discipline_form").click()
+    input = browser.find_element_by_id("id_discipline")
+
+    assert "Fun new discipline" in input.text
 
 
 # def create_assignment(browser, category, discipline):
@@ -586,6 +611,13 @@ def test_create_category(browser, assert_, teacher):
     login(browser, teacher)
     go_to_account(browser)
     create_category(browser, assert_)
+    logout(browser, assert_)
+
+
+def test_create_discipline(browser, assert_, teacher):
+    login(browser, teacher)
+    go_to_account(browser)
+    create_discipline(browser, assert_)
     logout(browser, assert_)
 
 

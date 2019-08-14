@@ -173,58 +173,52 @@ export function categoryForm(
     },
   });
 
-  $("#submit_category_form").click(
-    /** The callback
-     * @function
-     * @this form
-     */
-    function() {
-      const title = $("#category_form")
-        .find("input[name='title']")
-        .val();
+  $("#submit_category_form").click(function() {
+    const title = $("#category_form")
+      .find("input[name='title']")
+      .val();
 
-      // Send the data using post
-      const posting = $.post(createUrl, { title: title });
+    // Send the data using post
+    const posting = $.post(createUrl, { title: title });
 
-      // Put the results in a div
-      posting.success(function(data, status) {
+    // Put the results in a div
+    posting.success(function(data, status) {
+      $("#category_form")
+        .empty()
+        .append(data);
+
+      const formType = $("#create_new_category");
+      if (formType.length) {
+        categoryForm(
+          idToBind,
+          formToReplace,
+          createUrl,
+          formUrl,
+          init,
+          searchUrl,
+        );
+        bundle.autoInit();
         $("#category_form")
-          .empty()
-          .append(data);
-
-        const formType = $("#create_new_category");
-        if (formType.length) {
-          categoryForm(
-            idToBind,
-            formToReplace,
-            createUrl,
-            formUrl,
-            init,
-            searchUrl,
-          );
-          bundle.autoInit();
-          $("#category_form")
-            .find("input[name='title']")[0]
-            .focus();
-        } else {
-          bundle.bindAjaxTextInputForm(
-            idToBind,
-            formToReplace,
-            createUrl,
-            formUrl,
-            init,
-            searchUrl,
-          );
-          bundle.bindCategoryAutofill(searchUrl);
-          bundle.autoInit();
-          $("#autofill_categories")
-            .val(title)
-            .focus()
-            .autocomplete("search");
-        }
-      });
-    },
-  );
+          .find("input[name='title']")[0]
+          .focus();
+      } else {
+        bundle.bindAjaxTextInputForm(
+          idToBind,
+          formToReplace,
+          createUrl,
+          formUrl,
+          init,
+          searchUrl,
+        );
+        bundle.bindCategoryAutofill(searchUrl);
+        bundle.autoInit();
+        $("#autofill_categories")
+          .val(title)
+          .focus()
+          .autocomplete("search");
+      }
+    });
+  });
 }
 
 /** Callback for category autofill
@@ -333,6 +327,91 @@ export function bindCategoryAutofill(source) {
     focus: focus,
     select: select("current_categories", "category", "#id_category"),
     autoFocus: true,
+  });
+}
+
+// Create disciplines
+/** Callback for discipline creation
+ * @function
+ * @param {String} idToBind
+ * @param {String} formToReplace
+ * @param {String} createUrl
+ * @param {String} formUrl
+ * @param {Function} init
+ * @param {String} searchUrl
+ */
+export function disciplineForm(
+  idToBind,
+  formToReplace,
+  createUrl,
+  formUrl,
+  init,
+  searchUrl,
+) {
+  // Bind form submit to icon
+  $("#submit_discipline_form").click(function() {
+    $("#discipline_create_form").submit();
+  });
+
+  // Handle clear
+  $("#clear_discipline_form").click(function() {
+    $("#discipline_form").load(formUrl, function() {
+      bundle.bindAjaxTextInputForm(
+        idToBind,
+        formToReplace,
+        createUrl,
+        formUrl,
+        init,
+        searchUrl,
+      );
+    });
+  });
+
+  // Setup ajax call and attach a submit handler to the form
+  $.ajaxSetup({
+    beforeSend: function(xhr, settings) {
+      if (!bundle.csrfSafeMethod(settings.type) && !this.crossDomain) {
+        xhr.setRequestHeader("X-CSRFToken", bundle.getCsrfToken());
+      }
+    },
+  });
+
+  $("#submit_discipline_form").click(function() {
+    const title = $("#discipline_form")
+      .find("input[name='title']")
+      .val();
+
+    // Send the data using post
+    const posting = $.post(createUrl, { title: title });
+
+    // Put the results in a div
+    posting.success(function(data, status) {
+      $("#discipline_form")
+        .empty()
+        .append(data);
+
+      const formType = $("#discipline_create_form");
+      if (formType.length) {
+        disciplineForm(
+          idToBind,
+          formToReplace,
+          createUrl,
+          formUrl,
+          init,
+          searchUrl,
+        );
+        bundle.autoInit();
+      } else {
+        bundle.bindAjaxTextInputForm(
+          idToBind,
+          formToReplace,
+          createUrl,
+          formUrl,
+          init,
+          searchUrl,
+        );
+      }
+    });
   });
 }
 
