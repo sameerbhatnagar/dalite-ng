@@ -53,11 +53,6 @@ class FirstAnswerForm(forms.Form):
         widget=forms.Textarea(attrs={"cols": 100, "rows": 7})
     )
 
-    datetime_start = forms.CharField(
-        widget=forms.HiddenInput(),
-        initial=datetime.now(pytz.utc).strftime("%Y-%m-%d %H:%M:%S.%f"),
-    )
-
     def __init__(self, answer_choices, *args, **kwargs):
         choice_texts = [
             mark_safe(
