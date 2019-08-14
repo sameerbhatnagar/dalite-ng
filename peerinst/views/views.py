@@ -1702,6 +1702,12 @@ def question(request, assignment_id, question_id):
     elif stage_data.get("completed_stage") == "sequential-review":
         stage_class = QuestionReviewView
     else:
+        if stage_data.get("datetime_start") is None:
+            stage_data.update(
+                datetime_start=datetime.now(pytz.utc).strftime(
+                    "%Y-%m-%d %H:%M:%S.%f"
+                )
+            )
         stage_class = QuestionStartView
 
     # Delegate to the view
