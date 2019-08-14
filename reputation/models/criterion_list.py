@@ -9,6 +9,8 @@ from .criteria.errors import CriterionDoesNotExistError
 criteria = {
     "n_answers": "NAnswersCriterion",
     "n_questions": "NQuestionsCriterion",
+    "convincing_rationales": "ConvincingRationalesCriterion",
+    "common_rationale_choices": "CommonRationaleChoicesCriterion",
 }
 
 

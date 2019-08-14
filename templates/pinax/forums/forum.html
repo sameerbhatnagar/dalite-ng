@@ -51,8 +51,8 @@
     const links = document.getElementsByClassName("thread-link")
       {% for t in threads %}
         links[{{ forloop.counter0 }}].addEventListener("click", function() {
-          window.location.href='{% url 'pinax_forums:thread' t.pk %}'
-        })
+          window.location.href='{% url 'pinax_forums:thread' t.pk %}';
+        });
       {% endfor %}
   });
 </script>

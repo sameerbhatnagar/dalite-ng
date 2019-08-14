@@ -1,9 +1,6 @@
 from django.contrib.admin.widgets import AdminTextareaWidget
 
-from quality.models.custom_fields import (
-    AdminCommaSepFieldWidget,
-    CommaSepField,
-)
+from dalite.models.custom_fields import AdminCommaSepFieldWidget, CommaSepField
 
 
 def test_to_python():

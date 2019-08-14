@@ -10,6 +10,7 @@ from dalite.views.errors import response_400
 from dalite.views.utils import get_json_params
 
 from ..logger import logger
+from .student import student_reputation
 from .teacher import teacher_reputation
 
 
@@ -23,6 +24,8 @@ def reputation(req):
 
     if reputation_type == "teacher":
         return teacher_reputation(req)
+    if reputation_type == "student":
+        return student_reputation(req)
     else:
         return response_400(
             req,

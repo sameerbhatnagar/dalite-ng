@@ -30,14 +30,14 @@
         {% if not object.current_groups.all %}
         <p class='mdc-typography--body1'>{% blocktrans %}You have no active student groups.{% endblocktrans %}</p>
         {% endif %}
-        <ul class="mdc-list mdc-list--two-line">
+        <ul class="mdc-list mdc-list--two-line mdc-list--non-interactive">
           {% for g in object.current_groups.all %}
           <li role="separator" class="mdc-list-divider"></li>
           <li class="mdc-list-item pointer group-link">
             <span class="mdc-list-item__graphic mdc-theme--primary">
-              <i class="mdc-theme--primary material-icons md-48">group</i>
+              <i class="clickable mdc-theme--primary material-icons md-48">group</i>
             </span>
-            <span class="mdc-list-item__text mdc-theme--secondary bold">
+            <span class="clickable mdc-list-item__text mdc-theme--secondary bold">
               {% if not g.title %} {{ g.name }} {% else %} {{ g.title }} {% endif %}
               <span class="mdc-list-item__secondary-text">
                 {% trans "Created: " %} {{ g.creation_date }}
@@ -71,20 +71,19 @@
         <div class="admin-link">
             <a href="{% url 'teacher-assignments' teacher.id %}">{% trans 'Manage assignments' %}</a>
             <span class="admin-link--padded">|</span><a href="{% url 'report_selector' %}">{% trans 'Custom reports' %}</a>
-          </span>
         </div>
         {% if not object.assignments.all %}
         <p class='mdc-typography--body1'>{% blocktrans %}You do not have any assignments.{% endblocktrans %}</p>
         {% endif %}
-        <ul class="mdc-list mdc-list--two-line mdc-list--interactive">
+        <ul class="mdc-list mdc-list--two-line mdc-list--non-interactive">
           {% for a in object.assignments.all %}
           <li role="separator" class="mdc-list-divider"></li>
           <li class="mdc-list-item">
             <span class="mdc-list-item__graphic mdc-theme--primary">
-              <i class="mdc-theme--primary material-icons md-48 pointer assignment-link">assignment</i>
+              <i class="clickable mdc-theme--primary material-icons md-48 pointer assignment-link">assignment</i>
             </span>
             <span class="mdc-list-item__text mdc-theme--secondary bold">
-              {{ a.identifier }}
+              <a class="mdc-theme--secondary" href="{% url 'question-list' a.pk %}">{{ a.identifier }}</a>
               <span class="mdc-list-item__secondary-text">
                 {{ a.questions.count }} {% trans "questions" %}, {{ a.answer_set.count }} {% trans "answers" %}
               </span>

@@ -8,13 +8,14 @@ const gulp = require("gulp");
 const merge = require("merge-stream");
 const postcss = require("gulp-postcss");
 const rename = require("gulp-rename");
-const rollup = require("rollup-stream");
 const resolve = require("rollup-plugin-node-resolve");
+const rollup = require("rollup-stream");
 const sass = require("gulp-sass");
 const source = require("vinyl-source-stream");
 const sourcemaps = require("gulp-sourcemaps");
 const svgSprite = require("gulp-svg-sprite");
 const { eslint } = require("rollup-plugin-eslint");
+const { execSync } = require("child_process");
 const { uglify } = require("rollup-plugin-uglify");
 
 const styleBuilds = [
@@ -39,7 +40,7 @@ const styleBuilds = [
   },
   {
     app: "reputation",
-    modules: ["teacher-header"],
+    modules: ["header/teacher", "header/student"],
   },
 ];
 
@@ -66,7 +67,7 @@ const scriptBuilds = [
   },
   {
     app: "reputation",
-    modules: ["teacher", "header"],
+    modules: ["header/teacher", "header/student"],
   },
 ];
 
@@ -124,7 +125,7 @@ function watchStyle(app, module) {
   gulp.watch(
     [
       "./" + app + "/static/" + app + "/css/" + module + "/*.scss",
-      "./" + app + "/static/" + app + "/css/" + module + ".scss",
+      "./" + app + "/static/" + app + "/css/" + module + "*.scss",
     ],
     () => buildStyle(app, module),
   );
@@ -135,6 +136,7 @@ function buildScript(app, module) {
   const build = rollup({
     input: "./" + app + "/static/" + app + "/js/" + module + ".js",
     sourcemap: true,
+    extend: true,
     format: "iife",
     name: name,
     globals: {
@@ -193,7 +195,8 @@ function watchScript(app, module) {
   gulp.watch(
     [
       "./" + app + "/static/" + app + "/js/_" + module + "/*.js",
-      "./" + app + "/static/" + app + "/js/" + module + ".js",
+      "./" + app + "/static/" + app + "/js/" + module + "*.js",
+      "!./" + app + "/static/" + app + "/js/" + module + "*.min.js",
     ],
     () => buildScript(app, module),
   );
@@ -320,14 +323,20 @@ function icons() {
 }
 
 function watch() {
+  const dir = execSync(
+    "echo $(dirname $(which python))" +
+      "/../lib/python2.7/site-packages/sslserver/certs",
+  )
+    .toString()
+    .replace("\n", "");
   browserSync.init({
-    port: 8000,
-    proxy: "localhost:8000",
+    port: 8001,
+    proxy: "https://127.0.0.1:8000",
     notify: false,
     open: false,
     https: {
-      key: "./localhost.key",
-      cert: "./localhost.crt",
+      key: `${dir}/development.key`,
+      cert: `${dir}/development.crt`,
     },
   });
   gulp.watch("./peerinst/static/peerinst/css/*.scss", stylesPeerinstMain);

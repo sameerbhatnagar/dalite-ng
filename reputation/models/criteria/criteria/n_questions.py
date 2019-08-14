@@ -26,6 +26,8 @@ class NQuestionsCriterion(Criterion):
         -------
         float
             Reputation as evaluated by the criterion
+        Dict[str, Any]
+            Details about the calculation
 
         Raises
         ------
@@ -38,13 +40,14 @@ class NQuestionsCriterion(Criterion):
             logger.error("TypeError: {}".format(msg))
             raise TypeError(msg)
 
-        return teacher.user.question_set.count()
+        return teacher.user.question_set.count(), {}
 
-    @staticmethod
-    def info():
-        return {
-            "name": "n_questions",
-            "full_name": "Number of questions",
-            "description": "Gives a score between 0 and 100 representing the "
-            "number of questions written by a teacher.",
-        }
+    def info(self):
+        return super(NQuestionsCriterion, self).info(
+            {
+                "name": "n_questions",
+                "full_name": "Number of questions",
+                "description": "Gives a score representing the number of "
+                "questions.",
+            }
+        )

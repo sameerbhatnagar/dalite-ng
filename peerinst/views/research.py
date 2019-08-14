@@ -143,6 +143,9 @@ def research_discipline_question_index(
     return render(request, template, context)
 
 
+@require_http_methods(["GET", "POST"])
+@login_required
+@user_passes_test(student_check, login_url="/access_denied_and_logout/")
 def research_question_answer_list(
     request,
     question_pk,
@@ -197,7 +200,7 @@ def research_question_answer_list(
         .values("answer")
         .order_by("answer")
         .annotate(times_scored=Count("answer"))
-        .filter(times_scored__gte=2)
+        .filter(times_scored__gte=3)
         .values_list("answer__id", flat=True)
     )
 

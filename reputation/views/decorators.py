@@ -7,17 +7,13 @@ from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 
 from dalite.views.errors import response_403
-from peerinst.models import Student
 
 logger = logging.getLogger("reputation")
 
 
 def logged_in_non_student_required(fct):
     def wrapper(req, *args, **kwargs):
-        if (
-            not isinstance(req.user, User)
-            or Student.objects.filter(student=req.user).exists()
-        ):
+        if not isinstance(req.user, User) or hasattr(req.user, "student"):
             return response_403(
                 req,
                 msg=_("You don't have access to this resource."),
@@ -26,6 +22,23 @@ def logged_in_non_student_required(fct):
                 ),
                 log=logger.warning,
             )
+        return fct(req, *args, **kwargs)
+
+    return wrapper
+
+
+def student_required(fct):
+    def wrapper(req, *args, **kwargs):
+        if not hasattr(req.user, "student"):
+            return response_403(
+                req,
+                msg=_("You don't have access to this resource."),
+                logger_msg=(
+                    "Access to {} with a non student user.".format(req.path)
+                ),
+                log=logger.warning,
+            )
+
         return fct(req, *args, **kwargs)
 
     return wrapper

@@ -9,5 +9,5 @@ from .models import ReputationType
 
 @receiver(post_migrate)
 def add_reputation_types(sender, **kwargs):
-    for quality_type in ("question", "assignment", "teacher"):
+    for quality_type in ("question", "assignment", "teacher", "student"):
         ReputationType.objects.get_or_create(type=quality_type)

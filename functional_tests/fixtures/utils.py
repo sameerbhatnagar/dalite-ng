@@ -96,7 +96,9 @@ def browser(live_server):
         filtered_logs = [
             d
             for d in logs
-            if d["source"] != "network" and "tinymce" not in d["message"]
+            if d["source"] != "network"
+            and "tinymce" not in d["message"]
+            and "mdc-auto-init" not in d["message"]
         ]
         assert len(filtered_logs) == 0, logs
 

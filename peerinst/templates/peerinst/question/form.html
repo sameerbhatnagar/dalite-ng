@@ -194,10 +194,6 @@
               <div id='discipline_form'>
                 {% include 'peerinst/discipline_select_form.html' %}
               </div>
-              <p class="form-helper-text" aria-hidden="true">
-                {{ form.discipline.help_text|safe }}
-              </p>
-              {{ form.discipline.errors }}
             </div>
           </div>
 
@@ -207,10 +203,6 @@
               <div id='category_form'>
                 {% include 'peerinst/category_select_form.html' %}
               </div>
-              <p class="form-helper-text" aria-hidden="true">
-                {{ form.category.help_text|safe }}
-              </p>
-              {{ form.category.errors }}
 
               <div id='current_categories' class='mdc-chip-set mdc-chip-set--input' data-mdc-auto-init='MDCChipSet'>
                 {% for c in object.category.all %}
@@ -453,10 +445,27 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
 <script nonce="{{ request.csp_nonce }}">
   'use strict';
-  bundle.bindCheckbox();
-  bundle.bindAjaxTextInputForm('show_discipline_form', 'discipline_form', "{% url 'discipline-create' %}");
-  bundle.bindAjaxTextInputForm('show_category_form', 'category_form', "{% url 'category-create' %}");
 
+  // No form submission on ENTER key
+  $("#question-create-form").keypress(function( event ) {
+    if ( event.which == 13 ) {
+      event.preventDefault();
+    }
+  });
+  bundle.bindCheckbox();
+  bundle.bindAjaxTextInputForm('show_discipline_form', 'discipline_form', "{% url 'discipline-create' %}", "{% url 'discipline-form' %}", bundle.disciplineForm, null);
+  bundle.bindAjaxTextInputForm('show_category_form', 'category_form', "{% url 'category-create' %}", "{% url 'category-form' %}", bundle.categoryForm, "{% url 'search-categories' %}");
+
+
+  // Enumerate form
+  function enumerate(){
+    $('.number-box:visible').each(function(i) {
+      $(this).children('.number')[0].innerHTML = i+1;
+    });
+  }
+
+
+  // Update form is question type changes
   function updateForm(){
     if ($('#id_type').val() == "RO") {
       $('.peerinst').toggle(false);
@@ -479,6 +488,8 @@
 
   updateForm();
 
+
+  // Set file size limit
   function limitFileSize() {
     var imageForm = document.getElementById('id_image');
     var warning = document.getElementById('warning');
@@ -504,11 +515,6 @@
 
   limitFileSize();
 
-  function enumerate(){
-    $('.number-box:visible').each(function(i) {
-      $(this).children('.number')[0].innerHTML = i+1;
-    });
-  }
 
   // Generators for autocomplete
   const response = function(searchClass, spinnerId) {
@@ -601,22 +607,7 @@
     autoFocus: true,
   });
 
-  function bindCategoryAutofill() {
-    $('#autofill_categories').autocomplete({
-      delay: 300,
-      minLength: 2,
-      classes: {
-        "ui-autocomplete" : "mdc-typography--body1"
-      },
-      source: "{% url 'search-categories' %}",
-      response: response('.category', '#search_categories'),
-      search: search('#search_categories'),
-      focus: focus,
-      select: select('current_categories', 'category', '#id_category'),
-      autoFocus: true,
-    });
-  }
-  bindCategoryAutofill();
+  bundle.bindCategoryAutofill("{% url 'search-categories' %}");
 
   // TinyMCE bind to textarea
   $('#id_text').removeAttr('required');
@@ -635,19 +626,26 @@
 
 <script nonce="{{ request.csp_nonce }}">
   window.addEventListener("load", function() {
+
     document.querySelectorAll(".collaborator").forEach(btn => {
       btn.addEventListener("click", function() {
         updateSelect(this,'#id_collaborators');
       });
+    });
 
-    })
-    var cloneBtn = document.getElementById("clone-btn");
+    document.querySelectorAll(".category").forEach(btn => {
+      btn.addEventListener("click", function() {
+        updateSelect(this,'#id_category');
+      });
+    });
+
+    const cloneBtn = document.getElementById("clone-btn");
     if (cloneBtn != null) {
       cloneBtn.addEventListener("click", function() {
         window.location.href=this.getAttribute('href');
       });
     }
-  })
+  });
 </script>
 {% endif %}
 {% endblock %}

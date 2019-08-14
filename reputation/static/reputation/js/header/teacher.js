@@ -1,78 +1,13 @@
 // @flow
+"use strict";
 import { buildReq } from "../../../../../peerinst/static/peerinst/js/ajax.js";
 import {
   clear,
   createSvg,
 } from "../../../../../peerinst/static/peerinst/js/utils.js";
+import { ReputationHeader } from "./header.js";
 
-export class TeacherReputationHeader extends HTMLElement {
-  get reputationUrl(): string {
-    const url = this.getAttribute("reputation-url");
-    if (!url) {
-      throw new Error(
-        "The teacher-reputation-header needs a `reputation-url` attribute",
-      );
-    }
-    return url;
-  }
-  get reputationType(): string {
-    const type = this.getAttribute("reputation-type");
-    if (!type) {
-      throw new Error(
-        "The teacher-reputation-header needs a `reputation-type` attribute",
-      );
-    }
-    return type;
-  }
-  get reputationId(): string {
-    const id = this.getAttribute("reputation-id");
-    if (!id) {
-      throw new Error(
-        "The teacher-reputation-header needs a `reputation-id` attribute",
-      );
-    }
-    return id;
-  }
-  get nonce_(): string {
-    const nonce = this.getAttribute("nonce") || this.nonce;
-    if (!nonce) {
-      throw new Error(
-        "The teacher-reputation-header needs a `nonce` attribute",
-      );
-    }
-    return nonce;
-  }
-  get hidden() {
-    return this.hasAttribute("hidden");
-  }
-  get open() {
-    return this.hasAttribute("open");
-  }
-  set hidden(val: boolean) {
-    if (val) {
-      this.setAttribute("hidden", "");
-    } else {
-      this.removeAttribute("hidden");
-    }
-  }
-  set open(val: boolean) {
-    if (val) {
-      this.setAttribute("open", "");
-    } else {
-      this.removeAttribute("open");
-    }
-  }
-
-  constructor() {
-    super();
-
-    const shadow = this.attachShadow({ mode: "open" });
-
-    this.hidden = true;
-
-    this.init(shadow);
-  }
-
+class TeacherReputationHeader extends ReputationHeader {
   async init(shadow: ShadowRoot) {
     /*********/
     /* model */
@@ -98,7 +33,7 @@ export class TeacherReputationHeader extends HTMLElement {
       id: parseInt(this.reputationId),
       element: this,
       reputation: null,
-      reputationType: this.reputationType,
+      reputationType: "teacher",
       reputationUrl: this.reputationUrl,
       reputations: [],
       shadow: shadow,
@@ -155,6 +90,7 @@ export class TeacherReputationHeader extends HTMLElement {
     }
 
     function iconView() {
+      // $FlowFixMe
       let icon = shadow.getElementById("icon");
 
       if (!icon) {
@@ -177,6 +113,7 @@ export class TeacherReputationHeader extends HTMLElement {
         }
         icon.appendChild(span);
 
+        // $FlowFixMe
         document.body?.addEventListener("click", (event: MouseEvent) => {
           if (model.element.open) {
             toggleReputationList();
@@ -184,6 +121,7 @@ export class TeacherReputationHeader extends HTMLElement {
         });
       } else {
         if (model.reputation !== null && model.reputation !== undefined) {
+          // $FlowFixMe
           shadow.getElementById(
             "icon__reputation",
           ).textContent = model.reputation.toString();
@@ -194,6 +132,7 @@ export class TeacherReputationHeader extends HTMLElement {
     }
 
     function listView() {
+      // $FlowFixMe
       let list = shadow.getElementById("list");
       if (!list) {
         list = document.createElement("div");
@@ -248,10 +187,10 @@ export class TeacherReputationHeader extends HTMLElement {
         window.location.protocol +
           "//" +
           window.location.host +
-          "/static/reputation/css/teacher-header.min.css",
+          "/static/reputation/css/header/teacher.min.css",
       );
       style.setAttribute("rel", "stylesheet");
-      style.setAttribute("nonce", model.nonce);
+      style.setAttribute("nonce", model.element.nonce_);
       return style;
     }
 
@@ -262,4 +201,8 @@ export class TeacherReputationHeader extends HTMLElement {
     view();
     await update();
   }
+}
+
+if (!customElements.get("teacher-reputation-header")) {
+  customElements.define("teacher-reputation-header", TeacherReputationHeader);
 }
