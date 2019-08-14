@@ -43,18 +43,62 @@ def create_category(browser, assert_):
     input = browser.find_element_by_id("autofill_categories")
     input.send_keys(Keys.ENTER)
 
+    assert (
+        "Fun new category"
+        in browser.find_element_by_id("current_categories").text
+    )
+
+    # Clicking chip removes category
+    browser.find_element_by_xpath(
+        "//div[@id='current_categories']/div[@v='1']"
+    ).click()
     browser.wait_for(
         lambda: assert_(
             "Fun new category"
+            not in browser.find_element_by_id("current_categories").text
+        )
+    )
+
+    # Adding existing category throws error
+    browser.find_element_by_id("show_category_form").click()
+    input = browser.find_element_by_xpath(
+        "//div[@id='create_new_category']/input[@id='id_title']"
+    )
+    input.send_keys("Fun new category")
+    input.send_keys(Keys.ENTER)
+
+    browser.wait_for(
+        lambda: assert_(
+            "Category with this Category Name already exists."
             in browser.find_element_by_id("current_categories").text
         )
     )
 
-    # Clicking chip removes category
-
-    # Adding existing category throws error
-
     # Cancel works
+    time.sleep(1)
+    cancel = browser.find_element_by_id("clear_category_form").click()
+    browser.wait_for(
+        lambda: assert_(
+            "Type to search and select at least one category for this "
+            "question. You can select multiple categories."
+            in browser.page_source
+        )
+    )
+
+    # Put it back
+    input = browser.find_element_by_id("autofill_categories")
+    input.send_keys("Fun new category")
+    time.sleep(1)
+    input.send_keys(Keys.ENTER)
+
+    browser.wait_for(
+        lambda: assert_(
+            "Fun new category"
+            in browser.find_elements_by_class_name("mdc-chip")
+        )
+    )
+
+    time.sleep(2)
 
 
 def create_discipline():
