@@ -45,6 +45,10 @@
         </div>
       </div>
       <div class="mdc-card__action-icons">
+        <button pk="{{ object.pk }}"
+                class="mdc-button mdc-button--raised collection-distribute"
+                >{% trans 'Assign' %}
+        </button>
         <i class="mdc-icon-toggle material-icons mdc-theme--primary follower-btn"
             role="button"
             aria-pressed="false"
@@ -91,9 +95,10 @@
         </div>
       </div>
     </div>
-    {% for obj in object.assignments.all %}
     <ul>
-      <li class="dense-list searchable">
+
+    {% for obj in object.assignments.all %}
+    <li class="dense-list searchable">
         <div class="mdc-card" id="card-assign">
           <div class="mdc-typography--title bold">
             {{ obj.title }}
@@ -207,17 +212,19 @@
           <div class="mdc-card__action-buttons">
             <div class="mdc-typography--caption">
               <div class="admin-link">
-                <a id="assignment-view" href="{% url 'question-list' obj.pk %}"><b>View Assignment</b></a>
+                <a id="assignment-view" href="{% url 'question-list' obj.pk %}"><b>{% trans 'View Assignment' %}</b></a>
               </div>
             </div>
           </div>
       </div>
         </div>
-      </ul>
-    </li>
+
+
     {% empty %}
     {% trans 'No assignments available.' %}
     {% endfor %}
+  </li>
+  </ul>
   </section>
 </main>
 {% endblock %}
@@ -262,6 +269,14 @@
       toggleFavourite(el.getAttribute('pk'));
     });
   });
+
+  [].forEach.call(document.querySelectorAll(".collection-distribute"), el => {
+    el.addEventListener("click", () => {
+      window.location.replace("{% url 'collection-distribute' object.pk %}");
+    });
+  });
+
+
 
 </script>
 {% endblock %}

@@ -634,6 +634,11 @@ def collection_patterns():
             name="featured-collection-list",
         ),
         url(
+            r"^collection/distribute/(?P<pk>[0-9]+)$",
+            views.CollectionDistributeDetailView.as_view(),
+            name="collection-distribute",
+        ),
+        url(
             r"^collection/follower",
             views.teacher_toggle_follower,
             name="teacher-toggle-follower",
@@ -647,6 +652,11 @@ def collection_patterns():
             r"^collection/add/assignment",
             views.collection_add_assignment,
             name="collection-add-assignment",
+        ),
+        url(
+            r"^collection/assign",
+            views.collection_assign,
+            name="collection-assign",
         ),
         url(
             r"^collection/featured-data/$",

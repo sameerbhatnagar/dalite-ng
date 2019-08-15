@@ -117,7 +117,50 @@
         </div>
       </div>
       <div>
-      <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Your assignments' %}</h2>
+        <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Assignments in' %} {{ object.title }}</h2>
+        <p>{% blocktrans %} These are the assignments in this collection. {% endblocktrans %}</p>
+        {% if not teacher.assignments.all %}
+        <p>{% blocktrans %} This collection does not have any assignments. {% endblocktrans %}</p>
+        {% endif %}
+        <ul class="mdc-list mdc-list--two-line mdc-list--non-interactive">
+          {% for b in collection_assignments %}
+          <li role="separator" class="mdc-list-divider"></li>
+          <li class="mdc-list-item">
+            <span class="mdc-list-item__graphic mdc-theme--primary">
+                <a class="translate-4" href="{% url 'question-list' b.pk %}">
+                  <i class="mdc-theme--primary material-icons md-48">assignment</i>
+                </a>
+            </span>
+            <span class="mdc-list-item__text mdc-theme--secondary bold">
+              {{ b.identifier }}
+              <span class="mdc-list-item__secondary-text">
+                {{ b.questions.count }} {% trans "questions" %}
+              </span>
+            </span>
+            <span class="mdc-list-item__meta">
+              <i class="mdc-icon-toggle material-icons mdc-theme--primary follower-btn"
+                  role="button"
+                  aria-pressed="false"
+                  aria-label="Add to favorites" tabindex="0"
+                  {% if b in object.assignments.all %}
+                  data-toggle-off='{"label": "Remove from favourites", "content": "favorite"}'
+                  data-toggle-on='{"label": "Add to favourites", "content": "favorite_border"}'
+                  {% else %}
+                  data-toggle-on='{"label": "Remove from favourites", "content": "favorite"}'
+                  data-toggle-off='{"label": "Add to favourites", "content": "favorite_border"}'
+                  {% endif %}
+                  pk="{{ b.pk }}"
+                  ppk="{{ object.pk }}">
+                  favorite_border
+              </i>
+            </span>
+          </li>
+          {% endfor %}
+          <li role="separator" class="mdc-list-divider"></li>
+        </ul>
+        <div class="foldable">
+      <h2 class="foldable--title mdc-typography--display1 mdc-theme--secondary">{% trans 'Your Assignments' %}</h2>
+      <div class="foldable--body">
       <p>{% trans 'These are the assignments for which you are an author, and have editing rights.' %}</p>
       {% if not owned_assignments %}
       <p>{% blocktrans %} You currently do not have editing rights on any assignments. {% endblocktrans %}</p>
@@ -158,7 +201,11 @@
           {% endfor %}
           <li role="separator" class="mdc-list-divider"></li>
         </ul>
-      <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Followed Assignments' %}</h2>
+        </div>
+        </div>
+        <div class="foldable">
+      <h2 class="foldable--title mdc-typography--display1 mdc-theme--secondary">{% trans 'Followed Assignments' %}</h2>
+      <div class="foldable--body">
       <p>{% blocktrans %} These are the assignments you are following.{% endblocktrans %}</p>
       {% if not teacher.assignments.all %}
       <p>{% blocktrans %} You do not have any followed assignments. {% endblocktrans %}</p>
@@ -199,6 +246,8 @@
         {% endfor %}
         <li role="separator" class="mdc-list-divider"></li>
       </ul>
+    </div>
+    </div>
     </div>
     <input class="mdc-button mdc-button--raised padded-top" type="submit" value="Update" id="id_update"/>
     <input type="hidden" name="owner" value="">

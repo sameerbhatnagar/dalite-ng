@@ -1,0 +1,113 @@
+{% extends 'peerinst/base.html' %}
+
+{% load get_value staticfiles compress i18n %}
+
+{% block stylesheets %}
+{{ block.super }}
+{% compress css %}
+<link href="{% static 'peerinst/css/collection.min.css' %}" rel="stylesheet">
+{% endcompress %}
+{% endblock %}
+{% block body %}
+<main>
+  <section>
+    <h1 class="mdc-typography--display3">Collections
+      <svg class="underline" width=150 height=4></svg>
+    </h1>
+    <div>
+      <h2 class="mdc-typography--display1 mdc-theme--secondary">{{ object.title }}
+        <div class="mdc-typography--caption">
+        {% trans 'Created by' %} {{ object.owner.user.username }}
+      </div></h2>
+    </div>
+    
+    <div class="mdc-typography--body1">
+      {{ object.description }}
+    </div>
+    <br>
+    <div>
+    <p><b>{% trans 'Collection Information' %}</b></p>
+    <div class="mdc-typography--caption">
+          <div>
+            {% trans 'Discipline' %}: {{ object.discipline }}
+          </div>
+          <div>
+            {% trans 'Published on' %} {{ object.created_on }}
+          </div>
+
+            <div>
+              {% trans 'Total Answers' %}: {{ collection_data.total_answers }}
+            </div>
+            <div>
+              {% trans 'Answers Switched' %}: {{ collection_data.switches }}
+            </div>
+              <div>
+                {% trans 'Correct Answers on First Attempt' %}: {{ collection_data.correct_first_answers }}
+              </div>
+              <div>
+                {% trans 'Correct Answers on Second Attempt' %}: {{ collection_data.correct_second_answers }}
+              </div>
+</div>
+</div>
+
+    {% if not student_groups %}
+    <p class='mdc-typography--body1'>{% blocktrans %}You have no active student groups that may receive this collection. {% endblocktrans %}</p>
+    {% endif %}
+    <ul class="mdc-list mdc-list--two-line mdc-list--non-interactive">
+      {% for g in student_groups %}
+      <li role="separator" class="mdc-list-divider"></li>
+      <li class="mdc-list-item pointer group-link">
+        <span class="mdc-list-item__graphic mdc-theme--primary">
+          <i class="clickable mdc-theme--primary material-icons md-48">group</i>
+        </span>
+        <span class="clickable mdc-list-item__text mdc-theme--secondary bold">
+          {% if not g.title %} {{ g.name }} {% else %} {{ g.title }} {% endif %}
+          <span class="mdc-list-item__secondary-text">
+            {% trans "Created: " %} {{ g.creation_date }}
+          </span>
+          <span class="mdc-list-item__secondary-text">
+            {% trans "Students: " %} {{ g.student_set.count  }}
+          </span>
+        </span>
+        <span class="mdc-list-item__meta">
+          <button ppk="{{ object.pk }}"
+                  pk="{{ g.pk }}"
+                  class="mdc-button mdc-button--raised collection-distribute"
+                  >{% trans 'Assign' %}
+          </button>
+        </span>
+      </li>
+      {% endfor %}
+
+  </section>
+</main>
+{% endblock %}
+{% block scripts %}
+{{ block.super }}
+<script nonce="{{ request.csp_nonce }}">
+
+  $.ajaxSetup({
+      beforeSend: function(xhr, settings) {
+          if (!bundle.csrfSafeMethod(settings.type) && !this.crossDomain) {
+              xhr.setRequestHeader("X-CSRFToken", bundle.getCsrfToken());
+          }
+      }
+  });
+
+
+  function assignCollection(pk, ppk) {
+    var posting = $.post("{% url 'collection-assign' %}", {pk: pk, ppk: ppk});
+    posting.done(function(data) {
+      console.info(data);
+    })
+  }
+
+
+  [].forEach.call(document.querySelectorAll(".collection-distribute"), el => {
+    el.addEventListener("click", () => {
+      assignCollection(el.getAttribute('pk'), el.getAttribute('ppk'));
+    });
+  });
+
+</script>
+{% endblock %}

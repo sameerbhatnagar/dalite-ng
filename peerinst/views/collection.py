@@ -7,7 +7,11 @@ from django.views.generic.edit import CreateView
 from django.views.generic import ListView, DetailView, UpdateView, DeleteView
 from django.forms import ModelForm
 from ..models import Collection, Teacher, Assignment, StudentGroup
-from ..mixins import LoginRequiredMixin, NoStudentsMixin
+from ..mixins import (
+    LoginRequiredMixin,
+    NoStudentsMixin,
+    TOSAcceptanceRequiredMixin,
+)
 from django.shortcuts import get_object_or_404
 from django.core.urlresolvers import reverse
 from peerinst.admin_views import get_assignment_aggregates
@@ -15,6 +19,7 @@ import collections
 from dalite.views.utils import get_json_params
 from .decorators import teacher_required
 from django.views.decorators.http import require_POST
+from django.core.exceptions import PermissionDenied
 
 
 class CollectionForm(ModelForm):
@@ -36,13 +41,9 @@ class CollectionForm(ModelForm):
         self.fields["discipline"].queryset = teacher.disciplines.all()
 
 
-class CollectionFormUpdate(ModelForm):
-    class Meta:
-        model = Collection
-        fields = ["title", "description", "image", "discipline", "private"]
-
-
-class CollectionCreateView(LoginRequiredMixin, NoStudentsMixin, CreateView):
+class CollectionCreateView(
+    LoginRequiredMixin, NoStudentsMixin, TOSAcceptanceRequiredMixin, CreateView
+):
 
     template_name = "peerinst/collection/collection_form.html"
     form_class = CollectionForm
@@ -96,12 +97,16 @@ def collection_data(collection):
 
 
 class CollectionUpdateView(LoginRequiredMixin, NoStudentsMixin, UpdateView):
-    form_class = CollectionFormUpdate
     template_name = "peerinst/collection/collection_update.html"
+    model = Collection
+    fields = ["title", "description", "image", "discipline", "private"]
 
-    def get_queryset(self):
+    def dispatch(self, *args, **kwargs):
         teacher = get_object_or_404(Teacher, user=self.request.user)
-        return Collection.objects.filter(owner=teacher)
+        if teacher == self.get_object().owner or self.request.user.is_staff:
+            return super(CollectionUpdateView, self).dispatch(*args, **kwargs)
+        else:
+            raise PermissionDenied
 
     def get_success_url(self):
         return reverse("collection-detail", kwargs={"pk": self.object.pk})
@@ -112,12 +117,16 @@ class CollectionUpdateView(LoginRequiredMixin, NoStudentsMixin, UpdateView):
         collection = self.get_object()
         teacher = get_object_or_404(Teacher, user=self.request.user)
         context["collection_assignments"] = collection.assignments.all()
-        context["owned_assignments"] = Assignment.objects.filter(
-            owner=self.request.user
-        )
-        context["followed_assignments"] = teacher.assignments.all().exclude(
-            owner=self.request.user
-        )
+        context["owned_assignments"] = [
+            a
+            for a in list(Assignment.objects.filter(owner=self.request.user))
+            if a not in self.get_object().assignments.all()
+        ]
+        context["followed_assignments"] = [
+            a
+            for a in teacher.assignments.exclude(owner=self.request.user)
+            if a not in self.get_object().assignments.all()
+        ]
         return context
 
 
@@ -125,14 +134,12 @@ class CollectionDeleteView(LoginRequiredMixin, NoStudentsMixin, DeleteView):
     model = Collection
     template_name = "peerinst/collection/collection_delete.html"
 
-    def get_queryset(self):
+    def dispatch(self, *args, **kwargs):
         teacher = get_object_or_404(Teacher, user=self.request.user)
-        return Collection.objects.filter(owner=teacher)
-
-    def form_valid(self, form):
-        teacher = get_object_or_404(Teacher, user=self.request.user)
-        form.instance.owner = teacher
-        return super(CollectionCreateView, self).form_valid(form)
+        if teacher == self.get_object().owner or self.request.user.is_staff:
+            return super(CollectionDeleteView, self).dispatch(*args, **kwargs)
+        else:
+            raise PermissionDenied
 
     def get_success_url(self):
         return reverse("collection-list")
@@ -187,6 +194,22 @@ def featured_collections(request):
         "json", Collection.objects.filter(featured=True)
     )
     return JsonResponse(data, safe=False)
+
+
+class CollectionDistributeDetailView(
+    LoginRequiredMixin, NoStudentsMixin, DetailView
+):
+
+    model = Collection
+    template_name = "peerinst/collection/collection_distribute.html"
+
+    def get_context_data(self, **kwargs):
+        context = super(DetailView, self).get_context_data(**kwargs)
+        teacher = get_object_or_404(Teacher, user=self.request.user)
+        context["student_groups"] = teacher.current_groups.all()
+        collection = self.get_object()
+        context["collection_data"] = collection_data(collection=collection)
+        return context
 
 
 @teacher_required

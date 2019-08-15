@@ -1825,6 +1825,9 @@ class TeacherDetailView(TeacherBase, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(TeacherDetailView, self).get_context_data(**kwargs)
+        context["owned_collections"] = Collection.objects.filter(
+            owner=self.request.user.teacher
+        )
         context["LTI_key"] = str(settings.LTI_CLIENT_KEY)
         context["LTI_secret"] = str(settings.LTI_CLIENT_SECRET)
         context["LTI_launch_url"] = str(
@@ -2033,6 +2036,21 @@ def collection_toggle_assignment(request):
     else:
         collection.assignments.remove(assignment)
         return JsonResponse({"action": "removed"})
+
+
+@login_required
+@user_passes_test(student_check, login_url="/access_denied_and_logout/")
+def collection_assign(request):
+    collection = get_object_or_404(Collection, pk=request.POST.get("ppk"))
+    student_group = get_object_or_404(StudentGroup, pk=request.POST.get("pk"))
+    for assign in collection.assignments.all():
+        if StudentGroupAssignment.objects.filter(
+            group=student_group, assignment=assign
+        ):
+            StudentGroupAssignment.objects.create(
+                group=student_group, assignment=assign
+            )
+    return JsonResponse({"action": "added"})
 
 
 @login_required
