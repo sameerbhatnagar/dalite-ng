@@ -231,4 +231,4 @@ def collection_add_assignment(request, teacher):
     for assignment in student_group_assignments:
         if assignment.assignment not in collection.assignments.all():
             collection.assignments.add(assignment.assignment)
-            return JsonResponse({"pk": collection.pk})
+    return JsonResponse({"pk": collection.pk})

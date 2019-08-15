@@ -20,7 +20,7 @@
         {% trans 'Created by' %} {{ object.owner.user.username }}
       </div></h2>
     </div>
-    
+
     <div class="mdc-typography--body1">
       {{ object.description }}
     </div>
@@ -61,7 +61,9 @@
           <i class="clickable mdc-theme--primary material-icons md-48">group</i>
         </span>
         <span class="clickable mdc-list-item__text mdc-theme--secondary bold">
-          {% if not g.title %} {{ g.name }} {% else %} {{ g.title }} {% endif %}
+          <a class="mdc-theme--secondary" href="{% url 'question-list' g.pk %}">
+            {% if not g.title %} {{ g.name }} {% else %} {{ g.title }} {% endif %}
+          </a>
           <span class="mdc-list-item__secondary-text">
             {% trans "Created: " %} {{ g.creation_date }}
           </span>
@@ -70,10 +72,10 @@
           </span>
         </span>
         <span class="mdc-list-item__meta">
-          <button ppk="{{ object.pk }}"
+          <button class="mdc-button mdc-button--raised collection-distribute"
                   pk="{{ g.pk }}"
-                  class="mdc-button mdc-button--raised collection-distribute"
-                  >{% trans 'Assign' %}
+                  ppk="{{ object.pk }}">
+                  {% trans 'Assign' %}
           </button>
         </span>
       </li>
