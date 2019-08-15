@@ -13,7 +13,7 @@
 </div>
   <ul>
     {% for d in disciplines %}
-      <li><a href = "{% url 'research-discipline-question-index-by-discipline' discipline_title=d.title %}">{{ d.title }}</a></li>
+      <li><a href = "{% url 'research-discipline-question-index-by-discipline' discipline_title=d.title %}">{{ d.title }}</a> ({{ d.question_set.count }} questions)</li>
     {% endfor %}
   </ul>
 </section>
