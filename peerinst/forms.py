@@ -189,6 +189,9 @@ class AssignmentMultiselectForm(forms.Form):
                 num_student_rationales=num_student_rationales
             ).filter(Q(num_student_rationales=0))
 
+        # Add queryset to form object to keep logic in one spot
+        self.queryset = queryset
+
         self.fields["assignments"] = forms.ModelMultipleChoiceField(
             queryset=queryset,
             required=False,
@@ -346,7 +349,7 @@ class DisciplineSelectForm(forms.Form):
     discipline = forms.ModelChoiceField(
         queryset=Discipline.objects.all(),
         help_text=_(
-            "Optional. Select the discipline to which this question should "
+            "Optional. Select the discipline to which this item should "
             "be associated."
         ),
     )
