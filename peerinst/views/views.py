@@ -2044,12 +2044,9 @@ def collection_assign(request):
     collection = get_object_or_404(Collection, pk=request.POST.get("ppk"))
     student_group = get_object_or_404(StudentGroup, pk=request.POST.get("pk"))
     for assign in collection.assignments.all():
-        if StudentGroupAssignment.objects.filter(
+        StudentGroupAssignment.objects.create(
             group=student_group, assignment=assign
-        ):
-            StudentGroupAssignment.objects.create(
-                group=student_group, assignment=assign
-            )
+        )
     return JsonResponse({"action": "added"})
 
 

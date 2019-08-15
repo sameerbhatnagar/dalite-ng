@@ -73,8 +73,8 @@
         </span>
         <span class="mdc-list-item__meta">
           <button class="mdc-button mdc-button--raised collection-distribute"
-                  pk="{{ g.pk }}"
-                  ppk="{{ object.pk }}">
+                  id_pk="{{ g.pk }}"
+                  id_ppk="{{ object.pk }}">
                   {% trans 'Assign' %}
           </button>
         </span>
@@ -107,7 +107,7 @@
 
   [].forEach.call(document.querySelectorAll(".collection-distribute"), el => {
     el.addEventListener("click", () => {
-      assignCollection(el.getAttribute('pk'), el.getAttribute('ppk'));
+      assignCollection(el.getAttribute('id_pk'), el.getAttribute('id_ppk'));
     });
   });
 
