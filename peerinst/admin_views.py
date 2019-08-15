@@ -591,12 +591,15 @@ class QuestionPreviewViewBase(
             )
         else:
             save_allowed = False
+
+        assignment_form = AssignmentMultiselectForm(
+            self.request.user, self.question
+        )
         context.update(
             question=self.question,
             answer_choices=self.answer_choices,
-            assignment_form=AssignmentMultiselectForm(
-                self.request.user, self.question
-            ),
+            assignment_form=assignment_form,
+            assignment_count=assignment_form.queryset.count(),
             save_allowed=save_allowed,
         )
         return context
