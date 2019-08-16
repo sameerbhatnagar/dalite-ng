@@ -102,30 +102,31 @@
         <div class="mdc-card__action-icons">
           {% if request.user == g.user or request.user in g.collaborators.all %}
             <a title="{% trans 'Edit' %}" id="edit-question-{{ g.pk }}" href="{% url 'question-update' g.pk %}">
-              <i class="material-icons md-24 mdc-ripple-surface icon-list edit-question mdc-theme--primary">mode_edit</i>
+              <i class="material-icons md-24 mdc-ripple-surface card-icon-list mdc-theme--primary">mode_edit</i>
             </a>
           {% else %}
             <a title="{% trans 'Copy and edit' %}" id="clone-question-{{ g.pk }}" href="{% url 'question-clone' g.pk %}">
-              <i class="material-icons md-24 mdc-ripple-surface icon-list edit-question mdc-theme--primary">file_copy</i>
+              <i class="material-icons md-24 mdc-ripple-surface card-icon-list mdc-theme--primary">file_copy</i>
             </a>
           {% endif %}
-          <form class="inline" method="post" action="#">
+          <form id="question-remove-{{g.pk}}" method="post">
             {% csrf_token %}
             <input type="hidden" name="q" value="{{g.pk}}" />
-            <input class="material-icons small-button mdc-button mdc-card__action mdc-card__action--button mdc-button--raised" type="submit" value="clear"/>
+            <i form="question-remove-{{g.pk}}" class="material-icons mdc-theme--primary md-24 mdc-ripple-surface icon-list submit-question-remove">delete</i>
           </form>
         </div>
       </div>
     </div>
     {% empty %}
     <ul id="empty-assignment-list">
-      <li><strong>Note:</strong> There are currently no questions in this assignment.  You can add them from the list below.</li>
+      <li><strong>{% trans 'Note:' %}</strong>{% trans 'There are currently no questions in this assignment.  You can add them from the list below.' %}</li>
     </ul>
     {% endfor %}
     </div>
 
     <div id="favourite-questions" class="foldable foldable__unfolded">
       <h2 class="foldable--title mdc-typography--display1 mdc-theme--secondary">{% trans 'My favourite questions' %}</h2>
+      <br>
       <div class="foldable--body" class="m-top-20">
       {% for g in teacher.favourite_questions.all %}
       {% if g not in object.questions.all %}
@@ -187,10 +188,10 @@
                 favorite_border
             </i>
             {% endif %}
-            <form class="inline" method="post" action="#{{g.id|slugify}}">
+            <form id="question-add-{{g.pk}}" class="inline" method="post" action="#{{g.id|slugify}}">
               {% csrf_token %}
               <input type="hidden" name="q" value="{{g.pk}}" />
-              <input class="material-icons small-button mdc-button mdc-card__action mdc-card__action--button mdc-button--raised" type="submit" value="add" />
+              <i form="question-add-{{g.pk}}" class="material-icons mdc-theme--primary md-24 mdc-ripple-surface icon-list submit-question-add">add</i>
             </form>
           </div>
         </div>
@@ -315,6 +316,19 @@
   }
 
   window.addEventListener("load", function() {
+
+    $(".submit-question-remove").each(function(i, el) {
+      el.addEventListener("click", function() {
+        $('#'+el.getAttribute("form")).submit();
+      });
+    });
+
+    $(".submit-question-add").each(function(i, el) {
+      el.addEventListener("click", function() {
+        $('#'+el.getAttribute("form")).submit();
+      });
+    });
+
     $(".favourite-btn").each(function(i, el) {
       el.addEventListener("click", function() {
         toggleFavourite(el.getAttribute("data-id"));

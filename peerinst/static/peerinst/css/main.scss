@@ -480,9 +480,11 @@ input[type="submit"].thumbs-button {
   margin-left: 20px;
   overflow: visible;
 }
-.edit-question {
-  margin-right: 20px;
-  transform: translateY(4px);
+.card-icon-list {
+  cursor: pointer;
+  margin-left: 20px;
+  margin-right: 10px;
+  overflow: visible;
 }
 .fake-link {
   color: $hint;
