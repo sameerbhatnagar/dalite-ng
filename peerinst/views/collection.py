@@ -6,7 +6,13 @@ from django.core import serializers
 from django.views.generic.edit import CreateView
 from django.views.generic import ListView, DetailView, UpdateView, DeleteView
 from django.forms import ModelForm
-from ..models import Collection, Teacher, Assignment, StudentGroup
+from ..models import (
+    Collection,
+    Teacher,
+    Assignment,
+    StudentGroup,
+    StudentGroupAssignment,
+)
 from ..mixins import (
     LoginRequiredMixin,
     NoStudentsMixin,
@@ -206,9 +212,17 @@ class CollectionDistributeDetailView(
     def get_context_data(self, **kwargs):
         context = super(DetailView, self).get_context_data(**kwargs)
         teacher = get_object_or_404(Teacher, user=self.request.user)
-        context["student_groups"] = teacher.current_groups.all()
         collection = self.get_object()
+        context["student_groups"] = teacher.current_groups.all()
         context["collection_data"] = collection_data(collection=collection)
+        context["group_data"] = {}
+        for group in teacher.current_groups.all():
+            context["group_data"][group.pk] = True
+            for assignment in collection.assignments.all():
+                if not StudentGroupAssignment.objects.filter(
+                    group=group, assignment=assignment
+                ).exists():
+                    context["group_data"][group.pk] = False
         return context
 
 
@@ -221,7 +235,7 @@ def collection_add_assignment(request, teacher):
     (group_pk,), _ = args
 
     collection = Collection.objects.create(
-        discipline=teacher.disciplines.get(id=1),
+        discipline=teacher.disciplines.first(),
         owner=teacher,
         title="temporary title",
         description="temporary description",

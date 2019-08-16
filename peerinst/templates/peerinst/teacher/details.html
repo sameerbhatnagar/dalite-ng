@@ -290,7 +290,7 @@
           <li role="separator" class="mdc-list-divider"></li>
           <li class="mdc-list-item">
             <span class="mdc-list-item__graphic mdc-theme--primary">
-              <i class="mdc-theme--primary material-icons md-48">book</i>
+              <i class="clickable mdc-theme--primary material-icons md-48 collection-icon" id="{{ a.pk }}">book</i>
             </span>
             <span class="mdc-list-item__text mdc-theme--secondary bold">
               <a class="mdc-theme--secondary" href="{% url 'collection-detail' a.pk %}">{{ a.title }}</a>
@@ -541,6 +541,13 @@
     });
     document.getElementById("email-modify-btn").addEventListener("click", function() {
       window.location.href='{% url 'tos:email_modify' 'teacher' %}?next={{ request.path }}';
+    });
+  });
+  [].forEach.call(document.querySelectorAll(".collection-icon"), el => {
+    el.addEventListener("click", () => {
+      const pk=el.getAttribute('id');
+      const collectionUrl = "{% url 'collection-detail' 0 %}"
+      window.location.href = collectionUrl.replace("0", pk );
     });
   });
 </script>

@@ -49,6 +49,7 @@
     {% for obj in object_list %}
     <li class="dense-list searchable">
       <div class="mdc-card" id="card{% if obj.featured == True %}-featured{% endif %}">
+        <div class="clickable detail-view" id="{{ obj.pk }}">
         <div class="mdc-typography--title bold">
           {% if obj.image %}<img id="thumbnail" src="{{obj.image.url}}">&nbsp;&nbsp;{% endif %}{{ obj.title }}
         </div>
@@ -58,6 +59,7 @@
       <div class="mdc-typography--body1">
         {{ obj.description }}
       </div>
+      </div>
       <div class="mdc-card__actions">
         <div class="mdc-card__action-buttons">
           <div class="mdc-typography--caption">
@@ -65,11 +67,10 @@
               {% trans 'Discipline' %}: {{ obj.discipline }}
             </div>
             <div>
-              {% trans 'Published on' %} {{obj.created_on}}
+              {% trans 'Published on' %} {{ obj.created_on }}
             </div>
             <div>
-              <a id="collection-view" href="{% url 'collection-detail' obj.pk %}"><b>{% trans 'Click Here to View' %}</b></a>
-            </div>
+              </div>
           </div>
         </div>
         <div class="mdc-card__action-icons">
@@ -125,6 +126,14 @@ function toggleFollower(pk) {
 [].forEach.call(document.querySelectorAll(".follower-btn"), el => {
   el.addEventListener("click", () => {
     toggleFollower(el.getAttribute('pk'));
+  });
+});
+
+[].forEach.call(document.querySelectorAll(".detail-view"), el => {
+  el.addEventListener("click", () => {
+    const pk=el.getAttribute('id');
+    const collectionUrl = "{% url 'collection-detail' 0 %}"
+    window.location.href = collectionUrl.replace("0", pk );
   });
 });
 

@@ -66,10 +66,10 @@
       <li role="separator" class="mdc-list-divider"></li>
       <li class="mdc-list-item pointer group-link">
         <span class="mdc-list-item__graphic mdc-theme--primary">
-          <i class="clickable mdc-theme--primary material-icons md-48">group</i>
+          <i class="clickable mdc-theme--primary material-icons md-48" id="{{ g.hash }}">group</i>
         </span>
         <span class="clickable mdc-list-item__text mdc-theme--secondary bold">
-          <a class="mdc-theme--secondary" href="{% url 'question-list' g.pk %}">
+          <a class="mdc-theme--secondary" href="{% url 'group-details' g.hash %}">
             {% if not g.title %} {{ g.name }} {% else %} {{ g.title }} {% endif %}
           </a>
           <span class="mdc-list-item__secondary-text">
@@ -80,11 +80,21 @@
           </span>
         </span>
         <span class="mdc-list-item__meta">
+          {% if group_data|get_value:g.pk is False %}
           <button class="mdc-button mdc-button--raised collection-distribute"
                   id_pk="{{ g.pk }}"
-                  id_ppk="{{ object.pk }}">
+                  id_ppk="{{ object.pk }}"
+                  id = "{{ g.pk }}">
                   {% trans 'Assign' %}
           </button>
+          {% else %}
+          <button class="mdc-button mdc-button--raised collection-distribute" disabled
+                  id_pk="{{ g.pk }}"
+                  id_ppk="{{ object.pk }}"
+                  id = "{{ g.pk }}">
+                  {% trans 'Assigned' %}
+          </button>
+          {% endif %}
         </span>
       </li>
       {% endfor %}
@@ -116,6 +126,16 @@
   [].forEach.call(document.querySelectorAll(".collection-distribute"), el => {
     el.addEventListener("click", () => {
       assignCollection(el.getAttribute('id_pk'), el.getAttribute('id_ppk'));
+      document.getElementById(el.getAttribute('id_pk')).innerHTML = "{% trans 'Assigned' %}";
+      document.getElementById(el.getAttribute('id_pk')).setAttribute("disabled","");
+    });
+  });
+
+  [].forEach.call(document.querySelectorAll(".md-48"), el => {
+    el.addEventListener("click", () => {
+      const hash=el.getAttribute('id');
+      const groupUrl = "{% url 'group-details' 0 %}"
+      window.location.href = groupUrl.replace("0", hash );
     });
   });
 
