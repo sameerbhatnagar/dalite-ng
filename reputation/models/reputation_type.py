@@ -76,14 +76,14 @@ class ReputationType(models.Model):
                 if evaluation >= float(prev_threshold)
             ) + (
                 " + {} * {}".format(
+                    evaluation - float(criterion.thresholds[-1]),
                     criterion.points_per_threshold[-1],
-                    evaluation - float(criterion.threshold[-1]),
                 )
                 if (
                     len(criterion.points_per_threshold)
                     < len(criterion.thresholds)
                 )
-                and evaluation > float(criterion.thresholds[-1])
+                and evaluation < float(criterion.thresholds[-1])
                 else ""
             )
 
