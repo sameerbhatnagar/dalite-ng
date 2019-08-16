@@ -11,18 +11,35 @@
 {% block body %}
 <main>
   <section>
-    <h1 class="mdc-typography--display3">Collections
+    <h1 class="mdc-typography--display3">{% trans 'Collections' %}
       <svg class="underline" width=150 height=4></svg>
     </h1>
     <div class="admin-link">
       <a href="{% url 'teacher' request.user.teacher.pk %}">{% trans 'Back to My Account' %}</a>
-      <span class="links-divider">|</span><a href="{% url 'collection-list' %}">{% trans 'Back to Collections' %}</a>
+      <span class="links-divider">|</span><a href="{% url 'collection-list' %}">{% trans 'View Collections' %}</a>
       <span class="links-divider">|</span>{% if request.user.teacher == object.owner %}<a href="{% url 'collection-update' object.pk %}">{% trans 'Edit' %}</a>
       <span class="links-divider">|</span><a href="{% url 'collection-delete' object.pk %}">{% trans 'Delete' %}</a>
       <span class="links-divider">|</span>{% endif %}<a href="{% url 'collection-create' %}">{% trans 'Create' %}</a>
     </div>
     <div>
       <h2 class="mdc-typography--display1 mdc-theme--secondary">{{ object.title }}</h2>
+    </div>
+    <div class='field-container'>
+      <div class='number-box'><span class='number'>?</span></div>
+      <div class='field'>
+        <p><small>
+          {% blocktrans %}
+          A collection is a compilation of assignments that work well in conjunction with one another.
+          Collections have various functions, from housing an entire semester's worth of course material
+          to simply covering one topic.
+          {% endblocktrans %}
+          </small></p>
+          <p><small>
+          {% blocktrans %}
+          Your may assign the this collection to one of your student groups by clicking on the assign button below.
+          {% endblocktrans %}
+        </small></p>
+      </div>
     </div>
     <div class="mdc-card" id="desciption">
       <div class="mdc-typography--caption">

@@ -318,7 +318,31 @@
                 </h2>
               </header>
               <section id="assignment-parameters-description" class="mdc-dialog__body mdc-dialog__body--scrollable">
-
+                <p><small>
+                  {% blocktrans %}
+                  A collection is a compilation of assignments that work well in conjunction with one another.
+                  Collections have various functions, from housing an entire semester's worth of course material
+                  to simply covering one topic.
+                  {% endblocktrans %}
+                  </small></p>
+                  <p><small>
+                  {% blocktrans %}
+                  Your may assign any public collection to a student group by navigating to that collection and clicking "Assign".
+                  {% endblocktrans %}
+                  </small></p>
+                  <p><small>
+                  {% blocktrans %}
+                  Your may edit the contents of this collection by clicking on the edit button below.
+                  {% endblocktrans %}
+                  </small></p>
+                  <p><small>
+                  {% blocktrans %}
+                  Your may also create a collection from all assignments used by a student group. To do this you must navigate to the specific student group page and click "Move to Collection".
+                  {% endblocktrans %}
+                  </small></p>
+                  <p><small>
+                  {{ a.title }} {% trans 'contains' %} {{ a.assignments.count }} {% trans 'assignments about' %} {{ a.discipline }}.
+                  </small></p>
               </section>
               <footer class="mdc-dialog__footer">
                 <button type="button" class="mdc-button mdc-dialog__footer__button mdc-dialog__footer__button--accept">Ok</button>

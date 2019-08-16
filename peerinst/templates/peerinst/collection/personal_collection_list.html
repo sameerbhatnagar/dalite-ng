@@ -27,7 +27,25 @@
 <div>
 <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Your Collections' %}</h2>
 </div>
-
+<div>
+<div class='field-container'>
+  <div class='number-box'><span class='number'>?</span></div>
+  <div class='field'>
+    <p><small>
+      {% blocktrans %}
+      A collection is a compilation of assignments that work well in conjunction with one another.
+      Collections have various functions, from housing an entire semester's worth of course material
+      to simply covering one topic.
+      {% endblocktrans %}
+      </small></p>
+      <p><small>
+      {% blocktrans %}
+      These collections belong to you. View a collection, if you wish to assign it to a group or edit its contents.
+      {% endblocktrans %}
+    </small></p>
+  </div>
+</div>
+</div>
 <ul>
 
 {% for obj in object_list %}
