@@ -1994,6 +1994,8 @@ class TeacherGroups(TeacherBase, ListView):
 @user_passes_test(student_check, login_url="/access_denied_and_logout/")
 def teacher_toggle_favourite(request):
 
+    print(request.POST)
+
     if request.is_ajax():
         # Ajax only
         question = get_object_or_404(Question, pk=request.POST.get("pk"))

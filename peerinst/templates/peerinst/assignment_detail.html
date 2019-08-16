@@ -1,6 +1,6 @@
 {% extends 'peerinst/base.html' %}
 
-{% load staticfiles compress i18n %}
+{% load bleach_html staticfiles compress i18n %}
 
 {% block stylesheets %}
 {{ block.super }}
@@ -64,7 +64,7 @@
       </div>
 
       <div class="mdc-typography--body1 m-top-5">
-        {{g.text|safe}}
+        {{g.text|bleach_html|safe}}
       </div>
 
       {% if g.image %}
@@ -150,7 +150,7 @@
         <div class="question-answers hidden">
           <ul>
             {% for label, choice in g.get_choices %}
-            <li class="mdc-typography--body1">{{ label }}. {{ choice|safe }}</li>
+            <li class="mdc-typography--body1">{{ label }}. {{ choice|bleach_html|safe }}</li>
             {% endfor %}
           </ul>
         </div>
@@ -179,6 +179,7 @@
             {% if request.user.teacher %}
             <i class="mdc-icon-toggle material-icons mdc-theme--primary favourite-btn"
                 role="button"
+                data-id="{{ g.pk|safe }}"
                 aria-pressed="false"
                 aria-label="Add to favorites" tabindex="0"
                 data-toggle-off='{"label": "Remove from favourites", "content": "favorite"}'
@@ -273,58 +274,57 @@
 
 {% block scripts %}
 {{ block.super }}
-{% compress js inline %}
+
 <script nonce="{{ request.csp_nonce }}">
-bundle.toggleImages();
-bundle.toggleAnswers();
-search.initFavourites();
+  bundle.toggleImages();
+  bundle.toggleAnswers();
+  search.initFavourites();
 
-$.ajaxSetup({
-    beforeSend: function(xhr, settings) {
-        if (!bundle.csrfSafeMethod(settings.type) && !this.crossDomain) {
-            xhr.setRequestHeader("X-CSRFToken", bundle.getCsrfToken());
-        }
+  const limitSearch = document.querySelector('#limit-search');
+  bundle.iconToggle.MDCIconToggle.attachTo(limitSearch);
+
+  const input = document.getElementById('search-bar');
+  input.onchange = function() {
+    if (input.value != "") {
+      search.setupSearch();
+      console.info("Searching: "+input.value);
+      $('#search_results').load("{% url 'question-search' %}", "search_string="+input.value+"&type=assignment&id={{object.pk|urlencode}}&limit_search="+limitSearch.checked+"&assignment_identifier={{object.identifier|urlencode}}", search.processResponse);
     }
-});
+  }
 
-var limitSearch = document.querySelector('#limit-search');
-bundle.iconToggle.MDCIconToggle.attachTo(limitSearch);
+  $.ajaxSetup({
+      beforeSend: function(xhr, settings) {
+          if (!bundle.csrfSafeMethod(settings.type) && !this.crossDomain) {
+              xhr.setRequestHeader("X-CSRFToken", bundle.getCsrfToken());
+          }
+      }
+  });
 
-var input = document.getElementById('search-bar');
-input.onchange = function() {
-  if (input.value != "") {
+  function pageNav(page) {
     search.setupSearch();
     console.info("Searching: "+input.value);
-    $('#search_results').load("{% url 'question-search' %}", "search_string="+input.value+"&type=assignment&id={{object.pk|urlencode}}&limit_search="+limitSearch.checked+"&assignment_identifier={{object.identifier|urlencode}}", search.processResponse);
+    $('#search_results').load("{% url 'question-search' %}?page="+page, "search_string="+input.value+"&type=assignment&id={{object.pk|urlencode}}&limit_search="+limitSearch.checked+"&assignment_identifier={{object.identifier|urlencode}}", search.processResponse);
   }
-}
 
-function pageNav(page) {
-  search.setupSearch();
-  console.info("Searching: "+input.value);
-  $('#search_results').load("{% url 'question-search' %}?page="+page, "search_string="+input.value+"&type=assignment&id={{object.pk|urlencode}}&limit_search="+limitSearch.checked+"&assignment_identifier={{object.identifier|urlencode}}", search.processResponse);
-}
+  function toggleFavourite(pk) {
+    var posting = $.post("{% url 'teacher-toggle-favourite' %}", {pk: pk});
+    posting.done(function(data) {
+      console.info(data);
+    });
+    $('#favourite-questions').find($('#'+pk).remove());
+  }
 
-function toggleFavourite(pk) {
-  var posting = $.post("{% url 'teacher-toggle-favourite' %}", {pk: pk});
-  posting.done(function(data) {
-    console.info(data);
-  });
-  $('#favourite-questions').find($('#'+pk).remove());
-}
-</script>
-<script nonce="{{ request.csp_nonce }}">
   window.addEventListener("load", function() {
-    const favouriteBtns = document.getElementsByClassName("favourite-btn")
-    {% for g in search_results_term.questions|dictsortreversed:"answer_count"  %}
-    favouriteBtns[{{ forloop.counter0 }}].addEventListener("click", () => {
-      toggleFavourite({{ g.pk|safe }})
-    })
-    {% endfor %}
+    $(".favourite-btn").each(function(i, el) {
+      el.addEventListener("click", function() {
+        toggleFavourite(el.getAttribute("data-id"));
+      });
+    });
+
     document.getElementById("reset-filters").addEventListener("click", () => {
       search.reset()
     })
   })
 </script>
-{% endcompress %}
+
 {% endblock %}

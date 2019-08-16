@@ -48,6 +48,7 @@ def browser(live_server):
         browser = "firefox"
 
     options = webdriver.ChromeOptions()
+    options.add_experimental_option("w3c", False)
 
     if hasattr(settings, "HEADLESS_TESTING") and settings.HEADLESS_TESTING:
         os.environ["MOZ_HEADLESS"] = "1"
