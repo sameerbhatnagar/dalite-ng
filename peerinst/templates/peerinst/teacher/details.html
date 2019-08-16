@@ -1,6 +1,6 @@
 {% extends 'peerinst/teacher/base.html' %}
 
-{% load compress i18n %}
+{% load get_value staticfiles compress i18n %}
 
 {% block stylesheets %}
 {{ block.super }}
@@ -299,7 +299,7 @@
               </span>
             </span>
             <span class="mdc-list-item__meta">
-              <i id="activate-dialog-{{a.pk|slugify}}" class="material-icons md-24 mdc-ripple-surface icon-list">info</i>
+              <i id="activate-dialog-{{a.pk|slugify}}" class="material-icons md-24 mdc-ripple-surface icon-list">bar_chart</i>
               <a href="{% url 'collection-update' a.pk %}">
                 <i class="material-icons md-24 mdc-ripple-surface icon-list">mode_edit</i>
               </a>
@@ -314,35 +314,33 @@
             <div class="mdc-dialog__surface">
               <header class="mdc-dialog__header">
                 <h2 id="assignment-parameters-label" class="mdc-dialog__header__title">
-                  {% trans 'How to use a collection' %}
+                  {% trans 'Collection Information' %}
                 </h2>
               </header>
               <section id="assignment-parameters-description" class="mdc-dialog__body mdc-dialog__body--scrollable">
-                <p><small>
-                  {% blocktrans %}
-                  A collection is a compilation of assignments that work well in conjunction with one another.
-                  Collections have various functions, from housing an entire semester's worth of course material
-                  to simply covering one topic.
-                  {% endblocktrans %}
-                  </small></p>
-                  <p><small>
-                  {% blocktrans %}
-                  Your may assign any public collection to a student group by navigating to that collection and clicking "Assign".
-                  {% endblocktrans %}
-                  </small></p>
-                  <p><small>
-                  {% blocktrans %}
-                  Your may edit the contents of this collection by clicking on the edit button below.
-                  {% endblocktrans %}
-                  </small></p>
-                  <p><small>
-                  {% blocktrans %}
-                  Your may also create a collection from all assignments used by a student group. To do this you must navigate to the specific student group page and click "Move to Collection".
-                  {% endblocktrans %}
-                  </small></p>
-                  <p><small>
+                <div>
+                <h2 class="mdc-typography--display1 mdc-theme--secondary">
                   {{ a.title }} {% trans 'contains' %} {{ a.assignments.count }} {% trans 'assignments about' %} {{ a.discipline }}.
-                  </small></p>
+                  </h2>
+                  </div>
+                  <div>
+                    <b>{% trans 'Collection Statistics' %}</b
+                  </div>
+                  <div>
+                    {% trans 'Total Answers' %}: {{ collection_data|get_value:a.pk|get_value:"total_answers" }}
+                  </div>
+                  <div>
+                    {% trans 'Answers Switched' %}: {{ collection_data|get_value:a.pk|get_value:"switches" }}
+                  </div>
+                    <div>
+                      {% trans 'Correct Answers on First Attempt' %}: {{ collection_data|get_value:a.pk|get_value:"correct_first_answers" }}
+                    </div>
+                    <div>
+                      {% trans 'Correct Answers on Second Attempt' %}: {{ collection_data|get_value:a.pk|get_value:"correct_second_answers" }}
+                    </div>
+                      <div>
+                        {% trans 'Followers' %}: {{ a.followers.count }}
+                      </div>
               </section>
               <footer class="mdc-dialog__footer">
                 <button type="button" class="mdc-button mdc-dialog__footer__button mdc-dialog__footer__button--accept">Ok</button>
