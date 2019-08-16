@@ -197,8 +197,15 @@ https://datatables.net/extensions/buttons/examples/styling/jqueryui.html
     </div>
 
     <div class="foldable">
+
       <h2 class="foldable--title mdc-typography--display1 mdc-theme--secondary">
         {% trans 'Assignments' %}
+      <span>
+      <button id="collection-select"
+              class="mdc-button mdc-button--raised"
+              data-pk="{{ group.pk }}">Move to Collection
+      </button>
+      </span>
       </h2>
       <div class="foldable--body">
         <ul id="assignment-list" class="mdc-list mdc-list--two-line">
@@ -243,11 +250,6 @@ https://datatables.net/extensions/buttons/examples/styling/jqueryui.html
 
           {% endfor %}
           <li class="mdc-list-divider" role="separator"></li>
-          <button id="collection-select"
-                  class="mdc-button mdc-button--raised"
-                  data-pk="{{ group.pk }}">Move to Collection
-          </button>
-
         </ul>
       </div>
     </div>

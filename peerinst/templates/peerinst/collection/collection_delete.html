@@ -6,6 +6,14 @@
       <h1 class="mdc-typography--display3">{% trans 'Collections' %}
         <svg class="underline" width=150 height=4></svg>
       </h1>
+      <div>
+        <div class="admin-link">
+          {% if user.is_staff %}
+          <a href="{% url 'admin_index_wrapper' %}">Click here to access admin</a>
+          <span class="links-divider">|</span>{% endif %}<a href="{% url 'teacher' request.user.teacher.pk %}">{% trans 'Back to My Account' %}</a>
+          <span class="links-divider">|</span><a href="{% url 'collection-detail' object.pk %}">{% trans 'Cancel' %}</a>
+        </div>
+      </div>
       <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Delete Collection' %}</h2>
       <div class='field-container'>
         <div class='number-box'><span class='number'><b>!</b></span></div>

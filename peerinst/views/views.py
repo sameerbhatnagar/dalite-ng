@@ -2043,11 +2043,19 @@ def collection_toggle_assignment(request):
 def collection_assign(request):
     collection = get_object_or_404(Collection, pk=request.POST.get("ppk"))
     student_group = get_object_or_404(StudentGroup, pk=request.POST.get("pk"))
+    counter = 0
     for assign in collection.assignments.all():
-        StudentGroupAssignment.objects.create(
+        if not StudentGroupAssignment.objects.filter(
             group=student_group, assignment=assign
-        )
-    return JsonResponse({"action": "added"})
+        ).exists():
+            counter += 1
+            StudentGroupAssignment.objects.create(
+                group=student_group, assignment=assign
+            )
+    if counter > 0:
+        return JsonResponse({"action": "added"})
+    else:
+        return JsonResponse({"action": "existing"})
 
 
 @login_required

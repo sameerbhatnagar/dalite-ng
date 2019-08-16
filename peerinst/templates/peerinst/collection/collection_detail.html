@@ -15,8 +15,9 @@
       <svg class="underline" width=150 height=4></svg>
     </h1>
     <div class="admin-link">
-      {% if request.user.teacher == object.owner %}
-      <a href="{% url 'collection-update' object.pk %}">{% trans 'Edit' %}</a>
+      <a href="{% url 'teacher' request.user.teacher.pk %}">{% trans 'Back to My Account' %}</a>
+      <span class="links-divider">|</span><a href="{% url 'collection-list' %}">{% trans 'Back to Collections' %}</a>
+      <span class="links-divider">|</span>{% if request.user.teacher == object.owner %}<a href="{% url 'collection-update' object.pk %}">{% trans 'Edit' %}</a>
       <span class="links-divider">|</span><a href="{% url 'collection-delete' object.pk %}">{% trans 'Delete' %}</a>
       <span class="links-divider">|</span>{% endif %}<a href="{% url 'collection-create' %}">{% trans 'Create' %}</a>
     </div>
@@ -272,7 +273,7 @@
 
   [].forEach.call(document.querySelectorAll(".collection-distribute"), el => {
     el.addEventListener("click", () => {
-      window.location.replace("{% url 'collection-distribute' object.pk %}");
+      window.location.href = "{% url 'collection-distribute' object.pk %}";
     });
   });
 
