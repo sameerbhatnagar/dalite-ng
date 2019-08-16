@@ -81,9 +81,9 @@ class ReputationType(models.Model):
                 )
                 if (
                     len(criterion.points_per_threshold)
-                    < len(criterion.thresholds)
+                    > len(criterion.thresholds)
                 )
-                and evaluation < float(criterion.thresholds[-1])
+                and evaluation > float(criterion.thresholds[-1])
                 else ""
             )
 
