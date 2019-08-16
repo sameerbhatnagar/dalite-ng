@@ -2,6 +2,7 @@
 
 #container {
   & #list {
+    box-shadow: 0 1px 1px #bdbdbd;
     grid-template-columns: minmax(125px, max-content) 1fr;
     width: 400px;
 
