@@ -11,6 +11,7 @@ __all__ = [
     "new_teacher",
     "quality_min_words",
     "questions",
+    "realistic_questions",
     "student_reputation_with_criteria",
     "teacher",
     "tos_teacher",
@@ -24,6 +25,7 @@ from .peerinst_ import (
     inactive_user,
     new_teacher,
     questions,
+    realistic_questions,
     teacher,
     tos_teacher,
 )

@@ -136,14 +136,17 @@ class Criterion(models.Model):
     def info(self, info):
         point_description = " The points are awarded as "
         if not self.thresholds:
-            point_description = point_description + "{} for each.".format(
-                self.points_per_threshold[0]
+            point_description = (
+                point_description
+                + "{} for each of these.".format(self.points_per_threshold[0])
             )
         else:
             point_description = "{}{}".format(
                 point_description,
                 ", ".join(
-                    "{} for each between {} and {}".format(point, t0, t1)
+                    "{} for each of these between {} and {}".format(
+                        point, t0, t1
+                    )
                     for point, t0, t1 in zip(
                         self.points_per_threshold,
                         [0] + self.thresholds[:-1],

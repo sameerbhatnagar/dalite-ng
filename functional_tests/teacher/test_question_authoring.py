@@ -5,7 +5,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import Select
 
 from functional_tests.fixtures import *  # noqa
-from .utils import go_to_account, login, logout
+from .utils import go_to_account, login
 
 fake = Faker()
 
@@ -607,18 +607,98 @@ def edit_PI_question():
     # Access question edit post student answers existing
 
 
+def create_RO_question(browser, assert_, category, discipline, teacher):
+    browser.find_element_by_id("question-section").click()
+    browser.find_element_by_link_text("Create new").click()
+
+    # Step 1
+    # ------
+    assert "Question" in browser.find_element_by_tag_name("h1").text
+    assert "Step 1" in browser.find_element_by_tag_name("h2").text
+
+    # Title
+    title = fake.sentence(nb_words=4)
+    inputbox = browser.find_element_by_id("id_title")
+    inputbox.send_keys(title)
+
+    # Text
+    tinymce_embed = browser.find_element_by_tag_name("iframe")
+    browser.switch_to.frame(tinymce_embed)
+    ifrinputbox = browser.find_element_by_id("tinymce")
+    ifrinputbox.send_keys(
+        fake.paragraph(nb_sentences=8, variable_nb_sentences=False)
+    )
+    browser.switch_to.default_content()
+
+    # Discipline
+    Select(browser.find_element_by_id("id_discipline")).select_by_value("1")
+
+    # Category
+    input_category = browser.find_element_by_id("autofill_categories")
+    input_category.send_keys(category.title)
+    time.sleep(1)
+    input_category.send_keys(Keys.ENTER)
+
+    # Switch PI --> RO
+    Select(browser.find_element_by_id("id_type")).select_by_value("RO")
+
+    browser.wait_for(
+        lambda: assert_(
+            "Add fake attributions" not in browser.page_source
+            and "Sequential rationale review" not in browser.page_source
+            and "Rationale selection algorithm" not in browser.page_source
+            and "Grading scheme" not in browser.page_source
+        )
+    )
+
+    browser.find_element_by_id("question-create-form").submit()
+
+    # Step 2
+    # ------
+    assert "Step 2: Preview" in browser.find_element_by_tag_name("h2").text
+
+    browser.find_element_by_id("back").submit()
+    assert "Step 1" in browser.find_element_by_tag_name("h2").text
+
+    browser.find_element_by_id("question-create-form").submit()
+    assert "Step 2: Preview" in browser.find_element_by_tag_name("h2").text
+
+    browser.find_element_by_id("back").submit()
+    browser.find_element_by_id("next").submit()
+    assert "Step 2: Preview" in browser.find_element_by_tag_name("h2").text
+    assert (
+        "You currently do not have any assignments. "
+        "You can create one from your account page."
+        in browser.find_element_by_id("add_question_to_assignment").text
+    )
+
+    browser.find_element_by_id("done").click()
+
+    assert "My Account" in browser.find_element_by_tag_name("h1").text
+
+    # New question in their list of questions
+    browser.find_element_by_id("question-section").click()
+    browser.wait_for(assert_(lambda: title in browser.page_source))
+
+
+def edit_RO_question():
+    pass
+
+    # Access question edit prior to student answers existing
+
+    # Access question edit post student answers existing
+
+
 def test_create_category(browser, assert_, teacher):
     login(browser, teacher)
     go_to_account(browser)
     create_category(browser, assert_)
-    logout(browser, assert_)
 
 
 def test_create_discipline(browser, assert_, teacher):
     login(browser, teacher)
     go_to_account(browser)
     create_discipline(browser, assert_)
-    logout(browser, assert_)
 
 
 def test_create_PI_question(
@@ -638,11 +718,13 @@ def test_create_PI_question(
         browser, assert_, category, discipline, quality_min_words, assignment
     )
     edit_PI_question()
-    logout(browser, assert_)
 
 
-def test_create_RO_question():
-    pass
+def test_create_RO_question(browser, assert_, category, discipline, teacher):
+    login(browser, teacher)
+    go_to_account(browser)
+    create_RO_question(browser, assert_, category, discipline, teacher)
+    edit_RO_question()
 
 
 def test_clone_PI_question():
