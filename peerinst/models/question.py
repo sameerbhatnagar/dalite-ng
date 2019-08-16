@@ -225,7 +225,7 @@ class Question(models.Model):
         blank=True,
         null=True,
         help_text=_(
-            "Optional. Select the discipline to which this question should "
+            "Optional. Select the discipline to which this item should "
             "be associated."
         ),
     )
