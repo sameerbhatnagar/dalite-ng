@@ -10,7 +10,7 @@
       <div class="pagination">
           <span>
               {% if paginator.has_previous %}
-                  <span class="search-nav search-nav--back"><i class="icon ion-ios-arrow-back"></i></span>
+                  <span class="search-nav search-nav--back" data-page="{{ paginator.previous_page_number }}"><i class="icon ion-ios-arrow-back"></i></span>
               {% endif %}
 
               <span class="current">
@@ -18,7 +18,7 @@
               </span>
 
               {% if paginator.has_next %}
-                  <span class="search-nav search-nav--forward"><i class="icon ion-ios-arrow-forward"></i></span>
+                  <span class="search-nav search-nav--forward" data-page="{{ paginator.next_page_number }}"><i class="icon ion-ios-arrow-forward"></i></span>
               {% endif %}
           </span>
       </div>
@@ -109,13 +109,19 @@
           </div>
 
           {% if assignment %}
-          <button class="material-icons small-button mdc-button mdc-card__action mdc-card__action--button mdc-button--raised m-left-20 update-questions-btn">add</button>
+          <button class="material-icons small-button mdc-button mdc-card__action mdc-card__action--button mdc-button--raised m-left-20 update-questions-btn"
+                  data-url="{% url 'assignment-edit-ajax' %}"
+                  data-id="{{ g.id|safe }}"
+                  data-assignment-id="{{ assignment.identifier|safe }}">
+            add
+          </button>
           {% elif type == None %}
           {% if request.user.teacher %}
           <i class="mdc-icon-toggle material-icons mdc-theme--primary favourite-btn"
               role="button"
               aria-pressed="false"
               aria-label="Add to favorites" tabindex="0"
+              data-id="{{ g.pk|safe }}"
               {% if g in request.user.teacher.favourite_questions.all %}
               data-toggle-off='{"label": "Remove from favourites", "content": "favorite"}'
               data-toggle-on='{"label": "Add to favourites", "content": "favorite_border"}'
@@ -147,49 +153,19 @@
     {% if r.count > 0 %}
       <div class="pagination">
           <span>
-              {% if paginator.has_previous %}
-                  <span class="search-nav search-nav--back"><i class="icon ion-ios-arrow-back"></i></span>
-              {% endif %}
+            {% if paginator.has_previous %}
+                <span class="search-nav search-nav--back" data-page="{{ paginator.previous_page_number }}"><i class="icon ion-ios-arrow-back"></i></span>
+            {% endif %}
 
-              <span class="current">
-                  {% trans 'Page' %} {{ paginator.number }} / {{ paginator.paginator.num_pages }}
-              </span>
+            <span class="current">
+                {% trans 'Page' %} {{ paginator.number }} / {{ paginator.paginator.num_pages }}
+            </span>
 
-              {% if paginator.has_next %}
-                  <span class="search-nav search-nav--forward"><i class="icon ion-ios-arrow-forward"></i></span>
-              {% endif %}
+            {% if paginator.has_next %}
+                <span class="search-nav search-nav--forward" data-page="{{ paginator.next_page_number }}"><i class="icon ion-ios-arrow-forward"></i></span>
+            {% endif %}
           </span>
       </div>
     {% endif %}
   {% endif %}
 {% endfor %}
-
-{% block scripts %}
-<script nonce="{{ request.csp_nonce }}">
-  window.addEventListener("load", function() {
-    document.querySelectorAll(".search-nav").forEach(btn => {
-      if (btn.classList.contains("search-nav--back")) {
-        btn.addEventListener("click", () => {
-          pageNav({{ paginator.previous_page_number }})
-        })
-      } else {
-        btn.addEventListener("click", () => {
-          pageNav({{ paginator.next_page_number }})
-        })
-      }
-
-    })
-    const updateBtns = document.getElementsByClassName("update-questions-btn")
-    const favouriteBtns = document.getElementsByClassName("favourite-btn")
-    {% for g in search_results_term.questions|dictsortreversed:"answer_count"  %}
-    updateBtns[{{ forloop.counter0 }}].addEventListener("click", () => {
-      ajax.updateAssignmentQuestionList('{% url 'assignment-edit-ajax' %}', '{{ g.id|safe }}', '{{ assignment.identifier|safe }}')
-    })
-    favouriteBtns[{{ forloop.counter0 }}].addEventListener("click", () => {
-      toggleFavourite({{ g.pk|safe }})
-    })
-    {% endfor %}
-
-  })
-</script>
-{% endblock %}
