@@ -19,7 +19,7 @@
         {% if user.is_staff %}
         <a href="{% url 'admin_index_wrapper' %}">Click here to access admin</a>
         <span class="links-divider">|</span>{% endif %}<a href="{% url 'teacher' request.user.teacher.pk %}">{% trans 'Back to My Account' %}</a>
-        <span class="links-divider">|</span><a href="{% url 'collection-detail' object.pk %}">{% trans 'Cancel' %}</a>
+        <span class="links-divider">|</span><a href="{% url 'collection-detail' object.pk %}">{% trans 'Back to Collection' %}</a>
       </div>
     </div>
     <div>
@@ -56,6 +56,17 @@
                 {% trans 'Correct Answers on Second Attempt' %}: {{ collection_data.correct_second_answers }}
               </div>
 </div>
+<div class='field-container'>
+  <div class='number-box'><span class='number'>?</span></div>
+  <div class='field'>
+      <p><small>
+      {% blocktrans %}
+      Your may assign the this collection to one of your student groups by clicking on the assign button below.
+      You may also unassign a collection's assignments. However, this function will only unassign assignments that have not already been distributed.
+      {% endblocktrans %}
+    </small></p>
+  </div>
+</div>
 </div>
 
     {% if not student_groups %}
@@ -81,18 +92,18 @@
         </span>
         <span class="mdc-list-item__meta">
           {% if group_data|get_value:g.pk is False %}
-          <button class="mdc-button mdc-button--raised collection-distribute"
+          <button class="mdc-button mdc-button--raised collection-toggle-assign removed"
                   id_pk="{{ g.pk }}"
                   id_ppk="{{ object.pk }}"
                   id = "{{ g.pk }}">
                   {% trans 'Assign' %}
           </button>
           {% else %}
-          <button class="mdc-button mdc-button--raised collection-distribute" disabled
+          <button class="mdc-button mdc-button--raised collection-toggle-assign added"
                   id_pk="{{ g.pk }}"
                   id_ppk="{{ object.pk }}"
                   id = "{{ g.pk }}">
-                  {% trans 'Assigned' %}
+                  {% trans 'Unassign' %}
           </button>
           {% endif %}
         </span>
@@ -122,14 +133,37 @@
     })
   }
 
+  function unassignCollection(pk, ppk) {
+    var posting = $.post("{% url 'collection-unassign' %}", {pk: pk, ppk: ppk});
+    posting.done(function(data) {
+      console.info(data);
+    })
+  }
 
-  [].forEach.call(document.querySelectorAll(".collection-distribute"), el => {
+  function clickAssign(el) {
+    assignCollection(el.getAttribute('id_pk'), el.getAttribute('id_ppk'));
+    document.getElementById(el.getAttribute('id_pk')).innerHTML = "{% trans 'Unassign' %}";
+    document.getElementById(el.getAttribute('id_pk')).classList.add('added');
+    document.getElementById(el.getAttribute('id_pk')).classList.remove('removed');
+  }
+
+  function clickUnassign(el) {
+    unassignCollection(el.getAttribute('id_pk'), el.getAttribute('id_ppk'));
+    document.getElementById(el.getAttribute('id_pk')).innerHTML = "{% trans 'Assign' %}";
+    document.getElementById(el.getAttribute('id_pk')).classList.remove('added');
+    document.getElementById(el.getAttribute('id_pk')).classList.add('removed');
+  }
+
+  [].forEach.call(document.querySelectorAll(".collection-toggle-assign"), el => {
     el.addEventListener("click", () => {
-      assignCollection(el.getAttribute('id_pk'), el.getAttribute('id_ppk'));
-      document.getElementById(el.getAttribute('id_pk')).innerHTML = "{% trans 'Assigned' %}";
-      document.getElementById(el.getAttribute('id_pk')).setAttribute("disabled","");
-    });
+    if(el.classList.contains("removed")){
+      clickAssign(el);
+    }
+    else{
+      clickUnassign(el);
+    }});
   });
+
 
   [].forEach.call(document.querySelectorAll(".md-48"), el => {
     el.addEventListener("click", () => {

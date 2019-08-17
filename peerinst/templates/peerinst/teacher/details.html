@@ -278,7 +278,7 @@
         <div class="admin-link">
           {% if user.is_staff %}
           <a href="{% url 'admin_index_wrapper' %}">Click here to access admin</a>
-          <span class="links-divider">|</span>{% endif %}<a href="{% url 'collection-list' %}">{% trans 'View Collections' %}</a>
+          <span class="links-divider">|</span>{% endif %}<a href="{% url 'collection-list' %}">{% trans 'All Collections' %}</a>
           <span class="links-divider">|</span><a href="{% url 'followed-collection-list' %}">{% trans 'Followed Collections' %}</a>
           <span class="links-divider">|</span><a href="{% url 'collection-create' %}">{% trans 'Create' %}</a>
         </div>
@@ -300,6 +300,9 @@
             </span>
             <span class="mdc-list-item__meta">
               <i id="activate-dialog-{{a.pk|slugify}}" class="material-icons md-24 mdc-ripple-surface icon-list">bar_chart</i>
+              <a href="{% url 'collection-delete' a.pk %}">
+                <i class="material-icons md-24 mdc-ripple-surface icon-list">delete</i>
+              </a>
               <a href="{% url 'collection-update' a.pk %}">
                 <i class="material-icons md-24 mdc-ripple-surface icon-list">mode_edit</i>
               </a>

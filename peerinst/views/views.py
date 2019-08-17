@@ -2068,6 +2068,31 @@ def collection_assign(request):
 
 @login_required
 @user_passes_test(student_check, login_url="/access_denied_and_logout/")
+def collection_unassign(request):
+    collection = get_object_or_404(Collection, pk=request.POST.get("ppk"))
+    student_group = get_object_or_404(StudentGroup, pk=request.POST.get("pk"))
+    counter = 0
+    for assign in collection.assignments.all():
+        if StudentGroupAssignment.objects.filter(
+            group=student_group, assignment=assign
+        ).exists():
+            if StudentGroupAssignment.objects.filter(
+                group=student_group,
+                assignment=assign,
+                distribution_date__isnull=True,
+            ):
+                counter += 1
+                StudentGroupAssignment.objects.filter(
+                    group=student_group, assignment=assign
+                ).delete()
+    if counter > 0:
+        return JsonResponse({"action": "removed"})
+    else:
+        return JsonResponse({"action": "unexisting"})
+
+
+@login_required
+@user_passes_test(student_check, login_url="/access_denied_and_logout/")
 def student_activity(request):
 
     teacher = request.user.teacher

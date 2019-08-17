@@ -659,6 +659,11 @@ def collection_patterns():
             name="collection-assign",
         ),
         url(
+            r"^collection/unassign",
+            views.collection_unassign,
+            name="collection-unassign",
+        ),
+        url(
             r"^collection/featured-data/$",
             views.featured_collections,
             name="collection-featured-data",

@@ -18,7 +18,7 @@
         {% if user.is_staff %}
         <a href="{% url 'admin_index_wrapper' %}">Click here to access admin</a>
         <span class="links-divider">|</span>{% endif %}<a href="{% url 'teacher' request.user.teacher.pk %}">{% trans 'Back to My Account' %}</a>
-        <span class="links-divider">|</span><a href="{% url 'collection-detail' object.pk %}">{% trans 'Cancel' %}</a>
+        <span class="links-divider">|</span><a href="{% url 'collection-detail' object.pk %}">{% trans 'Back to Collection' %}</a>
       </div>
     </div>
     <div>
@@ -124,6 +124,7 @@
             {{ form.private.errors }}
         </div>
       </div>
+      <input class="mdc-button mdc-button--raised padded-top" type="submit" value="Update" id="id_update"/>
       <div>
         <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Assignments in' %} {{ object.title }}
           <p class="form-helper-text" aria-hidden="true">
@@ -261,7 +262,6 @@
     </div>
     </div>
     </div>
-    <input class="mdc-button mdc-button--raised padded-top" type="submit" value="Update" id="id_update"/>
     <input type="hidden" name="owner" value="">
   </form>
   </div>
@@ -313,5 +313,12 @@
     });
   }
   enumerate();
+  function takeTempOut(){
+    if(document.getElementById("id_title").value == "temporary text" && document.getElementById("id_description").value == "temporary text"){
+      document.getElementById("id_title").value = "";
+      document.getElementById("id_description").value = "";
+    }
+  }
+  takeTempOut();
 </script>
 {% endblock %}

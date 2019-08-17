@@ -237,8 +237,8 @@ def collection_add_assignment(request, teacher):
     collection = Collection.objects.create(
         discipline=teacher.disciplines.first(),
         owner=teacher,
-        title="temporary title",
-        description="temporary description",
+        title="temporary text",
+        description="temporary text",
     )
     student_group = get_object_or_404(StudentGroup, pk=group_pk)
     student_group_assignments = student_group.studentgroupassignment_set.all()
