@@ -15,7 +15,6 @@ const source = require("vinyl-source-stream");
 const sourcemaps = require("gulp-sourcemaps");
 const svgSprite = require("gulp-svg-sprite");
 const { eslint } = require("rollup-plugin-eslint");
-const { execSync } = require("child_process");
 const { uglify } = require("rollup-plugin-uglify");
 
 const styleBuilds = [
@@ -323,21 +322,11 @@ function icons() {
 }
 
 function watch() {
-  const dir = execSync(
-    "echo $(dirname $(which python))" +
-      "/../lib/python2.7/site-packages/sslserver/certs",
-  )
-    .toString()
-    .replace("\n", "");
   browserSync.init({
     port: 8001,
-    proxy: "localhost:8000",
+    proxy: "http://127.0.0.1:8000",
     notify: false,
     open: false,
-    https: {
-      key: `${dir}/development.key`,
-      cert: `${dir}/development.crt`,
-    },
   });
   gulp.watch("./peerinst/static/peerinst/css/*.scss", stylesPeerinstMain);
   gulp.watch("./peerinst/static/pinax/forums/css/*.scss", stylesPeerinstPinax);

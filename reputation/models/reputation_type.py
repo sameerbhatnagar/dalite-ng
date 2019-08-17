@@ -35,6 +35,7 @@ class ReputationType(models.Model):
             {
                 reputation: float,
                 details: Dict[str, Any]
+                equation: str
             }
 
         Raises
@@ -47,7 +48,10 @@ class ReputationType(models.Model):
         if criterion.thresholds:
             points = sum(
                 float(points_)
-                * (min(evaluation, float(threshold)) - float(prev_threshold))
+                * max(
+                    0,
+                    min(evaluation, float(threshold)) - float(prev_threshold),
+                )
                 for points_, threshold, prev_threshold in zip(
                     criterion.points_per_threshold,
                     criterion.thresholds,
@@ -59,10 +63,39 @@ class ReputationType(models.Model):
                     criterion.points_per_threshold[-1]
                 ) * max(0, evaluation - float(criterion.thresholds[-1]))
 
+            equation = " + ".join(
+                "{} * {}".format(
+                    min(evaluation, float(threshold)) - float(prev_threshold),
+                    points_,
+                )
+                for points_, threshold, prev_threshold in zip(
+                    criterion.points_per_threshold,
+                    criterion.thresholds,
+                    [0] + criterion.thresholds[:-1],
+                )
+                if evaluation >= float(prev_threshold)
+            ) + (
+                " + {} * {}".format(
+                    evaluation - float(criterion.thresholds[-1]),
+                    criterion.points_per_threshold[-1],
+                )
+                if (
+                    len(criterion.points_per_threshold)
+                    > len(criterion.thresholds)
+                )
+                and evaluation > float(criterion.thresholds[-1])
+                else ""
+            )
+
         else:
             points = float(criterion.points_per_threshold[0]) * evaluation
+            equation = "{} * {}".format(
+                evaluation, criterion.points_per_threshold[0]
+            )
 
-        return {"reputation": points, "details": details}
+        equation = "{} = {}".format(equation, points)
+
+        return {"reputation": points, "details": details, "equation": equation}
 
     def evaluate(self, model):
         """
@@ -85,8 +118,8 @@ class ReputationType(models.Model):
                     full_name: str
                     description: str
                     version: int
-                    weight: int
                     reputation: float
+                    details: Dict[str, Any]
                 }]
 
         Raises
@@ -118,6 +151,17 @@ class ReputationType(models.Model):
                 get_criterion(c.name).objects.get(version=c.version)
                 for c in self.criteria.all()
             )
+        ]
+        reputations = [
+            {
+                key: (
+                    "{}\n{}".format(val, reputation["equation"])
+                    if key == "description"
+                    else val
+                )
+                for key, val in reputation.items()
+            }
+            for reputation in reputations
         ]
         reputation = sum(r["reputation"] for r in reputations)
 

@@ -118,6 +118,7 @@
           {% elif type == None %}
           {% if request.user.teacher %}
           <i class="mdc-icon-toggle material-icons mdc-theme--primary favourite-btn"
+              id="favourite-btn-{{ g.pk|safe }}"
               role="button"
               aria-pressed="false"
               aria-label="Add to favorites" tabindex="0"
