@@ -57,3 +57,7 @@ def test_change_password(browser, assert_, teacher):
     submit_button.click()
 
     assert browser.current_url.endswith("browse/")
+
+
+def test_email_settings():
+    pass
