@@ -393,6 +393,7 @@ CSP_SCRIPT_SRC = [
     "s.ytimg.com",
     "cdn.jsdelivr.net",
     "unpkg.com",
+    "cdn.datatables.net",
 ]
 CSP_STYLE_SRC = [
     "'self'",
@@ -402,6 +403,7 @@ CSP_STYLE_SRC = [
     "unpkg.com",
     "cdn.jsdelivr.net",
     "code.jquery.com",
+    "cdn.datatables.net",
 ]
 CSP_FONT_SRC = [
     "'self'",
