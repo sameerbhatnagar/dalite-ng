@@ -26,7 +26,7 @@
       <span class="links-divider">|</span><a href="{% url 'question-create' %}">{% trans 'Create new question' %}</a>
     </div>
 
-    <h2 id="assignment" class="mdc-typography--display1  mdc-theme--secondary">{{object.title}}</h2>
+    <h2 id="assignment" class="mdc-typography--display1 mdc-theme--secondary">{{object.title}}</h2>
     <div class="admin-link">
       <a href="{% url 'assignment-edit' object.pk %}">{% trans 'Edit title' %}</a>
       <span class="links-divider">|</span><a href="{% url 'question-list' object.pk %}">{% trans 'Preview' %}</a>
