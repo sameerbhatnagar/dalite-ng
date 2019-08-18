@@ -74,7 +74,15 @@
       <div class="question-answers hidden">
         <ul>
           {% for label, choice in g.get_choices %}
-          <li class="mdc-typography--body1">{{ label }}. {{ choice|bleach_html|safe }}</li>
+            <li class="dense-list">{{ label }}. {{ choice|bleach_html|safe }}
+            {% for c in g.answerchoice_set.all %}
+              {% if forloop.counter == forloop.parentloop.counter %}
+                {% if c.correct %}
+                  <i class="check material-icons">check</i>
+                {% endif %}
+              {% endif %}
+            {% endfor %}
+            </li>
           {% endfor %}
         </ul>
       </div>
@@ -158,7 +166,15 @@
         <div class="question-answers hidden">
           <ul>
             {% for label, choice in g.get_choices %}
-            <li class="mdc-typography--body1">{{ label }}. {{ choice|bleach_html|safe }}</li>
+              <li class="dense-list">{{ label }}. {{ choice|bleach_html|safe }}
+              {% for c in g.answerchoice_set.all %}
+                {% if forloop.counter == forloop.parentloop.counter %}
+                  {% if c.correct %}
+                    <i class="check material-icons">check</i>
+                  {% endif %}
+                {% endif %}
+              {% endfor %}
+              </li>
             {% endfor %}
           </ul>
         </div>

@@ -109,7 +109,7 @@
           </div>
 
           {% if assignment %}
-          
+
             {% if request.user == g.user or request.user in g.collaborators.all %}
             <a title="{% trans 'Edit' %}" id="edit-question-{{ g.pk }}" href="{% url 'question-update' g.pk %}">
               <i class="material-icons md-24 mdc-ripple-surface card-icon-list mdc-theme--primary">mode_edit</i>
