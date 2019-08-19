@@ -66,7 +66,12 @@ def dashboard(req, teacher):
     """
     teacher.last_dashboard_access = datetime.now(pytz.utc)
 
-    data = {"urls": {"collections": reverse("teacher-dashboard--collections")}}
+    data = {
+        "urls": {
+            "collections": reverse("teacher-dashboard--collections"),
+            "rationales": reverse("teacher-dashboard--rationales"),
+        }
+    }
     context = {"data": json.dumps(data)}
 
     return render(req, "peerinst/teacher/dashboard.html", context)
