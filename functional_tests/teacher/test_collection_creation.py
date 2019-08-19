@@ -9,6 +9,7 @@ from selenium.webdriver.support.ui import WebDriverWait, Select
 from functional_tests.fixtures import *  # noqa
 from .utils import login
 from django.urls import reverse
+import time
 
 fake = Faker()
 timeout = 3
@@ -58,6 +59,8 @@ def create_collection(browser, assert_, teacher):
         )
     except TimeoutException:
         assert False
+
+    browser.find_element_by_class_name("foldable--title").click()
 
     browser.find_element_by_class_name("follower-btn").click()
 
@@ -180,14 +183,19 @@ def create_collection(browser, assert_, teacher):
     assert "Browse Collections" in browser.find_element_by_tag_name("h2").text
 
 
-def collection_button(browser, assert_, teacher):
-    browser.get(
-        "{}{}".format(browser.server_url, reverse("collection-select"))
+def collection_buttons(
+    browser, assert_, teacher, group, student_group_assignment
+):
+    browser.find_element_by_link_text("Back to My Account").click()
+    browser.find_element_by_id("groups-section").click()
+    time.sleep(10)
+    browser.find_element_by_class_name("md-48").click()
+
+    browser.find_element_by_link_text("Assignments").click()
+    assert "Add to Collection" in browser.find_element_by_id(
+        "collection_select"
     )
-    assert "Move to Collection" in browser.find_element_by_id(
-        "id_collection_select"
-    )
-    browser.find_element_by_id("id_collection_button").click()
+    browser.find_element_by_id("collection_select").click()
 
     try:
         create = WebDriverWait(browser, timeout).until(
@@ -212,6 +220,12 @@ def collection_button(browser, assert_, teacher):
     assert "Thumbnail image" in browser.page_source
     assert "Private" in browser.page_source
 
+    title = fake.sentence(nb_words=4)
+    description = fake.paragraph(nb_sentences=1, variable_nb_sentences=False)
+
+    browser.find_element_by_id("id_title").send_keys(title)
+    browser.find_element_by_id("id_description").send_keys(description)
+
     browser.find_element_by_id("id_update").click()
 
     try:
@@ -224,10 +238,77 @@ def collection_button(browser, assert_, teacher):
     assert "Collection Statistics" in browser.page_source
     assert "Collections" in browser.find_element_by_tag_name("h1").text
 
+    browser.find_element_by_link_text("Assign").click()
 
-def test_create_collection(browser, assert_, teacher, discipline, assignment):
+    try:
+        create = WebDriverWait(browser, timeout).until(
+            presence_of_element_located((By.ID, "added"))
+        )
+    except TimeoutException:
+        assert False
+
+    assert (
+        "Your may assign the this collection to one of your student groups by"
+        in browser.find_element_by_tag_name("small").text
+    )
+
+    assert "assigned" in browser.find_element_by_class_name("mdc-button")
+    assert "assign" not in browser.find_element_by_class_name("mdc-button")
+
+    browser.find_element_by_class_name("collection-toggle-assign").click()
+
+    assert "assign" in browser.find_element_by_class_name("mdc-button")
+    assert "assigned" not in browser.find_element_by_class_name("mdc-button")
+
+    browser.find_element_by_tag_name("i").click()
+
+    assert group.title in browser.find_element_by_class_name(
+        "mdc-list-item__secondary-text"
+    )
+
+    browser.find_element_by_class_name("foldable--title").click()
+
+    assert student_group_assignment.title not in browser.page_source
+
+    browser.execute_script("window.history.go(-1)")
+
+    assert "assign" in browser.find_element_by_class_name("mdc-button")
+    assert "assigned" not in browser.find_element_by_class_name("mdc-button")
+
+    browser.find_element_by_class_name("collection-toggle-assign").click()
+
+    assert "assigned" in browser.find_element_by_class_name("mdc-button")
+    assert "assign" not in browser.find_element_by_class_name("mdc-button")
+
+    browser.find_element_by_link_text(group.title).click()
+
+    assert group.title in browser.find_element_by_class_name(
+        "mdc-list-item__secondary-text"
+    )
+
+    browser.find_element_by_class_name("foldable--title").click()
+
+    assert student_group_assignment.title in browser.page_source
+
+
+def test_create_collection(
+    browser,
+    assert_,
+    teacher,
+    discipline,
+    assignment,
+    group,
+    student_group_assignment,
+):
     teacher.disciplines.add(discipline)
     teacher.assignments.add(assignment)
+    assignment.owner.add(teacher.user)
+    group.teacher.add(teacher)
+    teacher.current_groups.add(group)
+    student_group_assignment.assignment = assignment
+    student_group_assignment.group = group
     login(browser, teacher)
     create_collection(browser, assert_, teacher)
-    # collection_button(browser, assert_, teacher)
+    collection_buttons(
+        browser, assert_, teacher, group, student_group_assignment
+    )

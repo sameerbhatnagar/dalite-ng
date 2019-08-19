@@ -15,7 +15,8 @@ __all__ = [
     "student_reputation_with_criteria",
     "teacher",
     "tos_teacher",
-    "assignment",
+    "group",
+    "student_group_assignment",
 ]
 
 from .peerinst_ import (
@@ -29,6 +30,8 @@ from .peerinst_ import (
     realistic_questions,
     teacher,
     tos_teacher,
+    group,
+    student_group_assignment,
 )
 from .quality_ import min_words_criterion, min_words_rules, quality_min_words
 from .reputation_ import student_reputation_with_criteria
