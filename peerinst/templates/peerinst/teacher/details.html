@@ -450,10 +450,10 @@
       });
     });
     document.getElementById("tos-modify-btn").addEventListener("click", function() {
-      window.location.href='{% url 'tos:tos_modify' 'teacher' %}?next={{ request.path }}';
+      window.location.href="{% url 'tos:tos_modify' 'teacher' %}?next={{ request.path }}";
     });
     document.getElementById("email-modify-btn").addEventListener("click", function() {
-      window.location.href='{% url 'tos:email_modify' 'teacher' %}?next={{ request.path }}';
+      window.location.href="{% url 'tos:email_modify' 'teacher' %}?next={{ request.path }}";
     });
   });
 </script>
