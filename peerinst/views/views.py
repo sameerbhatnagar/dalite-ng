@@ -23,7 +23,7 @@ from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.core.urlresolvers import reverse
 
 # reports
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.db.models.expressions import Func
 from django.forms import Textarea, inlineformset_factory
 
@@ -786,7 +786,10 @@ class DisciplineCreateView(
     fields = ["title"]
 
     def get_success_url(self):
-        return reverse("discipline-form", kwargs={"pk": self.object.pk})
+        if self.request.GET.get("multiselect", False):
+            return reverse("disciplines-form", kwargs={"pk": self.object.pk})
+        else:
+            return reverse("discipline-form", kwargs={"pk": self.object.pk})
 
 
 @login_required
@@ -809,32 +812,27 @@ def discipline_select_form(request, pk=None):
     )
 
 
-class DisciplinesCreateView(LoginRequiredMixin, NoStudentsMixin, CreateView):
-    """ View to create a new discipline outside of admin. """
-
-    model = Discipline
-    fields = ["title"]
-    template_name = "peerinst/disciplines_form.html"
-
-    def get_success_url(self):
-        return reverse("disciplines-form")
-
-
 @login_required
 @user_passes_test(student_check, login_url="/access_denied_and_logout/")
-def disciplines_select_form(request):
+def disciplines_select_form(request, pk=None):
     """
     AJAX view simply renders the DisciplinesSelectForm. Preselects instance
     with teachers current set.
     """
+
+    disciplines = request.user.teacher.disciplines.values_list("pk", flat=True)
+
+    if pk:
+        disciplines = Discipline.objects.filter(
+            Q(pk=pk) | Q(pk__in=disciplines)
+        )
+
+    form = forms.DisciplinesSelectForm(initial={"disciplines": disciplines})
+
     return TemplateResponse(
         request,
         "peerinst/disciplines_select_form.html",
-        context={
-            "form": forms.DisciplinesSelectForm(
-                initial={"disciplines": request.user.teacher.disciplines.all()}
-            )
-        },
+        context={"form": form},
     )
 
 

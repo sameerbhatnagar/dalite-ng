@@ -4,7 +4,7 @@
 
 {% block stylesheets %}
 {{ block.super }}
-{% compress css inline %}
+{% compress css %}
 <style nonce="{{ request.csp_nonce }}">
   label {
     padding-right: 10px;
@@ -21,10 +21,10 @@
   </h1>
 
   <div class="admin-link">
-    <a href="{% url 'welcome' %}">{% trans 'Back to My Account' %}</a>
+    <a href="{% url 'teacher' user.teacher.id %}">{% trans 'Back to My Account' %}</a>
   </div>
 
-  <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Select discipline and institution' %}</h2>
+  <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Discipline and institution' %}</h2>
 
   <div class='field-container'>
     <div class='number-box'><span class='number'>?</span></div>
@@ -44,7 +44,7 @@
       {% csrf_token %}
 
       <div class='mdc-form-field'>
-        <label for='id_category'>{{ form.institutions.label }}:</label>
+        <label for='id_institutions'>{{ form.institutions.label }}:</label>
         {{ form.institutions|add_class:'multiple-select mdc-theme--background' }}
       </div>
       {{ form.institutions.errors }}
@@ -69,6 +69,6 @@
 {% block scripts %}
 {{ block.super }}
 <script nonce="{{ request.csp_nonce }}">
-  bundle.bindAjaxTextInputForm('show_discipline_form', 'discipline_form', "{% url 'disciplines-create' %}");
+  bundle.bindAjaxTextInputForm('show_discipline_form', 'discipline_form', "{% url 'discipline-create' %}?multiselect=true", "{% url 'disciplines-form' %}", bundle.disciplineForm, null);
 </script>
 {% endblock %}

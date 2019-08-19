@@ -12,7 +12,7 @@ def start(browser, teacher):
 
 def test_change_password(browser, assert_, teacher):
     start(browser, teacher)
-    browser.find_element_by_id("email-modify-btn").click()
+    browser.find_element_by_id("edit-user-btn").click()
 
     # Check content
     assert (
@@ -99,3 +99,7 @@ def test_email_notification_change(browser, assert_, teacher):
     # Send an email... outbox should be empty
 
     # Reset password... outbox should have 1 message
+
+
+def test_change_discipline_and_institution():
+    pass
