@@ -424,12 +424,13 @@
     // Remember state of unfolded elements
     // All h2 require ids
     $(".foldable").each(function() {
-      if (localStorage.getItem('collapse-'+$(this).find("h2").attr('id')) === 'false') {
+      const container = $(this);
+      if (localStorage.getItem('collapse-'+container.find("h2").attr('id')) === 'false') {
         $(this).addClass('foldable__unfolded');
       }
-      $(this).click(function() {
-        const state = localStorage.getItem('collapse-'+$(this).find("h2").attr('id'));
-        localStorage.setItem('collapse-'+$(this).find("h2").attr('id'), state === 'false' ? 'true' : 'false');
+      container.find("h2").click(function() {
+        const state = localStorage.getItem('collapse-'+$(this).attr('id'));
+        localStorage.setItem('collapse-'+$(this).attr('id'), state === 'false' ? 'true' : 'false');
       })
     });
 
