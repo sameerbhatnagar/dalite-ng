@@ -322,28 +322,28 @@
               </header>
               <section id="assignment-parameters-description" class="mdc-dialog__body mdc-dialog__body--scrollable">
                 <div>
-                <h2 class="mdc-typography--display1 mdc-theme--secondary">
-                  {{ a.title }} {% trans 'contains' %} {{ a.assignments.count }} {% trans 'assignments about' %} {{ a.discipline }}.
+                  <h2 class="mdc-typography--display1 mdc-theme--secondary">
+                    {{ a.title }} {% trans 'contains' %} {{ a.assignments.count }} {% trans 'assignments about' %} {{ a.discipline }}.
                   </h2>
-                  </div>
-                  <div>
-                    <b>{% trans 'Collection Statistics' %}</b
-                  </div>
-                  <div>
-                    {% trans 'Total Answers' %}: {{ collection_data|get_value:a.pk|get_value:"total_answers" }}
-                  </div>
-                  <div>
-                    {% trans 'Answers Switched' %}: {{ collection_data|get_value:a.pk|get_value:"switches" }}
-                  </div>
-                    <div>
-                      {% trans 'Correct Answers on First Attempt' %}: {{ collection_data|get_value:a.pk|get_value:"correct_first_answers" }}
-                    </div>
-                    <div>
-                      {% trans 'Correct Answers on Second Attempt' %}: {{ collection_data|get_value:a.pk|get_value:"correct_second_answers" }}
-                    </div>
-                      <div>
-                        {% trans 'Followers' %}: {{ a.followers.count }}
-                      </div>
+                </div>
+                <div>
+                  <b>{% trans 'Collection Statistics' %}</b
+                </div>
+                <div>
+                  {% trans 'Total Answers' %}: {{ collection_data|get_value:a.pk|get_value:"total_answers" }}
+                </div>
+                <div>
+                  {% trans 'Answers Switched' %}: {{ collection_data|get_value:a.pk|get_value:"switches" }}
+                </div>
+                <div>
+                  {% trans 'Correct Answers on First Attempt' %}: {{ collection_data|get_value:a.pk|get_value:"correct_first_answers" }}
+                </div>
+                <div>
+                  {% trans 'Correct Answers on Second Attempt' %}: {{ collection_data|get_value:a.pk|get_value:"correct_second_answers" }}
+                </div>
+                <div>
+                  {% trans 'Followers' %}: {{ a.followers.count }}
+                </div>
               </section>
               <footer class="mdc-dialog__footer">
                 <button type="button" class="mdc-button mdc-dialog__footer__button mdc-dialog__footer__button--accept">Ok</button>
@@ -548,7 +548,7 @@
     el.addEventListener("click", () => {
       const pk=el.getAttribute('id');
       const collectionUrl = "{% url 'collection-detail' 0 %}"
-      window.location.href = collectionUrl.replace("0", pk );
+      window.location.assign(collectionUrl.replace("0", pk ));
     });
   });
 </script>

@@ -53,5 +53,5 @@ export async function createCollection(
   const req = buildReq({ group_pk: groupPk }, "post");
   const resp = await fetch(addAssignmentUrl, req);
   const data = await resp.json();
-  window.location.href = collectionUpdateUrl.replace("0", `${data.pk}`);
+  window.location.assign(collectionUpdateUrl.replace("0", `${data.pk}`));
 }

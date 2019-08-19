@@ -48,41 +48,41 @@
       <div class="mdc-typography--body1" id="obj.desc">
         {{ object.description }}
       </div>
-    <div class="mdc-card__actions">
-      <div class="mdc-card__action-buttons">
-        <div class="mdc-typography--caption">
-          <div>
-            {% trans 'Discipline' %}: {{ object.discipline }}
-          </div>
-          <div>
-            {% trans 'Followers' %}: {{ object.followers.count }}
-          </div>
-          <div>
-            {% trans 'Published on' %} {{object.created_on}}
+      <div class="mdc-card__actions">
+        <div class="mdc-card__action-buttons">
+          <div class="mdc-typography--caption">
+            <div>
+              {% trans 'Discipline' %}: {{ object.discipline }}
+            </div>
+            <div>
+              {% trans 'Followers' %}: {{ object.followers.count }}
+            </div>
+            <div>
+              {% trans 'Published on' %} {{object.created_on}}
+            </div>
           </div>
         </div>
+        <div class="mdc-card__action-icons">
+          <button pk="{{ object.pk }}"
+                  class="mdc-button mdc-button--raised collection-distribute"
+                  >{% trans 'Assign' %}
+          </button>
+          <i class="mdc-icon-toggle material-icons mdc-theme--primary follower-btn"
+              role="button"
+              aria-pressed="false"
+              aria-label="Add to favorites" tabindex="0"
+              {% if request.user.teacher in object.followers.all %}
+              data-toggle-off='{"label": "Remove from favourites", "content": "favorite"}'
+              data-toggle-on='{"label": "Add to favourites", "content": "favorite_border"}'
+              {% else %}
+              data-toggle-on='{"label": "Remove from favourites", "content": "favorite"}'
+              data-toggle-off='{"label": "Add to favourites", "content": "favorite_border"}'
+              {% endif %}
+              pk="{{ object.pk }}">
+              favorite_border
+          </i>
+        </div>
       </div>
-      <div class="mdc-card__action-icons">
-        <button pk="{{ object.pk }}"
-                class="mdc-button mdc-button--raised collection-distribute"
-                >{% trans 'Assign' %}
-        </button>
-        <i class="mdc-icon-toggle material-icons mdc-theme--primary follower-btn"
-            role="button"
-            aria-pressed="false"
-            aria-label="Add to favorites" tabindex="0"
-            {% if request.user.teacher in object.followers.all %}
-            data-toggle-off='{"label": "Remove from favourites", "content": "favorite"}'
-            data-toggle-on='{"label": "Add to favourites", "content": "favorite_border"}'
-            {% else %}
-            data-toggle-on='{"label": "Remove from favourites", "content": "favorite"}'
-            data-toggle-off='{"label": "Add to favourites", "content": "favorite_border"}'
-            {% endif %}
-            pk="{{ object.pk }}">
-            favorite_border
-        </i>
-      </div>
-    </div>
     </div>
     <div class="mdc-card" id="desciption">
       <div class="mdc-typography--body1" id="obj.desc">
@@ -114,7 +114,6 @@
       </div>
     </div>
     <ul>
-
     {% for obj in object.assignments.all %}
     <li class="dense-list searchable">
         <div class="mdc-card" id="card-assign">
@@ -236,8 +235,6 @@
           </div>
       </div>
         </div>
-
-
     {% empty %}
     {% trans 'No assignments available.' %}
     {% endfor %}
@@ -290,7 +287,7 @@
 
   [].forEach.call(document.querySelectorAll(".collection-distribute"), el => {
     el.addEventListener("click", () => {
-      window.location.href = "{% url 'collection-distribute' object.pk %}";
+      window.location.assign("{% url 'collection-distribute' object.pk %}");
     });
   });
 

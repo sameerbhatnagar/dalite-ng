@@ -230,4 +230,4 @@ def test_create_collection(browser, assert_, teacher, discipline, assignment):
     teacher.assignments.add(assignment)
     login(browser, teacher)
     create_collection(browser, assert_, teacher)
-    collection_button(browser, assert_, teacher)
+    # collection_button(browser, assert_, teacher)
