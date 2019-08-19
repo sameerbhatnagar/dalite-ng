@@ -19,7 +19,7 @@
     </h1>
 
     <div class="foldable">
-      <h2 class="foldable--title mdc-typography--display1 mdc-theme--secondary">
+      <h2 id="groups-section" class="foldable--title mdc-typography--display1 mdc-theme--secondary">
         {% trans 'Groups' %}
       </h2>
       <div class="foldable--body">
@@ -224,7 +224,7 @@
     </div>
 
     <div class="foldable">
-      <h2 class="foldable--title mdc-typography--display1 mdc-theme--secondary">
+      <h2 id="blink-section" class="foldable--title mdc-typography--display1 mdc-theme--secondary">
         {% trans 'Blink scripts' %}
       </h2>
       <div class="foldable--body">
@@ -359,7 +359,7 @@
     </div>
 
     <div class="foldable">
-      <h2 class="foldable--title mdc-typography--display1 mdc-theme--secondary">
+      <h2 id="quality-section" class="foldable--title mdc-typography--display1 mdc-theme--secondary">
         {% trans 'Quality control' %}
       </h2>
       <div class="foldable--body">
@@ -391,7 +391,7 @@
     </div>
 
     <div class="foldable">
-      <h2 class="foldable--title mdc-typography--display1 mdc-theme--secondary">
+      <h2 id="identity-section" class="foldable--title mdc-typography--display1 mdc-theme--secondary">
         {% trans 'Identity' %}
       </h2>
       <div class="foldable--body">
@@ -509,6 +509,18 @@
 </script>
 <script nonce="{{ request.csp_nonce }}">
   window.addEventListener("load", function() {
+    // Remember state of unfolded elements
+    // All h2 require ids
+    $(".foldable").each(function() {
+      if (localStorage.getItem('collapse-'+$(this).find("h2").attr('id')) === 'false') {
+        $(this).addClass('foldable__unfolded');
+      }
+      $(this).click(function() {
+        const state = localStorage.getItem('collapse-'+$(this).find("h2").attr('id'));
+        localStorage.setItem('collapse-'+$(this).find("h2").attr('id'), state === 'false' ? 'true' : 'false');
+      })
+    });
+
     let links = document.getElementsByClassName("group-link");
     {% for g in object.current_groups.all %}
     links[{{ forloop.counter0 }}].addEventListener("click", function() {
@@ -538,10 +550,10 @@
       });
     });
     document.getElementById("tos-modify-btn").addEventListener("click", function() {
-      window.location.href='{% url 'tos:tos_modify' 'teacher' %}?next={{ request.path }}';
+      window.location.href="{% url 'tos:tos_modify' 'teacher' %}?next={{ request.path }}";
     });
     document.getElementById("email-modify-btn").addEventListener("click", function() {
-      window.location.href='{% url 'tos:email_modify' 'teacher' %}?next={{ request.path }}';
+      window.location.href="{% url 'tos:email_modify' 'teacher' %}?next={{ request.path }}";
     });
   });
   [].forEach.call(document.querySelectorAll(".collection-icon"), el => {

@@ -26,7 +26,7 @@
       <span class="links-divider">|</span><a href="{% url 'question-create' %}">{% trans 'Create new question' %}</a>
     </div>
 
-    <h2 id="assignment" class="mdc-typography--display1  mdc-theme--secondary">{{object.title}}</h2>
+    <h2 id="assignment" class="mdc-typography--display1 mdc-theme--secondary">{{object.title}}</h2>
     <div class="admin-link">
       <a href="{% url 'assignment-edit' object.pk %}">{% trans 'Edit title' %}</a>
       <span class="links-divider">|</span><a href="{% url 'question-list' object.pk %}">{% trans 'Preview' %}</a>
@@ -54,7 +54,7 @@
 
     <div id="question-list">
     {% for g in object.questions.all %}
-    <div class="mdc-card" id={{g.id|slugify}}>
+    <div class="mdc-card" id={{g.id|slugify}} matrix="{{ g.get_matrix|safe }}">
       <div class="mdc-typography--title bold">
         {{g.title|safe}}
       </div>
@@ -74,7 +74,15 @@
       <div class="question-answers hidden">
         <ul>
           {% for label, choice in g.get_choices %}
-          <li class="mdc-typography--body1">{{ label }}. {{ choice|safe }}</li>
+            <li class="dense-list">{{ label }}. {{ choice|bleach_html|safe }}
+            {% for c in g.answerchoice_set.all %}
+              {% if forloop.counter == forloop.parentloop.counter %}
+                {% if c.correct %}
+                  <i class="check material-icons">check</i>
+                {% endif %}
+              {% endif %}
+            {% endfor %}
+            </li>
           {% endfor %}
         </ul>
       </div>
@@ -100,6 +108,13 @@
         </div>
 
         <div class="mdc-card__action-icons">
+
+          <div id="stats-{{ g.id|safe }}" class="stats">
+            <i id="activate-dialog-analytics-{{ g.id|safe }}"
+            ref_id="{{ g.id|safe }}" class="material-icons md-24 analytics-tags">assessment</i>
+            <span id="rating-{{ g.id|safe }}"></span>
+          </div>
+
           {% if request.user == g.user or request.user in g.collaborators.all %}
             <a title="{% trans 'Edit' %}" id="edit-question-{{ g.pk }}" href="{% url 'question-update' g.pk %}">
               <i class="material-icons md-24 mdc-ripple-surface card-icon-list mdc-theme--primary">mode_edit</i>
@@ -124,14 +139,14 @@
     {% endfor %}
     </div>
 
-    <div id="favourite-questions" class="foldable foldable__unfolded">
+    <div id="favourite-questions" class="foldable foldable__folded">
       <h2 class="foldable--title mdc-typography--display1 mdc-theme--secondary">{% trans 'My favourite questions' %}</h2>
       <br>
       <div class="foldable--body" class="m-top-20">
       {% for g in teacher.favourite_questions.all %}
       {% if g not in object.questions.all %}
       {% if g not in teacher.deleted_questions.all %}
-      <div class="all-my-questions mdc-card" id={{g.id|slugify}}>
+      <div class="all-my-questions mdc-card" id="{{g.id|slugify}}"  matrix="{{ g.get_matrix|safe }}">
         <div class="mdc-typography--title bold">
           {{g.title|safe}}
         </div>
@@ -151,7 +166,15 @@
         <div class="question-answers hidden">
           <ul>
             {% for label, choice in g.get_choices %}
-            <li class="mdc-typography--body1">{{ label }}. {{ choice|bleach_html|safe }}</li>
+              <li class="dense-list">{{ label }}. {{ choice|bleach_html|safe }}
+              {% for c in g.answerchoice_set.all %}
+                {% if forloop.counter == forloop.parentloop.counter %}
+                  {% if c.correct %}
+                    <i class="check material-icons">check</i>
+                  {% endif %}
+                {% endif %}
+              {% endfor %}
+              </li>
             {% endfor %}
           </ul>
         </div>
@@ -177,6 +200,13 @@
           </div>
 
           <div class="mdc-card__action-icons">
+
+            <div id="stats-{{ g.id|safe }}" class="stats">
+              <i id="activate-dialog-analytics-{{ g.id|safe }}"
+              ref_id="{{ g.id|safe }}" class="material-icons md-24 analytics-tags">assessment</i>
+              <span id="rating-{{ g.id|safe }}"></span>
+            </div>
+
             {% if request.user.teacher %}
             <i class="mdc-icon-toggle material-icons mdc-theme--primary favourite-btn"
                 role="button"
@@ -316,6 +346,10 @@
   }
 
   window.addEventListener("load", function() {
+    $(".mdc-card").each(function(i, el) {
+      bundle.difficulty(el.getAttribute("matrix").replace(/'/g, '"'), el.id);
+    });
+    $(".analytics-tags").css("cursor", "default");
 
     $(".submit-question-remove").each(function(i, el) {
       el.addEventListener("click", function() {

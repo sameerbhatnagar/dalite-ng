@@ -18,6 +18,6 @@ def all_email_type(role):
     return {
         "role": role,
         "type": "all",
-        "title": "All emails",
-        "description": "Only receive administrative emails from Dalite.",
+        "title": "All",
+        "description": "Receive all emails from myDALITE",
     }

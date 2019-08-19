@@ -116,9 +116,8 @@ def check_favourites(browser, teacher, question, assignment):
     fav_questions = browser.find_element_by_id("favourite-questions")
     fav_questions.click()
 
+    time.sleep(1)
     assert question.text in fav_questions.text
-
-    time.sleep(2)
 
 
 def test_search_function(

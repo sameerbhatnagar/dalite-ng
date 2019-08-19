@@ -591,13 +591,14 @@ export function difficulty(matrix, id) {
       }
     }
   }
+  const stats = document.getElementById("stats-" + id);
   if (max > 0) {
     const rating = document.getElementById("rating-" + id);
     rating.innerHTML =
       label.substring(0, 1).toUpperCase() + label.substring(1);
-
-    const stats = document.getElementById("stats-" + id);
     stats.style.color = colour[label];
+  } else {
+    stats.style.display = "none";
   }
 }
 

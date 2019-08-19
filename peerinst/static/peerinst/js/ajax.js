@@ -61,9 +61,8 @@ export function updateAssignmentQuestionList(
           $("#" + questionId).remove();
         } else {
           $("#" + questionId)
-            .find($("button"))
-            .html("clear");
-          $("#" + questionId).find($(".stats").remove());
+            .find($(".update-questions-btn"))
+            .html("delete");
           const q = $("#" + questionId).detach();
           q.appendTo($("#question-list"));
           $("#empty-assignment-list").remove();
