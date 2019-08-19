@@ -1,4 +1,9 @@
+import time
+
 from django.core.urlresolvers import reverse
+
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support.ui import Select
 
 from functional_tests.fixtures import *  # noqa
 from .utils import go_to_account, login, logout
@@ -83,7 +88,7 @@ def test_email_address_change(browser, assert_, teacher):
     )
 
 
-def test_email_notification_change(browser, assert_, teacher):
+def test_email_notification_change(browser, teacher):
     start(browser, teacher)
     browser.find_element_by_id("email-modify-btn").click()
     assert "Email Settings" in browser.find_element_by_tag_name("h1").text
@@ -101,5 +106,62 @@ def test_email_notification_change(browser, assert_, teacher):
     # Reset password... outbox should have 1 message
 
 
-def test_change_discipline_and_institution():
-    pass
+def test_change_discipline_and_institution(
+    browser, assert_, teacher, institution
+):
+    start(browser, teacher)
+    browser.find_element_by_class_name("edit-identity-btn").click()
+    assert (
+        "Discipline and institution"
+        in browser.find_element_by_tag_name("h2").text
+    )
+
+    Select(browser.find_element_by_id("id_institutions")).select_by_value("1")
+
+    browser.find_element_by_id("show_discipline_form").click()
+
+    browser.wait_for(
+        lambda: assert_(
+            "Enter the name of a new discipline." in browser.page_source
+        )
+    )
+
+    assert not browser.find_element_by_id("update-identity").is_enabled()
+
+    input = browser.find_element_by_xpath(
+        "//div[@id='discipline_create_form']/input[@id='id_title']"
+    )
+    # ENTER on a blank field throws form error
+    input.send_keys(Keys.ENTER)
+    browser.wait_for(
+        lambda: assert_("This field is required" in browser.page_source)
+    )
+
+    # New discipline is accepted and switches to select form
+    time.sleep(1)
+    input = browser.find_element_by_xpath(
+        "//div[@id='discipline_create_form']/input[@id='id_title']"
+    )
+    input.send_keys("My discipline")
+    browser.find_element_by_id("submit_discipline_form").click()
+
+    browser.wait_for(
+        lambda: assert_(
+            browser.find_element_by_id("update-identity").is_enabled()
+        )
+    )
+    browser.find_element_by_id("update-identity").click()
+
+    browser.find_element_by_id("identity-section").click()
+    browser.wait_for(
+        lambda: assert_(
+            "My discipline"
+            in browser.find_element_by_class_name("edit-identity-btn").text
+        )
+    )
+    browser.wait_for(
+        lambda: assert_(
+            institution.name
+            in browser.find_elements_by_class_name("edit-identity-btn")[1].text
+        )
+    )

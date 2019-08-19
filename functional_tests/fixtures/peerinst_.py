@@ -1,7 +1,7 @@
 import factory
 import pytest
 
-from peerinst.models import AnswerChoice, Question
+from peerinst.models import AnswerChoice, Institution, Question
 from peerinst.tests.fixtures import *  # noqa
 from peerinst.tests.fixtures.question.factories import CategoryFactory
 
@@ -39,3 +39,15 @@ def realistic_questions():
     questions.append(RealisticQuestionFactory())
 
     return questions
+
+
+class InstitutionFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = Institution
+
+    name = factory.Faker("company")
+
+
+@pytest.fixture
+def institution():
+    return InstitutionFactory()

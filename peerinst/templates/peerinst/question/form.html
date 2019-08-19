@@ -453,8 +453,8 @@
     }
   });
   bundle.bindCheckbox();
-  bundle.bindAjaxTextInputForm('show_discipline_form', 'discipline_form', "{% url 'discipline-create' %}", "{% url 'discipline-form' %}", bundle.disciplineForm, null);
-  bundle.bindAjaxTextInputForm('show_category_form', 'category_form', "{% url 'category-create' %}", "{% url 'category-form' %}", bundle.categoryForm, "{% url 'search-categories' %}");
+  bundle.bindAjaxTextInputForm('show_discipline_form', 'discipline_form', "{% url 'discipline-create' %}", "{% url 'discipline-form' %}", bundle.disciplineForm, null, null);
+  bundle.bindAjaxTextInputForm('show_category_form', 'category_form', "{% url 'category-create' %}", "{% url 'category-form' %}", bundle.categoryForm, "{% url 'search-categories' %}", null);
 
 
   // Enumerate form
