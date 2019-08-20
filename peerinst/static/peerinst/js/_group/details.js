@@ -24,6 +24,7 @@ type Student = {
 };
 
 let model: {
+  language: string,
   assignments: Array<Assignment>,
   students: Array<Student>,
   urls: {
@@ -34,6 +35,11 @@ let model: {
 
 function initModel(data: InitialData): void {
   model = {
+    language:
+      document.getElementById("corner")?.getElementsByTagName("text")[0]
+        .textContent == "FR"
+        ? "en-ca"
+        : "fr-ca",
     assignments: data.assignments.map(a => ({
       url: a.url,
     })),
@@ -125,7 +131,7 @@ function studentListTableView(student: Student): void {
     .add([
       student.email,
       student.lastLogin
-        ? student.lastLogin.toLocaleString("en-ca", {
+        ? student.lastLogin.toLocaleString(model.language, {
             month: "short", // eslint-disable-line
             day: "numeric", // eslint-disable-line
             year: "numeric", // eslint-disable-line
