@@ -8,7 +8,7 @@
 
 {% block content %}
 <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Forum list' %}</h2>
-<ul class="mdc-list mdc-list--two-line">
+<ul id="forum-list" class="mdc-list mdc-list--two-line">
   {% for f in object_list|dictsortreversed:"view_count" %}
   <li role="separator" class="mdc-list-divider"></li>
   <li class="mdc-list-item {{ f.category }} pointer">
