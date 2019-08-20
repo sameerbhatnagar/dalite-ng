@@ -3,6 +3,8 @@ from __future__ import unicode_literals
 
 from operator import itemgetter
 
+from django.db.models import F, Count
+
 from quality.models import Quality
 
 from .models import Answer, AnswerAnnotation, Teacher
@@ -61,3 +63,73 @@ def choose_rationales(teacher, n=5):
         ]
 
     return answers[:n]
+
+
+def choose_rationales_no_quality(teacher, n=5):
+    """
+    Evaluates each rationale based on if the `teacher` should evaluate and
+    returns the top `n` ones.
+    Filters for actual student answers that have resulted in students
+    changing their mind, and ordered by those that have been shown often
+
+    Parameters
+    ----------
+    teacher : Teacher
+        Teacher for whom the rationales should be chosen
+    n : int (default : 5)
+        Number of answers to return
+
+    Returns
+    -------
+    List[Answer]
+        Rationales for the teacher to evaluate
+    """
+    assert isinstance(teacher, Teacher), "Precondition failed for `teacher`"
+    assert isinstance(n, int), "Precondition failed for `n`"
+
+    q_list = list(teacher.favourite_questions.all())
+    for a in teacher.assignments.all():
+        q_list.extend(list(a.questions.all().values_list("pk", flat=True)))
+    q_list = list(set(q_list))
+
+    convincing = Answer.objects.filter(
+        chosen_rationale__isnull=False
+    ).values_list("chosen_rationale", flat=True)
+
+    no_score_needed = (
+        AnswerAnnotation.objects.exclude(score__isnull=True)
+        .annotate(times_scored=Count("answer"))
+        .filter(times_scored__lte=2)
+        .exclude(annotator=teacher.user)
+        .values_list("answer", flat=True)
+    )
+
+    if convincing:
+        answers = (
+            Answer.objects.filter(
+                question__discipline__in=teacher.disciplines.all(),
+                question_id__in=q_list,
+            )
+            .exclude(second_answer_choice__isnull=True)
+            .filter(pk__in=convincing)
+            .exclude(pk__in=no_score_needed)
+            .annotate(times_shown=Count("shown_answer"))
+            .order_by("-times_shown")
+        )
+    else:
+        answers = (
+            Answer.objects.filter(
+                question__discipline__in=teacher.disciplines.all(),
+                question_id__in=q_list,
+            )
+            .exclude(second_answer_choice__isnull=True)
+            .exclude(first_answer_choice=F("second_answer_choice"))
+            .exclude(pk__in=no_score_needed)
+            .annotate(times_shown=Count("shown_answer"))
+            .order_by("-times_shown")
+        )
+
+    if not answers:
+        return []
+    else:
+        return answers[:n]
