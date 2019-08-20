@@ -109,15 +109,27 @@
           </div>
 
           {% if assignment %}
-          <button class="material-icons small-button mdc-button mdc-card__action mdc-card__action--button mdc-button--raised m-left-20 update-questions-btn"
+
+            {% if request.user == g.user or request.user in g.collaborators.all %}
+            <a title="{% trans 'Edit' %}" id="edit-question-{{ g.pk }}" href="{% url 'question-update' g.pk %}">
+              <i class="material-icons md-24 mdc-ripple-surface card-icon-list mdc-theme--primary">mode_edit</i>
+            </a>
+            {% else %}
+            <a title="{% trans 'Copy and edit' %}" id="clone-question-{{ g.pk }}" href="{% url 'question-clone' g.pk %}">
+              <i class="material-icons md-24 mdc-ripple-surface card-icon-list mdc-theme--primary">file_copy</i>
+            </a>
+            {% endif %}
+
+          <i class="material-icons mdc-theme--primary md-24 mdc-ripple-surface icon-list update-questions-btn"
                   data-url="{% url 'assignment-edit-ajax' %}"
                   data-id="{{ g.id|safe }}"
                   data-assignment-id="{{ assignment.identifier|safe }}">
             add
-          </button>
+          </i>
           {% elif type == None %}
           {% if request.user.teacher %}
           <i class="mdc-icon-toggle material-icons mdc-theme--primary favourite-btn"
+              id="favourite-btn-{{ g.pk|safe }}"
               role="button"
               aria-pressed="false"
               aria-label="Add to favorites" tabindex="0"

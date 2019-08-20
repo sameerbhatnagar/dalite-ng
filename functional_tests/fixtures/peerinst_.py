@@ -1,7 +1,7 @@
 import factory
 import pytest
 
-from peerinst.models import AnswerChoice, Question
+from peerinst.models import AnswerChoice, Institution, Question
 from peerinst.tests.fixtures import *  # noqa
 from peerinst.tests.fixtures.question.factories import CategoryFactory
 
@@ -12,7 +12,10 @@ class RealisticQuestionFactory(factory.django.DjangoModelFactory):
 
     title = factory.Faker("sentence", nb_words=4)
     text = factory.Faker("paragraph")
-    category = factory.RelatedFactory(CategoryFactory)
+
+    @factory.post_generation
+    def category(self, *args, **kwargs):
+        self.category.add(CategoryFactory())
 
 
 class RealisticAnswerChoiceFactory(factory.django.DjangoModelFactory):
@@ -24,11 +27,27 @@ class RealisticAnswerChoiceFactory(factory.django.DjangoModelFactory):
 
 @pytest.fixture
 def realistic_questions():
-    questions = [RealisticQuestionFactory() for i in range(1, 20)]
+    questions = [RealisticQuestionFactory() for i in range(20)]
+    # Add answer choices
     for q in questions:
         [
             RealisticAnswerChoiceFactory(question=q, correct=j == 2)
-            for j in range(1, 4)
+            for j in range(4)
         ]
 
+    # One question with no answer choices
+    questions.append(RealisticQuestionFactory())
+
     return questions
+
+
+class InstitutionFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = Institution
+
+    name = factory.Faker("company")
+
+
+@pytest.fixture
+def institution():
+    return InstitutionFactory()

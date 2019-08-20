@@ -94,6 +94,7 @@ export { getCsrfToken } from "./ajax.js";
  * @param {String} formUrl
  * @param {Function} init
  * @param {String} searchUrl
+ * @param {Function} completionHook
  */
 export function bindAjaxTextInputForm(
   idToBind,
@@ -102,6 +103,7 @@ export function bindAjaxTextInputForm(
   formUrl,
   init,
   searchUrl,
+  completionHook,
 ) {
   const d = document.getElementById(idToBind);
   if (d) {
@@ -114,7 +116,15 @@ export function bindAjaxTextInputForm(
         bundle.autoInit();
         const input = this.querySelector(".mdc-text-field__input");
         input.focus();
-        init(idToBind, formToReplace, createUrl, formUrl, init, searchUrl);
+        init(
+          idToBind,
+          formToReplace,
+          createUrl,
+          formUrl,
+          init,
+          searchUrl,
+          completionHook,
+        );
       }
       $("#" + formToReplace).load(createUrl, callback);
     };
@@ -129,6 +139,7 @@ export function bindAjaxTextInputForm(
  * @param {String} formUrl
  * @param {Function} init
  * @param {String} searchUrl
+ * @param {Function} completionHook
  */
 export function categoryForm(
   idToBind,
@@ -137,6 +148,7 @@ export function categoryForm(
   formUrl,
   init,
   searchUrl,
+  completionHook,
 ) {
   // Define ENTER key
   const form = $("#category_form").find("#id_title");
@@ -158,7 +170,11 @@ export function categoryForm(
         formUrl,
         init,
         searchUrl,
+        completionHook,
       );
+      if (completionHook) {
+        completionHook();
+      }
       bundle.bindCategoryAutofill(searchUrl);
       bundle.autoInit();
     });
@@ -196,6 +212,7 @@ export function categoryForm(
           formUrl,
           init,
           searchUrl,
+          completionHook,
         );
         bundle.autoInit();
         $("#category_form")
@@ -209,6 +226,7 @@ export function categoryForm(
           formUrl,
           init,
           searchUrl,
+          completionHook,
         );
         bundle.bindCategoryAutofill(searchUrl);
         bundle.autoInit();
@@ -216,6 +234,9 @@ export function categoryForm(
           .val(title)
           .focus()
           .autocomplete("search");
+        if (completionHook) {
+          completionHook();
+        }
       }
     });
   });
@@ -339,6 +360,7 @@ export function bindCategoryAutofill(source) {
  * @param {String} formUrl
  * @param {Function} init
  * @param {String} searchUrl
+ * @param {Function} completionHook
  */
 export function disciplineForm(
   idToBind,
@@ -347,6 +369,7 @@ export function disciplineForm(
   formUrl,
   init,
   searchUrl,
+  completionHook,
 ) {
   // Bind form submit to icon
   $("#submit_discipline_form").click(function() {
@@ -363,7 +386,11 @@ export function disciplineForm(
         formUrl,
         init,
         searchUrl,
+        completionHook,
       );
+      if (completionHook) {
+        completionHook();
+      }
     });
   });
 
@@ -399,6 +426,7 @@ export function disciplineForm(
           formUrl,
           init,
           searchUrl,
+          completionHook,
         );
         bundle.autoInit();
       } else {
@@ -409,7 +437,11 @@ export function disciplineForm(
           formUrl,
           init,
           searchUrl,
+          completionHook,
         );
+        if (completionHook) {
+          completionHook();
+        }
       }
     });
   });
@@ -591,13 +623,14 @@ export function difficulty(matrix, id) {
       }
     }
   }
+  const stats = document.getElementById("stats-" + id);
   if (max > 0) {
     const rating = document.getElementById("rating-" + id);
     rating.innerHTML =
       label.substring(0, 1).toUpperCase() + label.substring(1);
-
-    const stats = document.getElementById("stats-" + id);
     stats.style.color = colour[label];
+  } else {
+    stats.style.display = "none";
   }
 }
 

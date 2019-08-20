@@ -266,23 +266,7 @@ https://datatables.net/extensions/buttons/examples/styling/jqueryui.html
           <th title='{% trans "Measure of how many times the rationales written by this student have been chosen by others." %}'>{% trans 'Popularity' %}</th>
         </tr>
       </thead>
-      {% comment %} <tbody> {% endcomment %}
-        {% comment %} {% for student in group.students %} {% endcomment %}
-        {% comment %} <tr> {% endcomment %}
-        {% comment %} <th class="mdc-ripple-surface"> {% endcomment %}
-          {% comment %} {% if student.student.email %} {% endcomment %}
-          {% comment %} {{ student.student.email }} {% endcomment %}
-          {% comment %} {% else %} {% endcomment %}
-          {% comment %} {{ student.student.username }} {% endcomment %}
-          {% comment %} {% endif %} {% endcomment %}
-        {% comment %} </th> {% endcomment %}
-        {% comment %} <td>{{ student.student.last_login }}</td> {% endcomment %}
-        {% comment %} <td> {{ student.convincing_rationale_reputation }} </td> {% endcomment %}
-        {% comment %} </tr> {% endcomment %}
-        {% comment %} {% empty %} {% endcomment %}
-            {% comment %} <p class='mdc-typography--body1'>{% trans 'No student has signed up yet' %}</p> {% endcomment %}
-        {% comment %} {% endfor %} {% endcomment %}
-      {% comment %} </tbody> {% endcomment %}
+      <tbody></tbody>
     </table>
   </div>
 </div>
