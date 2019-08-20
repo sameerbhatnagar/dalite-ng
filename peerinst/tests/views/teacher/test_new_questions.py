@@ -22,7 +22,7 @@ def test_new_questions(client, teacher, questions, assignment, disciplines):
     teacher.disciplines.add(disciplines[0])
 
     resp = client.post(
-        reverse("teacher-page--new-questions"),
+        reverse("teacher-dashboard--new-questions"),
         json.dumps({}),
         content_type="application/json",
     )
@@ -63,7 +63,7 @@ def test_new_questions__with_params(
     teacher.disciplines.add(disciplines[0])
 
     resp = client.post(
-        reverse("teacher-page--new-questions"),
+        reverse("teacher-dashboard--new-questions"),
         json.dumps({"n": 2}),
         content_type="application/json",
     )
@@ -92,7 +92,7 @@ def test_new_questions__with_params(
             ) >= datetime.strptime(q["last_modified"], "%Y-%m-%dT%H:%M:%S.%fZ")
 
     resp = client.post(
-        reverse("teacher-page--new-questions"),
+        reverse("teacher-dashboard--new-questions"),
         json.dumps(
             {
                 "current": [
@@ -127,7 +127,7 @@ def test_new_questions__with_params(
             ) >= datetime.strptime(q["last_modified"], "%Y-%m-%dT%H:%M:%S.%fZ")
 
     resp = client.post(
-        reverse("teacher-page--new-questions"),
+        reverse("teacher-dashboard--new-questions"),
         json.dumps(
             {
                 "n": 2,
@@ -171,7 +171,7 @@ def test_new_questions__wrong_params(client, teacher):
         return_value=HttpResponse("", status=400),
     ):
         resp = client.post(
-            reverse("teacher-page--new-questions"),
+            reverse("teacher-dashboard--new-questions"),
             json.dumps({}),
             content_type="application/json",
         )

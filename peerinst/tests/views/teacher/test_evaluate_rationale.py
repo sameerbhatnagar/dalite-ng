@@ -15,7 +15,7 @@ def test_evaluate_rationale(client, teacher, answers):
     n = AnswerAnnotation.objects.count()
 
     resp = client.post(
-        reverse("teacher-page--evaluate-rationale"),
+        reverse("teacher-dashboard--evaluate-rationale"),
         json.dumps({"id": answer.pk, "score": 0}),
         content_type="application/json",
     )
@@ -32,7 +32,7 @@ def test_evaluate_rationale__missing_params(client, teacher, answers):
     n = AnswerAnnotation.objects.count()
 
     resp = client.post(
-        reverse("teacher-page--evaluate-rationale"),
+        reverse("teacher-dashboard--evaluate-rationale"),
         json.dumps({"id": answer.pk}),
         content_type="application/json",
     )
@@ -41,7 +41,7 @@ def test_evaluate_rationale__missing_params(client, teacher, answers):
     assert AnswerAnnotation.objects.count() == n
 
     resp = client.post(
-        reverse("teacher-page--evaluate-rationale"),
+        reverse("teacher-dashboard--evaluate-rationale"),
         json.dumps({"score": 0}),
         content_type="application/json",
     )
@@ -50,7 +50,7 @@ def test_evaluate_rationale__missing_params(client, teacher, answers):
     assert AnswerAnnotation.objects.count() == n
 
     resp = client.post(
-        reverse("teacher-page--evaluate-rationale"),
+        reverse("teacher-dashboard--evaluate-rationale"),
         json.dumps({}),
         content_type="application/json",
     )
@@ -65,7 +65,7 @@ def test_evaluate_rationale__wrong_answer_pk(client, teacher):
     n = AnswerAnnotation.objects.count()
 
     resp = client.post(
-        reverse("teacher-page--evaluate-rationale"),
+        reverse("teacher-dashboard--evaluate-rationale"),
         json.dumps({"id": 0, "score": 0}),
         content_type="application/json",
     )
@@ -82,7 +82,7 @@ def test_evaluate_rationale__wrong_score(client, teacher, answers):
     n = AnswerAnnotation.objects.count()
 
     resp = client.post(
-        reverse("teacher-page--evaluate-rationale"),
+        reverse("teacher-dashboard--evaluate-rationale"),
         json.dumps({"id": 0, "score": 4}),
         content_type="application/json",
     )
@@ -91,7 +91,7 @@ def test_evaluate_rationale__wrong_score(client, teacher, answers):
     assert AnswerAnnotation.objects.count() == n
 
     resp = client.post(
-        reverse("teacher-page--evaluate-rationale"),
+        reverse("teacher-dashboard--evaluate-rationale"),
         json.dumps({"id": 0, "score": -1}),
         content_type="application/json",
     )
@@ -100,7 +100,7 @@ def test_evaluate_rationale__wrong_score(client, teacher, answers):
     assert AnswerAnnotation.objects.count() == n
 
     resp = client.post(
-        reverse("teacher-page--evaluate-rationale"),
+        reverse("teacher-dashboard--evaluate-rationale"),
         json.dumps({"id": 0, "score": "0"}),
         content_type="application/json",
     )

@@ -13,7 +13,7 @@ def test_messages(client, teacher, thread):
     teacher.last_page_access = replies[len(replies) // 2].created
     teacher.save()
 
-    resp = client.post(reverse("teacher-page--messages"))
+    resp = client.post(reverse("teacher-dashboard--messages"))
     assert resp.status_code == 200
     data = json.loads(resp.content)["threads"]
 

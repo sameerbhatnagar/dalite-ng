@@ -24,7 +24,7 @@ def test_rationales_to_score(client, teacher, answers, discipline):
         ]
 
         resp = client.post(
-            reverse("teacher-page--rationales"),
+            reverse("teacher-dashboard--rationales"),
             json.dumps({}),
             content_type="application/json",
         )
@@ -67,7 +67,7 @@ def test_rationales_to_score__with_params(
         ]
 
         resp = client.post(
-            reverse("teacher-page--rationales"),
+            reverse("teacher-dashboard--rationales"),
             json.dumps({"n": 3}),
             content_type="application/json",
         )
@@ -92,7 +92,7 @@ def test_rationales_to_score__with_params(
             )
 
         resp = client.post(
-            reverse("teacher-page--rationales"),
+            reverse("teacher-dashboard--rationales"),
             json.dumps({"current": [a.pk for a in answers[-3:]]}),
             content_type="application/json",
         )
@@ -117,7 +117,7 @@ def test_rationales_to_score__with_params(
             )
 
         resp = client.post(
-            reverse("teacher-page--rationales"),
+            reverse("teacher-dashboard--rationales"),
             json.dumps({"n": 3, "current": [a.pk for a in answers[-3:]]}),
             content_type="application/json",
         )
@@ -150,7 +150,7 @@ def test_rationales_to_score__wrong_params(client, teacher):
         return_value=HttpResponse("", status=400),
     ):
         resp = client.post(
-            reverse("teacher-page--rationales"),
+            reverse("teacher-dashboard--rationales"),
             json.dumps({}),
             content_type="application/json",
         )
