@@ -54,6 +54,7 @@ const scriptBuilds = [
       "question",
       "teacher",
       "custom_elements",
+      "collection",
     ],
   },
   {
@@ -152,6 +153,7 @@ function buildScript(app, module) {
       "@material/select": "@material/select",
       "@material/textfield": "@material/textfield",
       "@material/toolbar": "@material/toolbar",
+      "material/snackbar": "material/snackbar",
     },
     external: [
       "flatpickr",
@@ -167,6 +169,7 @@ function buildScript(app, module) {
       "@material/select",
       "@material/textfield",
       "@material/toolbar",
+      "material/snackbar",
     ],
     plugins: [
       eslint({

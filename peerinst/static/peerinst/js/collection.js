@@ -1,1 +1,4 @@
-export {init} from "./_collection/collection.js";
+"use strict";
+export {
+  init as initCollectionDistribute,
+} from "./_collection/collection_distribute.js";

@@ -94,83 +94,53 @@
           <button class="mdc-button mdc-button--raised collection-toggle-assign removed"
                   id_pk="{{ g.pk }}"
                   id_ppk="{{ object.pk }}"
-                  id = "{{ g.pk }}">
+                  id="{{ g.pk }}"
+                  name="{{ g.title }}">
                   {% trans 'Assign' %}
           </button>
           {% else %}
           <button class="mdc-button mdc-button--raised collection-toggle-assign added"
                   id_pk="{{ g.pk }}"
                   id_ppk="{{ object.pk }}"
-                  id = "{{ g.pk }}">
+                  id="{{ g.pk }}"
+                  name="{{ g.title }}">
                   {% trans 'Unassign' %}
           </button>
           {% endif %}
         </span>
       </li>
       {% endfor %}
-
+      <div class="mdc-snackbar mdc-snackbar--align-start"
+           aria-live="assertive"
+           aria-atomic="true"
+           aria-hidden="true">
+        <div class="mdc-snackbar__text"></div>
+        <div class="mdc-snackbar__action-wrapper" hidden>
+    <button type="button" class="mdc-snackbar__action-button"></button>
+  </div>
+      </div>
   </section>
 </main>
 {% endblock %}
 {% block scripts %}
 {{ block.super }}
+{% compress js %}
+<script src="{% static 'peerinst/js/collection.min.js' %}"></script>
+{% endcompress %}
 <script nonce="{{ request.csp_nonce }}">
-
-  $.ajaxSetup({
-      beforeSend: function(xhr, settings) {
-          if (!bundle.csrfSafeMethod(settings.type) && !this.crossDomain) {
-              xhr.setRequestHeader("X-CSRFToken", bundle.getCsrfToken());
-          }
-      }
-  });
-
-
-  function assignCollection(pk, ppk) {
-    var posting = $.post("{% url 'collection-assign' %}", {pk: pk, ppk: ppk});
-    posting.done(function(data) {
-      console.info(data);
-    })
-  }
-
-  function unassignCollection(pk, ppk) {
-    var posting = $.post("{% url 'collection-unassign' %}", {pk: pk, ppk: ppk});
-    posting.done(function(data) {
-      console.info(data);
-    })
-  }
-
-  function clickAssign(el) {
-    assignCollection(el.getAttribute('id_pk'), el.getAttribute('id_ppk'));
-    document.getElementById(el.getAttribute('id_pk')).innerHTML = "{% trans 'Unassign' %}";
-    document.getElementById(el.getAttribute('id_pk')).classList.add('added');
-    document.getElementById(el.getAttribute('id_pk')).classList.remove('removed');
-  }
-
-  function clickUnassign(el) {
-    unassignCollection(el.getAttribute('id_pk'), el.getAttribute('id_ppk'));
-    document.getElementById(el.getAttribute('id_pk')).innerHTML = "{% trans 'Assign' %}";
-    document.getElementById(el.getAttribute('id_pk')).classList.remove('added');
-    document.getElementById(el.getAttribute('id_pk')).classList.add('removed');
-  }
-
-  [].forEach.call(document.querySelectorAll(".collection-toggle-assign"), el => {
-    el.addEventListener("click", () => {
-    if(el.classList.contains("removed")){
-      clickAssign(el);
-    }
-    else{
-      clickUnassign(el);
-    }});
-  });
-
-
-  [].forEach.call(document.querySelectorAll(".md-48"), el => {
-    el.addEventListener("click", () => {
-      const hash=el.getAttribute('id');
-      const groupUrl = "{% url 'group-details' 0 %}"
-      window.location.assign(groupUrl.replace("0", hash ));
-    });
-  });
-
+window.addEventListener("load", function() {
+  collection.initCollectionDistribute(
+    "{% url 'collection-assign' %}",
+    "{% url 'collection-unassign' %}",
+    "{% trans 'Assign' %}",
+    "{% trans 'Unassign' %}",
+    "{{ object.title }}",
+    "{% trans 'You have assigned ' %}",
+    "{% trans ' to ' %}",
+    "{% trans 'You have unassigned ' %}",
+    "{% trans 's undistributed assignments from ' %}",
+    "{% url 'group-details' 0 %}",
+  );
+});
 </script>
 {% endblock %}
