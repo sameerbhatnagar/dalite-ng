@@ -114,7 +114,6 @@ class ReputationType(models.Model):
         -------
         Optional[float]
             Quality of the answer or None of no criteria present
-<<<<<<< HEAD
         Either
             List[Dict[str, Any]]
                 If `criterion` is None, individual criteria under the format
@@ -136,23 +135,14 @@ class ReputationType(models.Model):
                         weight: int
                         reputation: float
                     }
-=======
-        List[Dict[str, Any]]
-            Individual criteria under the format
-                [{
-                    name: str
-                    full_name: str
-                    description: str
-                    version: int
-                    reputation: float
-                    details: Dict[str, Any]
-                }]
->>>>>>> development
 
         Raises
         ------
         TypeError
             If the given `model` doesn't correspond to the `type`
+        ValueError
+            If the given criterion isn't part of the list for this reputation
+            type
         """
         if model.__class__.__name__.lower() != self.type:
             msg = (
@@ -195,7 +185,9 @@ class ReputationType(models.Model):
         else:
             try:
                 criterion_ = next(
-                    c for c in self.criteria.all() if c.name == criterion
+                    get_criterion(c.name).objects.get(version=c.version)
+                    for c in self.criteria.all()
+                    if c.name == criterion
                 )
             except StopIteration:
                 msg = "The criterion {} isn't part of the criteria".format(
@@ -212,7 +204,7 @@ class ReputationType(models.Model):
             )
             reputations = {
                 key: (
-                    "{}\n{}".format(val, reputation["equation"])
+                    "{}\n{}".format(val, reputations["equation"])
                     if key == "description"
                     else val
                 )

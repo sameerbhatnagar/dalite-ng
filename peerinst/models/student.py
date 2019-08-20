@@ -300,6 +300,33 @@ class Student(models.Model):
 
         return err
 
+    def evaluate_reputation(self, criterion=None):
+        """
+        Calculates the reputation for the student on all criteria or on a
+        specific criterion, creating the Reputation for them if it doesn't
+        already exist.
+
+        Parameters
+        ----------
+        criterion : Optional[str] (default : none)
+            Criterion on which to evaluate
+
+        Returns
+        -------
+        float
+            Evaluated reputation
+
+        Raises
+        ------
+        ValueError
+            If the given criterion isn't part of the list for this reputation
+            type
+        """
+        if self.reputation is None:
+            self.reputation = Reputation.create("student")
+            self.save()
+        return self.reputation.evaluate(criterion)[0]
+
     @property
     def current_groups(self):
         # TODO add lti_student groups
@@ -356,7 +383,7 @@ class Student(models.Model):
             self.reputation = Reputation.create("student")
             self.save()
 
-        return self.reputation.evaluate(self, "convincing_rationales")[0]
+        return self.reputation.evaluate("convincing_rationales")[0]
 
 
 class StudentGroupMembership(models.Model):

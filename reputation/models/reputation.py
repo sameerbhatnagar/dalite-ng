@@ -59,6 +59,9 @@ class Reputation(models.Model):
         ------
         ValueError
             If this reputation doesn't correspond to any type of reputation
+        ValueError
+            If the given criterion isn't part of the list for this reputation
+            type
         """
         return self.reputation_type.evaluate(self.reputation_model, criterion)
 
