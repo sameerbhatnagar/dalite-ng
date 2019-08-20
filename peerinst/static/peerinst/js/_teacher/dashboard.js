@@ -5,6 +5,10 @@ import { buildReq } from "../../../../../dalite/static/js/ajax.js";
 /* model */
 /*********/
 
+type InitData = {
+  urls: { collections: string, rationales: string },
+};
+
 type Collection = {
   title: string,
   description: string,
@@ -12,22 +16,6 @@ type Collection = {
   nAssignments: number,
   nFollowers: number,
 };
-
-let model: {
-  collections: Array<Collection>,
-  urls: {
-    collections: string,
-  },
-};
-
-function initModel(data: { urls: { collections: string } }) {
-  model = {
-    collections: [],
-    urls: {
-      collections: data.urls.collections,
-    },
-  };
-}
 
 type Rationale = {
   title: string,
@@ -38,16 +26,20 @@ type Rationale = {
 };
 
 let model: {
+  collections: Array<Collection>,
   rationales: Array<Rationale>,
   urls: {
+    collections: string,
     rationales: string,
   },
 };
 
-function initModel(data: { urls: { rationales: string } }) {
+function initModel(data: InitData) {
   model = {
+    collections: [],
     rationales: [],
     urls: {
+      collections: data.urls.collections,
       rationales: data.urls.rationales,
     },
   };
@@ -124,7 +116,7 @@ function rationalesView() {
 /* init */
 /********/
 
-export async function init(data: { urls: { collections: string } }) {
+export async function init(data: InitData) {
   initModel(data);
   await update();
 }
