@@ -12,8 +12,8 @@ $.ajaxSetup({
 });
 
 export function toggleFollow(el, subscribe, unsubscribe) {
-  console.info(el.getAttribute("aria-pressed") == "false");
-  if (el.getAttribute("aria-pressed") == "false") {
+  console.info(el.getAttribute("aria-pressed") === "true");
+  if (el.getAttribute("aria-pressed") === "true") {
     console.info("Subscribing to thread");
     const posting = $.post(subscribe);
     posting.done(function(data) {

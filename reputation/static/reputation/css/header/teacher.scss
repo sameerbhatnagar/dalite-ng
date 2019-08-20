@@ -2,6 +2,7 @@
 
 #container {
   & #list {
+    box-shadow: 0 1px 1px #bdbdbd;
     grid-template-columns: repeat(2, minmax(125px, max-content));
 
     .list__header {

@@ -142,9 +142,8 @@ def test_info__no_threshold():
 
         info = fake_criterion.info()
         assert len(info) == 3
-        assert (
-            info["description"]
-            == "A test. The points are awarded as 1 for each."
+        assert info["description"].startswith(
+            "A test. The points are awarded as 1 for each of these."
         )
 
 
@@ -168,9 +167,9 @@ def test_info__same_thresholds():
 
         info = fake_criterion.info()
         assert len(info) == 3
-        assert (
-            info["description"]
-            == "A test. The points are awarded as 1 for each between 0 and 5."
+        assert info["description"].startswith(
+            "A test. The points are awarded as 1 for each of these between "
+            "0 and 5."
         )
 
 
@@ -194,10 +193,9 @@ def test_info__past_thresholds():
 
         info = fake_criterion.info()
         assert len(info) == 3
-        assert (
-            info["description"]
-            == "A test. The points are awarded as 1 for each between 0 and 5, "
-            "and 2 for each over 5."
+        assert info["description"].startswith(
+            "A test. The points are awarded as 1 for each of these between "
+            "0 and 5, and 2 for each over 5."
         )
 
 
