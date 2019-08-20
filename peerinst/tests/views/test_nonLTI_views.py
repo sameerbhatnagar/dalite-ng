@@ -173,7 +173,7 @@ class TeacherTest(TestCase):
             follow=True,
         )
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "peerinst/browse_database.html")
+        self.assertTemplateUsed(response, "peerinst/teacher/dashboard.html")
 
         # Test access to other
         response = self.client.get(reverse("teacher", kwargs={"pk": 2}))
@@ -219,7 +219,7 @@ class TeacherTest(TestCase):
         self.assertEqual(response.status_code, 403)
 
         response = self.client.get(reverse("welcome"))
-        self.assertRedirects(response, reverse("browse-database"))
+        self.assertRedirects(response, reverse("teacher-dashboard"))
         self.assertIn(self.group, self.validated_teacher.groups.all())
 
         response = self.client.get(reverse("question-create"))
