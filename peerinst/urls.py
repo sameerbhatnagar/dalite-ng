@@ -544,6 +544,11 @@ def researcher_patterns():
             name="research-discipline-question-index-by-discipline",
         ),
         url(
+            r"^research/discipline/(?P<discipline_title>[^/]+)/(?P<difficulty>[^/]+)$",  # noqa
+            views.research_discipline_question_index,
+            name="research-discipline-question-index-by-discipline-difficulty",
+        ),
+        url(
             r"^research/assignment/(?P<assignment_id>[^/]+)$",
             views.research_discipline_question_index,
             name="research-assignment-question-index-by-assignment",

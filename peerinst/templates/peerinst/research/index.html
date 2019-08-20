@@ -12,8 +12,15 @@
   <a href="{% url 'browse-database' %}">{% trans 'Back to Browse' %}</a>
 </div>
   <ul>
-    {% for d in disciplines %}
-      <li><a href = "{% url 'research-discipline-question-index-by-discipline' discipline_title=d.title %}">{{ d.title }}</a> ({{ d.question_set.count }} questions)</li>
+    {% for d in data|dictsortreversed:"num_questions" %}
+      <li>
+        <a href = "{% url 'research-discipline-question-index-by-discipline' discipline_title=d.discipline.title %}">{{ d.discipline.title }}</a> ({{ d.num_questions }} questions)
+        <ul>
+          {% for m in d.questions_by_type|dictsortreversed:"key" %}
+          <li> <a href="{% url 'research-discipline-question-index-by-discipline-difficulty' discipline_title=d.discipline.title difficulty=m.key%}">{{ m.key }}</a> : {{ m.value }}</li>
+          {% endfor %}
+        </ul>
+      </li>
     {% endfor %}
   </ul>
 </section>
