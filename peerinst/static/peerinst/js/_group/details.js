@@ -124,7 +124,15 @@ function studentListTableView(student: Student): void {
   table.row
     .add([
       student.email,
-      student.lastLogin ? student.lastLogin : "",
+      student.lastLogin
+        ? student.lastLogin.toLocaleString("en-ca", {
+            month: "short", // eslint-disable-line
+            day: "numeric", // eslint-disable-line
+            year: "numeric", // eslint-disable-line
+            hour: "2-digit", // eslint-disable-line
+            minute: "2-digit", // eslint-disable-line
+          }) // eslint-disable-line
+        : "",
       student.popularity,
     ])
     .draw();
