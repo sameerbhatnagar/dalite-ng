@@ -7,7 +7,7 @@
 {% endblock %}
 
 {% block breadcrumbs %}
-<span class="links-divider">|</span><a href="{% url 'pinax_forums:forum' thread.forum.pk %}">{% trans 'Back to forum' %}</a>
+<span class="links-divider">|</span><a href="{% url 'pinax_forums:forum' thread.forum.pk %}">{% trans 'Back to Forum' %}</a>
 {% endblock %}
 
 {% block content %}
@@ -74,7 +74,7 @@
 
     <div class="mdc-card__action-icons">
       {% if can_create_reply %}
-        <i class="material-icons md-18 icon-list mdc-ripple-surface mdc-theme--primary reply-btn">reply</i>
+        <i data-post="{{p.id}}" class="material-icons md-18 icon-list mdc-ripple-surface mdc-theme--primary reply-btn">reply</i>
       {% endif %}
       {% if request.user == p.author and p.editable %}
         <a class="mdc-theme--primary" href="{% url 'pinax_forums:post_edit_reply' p.pk %}"><i class="material-icons md-18 icon-list mdc-ripple-surface mdc-theme--primary">mode_edit</i></a>
@@ -139,7 +139,7 @@
       {{ reply_form.content|add_class:"mdc-text-field__input" }}
       <label for="id_content" class="mdc-floating-label">{% trans 'Post' %}</label>
     </div>
-    <input type="submit" class="mdc-button mdc-button--raised" value="{% trans 'Post' %}"/>
+    <input type="submit" class="mdc-button mdc-button--raised padded-top" value="{% trans 'Post' %}"/>
   </form>
 </div>
 {% endif %}
@@ -149,14 +149,19 @@
 {% compress js %}
 <script src="{% static 'pinax/forums/js/thread.min.js' %}"></script>
 {% endcompress %}
+
 <script nonce="{{ request.csp_nonce }}">
   window.addEventListener("load", function() {
     document.getElementsByClassName("follow")[0].addEventListener("click", function() {
       thread.toggleFollow(this, "{% url 'pinax_forums:subscribe' thread.id %}", "{% url 'pinax_forums:unsubscribe' thread.id %}");
     })
-    document.getElementsByClassName("reply-btn")[0].addEventListener("click", function() {
-      thread.showReplyForm('reply-{{p.id}}')
-    })
+
+    const replyButtons = document.getElementsByClassName("reply-btn");
+    [].forEach.call(replyButtons, function(el) {
+      el.addEventListener("click", function() {
+        thread.showReplyForm('reply-'+el.getAttribute('data-post'));
+      });
+    });
   })
 </script>
 {% endblock %}

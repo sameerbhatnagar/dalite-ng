@@ -5,6 +5,7 @@ __all__ = [
     "browser",
     "category",
     "discipline",
+    "forum",
     "inactive_user",
     "institution",
     "min_words_criterion",
@@ -15,12 +16,14 @@ __all__ = [
     "realistic_questions",
     "student_reputation_with_criteria",
     "teacher",
+    "teachers",
     "tos_teacher",
     "group",
     "student_group_assignment",
     "undistributed_assignment",
 ]
 
+from .forums_ import forum
 from .peerinst_ import (
     admin,
     assignment,
@@ -32,6 +35,7 @@ from .peerinst_ import (
     questions,
     realistic_questions,
     teacher,
+    teachers,
     tos_teacher,
     group,
     student_group_assignment,
