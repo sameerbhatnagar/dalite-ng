@@ -68,9 +68,9 @@ def old_patterns():
             name="discipline-form",
         ),
         url(
-            r"^disciplines/create$",
-            views.DisciplinesCreateView.as_view(),
-            name="disciplines-create",
+            r"^disciplines/form/(?P<pk>[0-9]+)$",
+            views.disciplines_select_form,
+            name="disciplines-form",
         ),
         url(
             r"^disciplines/form$",

@@ -73,6 +73,7 @@
     <div class="mdc-form-field">
       <span class="mdc-theme--secondary">{% trans 'Show answers' %}</span>
       <i class="mdc-icon-toggle material-icons toggle-answers mdc-theme--secondary" role="button" aria-pressed="false"
+      id="toggle-answers"
       aria-label="Toggle answers" tabindex="0"
       data-toggle-on='{"label": "Hide images", "content": "check_box"}'
       data-toggle-off='{"label": "Show images", "content": "check_box_outline_blank"}'>
@@ -113,51 +114,44 @@
 {{ block.super }}
 <script src="{% static 'peerinst/js/search.min.js' %}"></script>
 
-{% script type="text/javascript" %}
-<script>
-bundle.toggleImages();
-bundle.toggleAnswers();
+<script nonce="{{ request.csp_nonce }}">
+  bundle.toggleImages();
+  bundle.toggleAnswers();
 
-$.ajaxSetup({
-    beforeSend: function(xhr, settings) {
-        if (!bundle.csrfSafeMethod(settings.type) && !this.crossDomain) {
-            xhr.setRequestHeader("X-CSRFToken", bundle.getCsrfToken());
-        }
+  const input = document.getElementById('search-bar');
+  input.onchange = function() {
+    if (input.value != "") {
+      search.setupSearch();
+      console.info("Searching: "+input.value);
+      $('#search_results').load("{% url 'question-search' %}", "search_string="+input.value, search.processResponse);
     }
-});
+  }
 
-var resetFilters = document.getElementById('reset-filters');
-resetFilters.onclick=search.reset();
+  $.ajaxSetup({
+      beforeSend: function(xhr, settings) {
+          if (!bundle.csrfSafeMethod(settings.type) && !this.crossDomain) {
+              xhr.setRequestHeader("X-CSRFToken", bundle.getCsrfToken());
+          }
+      }
+  });
 
-var input = document.getElementById('search-bar');
-input.onchange = function() {
-  if (input.value != "") {
+  function pageNav(page) {
     search.setupSearch();
     console.info("Searching: "+input.value);
-    $('#search_results').load("{% url 'question-search' %}", "search_string="+input.value, search.processResponse);
+    $('#search_results').load("{% url 'question-search' %}?page="+page, "search_string="+input.value, search.processResponse);
   }
-}
 
-function pageNav(page) {
-  search.setupSearch();
-  console.info("Searching: "+input.value);
-  $('#search_results').load("{% url 'question-search' %}?page="+page, "search_string="+input.value, search.processResponse);
-}
+  function toggleFavourite(pk) {
+    const posting = $.post("{% url 'teacher-toggle-favourite' %}", {pk: pk});
+    posting.done(function(data) {
+      console.info(data);
+    });
+  }
 
-function toggleFavourite(pk) {
-  var posting = $.post("{% url 'teacher-toggle-favourite' %}", {pk: pk});
-  posting.done(function(data) {
-    console.info(data);
-  })
-}
-</script>
-
-<script nonce="{{ request.csp_nonce }}">
   window.addEventListener("load", function() {
     document.getElementById("reset-filters").addEventListener("click", function() {
-      search.reset()
-    })
-  })
+      search.reset();
+    });
+  });
 </script>
-{% endscript %}
 {% endblock %}

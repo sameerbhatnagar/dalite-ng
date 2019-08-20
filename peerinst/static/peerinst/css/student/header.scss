@@ -10,10 +10,19 @@
     cursor: pointer;
     position: relative;
     transition: background 300ms, border-radius 200ms;
-    z-index: 10;
+    z-index: 2;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.25);
+
+      & i:hover {
+        background: none;
+      }
+    }
 
     & i {
       color: #ffffff;
+      padding: 5px;
       transition: color 300ms;
     }
 
@@ -30,14 +39,7 @@
       right: 2px;
       top: 2px;
       width: 22px;
-    }
-
-    &:hover {
-      background: rgba(255, 255, 255, 0.25);
-
-      & i:hover {
-        background: none;
-      }
+      z-index: 3;
     }
   }
 
@@ -45,7 +47,7 @@
     align-items: center;
     background: #ffffff;
     border-radius: 20px 0 20px 20px;
-    display: none;
+    display: grid;
     font-size: 1.1rem;
     grid-auto-rows: minmax(50px, auto);
     grid-template-columns: minmax(300px, 600px);
@@ -54,7 +56,7 @@
     right: 21px;
     text-align: center;
     top: 21px;
-    transform: scale(0, 0);
+    transform: scale(0);
     transform-origin: top right;
     transition: transform 300ms, top 300ms, right 300ms;
 
@@ -114,11 +116,11 @@
   }
 
   & .notifications__list {
-    display: grid;
+    box-shadow: 0 1px 1px #bdbdbd;
     right: 0;
-    top: 42px;
-    transform: scale(1, 1);
-    z-index: 10;
+    top: 40px;
+    transform: scale(1);
+    z-index: 2;
   }
 }
 

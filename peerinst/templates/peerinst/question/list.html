@@ -9,16 +9,11 @@
       <svg class="underline" width=150 height=4></svg>
     </h1>
 
-    {% if user in assignment.owner.all and assignment.editable or user.is_staff %}
     <div class="admin-link">
-      <a href="{% url 'assignment-update' assignment_id=assignment.identifier%}">{% trans 'Edit question list' %}</a><span class="admin-link--padded">|</span>
+      {% if user in assignment.owner.all and assignment.editable or user.is_staff %}
+      <a href="{% url 'assignment-update' assignment_id=assignment.identifier%}">{% trans 'Edit question list' %}</a>
+      <span class="admin-link--padded">|</span>{% endif %}<a href="{% url 'research-assignment-question-index-by-assignment' assignment_id=assignment.identifier%}">{% trans 'Score Rationales / Flag Questions / Update Expert Answers' %}</a>
     </div>
-    {% endif %}
-
-    <div class="admin-link">
-      <a href="{% url 'research-assignment-question-index-by-assignment' assignment_id=assignment.identifier%}">{% trans 'Score Rationales / Flag Questions / Update Expert Answers' %}</a>
-    </div>
-
 
     <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Questions' %}</h2>
 

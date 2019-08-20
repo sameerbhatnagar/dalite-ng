@@ -1,5 +1,5 @@
-import { buildReq } from "../ajax.js";
-import { clear } from "../utils.js";
+import { buildReq } from "../../ajax.js";
+import { clear } from "../../utils.js";
 
 /*********/
 /* model */
@@ -160,7 +160,7 @@ function addAllNotificationsReadListener() {
 /* init */
 /********/
 
-export function initStudentHeader(url) {
+export function init(url) {
   const req = buildReq(null, "get");
   fetch(url, req)
     .then(resp => resp.json())

@@ -48,6 +48,7 @@ def browser(live_server):
         browser = "firefox"
 
     options = webdriver.ChromeOptions()
+    options.add_experimental_option("w3c", False)
 
     if hasattr(settings, "HEADLESS_TESTING") and settings.HEADLESS_TESTING:
         os.environ["MOZ_HEADLESS"] = "1"
@@ -96,7 +97,9 @@ def browser(live_server):
         filtered_logs = [
             d
             for d in logs
-            if d["source"] != "network" and "tinymce" not in d["message"]
+            if d["source"] != "network"
+            and "tinymce" not in d["message"]
+            and "mdc-auto-init" not in d["message"]
         ]
         assert len(filtered_logs) == 0, logs
 

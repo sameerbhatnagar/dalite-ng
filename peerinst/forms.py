@@ -53,11 +53,6 @@ class FirstAnswerForm(forms.Form):
         widget=forms.Textarea(attrs={"cols": 100, "rows": 7})
     )
 
-    datetime_start = forms.CharField(
-        widget=forms.HiddenInput(),
-        initial=datetime.now(pytz.utc).strftime("%Y-%m-%d %H:%M:%S.%f"),
-    )
-
     def __init__(self, answer_choices, *args, **kwargs):
         choice_texts = [
             mark_safe(
@@ -193,6 +188,9 @@ class AssignmentMultiselectForm(forms.Form):
             queryset = queryset.annotate(
                 num_student_rationales=num_student_rationales
             ).filter(Q(num_student_rationales=0))
+
+        # Add queryset to form object to keep logic in one spot
+        self.queryset = queryset
 
         self.fields["assignments"] = forms.ModelMultipleChoiceField(
             queryset=queryset,
@@ -348,7 +346,13 @@ class DisciplineForm(forms.ModelForm):
 
 
 class DisciplineSelectForm(forms.Form):
-    discipline = forms.ModelChoiceField(queryset=Discipline.objects.all())
+    discipline = forms.ModelChoiceField(
+        queryset=Discipline.objects.all(),
+        help_text=_(
+            "Optional. Select the discipline to which this item should "
+            "be associated."
+        ),
+    )
 
 
 class DisciplinesSelectForm(forms.Form):
@@ -358,7 +362,13 @@ class DisciplinesSelectForm(forms.Form):
 
 
 class CategorySelectForm(forms.Form):
-    category = forms.ModelMultipleChoiceField(queryset=Category.objects.all())
+    category = forms.ModelMultipleChoiceField(
+        queryset=Category.objects.all(),
+        help_text=_(
+            "Type to search and select at least one category for this "
+            "question. You can select multiple categories."
+        ),
+    )
 
 
 class ReportSelectForm(forms.Form):

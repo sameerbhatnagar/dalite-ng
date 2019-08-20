@@ -7,7 +7,7 @@
   {% if question.type == "PI" %}
     {% trans 'Step 4: Sample answers' %}
   {% else %}
-    {% trans 'Step 3: Preview' %}
+    {% trans 'Step 2: Preview' %}
   {% endif %}
 </h2>
 
@@ -64,12 +64,14 @@
 
 <hr class="simple-hr">
 
-{% if user.teacher and save_allowed %}
+{% if user.teacher %}
+{% if save_allowed or question.type == "RO" %}
 <h3>{% trans 'Auto add to assignments' %}</h3>
 <form id="add_question_to_assignment" action="{% url 'sample-answer-form-done' question_id=question.id %}" method="post">
   {% csrf_token %}
   <div class='field-container'>
     <div class='number-box'><span class='number'><i class="material-icons">add</i></span></div>
+    {% if assignment_count > 0 %}
     <div class='field'>
       <div class='mdc-form-field'>
         <label for='id_assignments'>{{ assignment_form.assignments.label }}:</label>
@@ -80,8 +82,15 @@
       </p>
       {{ assignment_form.assignments.errors }}
     </div>
+    {% else %}
+    <div class='field'>
+      {% trans 'You currently do not have any assignments.  You can create one from your account page.' %}
+    </div>
+    {% endif %}
   </div>
 </form>
+<hr class="simple-hr">
+{% endif %}
 {% endif %}
 
 <div class="m-top-20">

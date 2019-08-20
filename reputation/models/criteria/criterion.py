@@ -13,9 +13,32 @@ from reputation.logger import logger
 from ..reputation_type import ReputationType
 
 
+def validate_list_floats_greater_0(val):
+    for x in val:
+        try:
+            n = float(x)
+        except ValueError:
+            raise ValidationError(
+                "The values must be comma separated floats greather or equal "
+                "to 0."
+            )
+        if n < 0:
+            raise ValidationError(
+                "The values must be comma separated floats greather or equal "
+                "to 0."
+            )
+
+
 class Criterion(models.Model):
     version = models.AutoField(primary_key=True)
     for_reputation_types = models.ManyToManyField(ReputationType)
+    badge_thresholds = CommaSepField(
+        distinct=True,
+        blank=True,
+        validators=[validate_list_floats_greater_0],
+        help_text="Thresholds for the badges to be awarded.",
+    )
+    badge_colour = models.CharField(max_length=16, default="#0066ff")
     points_per_threshold = CommaSepField(
         verbose_name="Points per threshold",
         help_text="Number of reputation points for each criterion point up to "
@@ -45,9 +68,11 @@ class Criterion(models.Model):
         to combine them.
         """
         return chain(
-            self.__class__.info().iteritems(),
+            self.info().iteritems(),
             {
                 "version": self.version,
+                "badge_thresholds": self.badge_thresholds,
+                "badge_colour": self.badge_colour,
                 "points_per_threshold": self.points_per_threshold,
                 "thresholds": self.thresholds,
             }.iteritems(),
@@ -108,6 +133,37 @@ class Criterion(models.Model):
             )
         super(Criterion, self).save(*args, **kwargs)
 
-    @staticmethod
-    def info():
-        raise NotImplementedError("This method has to be implemented.")
+    def info(self, info):
+        point_description = " The points are awarded as "
+        if not self.thresholds:
+            point_description = (
+                point_description
+                + "{} for each of these.".format(self.points_per_threshold[0])
+            )
+        else:
+            point_description = "{}{}".format(
+                point_description,
+                ", ".join(
+                    "{} for each of these between {} and {}".format(
+                        point, t0, t1
+                    )
+                    for point, t0, t1 in zip(
+                        self.points_per_threshold,
+                        [0] + self.thresholds[:-1],
+                        self.thresholds,
+                    )
+                ),
+            )
+            if len(self.thresholds) == len(self.points_per_threshold):
+                point_description = point_description + "."
+            else:
+                point_description = "{}{}.".format(
+                    point_description,
+                    ", and {} for each over {}".format(
+                        self.points_per_threshold[-1], self.thresholds[-1]
+                    ),
+                )
+
+        info["description"] = info["description"] + point_description
+
+        return info

@@ -8,7 +8,7 @@
 
 {% block content %}
 <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Forum list' %}</h2>
-<ul class="mdc-list mdc-list--two-line">
+<ul id="forum-list" class="mdc-list mdc-list--two-line">
   {% for f in object_list|dictsortreversed:"view_count" %}
   <li role="separator" class="mdc-list-divider"></li>
   <li class="mdc-list-item {{ f.category }} pointer">
@@ -138,28 +138,27 @@
     {% for f in object_list|dictsortreversed:"view_count" %}
     [...document.getElementsByClassName("{{ f.category }}")].forEach(function(li) {
       li.addEventListener("click", function() {
-        window.location.href='{% url 'pinax_forums:forum' f.pk %}'
-      })
-      
-    })
+        window.location.href='{% url 'pinax_forums:forum' f.pk %}';
+      });
+    });
     {% endfor %}
     let links = document.getElementsByClassName("latest-thread-link")
     {% for t in latest_threads|slice:":3" %}
       links[{{ forloop.counter0 }}].addEventListener("click", function() {
-        window.location.href='{% url 'pinax_forums:thread' t.pk %}'
-      })
+        window.location.href='{% url 'pinax_forums:thread' t.pk %}';
+      });
     {% endfor %}
-    let links = document.getElementsByClassName("active-thread-link")
+    links = document.getElementsByClassName("active-thread-link");
     {% for t in most_active_threads|slice:":5" %}
       links[{{ forloop.counter0 }}].addEventListener("click", function() {
-        window.location.href='{% url 'pinax_forums:thread' t.pk %}'
-      })
+        window.location.href='{% url 'pinax_forums:thread' t.pk %}';
+      });
     {% endfor %}
-    let links = document.getElementsByClassName("popular-thread-link")
+    links = document.getElementsByClassName("popular-thread-link")
     {% for t in most_viewed_threads|slice:":5" %}
       links[{{ forloop.counter0 }}].addEventListener("click", function() {
-        window.location.href='{% url 'pinax_forums:thread' t.pk %}'
-      })
+        window.location.href='{% url 'pinax_forums:thread' t.pk %}';
+      });
     {% endfor %}
   });
 </script>

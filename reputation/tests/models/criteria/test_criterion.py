@@ -8,6 +8,7 @@ from django.db import models
 from mixer.backend.django import mixer
 
 from reputation.models import Criterion
+from reputation.models.criteria.criterion import validate_list_floats_greater_0
 
 
 @pytest.mark.filterwarnings("ignore::RuntimeWarning")
@@ -27,10 +28,12 @@ def test_dict():
 
         data = dict(fake_criterion)
 
-        assert len(data) == 6
+        assert len(data) == 8
         assert "version" in data
         assert "points_per_threshold" in data
         assert "thresholds" in data
+        assert "badge_thresholds" in data
+        assert "badge_colour" in data
         assert "name" in data
         assert "full_name" in data
         assert "description" in data
@@ -120,15 +123,94 @@ def test_save__points_len_less_than_thresholds_length():
 
 
 @pytest.mark.filterwarnings("ignore::RuntimeWarning")
-def test_info__not_implemented():
+def test_info__no_threshold():
     class FakeCriterion(Criterion):
         name = models.CharField(max_length=32, default="fake", editable=False)
 
         class Meta:
             app_label = "reputation"
 
+        def info(self):
+            return super(FakeCriterion, self).info(
+                {"name": "test", "full_name": "test", "description": "A test."}
+            )
+
     with mixer.ctx(commit=False):
         fake_criterion = mixer.blend(FakeCriterion)
+        fake_criterion.points_per_threshold = [1]
+        fake_criterion.thresholds = []
 
-        with pytest.raises(NotImplementedError):
-            fake_criterion.info()
+        info = fake_criterion.info()
+        assert len(info) == 3
+        assert info["description"].startswith(
+            "A test. The points are awarded as 1 for each of these."
+        )
+
+
+@pytest.mark.filterwarnings("ignore::RuntimeWarning")
+def test_info__same_thresholds():
+    class FakeCriterion(Criterion):
+        name = models.CharField(max_length=32, default="fake", editable=False)
+
+        class Meta:
+            app_label = "reputation"
+
+        def info(self):
+            return super(FakeCriterion, self).info(
+                {"name": "test", "full_name": "test", "description": "A test."}
+            )
+
+    with mixer.ctx(commit=False):
+        fake_criterion = mixer.blend(FakeCriterion)
+        fake_criterion.points_per_threshold = [1]
+        fake_criterion.thresholds = [5]
+
+        info = fake_criterion.info()
+        assert len(info) == 3
+        assert info["description"].startswith(
+            "A test. The points are awarded as 1 for each of these between "
+            "0 and 5."
+        )
+
+
+@pytest.mark.filterwarnings("ignore::RuntimeWarning")
+def test_info__past_thresholds():
+    class FakeCriterion(Criterion):
+        name = models.CharField(max_length=32, default="fake", editable=False)
+
+        class Meta:
+            app_label = "reputation"
+
+        def info(self):
+            return super(FakeCriterion, self).info(
+                {"name": "test", "full_name": "test", "description": "A test."}
+            )
+
+    with mixer.ctx(commit=False):
+        fake_criterion = mixer.blend(FakeCriterion)
+        fake_criterion.points_per_threshold = [1, 2]
+        fake_criterion.thresholds = [5]
+
+        info = fake_criterion.info()
+        assert len(info) == 3
+        assert info["description"].startswith(
+            "A test. The points are awarded as 1 for each of these between "
+            "0 and 5, and 2 for each over 5."
+        )
+
+
+def test_validate_list_floats_greater_0__ok():
+    validate_list_floats_greater_0([1.0])
+    validate_list_floats_greater_0([1])
+    validate_list_floats_greater_0(["1"])
+
+
+def test_validate_list_floats_greater_0__wrong_type():
+    with pytest.raises(ValidationError):
+        validate_list_floats_greater_0(["a"])
+
+
+def test_validate_list_floats_greater_0__smaller_than_0():
+    with pytest.raises(ValidationError):
+        validate_list_floats_greater_0([0])
+        validate_list_floats_greater_0([-1])

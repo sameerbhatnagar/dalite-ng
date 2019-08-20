@@ -32,3 +32,12 @@ def teacher_reputation(teacher):
     teacher.reputation = reputation
     teacher.save()
     return reputation
+
+
+@pytest.fixture
+def student_reputation(student):
+    reputation_type = ReputationType.objects.get(type="student")
+    reputation = Reputation.objects.create(reputation_type=reputation_type)
+    student.reputation = reputation
+    student.save()
+    return reputation

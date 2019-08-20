@@ -83,12 +83,7 @@ export function csrfSafeMethod(method) {
   return /^(GET|HEAD|OPTIONS|TRACE)$/.test(method);
 }
 
-/** Get csrf token using jQuery
- *   https://docs.djangoproject.com/en/1.8/ref/csrf/
- * @function
- * @param {String} name
- * @return {String}
- */
+// Get csrf token
 export { getCsrfToken } from "./ajax.js";
 
 /** Replace element with text input form using Ajax
@@ -99,6 +94,7 @@ export { getCsrfToken } from "./ajax.js";
  * @param {String} formUrl
  * @param {Function} init
  * @param {String} searchUrl
+ * @param {Function} completionHook
  */
 export function bindAjaxTextInputForm(
   idToBind,
@@ -107,6 +103,7 @@ export function bindAjaxTextInputForm(
   formUrl,
   init,
   searchUrl,
+  completionHook,
 ) {
   const d = document.getElementById(idToBind);
   if (d) {
@@ -119,7 +116,15 @@ export function bindAjaxTextInputForm(
         bundle.autoInit();
         const input = this.querySelector(".mdc-text-field__input");
         input.focus();
-        init(idToBind, formToReplace, createUrl, formUrl, init, searchUrl);
+        init(
+          idToBind,
+          formToReplace,
+          createUrl,
+          formUrl,
+          init,
+          searchUrl,
+          completionHook,
+        );
       }
       $("#" + formToReplace).load(createUrl, callback);
     };
@@ -134,6 +139,7 @@ export function bindAjaxTextInputForm(
  * @param {String} formUrl
  * @param {Function} init
  * @param {String} searchUrl
+ * @param {Function} completionHook
  */
 export function categoryForm(
   idToBind,
@@ -142,7 +148,18 @@ export function categoryForm(
   formUrl,
   init,
   searchUrl,
+  completionHook,
 ) {
+  // Define ENTER key
+  const form = $("#category_form").find("#id_title");
+  if (form.length) {
+    $(form).keypress(function(event) {
+      if (event.which == 13) {
+        $("#submit_category_form").click();
+      }
+    });
+  }
+
   // Handle clear
   $("#clear_category_form").click(function() {
     $("#category_form").load(formUrl, function() {
@@ -153,7 +170,11 @@ export function categoryForm(
         formUrl,
         init,
         searchUrl,
+        completionHook,
       );
+      if (completionHook) {
+        completionHook();
+      }
       bundle.bindCategoryAutofill(searchUrl);
       bundle.autoInit();
     });
@@ -168,26 +189,36 @@ export function categoryForm(
     },
   });
 
-  $("#submit_category_form").click(
-    /** The callback
-     * @function
-     * @param {Object} event
-     * @this Callback
-     */
-    function() {
-      const title = $("#category_form")
-        .find("input[name='title']")
-        .val();
+  $("#submit_category_form").click(function() {
+    const title = $("#category_form")
+      .find("input[name='title']")
+      .val();
 
-      // Send the data using post
-      const posting = $.post(createUrl, { title: title });
+    // Send the data using post
+    const posting = $.post(createUrl, { title: title });
 
-      // Put the results in a div
-      posting.success(function(data) {
-        console.log(data);
+    // Put the results in a div
+    posting.success(function(data, status) {
+      $("#category_form")
+        .empty()
+        .append(data);
+
+      const formType = $("#create_new_category");
+      if (formType.length) {
+        categoryForm(
+          idToBind,
+          formToReplace,
+          createUrl,
+          formUrl,
+          init,
+          searchUrl,
+          completionHook,
+        );
+        bundle.autoInit();
         $("#category_form")
-          .empty()
-          .append(data);
+          .find("input[name='title']")[0]
+          .focus();
+      } else {
         bundle.bindAjaxTextInputForm(
           idToBind,
           formToReplace,
@@ -195,6 +226,7 @@ export function categoryForm(
           formUrl,
           init,
           searchUrl,
+          completionHook,
         );
         bundle.bindCategoryAutofill(searchUrl);
         bundle.autoInit();
@@ -202,9 +234,12 @@ export function categoryForm(
           .val(title)
           .focus()
           .autocomplete("search");
-      });
-    },
-  );
+        if (completionHook) {
+          completionHook();
+        }
+      }
+    });
+  });
 }
 
 /** Callback for category autofill
@@ -313,6 +348,102 @@ export function bindCategoryAutofill(source) {
     focus: focus,
     select: select("current_categories", "category", "#id_category"),
     autoFocus: true,
+  });
+}
+
+// Create disciplines
+/** Callback for discipline creation
+ * @function
+ * @param {String} idToBind
+ * @param {String} formToReplace
+ * @param {String} createUrl
+ * @param {String} formUrl
+ * @param {Function} init
+ * @param {String} searchUrl
+ * @param {Function} completionHook
+ */
+export function disciplineForm(
+  idToBind,
+  formToReplace,
+  createUrl,
+  formUrl,
+  init,
+  searchUrl,
+  completionHook,
+) {
+  // Bind form submit to icon
+  $("#submit_discipline_form").click(function() {
+    $("#discipline_create_form").submit();
+  });
+
+  // Handle clear
+  $("#clear_discipline_form").click(function() {
+    $("#discipline_form").load(formUrl, function() {
+      bundle.bindAjaxTextInputForm(
+        idToBind,
+        formToReplace,
+        createUrl,
+        formUrl,
+        init,
+        searchUrl,
+        completionHook,
+      );
+      if (completionHook) {
+        completionHook();
+      }
+    });
+  });
+
+  // Setup ajax call and attach a submit handler to the form
+  $.ajaxSetup({
+    beforeSend: function(xhr, settings) {
+      if (!bundle.csrfSafeMethod(settings.type) && !this.crossDomain) {
+        xhr.setRequestHeader("X-CSRFToken", bundle.getCsrfToken());
+      }
+    },
+  });
+
+  $("#submit_discipline_form").click(function() {
+    const title = $("#discipline_form")
+      .find("input[name='title']")
+      .val();
+
+    // Send the data using post
+    const posting = $.post(createUrl, { title: title });
+
+    // Put the results in a div
+    posting.success(function(data, status) {
+      $("#discipline_form")
+        .empty()
+        .append(data);
+
+      const formType = $("#discipline_create_form");
+      if (formType.length) {
+        disciplineForm(
+          idToBind,
+          formToReplace,
+          createUrl,
+          formUrl,
+          init,
+          searchUrl,
+          completionHook,
+        );
+        bundle.autoInit();
+      } else {
+        bundle.bindAjaxTextInputForm(
+          idToBind,
+          formToReplace,
+          createUrl,
+          formUrl,
+          init,
+          searchUrl,
+          completionHook,
+        );
+        if (completionHook) {
+          completionHook();
+        }
+      }
+    });
   });
 }
 
@@ -492,13 +623,14 @@ export function difficulty(matrix, id) {
       }
     }
   }
+  const stats = document.getElementById("stats-" + id);
   if (max > 0) {
     const rating = document.getElementById("rating-" + id);
     rating.innerHTML =
       label.substring(0, 1).toUpperCase() + label.substring(1);
-
-    const stats = document.getElementById("stats-" + id);
     stats.style.color = colour[label];
+  } else {
+    stats.style.display = "none";
   }
 }
 

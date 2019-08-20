@@ -32,7 +32,7 @@ class Category(models.Model):
         _("Category Name"),
         unique=True,
         max_length=100,
-        help_text=_("Name of a category questions can be sorted into."),
+        help_text=_("Enter the name of a new question category."),
         validators=[no_hyphens],
     )
 
@@ -49,7 +49,7 @@ class Discipline(models.Model):
         _("Discipline name"),
         unique=True,
         max_length=100,
-        help_text=_("Name of a discipline."),
+        help_text=_("Enter the name of a new discipline."),
         validators=[no_hyphens],
     )
 
@@ -216,8 +216,8 @@ class Question(models.Model):
         Category,
         _("Categories"),
         help_text=_(
-            "Select at least one category for this question. You can select "
-            "multiple categories."
+            "Type to search and select at least one category for this "
+            "question. You can select multiple categories."
         ),
     )
     discipline = models.ForeignKey(
@@ -225,7 +225,7 @@ class Question(models.Model):
         blank=True,
         null=True,
         help_text=_(
-            "Optional. Select the discipline to which this question should "
+            "Optional. Select the discipline to which this item should "
             "be associated."
         ),
     )
@@ -234,8 +234,7 @@ class Question(models.Model):
         default=False,
         help_text=_(
             "Add random fake attributions consisting of username and country "
-            "to rationales. You can configure the lists of fake values and "
-            "countries from the start page of the admin interface."
+            "to rationales. "
         ),
     )
     sequential_review = models.BooleanField(
@@ -293,14 +292,12 @@ class Question(models.Model):
         first_answer_choice = int(form.cleaned_data["first_answer_choice"])
         correct = view.question.is_correct(first_answer_choice)
         rationale = form.cleaned_data["rationale"]
-        datetime_start = form.cleaned_data["datetime_start"]
         datetime_first = datetime.now(pytz.utc).strftime(
             "%Y-%m-%d %H:%M:%S.%f"
         )
         view.stage_data.update(
             first_answer_choice=first_answer_choice,
             rationale=rationale,
-            datetime_start=datetime_start,
             datetime_first=datetime_first,
             completed_stage="start",
         )

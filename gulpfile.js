@@ -8,8 +8,8 @@ const gulp = require("gulp");
 const merge = require("merge-stream");
 const postcss = require("gulp-postcss");
 const rename = require("gulp-rename");
-const rollup = require("rollup-stream");
 const resolve = require("rollup-plugin-node-resolve");
+const rollup = require("rollup-stream");
 const sass = require("gulp-sass");
 const source = require("vinyl-source-stream");
 const sourcemaps = require("gulp-sourcemaps");
@@ -32,7 +32,7 @@ const styleBuilds = [
   },
   {
     app: "reputation",
-    modules: ["teacher-header"],
+    modules: ["header/teacher", "header/student"],
   },
 ];
 
@@ -60,7 +60,7 @@ const scriptBuilds = [
   },
   {
     app: "reputation",
-    modules: ["teacher", "header"],
+    modules: ["header/teacher", "header/student"],
   },
 ];
 
@@ -129,6 +129,7 @@ function buildScript(app, module) {
   const build = rollup({
     input: "./" + app + "/static/" + app + "/js/" + module + ".js",
     sourcemap: true,
+    extend: true,
     format: "iife",
     name: name,
     globals: {
@@ -315,14 +316,10 @@ function icons() {
 
 function watch() {
   browserSync.init({
-    port: 8000,
-    proxy: "localhost:8000",
+    port: 8001,
+    proxy: "http://127.0.0.1:8000",
     notify: false,
     open: false,
-    https: {
-      key: "./localhost.key",
-      cert: "./localhost.crt",
-    },
   });
   gulp.watch("./peerinst/static/peerinst/css/*.scss", stylesPeerinstMain);
   gulp.watch("./peerinst/static/pinax/forums/css/*.scss", stylesPeerinstPinax);
