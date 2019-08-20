@@ -79,7 +79,7 @@
           <i class="clickable mdc-theme--primary material-icons md-48" id="{{ g.hash }}">group</i>
         </span>
         <span class="clickable mdc-list-item__text mdc-theme--secondary bold">
-          <a class="mdc-theme--secondary" href="{% url 'group-details' g.hash %}">
+          <a id="group-title" class="mdc-theme--secondary" href="{% url 'group-details' g.hash %}">
             {% if not g.title %} {{ g.name }} {% else %} {{ g.title }} {% endif %}
           </a>
           <span class="mdc-list-item__secondary-text">

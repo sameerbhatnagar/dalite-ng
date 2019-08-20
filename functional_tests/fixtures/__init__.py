@@ -18,6 +18,7 @@ __all__ = [
     "tos_teacher",
     "group",
     "student_group_assignment",
+    "undistributed_assignment",
 ]
 
 from .peerinst_ import (
@@ -34,6 +35,7 @@ from .peerinst_ import (
     tos_teacher,
     group,
     student_group_assignment,
+    undistributed_assignment,
 )
 from .quality_ import min_words_criterion, min_words_rules, quality_min_words
 from .reputation_ import student_reputation_with_criteria
