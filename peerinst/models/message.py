@@ -17,7 +17,9 @@ class MessageType(models.Model):
 
 class Message(models.Model):
     type = models.ForeignKey(MessageType)
+    authors = models.ManyToManyField(SaltiseMember)
     title = models.CharField(max_length=128)
     text = models.TextField()
     start_date = models.DateTimeField(null=True, blank=True)
     end_date = models.DateTimeField(null=True, blank=True)
+    link = models.TextField(blank=True, null=True)
