@@ -3,11 +3,10 @@ from __future__ import print_function, unicode_literals
 
 import os
 import re
-import shutil
 
 import bs4
 import requests
-from django.core.files import File
+from django.core.files.base import ContentFile
 from django.core.management.base import BaseCommand
 
 from peerinst.models import SaltiseMember
@@ -49,12 +48,10 @@ class Command(BaseCommand):
             if not SaltiseMember.objects.filter(name=member["name"]).exists():
                 member_ = SaltiseMember.objects.create(name=member["name"])
                 resp = requests.get(member["picture_link"])
-                resp.raw.decode_content = True
-                with open(os.path.basename(member["picture_link"]), "wb") as f:
-                    shutil.copyfileobj(resp.raw, f)
-                with open(os.path.basename(member["picture_link"]), "rb") as f:
-                    member_.picture.save(
-                        os.path.basename(member["picture_link"]), File(f)
-                    )
-                os.remove(os.path.basename(member["picture_link"]))
+                content = ContentFile(resp.content)
+                member_.picture.save(
+                    os.path.basename(member["picture_link"]),
+                    content,
+                    save=True,
+                )
         print("[+] Populated db with Saltise members".ljust(80))
