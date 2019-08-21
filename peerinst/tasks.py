@@ -18,7 +18,7 @@ def update_question_meta_search_difficulty():
     # Prevent circular import
     from peerinst.models import Question, MetaFeature, MetaSearch
 
-    qs = Question.objects.all()
+    qs = Question.in_use_pi_objects.all()
     difficulty_levels = qs[0].get_matrix().keys()
     for d in difficulty_levels:
         f, created = MetaFeature.objects.get_or_create(
