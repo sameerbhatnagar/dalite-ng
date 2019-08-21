@@ -9,6 +9,7 @@ export async function init(data) {
     urls: {
       daliteMessages: data.urls.dalite_messages,
       removeDaliteMessage: data.urls.remove_dalite_message,
+      saltiseImage: data.urls.saltise_image,
     },
   });
 }

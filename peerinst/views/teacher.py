@@ -15,6 +15,7 @@ from django.core.urlresolvers import reverse
 from django.db import models
 from django.http import HttpResponse, JsonResponse, StreamingHttpResponse
 from django.shortcuts import render
+from django.templatetags.static import static
 from django.utils.translation import ugettext_lazy as translate
 from django.views.decorators.http import (
     require_GET,
@@ -73,6 +74,8 @@ def dashboard(req, teacher):
             "remove_dalite_message": reverse(
                 "teacher-dashboard--dalite-messages--remove"
             ),
+            "saltise_image": static("peerinst/img/SALTISE-logo-icon.gif"),
+            "rationales": reverse("teacher-dashboard--rationales"),
         }
     }
     context = {"data": json.dumps(data)}
@@ -370,7 +373,12 @@ def dalite_messages(req, teacher):
             "removable": message.message.type.removable,
             "link": message.message.link,
             "authors": [
-                {"name": author.name, "picture": author.picture.url}
+                {
+                    "name": author.name,
+                    "picture": author.picture.url
+                    if author.picture.name
+                    else "",
+                }
                 for author in message.message.authors.all()
             ],
         }

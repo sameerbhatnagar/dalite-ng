@@ -12,6 +12,7 @@ function initModel(data) {
     urls: {
       daliteMessages: data.urls.daliteMessages,
       removeDaliteMessage: data.urls.removeDaliteMessage,
+      saltiseImage: data.urls.saltiseImage,
     },
     messages: [],
   };
@@ -42,6 +43,7 @@ async function getMessages() {
       picture: author.picture,
     })),
   }));
+  console.log(model);
 }
 
 async function removeMessage(message, div) {
@@ -89,7 +91,10 @@ function messageView(message) {
       const img = document.createElement("img");
       img.classList.add("dalite-message__authors__author");
       img.title = author.name;
-      img.setAttribute("src", author.picture);
+      img.setAttribute(
+        "src",
+        author.picture ? author.picture : model.urls.saltiseImage,
+      );
       img.setAttribute("alt", `Picture of ${author.name}`);
       authorsContainer.appendChild(img);
     });

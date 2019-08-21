@@ -47,11 +47,12 @@ class Command(BaseCommand):
             )
             if not SaltiseMember.objects.filter(name=member["name"]).exists():
                 member_ = SaltiseMember.objects.create(name=member["name"])
-                resp = requests.get(member["picture_link"])
-                content = ContentFile(resp.content)
-                member_.picture.save(
-                    os.path.basename(member["picture_link"]),
-                    content,
-                    save=True,
-                )
+                if "placehoder" not in member["picture_link"]:
+                    resp = requests.get(member["picture_link"])
+                    content = ContentFile(resp.content)
+                    member_.picture.save(
+                        os.path.basename(member["picture_link"]),
+                        content,
+                        save=True,
+                    )
         print("[+] Populated db with Saltise members".ljust(80))

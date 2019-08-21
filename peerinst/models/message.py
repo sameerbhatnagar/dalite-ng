@@ -4,9 +4,6 @@ from __future__ import unicode_literals
 from django.contrib.auth.models import User
 from django.db import models
 
-from .student import Student
-from .teacher import Teacher
-
 
 class UserType(models.Model):
     type = models.CharField(max_length=32)
@@ -34,7 +31,7 @@ class MessageType(models.Model):
 
 class Message(models.Model):
     type = models.ForeignKey(MessageType)
-    authors = models.ManyToManyField(SaltiseMember)
+    authors = models.ManyToManyField(SaltiseMember, blank=True)
     title = models.CharField(max_length=128)
     text = models.TextField()
     start_date = models.DateTimeField(null=True, blank=True)
@@ -44,20 +41,6 @@ class Message(models.Model):
 
     def __unicode__(self):
         return self.title
-
-    def save(self, *args, **kwargs):
-        super(Message, self).save(*args, **kwargs)
-        for_users = [t.type for t in self.for_users.all()]
-        if "teacher" in for_users:
-            for teacher in Teacher.objects.all():
-                UserMessage.objects.get_or_create(
-                    user=teacher.user, message=self
-                )
-        if "student" in for_users:
-            for student in Student.objects.all():
-                UserMessage.objects.get_or_create(
-                    user=student.student, message=self
-                )
 
 
 class UserMessage(models.Model):

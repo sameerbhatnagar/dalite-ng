@@ -447,8 +447,24 @@ class LogEntryAdmin(admin.ModelAdmin):
         )
 
 
+class MessageAdmin(admin.ModelAdmin):
+    def save_related(self, req, form, *args, **kwargs):
+        super(MessageAdmin, self).save_related(req, form, *args, **kwargs)
+        for_users = [t.type for t in form.instance.for_users.all()]
+        if "teacher" in for_users:
+            for teacher in Teacher.objects.all():
+                models.UserMessage.objects.get_or_create(
+                    user=teacher.user, message=form.instance
+                )
+        if "student" in for_users:
+            for student in Student.objects.all():
+                models.UserMessage.objects.get_or_create(
+                    user=student.student, message=form.instance
+                )
+
+
 admin.site.register(LogEntry, LogEntryAdmin)
-admin.site.register(models.Message)
+admin.site.register(models.Message, MessageAdmin)
 admin.site.register(models.MessageType)
 admin.site.register(models.SaltiseMember)
 admin.site.register(models.UserType)
