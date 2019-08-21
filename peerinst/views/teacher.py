@@ -375,6 +375,15 @@ def dalite_messages(req, teacher):
             ],
         }
         for message in UserMessage.objects.filter(user=teacher.user)
+        if (
+            message.message.start_date is None
+            or message.message.start_date <= datetime.now(pytz.utc)
+        )
+        and (
+            message.message.end_date is None
+            or message.message.end_date >= datetime.now(pytz.utc)
+        )
+        and message.showing
     ]
     data = {"messages": messages}
     return JsonResponse(data)
@@ -388,7 +397,9 @@ def remove_dalite_message(req, teacher):
         return args
     (id_,), _ = args
     try:
-        UserMessage.objects.get(pk=id_).delete()
+        message = UserMessage.objects.get(pk=id_)
+        message.showing = False
+        message.save()
     except UserMessage.DoesNotExist:
         pass
     return HttpResponse("")

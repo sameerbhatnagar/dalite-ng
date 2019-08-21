@@ -52,7 +52,7 @@ async function removeMessage(message, div) {
 
   const resp = await fetch(model.urls.removeDaliteMessage, req);
   if (resp.ok) {
-    div.parentNode.removeChild(div);
+    removeMessageView(div);
   }
 }
 
@@ -74,6 +74,13 @@ function messagesView() {
 function messageView(message) {
   const container = document.createElement("li");
   container.classList.add("mdc-card", "dalite-message");
+  if (message.link) {
+    container.addEventListener("click", () => {
+      window.location.assign(message.link);
+    });
+    container.style.setProperty("cursor", "pointer");
+    container.title = message.link;
+  }
 
   if (message.authors.length) {
     const authorsContainer = document.createElement("div");
@@ -116,6 +123,10 @@ function messageView(message) {
   container.appendChild(background);
 
   return container;
+}
+
+function removeMessageView(node) {
+  node.parentNode.removeChild(node);
 }
 
 /********/

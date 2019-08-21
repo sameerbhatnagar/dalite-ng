@@ -63,3 +63,4 @@ class Message(models.Model):
 class UserMessage(models.Model):
     user = models.ForeignKey(User)
     message = models.ForeignKey(Message)
+    showing = models.BooleanField(default=True)
