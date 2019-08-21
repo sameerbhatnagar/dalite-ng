@@ -9,6 +9,7 @@ from django.core.urlresolvers import reverse
 from django.utils.html import escape, format_html
 from django.utils.translation import ugettext_lazy as _
 
+from . import models
 from .models import (
     Answer,
     AnswerChoice,
@@ -447,3 +448,7 @@ class LogEntryAdmin(admin.ModelAdmin):
 
 
 admin.site.register(LogEntry, LogEntryAdmin)
+admin.site.register(models.Message)
+admin.site.register(models.MessageType)
+admin.site.register(models.SaltiseMember)
+admin.site.register(models.UserType)
