@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+from __future__ import print_function, unicode_literals
 
 import os
 import re
@@ -20,6 +20,7 @@ class Command(BaseCommand):
     )
 
     def handle(self, *args, **kwargs):
+        print("[*] Getting list of Saltise members", end="\r")
         resp = requests.get(
             "https://www.saltise.ca/community/saltise-innovators/"
         )
@@ -35,7 +36,16 @@ class Command(BaseCommand):
             }
             for elem in member_elements
         ]
-        for member in members:
+        n = len(members)
+        for i, member in enumerate(members):
+            print(
+                "[*] Downloading Saltise member info ({{:>{}}}/{{}})".format(
+                    len(str(n))
+                )
+                .format(i + 1, n)
+                .ljust(80),
+                end="\r",
+            )
             if not SaltiseMember.objects.filter(name=member["name"]).exists():
                 member_ = SaltiseMember.objects.create(name=member["name"])
                 resp = requests.get(member["picture_link"])
@@ -47,3 +57,4 @@ class Command(BaseCommand):
                         os.path.basename(member["picture_link"]), File(f)
                     )
                 os.remove(os.path.basename(member["picture_link"]))
+        print("[+] Populated db with Saltise members".ljust(80))
