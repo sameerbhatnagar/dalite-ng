@@ -32,8 +32,6 @@ from ..models import (
     ShownRationale,
 )
 
-N_ANSWERS_MIN = 20
-
 
 @login_required
 @user_passes_test(student_check, login_url="/access_denied_and_logout/")
@@ -44,28 +42,20 @@ def research_index(request):
     for d in Discipline.objects.all():
         data_discipline = {}
         data_discipline["discipline"] = d
-        data_discipline["num_questions"] = (
-            d.question_set.annotate(num_answers=Count("answer"))
-            .filter(num_answers__gt=N_ANSWERS_MIN)
-            .count()
-        )
+        data_discipline["num_questions"] = d.question_set(
+            manager="in_use_pi_objects"
+        ).count()
         data_discipline["questions_by_type"] = []
         for m in MetaFeature.objects.filter(key="difficulty"):
             data_discipline_type = {}
             data_discipline_type["key"] = m.value
-            data_discipline_type["value"] = (
-                Question.objects.annotate(num_answers=Count("answer"))
-                .filter(
-                    num_answers__gt=N_ANSWERS_MIN,
-                    discipline=d,
-                    meta_search__meta_feature=m,
-                )
-                .count()
-            )
+            data_discipline_type["value"] = Question.in_use_pi_objects.filter(
+                discipline=d, meta_search__meta_feature=m
+            ).count()
             data_discipline["questions_by_type"].append(data_discipline_type)
         data.append(data_discipline)
 
-    context = {"data": data, "n_answers_min": N_ANSWERS_MIN}
+    context = {"data": data}
     return render(request, template, context)
 
 
@@ -80,15 +70,11 @@ def get_question_annotation_counts(
     """
     if discipline_title:
         if difficulty:
-            questions_qs = (
-                Question.objects.annotate(num_answers=Count("answer"))
-                .filter(num_answers__gt=N_ANSWERS_MIN)
-                .filter(
-                    discipline__title=discipline_title,
-                    meta_search__meta_feature=MetaFeature.objects.get(
-                        value=difficulty
-                    ),
-                )
+            questions_qs = Question.in_use_pi_objects.filter(
+                discipline__title=discipline_title,
+                meta_search__meta_feature=MetaFeature.objects.get(
+                    value=difficulty
+                ),
             )
         else:
             questions_qs = Question.objects.filter(

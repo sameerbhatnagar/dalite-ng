@@ -11,7 +11,7 @@ from django.contrib.contenttypes.fields import GenericRelation
 from django.core import exceptions
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.db.models import Q
+from django.db.models import Q, Count
 from django.utils.encoding import smart_bytes
 from django.utils.html import escape, strip_tags
 from django.utils.translation import ugettext_lazy as _
@@ -118,10 +118,24 @@ class UnflaggedQuestionManager(models.Manager):
         )
 
 
+class InUsePIQuestionManager(models.Manager):
+    N_ANSWERS_MIN = 20
+
+    def get_queryset(self):
+        return (
+            super(InUsePIQuestionManager, self)
+            .get_queryset()
+            .filter(type="PI")
+            .annotate(num_answers=Count("answer"))
+            .filter(num_answers__gt=self.N_ANSWERS_MIN)
+        )
+
+
 class Question(models.Model):
     objects = QuestionManager()
     flagged_objects = FlaggedQuestionManager()
     unflagged_objects = UnflaggedQuestionManager()
+    in_use_pi_objects = InUsePIQuestionManager()
 
     id = models.AutoField(
         primary_key=True,
