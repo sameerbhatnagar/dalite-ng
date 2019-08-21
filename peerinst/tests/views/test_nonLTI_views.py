@@ -945,6 +945,7 @@ class TeacherTest(TestCase):
             owner=self.other_teacher.teacher,
             discipline=Discipline.objects.create(title="Physics"),
         )
+        q = Collection.objects.get(id=1)
 
         response = self.client.get(reverse("collection-update", args="1"))
         self.assertEqual(response.status_code, 403)
@@ -959,7 +960,6 @@ class TeacherTest(TestCase):
         self.assertEqual(response.status_code, 403)
 
         # Make collection public -> 200 for distribute and detail
-        q = Collection.objects.get(id=1)
         q.private = False
         q.save()
 
@@ -968,9 +968,11 @@ class TeacherTest(TestCase):
 
         response = self.client.get(reverse("collection-distribute", args="1"))
         self.assertEqual(response.status_code, 200)
+        self.assertContains(response, q.title)
 
         response = self.client.get(reverse("collection-detail", args="1"))
         self.assertEqual(response.status_code, 200)
+        self.assertContains(response, q.title)
 
         response = self.client.get(reverse("collection-delete", args="1"))
         self.assertEqual(response.status_code, 403)
@@ -991,6 +993,196 @@ class TeacherTest(TestCase):
         self.assertContains(
             response, '<form id="collection-delete-form" method="post">'
         )
+
+        response = self.client.get(reverse("collection-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, q.title)
+        self.assertContains(response, "Browse Collections")
+
+        response = self.client.get(reverse("followed-collection-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, q.title)
+        self.assertContains(response, "Your Followed Collections")
+
+        response = self.client.get(reverse("featured-collection-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, q.title)
+        self.assertContains(response, "Featured Collections")
+
+        response = self.client.get(reverse("personal-collection-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, q.title)
+        self.assertContains(response, "Your Collections")
+
+        q.followers.add(self.validated_teacher.teacher)
+        q.save()
+
+        response = self.client.get(reverse("collection-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, q.title)
+
+        response = self.client.get(reverse("followed-collection-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, q.title)
+
+        response = self.client.get(reverse("featured-collection-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, q.title)
+
+        response = self.client.get(reverse("personal-collection-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, q.title)
+
+        q.featured = True
+        q.save()
+
+        response = self.client.get(reverse("collection-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, q.title)
+
+        response = self.client.get(reverse("followed-collection-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, q.title)
+
+        response = self.client.get(reverse("featured-collection-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, q.title)
+
+        response = self.client.get(reverse("personal-collection-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, q.title)
+
+        q.private = True
+        q.save()
+
+        response = self.client.get(reverse("collection-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, q.title)
+
+        response = self.client.get(reverse("followed-collection-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, q.title)
+
+        response = self.client.get(reverse("featured-collection-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, q.title)
+
+        response = self.client.get(reverse("personal-collection-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, q.title)
+
+        q.featured = False
+        q.save()
+
+        response = self.client.get(reverse("collection-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, q.title)
+
+        response = self.client.get(reverse("followed-collection-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, q.title)
+
+        response = self.client.get(reverse("featured-collection-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, q.title)
+
+        response = self.client.get(reverse("personal-collection-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, q.title)
+
+        q.followers.remove(self.validated_teacher.teacher)
+        q.save()
+
+        response = self.client.get(reverse("collection-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, q.title)
+
+        response = self.client.get(reverse("followed-collection-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, q.title)
+
+        response = self.client.get(reverse("featured-collection-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, q.title)
+
+        response = self.client.get(reverse("personal-collection-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, q.title)
+
+        q.owner = self.other_teacher.teacher
+        q.save()
+
+        response = self.client.get(reverse("collection-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, q.title)
+
+        response = self.client.get(reverse("followed-collection-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, q.title)
+
+        response = self.client.get(reverse("featured-collection-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, q.title)
+
+        response = self.client.get(reverse("personal-collection-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, q.title)
+
+        q.featured = True
+        q.save()
+
+        response = self.client.get(reverse("collection-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, q.title)
+
+        response = self.client.get(reverse("followed-collection-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, q.title)
+
+        response = self.client.get(reverse("featured-collection-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, q.title)
+
+        response = self.client.get(reverse("personal-collection-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, q.title)
+
+        q.followers.add(self.validated_teacher.teacher)
+
+        response = self.client.get(reverse("collection-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, q.title)
+
+        response = self.client.get(reverse("followed-collection-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, q.title)
+
+        response = self.client.get(reverse("featured-collection-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, q.title)
+
+        response = self.client.get(reverse("personal-collection-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, q.title)
+
+        q.private = False
+        q.save()
+
+        response = self.client.get(reverse("collection-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, q.title)
+
+        response = self.client.get(reverse("followed-collection-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, q.title)
+
+        response = self.client.get(reverse("featured-collection-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, q.title)
+
+        response = self.client.get(reverse("personal-collection-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, q.title)
 
 
 class CustomMiddlewareTest(TestCase):

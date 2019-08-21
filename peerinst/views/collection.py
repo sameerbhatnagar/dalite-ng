@@ -26,6 +26,7 @@ from dalite.views.utils import get_json_params
 from .decorators import teacher_required
 from django.views.decorators.http import require_POST
 from django.core.exceptions import PermissionDenied
+from django.db.models import Q
 
 
 class CollectionForm(ModelForm):
@@ -168,7 +169,7 @@ class CollectionListView(LoginRequiredMixin, NoStudentsMixin, ListView):
 
     def get_queryset(self):
         teacher = get_object_or_404(Teacher, user=self.request.user)
-        return Collection.objects.filter(private=False).filter(owner=teacher)
+        return Collection.objects.filter(Q(private=False) | Q(owner=teacher))
 
 
 class PersonalCollectionListView(
@@ -193,8 +194,9 @@ class FollowedCollectionListView(
     def get_queryset(self):
         teacher = get_object_or_404(Teacher, user=self.request.user)
         return Collection.objects.filter(
-            followers=teacher, private=False
-        ).filter(followers=teacher, owner=teacher)
+            Q(followers=teacher, private=False)
+            | Q(followers=teacher, owner=teacher)
+        )
 
 
 class FeaturedCollectionListView(
@@ -205,7 +207,10 @@ class FeaturedCollectionListView(
     template_name = "peerinst/collection/featured_collection_list.html"
 
     def get_queryset(self):
-        return Collection.objects.filter(featured=True, private=False)
+        teacher = get_object_or_404(Teacher, user=self.request.user)
+        return Collection.objects.filter(
+            Q(featured=True, private=False) | Q(featured=True, owner=teacher)
+        )
 
 
 def featured_collections(request):
