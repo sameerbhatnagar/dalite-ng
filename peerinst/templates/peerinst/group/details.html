@@ -31,7 +31,6 @@ https://datatables.net/extensions/buttons/examples/styling/jqueryui.html
 {% block body %}
 <main>
   <section>
-
     <h1 class="mdc-typography--display3">{% trans 'Group Details' %}
       <svg class="underline" width=150 height=4></svg>
     </h1>
@@ -127,11 +126,13 @@ https://datatables.net/extensions/buttons/examples/styling/jqueryui.html
                 <div class="switch-button">
                   {% if group.student_id_needed %}
                   <input type="checkbox"
-                         class="switch-button__input toggle-id-btn"
+                         id="toggle-id-btn"
+                         class="switch-button__input"
                          checked>
                   {% else %}
                   <input type="checkbox"
-                         class="switch-button__input toggle-id-btn">
+                         id="toggle-id-btn"
+                         class="switch-button__input">
                   {% endif %}
                   <div class="switch-button__background"></div>
                   <div class="switch-button__button"></div>
@@ -147,7 +148,7 @@ https://datatables.net/extensions/buttons/examples/styling/jqueryui.html
               <span class="mdc-list-item__text mdc-theme--secondary bold">
                 {% trans 'Teachers with access' %}
                 <div name="teacher" class="mdc-list-item__secondary-text">
-                  <ul>
+                  <ul id="teachers-with-access-list">
                     {% for t in group.teacher.all %}
                     <li class="mdc-list-item__secondary-text">
                       {{ t.user.username }}
@@ -226,7 +227,9 @@ https://datatables.net/extensions/buttons/examples/styling/jqueryui.html
               </span>
             </span>
             <span class="mdc-list-item__meta">
-              <i class="material-icons md-24 mdc-ripple-surface icon-list delete-btn">delete</i>
+              <i class="material-icons md-24 mdc-ripple-surface icon-list delete-btn">
+                delete
+              </i>
               <a href="{% url 'group-assignment' a.hash %}">
               <i class="material-icons md-24 mdc-ripple-surface icon-list">edit</i>
               </a>
@@ -268,23 +271,7 @@ https://datatables.net/extensions/buttons/examples/styling/jqueryui.html
           <th title='{% trans "Measure of how many times the rationales written by this student have been chosen by others." %}'>{% trans 'Popularity' %}</th>
         </tr>
       </thead>
-      <tbody>
-        {% for student in group.students %}
-        <tr>
-        <th class="mdc-ripple-surface">
-          {% if student.student.email %}
-          {{ student.student.email }}
-          {% else %}
-          {{ student.student.username }}
-          {% endif %}
-        </th>
-        <td>{{ student.student.last_login }}</td>
-        <td></td>
-        </tr>
-        {% empty %}
-            <p class='mdc-typography--body1'>{% trans 'No student has signed up yet' %}</p>
-        {% endfor %}
-      </tbody>
+      <tbody></tbody>
     </table>
   </div>
 </div>
@@ -303,29 +290,6 @@ https://datatables.net/extensions/buttons/examples/styling/jqueryui.html
 <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/1.5.2/js/buttons.colVis.min.js"></script>
 
 <script nonce="{{ request.csp_nonce }}">
-  window.addEventListener("load", function() {
-    document.querySelectorAll(".edit-btn").forEach(btn => {
-      btn.addEventListener("click", event => {
-        group.editField(event, 'text', 'mdc-list-item__secondary-text')
-      })
-    })
-    document.querySelectorAll(".toggle-id-btn").forEach(btn => {
-      btn.addEventListener("click", event => {
-        group.toggleStudentIdNeeded(event, '{% url 'group-details-update' group.hash %}')
-      })
-    })
-    const links = document.getElementsByClassName("assignment-link")
-    const btns = document.getElementsByClassName("delete-btn")
-    {% for a in assignments %}
-    links[{{ forloop.counter0 }}].addEventListener("click", () => {
-      window.location.href='{% url 'group-assignment' a.hash %}'
-    })
-    btns[{{ forloop.counter0 }}].addEventListener("click", event => {
-      group.removeAssignment(event, '{% url 'group-assignment' a.hash %}')
-    })
-    {% endfor %}
-  })
-
   $(document).ready( function () {
     $('table.display').each(function() {
       var table = $(this).DataTable({
@@ -363,6 +327,9 @@ https://datatables.net/extensions/buttons/examples/styling/jqueryui.html
     )
   );
 
+  window.addEventListener("load", () => {
+    group.initDetails({{ data|safe }});
+  })
 
 </script>
 {% endblock %}

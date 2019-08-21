@@ -30,3 +30,4 @@ partner*.png
 pytest-logs.txt
 scripts/
 tags
+yarn.lock

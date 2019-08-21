@@ -1,5 +1,5 @@
 #!/bin/bash
-tmux send-keys './manage.py runsslserver --certificate localhost.crt --key localhost.key 8001' 'C-m'
+tmux send-keys './manage.py runserver 8000' 'C-m'
 tmux split-window -v 'zsh'
 tmux send-keys 'gulp dev' 'C-m'
 tmux split-window -h 'redis-server'

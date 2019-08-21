@@ -28,3 +28,8 @@
 #collection-select {
   color: $hint;
 }
+
+#teachers-with-access-list {
+  max-height: 45px;
+  overflow-y: auto;
+}

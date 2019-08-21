@@ -87,6 +87,57 @@ def test_evaluate(question_reputation):
             assert q["reputation"] == 1
 
 
+def test_evaluate__single_criterion(question_reputation):
+    for i in range(3):
+        UsesCriterion.objects.create(
+            reputation_type=question_reputation.reputation_type,
+            name="fake_{}".format(i + 1),
+            version=1,
+        )
+
+    with mock.patch(
+        "reputation.models.reputation_type.get_criterion"
+    ) as get_criterion, mock.patch.object(
+        ReputationType, "_calculate_points"
+    ) as calculate_points:
+        criterion_class = mock.Mock()
+        get_criterion.return_value = criterion_class
+
+        criterion = mock.MagicMock()
+        criterion.__iter__.side_effect = {}.__iter__
+        calculate_points.return_value = {"reputation": 1, "details": {}}
+
+        criterion_class.objects.get.return_value = criterion
+
+        reputation, reputations = question_reputation.evaluate("fake_2")
+
+        assert reputation == 1
+        assert isinstance(reputations, dict)
+        assert reputations["reputation"] == 1
+
+
+def test_evaluate__wrong_criterion(question_reputation):
+    UsesCriterion.objects.create(
+        reputation_type=question_reputation.reputation_type,
+        name="fake_1",
+        version=1,
+    )
+
+    with mock.patch(
+        "reputation.models.reputation_type.get_criterion"
+    ) as get_criterion:
+        criterion_class = mock.Mock()
+        get_criterion.return_value = criterion_class
+
+        criterion = mock.MagicMock()
+        criterion.__iter__.side_effect = {}.__iter__
+
+        criterion_class.objects.get.return_value = criterion
+
+        with pytest.raises(ValueError):
+            reputation, reputations = question_reputation.evaluate("fake_2")
+
+
 def test_evaluate__wrong_model(question_reputation, assignment_reputation):
     reputation_type = question_reputation.reputation_type
     with pytest.raises(TypeError):
