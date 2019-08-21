@@ -120,7 +120,10 @@ def get_question_annotation_counts(
         else:
             d1["flag_color_code"] = None
 
-        answer_frequencies = q.get_frequency_json("first_choice")
+        answer_frequencies = sorted(
+            q.get_frequency_json("first_choice"),
+            key=lambda k: k["answer_label"],
+        )
         answerchoice_correct = q.answerchoice_set.values_list(
             "correct", flat=True
         )
