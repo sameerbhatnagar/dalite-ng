@@ -38,6 +38,7 @@ from ..models import (
     StudentGroupAssignment,
     StudentGroupMembership,
     TeacherNotification,
+    UserMessage,
 )
 from ..rationale_annotation import choose_rationales
 from ..tasks import compute_gradebook_async
@@ -68,8 +69,10 @@ def dashboard(req, teacher):
 
     data = {
         "urls": {
-            "collections": reverse("teacher-dashboard--collections"),
-            "rationales": reverse("teacher-dashboard--rationales"),
+            "dalite_messages": reverse("teacher-dashboard--dalite-messages"),
+            "remove_dalite_message": reverse(
+                "teacher-dashboard--dalite-messages--remove"
+            ),
         }
     }
     context = {"data": json.dumps(data)}
@@ -337,9 +340,9 @@ def new_questions(req, teacher):
 
 @require_POST
 @teacher_required
-def saltise_message(req, teacher):
+def dalite_messages(req, teacher):
     """
-    View that returns the current saltise message.
+    View that returns the current dalite messages.
 
     Parameters
     ----------
@@ -358,8 +361,37 @@ def saltise_message(req, teacher):
                 Link to go to when clicked
         }
     """
-    data = {"message": None, "link": None}
+    messages = [
+        {
+            "id": message.id,
+            "title": message.message.title,
+            "text": message.message.text,
+            "colour": message.message.type.colour,
+            "removable": message.message.type.removable,
+            "link": message.message.link,
+            "authors": [
+                {"name": author.name, "picture": author.picture.url}
+                for author in message.message.authors.all()
+            ],
+        }
+        for message in UserMessage.objects.filter(user=teacher.user)
+    ]
+    data = {"messages": messages}
     return JsonResponse(data)
+
+
+@require_POST
+@teacher_required
+def remove_dalite_message(req, teacher):
+    args = get_json_params(req, args=["id"])
+    if isinstance(args, HttpResponse):
+        return args
+    (id_,), _ = args
+    try:
+        UserMessage.objects.get(pk=id_).delete()
+    except UserMessage.DoesNotExist:
+        pass
+    return HttpResponse("")
 
 
 @require_POST

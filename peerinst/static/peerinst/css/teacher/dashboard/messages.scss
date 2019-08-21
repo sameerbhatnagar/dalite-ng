@@ -1,0 +1,86 @@
+@import "../../variables.scss";
+
+#dalite-messages {
+  & ul {
+    margin: 0;
+    padding: 0;
+
+    & .dalite-message {
+      background: rgba(var(--dalite-message-colour, #ffffff), 0.25);
+      border: var(--dalite-message-colour, #ffffff);
+      display: grid;
+      grid-template-columns: 2fr 6fr 1fr;
+      grid-template-rows: 1fr 1fr;
+      height: 100px;
+      position: relative;
+
+      & .dalite-message__title {
+        font-weight: bold;
+        grid-column: 2;
+        grid-row: 1;
+      }
+
+      & .dalite-message__text {
+        grid-column: 2;
+        grid-row: 2;
+      }
+
+      & .dalite-message__authors {
+        align-items: center;
+        display: flex;
+        grid-column: 1;
+        grid-row: 1 / -1;
+        height: auto;
+        justify-content: space-around;
+        width: 100%;
+
+        & .dalite-message__authors__author {
+          border-radius: 50%;
+          height: auto;
+          margin-right: 5px;
+          max-height: 100%;
+          width: auto;
+        }
+      }
+
+      & .dalite-message__remove-icon {
+        align-items: center;
+        align-self: center;
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        grid-column: 3;
+        grid-row: 1 / -1;
+        justify-content: center;
+        justify-self: center;
+        padding: 3px;
+        transition: background 300ms;
+
+        &:hover {
+          background: rgba($mdc-theme-primary, 0.15);
+        }
+
+        &:active {
+          background: rgba($mdc-theme-primary, 0.25);
+        }
+
+        & svg {
+          fill: $mdc-theme-primary;
+          height: 30px;
+          width: 30px;
+        }
+      }
+
+      & .dalite-message__background {
+        border-radius: 10px;
+        bottom: 0;
+        left: 0;
+        opacity: 0.05;
+        position: absolute;
+        right: 0;
+        top: 0;
+        z-index: -1;
+      }
+    }
+  }
+}

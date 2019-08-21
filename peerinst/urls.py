@@ -643,6 +643,16 @@ def teacher_patterns():
             name="teacher-dashboard--messages",
         ),
         url(
+            r"^teacher/dashboard/dalite-messages/$",
+            views.teacher.dalite_messages,
+            name="teacher-dashboard--dalite-messages",
+        ),
+        url(
+            r"^teacher/dashboard/dalite-messages/remove$",
+            views.teacher.remove_dalite_message,
+            name="teacher-dashboard--dalite-messages--remove",
+        ),
+        url(
             r"^teacher/dashboard/messages/read$",
             views.teacher.mark_message_read,
             name="teacher-dashboard--messages--read",
