@@ -427,6 +427,11 @@ def old_patterns():
 def group_patterns():
     return [
         url(
+            r"^group/student-information/$",
+            views.group.get_student_reputation,
+            name="group-details--student-information",
+        ),
+        url(
             r"^group/(?P<group_hash>[0-9A-Za-z=_-]+)/$",
             views.group_details_page,
             name="group-details",

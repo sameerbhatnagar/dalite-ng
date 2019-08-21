@@ -13,6 +13,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_POST, require_safe
 
 from dalite.views.errors import response_400, response_500
+from dalite.views.utils import get_json_params
 from peerinst.models import (
     Student,
     StudentAssignment,
@@ -48,7 +49,38 @@ def group_details_page(req, group_hash, teacher, group):
 
     assignments = StudentGroupAssignment.objects.filter(group=group)
 
-    context = {"group": group, "assignments": assignments, "teacher": teacher}
+    data = {
+        "assignments": [
+            {
+                "url": reverse(
+                    "group-assignment",
+                    kwargs={"assignment_hash": assignment.hash},
+                )
+            }
+            for assignment in assignments
+        ],
+        "students": [
+            student.pk
+            for student in group.students.order_by(
+                "student__student__student__email"
+            )
+        ],
+        "urls": {
+            "update_url": reverse(
+                "group-details-update", kwargs={"group_hash": group.hash}
+            ),
+            "get_student_information_url": reverse(
+                "group-details--student-information"
+            ),
+        },
+    }
+
+    context = {
+        "data": json.dumps(data),
+        "group": group,
+        "assignments": assignments,
+        "teacher": teacher,
+    }
 
     return render(req, "peerinst/group/details.html", context)
 
@@ -254,3 +286,63 @@ def distribute_assignment(req, assignment_hash, teacher, group, assignment):
         else None,
     }
     return JsonResponse(data)
+
+
+@login_required
+@require_POST
+def get_student_reputation(req):
+    """
+    Returns the student information along with the convincing rationales
+    criterion.
+
+    Parameters
+    ----------
+    req : HttpRequest
+        Request with:
+            parameters:
+                id: int
+                    Student pk
+
+    Returns
+    -------
+    Either
+        JSONResponse
+            Response with json data:
+                {
+                    email : str
+                        Student email
+                    last_login : str
+                        Date of last login in isoformat
+                    popularity : float
+                        Value of the convincing rationales criterion
+
+                }
+        HttpResponse
+            Error response
+    """
+    args = get_json_params(req, args=["id"])
+    if isinstance(args, HttpResponse):
+        return args
+    (id_,), _ = args
+
+    try:
+        student = Student.objects.get(pk=id_)
+    except Student.DoesNotExist:
+        return response_400(
+            req,
+            msg=_("The student couldn't be found."),
+            logger_msg=(
+                "The student with pk {} couldn't be found.".format(id_)
+            ),
+            log=logger.warning,
+        )
+
+    return JsonResponse(
+        {
+            "email": student.student.email,
+            "last_login": student.student.last_login.isoformat()
+            if student.student.last_login is not None
+            else None,
+            "popularity": student.evaluate_reputation("convincing_rationales"),
+        }
+    )

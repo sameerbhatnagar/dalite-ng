@@ -14,7 +14,6 @@ from django.template import loader
 from django.utils.translation import ugettext_lazy as _
 
 from reputation.models import Reputation
-from reputation.models.criteria import ConvincingRationalesCriterion
 
 from ..students import create_student_token, get_student_username_and_password
 from ..tasks import send_mail_async
@@ -301,6 +300,33 @@ class Student(models.Model):
 
         return err
 
+    def evaluate_reputation(self, criterion=None):
+        """
+        Calculates the reputation for the student on all criteria or on a
+        specific criterion, creating the Reputation for them if it doesn't
+        already exist.
+
+        Parameters
+        ----------
+        criterion : Optional[str] (default : none)
+            Criterion on which to evaluate
+
+        Returns
+        -------
+        float
+            Evaluated reputation
+
+        Raises
+        ------
+        ValueError
+            If the given criterion isn't part of the list for this reputation
+            type
+        """
+        if self.reputation is None:
+            self.reputation = Reputation.create("student")
+            self.save()
+        return self.reputation.evaluate(criterion)[0]
+
     @property
     def current_groups(self):
         # TODO add lti_student groups
@@ -353,8 +379,11 @@ class Student(models.Model):
 
     @property
     def convincing_rationale_reputation(self):
-        c = ConvincingRationalesCriterion.objects.last()
-        return c.evaluate(self)[0]
+        if self.reputation is None:
+            self.reputation = Reputation.create("student")
+            self.save()
+
+        return self.reputation.evaluate("convincing_rationales")[0]
 
 
 class StudentGroupMembership(models.Model):
