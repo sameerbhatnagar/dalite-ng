@@ -121,6 +121,12 @@ def get_question_annotation_counts(
             d1["flag_color_code"] = None
 
         answer_frequencies = q.get_frequency_json("first_choice")
+        answerchoice_correct = q.answerchoice_set.values_list(
+            "correct", flat=True
+        )
+        for i, c in enumerate(answer_frequencies):
+            c["correct"] = answerchoice_correct[i]
+
         for d2 in answer_frequencies:
             a_choice = d2["answer_label"][0].translate(translation_table)
             d2.update(
