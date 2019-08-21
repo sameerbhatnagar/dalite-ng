@@ -1,70 +1,68 @@
 /* Load common sass variables */
-@import '../variables';
-
+@import "../variables";
 
 /* Stylesheet */
 .card-icon {
-  padding-right:8px;
+  padding-right: 8px;
 }
 
 .follower-button--following {
-  color:blue;
-
+  color: blue;
 }
 
 #card-featured {
-  background-color:powderblue;
+  background-color: powderblue;
 }
 
 #collection-view {
-  color:#004266;
+  color: #004266;
 }
 
 .mdc-card__action-buttons {
-  color:gray;
+  color: gray;
 }
 
-
 #desciption {
-  margin-top:10px;
+  margin-top: 10px;
 }
 
 #obj.desc {
-  margin-top:5px;
+  margin-top: 5px;
 }
 
 #card-assign {
-  background-color:powderblue;
+  background-color: powderblue;
 }
 
 #assignment-view {
-  color:#004266;
+  color: #004266;
 }
 
 .mdc-text-field__input {
-    width:100%;
+  width: 100%;
 }
-:not(.mdc-list--non-interactive)>.mdc-list-item::before, :not(.mdc-list--non-interactive)>.mdc-list-item::after{
-  background-color: #F4F4F4;
+:not(.mdc-list--non-interactive) > .mdc-list-item::before,
+:not(.mdc-list--non-interactive) > .mdc-list-item::after {
+  background-color: #f4f4f4;
 }
 
 .image-field {
-  color: rgba(0,0,0,0.87);
-  font-family: 'Montserrat', sans-serif;
+  color: rgba(0, 0, 0, 0.87);
+  font-family: "Montserrat", sans-serif;
   font-size: 14px;
   padding-bottom: 6px;
   padding-left: 16px;
-  padding-top:6px;
+  padding-top: 6px;
 }
 
 #thumbnail {
-border-radius:50%;
-height: 50px;
-margin-bottom:-9px;
-width: 50px;
+  border-radius: 50%;
+  height: 50px;
+  margin-bottom: -9px;
+  width: 50px;
 }
 
-.foldable__unfolded>.foldable--body {
-margin-top:10px;
-max-height: none;
+.foldable__unfolded > .foldable--body {
+  margin-top: 10px;
+  max-height: none;
 }

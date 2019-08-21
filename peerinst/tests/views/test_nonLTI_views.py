@@ -7,7 +7,13 @@ from django.core import mail
 from django.core.urlresolvers import reverse
 from django.test import TestCase, TransactionTestCase
 
-from peerinst.models import Assignment, Discipline, Question, Teacher
+from peerinst.models import (
+    Assignment,
+    Discipline,
+    Question,
+    Teacher,
+    Collection,
+)
 from quality.models import UsesCriterion
 from tos.models import Consent, Role, Tos
 
@@ -922,6 +928,69 @@ class TeacherTest(TestCase):
         # self.client.get(reverse('question-search')+"?search_string=Question&type=assignment&id=Assignment1")
         # print(response.context['search_results'])
         # self.assertNotIn(q, response.context['search_results'])
+
+    def test_collection_update_deletion(self):
+
+        logged_in = self.client.login(
+            username=self.validated_teacher.username,
+            password=self.validated_teacher.text_pwd,
+        )
+        self.assertTrue(logged_in)
+
+        # Create a collection with no owner -> 403
+        Collection.objects.create(
+            title="test_title",
+            description="test_description",
+            private=True,
+            owner=self.other_teacher.teacher,
+            discipline=Discipline.objects.create(title="Physics"),
+        )
+
+        response = self.client.get(reverse("collection-update", args="1"))
+        self.assertEqual(response.status_code, 403)
+
+        response = self.client.get(reverse("collection-detail", args="1"))
+        self.assertEqual(response.status_code, 403)
+
+        response = self.client.get(reverse("collection-distribute", args="1"))
+        self.assertEqual(response.status_code, 403)
+
+        response = self.client.get(reverse("collection-delete", args="1"))
+        self.assertEqual(response.status_code, 403)
+
+        # Make collection public -> 200 for distribute and detail
+        q = Collection.objects.get(id=1)
+        q.private = False
+        q.save()
+
+        response = self.client.get(reverse("collection-update", args="1"))
+        self.assertEqual(response.status_code, 403)
+
+        response = self.client.get(reverse("collection-distribute", args="1"))
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.get(reverse("collection-detail", args="1"))
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.get(reverse("collection-delete", args="1"))
+        self.assertEqual(response.status_code, 403)
+
+        # Make teacher owner -> 200 for all
+        q.owner = self.validated_teacher.teacher
+        q.save()
+
+        response = self.client.get(reverse("collection-update", args="1"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            '<form id="collection-update-form" enctype="multipart/form-data"',
+        )
+
+        response = self.client.get(reverse("collection-delete", args="1"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response, '<form id="collection-delete-form" method="post">'
+        )
 
 
 class CustomMiddlewareTest(TestCase):

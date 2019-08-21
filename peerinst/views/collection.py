@@ -72,6 +72,16 @@ class CollectionDetailView(LoginRequiredMixin, NoStudentsMixin, DetailView):
     model = Collection
     template_name = "peerinst/collection/collection_detail.html"
 
+    def dispatch(self, *args, **kwargs):
+        teacher = get_object_or_404(Teacher, user=self.request.user)
+        if (
+            teacher == self.get_object().owner
+            or self.get_object().private is False
+        ):
+            return super(CollectionDetailView, self).dispatch(*args, **kwargs)
+        else:
+            raise PermissionDenied
+
     def get_context_data(self, **kwargs):
         context = super(DetailView, self).get_context_data(**kwargs)
         collection = self.get_object()
@@ -157,7 +167,8 @@ class CollectionListView(LoginRequiredMixin, NoStudentsMixin, ListView):
     template_name = "peerinst/collection/collection_list.html"
 
     def get_queryset(self):
-        return Collection.objects.filter(private=False)
+        teacher = get_object_or_404(Teacher, user=self.request.user)
+        return Collection.objects.filter(private=False).filter(owner=teacher)
 
 
 class PersonalCollectionListView(
@@ -181,7 +192,9 @@ class FollowedCollectionListView(
 
     def get_queryset(self):
         teacher = get_object_or_404(Teacher, user=self.request.user)
-        return Collection.objects.filter(followers=teacher)
+        return Collection.objects.filter(
+            followers=teacher, private=False
+        ).filter(followers=teacher, owner=teacher)
 
 
 class FeaturedCollectionListView(
@@ -192,7 +205,7 @@ class FeaturedCollectionListView(
     template_name = "peerinst/collection/featured_collection_list.html"
 
     def get_queryset(self):
-        return Collection.objects.filter(featured=True)
+        return Collection.objects.filter(featured=True, private=False)
 
 
 def featured_collections(request):
@@ -208,6 +221,18 @@ class CollectionDistributeDetailView(
 
     model = Collection
     template_name = "peerinst/collection/collection_distribute.html"
+
+    def dispatch(self, *args, **kwargs):
+        teacher = get_object_or_404(Teacher, user=self.request.user)
+        if (
+            teacher == self.get_object().owner
+            or self.get_object().private is False
+        ):
+            return super(CollectionDistributeDetailView, self).dispatch(
+                *args, **kwargs
+            )
+        else:
+            raise PermissionDenied
 
     def get_context_data(self, **kwargs):
         context = super(DetailView, self).get_context_data(**kwargs)

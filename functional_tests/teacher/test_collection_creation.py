@@ -9,6 +9,7 @@ from selenium.webdriver.support.ui import WebDriverWait, Select
 from functional_tests.fixtures import *  # noqa
 from .utils import login
 from django.urls import reverse
+import time
 
 
 fake = Faker()
@@ -262,7 +263,7 @@ def collection_buttons(
     assert "ASSIGN" in browser.find_element_by_class_name("mdc-button").text
 
     browser.find_element_by_class_name("collection-toggle-assign").click()
-
+    time.sleep(5)
     assert "UNASSIGN" in browser.find_element_by_class_name("mdc-button").text
 
     browser.find_element_by_id(group.hash).click()

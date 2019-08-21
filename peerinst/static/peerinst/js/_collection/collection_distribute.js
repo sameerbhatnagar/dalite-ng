@@ -5,11 +5,9 @@ export function init(
   unassignUrl,
   assignTrans,
   unassignTrans,
-  collectionTitle,
-  youHaveAssign,
-  toText,
-  youHaveUnassign,
-  fromCollToGroup,
+  assignedTo,
+  unassignedFrom,
+  error,
   groupUrl,
 ) {
   const snackbar = new MDCSnackbar(document.querySelector(".mdc-snackbar"));
@@ -22,58 +20,62 @@ export function init(
     },
   });
 
-  function assignCollection(pk, ppk) {
-    const posting = $.post(assignUrl, {
-      pk: pk,
-      ppk: ppk,
-    });
-    posting.done(function(data) {
-      console.info(data);
-    });
-  }
-
-  function unassignCollection(pk, ppk) {
-    const posting = $.post(unassignUrl, {
-      pk: pk,
-      ppk: ppk,
-    });
-    posting.done(function(data) {
-      console.info(data);
-    });
-  }
-
   function clickAssign(el) {
-    assignCollection(el.getAttribute("id_pk"), el.getAttribute("id_ppk"));
-    document.getElementById(
-      el.getAttribute("id_pk"),
-    ).innerHTML = unassignTrans;
-    document.getElementById(el.getAttribute("id_pk")).classList.add("added");
-    document
-      .getElementById(el.getAttribute("id_pk"))
-      .classList.remove("removed");
-    const dataObjAssigned = {
-      message:
-        youHaveAssign + collectionTitle + toText + el.getAttribute("name"),
-    };
-    snackbar.show(dataObjAssigned);
+    const posting = $.post(assignUrl, {
+      pk: el.getAttribute("id_pk"),
+      ppk: el.getAttribute("id_ppk"),
+    });
+    posting.done(function(data) {
+      console.info(data);
+      document.getElementById(
+        el.getAttribute("id_pk"),
+      ).innerHTML = unassignTrans;
+      document.getElementById(el.getAttribute("id_pk")).classList.add("added");
+      document
+        .getElementById(el.getAttribute("id_pk"))
+        .classList.remove("removed");
+      const dataObjAssigned = {
+        message: assignedTo + el.getAttribute("name"),
+      };
+      snackbar.show(dataObjAssigned);
+    });
+    posting.fail(function(data) {
+      console.info(data);
+      const err = {
+        message: error,
+      };
+      snackbar.show(err);
+    });
   }
 
   function clickUnassign(el) {
-    unassignCollection(el.getAttribute("id_pk"), el.getAttribute("id_ppk"));
-    document.getElementById(el.getAttribute("id_pk")).innerHTML = assignTrans;
-    document
-      .getElementById(el.getAttribute("id_pk"))
-      .classList.remove("added");
-    document.getElementById(el.getAttribute("id_pk")).classList.add("removed");
-    const dataObjUnassigned = {
-      message:
-        youHaveUnassign +
-        collectionTitle +
-        "'" +
-        fromCollToGroup +
-        el.getAttribute("name"),
-    };
-    snackbar.show(dataObjUnassigned);
+    const posting = $.post(unassignUrl, {
+      pk: el.getAttribute("id_pk"),
+      ppk: el.getAttribute("id_ppk"),
+    });
+    posting.done(function(data) {
+      console.info(data);
+      document.getElementById(
+        el.getAttribute("id_pk"),
+      ).innerHTML = assignTrans;
+      document
+        .getElementById(el.getAttribute("id_pk"))
+        .classList.remove("added");
+      document
+        .getElementById(el.getAttribute("id_pk"))
+        .classList.add("removed");
+      const dataObjUnassigned = {
+        message: unassignedFrom + el.getAttribute("name"),
+      };
+      snackbar.show(dataObjUnassigned);
+    });
+    posting.fail(function(data) {
+      console.info(data);
+      const err = {
+        message: error,
+      };
+      snackbar.show(err);
+    });
   }
 
   [].forEach.call(
