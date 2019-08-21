@@ -1824,6 +1824,7 @@ class TeacherDetailView(TeacherBase, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(TeacherDetailView, self).get_context_data(**kwargs)
+        # provides collection data to collection foldable
         context["owned_collections"] = Collection.objects.filter(
             owner=self.request.user.teacher
         )
@@ -2021,6 +2022,7 @@ def teacher_toggle_favourite(request):
 @login_required
 @user_passes_test(student_check, login_url="/access_denied_and_logout/")
 def teacher_toggle_follower(request):
+    # follow/unfollow heart function
     collection = get_object_or_404(Collection, pk=request.POST.get("pk"))
     teacher = get_object_or_404(Teacher, user=request.user)
     if teacher not in collection.followers.all():
@@ -2034,6 +2036,7 @@ def teacher_toggle_follower(request):
 @login_required
 @user_passes_test(student_check, login_url="/access_denied_and_logout/")
 def collection_toggle_assignment(request):
+    # add/remove assignment from collection function for hearts on update view
     collection = get_object_or_404(Collection, pk=request.POST.get("ppk"))
     assignment = get_object_or_404(Assignment, pk=request.POST.get("pk"))
     if assignment not in collection.assignments.all():
@@ -2047,6 +2050,7 @@ def collection_toggle_assignment(request):
 @login_required
 @user_passes_test(student_check, login_url="/access_denied_and_logout/")
 def collection_assign(request):
+    # assign button on distribute view
     collection = get_object_or_404(Collection, pk=request.POST.get("ppk"))
     student_group = get_object_or_404(StudentGroup, pk=request.POST.get("pk"))
     counter = 0
@@ -2067,6 +2071,9 @@ def collection_assign(request):
 @login_required
 @user_passes_test(student_check, login_url="/access_denied_and_logout/")
 def collection_unassign(request):
+    """
+    unassign button on distribute view, assures assignments are not distributed
+    """
     collection = get_object_or_404(Collection, pk=request.POST.get("ppk"))
     student_group = get_object_or_404(StudentGroup, pk=request.POST.get("pk"))
     counter = 0

@@ -929,7 +929,7 @@ class TeacherTest(TestCase):
         # print(response.context['search_results'])
         # self.assertNotIn(q, response.context['search_results'])
 
-    def test_collection_update_deletion(self):
+    def test_collection(self):
 
         logged_in = self.client.login(
             username=self.validated_teacher.username,
@@ -937,7 +937,7 @@ class TeacherTest(TestCase):
         )
         self.assertTrue(logged_in)
 
-        # Create a collection with no owner -> 403
+        # Create a private collection with other owner -> 403
         Collection.objects.create(
             title="test_title",
             description="test_description",
@@ -947,6 +947,7 @@ class TeacherTest(TestCase):
         )
         q = Collection.objects.get(id=1)
 
+        # for not owner teacher, all collection's pages -> 403
         response = self.client.get(reverse("collection-update", args="1"))
         self.assertEqual(response.status_code, 403)
 
@@ -994,6 +995,8 @@ class TeacherTest(TestCase):
             response, '<form id="collection-delete-form" method="post">'
         )
 
+        # all list views should always return 200 for teacher
+        # collection is in public domain and owned, so contained on those pages
         response = self.client.get(reverse("collection-list"))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, q.title)
@@ -1017,6 +1020,7 @@ class TeacherTest(TestCase):
         q.followers.add(self.validated_teacher.teacher)
         q.save()
 
+        # teacher is follower, collection contained on followed-list view
         response = self.client.get(reverse("collection-list"))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, q.title)
@@ -1036,6 +1040,7 @@ class TeacherTest(TestCase):
         q.featured = True
         q.save()
 
+        # collection is featured, should appear on featured-list view
         response = self.client.get(reverse("collection-list"))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, q.title)
@@ -1055,6 +1060,7 @@ class TeacherTest(TestCase):
         q.private = True
         q.save()
 
+        # teacher = owner, so private attribute should not affect collection
         response = self.client.get(reverse("collection-list"))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, q.title)
@@ -1074,6 +1080,7 @@ class TeacherTest(TestCase):
         q.featured = False
         q.save()
 
+        # collection is removed from featured view
         response = self.client.get(reverse("collection-list"))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, q.title)
@@ -1093,6 +1100,7 @@ class TeacherTest(TestCase):
         q.followers.remove(self.validated_teacher.teacher)
         q.save()
 
+        # collection is removed from teacher's followed collections
         response = self.client.get(reverse("collection-list"))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, q.title)
@@ -1112,6 +1120,7 @@ class TeacherTest(TestCase):
         q.owner = self.other_teacher.teacher
         q.save()
 
+        # teacher loses ownership, collection should not appear on any list
         response = self.client.get(reverse("collection-list"))
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, q.title)
@@ -1131,6 +1140,7 @@ class TeacherTest(TestCase):
         q.featured = True
         q.save()
 
+        # featured collection is still private, not accesable
         response = self.client.get(reverse("collection-list"))
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, q.title)
@@ -1149,6 +1159,7 @@ class TeacherTest(TestCase):
 
         q.followers.add(self.validated_teacher.teacher)
 
+        # followed collection is still private, not accesable
         response = self.client.get(reverse("collection-list"))
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, q.title)
@@ -1168,6 +1179,7 @@ class TeacherTest(TestCase):
         q.private = False
         q.save()
 
+        # collection is now public, should appear on followed & featured lists
         response = self.client.get(reverse("collection-list"))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, q.title)

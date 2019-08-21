@@ -96,11 +96,17 @@ class CollectionDetailView(LoginRequiredMixin, NoStudentsMixin, DetailView):
 
 
 def assignment_data(assignment):
+    """
+    returns only question sums counter object from assignment aggregates method
+    """
     q_sums, q_students = get_assignment_aggregates(assignment=assignment)
     return q_sums
 
 
 def collection_data(collection):
+    """
+    sums all of a collection's assignment's counter objects
+    """
     assignments = collection.assignments.all()
     a_sums = collections.Counter(
         total_answers=0,
@@ -163,6 +169,9 @@ class CollectionDeleteView(LoginRequiredMixin, NoStudentsMixin, DeleteView):
 
 
 class CollectionListView(LoginRequiredMixin, NoStudentsMixin, ListView):
+    """
+    list for collections that are public or owned by teacher
+    """
 
     model = Collection
     template_name = "peerinst/collection/collection_list.html"
@@ -175,6 +184,9 @@ class CollectionListView(LoginRequiredMixin, NoStudentsMixin, ListView):
 class PersonalCollectionListView(
     LoginRequiredMixin, NoStudentsMixin, ListView
 ):
+    """
+    list for collections where teacher is the owner
+    """
 
     model = Collection
     template_name = "peerinst/collection/personal_collection_list.html"
@@ -187,6 +199,10 @@ class PersonalCollectionListView(
 class FollowedCollectionListView(
     LoginRequiredMixin, NoStudentsMixin, ListView
 ):
+    """
+    list for collections followed by teacher that are public
+    or owned by teacher
+    """
 
     model = Collection
     template_name = "peerinst/collection/followed_collection_list.html"
@@ -202,6 +218,9 @@ class FollowedCollectionListView(
 class FeaturedCollectionListView(
     LoginRequiredMixin, NoStudentsMixin, ListView
 ):
+    """
+    list for featured collections that are public or owned by teacher
+    """
 
     model = Collection
     template_name = "peerinst/collection/featured_collection_list.html"
@@ -223,6 +242,9 @@ def featured_collections(request):
 class CollectionDistributeDetailView(
     LoginRequiredMixin, NoStudentsMixin, DetailView
 ):
+    """
+    view to assign/unassign a collection's assignments from a student group
+    """
 
     model = Collection
     template_name = "peerinst/collection/collection_distribute.html"
@@ -259,6 +281,10 @@ class CollectionDistributeDetailView(
 @teacher_required
 @require_POST
 def collection_add_assignment(request, teacher):
+    """
+    creates a collection with assignments from a student group
+    used in group detail view
+    """
     args = get_json_params(request, args=["group_pk"])
     if isinstance(args, HttpResponse):
         return args
