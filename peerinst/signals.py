@@ -13,6 +13,7 @@ from .models import (
     MessageType,
     StudentNotificationType,
     TeacherNotification,
+    UserType,
 )
 
 
@@ -130,3 +131,11 @@ def init_message_types(sender, **kwargs):
     for type_ in types:
         if not MessageType.objects.filter(type=type_["type"]).exists():
             MessageType.objects.create(**type_)
+
+
+@receiver(post_migrate)
+def init_user_types(sender, **kwargs):
+    types = [{"type": "teacher"}, {"type": "student"}]
+    for type_ in types:
+        if not UserType.objects.filter(type=type_["type"]).exists():
+            UserType.objects.create(**type_)
