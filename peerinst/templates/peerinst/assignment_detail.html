@@ -139,8 +139,8 @@
     {% endfor %}
     </div>
 
-    <div id="favourite-questions" class="foldable foldable__folded">
-      <h2 class="foldable--title mdc-typography--display1 mdc-theme--secondary">{% trans 'My favourite questions' %}</h2>
+    <div id="favourite-questions" class="foldable">
+      <h2 id="favourite-question-section" class="foldable--title mdc-typography--display1 mdc-theme--secondary">{% trans 'My favourite questions' %}</h2>
       <br>
       <div class="foldable--body" class="m-top-20">
       {% for g in teacher.favourite_questions.all %}
@@ -307,6 +307,19 @@
 {{ block.super }}
 
 <script nonce="{{ request.csp_nonce }}">
+  // Remember state of unfolded elements
+  // All h2 require ids
+  $(".foldable").each(function() {
+    const container = $(this);
+    if (localStorage.getItem('collapse-'+container.find("h2").attr('id')) === 'false') {
+      $(this).addClass('foldable__unfolded');
+    }
+    container.find("h2").click(function() {
+      const state = localStorage.getItem('collapse-'+$(this).attr('id'));
+      localStorage.setItem('collapse-'+$(this).attr('id'), state === 'false' ? 'true' : 'false');
+    })
+  });
+
   bundle.toggleImages();
   bundle.toggleAnswers();
   search.initFavourites();
