@@ -50,10 +50,14 @@ class Message(models.Model):
         for_users = [t.type for t in self.for_users.all()]
         if "teacher" in for_users:
             for teacher in Teacher.objects.all():
-                UserMessage.objects.create(user=teacher.user, message=self)
+                UserMessage.objects.get_or_create(
+                    user=teacher.user, message=self
+                )
         if "student" in for_users:
             for student in Student.objects.all():
-                UserMessage.objects.create(user=student.student, message=self)
+                UserMessage.objects.get_or_create(
+                    user=student.student, message=self
+                )
 
 
 class UserMessage(models.Model):
