@@ -337,8 +337,8 @@ export function bindCategoryAutofill(source) {
   };
 
   $("#autofill_categories").autocomplete({
-    delay: 300,
-    minLength: 2,
+    delay: 700,
+    minLength: 3,
     classes: {
       "ui-autocomplete": "mdc-typography--body1",
     },
