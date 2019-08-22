@@ -1231,26 +1231,50 @@ def populate_answer_start_time_from_ltievent_logs(day_of_logs, event_type):
 
 def get_student_activity_data(teacher, current_groups):
     # TODO: Refactor to avoid circular import
-    from datetime import datetime
+    from datetime import datetime, timedelta
     from .models import Answer, Student, StudentGroupAssignment
 
     all_current_students = Student.objects.filter(groups__in=current_groups)
 
+    last_week = datetime.utcnow().replace(tzinfo=pytz.utc) - timedelta(days=7)
+    next_week = datetime.utcnow().replace(tzinfo=pytz.utc) + timedelta(days=7)
+
+    if not teacher.last_dashboard_access:
+        teacher.last_dashboard_access = last_week
+
     # Standalone
-    standalone_assignments = StudentGroupAssignment.objects.filter(
+    standalone_assignments_all = StudentGroupAssignment.objects.filter(
         group__in=current_groups
     ).filter(distribution_date__isnull=False)
+
+    standalone_assignments = standalone_assignments_all.filter(
+        distribution_date__gte=last_week, due_date__lte=next_week
+    )
+
+    if standalone_assignments.count() == 0:
+        try:
+            last_assignment = standalone_assignments_all.latest("due_date")
+            standalone_assignments = StudentGroupAssignment.objects.filter(
+                pk=last_assignment.pk
+            )
+        except StudentGroupAssignment.DoesNotExist:
+            standalone_assignments = StudentGroupAssignment.objects.none()
 
     standalone_answers = Answer.objects.filter(
         assignment__in=standalone_assignments.values("assignment")
     ).filter(user_token__in=all_current_students.values("student__username"))
 
     # LTI
-    lti_assignments = [
-        a
-        for a in teacher.assignments.all()
-        if a not in [b.assignment for b in standalone_assignments.all()]
-    ]
+    # lti_assignments = [
+    #     a
+    #     for a in teacher.assignments.all()
+    #     if a not in [b.assignment for b in standalone_assignments.all()]
+    # ]
+
+    if standalone_assignments_all.count() == 0:
+        lti_assignments = teacher.assignments.all()
+    else:
+        lti_assignments = []
 
     lti_answers = Answer.objects.filter(assignment__in=lti_assignments).filter(
         user_token__in=all_current_students.values("student__username")
@@ -1304,13 +1328,16 @@ def get_student_activity_data(teacher, current_groups):
 
             # Keyed on assignment
             for l in lti_assignments:
-                if l.questions.count() > 0:
+                answers = [
+                    a
+                    for a in lti_answers
+                    if a.user_token in student_list and a.assignment == l
+                ]
+                if l.questions.count() > 0 and len(answers) > 0:
+                    print(l, g)
+                    print(len(answers))
                     all_answers_by_group[g][l] = {}
-                    all_answers_by_group[g][l]["answers"] = [
-                        a
-                        for a in lti_answers
-                        if a.user_token in student_list and a.assignment == l
-                    ]
+                    all_answers_by_group[g][l]["answers"] = answers
                     all_answers_by_group[g][l]["new"] = [
                         a
                         for a in lti_answers
