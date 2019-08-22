@@ -5,7 +5,7 @@
     {% if answers.answers|length > 0 %}
       <div class="mdc-card">
         <div class="mdc-typography--title bold">
-          {{ group.title|title|safe }}
+          {{ group.title|title|bleach_html|safe }}
         </div>
 
         <div class="mdc-typography--caption">

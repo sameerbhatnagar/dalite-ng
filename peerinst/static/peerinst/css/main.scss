@@ -568,6 +568,10 @@ input[type="submit"].thumbs-button {
   color: white !important;
   font-weight: bold;
 }
+.mdc-button.delete {
+  background-color: red !important;
+  margin-left: 20px;
+}
 
 div.input-ripple-wrapper input {
   color: grey !important;

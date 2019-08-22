@@ -13,7 +13,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.http import HttpResponse, JsonResponse, StreamingHttpResponse
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from django.template.response import TemplateResponse
 from django.templatetags.static import static
 from django.utils.translation import ugettext_lazy as translate
@@ -39,7 +39,7 @@ from ..models import (
     TeacherNotification,
     UserMessage,
 )
-from ..rationale_annotation import choose_rationales
+from ..rationale_annotation import choose_rationales_no_quality
 from ..tasks import compute_gradebook_async
 from .decorators import teacher_required
 
@@ -82,6 +82,7 @@ def dashboard(req, teacher):
     student_activity_data, student_activity_json = get_student_activity_data(
         teacher, teacher.current_groups.all()
     )
+    rationales = choose_rationales_no_quality(teacher, n=1)
     context = {
         "data": json.dumps(data),
         "question_list": Question.objects.filter(
@@ -89,6 +90,7 @@ def dashboard(req, teacher):
         ).order_by("?")[:1],
         "student_activity_data": student_activity_data,
         "student_activity_json": json.dumps(student_activity_json),
+        "rationales": rationales,
     }
 
     return render(req, "peerinst/teacher/dashboard.html", context)
@@ -167,7 +169,7 @@ def new_questions(req, teacher):
 
     return TemplateResponse(
         req,
-        "peerinst/question/question_card.html",
+        "peerinst/question/cards/question_card.html",
         {"question_list": questions},
     )
 
@@ -244,79 +246,17 @@ def remove_dalite_message(req, teacher):
     return HttpResponse("")
 
 
-@require_POST
+@require_GET
 @teacher_required
 def rationales_to_score(req, teacher):
-    """
-    View that returns a set of rationales to score in the teacher's
-    disciplines.
 
-    Parameters
-    ----------
-    req : HttpRequest
-        Request with:
-            optional parameters:
-                n: int (default : 5)
-                    Number of rationales to return
-                current: List[int] (default : [])
-                    Primary keys of current rationales (not to return)
-    teacher : Teacher
-        Teacher instance returned by `teacher_required`
+    rationales = choose_rationales_no_quality(teacher, n=1)
 
-    Returns
-    -------
-    JsonResponse
-        Response with json data: {
-            rationales: [
-                {
-                    id : int
-                        Id the answer
-                    title : str
-                        Title of the question
-                    rationale : str
-                        Rationale of the answer
-                    choice : int
-                        Index of the answer choice
-                    text : string
-                        Text of the answer choice
-                    correct : bool
-                        If the answer choice is correct or not
-                }
-            ]
-        }
-    """
-    args = get_json_params(req, opt_args=["n", "current"])
-    if isinstance(args, HttpResponse):
-        return args
-    _, (n, current) = args
-
-    if n is None:
-        n = 5
-    if current is None:
-        current = []
-
-    rationales = choose_rationales(teacher, n=n + len(current))
-    rationales = [a for a in rationales if a.pk not in current]
-
-    data = {
-        "rationales": [
-            {
-                "id": answer.id,
-                "title": answer.question.title,
-                "rationale": answer.rationale,
-                "choice": answer.first_answer_choice,
-                "text": answer.question.answerchoice_set.all()[
-                    answer.first_answer_choice - 1
-                ].text,
-                "correct": answer.question.is_correct(
-                    answer.first_answer_choice
-                ),
-            }
-            for answer in rationales
-        ]
-    }
-
-    return JsonResponse(data)
+    return TemplateResponse(
+        req,
+        "peerinst/teacher/cards/rationale_to_score_card.html",
+        {"rationales": rationales},
+    )
 
 
 @require_GET
@@ -495,12 +435,10 @@ def evaluate_rationale(req, teacher):
     HttpResponse
         Error response or empty 200 response
     """
-    args = get_json_params(req, args=["id", "score"])
-    if isinstance(args, HttpResponse):
-        return args
-    (id_, score), _ = args
+    id_ = req.POST.get("id")
+    score = int(req.POST.get("score"))
 
-    if score not in range(4):
+    if score not in range(0, 4):
         return response_400(
             req,
             msg=translate("The score wasn't in a valid range."),
@@ -508,21 +446,25 @@ def evaluate_rationale(req, teacher):
             log=logger.warning,
         )
 
-    try:
-        answer = Answer.objects.get(id=id_)
-    except Answer.DoesNotExist:
-        return response_400(
-            req,
-            msg=translate("Unkown answer id sent."),
-            logger_msg=("No answer could be found for pk {}.".format(id_)),
-            log=logger.warning,
+    if score == 0:
+        # Flag as inappropriate
+        pass
+    else:
+        try:
+            answer = Answer.objects.get(id=id_)
+        except Answer.DoesNotExist:
+            return response_400(
+                req,
+                msg=translate("Unkown answer id sent."),
+                logger_msg=("No answer could be found for pk {}.".format(id_)),
+                log=logger.warning,
+            )
+
+        AnswerAnnotation.objects.create(
+            answer=answer, annotator=teacher.user, score=score
         )
 
-    AnswerAnnotation.objects.create(
-        answer=answer, annotator=teacher.user, score=score
-    )
-
-    return HttpResponse("")
+    return redirect(reverse("teacher-dashboard--rationales"))
 
 
 @require_POST
