@@ -103,6 +103,11 @@
                 initQuestionCards();
               });
             });
+            posting.fail(() => {
+              x.innerHTML = "error";
+              // Snack bar here?
+              window.setTimeout(() => {x.innerHTML = "autorenew";}, 5000);
+            })
           });
         });
       }
