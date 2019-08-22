@@ -4,7 +4,11 @@
 
 {% block stylesheets %}
 {{ block.super }}
+<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/smoothness/jquery-ui.css">
 <style nonce="{{request.csp_nonce}}">
+  .mdc-card {
+    margin-bottom: 10px;
+  }
   .progress-chart {
     margin-bottom: 40px;
   }
@@ -59,7 +63,7 @@
 
 {% block scripts %}
 {{ block.super }}
-<link rel="stylesheet" type="text/css" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <script nonce="{{ request.csp_nonce }}">
   $.ajaxSetup({
       beforeSend: function(xhr, settings) {
@@ -92,11 +96,12 @@
           x.addEventListener("click", function() {
             const posting = $.get("{% url 'teacher-dashboard--new-questions' %}");
             posting.done(function(data) {
-              $(el).slideToggle("slow", () => {
+              $(el).toggle("fade", () => {
                 $(el).remove();
+                $("#questions").append(data);
+                $("#questions .mdc-card").hide().toggle("slide", {duration: 600, direction:"right", easing:"easeInOutCubic"});
+                initQuestionCards();
               });
-              $("#questions").append(data);
-              initQuestionCards();
             });
           });
         });

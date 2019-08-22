@@ -394,6 +394,7 @@ CSP_SCRIPT_SRC = [
     "cdn.jsdelivr.net",
     "unpkg.com",
     "cdn.datatables.net",
+    "code.jquery.com",
 ]
 CSP_STYLE_SRC = [
     "'self'",
