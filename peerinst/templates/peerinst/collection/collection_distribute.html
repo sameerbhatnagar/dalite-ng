@@ -1,6 +1,6 @@
 {% extends 'peerinst/base.html' %}
 
-{% load get_value staticfiles compress i18n %}
+{% load get_value bleach_html staticfiles compress i18n %}
 
 {% block stylesheets %}
 {{ block.super }}
@@ -23,21 +23,21 @@
       </div>
     </div>
     <div>
-      <h2 class="mdc-typography--display1 mdc-theme--secondary">{{ object.title }}
+      <h2 class="mdc-typography--display1 mdc-theme--secondary">{{ object.title|bleach_html|safe }}
         <div class="mdc-typography--caption">
         {% trans 'Created by' %} {{ object.owner.user.username }}
       </div></h2>
     </div>
 
     <div class="mdc-typography--body1">
-      {{ object.description }}
+      {{ object.description|bleach_html|safe }}
     </div>
     <br>
     <div>
     <p><b>{% trans 'Collection Information' %}</b></p>
     <div class="mdc-typography--caption">
       <div>
-        {% trans 'Discipline' %}: {{ object.discipline }}
+        {% trans 'Discipline' %}: {{ object.discipline|safe }}
       </div>
       <div>
         {% trans 'Published on' %} {{ object.created_on }}
@@ -80,7 +80,7 @@
         </span>
         <span class="clickable mdc-list-item__text mdc-theme--secondary bold">
           <a id="group-title" class="mdc-theme--secondary" href="{% url 'group-details' g.hash %}">
-            {% if not g.title %} {{ g.name }} {% else %} {{ g.title }} {% endif %}
+            {% if not g.title %} {{ g.name|bleach_html|safe }} {% else %} {{ g.title|bleach_html|safe }} {% endif %}
           </a>
           <span class="mdc-list-item__secondary-text">
             {% trans "Created: " %} {{ g.creation_date }}

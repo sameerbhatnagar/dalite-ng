@@ -7,19 +7,19 @@
 }
 
 .follower-button--following {
-  color: blue;
+  color: $mdc-theme-secondary;
 }
 
 #card-featured {
-  background-color: powderblue;
+  background-color: $mdc-theme-primary-faded;
 }
 
 #collection-view {
-  color: #004266;
+  color: $mdc-theme-secondary;
 }
 
 .mdc-card__action-buttons {
-  color: gray;
+  color: $hint;
 }
 
 #desciption {
@@ -31,11 +31,11 @@
 }
 
 #card-assign {
-  background-color: powderblue;
+  background-color: $mdc-theme-primary-faded;
 }
 
 #assignment-view {
-  color: #004266;
+  color: $mdc-theme-secondary;
 }
 
 .mdc-text-field__input {
@@ -43,11 +43,11 @@
 }
 :not(.mdc-list--non-interactive) > .mdc-list-item::before,
 :not(.mdc-list--non-interactive) > .mdc-list-item::after {
-  background-color: #f4f4f4;
+  background-color: $mdc-theme-background;
 }
 
 .image-field {
-  color: rgba(0, 0, 0, 0.87);
+  color: $mdc-theme-text-colors-dark-primary;
   font-family: "Montserrat", sans-serif;
   font-size: 14px;
   padding-bottom: 6px;
@@ -68,9 +68,9 @@
 }
 
 .mdc-snackbar__text {
-  color: white;
+  color: $mdc-theme-text-colors-light-primary;
 }
 
 .mdc-snackbar {
-  background-color: #54c0db;
+  background-color: $mdc-theme-secondary;
 }

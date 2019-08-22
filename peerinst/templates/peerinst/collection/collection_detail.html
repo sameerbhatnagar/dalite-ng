@@ -1,6 +1,6 @@
 {% extends 'peerinst/base.html' %}
 
-{% load get_value staticfiles compress i18n %}
+{% load get_value bleach_html staticfiles compress i18n %}
 
 {% block stylesheets %}
 {{ block.super }}
@@ -22,7 +22,7 @@
       <span class="links-divider">|</span>{% endif %}<a href="{% url 'collection-create' %}">{% trans 'Create' %}</a>
     </div>
     <div>
-      <h2 class="mdc-typography--display1 mdc-theme--secondary">{{ object.title }}</h2>
+      <h2 class="mdc-typography--display1 mdc-theme--secondary">{{ object.title|bleach_html|safe }}</h2>
     </div>
     <div class='field-container'>
       <div class='number-box'><span class='number'>?</span></div>
@@ -46,13 +46,13 @@
         {% trans 'Created by' %} {{ object.owner.user.username }}
       </div>
       <div class="mdc-typography--body1" id="obj.desc">
-        {{ object.description }}
+        {{ object.description|bleach_html|safe }}
       </div>
       <div class="mdc-card__actions">
         <div class="mdc-card__action-buttons">
           <div class="mdc-typography--caption">
             <div>
-              {% trans 'Discipline' %}: {{ object.discipline }}
+              {% trans 'Discipline' %}: {{ object.discipline|safe }}
             </div>
             <div>
               {% trans 'Followers' %}: {{ object.followers.count }}
@@ -118,7 +118,7 @@
     <li class="dense-list searchable">
         <div class="mdc-card" id="card-assign">
           <div class="mdc-typography--title bold">
-            {{ obj.title }}
+            {{ obj.title|bleach_html|safe }}
           </div>
         <div class="mdc-typography--caption">
           {% trans 'Created by' %} {% for c in obj.owner.all %}
@@ -164,19 +164,46 @@
                 {% for question in obj.questions.all %}
                 <li class="dense-list searchable">
                   <div class="mdc-card"
-                       id="{{ obj.id }}"
-                       discipline="'{{ obj.discipline }}'"
-                       category="{% for c in obj.category.all %}{{ c.title }} {% endfor %}"
+                       id="{{ obj.id|safe }}"
+                       discipline="'{{ obj.discipline|safe }}'"
+                       category="{% for c in obj.category.all %}{{ c.title|safe }} {% endfor %}"
                        matrix="{{ obj.get_matrix|safe }}">
                     <div class="mdc-typography--title bold">
                       {{ question.title|safe }}
                     </div>
                     <div class="mdc-typography--caption">
-                      {{ question.id }} {% if question.user %}{% trans 'by' %} {{ question.user.username }}{% endif %}
+                      #{{ question.id|safe }} {% if question.user %}{% trans 'by' %} {{ question.user.username|safe }}{% endif %}
                     </div>
                     <div class="mdc-typography--body1">
-                      {{ question.text|safe }}
+                      {{ question.text|bleach_html|safe  }}
                     </div>
+
+                    {% if question.image %}
+                      <img class="question-image" src="{{ question.image.url|safe }}" alt="question.image_alt_text">
+                    {% endif %}
+
+                    {% if question.video_url %}
+                    <div id="question-video">
+                      <object class="question-image" width="640" height="390" data="{{ question.video_url|safe }}"></object>
+                    </div>
+                    {% endif %}
+
+                    <div class="question-answers">
+                      <ul>
+                        {% for label, choice in question.get_choices %}
+                          <li class="dense-list">{{ label }}. {{ choice|bleach_html|safe }}
+                          {% for c in question.answerchoice_set.all %}
+                            {% if forloop.counter == forloop.parentloop.counter %}
+                              {% if c.correct %}
+                                <i class="check material-icons">check</i>
+                              {% endif %}
+                            {% endif %}
+                          {% endfor %}
+                          </li>
+                        {% endfor %}
+                      </ul>
+                    </div>
+
                     <div class="mdc-card__actions">
                       <div class="mdc-card__action-buttons">
                         <div class="mdc-typography--caption">
@@ -213,7 +240,7 @@
                             data-toggle-on='{"label": "Remove from favourites", "content": "favorite"}'
                             data-toggle-off='{"label": "Add to favourites", "content": "favorite_border"}'
                             {% endif %}
-                            pk="{{ question.pk }}">
+                            pk="{{ question.pk|safe }}">
                             favorite_border
                         </i>
                       </div>

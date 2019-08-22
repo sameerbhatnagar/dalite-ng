@@ -1,6 +1,6 @@
 {% extends 'peerinst/base.html' %}
 
-{% load staticfiles compress i18n %}
+{% load bleach_html staticfiles compress i18n %}
 
 {% block stylesheets %}
 {{ block.super }}
@@ -54,13 +54,13 @@
 <div class="mdc-card" id="card{% if obj.featured == True %}-featured{% endif %}">
   <div class="clickable detail-view" id="{{ obj.pk }}">
   <div class="mdc-typography--title bold">
-    {% if obj.image %}<img id="thumbnail" src="{{obj.image.url}}">&nbsp;&nbsp;{% endif %}{{ obj.title }}
+    {% if obj.image %}<img id="thumbnail" src="{{obj.image.url}}">&nbsp;&nbsp;{% endif %}{{ obj.title|bleach_html|safe }}
   </div>
   <div class="mdc-typography--caption">
     {% trans 'Created by' %} {{ obj.owner.user.username }}
   </div>
   <div class="mdc-typography--body1">
-    {{ obj.description }}
+    {{ obj.description|bleach_html|safe }}
   </div>
 </div>
   <div class="mdc-card__actions">
@@ -68,7 +68,7 @@
     <div class="mdc-card__action-buttons">
       <div class="mdc-typography--caption">
         <div>
-          {% trans 'Discipline' %}: {{ obj.discipline }}
+          {% trans 'Discipline' %}: {{ obj.discipline|safe }}
         </div>
         <div>
           {% trans 'Published on' %} {{obj.created_on}}
@@ -78,7 +78,7 @@
     </div>
       </div>
   <div class="mdc-card__action-icons">
-    <i class="mdc-icon-toggle material-icons mdc-theme--primary"
+    <i class="mdc-icon-toggle material-icons mdc-theme--primary follower-btn"
         role="button"
         aria-pressed="false"
         aria-label="Add to favorites" tabindex="0"
@@ -123,14 +123,12 @@
       }
   });
 
-
   function toggleFollower(pk) {
     var posting = $.post("{% url 'teacher-toggle-follower' %}", {pk: pk});
     posting.done(function(data) {
       console.info(data);
     })
   }
-
 
   [].forEach.call(document.querySelectorAll(".follower-btn"), el => {
     el.addEventListener("click", () => {
