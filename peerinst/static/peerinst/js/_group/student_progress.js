@@ -67,9 +67,34 @@ function loadingView() {
 function progressView() {
   const progress = document.querySelector("#student-progress");
   clear(progress);
+  progress.appendChild(legendView());
   model.results.map(function(question) {
     progress.append(questionView(question));
   });
+}
+
+function legendView() {
+  const li = document.createElement("li");
+  li.classList.add("mdc-list-item");
+
+  const legend = document.createElement("span");
+  legend.id = "student-progress-legend";
+  legend.classList.add("mdc-list-item__meta");
+  li.appendChild(legend);
+
+  const done = document.createElement("span");
+  done.textContent = "Question done";
+  legend.appendChild(done);
+
+  const first = document.createElement("span");
+  first.textContent = "First answer correct";
+  legend.appendChild(first);
+
+  const second = document.createElement("span");
+  second.textContent = "Second answer correct";
+  legend.appendChild(second);
+
+  return li;
 }
 
 function questionView(question) {
