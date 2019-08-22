@@ -618,11 +618,6 @@ def teacher_patterns():
             name="teacher-dashboard--new-questions",
         ),
         url(
-            r"^teacher/dashboard/student-activity/$",
-            views.teacher.student_activity,
-            name="teacher-dashboard--student-activity",
-        ),
-        url(
             r"^teacher/dashboard/rationales/evaluate$",
             views.teacher.evaluate_rationale,
             name="teacher-dashboard--evaluate-rationale",

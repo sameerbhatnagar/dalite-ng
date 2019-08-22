@@ -9,7 +9,6 @@ from operator import attrgetter
 
 import pytz
 from celery.result import AsyncResult
-from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
 from django.db import models
@@ -37,13 +36,15 @@ from ..models import (
     RunningTask,
     StudentGroup,
     StudentGroupAssignment,
-    StudentGroupMembership,
     TeacherNotification,
     UserMessage,
 )
 from ..rationale_annotation import choose_rationales
 from ..tasks import compute_gradebook_async
 from .decorators import teacher_required
+
+from ..util import get_student_activity_data
+
 
 logger = logging.getLogger("peerinst-views")
 
@@ -78,136 +79,19 @@ def dashboard(req, teacher):
             "rationales": reverse("teacher-dashboard--rationales"),
         }
     }
+    student_activity_data, student_activity_json = get_student_activity_data(
+        teacher, teacher.current_groups.all()
+    )
     context = {
         "data": json.dumps(data),
         "question_list": Question.objects.filter(
             discipline__in=teacher.disciplines.all()
         ).order_by("?")[:1],
+        "student_activity_data": student_activity_data,
+        "student_activity_json": json.dumps(student_activity_json),
     }
 
     return render(req, "peerinst/teacher/dashboard.html", context)
-
-
-@require_POST
-@teacher_required
-def student_activity(req, teacher):
-    """
-    View that returns data on the teacher's student activity.
-        Request
-    teacher : Teacher
-        Teacher instance returned by `teacher_required`
-
-    Returns
-    -------
-    JsonResponse
-        Response with json data:
-            {
-                groups: [{
-                    title: str
-                        Group title
-                    n_students: int
-                        Number of students in the group
-                    new: bool
-                        If there is any new activity in the group
-                    assignments: [{
-                        title: str
-                            Title of the assignment
-                        n_completed: int
-                            Number of students having completed the assignment
-                        mean_grade: float
-                            Average grade on the assignment
-                        min_grade: float
-                            Minimum grade on the assignment
-                        max_grade: float
-                            Maximum grade on the assignment
-                        new: bool
-                            If the information changed since last login
-                        expired: bool
-                            If the assignment has expired
-                        link: str
-                            Link to the assignment
-                    }]
-                }]
-            }
-    """
-    host = settings.ALLOWED_HOSTS[0]
-    if host.startswith("localhost") or host.startswith("127.0.0.1"):
-        protocol = "http"
-        host = "{}:{}".format(host, settings.DEV_PORT)
-    else:
-        protocol = "https"
-
-    assignments = [
-        {
-            "title": group.title,
-            "n_students": StudentGroupMembership.objects.filter(
-                group=group
-            ).count(),
-            "assignments": [
-                {
-                    "title": assignment.assignment.title,
-                    "new": assignment.last_modified
-                    > teacher.last_dashboard_access
-                    if teacher.last_dashboard_access
-                    else True,
-                    "expired": assignment.expired,
-                    "link": "{}://{}{}".format(
-                        protocol, host, assignment.link
-                    ),
-                    "results": [
-                        (a.completed, a.grade)
-                        for a in assignment.studentassignment_set.iterator()
-                    ],
-                }
-                for assignment in group.studentgroupassignment_set.iterator()
-            ],
-        }
-        for group in teacher.current_groups.iterator()
-    ]
-
-    data = {
-        "groups": [
-            {
-                "title": group["title"],
-                "n_students": group["n_students"],
-                "new": any(a["new"] for a in group["assignments"]),
-                "assignments": [
-                    {
-                        "title": assignment["title"],
-                        "n_completed": sum(
-                            a[0] for a in assignment["results"]
-                        ),
-                        "mean_grade": float(
-                            sum(a[1] for a in assignment["results"] if a[0])
-                        )
-                        / sum(a[0] for a in assignment["results"])
-                        if group["n_students"]
-                        and any(a[0] for a in assignment["results"])
-                        else 0,
-                        "min_grade": min(
-                            a[1] for a in assignment["results"] if a[0]
-                        )
-                        if group["n_students"]
-                        and any(a[0] for a in assignment["results"])
-                        else 0,
-                        "max_grade": max(
-                            a[1] for a in assignment["results"] if a[0]
-                        )
-                        if group["n_students"]
-                        and any(a[0] for a in assignment["results"])
-                        else 0,
-                        "new": assignment["new"],
-                        "expired": assignment["expired"],
-                        "link": assignment["link"],
-                    }
-                    for assignment in group["assignments"]
-                ],
-            }
-            for group in assignments
-        ]
-    }
-
-    return JsonResponse(data)
 
 
 @require_POST
