@@ -15,6 +15,7 @@ from django.core.urlresolvers import reverse
 from django.db import models
 from django.http import HttpResponse, JsonResponse, StreamingHttpResponse
 from django.shortcuts import render
+from django.template.response import TemplateResponse
 from django.templatetags.static import static
 from django.utils.translation import ugettext_lazy as translate
 from django.views.decorators.http import (
@@ -29,7 +30,6 @@ from dalite.views.utils import get_json_params
 
 from ..gradebooks import convert_gradebook_to_csv
 from ..models import (
-    QUESTION_TYPES,
     Answer,
     AnswerAnnotation,
     Collection,
@@ -78,7 +78,12 @@ def dashboard(req, teacher):
             "rationales": reverse("teacher-dashboard--rationales"),
         }
     }
-    context = {"data": json.dumps(data)}
+    context = {
+        "data": json.dumps(data),
+        "question_list": Question.objects.filter(
+            discipline__in=teacher.disciplines.all()
+        ).order_by("?")[:1],
+    }
 
     return render(req, "peerinst/teacher/dashboard.html", context)
 
@@ -268,77 +273,19 @@ def collections(req, teacher):
     return JsonResponse(data)
 
 
-@require_POST
+@require_GET
 @teacher_required
 def new_questions(req, teacher):
-    """
-    View that returns new questions in the teacher's disciplines.
 
-    Parameters
-    ----------
-    req : HttpRequest
-        Request with:
-            optional parameters:
-                n: int (default : 10)
-                    Number of questions to return
-                current: List[int] (default : [])
-                    Primary keys of current questions (not to return)
-    teacher : Teacher
-        Teacher instance returned by `teacher_required`
+    questions = Question.objects.filter(
+        discipline__in=teacher.disciplines.all()
+    ).order_by("?")[:1]
 
-    Returns
-    -------
-    JsonResponse
-        Response with json data:
-            {
-                questions: [{
-                    author: str
-                        Author username
-                    discipline: str
-                        Discipline of the question
-                    last_modified: %Y-%m-%dT%H:%M:%S.%fZ
-                        Datetime of last modification
-                    n_assignment: int
-                        Number of assignments containing the question
-                    text: str
-                        Full question text
-                    title: str
-                        Question title
-                }]
-            }
-    """
-
-    args = get_json_params(req, opt_args=["n", "current"])
-    if isinstance(args, HttpResponse):
-        return args
-    _, (n, current) = args
-
-    if n is None:
-        n = 10
-    if current is None:
-        current = []
-
-    questions = (
-        Question.objects.filter(discipline__in=teacher.disciplines.all())
-        .exclude(pk__in=current)
-        .order_by("-last_modified")[:n]
+    return TemplateResponse(
+        req,
+        "peerinst/question/question_card.html",
+        {"question_list": questions},
     )
-
-    data = {
-        "questions": [
-            {
-                "author": question.user.username,
-                "discipline": question.discipline.title,
-                "last_modified": question.last_modified,
-                "n_assignments": question.assignment_set.count(),
-                "question_type": dict(QUESTION_TYPES)[question.type],
-                "text": question.text,
-                "title": question.title,
-            }
-            for question in questions
-        ]
-    }
-    return JsonResponse(data)
 
 
 @require_POST
