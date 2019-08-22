@@ -245,6 +245,70 @@ def collection_buttons(
 
     assert "Collection Statistics" in browser.page_source
     assert "Collections" in browser.find_element_by_tag_name("h1").text
+    # click on heart
+    browser.find_element_by_class_name("mdc-icon-toggle").click()
+    # go back to teacher detail page
+    browser.find_element_by_link_text("Back to My Account").click()
+    # open collections foldable
+    browser.find_element_by_id("collection-section").click()
+    # go to followed collections list view
+    browser.find_element_by_link_text("Followed Collections").click()
+    # assure user is on list view
+    assert "Collections" in browser.find_element_by_tag_name("h1").text
+    assert (
+        "Followed Collections" in browser.find_element_by_tag_name("h2").text
+    )
+    # assure that collection is displayed in list view
+    assert description in browser.page_source
+    # click on collection card
+    browser.find_element_by_class_name("mdc-typography--title").click()
+    # assure user is on detail view
+    try:
+        detail = WebDriverWait(browser, timeout).until(
+            presence_of_element_located((By.ID, "obj.desc"))
+        )
+    except TimeoutException:
+        assert False
+
+    assert "Collection Statistics" in browser.page_source
+    assert "Collections" in browser.find_element_by_tag_name("h1").text
+    # click on heart
+    browser.find_element_by_class_name("mdc-icon-toggle").click()
+    # click on view collections
+    browser.find_element_by_link_text("View Collections").click()
+    # assure user is on list view
+    assert "Collections" in browser.find_element_by_tag_name("h1").text
+    assert "Browse Collections" in browser.find_element_by_tag_name("h2").text
+    # assure that collection is displayed in list view
+    assert description in browser.page_source
+    # go to followed collections list view
+    browser.find_element_by_link_text("Followed").click()
+    # assure user is on list view
+    assert "Collections" in browser.find_element_by_tag_name("h1").text
+    assert (
+        "Followed Collections" in browser.find_element_by_tag_name("h2").text
+    )
+    # assure that collection is not displayed in list view
+    assert description not in browser.page_source
+    # go to general list view
+    browser.find_element_by_link_text("Owned").click()
+    # assure user is on list view
+    assert "Collections" in browser.find_element_by_tag_name("h1").text
+    assert "Your Collections" in browser.find_element_by_tag_name("h2").text
+    # assure that collection is displayed in list view
+    assert description in browser.page_source
+    # click on collection card
+    browser.find_element_by_class_name("mdc-typography--title").click()
+    # assure user is on detail view
+    try:
+        detail = WebDriverWait(browser, timeout).until(
+            presence_of_element_located((By.ID, "obj.desc"))
+        )
+    except TimeoutException:
+        assert False
+
+    assert "Collection Statistics" in browser.page_source
+    assert "Collections" in browser.find_element_by_tag_name("h1").text
     # click on assign button
     browser.find_element_by_class_name("mdc-button").click()
     # assure user is on distribute detail view
