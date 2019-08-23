@@ -7,7 +7,26 @@ from django.db.models import F, Count
 
 from quality.models import Quality
 
-from .models import Answer, AnswerAnnotation, Teacher
+from .models import Answer, AnswerAnnotation, Question, Teacher
+
+
+def choose_questions(teacher):
+    """
+    Selects subset of questions that are relevant to teacher interests
+    """
+
+    question_list = Question.unflagged_objects.all().order_by("-created_on")
+
+    if len(teacher.disciplines.all()) > 0:
+        question_list = question_list.filter(
+            discipline__in=teacher.disciplines.all()
+        ).exclude(teacher=teacher)
+    if len(teacher.assignments.all()) > 0:
+        question_list = question_list.exclude(
+            pk__in=teacher.assignments.values_list("questions", flat=True)
+        )
+
+    return question_list
 
 
 def choose_rationales(teacher, n=5):

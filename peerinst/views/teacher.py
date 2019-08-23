@@ -39,7 +39,10 @@ from ..models import (
     TeacherNotification,
     UserMessage,
 )
-from ..rationale_annotation import choose_rationales_no_quality
+from ..rationale_annotation import (
+    choose_rationales_no_quality,
+    choose_questions,
+)
 from ..tasks import compute_gradebook_async
 from .decorators import teacher_required
 
@@ -85,9 +88,7 @@ def dashboard(req, teacher):
     rationales = choose_rationales_no_quality(teacher, n=1)
     context = {
         "data": json.dumps(data),
-        "question_list": Question.objects.filter(
-            discipline__in=teacher.disciplines.all()
-        ).order_by("?")[:1],
+        "question_list": choose_questions(teacher).order_by("?")[:1],
         "student_activity_data": student_activity_data,
         "student_activity_json": json.dumps(student_activity_json),
         "rationales": rationales,
