@@ -41,19 +41,13 @@ class StudentRationaleEvaluationCriterion(Criterion):
             If `instance` isn't of type Question or Student
         """
         super(StudentRationaleEvaluationCriterion, self).evaluate(student)
-        scores = {0: -1, 1: 0, 2: 1, 3: 1}
 
         if student.__class__.__name__ == "Student":
             return (
-                max(
-                    0,
-                    sum(
-                        getattr(
-                            self, "points_score_{}".format(evaluation.score)
-                        )
-                        for answer in student.answers.all()
-                        for evaluation in answer.answerannotation_set.all()
-                    ),
+                sum(
+                    getattr(self, "points_score_{}".format(evaluation.score))
+                    for answer in student.answers.all()
+                    for evaluation in answer.answerannotation_set.all()
                 ),
                 {},
             )

@@ -31,7 +31,9 @@ def test_evaluate__all_never_show(
         AnswerAnnotation.objects.create(
             answer=answer, annotator=teacher.user, score=0
         )
-    assert student_rationale_evaluation_criterion.evaluate(student)[0] == 0
+    assert student_rationale_evaluation_criterion.evaluate(student)[0] == -len(
+        answers
+    )
 
 
 def test_evaluate__all_convincing(
