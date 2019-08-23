@@ -1,21 +1,23 @@
 __all__ = [
+    "CommonRationaleChoicesCriterion",
+    "ConvincingRationalesCriterion",
     "Criterion",
     "NAnswersCriterion",
     "NQuestionsCriterion",
-    "ConvincingRationalesCriterion",
-    "CommonRationaleChoicesCriterion",
     "Reputation",
     "ReputationHistory",
     "ReputationType",
+    "StudentRationaleEvaluationCriterion",
     "UsesCriterion",
 ]
 
 from .criteria import (
+    CommonRationaleChoicesCriterion,
+    ConvincingRationalesCriterion,
     Criterion,
     NAnswersCriterion,
     NQuestionsCriterion,
-    ConvincingRationalesCriterion,
-    CommonRationaleChoicesCriterion,
+    StudentRationaleEvaluationCriterion,
 )
 from .reputation import Reputation, ReputationHistory
 from .reputation_type import ReputationType, UsesCriterion
