@@ -2053,16 +2053,16 @@ def collection_assign(request):
     # assign button on distribute view
     collection = get_object_or_404(Collection, pk=request.POST.get("ppk"))
     student_group = get_object_or_404(StudentGroup, pk=request.POST.get("pk"))
-    counter = 0
+    is_assigned = False
     for assign in collection.assignments.all():
         if not StudentGroupAssignment.objects.filter(
             group=student_group, assignment=assign
         ).exists():
-            counter += 1
+            is_assigned = True
             StudentGroupAssignment.objects.create(
                 group=student_group, assignment=assign
             )
-    if counter > 0:
+    if is_assigned:
         return JsonResponse({"action": "added"})
     else:
         return JsonResponse({"action": "existing"})
@@ -2076,7 +2076,7 @@ def collection_unassign(request):
     """
     collection = get_object_or_404(Collection, pk=request.POST.get("ppk"))
     student_group = get_object_or_404(StudentGroup, pk=request.POST.get("pk"))
-    counter = 0
+    is_unassigned = False
     for assign in collection.assignments.all():
         if StudentGroupAssignment.objects.filter(
             group=student_group, assignment=assign
@@ -2086,11 +2086,11 @@ def collection_unassign(request):
                 assignment=assign,
                 distribution_date__isnull=True,
             ):
-                counter += 1
+                is_unassigned = True
                 StudentGroupAssignment.objects.filter(
                     group=student_group, assignment=assign
                 ).delete()
-    if counter > 0:
+    if is_unassigned:
         return JsonResponse({"action": "removed"})
     else:
         return JsonResponse({"action": "unexisting"})

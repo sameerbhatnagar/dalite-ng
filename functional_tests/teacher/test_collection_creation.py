@@ -1,5 +1,4 @@
 from faker import Faker
-from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.expected_conditions import (
     presence_of_element_located,
@@ -22,12 +21,9 @@ def create_collection(browser, assert_, teacher):
 
     browser.find_element_by_link_text("Create").click()
     # make sure that the user is on create view and has all its components
-    try:
-        create = WebDriverWait(browser, timeout).until(
-            presence_of_element_located((By.ID, "collection-create-form"))
-        )
-    except TimeoutException:
-        assert False
+    WebDriverWait(browser, timeout).until(
+        presence_of_element_located((By.ID, "collection-create-form"))
+    )
 
     assert browser.current_url.endswith("create/")
 
@@ -57,12 +53,9 @@ def create_collection(browser, assert_, teacher):
     browser.find_element_by_id("id_create").click()
 
     # assure user has reached update view
-    try:
-        page_id = WebDriverWait(browser, timeout).until(
-            presence_of_element_located((By.ID, "collection-update-form"))
-        )
-    except TimeoutException:
-        assert False
+    WebDriverWait(browser, timeout).until(
+        presence_of_element_located((By.ID, "collection-update-form"))
+    )
 
     # add an assignment to the collection
     browser.find_element_by_class_name("foldable--title").click()
@@ -72,12 +65,9 @@ def create_collection(browser, assert_, teacher):
     browser.find_element_by_id("id_update").click()
 
     # assure user has reached detail page
-    try:
-        detail = WebDriverWait(browser, timeout).until(
-            presence_of_element_located((By.ID, "obj.desc"))
-        )
-    except TimeoutException:
-        assert False
+    WebDriverWait(browser, timeout).until(
+        presence_of_element_located((By.ID, "obj.desc"))
+    )
 
     assert "Collection Statistics" in browser.page_source
     assert title in browser.find_element_by_tag_name("h2").text
@@ -89,12 +79,10 @@ def create_collection(browser, assert_, teacher):
     # edit the collection
     browser.find_element_by_link_text("Edit").click()
     # assure user is on update view
-    try:
-        update = WebDriverWait(browser, timeout).until(
-            presence_of_element_located((By.ID, "collection-update-form"))
-        )
-    except TimeoutException:
-        assert False
+
+    WebDriverWait(browser, timeout).until(
+        presence_of_element_located((By.ID, "collection-update-form"))
+    )
 
     assert "Collections" in browser.find_element_by_tag_name("h1").text
     assert (
@@ -125,12 +113,9 @@ def create_collection(browser, assert_, teacher):
     # update info, leave update view
     browser.find_element_by_id("id_update").click()
     # assure user is on detail view
-    try:
-        detail = WebDriverWait(browser, timeout).until(
-            presence_of_element_located((By.ID, "obj.desc"))
-        )
-    except TimeoutException:
-        assert False
+    WebDriverWait(browser, timeout).until(
+        presence_of_element_located((By.ID, "obj.desc"))
+    )
 
     assert "Collection Statistics" in browser.page_source
     assert "Collections" in browser.find_element_by_tag_name("h1").text
@@ -142,12 +127,9 @@ def create_collection(browser, assert_, teacher):
     # delete collection
     browser.find_element_by_link_text("Delete").click()
     # assure user is on delete view
-    try:
-        delete_form = WebDriverWait(browser, timeout).until(
-            presence_of_element_located((By.ID, "collection-delete-form"))
-        )
-    except TimeoutException:
-        assert False
+    WebDriverWait(browser, timeout).until(
+        presence_of_element_located((By.ID, "collection-delete-form"))
+    )
 
     assert "Collections" in browser.find_element_by_tag_name("h1").text
     assert "Delete Collection" in browser.find_element_by_tag_name("h2").text
@@ -205,12 +187,9 @@ def collection_buttons(
     browser.find_element_by_xpath("//h2[@id='assignments-title']").click()
     browser.find_element_by_id("collection-select").click()
     # assure user is on update view
-    try:
-        create = WebDriverWait(browser, timeout).until(
-            presence_of_element_located((By.ID, "collection-update-form"))
-        )
-    except TimeoutException:
-        assert False
+    WebDriverWait(browser, timeout).until(
+        presence_of_element_located((By.ID, "collection-update-form"))
+    )
 
     assert "Collections" in browser.find_element_by_tag_name("h1").text
     assert (
@@ -236,12 +215,9 @@ def collection_buttons(
     # confirm update
     browser.find_element_by_id("id_update").click()
     # assure user is on detail view
-    try:
-        detail = WebDriverWait(browser, timeout).until(
-            presence_of_element_located((By.ID, "obj.desc"))
-        )
-    except TimeoutException:
-        assert False
+    WebDriverWait(browser, timeout).until(
+        presence_of_element_located((By.ID, "obj.desc"))
+    )
 
     assert "Collection Statistics" in browser.page_source
     assert "Collections" in browser.find_element_by_tag_name("h1").text
@@ -263,12 +239,9 @@ def collection_buttons(
     # click on collection card
     browser.find_element_by_class_name("mdc-typography--title").click()
     # assure user is on detail view
-    try:
-        detail = WebDriverWait(browser, timeout).until(
-            presence_of_element_located((By.ID, "obj.desc"))
-        )
-    except TimeoutException:
-        assert False
+    WebDriverWait(browser, timeout).until(
+        presence_of_element_located((By.ID, "obj.desc"))
+    )
 
     assert "Collection Statistics" in browser.page_source
     assert "Collections" in browser.find_element_by_tag_name("h1").text
@@ -300,12 +273,9 @@ def collection_buttons(
     # click on collection card
     browser.find_element_by_class_name("mdc-typography--title").click()
     # assure user is on detail view
-    try:
-        detail = WebDriverWait(browser, timeout).until(
-            presence_of_element_located((By.ID, "obj.desc"))
-        )
-    except TimeoutException:
-        assert False
+    WebDriverWait(browser, timeout).until(
+        presence_of_element_located((By.ID, "obj.desc"))
+    )
 
     assert "Collection Statistics" in browser.page_source
     assert "Collections" in browser.find_element_by_tag_name("h1").text

@@ -14,7 +14,8 @@
           <span class="links-divider">|</span><a href="{% url 'collection-detail' object.pk %}">{% trans 'Cancel' %}</a>
         </div>
       </div>
-      <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Delete Collection' %}</h2>
+      <h2 class="mdc-typography--display1
+                 mdc-theme--secondary">{% trans 'Delete Collection' %}</h2>
       <div class='field-container'>
         <div class='number-box'><span class='number'><b>!</b></span></div>
         <div class='field'>
@@ -32,7 +33,10 @@
       </div>
       <form id="collection-delete-form" method="post">
         {% csrf_token %}
-        <input class="mdc-button mdc-button--raised padded-top" id="id_delete" type="submit" value="Confirm" />
+        <input class="mdc-button mdc-button--raised padded-top"
+               id="id_delete"
+               type="submit"
+               value="Confirm" />
       </form>
   </section>
 </main>

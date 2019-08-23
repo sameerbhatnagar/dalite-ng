@@ -1,5 +1,6 @@
 /* Load common sass variables */
 @import "../variables";
+@import "../functions";
 
 /* Stylesheet */
 .card-icon {
@@ -47,7 +48,7 @@
 }
 
 .image-field {
-  color: $mdc-theme-text-colors-dark-primary;
+  color: text-color(dark, primary);
   font-family: "Montserrat", sans-serif;
   font-size: 14px;
   padding-bottom: 6px;
@@ -68,7 +69,7 @@
 }
 
 .mdc-snackbar__text {
-  color: $mdc-theme-text-colors-light-primary;
+  color: text-color(light, primary);
 }
 
 .mdc-snackbar {

@@ -929,7 +929,7 @@ class TeacherTest(TestCase):
         # print(response.context['search_results'])
         # self.assertNotIn(q, response.context['search_results'])
 
-    def test_collection(self):
+    def test_collection_private(self):
 
         logged_in = self.client.login(
             username=self.validated_teacher.username,
@@ -938,58 +938,103 @@ class TeacherTest(TestCase):
         self.assertTrue(logged_in)
 
         # Create a private collection with other owner -> 403
-        Collection.objects.create(
+        q = Collection.objects.create(
             title="test_title",
             description="test_description",
             private=True,
             owner=self.other_teacher.teacher,
             discipline=Discipline.objects.create(title="Physics"),
         )
-        q = Collection.objects.get(id=1)
 
         # for not owner teacher, all collection's pages -> 403
-        response = self.client.get(reverse("collection-update", args="1"))
+        response = self.client.get(
+            reverse("collection-update", args=str(q.pk))
+        )
         self.assertEqual(response.status_code, 403)
 
-        response = self.client.get(reverse("collection-detail", args="1"))
+        response = self.client.get(
+            reverse("collection-detail", args=str(q.pk))
+        )
         self.assertEqual(response.status_code, 403)
 
-        response = self.client.get(reverse("collection-distribute", args="1"))
+        response = self.client.get(
+            reverse("collection-distribute", args=str(q.pk))
+        )
         self.assertEqual(response.status_code, 403)
 
-        response = self.client.get(reverse("collection-delete", args="1"))
+        response = self.client.get(
+            reverse("collection-delete", args=str(q.pk))
+        )
         self.assertEqual(response.status_code, 403)
+
+    def test_collection_public_not_owner(self):
+
+        logged_in = self.client.login(
+            username=self.validated_teacher.username,
+            password=self.validated_teacher.text_pwd,
+        )
+        self.assertTrue(logged_in)
 
         # Make collection public -> 200 for distribute and detail
-        q.private = False
-        q.save()
+        q = Collection.objects.create(
+            title="test_title",
+            description="test_description",
+            private=False,
+            owner=self.other_teacher.teacher,
+            discipline=Discipline.objects.create(title="Physics"),
+        )
 
-        response = self.client.get(reverse("collection-update", args="1"))
+        response = self.client.get(
+            reverse("collection-update", args=str(q.pk))
+        )
         self.assertEqual(response.status_code, 403)
 
-        response = self.client.get(reverse("collection-distribute", args="1"))
+        response = self.client.get(
+            reverse("collection-distribute", args=str(q.pk))
+        )
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, q.title)
 
-        response = self.client.get(reverse("collection-detail", args="1"))
+        response = self.client.get(
+            reverse("collection-detail", args=str(q.pk))
+        )
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, q.title)
 
-        response = self.client.get(reverse("collection-delete", args="1"))
+        response = self.client.get(
+            reverse("collection-delete", args=str(q.pk))
+        )
         self.assertEqual(response.status_code, 403)
+
+    def test_collection_public_owner(self):
+
+        logged_in = self.client.login(
+            username=self.validated_teacher.username,
+            password=self.validated_teacher.text_pwd,
+        )
+        self.assertTrue(logged_in)
 
         # Make teacher owner -> 200 for all
-        q.owner = self.validated_teacher.teacher
-        q.save()
+        q = Collection.objects.create(
+            title="test_title",
+            description="test_description",
+            private=False,
+            owner=self.validated_teacher.teacher,
+            discipline=Discipline.objects.create(title="Physics"),
+        )
 
-        response = self.client.get(reverse("collection-update", args="1"))
+        response = self.client.get(
+            reverse("collection-update", args=str(q.pk))
+        )
         self.assertEqual(response.status_code, 200)
         self.assertContains(
             response,
             '<form id="collection-update-form" enctype="multipart/form-data"',
         )
 
-        response = self.client.get(reverse("collection-delete", args="1"))
+        response = self.client.get(
+            reverse("collection-delete", args=str(q.pk))
+        )
         self.assertEqual(response.status_code, 200)
         self.assertContains(
             response, '<form id="collection-delete-form" method="post">'
@@ -1017,6 +1062,21 @@ class TeacherTest(TestCase):
         self.assertContains(response, q.title)
         self.assertContains(response, "Your Collections")
 
+    def test_collection_public_owner_follower(self):
+
+        logged_in = self.client.login(
+            username=self.validated_teacher.username,
+            password=self.validated_teacher.text_pwd,
+        )
+        self.assertTrue(logged_in)
+
+        q = Collection.objects.create(
+            title="test_title",
+            description="test_description",
+            private=False,
+            owner=self.validated_teacher.teacher,
+            discipline=Discipline.objects.create(title="Physics"),
+        )
         q.followers.add(self.validated_teacher.teacher)
         q.save()
 
@@ -1037,7 +1097,23 @@ class TeacherTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, q.title)
 
-        q.featured = True
+    def test_collection_public_owner_follower_featured(self):
+
+        logged_in = self.client.login(
+            username=self.validated_teacher.username,
+            password=self.validated_teacher.text_pwd,
+        )
+        self.assertTrue(logged_in)
+
+        q = Collection.objects.create(
+            title="test_title",
+            description="test_description",
+            private=False,
+            owner=self.validated_teacher.teacher,
+            discipline=Discipline.objects.create(title="Physics"),
+            featured=True,
+        )
+        q.followers.add(self.validated_teacher.teacher)
         q.save()
 
         # collection is featured, should appear on featured-list view
@@ -1057,7 +1133,23 @@ class TeacherTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, q.title)
 
-        q.private = True
+    def test_collection_private_owner_follower_featured(self):
+
+        logged_in = self.client.login(
+            username=self.validated_teacher.username,
+            password=self.validated_teacher.text_pwd,
+        )
+        self.assertTrue(logged_in)
+
+        q = Collection.objects.create(
+            title="test_title",
+            description="test_description",
+            private=True,
+            owner=self.validated_teacher.teacher,
+            discipline=Discipline.objects.create(title="Physics"),
+            featured=True,
+        )
+        q.followers.add(self.validated_teacher.teacher)
         q.save()
 
         # teacher = owner, so private attribute should not affect collection
@@ -1077,7 +1169,23 @@ class TeacherTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, q.title)
 
-        q.featured = False
+    def test_collection_private_owner_follower(self):
+
+        logged_in = self.client.login(
+            username=self.validated_teacher.username,
+            password=self.validated_teacher.text_pwd,
+        )
+        self.assertTrue(logged_in)
+
+        q = Collection.objects.create(
+            title="test_title",
+            description="test_description",
+            private=True,
+            owner=self.validated_teacher.teacher,
+            discipline=Discipline.objects.create(title="Physics"),
+            featured=False,
+        )
+        q.followers.add(self.validated_teacher.teacher)
         q.save()
 
         # collection is removed from featured view
@@ -1097,8 +1205,22 @@ class TeacherTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, q.title)
 
-        q.followers.remove(self.validated_teacher.teacher)
-        q.save()
+    def test_collection_private_owner(self):
+
+        logged_in = self.client.login(
+            username=self.validated_teacher.username,
+            password=self.validated_teacher.text_pwd,
+        )
+        self.assertTrue(logged_in)
+
+        q = Collection.objects.create(
+            title="test_title",
+            description="test_description",
+            private=True,
+            owner=self.validated_teacher.teacher,
+            discipline=Discipline.objects.create(title="Physics"),
+            featured=False,
+        )
 
         # collection is removed from teacher's followed collections
         response = self.client.get(reverse("collection-list"))
@@ -1117,8 +1239,22 @@ class TeacherTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, q.title)
 
-        q.owner = self.other_teacher.teacher
-        q.save()
+    def test_collection_private(self):
+
+        logged_in = self.client.login(
+            username=self.validated_teacher.username,
+            password=self.validated_teacher.text_pwd,
+        )
+        self.assertTrue(logged_in)
+
+        q = Collection.objects.create(
+            title="test_title",
+            description="test_description",
+            private=True,
+            owner=self.other_teacher.teacher,
+            discipline=Discipline.objects.create(title="Physics"),
+            featured=False,
+        )
 
         # teacher loses ownership, collection should not appear on any list
         response = self.client.get(reverse("collection-list"))
@@ -1137,8 +1273,22 @@ class TeacherTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, q.title)
 
-        q.featured = True
-        q.save()
+    def test_collection_private_featured(self):
+
+        logged_in = self.client.login(
+            username=self.validated_teacher.username,
+            password=self.validated_teacher.text_pwd,
+        )
+        self.assertTrue(logged_in)
+
+        q = Collection.objects.create(
+            title="test_title",
+            description="test_description",
+            private=True,
+            owner=self.other_teacher.teacher,
+            discipline=Discipline.objects.create(title="Physics"),
+            featured=True,
+        )
 
         # featured collection is still private, not accesable
         response = self.client.get(reverse("collection-list"))
@@ -1157,7 +1307,24 @@ class TeacherTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, q.title)
 
+    def test_collection_private_featured_follower(self):
+
+        logged_in = self.client.login(
+            username=self.validated_teacher.username,
+            password=self.validated_teacher.text_pwd,
+        )
+        self.assertTrue(logged_in)
+
+        q = Collection.objects.create(
+            title="test_title",
+            description="test_description",
+            private=True,
+            owner=self.other_teacher.teacher,
+            discipline=Discipline.objects.create(title="Physics"),
+            featured=True,
+        )
         q.followers.add(self.validated_teacher.teacher)
+        q.save()
 
         # followed collection is still private, not accesable
         response = self.client.get(reverse("collection-list"))
@@ -1176,7 +1343,23 @@ class TeacherTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, q.title)
 
-        q.private = False
+    def test_collection_public_follower(self):
+
+        logged_in = self.client.login(
+            username=self.validated_teacher.username,
+            password=self.validated_teacher.text_pwd,
+        )
+        self.assertTrue(logged_in)
+
+        q = Collection.objects.create(
+            title="test_title",
+            description="test_description",
+            private=False,
+            owner=self.other_teacher.teacher,
+            discipline=Discipline.objects.create(title="Physics"),
+            featured=True,
+        )
+        q.followers.add(self.validated_teacher.teacher)
         q.save()
 
         # collection is now public, should appear on followed & featured lists

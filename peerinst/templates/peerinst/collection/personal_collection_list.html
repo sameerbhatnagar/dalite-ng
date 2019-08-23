@@ -25,7 +25,9 @@
   </div>
 
 <div>
-<h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Your Collections' %}</h2>
+<h2 class="mdc-typography--display1 mdc-theme--secondary">
+  {% trans 'Your Collections' %}
+</h2>
 </div>
 <div>
 <div class='field-container'>
@@ -33,14 +35,15 @@
   <div class='field'>
     <p><small>
       {% blocktrans %}
-      A collection is a compilation of assignments that work well in conjunction with one another.
-      Collections have various functions, from housing an entire semester's worth of course material
-      to simply covering one topic.
+      A collection is a compilation of assignments that work well in conjunction
+      with one another. Collections have various functions, from housing an entire
+      semester's worth of course material to simply covering one topic.
       {% endblocktrans %}
       </small></p>
       <p><small>
       {% blocktrans %}
-      These collections belong to you. View a collection, if you wish to assign it to a group or edit its contents.
+      These collections belong to you. View a collection, if you wish to assign
+      it to a group or edit its contents.
       {% endblocktrans %}
     </small></p>
   </div>
@@ -52,9 +55,11 @@
 
 <li class="dense-list searchable">
 <div class="mdc-card" id="card{% if obj.featured == True %}-featured{% endif %}">
-<div class="clickable detail-view" id="{{ obj.pk }}">
+<div class="clickable detail-view" id="{{ obj.pk|safe }}">
   <div class="mdc-typography--title bold">
-    {% if obj.image %}<img id="thumbnail" src="{{obj.image.url}}">&nbsp;&nbsp;{% endif %}{{ obj.title|bleach_html|safe }}
+    {% if obj.image %}
+    <img id="thumbnail"
+         src="{{obj.image.url}}">&nbsp;&nbsp;{% endif %}{{ obj.title|bleach_html|safe }}
   </div>
 
   <div class="mdc-typography--caption">
@@ -70,7 +75,7 @@
     <div class="mdc-card__action-buttons">
       <div class="mdc-typography--caption">
         <div>
-          {% trans 'Discipline' %}: {{ obj.discipline|safe }}
+          {% trans 'Discipline' %}: {{ obj.discipline|bleach_html|safe }}
         </div>
         <div>
           {% trans 'Published on' %} {{obj.created_on}}
@@ -92,7 +97,7 @@
           data-toggle-on='{"label": "Remove from favourites", "content": "favorite"}'
           data-toggle-off='{"label": "Add to favourites", "content": "favorite_border"}'
           {% endif %}
-          pk="{{ obj.pk }}">
+          pk="{{ obj.pk|safe }}">
           favorite_border
       </i>
     </div>
