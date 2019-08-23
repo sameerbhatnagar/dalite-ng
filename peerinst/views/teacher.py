@@ -32,7 +32,6 @@ from ..models import (
     Answer,
     AnswerAnnotation,
     Collection,
-    Question,
     RunningTask,
     StudentGroup,
     StudentGroupAssignment,
@@ -177,9 +176,7 @@ def new_questions(req, teacher):
     -------
     HttpResponse
     """
-    questions = Question.objects.filter(
-        discipline__in=teacher.disciplines.all()
-    ).order_by("?")[:1]
+    questions = choose_questions(teacher).order_by("?")[:1]
 
     return TemplateResponse(
         req,
@@ -462,8 +459,19 @@ def evaluate_rationale(req, teacher):
     HttpResponse
         Error response or empty 200 response
     """
-    id_ = req.POST.get("id")
-    score = int(req.POST.get("score"))
+
+    id_ = req.POST.get("id", None)
+    score = req.POST.get("score", None)
+
+    if not id_ or not score:
+        return response_400(
+            req,
+            msg=translate("Missing parameters."),
+            logger_msg=("Score and/or ID are missing from request."),
+            log=logger.warning,
+        )
+
+    score = int(score)
 
     if score not in range(0, 4):
         return response_400(
@@ -473,23 +481,19 @@ def evaluate_rationale(req, teacher):
             log=logger.warning,
         )
 
-    if score == 0:
-        # Flag as inappropriate
-        pass
-    else:
-        try:
-            answer = Answer.objects.get(id=id_)
-        except Answer.DoesNotExist:
-            return response_400(
-                req,
-                msg=translate("Unkown answer id sent."),
-                logger_msg=("No answer could be found for pk {}.".format(id_)),
-                log=logger.warning,
-            )
-
-        AnswerAnnotation.objects.create(
-            answer=answer, annotator=teacher.user, score=score
+    try:
+        answer = Answer.objects.get(id=id_)
+    except Answer.DoesNotExist:
+        return response_400(
+            req,
+            msg=translate("Unkown answer id sent."),
+            logger_msg=("No answer could be found for pk {}.".format(id_)),
+            log=logger.warning,
         )
+
+    AnswerAnnotation.objects.create(
+        answer=answer, annotator=teacher.user, score=score
+    )
 
     return redirect(reverse("teacher-dashboard--rationales"))
 

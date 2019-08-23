@@ -38,6 +38,7 @@ export function init(favUrl, refreshUrl) {
                   .hide()
                   .toggle("slide", transition);
                 init(favUrl, refreshUrl);
+                window.location.href = "#questions";
               });
             });
             posting.fail(() => {
