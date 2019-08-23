@@ -2,7 +2,9 @@ from faker import Faker
 import time
 
 from selenium.common.exceptions import NoSuchElementException
+from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
@@ -188,6 +190,31 @@ def go_to_post(browser):
     button.click()
 
 
+def no_notification(browser, assert_):
+    icon = browser.find_element_by_xpath("//i[contains(text(), 'menu')]")
+    icon.click()
+
+    browser.wait_for(
+        lambda: assert_(
+            "Forum" in browser.find_element_by_id("#icon-with-text-demo").text
+        )
+    )
+
+    browser.wait_for(
+        lambda: assert_(
+            "New!"
+            not in browser.find_element_by_id("#icon-with-text-demo").text
+        )
+    )
+
+    ActionChains(browser).send_keys(Keys.ESCAPE).perform()
+
+
+def check_follow_page(browser):
+    browser.find_element_by_link_text("Follows").click()
+    assert "new_releases" in browser.page_source
+
+
 def check_notifications(browser, assert_):
     icon = browser.find_element_by_xpath("//i[contains(text(), 'menu')]")
     icon.click()
@@ -213,6 +240,7 @@ def test_forum_workflow(browser, assert_, teachers, forum):
     create_post(browser)
     edit_post(browser)
     post_to_post(browser)
+    no_notification(browser, assert_)
     edit_reply(browser)
     reply_to_post(browser)
     delete_reply(browser)
@@ -230,3 +258,5 @@ def test_forum_workflow(browser, assert_, teachers, forum):
 
     login(browser, teacher)
     check_notifications(browser, assert_)
+    go_to_forums(browser, forum)
+    check_follow_page(browser)
