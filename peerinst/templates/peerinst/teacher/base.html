@@ -53,7 +53,7 @@ class="logged-in-layout"
     reputation-url="{% url 'reputation:reputation' %}"
     reputation-id="{{ request.user.teacher.pk }}"
     nonce="{{ request.csp_nonce }}"
-    stale="false">
+    stale="">
   </teacher-reputation-header>
 </div>
 <div class="header">

@@ -52,6 +52,10 @@ export function init(url) {
           .hide()
           .toggle("slide", transition);
         init(url);
+        // Refresh reputation score
+        document
+          .getElementsByTagName("teacher-reputation-header")[0]
+          .setAttribute("stale", "");
       });
     }
   });

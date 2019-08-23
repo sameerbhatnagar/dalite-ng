@@ -42,6 +42,7 @@ class TeacherReputationHeader extends ReputationHeader {
     /**********/
     /* update */
     /**********/
+    this.update = update;
 
     async function update() {
       await getReputation();
