@@ -18,66 +18,8 @@ class Migration(migrations.Migration):
             field=models.BooleanField(default=False),
         ),
         migrations.AlterField(
-            model_name="category",
-            name="title",
-            field=models.CharField(
-                help_text="Enter the name of a new question category.",
-                max_length=100,
-                unique=True,
-                validators=[peerinst.models.question.no_hyphens],
-                verbose_name="Category Name",
-            ),
-        ),
-        migrations.AlterField(
             model_name="collection",
             name="assignments",
             field=models.ManyToManyField(blank=True, to="peerinst.Assignment"),
-        ),
-        migrations.AlterField(
-            model_name="discipline",
-            name="title",
-            field=models.CharField(
-                help_text="Enter the name of a new discipline.",
-                max_length=100,
-                unique=True,
-                validators=[peerinst.models.question.no_hyphens],
-                verbose_name="Discipline name",
-            ),
-        ),
-        migrations.AlterField(
-            model_name="question",
-            name="category",
-            field=models.ManyToManyField(
-                help_text=(
-                    "Type to search and select at least one category for this "
-                    "question. You can select multiple categories."
-                ),
-                related_name="Categories",
-                to="peerinst.Category",
-            ),
-        ),
-        migrations.AlterField(
-            model_name="question",
-            name="discipline",
-            field=models.ForeignKey(
-                blank=True,
-                help_text=(
-                    "Optional. Select the discipline to which this item "
-                    "should be associated."
-                ),
-                null=True,
-                on_delete=django.db.models.deletion.CASCADE,
-                to="peerinst.Discipline",
-            ),
-        ),
-        migrations.AlterField(
-            model_name="question",
-            name="fake_attributions",
-            field=models.BooleanField(
-                default=False,
-                help_text="Add random fake attributions consisting of username"
-                "and country to rationales. ",
-                verbose_name="Add fake attributions",
-            ),
         ),
     ]
