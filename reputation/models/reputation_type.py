@@ -19,7 +19,8 @@ class ReputationType(models.Model):
     def _calculate_points(self, criterion, model):
         """
         Calculates the number of points returned by the model based on the
-        criterion evaluation and its point thresholds.
+        criterion evaluation and its point thresholds. Points can't be smaller
+        than 0.
 
         Parameters
         ----------
@@ -44,6 +45,7 @@ class ReputationType(models.Model):
             If the given `model` doesn't correspond to the `type`
         """
         evaluation, details = criterion.evaluate(model)
+        evaluation = max(0, evaluation)
 
         if criterion.thresholds:
             points = sum(
