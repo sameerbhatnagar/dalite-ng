@@ -1,9 +1,10 @@
 __all__ = [
+    "CommonRationaleChoicesCriterion",
+    "ConvincingRationalesCriterion",
     "Criterion",
     "NAnswersCriterion",
     "NQuestionsCriterion",
-    "ConvincingRationalesCriterion",
-    "CommonRationaleChoicesCriterion",
+    "QuestionLikedCriterion",
     "Reputation",
     "ReputationHistory",
     "ReputationType",
@@ -11,11 +12,12 @@ __all__ = [
 ]
 
 from .criteria import (
+    CommonRationaleChoicesCriterion,
+    ConvincingRationalesCriterion,
     Criterion,
     NAnswersCriterion,
     NQuestionsCriterion,
-    ConvincingRationalesCriterion,
-    CommonRationaleChoicesCriterion,
+    QuestionLikedCriterion,
 )
 from .reputation import Reputation, ReputationHistory
 from .reputation_type import ReputationType, UsesCriterion
