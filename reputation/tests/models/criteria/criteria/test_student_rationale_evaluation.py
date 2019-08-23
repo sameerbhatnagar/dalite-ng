@@ -80,7 +80,7 @@ def test_evaluate__part_convincing(
 def test_evaluate__different_scores(
     student_rationale_evaluation_criterion, student, answers, teacher
 ):
-    student_rationale_evaluation_criterion.score_3 = 2
+    student_rationale_evaluation_criterion.points_score_3 = 2
     student_rationale_evaluation_criterion.save()
     for i, answer in enumerate(answers[: len(answers) // 4]):
         answer.user_token = student.student.username
