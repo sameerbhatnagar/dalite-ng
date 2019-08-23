@@ -259,7 +259,7 @@ def remove_dalite_message(req, teacher):
     return HttpResponse("")
 
 
-@require_safe
+@require_GET
 @teacher_required
 def rationales_to_score(req, teacher):
     """

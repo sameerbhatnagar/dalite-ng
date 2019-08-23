@@ -1,4 +1,8 @@
 export class ReputationHeader extends HTMLElement {
+  static get observedAttributes() {
+    return ["stale"];
+  }
+
   get reputationUrl(): string {
     const url = this.getAttribute("reputation-url");
     if (!url) {
@@ -32,6 +36,14 @@ export class ReputationHeader extends HTMLElement {
   get open() {
     return this.hasAttribute("open");
   }
+  get stale() {
+    const stale = this.getAttribute("stale");
+    if (!stale) {
+      stale = "false";
+      this.setAttribute("stale", stale);
+    }
+    return stale;
+  }
   set hidden(val: boolean) {
     if (val) {
       this.setAttribute("hidden", "");
@@ -55,5 +67,10 @@ export class ReputationHeader extends HTMLElement {
     this.hidden = true;
 
     this.init(shadow);
+  }
+  attributeChangedCallback(attrName, oldVal, newVal) {
+    if (attrName === "stale") {
+      // Update reputation score from server if element is stale
+    }
   }
 }
