@@ -162,7 +162,20 @@ def collections(req, teacher):
 @require_GET
 @teacher_required
 def new_questions(req, teacher):
+    """
+    View that returns a question in the teacher's disciplines.
 
+    Parameters
+    ----------
+    req : HttpRequest
+
+    teacher : Teacher
+        Teacher instance returned by `teacher_required`
+
+    Returns
+    -------
+    HttpResponse
+    """
     questions = Question.objects.filter(
         discipline__in=teacher.disciplines.all()
     ).order_by("?")[:1]
@@ -246,10 +259,23 @@ def remove_dalite_message(req, teacher):
     return HttpResponse("")
 
 
-@require_GET
+@require_safe
 @teacher_required
 def rationales_to_score(req, teacher):
+    """
+    View that returns one rationale to score.
 
+    Parameters
+    ----------
+    req : HttpRequest
+
+    teacher : Teacher
+        Teacher instance returned by `teacher_required`
+
+    Returns
+    -------
+    HttpResponse
+    """
     rationales = choose_rationales_no_quality(teacher, n=1)
 
     return TemplateResponse(
