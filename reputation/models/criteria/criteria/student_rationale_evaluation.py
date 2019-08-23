@@ -12,14 +12,16 @@ class StudentRationaleEvaluationCriterion(Criterion):
     name = models.CharField(
         max_length=32, default="student_rationale_evaluation", editable=False
     )
+    score_0 = models.IntegerField(default=-1)
+    score_1 = models.IntegerField(default=0)
+    score_2 = models.IntegerField(default=1)
+    score_3 = models.IntegerField(default=1)
 
     def evaluate(self, student):
         """
         Evaluates the `student` using the evaluations given by teachers for
-        their rationales. Score is calculated as:
-            0    : -1
-            1    : 0
-            2, 3 : 1
+        their rationales. Score is calculated using the different scores in
+        the model fields.
 
         Parameters
         ----------
@@ -46,7 +48,7 @@ class StudentRationaleEvaluationCriterion(Criterion):
                 max(
                     0,
                     sum(
-                        scores[evaluation.score]
+                        getattr(self, "score_{}".format(evaluation.score))
                         for answer in student.answers.all()
                         for evaluation in answer.answerannotation_set.all()
                     ),

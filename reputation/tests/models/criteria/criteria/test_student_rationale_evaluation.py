@@ -77,6 +77,47 @@ def test_evaluate__part_convincing(
     )
 
 
+def test_evaluate__different_scores(
+    student_rationale_evaluation_criterion, student, answers, teacher
+):
+    student_rationale_evaluation_criterion.score_3 = 2
+    student_rationale_evaluation_criterion.save()
+    for i, answer in enumerate(answers[: len(answers) // 4]):
+        answer.user_token = student.student.username
+        answer.save()
+        AnswerAnnotation.objects.create(
+            answer=answer, annotator=teacher.user, score=3
+        )
+    for i, answer in enumerate(answers[len(answers) // 4 : len(answers) // 2]):
+        answer.user_token = student.student.username
+        answer.save()
+        AnswerAnnotation.objects.create(
+            answer=answer, annotator=teacher.user, score=2
+        )
+    for i, answer in enumerate(
+        answers[len(answers) // 2 : len(answers) * 3 // 4]
+    ):
+        answer.user_token = student.student.username
+        answer.save()
+        AnswerAnnotation.objects.create(
+            answer=answer, annotator=teacher.user, score=1
+        )
+    for i, answer in enumerate(answers[len(answers) * 3 // 4 :]):
+        answer.user_token = student.student.username
+        answer.save()
+        AnswerAnnotation.objects.create(
+            answer=answer, annotator=teacher.user, score=0
+        )
+    assert (
+        student_rationale_evaluation_criterion.evaluate(student)[0]
+        == len(answers) // 4 * 2
+        + len(answers) // 2
+        - len(answers) // 4
+        - len(answers)
+        + len(answers) * 3 // 4
+    )
+
+
 def test_evaluate__wrong_model_type(
     student_rationale_evaluation_criterion, teacher
 ):
