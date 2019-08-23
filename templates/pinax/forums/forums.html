@@ -54,7 +54,7 @@
             {% trans 'Has taught' %} {{ u.user.teacher.disciplines.first }} {% trans 'at' %} {{ u.user.teacher.institutions.first }}
         </span>
         <span class="mdc-list-item__secondary-text">
-            {% trans 'Currently teaches' %} {{ u.user.teacher.current_groups.count }} {% trans 'groups on MyDalite' %}
+            {% trans 'Currently teaches' %} {{ u.user.teacher.current_groups.count }} {% if u.user.teacher.current_groups.count == 1 %}{% trans 'group on MyDalite' %}{% else %}{% trans 'groups on MyDalite' %}{% endif %}
         </span>
       </span>
   </li>
