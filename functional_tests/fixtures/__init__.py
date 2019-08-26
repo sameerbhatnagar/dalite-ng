@@ -21,6 +21,9 @@ __all__ = [
     "group",
     "student_group_assignment",
     "undistributed_assignment",
+    "student",
+    "student_new",
+    "tos_student",
 ]
 
 from .forums_ import forum
@@ -40,6 +43,9 @@ from .peerinst_ import (
     group,
     student_group_assignment,
     undistributed_assignment,
+    student,
+    student_new,
+    tos_student,
 )
 from .quality_ import min_words_criterion, min_words_rules, quality_min_words
 from .reputation_ import student_reputation_with_criteria

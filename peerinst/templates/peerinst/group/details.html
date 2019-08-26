@@ -208,7 +208,7 @@ https://datatables.net/extensions/buttons/examples/styling/jqueryui.html
       <div class="foldable--body">
         <div id="collection-select"
                 class="admin-link clickable"
-                data-pk="{{ group.pk }}">{% trans 'Add to Collection' %}
+                data-pk="{{ group.pk|safe }}">{% trans 'Add to Collection' %}
         </div>
         <ul id="assignment-list" class="mdc-list mdc-list--two-line">
           {% for a in assignments %}
@@ -308,24 +308,15 @@ https://datatables.net/extensions/buttons/examples/styling/jqueryui.html
       }
   });
 
-
-  function collectionCreate(pk) {
-    var posting = $.post("{% url 'collection-add-assignment' %}", {pk: pk});
-    posting.done(function(data) {
-      console.info(data);
-    })
-  }
-
-
-  const el = document.getElementById("collection-select");
-  el.addEventListener(
-    "click",
-    () => group.createCollection(
-      el.getAttribute('data-pk'),
-      "{% url 'collection-add-assignment' %}",
-      "{% url 'collection-update' 0 %}"
-    )
-  );
+  $("#collection-select").one("click",
+    () => {;
+      group.createCollection(
+        $("#collection-select").attr('data-pk'),
+        "{% url 'collection-add-assignment' %}",
+        "{% url 'collection-update' 0 %}"
+      );
+      return;
+  });
 
   window.addEventListener("load", () => {
     group.initDetails({{ data|safe }});
