@@ -7,10 +7,11 @@ from ..logger import logger
 from .criteria.errors import CriterionDoesNotExistError
 
 criteria = {
+    "common_rationale_choices": "CommonRationaleChoicesCriterion",
+    "convincing_rationales": "ConvincingRationalesCriterion",
     "n_answers": "NAnswersCriterion",
     "n_questions": "NQuestionsCriterion",
-    "convincing_rationales": "ConvincingRationalesCriterion",
-    "common_rationale_choices": "CommonRationaleChoicesCriterion",
+    "rationale_evaluation": "RationaleEvaluationCriterion",
 }
 
 
