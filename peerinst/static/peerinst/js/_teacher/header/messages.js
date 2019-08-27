@@ -122,8 +122,12 @@ function messagesView(): void {
     model.messages.map(function(message) {
       messagesList.appendChild(messageView(message));
     });
+    document
+      .querySelector(".messages__read-all-btn")
+      .classList.remove("hidden");
   } else {
     messagesList.appendChild(noMessageView());
+    document.querySelector(".messages__read-all-btn").classList.add("hidden");
   }
 
   if (model.open) {
