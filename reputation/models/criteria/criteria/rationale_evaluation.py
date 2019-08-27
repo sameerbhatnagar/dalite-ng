@@ -36,7 +36,12 @@ class RationaleEvaluationCriterion(Criterion):
         """
         super(RationaleEvaluationCriterion, self).evaluate(teacher)
         if teacher.__class__.__name__ == "Teacher":
-            return teacher.user.answerannotation_set.count(), {}
+            return (
+                teacher.user.answerannotation_set.filter(
+                    score__isnull=False
+                ).count(),
+                {},
+            )
         else:
             msg = "`question` has to be of type Teacher."
             logger.error("TypeError: {}".format(msg))
