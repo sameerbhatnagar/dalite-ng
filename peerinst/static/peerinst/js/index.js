@@ -11,6 +11,7 @@ import * as ripple from "@material/ripple/index";
 import * as selectbox from "@material/select/index";
 import * as textField from "@material/textfield/index";
 import * as toolbar from "@material/toolbar/index";
+import * as snackbar from "@material/snackbar/index";
 
 autoInit.register("MDCCheckbox", checkbox.MDCCheckbox);
 autoInit.register("MDCChip", chips.MDCChip);
@@ -24,6 +25,7 @@ autoInit.register("MDCSelect", selectbox.MDCSelect);
 autoInit.register("MDCTextField", textField.MDCTextField);
 autoInit.register("MDCTextFieldHelperText", helperText.MDCTextFieldHelperText);
 autoInit.register("MDCToolbar", toolbar.MDCToolbar);
+autoInit.register("MDCSnackbar", snackbar.MDCSnackbar);
 
 export {
   autoInit,
@@ -37,6 +39,7 @@ export {
   selectbox,
   textField,
   toolbar,
+  snackbar,
 };
 
 // D3
@@ -337,8 +340,8 @@ export function bindCategoryAutofill(source) {
   };
 
   $("#autofill_categories").autocomplete({
-    delay: 300,
-    minLength: 2,
+    delay: 700,
+    minLength: 3,
     classes: {
       "ui-autocomplete": "mdc-typography--body1",
     },

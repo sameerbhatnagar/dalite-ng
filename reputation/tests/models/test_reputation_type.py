@@ -58,6 +58,20 @@ def test_calculate_points__threshold_less_than_points(question_reputation):
     ] == 10 * (5 + 4 + 3 + 2 + 1)
 
 
+def test_calculate_points__no_threshold_negative_points(question_reputation):
+    reputation_type = question_reputation.reputation_type
+
+    criterion = mock.Mock()
+    model = mock.Mock()
+    criterion.evaluate.return_value = -50, {}
+    criterion.thresholds = []
+    criterion.points_per_threshold = ["2"]
+
+    assert (
+        reputation_type._calculate_points(criterion, model)["reputation"] == 0
+    )
+
+
 def test_evaluate(question_reputation):
     for i in range(3):
         UsesCriterion.objects.create(

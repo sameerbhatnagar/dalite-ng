@@ -103,6 +103,17 @@ function toggleStudentIdNeeded(event: MouseEvent, url: string): void {
     });
 }
 
+export async function createCollection(
+  groupPk,
+  addAssignmentUrl,
+  collectionUpdateUrl,
+) {
+  const req = buildReq({ group_pk: groupPk }, "post");
+  const resp = await fetch(addAssignmentUrl, req);
+  const data = await resp.json();
+  window.location.assign(collectionUpdateUrl.replace("0", `${data.pk}`));
+}
+
 async function getStudentInformation(student: Student): Promise<void> {
   const req = buildReq({ id: student.id }, "post");
 

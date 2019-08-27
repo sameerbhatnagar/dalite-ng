@@ -20,7 +20,14 @@ const { uglify } = require("rollup-plugin-uglify");
 const styleBuilds = [
   {
     app: "peerinst",
-    modules: ["group", "student", "question", "teacher", "layout"],
+    modules: [
+      "group",
+      "student",
+      "question",
+      "collection",
+      "teacher",
+      "layout",
+    ],
   },
   {
     app: "tos",
@@ -48,6 +55,7 @@ const scriptBuilds = [
       "teacher",
       "custom_elements",
       "teacher",
+      "collection",
     ],
   },
   {
@@ -146,6 +154,7 @@ function buildScript(app, module) {
       "@material/select": "@material/select",
       "@material/textfield": "@material/textfield",
       "@material/toolbar": "@material/toolbar",
+      "material/snackbar": "material/snackbar",
     },
     external: [
       "flatpickr",
@@ -161,6 +170,7 @@ function buildScript(app, module) {
       "@material/select",
       "@material/textfield",
       "@material/toolbar",
+      "material/snackbar",
     ],
     plugins: [
       eslint({

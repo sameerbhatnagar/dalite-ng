@@ -7,7 +7,13 @@ from django.core import mail
 from django.core.urlresolvers import reverse
 from django.test import TestCase, TransactionTestCase
 
-from peerinst.models import Assignment, Discipline, Question, Teacher
+from peerinst.models import (
+    Assignment,
+    Discipline,
+    Question,
+    Teacher,
+    Collection,
+)
 from quality.models import UsesCriterion
 from tos.models import Consent, Role, Tos
 
@@ -922,6 +928,456 @@ class TeacherTest(TestCase):
         # self.client.get(reverse('question-search')+"?search_string=Question&type=assignment&id=Assignment1")
         # print(response.context['search_results'])
         # self.assertNotIn(q, response.context['search_results'])
+
+    def test_collection_private(self):
+
+        logged_in = self.client.login(
+            username=self.validated_teacher.username,
+            password=self.validated_teacher.text_pwd,
+        )
+        self.assertTrue(logged_in)
+
+        # Create a private collection with other owner -> 403
+        q = Collection.objects.create(
+            title="test_title",
+            description="test_description",
+            private=True,
+            owner=self.other_teacher.teacher,
+            discipline=Discipline.objects.create(title="Physics"),
+        )
+
+        # for not owner teacher, all collection's pages -> 403
+        response = self.client.get(
+            reverse("collection-update", args=str(q.pk))
+        )
+        self.assertEqual(response.status_code, 403)
+
+        response = self.client.get(
+            reverse("collection-detail", args=str(q.pk))
+        )
+        self.assertEqual(response.status_code, 403)
+
+        response = self.client.get(
+            reverse("collection-distribute", args=str(q.pk))
+        )
+        self.assertEqual(response.status_code, 403)
+
+        response = self.client.get(
+            reverse("collection-delete", args=str(q.pk))
+        )
+        self.assertEqual(response.status_code, 403)
+
+    def test_collection_public_not_owner(self):
+
+        logged_in = self.client.login(
+            username=self.validated_teacher.username,
+            password=self.validated_teacher.text_pwd,
+        )
+        self.assertTrue(logged_in)
+
+        # Make collection public -> 200 for distribute and detail
+        q = Collection.objects.create(
+            title="test_title",
+            description="test_description",
+            private=False,
+            owner=self.other_teacher.teacher,
+            discipline=Discipline.objects.create(title="Physics"),
+        )
+
+        response = self.client.get(
+            reverse("collection-update", args=str(q.pk))
+        )
+        self.assertEqual(response.status_code, 403)
+
+        response = self.client.get(
+            reverse("collection-distribute", args=str(q.pk))
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, q.title)
+
+        response = self.client.get(
+            reverse("collection-detail", args=str(q.pk))
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, q.title)
+
+        response = self.client.get(
+            reverse("collection-delete", args=str(q.pk))
+        )
+        self.assertEqual(response.status_code, 403)
+
+    def test_collection_public_owner(self):
+
+        logged_in = self.client.login(
+            username=self.validated_teacher.username,
+            password=self.validated_teacher.text_pwd,
+        )
+        self.assertTrue(logged_in)
+
+        # Make teacher owner -> 200 for all
+        q = Collection.objects.create(
+            title="test_title",
+            description="test_description",
+            private=False,
+            owner=self.validated_teacher.teacher,
+            discipline=Discipline.objects.create(title="Physics"),
+        )
+
+        response = self.client.get(
+            reverse("collection-update", args=str(q.pk))
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            '<form id="collection-update-form" enctype="multipart/form-data"',
+        )
+
+        response = self.client.get(
+            reverse("collection-delete", args=str(q.pk))
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response, '<form id="collection-delete-form" method="post">'
+        )
+
+        # all list views should always return 200 for teacher
+        # collection is in public domain and owned, so contained on those pages
+        response = self.client.get(reverse("collection-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, q.title)
+        self.assertContains(response, "Browse Collections")
+
+        response = self.client.get(reverse("followed-collection-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, q.title)
+        self.assertContains(response, "Your Followed Collections")
+
+        response = self.client.get(reverse("featured-collection-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, q.title)
+        self.assertContains(response, "Featured Collections")
+
+        response = self.client.get(reverse("personal-collection-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, q.title)
+        self.assertContains(response, "Your Collections")
+
+    def test_collection_public_owner_follower(self):
+
+        logged_in = self.client.login(
+            username=self.validated_teacher.username,
+            password=self.validated_teacher.text_pwd,
+        )
+        self.assertTrue(logged_in)
+
+        q = Collection.objects.create(
+            title="test_title",
+            description="test_description",
+            private=False,
+            owner=self.validated_teacher.teacher,
+            discipline=Discipline.objects.create(title="Physics"),
+        )
+        q.followers.add(self.validated_teacher.teacher)
+        q.save()
+
+        # teacher is follower, collection contained on followed-list view
+        response = self.client.get(reverse("collection-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, q.title)
+
+        response = self.client.get(reverse("followed-collection-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, q.title)
+
+        response = self.client.get(reverse("featured-collection-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, q.title)
+
+        response = self.client.get(reverse("personal-collection-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, q.title)
+
+    def test_collection_public_owner_follower_featured(self):
+
+        logged_in = self.client.login(
+            username=self.validated_teacher.username,
+            password=self.validated_teacher.text_pwd,
+        )
+        self.assertTrue(logged_in)
+
+        q = Collection.objects.create(
+            title="test_title",
+            description="test_description",
+            private=False,
+            owner=self.validated_teacher.teacher,
+            discipline=Discipline.objects.create(title="Physics"),
+            featured=True,
+        )
+        q.followers.add(self.validated_teacher.teacher)
+        q.save()
+
+        # collection is featured, should appear on featured-list view
+        response = self.client.get(reverse("collection-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, q.title)
+
+        response = self.client.get(reverse("followed-collection-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, q.title)
+
+        response = self.client.get(reverse("featured-collection-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, q.title)
+
+        response = self.client.get(reverse("personal-collection-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, q.title)
+
+    def test_collection_private_owner_follower_featured(self):
+
+        logged_in = self.client.login(
+            username=self.validated_teacher.username,
+            password=self.validated_teacher.text_pwd,
+        )
+        self.assertTrue(logged_in)
+
+        q = Collection.objects.create(
+            title="test_title",
+            description="test_description",
+            private=True,
+            owner=self.validated_teacher.teacher,
+            discipline=Discipline.objects.create(title="Physics"),
+            featured=True,
+        )
+        q.followers.add(self.validated_teacher.teacher)
+        q.save()
+
+        # teacher = owner, so private attribute should not affect collection
+        response = self.client.get(reverse("collection-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, q.title)
+
+        response = self.client.get(reverse("followed-collection-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, q.title)
+
+        response = self.client.get(reverse("featured-collection-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, q.title)
+
+        response = self.client.get(reverse("personal-collection-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, q.title)
+
+    def test_collection_private_owner_follower(self):
+
+        logged_in = self.client.login(
+            username=self.validated_teacher.username,
+            password=self.validated_teacher.text_pwd,
+        )
+        self.assertTrue(logged_in)
+
+        q = Collection.objects.create(
+            title="test_title",
+            description="test_description",
+            private=True,
+            owner=self.validated_teacher.teacher,
+            discipline=Discipline.objects.create(title="Physics"),
+            featured=False,
+        )
+        q.followers.add(self.validated_teacher.teacher)
+        q.save()
+
+        # collection is removed from featured view
+        response = self.client.get(reverse("collection-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, q.title)
+
+        response = self.client.get(reverse("followed-collection-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, q.title)
+
+        response = self.client.get(reverse("featured-collection-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, q.title)
+
+        response = self.client.get(reverse("personal-collection-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, q.title)
+
+    def test_collection_private_owner(self):
+
+        logged_in = self.client.login(
+            username=self.validated_teacher.username,
+            password=self.validated_teacher.text_pwd,
+        )
+        self.assertTrue(logged_in)
+
+        q = Collection.objects.create(
+            title="test_title",
+            description="test_description",
+            private=True,
+            owner=self.validated_teacher.teacher,
+            discipline=Discipline.objects.create(title="Physics"),
+            featured=False,
+        )
+
+        # collection is removed from teacher's followed collections
+        response = self.client.get(reverse("collection-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, q.title)
+
+        response = self.client.get(reverse("followed-collection-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, q.title)
+
+        response = self.client.get(reverse("featured-collection-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, q.title)
+
+        response = self.client.get(reverse("personal-collection-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, q.title)
+
+    def test_collection_private(self):
+
+        logged_in = self.client.login(
+            username=self.validated_teacher.username,
+            password=self.validated_teacher.text_pwd,
+        )
+        self.assertTrue(logged_in)
+
+        q = Collection.objects.create(
+            title="test_title",
+            description="test_description",
+            private=True,
+            owner=self.other_teacher.teacher,
+            discipline=Discipline.objects.create(title="Physics"),
+            featured=False,
+        )
+
+        # teacher loses ownership, collection should not appear on any list
+        response = self.client.get(reverse("collection-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, q.title)
+
+        response = self.client.get(reverse("followed-collection-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, q.title)
+
+        response = self.client.get(reverse("featured-collection-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, q.title)
+
+        response = self.client.get(reverse("personal-collection-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, q.title)
+
+    def test_collection_private_featured(self):
+
+        logged_in = self.client.login(
+            username=self.validated_teacher.username,
+            password=self.validated_teacher.text_pwd,
+        )
+        self.assertTrue(logged_in)
+
+        q = Collection.objects.create(
+            title="test_title",
+            description="test_description",
+            private=True,
+            owner=self.other_teacher.teacher,
+            discipline=Discipline.objects.create(title="Physics"),
+            featured=True,
+        )
+
+        # featured collection is still private, not accesable
+        response = self.client.get(reverse("collection-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, q.title)
+
+        response = self.client.get(reverse("followed-collection-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, q.title)
+
+        response = self.client.get(reverse("featured-collection-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, q.title)
+
+        response = self.client.get(reverse("personal-collection-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, q.title)
+
+    def test_collection_private_featured_follower(self):
+
+        logged_in = self.client.login(
+            username=self.validated_teacher.username,
+            password=self.validated_teacher.text_pwd,
+        )
+        self.assertTrue(logged_in)
+
+        q = Collection.objects.create(
+            title="test_title",
+            description="test_description",
+            private=True,
+            owner=self.other_teacher.teacher,
+            discipline=Discipline.objects.create(title="Physics"),
+            featured=True,
+        )
+        q.followers.add(self.validated_teacher.teacher)
+        q.save()
+
+        # followed collection is still private, not accesable
+        response = self.client.get(reverse("collection-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, q.title)
+
+        response = self.client.get(reverse("followed-collection-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, q.title)
+
+        response = self.client.get(reverse("featured-collection-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, q.title)
+
+        response = self.client.get(reverse("personal-collection-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, q.title)
+
+    def test_collection_public_follower(self):
+
+        logged_in = self.client.login(
+            username=self.validated_teacher.username,
+            password=self.validated_teacher.text_pwd,
+        )
+        self.assertTrue(logged_in)
+
+        q = Collection.objects.create(
+            title="test_title",
+            description="test_description",
+            private=False,
+            owner=self.other_teacher.teacher,
+            discipline=Discipline.objects.create(title="Physics"),
+            featured=True,
+        )
+        q.followers.add(self.validated_teacher.teacher)
+        q.save()
+
+        # collection is now public, should appear on followed & featured lists
+        response = self.client.get(reverse("collection-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, q.title)
+
+        response = self.client.get(reverse("followed-collection-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, q.title)
+
+        response = self.client.get(reverse("featured-collection-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, q.title)
+
+        response = self.client.get(reverse("personal-collection-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, q.title)
 
 
 class CustomMiddlewareTest(TestCase):

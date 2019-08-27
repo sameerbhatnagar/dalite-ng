@@ -101,9 +101,9 @@ def test_email_notification_change(browser, teacher):
     browser.find_element_by_id("submit-notification-change-btn").click()
     assert "My Account" in browser.find_element_by_tag_name("h1").text
 
-    # Send an email... outbox should be empty
+    # TODO: Send an email... outbox should be empty
 
-    # Reset password... outbox should have 1 message
+    # TODO: Reset password... outbox should have 1 message
 
 
 def test_change_discipline_and_institution(

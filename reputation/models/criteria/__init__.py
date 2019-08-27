@@ -1,15 +1,21 @@
 __all__ = [
+    "CommonRationaleChoicesCriterion",
+    "ConvincingRationalesCriterion",
     "Criterion",
     "NAnswersCriterion",
     "NQuestionsCriterion",
-    "ConvincingRationalesCriterion",
-    "CommonRationaleChoicesCriterion",
+    "QuestionLikedCriterion",
+    "RationaleEvaluationCriterion",
+    "StudentRationaleEvaluationCriterion",
 ]
 
 from .criteria import (
+    CommonRationaleChoicesCriterion,
+    ConvincingRationalesCriterion,
     NAnswersCriterion,
     NQuestionsCriterion,
-    ConvincingRationalesCriterion,
-    CommonRationaleChoicesCriterion,
+    QuestionLikedCriterion,
+    RationaleEvaluationCriterion,
+    StudentRationaleEvaluationCriterion,
 )
 from .criterion import Criterion
