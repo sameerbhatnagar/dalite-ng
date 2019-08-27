@@ -12,6 +12,7 @@ criteria = {
     "n_answers": "NAnswersCriterion",
     "n_questions": "NQuestionsCriterion",
     "rationale_evaluation": "RationaleEvaluationCriterion",
+    "student_rationale_evaluation": "StudentRationaleEvaluationCriterion",
 }
 
 
