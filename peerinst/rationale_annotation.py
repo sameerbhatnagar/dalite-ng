@@ -21,11 +21,10 @@ def choose_questions(teacher):
         question_list = question_list.filter(
             discipline__in=teacher.disciplines.all()
         ).exclude(teacher=teacher)
-    if len(teacher.assignments.all()) > 0:
+    if len(teacher.favourite_questions.all()) > 0:
         question_list = question_list.exclude(
-            pk__in=teacher.assignments.values_list("questions", flat=True)
+            pk__in=teacher.favourite_questions.all()
         )
-
     return question_list
 
 

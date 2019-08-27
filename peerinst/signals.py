@@ -124,7 +124,7 @@ def init_message_types(sender, **kwargs):
         {
             "type": "saltise_annoncement",
             "removable": False,
-            "colour": "#1976bc",
+            "colour": "#eaf7fb",
         },
         {"type": "dalite_annoncement", "removable": True, "colour": "#54c0db"},
     ]

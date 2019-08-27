@@ -14,8 +14,8 @@ from django.core.urlresolvers import reverse
 from django.db import models
 from django.http import HttpResponse, JsonResponse, StreamingHttpResponse
 from django.shortcuts import redirect, render
+from django.template.defaultfilters import date, linebreaks
 from django.template.response import TemplateResponse
-from django.templatetags.static import static
 from django.utils.translation import ugettext_lazy as translate
 from django.views.decorators.http import (
     require_GET,
@@ -32,7 +32,6 @@ from ..models import (
     Answer,
     AnswerAnnotation,
     Collection,
-    Question,
     RunningTask,
     StudentGroup,
     StudentGroupAssignment,
@@ -78,12 +77,10 @@ def dashboard(req, teacher):
             "remove_dalite_message": reverse(
                 "teacher-dashboard--dalite-messages--remove"
             ),
-            "saltise_image": static("peerinst/img/SALTISE-logo-icon.gif"),
-            "rationales": reverse("teacher-dashboard--rationales"),
         }
     }
     student_activity_data, student_activity_json = get_student_activity_data(
-        teacher, teacher.current_groups.all()
+        teacher=teacher
     )
     rationales = choose_rationales_no_quality(teacher, n=1)
     context = {
@@ -177,9 +174,7 @@ def new_questions(req, teacher):
     -------
     HttpResponse
     """
-    questions = Question.objects.filter(
-        discipline__in=teacher.disciplines.all()
-    ).order_by("?")[:1]
+    questions = choose_questions(teacher).order_by("?")[:1]
 
     return TemplateResponse(
         req,
@@ -215,10 +210,13 @@ def dalite_messages(req, teacher):
         {
             "id": message.id,
             "title": message.message.title,
-            "text": message.message.text,
+            "text": linebreaks(message.message.text),
             "colour": message.message.type.colour,
             "removable": message.message.type.removable,
             "link": message.message.link,
+            "date": date(message.message.start_date)
+            if message.message.start_date
+            else date(message.message.created_on),
             "authors": [
                 {
                     "name": author.name,
@@ -341,7 +339,10 @@ def messages(req, teacher):
                 "last_reply": {
                     "author": last_reply.author.username,
                     "content": last_reply.content,
-                },
+                    "date": date(last_reply.created),
+                }
+                if last_reply
+                else "",
                 "n_new": TeacherNotification.objects.filter(
                     teacher=teacher, notification_type=notification_type
                 ).count(),
@@ -462,8 +463,19 @@ def evaluate_rationale(req, teacher):
     HttpResponse
         Error response or empty 200 response
     """
-    id_ = req.POST.get("id")
-    score = int(req.POST.get("score"))
+
+    id_ = req.POST.get("id", None)
+    score = req.POST.get("score", None)
+
+    if not id_ or not score:
+        return response_400(
+            req,
+            msg=translate("Missing parameters."),
+            logger_msg=("Score and/or ID are missing from request."),
+            log=logger.warning,
+        )
+
+    score = int(score)
 
     if score not in range(0, 4):
         return response_400(
@@ -473,23 +485,19 @@ def evaluate_rationale(req, teacher):
             log=logger.warning,
         )
 
-    if score == 0:
-        # Flag as inappropriate
-        pass
-    else:
-        try:
-            answer = Answer.objects.get(id=id_)
-        except Answer.DoesNotExist:
-            return response_400(
-                req,
-                msg=translate("Unkown answer id sent."),
-                logger_msg=("No answer could be found for pk {}.".format(id_)),
-                log=logger.warning,
-            )
-
-        AnswerAnnotation.objects.create(
-            answer=answer, annotator=teacher.user, score=score
+    try:
+        answer = Answer.objects.get(id=id_)
+    except Answer.DoesNotExist:
+        return response_400(
+            req,
+            msg=translate("Unkown answer id sent."),
+            logger_msg=("No answer could be found for pk {}.".format(id_)),
+            log=logger.warning,
         )
+
+    AnswerAnnotation.objects.create(
+        answer=answer, annotator=teacher.user, score=score
+    )
 
     return redirect(reverse("teacher-dashboard--rationales"))
 

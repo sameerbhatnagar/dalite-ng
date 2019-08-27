@@ -1,5 +1,4 @@
 import { buildReq } from "../../ajax.js";
-import { createSvg } from "../../utils.js";
 
 /*********/
 /* model */
@@ -37,6 +36,7 @@ async function getMessages() {
     text: message.text,
     colour: message.colour,
     removable: message.removable,
+    date: message.date,
     link: message.link,
     authors: message.authors.map(author => ({
       name: author.name,
@@ -66,29 +66,53 @@ function view() {
 }
 
 function messagesView() {
-  const ul = document.querySelector("#dalite-messages ul");
+  const messages = document.querySelector("#dalite-messages");
   model.messages.forEach(message => {
-    ul.appendChild(messageView(message));
+    messages.appendChild(messageView(message));
   });
 }
 
 function messageView(message) {
-  const container = document.createElement("li");
-  container.classList.add("mdc-card", "dalite-message");
+  const container = document.createElement("div");
+  container.classList.add("mdc-card");
+
+  const content = document.createElement("div");
   if (message.link) {
-    container.addEventListener("click", () => {
+    content.addEventListener("click", () => {
       window.location.assign(message.link);
     });
-    container.style.setProperty("cursor", "pointer");
-    container.title = message.link;
+    content.style.setProperty("cursor", "pointer");
+    content.title = message.link;
   }
 
+  const title = document.createElement("div");
+  title.classList.add("mdc-typography--title", "bold");
+  title.textContent = message.title;
+  content.appendChild(title);
+
+  const caption = document.createElement("div");
+  caption.classList.add("mdc-typography--caption");
+  caption.textContent = message.date;
+  content.appendChild(caption);
+
+  const text = document.createElement("div");
+  text.classList.add("mdc-typography--body1");
+  text.innerHTML = message.text;
+  content.appendChild(text);
+
+  container.appendChild(content);
+
+  const actions = document.createElement("div");
+  actions.classList.add("mdc-card__actions");
+
+  const images = document.createElement("div");
+  images.classList.add("mdc-card__action-buttons");
   if (message.authors.length) {
     const authorsContainer = document.createElement("div");
     authorsContainer.classList.add("dalite-message__authors");
     message.authors.forEach(author => {
       const img = document.createElement("img");
-      img.classList.add("dalite-message__authors__author");
+      img.classList.add("dalite-message__authors_author");
       img.title = author.name;
       img.setAttribute(
         "src",
@@ -97,40 +121,39 @@ function messageView(message) {
       img.setAttribute("alt", `Picture of ${author.name}`);
       authorsContainer.appendChild(img);
     });
-    container.appendChild(authorsContainer);
+    images.appendChild(authorsContainer);
   }
-
-  const title = document.createElement("div");
-  title.classList.add("mdc-typography--title", "dalite-message__title");
-  title.textContent = message.title;
-  container.appendChild(title);
-
-  const text = document.createElement("div");
-  text.classList.add("mdc-typography--body1", "dalite-message__text");
-  text.textContent = message.text;
-  container.appendChild(text);
+  actions.appendChild(images);
 
   if (message.removable) {
-    const remove = document.createElement("div");
-    remove.classList.add("dalite-message__remove-icon");
+    const buttons = document.createElement("div");
+    buttons.classList.add("mdc-card__action-icons");
+    const remove = document.createElement("i");
+    remove.classList.add(
+      "mdc-icon-toggle",
+      "material-icons",
+      "mdc-theme--primary",
+    );
+    remove.textContent = "clear";
     remove.addEventListener("click", async () => {
       await removeMessage(message, container);
     });
-    const icon = createSvg("close");
-    remove.appendChild(icon);
-    container.appendChild(remove);
+    buttons.appendChild(remove);
+    actions.appendChild(buttons);
   }
 
-  const background = document.createElement("div");
-  background.classList.add("dalite-message__background");
-  background.style.setProperty("background", message.colour);
-  container.appendChild(background);
+  container.appendChild(actions);
+  container.style.setProperty("background-color", message.colour);
 
   return container;
 }
 
 function removeMessageView(node) {
-  node.parentNode.removeChild(node);
+  if (node.parentNode.childElementCount == 3) {
+    node.parentNode.remove();
+  } else {
+    node.remove();
+  }
 }
 
 /********/

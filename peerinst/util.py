@@ -1229,10 +1229,12 @@ def populate_answer_start_time_from_ltievent_logs(day_of_logs, event_type):
     return
 
 
-def get_student_activity_data(teacher, current_groups):
+def get_student_activity_data(teacher):
     # TODO: Refactor to avoid circular import
     from datetime import datetime, timedelta
     from .models import Answer, Student, StudentGroupAssignment
+
+    current_groups = teacher.current_groups.all()
 
     all_current_students = Student.objects.filter(groups__in=current_groups)
 
