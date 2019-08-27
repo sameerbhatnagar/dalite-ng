@@ -123,8 +123,9 @@ class QuestionLikedCriterion(Criterion):
         return super(QuestionLikedCriterion, self).info(
             {
                 "name": "question_liked",
-                "full_name": "Question usage",
+                "full_name": "Question popularity",
                 "description": "Gives a score representing the number of times"
-                "the question or questions was liked and used.",
+                " the questions you have made are liked and used by other"
+                " teachers.",
             }
         )

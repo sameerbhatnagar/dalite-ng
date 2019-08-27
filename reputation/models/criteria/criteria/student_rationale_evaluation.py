@@ -47,7 +47,9 @@ class StudentRationaleEvaluationCriterion(Criterion):
                 sum(
                     getattr(self, "points_score_{}".format(evaluation.score))
                     for answer in student.answers.all()
-                    for evaluation in answer.answerannotation_set.all()
+                    for evaluation in answer.answerannotation_set.filter(
+                        score__isnull=False
+                    ).all()
                 ),
                 {},
             )
@@ -62,6 +64,6 @@ class StudentRationaleEvaluationCriterion(Criterion):
                 "name": "student_rationale_evaluation",
                 "full_name": "Rationale evaluation",
                 "description": "Gives a score representing the evaluation of "
-                "rationales by teachers and researchers.",
+                "your rationales by teachers.",
             }
         )
