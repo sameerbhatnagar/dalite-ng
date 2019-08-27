@@ -191,19 +191,21 @@ function messageView(
     div.appendChild(markReadBtn);
   }
 
-  const lastReply = document.createElement("div");
-  lastReply.classList.add("message__last-reply");
-  div.appendChild(lastReply);
+  if (message.lastReply.author) {
+    const lastReply = document.createElement("div");
+    lastReply.classList.add("message__last-reply");
+    div.appendChild(lastReply);
 
-  const author = document.createElement("span");
-  author.classList.add("message__last-reply__author");
-  author.textContent = message.lastReply.author;
-  lastReply.appendChild(author);
+    const author = document.createElement("span");
+    author.classList.add("message__last-reply__author");
+    author.textContent = message.lastReply.author;
+    lastReply.appendChild(author);
 
-  const content = document.createElement("span");
-  content.classList.add("message__last-reply__content");
-  content.textContent = message.lastReply.content;
-  lastReply.appendChild(content);
+    const content = document.createElement("span");
+    content.classList.add("message__last-reply__content");
+    content.textContent = message.lastReply.content;
+    lastReply.appendChild(content);
+  }
 
   return div;
 }
