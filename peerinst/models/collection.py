@@ -11,7 +11,7 @@ from .teacher import Teacher
 
 
 class Collection(models.Model):
-    assignments = models.ManyToManyField(Assignment)
+    assignments = models.ManyToManyField(Assignment, blank=True)
     discipline = models.ForeignKey(Discipline)
     owner = models.ForeignKey(Teacher, related_name="owner")
     followers = models.ManyToManyField(
@@ -19,6 +19,7 @@ class Collection(models.Model):
     )
     title = models.CharField(max_length=40)
     description = models.TextField(max_length=200)
+    private = models.BooleanField(default=False)
     image = models.ImageField(
         _("Thumbnail image"),
         blank=True,

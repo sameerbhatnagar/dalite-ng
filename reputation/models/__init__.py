@@ -4,6 +4,7 @@ __all__ = [
     "Criterion",
     "NAnswersCriterion",
     "NQuestionsCriterion",
+    "RationaleEvaluationCriterion",
     "Reputation",
     "ReputationHistory",
     "ReputationType",
@@ -17,6 +18,7 @@ from .criteria import (
     Criterion,
     NAnswersCriterion,
     NQuestionsCriterion,
+    RationaleEvaluationCriterion,
     StudentRationaleEvaluationCriterion,
 )
 from .reputation import Reputation, ReputationHistory
