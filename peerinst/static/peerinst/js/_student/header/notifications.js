@@ -8,6 +8,7 @@ import { clear } from "../../utils.js";
 let model;
 
 function initModel(data) {
+  console.log(data);
   model = {
     notificationsOpen: false,
     notifications: data.notifications,
@@ -119,6 +120,7 @@ function notificationView(notification) {
 
 function noNotificationView() {
   const div = document.createElement("div");
+  div.classList.add("notifications__no-new");
   div.textContent = "No new notifications";
   return div;
 }

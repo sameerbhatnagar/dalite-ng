@@ -49,9 +49,8 @@
     border-radius: 20px 0 20px 20px;
     display: grid;
     font-size: 1.1rem;
-    grid-auto-rows: minmax(50px, auto);
     grid-template-columns: minmax(300px, 600px);
-    padding-top: 20px;
+    grid-template-rows: max-content minmax(50px, max-content);
     position: absolute;
     right: 21px;
     text-align: center;
@@ -61,7 +60,17 @@
     transition: transform 300ms, top 300ms, right 300ms;
 
     & .notifications__notifications {
-      display: contents;
+      border-radius: 20px 0 0 0;
+      display: grid;
+      grid-auto-rows: max-content;
+      height: auto;
+      height: 100%;
+      max-height: 70vh;
+      overflow-y: auto;
+
+      & .notifications__no-new {
+        padding-top: 20px;
+      }
     }
 
     & .notification {
@@ -126,4 +135,32 @@
 
 .logout {
   visibility: hidden;
+}
+
+@media only screen and (max-width: 400px) {
+  .notifications {
+    position: static;
+    & .notifications__list {
+      border-radius: 0;
+      grid-template-columns: 100vw;
+      height: calc(100vh - 50px);
+      left: 0;
+      right: 0;
+      top: 0;
+      transform: scaleY(0);
+      transform-origin: top center;
+      & .notifications__notifications {
+        max-height: calc(100vh - 50px - 50px);
+      }
+    }
+
+    &.notifications--open {
+      & .notifications__list {
+        left: 0;
+        right: 0;
+        top: 50px;
+        transform: scaleY(1);
+      }
+    }
+  }
 }
