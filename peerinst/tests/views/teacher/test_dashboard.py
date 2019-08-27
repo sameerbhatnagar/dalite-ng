@@ -1,5 +1,6 @@
 from django.core.urlresolvers import reverse
 
+from peerinst.models import AnswerAnnotation
 from peerinst.tests.fixtures import *  # noqa
 from peerinst.tests.fixtures.question.utils import add_answers
 from peerinst.tests.fixtures.teacher import login_teacher
@@ -65,3 +66,23 @@ def test_new_questions__dashboard(
 
     # TODO: Add tests to validate choose_questions logic
     # E.g. no questions from teacher assignments, no favourites etc.
+
+
+def test_rationales__dashboard(
+    client, teacher, discipline, questions, answers
+):
+    assert login_teacher(client, teacher)
+
+    teacher.disciplines.add(discipline)
+    questions[0].discipline = discipline
+    questions[0].save()
+
+    n = AnswerAnnotation.objects.count()
+
+    print(answers[0].second_answer_choice)
+
+    resp = client.get(reverse("teacher-dashboard--rationales"))
+
+    print(resp)
+
+    assert AnswerAnnotation.objects.count() == n + 1

@@ -34,6 +34,7 @@ class Message(models.Model):
     authors = models.ManyToManyField(SaltiseMember, blank=True)
     title = models.CharField(max_length=128)
     text = models.TextField()
+    created_on = models.DateTimeField(auto_now_add=True)
     start_date = models.DateTimeField(null=True, blank=True)
     end_date = models.DateTimeField(null=True, blank=True)
     link = models.URLField(blank=True, null=True)
