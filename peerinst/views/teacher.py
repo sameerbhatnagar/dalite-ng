@@ -80,7 +80,7 @@ def dashboard(req, teacher):
         }
     }
     student_activity_data, student_activity_json = get_student_activity_data(
-        teacher, teacher.current_groups.all()
+        teacher=teacher
     )
     rationales = choose_rationales_no_quality(teacher, n=1)
     context = {
