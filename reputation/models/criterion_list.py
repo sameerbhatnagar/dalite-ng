@@ -12,6 +12,8 @@ criteria = {
     "n_answers": "NAnswersCriterion",
     "n_questions": "NQuestionsCriterion",
     "question_liked_criterion": "QuestionLikedCriterion",
+    "rationale_evaluation": "RationaleEvaluationCriterion",
+    "student_rationale_evaluation": "StudentRationaleEvaluationCriterion",
 }
 
 

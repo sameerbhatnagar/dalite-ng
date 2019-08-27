@@ -1,6 +1,6 @@
 {% extends 'peerinst/teacher/base.html' %}
 
-{% load compress i18n %}
+{% load get_value staticfiles compress i18n %}
 
 {% block stylesheets %}
 {{ block.super }}
@@ -271,6 +271,94 @@
     </div>
 
     <div class="foldable">
+      <h2 id="collection-section" class="foldable--title mdc-typography--display1 mdc-theme--secondary">
+        {% trans 'Collections' %}
+      </h2>
+      <div class="foldable--body">
+        <div class="admin-link">
+          {% if user.is_staff %}
+          <a href="{% url 'admin_index_wrapper' %}">Click here to access admin</a>
+          <span class="links-divider">|</span>{% endif %}<a href="{% url 'collection-list' %}">{% trans 'All Collections' %}</a>
+          <span class="links-divider">|</span><a href="{% url 'followed-collection-list' %}">{% trans 'Followed Collections' %}</a>
+          <span class="links-divider">|</span><a href="{% url 'collection-create' %}">{% trans 'Create' %}</a>
+        </div>
+        {% if not owned_collections %}
+        <p class='mdc-typography--body1'>{% blocktrans %}You do not have any collections.{% endblocktrans %}</p>
+        {% endif %}
+        <ul class="mdc-list mdc-list--two-line mdc-list--non-interactive">
+          {% for a in owned_collections %}
+          <li role="separator" class="mdc-list-divider"></li>
+          <li class="mdc-list-item">
+            <span class="mdc-list-item__graphic mdc-theme--primary">
+              <i class="clickable mdc-theme--primary material-icons md-48 collection-icon" id="{{ a.pk }}">book</i>
+            </span>
+            <span class="mdc-list-item__text mdc-theme--secondary bold">
+              <a class="mdc-theme--secondary" href="{% url 'collection-detail' a.pk %}">{{ a.title }}</a>
+              <span class="mdc-list-item__secondary-text">
+                {{ a.assignments.count }} {% trans 'assignments' %}, {{ a.followers.count }} {% trans 'followers' %}
+              </span>
+            </span>
+            <span class="mdc-list-item__meta">
+              <i id="activate-dialog-{{a.pk|slugify}}" class="material-icons md-24 mdc-ripple-surface icon-list">bar_chart</i>
+              <a href="{% url 'collection-delete' a.pk %}">
+                <i class="material-icons md-24 mdc-ripple-surface icon-list">delete</i>
+              </a>
+              <a href="{% url 'collection-update' a.pk %}">
+                <i class="material-icons md-24 mdc-ripple-surface icon-list">mode_edit</i>
+              </a>
+            </span>
+          </li>
+
+          <aside id="dialog-{{a.pk|slugify}}"
+            class="mdc-dialog"
+            role="alertdialog"
+            aria-labelledby="assignment-parameters-label"
+            aria-describedby="assignment-parameters-description">
+            <div class="mdc-dialog__surface">
+              <header class="mdc-dialog__header">
+                <h2 id="assignment-parameters-label" class="mdc-dialog__header__title">
+                  {% trans 'Collection Information' %}
+                </h2>
+              </header>
+              <section id="assignment-parameters-description" class="mdc-dialog__body mdc-dialog__body--scrollable">
+                <div>
+                  <h2 class="mdc-typography--display1 mdc-theme--secondary">
+                    {{ a.title }} {% trans 'contains' %} {{ a.assignments.count }} {% trans 'assignments about' %} {{ a.discipline }}.
+                  </h2>
+                </div>
+                <div>
+                  <b>{% trans 'Collection Statistics' %}</b
+                </div>
+                <div>
+                  {% trans 'Total Answers' %}: {{ collection_data|get_value:a.pk|get_value:"total_answers" }}
+                </div>
+                <div>
+                  {% trans 'Answers Switched' %}: {{ collection_data|get_value:a.pk|get_value:"switches" }}
+                </div>
+                <div>
+                  {% trans 'Correct Answers on First Attempt' %}: {{ collection_data|get_value:a.pk|get_value:"correct_first_answers" }}
+                </div>
+                <div>
+                  {% trans 'Correct Answers on Second Attempt' %}: {{ collection_data|get_value:a.pk|get_value:"correct_second_answers" }}
+                </div>
+                <div>
+                  {% trans 'Followers' %}: {{ a.followers.count }}
+                </div>
+              </section>
+              <footer class="mdc-dialog__footer">
+                <button type="button" class="mdc-button mdc-dialog__footer__button mdc-dialog__footer__button--accept">Ok</button>
+              </footer>
+            </div>
+            <div class="mdc-dialog__backdrop"></div>
+          </aside>
+
+          {% endfor %}
+          <li role="separator" class="mdc-list-divider"></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="foldable">
       <h2 id="quality-section" class="foldable--title mdc-typography--display1 mdc-theme--secondary">
         {% trans 'Quality control' %}
       </h2>
@@ -467,6 +555,13 @@
     });
     document.getElementById("email-modify-btn").addEventListener("click", function() {
       window.location.href="{% url 'tos:email_modify' 'teacher' %}?next={{ request.path }}";
+    });
+  });
+  [].forEach.call(document.querySelectorAll(".collection-icon"), el => {
+    el.addEventListener("click", () => {
+      const pk=el.getAttribute('id');
+      const collectionUrl = "{% url 'collection-detail' 0 %}"
+      window.location.assign(collectionUrl.replace("0", pk ));
     });
   });
 </script>

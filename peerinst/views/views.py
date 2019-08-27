@@ -86,6 +86,7 @@ from ..models import (
     StudentGroup,
     StudentGroupAssignment,
     Teacher,
+    Collection,
 )
 from ..util import (
     SessionStageData,
@@ -97,6 +98,7 @@ from ..util import (
     report_data_by_student,
     roundrobin,
 )
+from peerinst.views.collection import collection_data
 
 LOGGER = logging.getLogger(__name__)
 LOGGER_teacher_activity = logging.getLogger("teacher_activity")
@@ -1822,6 +1824,17 @@ class TeacherDetailView(TeacherBase, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(TeacherDetailView, self).get_context_data(**kwargs)
+        # provides collection data to collection foldable
+        context["owned_collections"] = Collection.objects.filter(
+            owner=self.request.user.teacher
+        )
+        context["collection_data"] = {}
+        for collection in Collection.objects.filter(
+            owner=self.request.user.teacher
+        ):
+            context["collection_data"][collection.pk] = collection_data(
+                collection=collection
+            )
         context["LTI_key"] = str(settings.LTI_CLIENT_KEY)
         context["LTI_secret"] = str(settings.LTI_CLIENT_SECRET)
         context["LTI_launch_url"] = str(
@@ -2004,6 +2017,83 @@ def teacher_toggle_favourite(request):
             return JsonResponse({"action": "removed"})
     else:
         return response_400(request)
+
+
+@login_required
+@user_passes_test(student_check, login_url="/access_denied_and_logout/")
+def teacher_toggle_follower(request):
+    # follow/unfollow heart function
+    collection = get_object_or_404(Collection, pk=request.POST.get("pk"))
+    teacher = get_object_or_404(Teacher, user=request.user)
+    if teacher not in collection.followers.all():
+        collection.followers.add(teacher)
+        return JsonResponse({"action": "added"})
+    else:
+        collection.followers.remove(teacher)
+        return JsonResponse({"action": "removed"})
+
+
+@login_required
+@user_passes_test(student_check, login_url="/access_denied_and_logout/")
+def collection_toggle_assignment(request):
+    # add/remove assignment from collection function for hearts on update view
+    collection = get_object_or_404(Collection, pk=request.POST.get("ppk"))
+    assignment = get_object_or_404(Assignment, pk=request.POST.get("pk"))
+    if assignment not in collection.assignments.all():
+        collection.assignments.add(assignment)
+        return JsonResponse({"action": "added"})
+    else:
+        collection.assignments.remove(assignment)
+        return JsonResponse({"action": "removed"})
+
+
+@login_required
+@user_passes_test(student_check, login_url="/access_denied_and_logout/")
+def collection_assign(request):
+    # assign button on distribute view
+    collection = get_object_or_404(Collection, pk=request.POST.get("ppk"))
+    student_group = get_object_or_404(StudentGroup, pk=request.POST.get("pk"))
+    is_assigned = False
+    for assign in collection.assignments.all():
+        if not StudentGroupAssignment.objects.filter(
+            group=student_group, assignment=assign
+        ).exists():
+            is_assigned = True
+            StudentGroupAssignment.objects.create(
+                group=student_group, assignment=assign
+            )
+    if is_assigned:
+        return JsonResponse({"action": "added"})
+    else:
+        return JsonResponse({"action": "existing"})
+
+
+@login_required
+@user_passes_test(student_check, login_url="/access_denied_and_logout/")
+def collection_unassign(request):
+    """
+    unassign button on distribute view, assures assignments are not distributed
+    """
+    collection = get_object_or_404(Collection, pk=request.POST.get("ppk"))
+    student_group = get_object_or_404(StudentGroup, pk=request.POST.get("pk"))
+    is_unassigned = False
+    for assign in collection.assignments.all():
+        if StudentGroupAssignment.objects.filter(
+            group=student_group, assignment=assign
+        ).exists():
+            if StudentGroupAssignment.objects.filter(
+                group=student_group,
+                assignment=assign,
+                distribution_date__isnull=True,
+            ):
+                is_unassigned = True
+                StudentGroupAssignment.objects.filter(
+                    group=student_group, assignment=assign
+                ).delete()
+    if is_unassigned:
+        return JsonResponse({"action": "removed"})
+    else:
+        return JsonResponse({"action": "unexisting"})
 
 
 @login_required
