@@ -90,8 +90,7 @@
 
         & .message__new {
           color: $mdc-theme-secondary;
-          font-size: 0.75rem;
-          font-style: italic;
+          font-size: 0.65rem;
         }
 
         & .message__title {
@@ -102,10 +101,10 @@
 
         & .message__mark-read {
           cursor: pointer;
-          font-size: 0.6rem;
-          font-style: italic;
-          padding-right: 10px;
-          text-decoration: underline;
+          font-family: 'Material icons', sans-serif;
+          font-size: 1rem;
+          padding-left: 8px;
+          vertical-align: text-bottom;
         }
 
         & .message__last-reply {

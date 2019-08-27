@@ -118,16 +118,21 @@ function messagesView(): void {
 
   clear(messagesList);
 
+  document.querySelector(".messages__read-all-btn").classList.add("hidden");
+
+  const nNew = model.messages.filter(message => message.nNew > 0).length;
+  if (nNew) {
+    document
+      .querySelector(".messages__read-all-btn")
+      .classList.remove("hidden");
+  }
+
   if (model.messages.length) {
     model.messages.map(function(message) {
       messagesList.appendChild(messageView(message));
     });
-    document
-      .querySelector(".messages__read-all-btn")
-      .classList.remove("hidden");
   } else {
     messagesList.appendChild(noMessageView());
-    document.querySelector(".messages__read-all-btn").classList.add("hidden");
   }
 
   if (model.open) {
@@ -164,6 +169,11 @@ function messageView(
     });
   }
 
+  const title = document.createElement("div");
+  title.classList.add("message__title");
+  title.textContent = message.title;
+  div.appendChild(title);
+
   if (message.nNew) {
     div.classList.add("message--new");
   } else {
@@ -171,25 +181,10 @@ function messageView(
   }
 
   if (message.nNew) {
-    const new_ = document.createElement("span");
+    const new_ = document.createElement("div");
     new_.classList.add("message__new");
-    new_.textContent = `( ${message.nNew} new )`;
+    new_.textContent = `${message.nNew} new`;
     div.appendChild(new_);
-  }
-
-  const title = document.createElement("div");
-  title.classList.add("message__title");
-  title.textContent = message.title;
-  div.appendChild(title);
-
-  if (message.nNew) {
-    const markReadBtn = document.createElement("span");
-    markReadBtn.classList.add("message__mark-read");
-    markReadBtn.textContent = "Mark read";
-    markReadBtn.addEventListener("click", (event: MouseEvent) =>
-      markRead(event, message, div),
-    );
-    div.appendChild(markReadBtn);
   }
 
   if (message.lastReply.author) {
@@ -206,6 +201,18 @@ function messageView(
     author.classList.add("message__last-reply__author");
     author.innerHTML =
       message.lastReply.author + " &middot; " + message.lastReply.date;
+
+    if (message.nNew) {
+      const markReadBtn = document.createElement("span");
+      markReadBtn.classList.add("message__mark-read");
+      markReadBtn.textContent = "clear";
+      markReadBtn.title = "Mark read";
+      markReadBtn.addEventListener("click", (event: MouseEvent) =>
+        markRead(event, message, div),
+      );
+      author.appendChild(markReadBtn);
+    }
+
     lastReply.appendChild(author);
   }
 
