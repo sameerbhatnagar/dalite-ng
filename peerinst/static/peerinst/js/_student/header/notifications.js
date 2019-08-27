@@ -8,7 +8,6 @@ import { clear } from "../../utils.js";
 let model;
 
 function initModel(data) {
-  console.log(data);
   model = {
     notificationsOpen: false,
     notifications: data.notifications,
@@ -137,12 +136,12 @@ function initListeners() {
 function addNotificationsOpenListener() {
   document
     .querySelector(".notifications")
-    .addEventListener("click", function(event) {
+    ?.addEventListener("click", function(event) {
       event.stopPropagation();
     });
   document
     .querySelector(".notifications__icon")
-    .addEventListener("click", function(event) {
+    ?.addEventListener("click", function(event) {
       toggleNotifications();
     });
   document.body.addEventListener("click", function(event) {
@@ -155,7 +154,7 @@ function addNotificationsOpenListener() {
 function addAllNotificationsReadListener() {
   document
     .querySelector(".notifications__read-all-btn")
-    .addEventListener("click", markAllNotificationsRead);
+    ?.addEventListener("click", markAllNotificationsRead);
 }
 
 /********/
@@ -163,13 +162,15 @@ function addAllNotificationsReadListener() {
 /********/
 
 export function init(url) {
-  const req = buildReq(null, "get");
-  fetch(url, req)
-    .then(resp => resp.json())
-    .then(function(data) {
-      initModel(data);
-      initListeners();
-      view();
-    })
-    .catch(err => console.log(err));
+  if (document.querySelector(".notifications")) {
+    const req = buildReq(null, "get");
+    fetch(url, req)
+      .then(resp => resp.json())
+      .then(function(data) {
+        initModel(data);
+        initListeners();
+        view();
+      })
+      .catch(err => console.log(err));
+  }
 }
