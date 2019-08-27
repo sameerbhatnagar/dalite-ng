@@ -2,6 +2,7 @@ __all__ = [
     "assignment_reputation",
     "n_answers_criterion",
     "n_questions_criterion",
+    "question_liked_criterion",
     "question_reputation",
     "rationale_evaluation_criterion",
     "student_rationale_evaluation_criterion",
@@ -12,6 +13,7 @@ __all__ = [
 from .criteria import (
     n_answers_criterion,
     n_questions_criterion,
+    question_liked_criterion,
     rationale_evaluation_criterion,
     student_rationale_evaluation_criterion,
 )
