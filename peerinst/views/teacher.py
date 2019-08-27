@@ -14,7 +14,7 @@ from django.core.urlresolvers import reverse
 from django.db import models
 from django.http import HttpResponse, JsonResponse, StreamingHttpResponse
 from django.shortcuts import redirect, render
-from django.template.defaultfilters import date
+from django.template.defaultfilters import date, linebreaks
 from django.template.response import TemplateResponse
 from django.utils.translation import ugettext_lazy as translate
 from django.views.decorators.http import (
@@ -210,7 +210,7 @@ def dalite_messages(req, teacher):
         {
             "id": message.id,
             "title": message.message.title,
-            "text": message.message.text,
+            "text": linebreaks(message.message.text),
             "colour": message.message.type.colour,
             "removable": message.message.type.removable,
             "link": message.message.link,
@@ -339,7 +339,10 @@ def messages(req, teacher):
                 "last_reply": {
                     "author": last_reply.author.username,
                     "content": last_reply.content,
-                },
+                    "date": date(last_reply.created),
+                }
+                if last_reply
+                else "",
                 "n_new": TeacherNotification.objects.filter(
                     teacher=teacher, notification_type=notification_type
                 ).count(),
