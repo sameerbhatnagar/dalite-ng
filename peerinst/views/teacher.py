@@ -339,7 +339,9 @@ def messages(req, teacher):
                 "last_reply": {
                     "author": last_reply.author.username,
                     "content": last_reply.content,
-                },
+                }
+                if last_reply
+                else "",
                 "n_new": TeacherNotification.objects.filter(
                     teacher=teacher, notification_type=notification_type
                 ).count(),
