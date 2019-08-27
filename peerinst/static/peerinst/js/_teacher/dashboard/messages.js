@@ -76,28 +76,32 @@ function messagesView() {
 function messageView(message) {
   const container = document.createElement("div");
   container.classList.add("mdc-card");
+
+  const content = document.createElement("div");
   if (message.link) {
-    container.addEventListener("click", () => {
+    content.addEventListener("click", () => {
       window.location.assign(message.link);
     });
-    container.style.setProperty("cursor", "pointer");
-    container.title = message.link;
+    content.style.setProperty("cursor", "pointer");
+    content.title = message.link;
   }
 
   const title = document.createElement("div");
   title.classList.add("mdc-typography--title", "bold");
   title.textContent = message.title;
-  container.appendChild(title);
+  content.appendChild(title);
 
   const caption = document.createElement("div");
   caption.classList.add("mdc-typography--caption");
   caption.textContent = message.date;
-  container.appendChild(caption);
+  content.appendChild(caption);
 
   const text = document.createElement("div");
   text.classList.add("mdc-typography--body1");
-  text.textContent = message.text;
-  container.appendChild(text);
+  text.innerHTML = message.text;
+  content.appendChild(text);
+
+  container.appendChild(content);
 
   const actions = document.createElement("div");
   actions.classList.add("mdc-card__actions");
