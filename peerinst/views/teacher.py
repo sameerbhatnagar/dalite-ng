@@ -339,6 +339,7 @@ def messages(req, teacher):
                 "last_reply": {
                     "author": last_reply.author.username,
                     "content": last_reply.content,
+                    "date": date(last_reply.created),
                 }
                 if last_reply
                 else "",

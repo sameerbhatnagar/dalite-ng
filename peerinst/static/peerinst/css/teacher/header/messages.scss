@@ -52,11 +52,8 @@
     align-items: center;
     background: #ffffff;
     border-radius: 10px 0 10px 10px;
-    display: grid;
-    grid-template-columns: minmax(400px, 50%);
-    grid-template-rows: 1fr 40px;
     max-height: 50vh;
-    padding-top: 20px;
+    padding: 20px 10px 10px 10px;
     position: absolute;
     right: 21px;
     text-align: center;
@@ -67,9 +64,6 @@
     z-index: 2;
 
     & .messages__messages {
-      display: grid;
-      grid-auto-rows: max-content;
-      grid-template-columns: 1fr;
       height: 100%;
       overflow-y: auto;
 
@@ -77,14 +71,13 @@
         align-items: center;
         border-bottom: 1px solid rgba($mdc-theme-primary, 0.25);
         border-top: none;
-        display: grid;
-        grid-template-columns: 50px max-content 1fr max-content;
-        grid-template-rows: 1fr max-content;
+        cursor: pointer;
         min-height: 30px;
         opacity: 0;
-        padding: 10px 0;
+        padding: 8px 10px;
         text-align: start;
         user-select: none;
+        width: 360px;
 
         &:first-child {
           border-top: 1px solid rgba($mdc-theme-primary, 0.25);
@@ -94,57 +87,39 @@
           background: rgba($mdc-theme-primary, 0.05);
         }
 
-        & .message__icon {
-          fill: $mdc-theme-primary;
-          grid-column: 1;
-          height: 28px;
-          justify-self: center;
-          width: 28px;
-        }
-
         & .message__new {
           color: $mdc-theme-secondary;
           font-size: 0.75rem;
           font-style: italic;
-          grid-column: 2;
         }
 
         & .message__title {
           font-weight: bold;
-          grid-column: 3;
           overflow: hidden;
-          padding: 0 10px;
-          text-overflow: ellipsis;
-          white-space: nowrap;
+          padding: 2px 0px;
         }
 
         & .message__mark-read {
           cursor: pointer;
           font-size: 0.6rem;
           font-style: italic;
-          grid-column: 4;
           padding-right: 10px;
           text-decoration: underline;
         }
 
         & .message__last-reply {
           font-size: 0.75rem;
-          grid-column: 3;
-          grid-row: 2;
+          font-style: italic;
           overflow: hidden;
-          padding-left: 10px;
           text-overflow: ellipsis;
           white-space: nowrap;
 
           & .message__last-reply__author {
-            &::after {
-              content: ":";
-            }
-          }
-
-          & .message__last-reply__content {
-            font-style: italic;
-            padding-left: 10px;
+            color: $hint;
+            font-size: 0.65rem;
+            font-style: normal;
+            padding-top: 2px;
+            text-align: right;
           }
         }
       }
@@ -153,10 +128,10 @@
     & .messages__read-all-btn {
       align-self: center;
       cursor: pointer;
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       justify-self: center;
+      padding-top: 10px;
       text-align: center;
-      text-decoration: underline;
     }
   }
 
@@ -175,7 +150,6 @@
     }
 
     & .messages__list {
-      box-shadow: 0 1px 1px #bdbdbd;
       right: 0;
       top: 42px;
       transform: scale(1);

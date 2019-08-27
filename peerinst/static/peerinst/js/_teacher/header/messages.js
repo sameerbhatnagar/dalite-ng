@@ -1,6 +1,6 @@
 // @flow
 import { buildReq } from "../../ajax.js";
-import { clear, createSvg } from "../../utils.js";
+import { clear } from "../../utils.js";
 
 /*********/
 /* model */
@@ -62,6 +62,7 @@ function getMessages(): void {
         lastReply: {
           author: message.last_reply.author,
           content: message.last_reply.content,
+          date: message.last_reply.date,
         },
         nNew: message.n_new,
         link: message.link,
@@ -165,10 +166,6 @@ function messageView(
     div.classList.remove("message--new");
   }
 
-  const icon = createSvg("chat_bubble");
-  icon.classList.add("message__icon");
-  div.appendChild(icon);
-
   if (message.nNew) {
     const new_ = document.createElement("span");
     new_.classList.add("message__new");
@@ -176,7 +173,7 @@ function messageView(
     div.appendChild(new_);
   }
 
-  const title = document.createElement("span");
+  const title = document.createElement("div");
   title.classList.add("message__title");
   title.textContent = message.title;
   div.appendChild(title);
@@ -196,15 +193,16 @@ function messageView(
     lastReply.classList.add("message__last-reply");
     div.appendChild(lastReply);
 
-    const author = document.createElement("span");
-    author.classList.add("message__last-reply__author");
-    author.textContent = message.lastReply.author;
-    lastReply.appendChild(author);
-
     const content = document.createElement("span");
     content.classList.add("message__last-reply__content");
     content.textContent = message.lastReply.content;
     lastReply.appendChild(content);
+
+    const author = document.createElement("div");
+    author.classList.add("message__last-reply__author");
+    author.innerHTML =
+      message.lastReply.author + " &middot; " + message.lastReply.date;
+    lastReply.appendChild(author);
   }
 
   return div;

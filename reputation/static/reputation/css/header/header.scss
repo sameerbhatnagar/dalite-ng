@@ -10,7 +10,7 @@
     cursor: pointer;
     display: flex;
     justify-content: space-between;
-    padding: 4px;
+    padding: 5px;
     transition: 250ms;
 
     &:hover {
@@ -29,7 +29,7 @@
     }
 
     & #icon__reputation {
-      font-size: 15pt;
+      font-size: 12pt;
       text-align: center;
     }
   }
@@ -46,7 +46,7 @@
     position: absolute;
     right: 0;
     text-align: center;
-    top: 38px;
+    top: 42px;
     transform: scale(0);
     transform-origin: top right;
     transition: transform 250ms, border-radius 250ms;
