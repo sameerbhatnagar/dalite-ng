@@ -43,7 +43,6 @@ async function getMessages() {
       picture: author.picture,
     })),
   }));
-  console.log(model);
 }
 
 async function removeMessage(message, div) {
