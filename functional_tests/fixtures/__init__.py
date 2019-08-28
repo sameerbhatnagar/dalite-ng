@@ -24,6 +24,8 @@ __all__ = [
     "student",
     "student_new",
     "tos_student",
+    "students",
+    "assignments",
 ]
 
 from .forums_ import forum
@@ -46,6 +48,8 @@ from .peerinst_ import (
     student,
     student_new,
     tos_student,
+    students,
+    assignments,
 )
 from .quality_ import min_words_criterion, min_words_rules, quality_min_words
 from .reputation_ import student_reputation_with_criteria
