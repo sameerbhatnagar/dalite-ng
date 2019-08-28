@@ -64,7 +64,6 @@ export class ReputationHeader extends HTMLElement {
 
   attributeChangedCallback(attrName, oldVal, newVal) {
     if (attrName === "stale") {
-      console.log("Updating reputation...");
       this.update();
     }
   }
