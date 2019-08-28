@@ -953,20 +953,3 @@ div.input-ripple-wrapper input {
 .greenyellow {
   color: greenyellow;
 }
-
-.icon {
-  border-radius: 50%;
-  fill: $mdc-theme-primary;
-  height: 28px;
-  padding: 12px;
-  transition: background 300ms;
-  width: 28px;
-
-  &:hover {
-    background: #f5f5f5;
-  }
-
-  &:active {
-    background: #d3d3d3;
-  }
-}

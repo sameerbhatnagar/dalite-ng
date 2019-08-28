@@ -96,14 +96,16 @@
          favorite_border
       </i>
       <div class="flag-question" data-id="{{ g.pk }}">
-        <svg class="flag-question__btn icon"
-             role="button"
-             aria-pressed="false"
-             aria-label="{% trans 'Flag question' %}"
-             tabindex="0"
-             title="{% trans 'Flag question' %}">
-          <use xlink:href="#flag"></use>
-        </svg>
+        <i class="mdc-icon-toggle material-icons mdc-theme--primary flag-question__btn"
+           data-id="{{ g.pk|safe }}"
+           role="button"
+           aria-pressed="false"
+           aria-label="{% trans 'Flag question' %}"
+           tabindex="0"
+           title="{% trans 'Flag question' %}">
+           outlined_flag
+        </i>
+
         <div class="flag-question__form" hidden>
           <h3>{% trans 'Flag question' %}</h3>
           <form>
@@ -119,7 +121,7 @@
                    value="{% trans 'Flag' %}">
           </form>
         </div>
-      </div>
+        </div>
       {% endif %}
 
     </div>
