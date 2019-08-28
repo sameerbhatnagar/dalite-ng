@@ -1253,6 +1253,7 @@ def get_student_activity_data(teacher):
         distribution_date__gte=last_week, due_date__lte=next_week
     )
 
+    # if in between semesters, find most recent standalone assignment
     if standalone_assignments.count() == 0:
         try:
             last_assignment = standalone_assignments_all.latest("due_date")
@@ -1262,25 +1263,74 @@ def get_student_activity_data(teacher):
         except StudentGroupAssignment.DoesNotExist:
             standalone_assignments = StudentGroupAssignment.objects.none()
 
+    print(standalone_assignments)
+
     standalone_answers = Answer.objects.filter(
         assignment__in=standalone_assignments.values("assignment")
     ).filter(user_token__in=all_current_students.values("student__username"))
 
     # LTI
-    # lti_assignments = [
+    lti_assignments = teacher.assignments.exclude(
+        identifier__in=standalone_assignments_all.values(
+            "assignment__identifier"
+        )
+    )
+    #
+    # [
     #     a
     #     for a in teacher.assignments.all()
-    #     if a not in [b.assignment for b in standalone_assignments.all()]
+    #     if a not in [b.assignment for b in standalone_assignments_all.all()]
     # ]
 
-    if standalone_assignments_all.count() == 0:
-        lti_assignments = teacher.assignments.all()
-    else:
-        lti_assignments = []
+    # currently assuming that teacher uses either LTI or standalone
+    # if standalone_assignments.count() == 0:
+    #     lti_assignments = teacher.assignments.all()
+    # else:
+    #     lti_assignments = []
+
+    print(lti_assignments)
 
     lti_answers = Answer.objects.filter(assignment__in=lti_assignments).filter(
         user_token__in=all_current_students.values("student__username")
     )
+
+    # logic to infer most recent lti assignments
+    recent_assignments = (
+        lti_answers.filter(datetime_second__gte=last_week)
+        .order_by("-datetime_second")
+        .values_list("assignment_id", flat=True)
+    )
+    # if in between semesters, simply get assignment of most recent answer
+    if len(recent_assignments) == 0 and lti_answers.count() > 0:
+        print(lti_answers.count())
+        most_recent_lti_assignment = lti_answers.latest(
+            "datetime_second"
+        ).assignment
+        print("most recent lti answer")
+        recent_assignments = lti_assignments.filter(
+            identifier=most_recent_lti_assignment.identifier
+        )
+
+    # drop any assignment whose last answer is older than 3 months
+    three_months_ago = datetime.utcnow().replace(tzinfo=pytz.utc) + timedelta(
+        days=90
+    )
+    stale_lti_assignments = [
+        a.identifier
+        for a in recent_assignments
+        if a.answer_set.latest("datetime_second").datetime_second
+        < three_months_ago
+    ]
+    print("recent_assignments")
+    print(recent_assignments)
+    print("stale")
+    print(stale_lti_assignments)
+    if len(stale_lti_assignments) > 0:
+        recent_assignments = recent_assignments.exclude(
+            identifier__in=stale_lti_assignments
+        )
+
+    lti_answers = lti_answers.filter(assignment_id__in=recent_assignments)
 
     all_answers_by_group = {}
     for g in current_groups:
@@ -1291,14 +1341,21 @@ def get_student_activity_data(teacher):
         if len(student_list) > 0:
             # Keyed on studentgroupassignment
             for ga in standalone_assignments:
-                if ga.assignment.questions.count() > 0:
-                    all_answers_by_group[g][ga] = {}
-                    all_answers_by_group[g][ga]["answers"] = [
+                if (
+                    ga.assignment.questions.count() > 0
+                    and ga in g.studentgroupassignment_set.all()
+                ):
+                    answers = [
                         a
                         for a in standalone_answers
                         if a.user_token in student_list
                         and a.assignment == ga.assignment
                     ]
+                    print("standalone keys")
+                    print(g, ga)
+                    print(len(answers))
+                    all_answers_by_group[g][ga] = {}
+                    all_answers_by_group[g][ga]["answers"] = answers
                     all_answers_by_group[g][ga]["new"] = [
                         a
                         for a in standalone_answers
@@ -1336,6 +1393,7 @@ def get_student_activity_data(teacher):
                     if a.user_token in student_list and a.assignment == l
                 ]
                 if l.questions.count() > 0 and len(answers) > 0:
+                    print("lti keys")
                     print(l, g)
                     print(len(answers))
                     all_answers_by_group[g][l] = {}
