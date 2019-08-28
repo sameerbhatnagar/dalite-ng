@@ -8,6 +8,9 @@ from functional_tests.fixtures import *  # noqa
 from functional_tests.student.test_index_workflow import join_group_with_link
 from faker import Faker
 from datetime import datetime, timedelta
+import time
+from peerinst.models.answer import AnswerChoice
+
 
 fake = Faker()
 
@@ -78,13 +81,19 @@ def consent_to_tos(browser):
 
 
 def answer_questions(browser, student, assignment):
+    browser_url = browser.server_url
+    str(browser_url)
     browser.find_element_by_class_name(
         "student-group--assignment-title"
     ).click()
+    time.sleep(3)
+    url = browser.current_url
+    str(url)
+    browser.get(browser_url + url[21:])
     for question in assignment.questions.all():
         browser.find_element_by_class_name("mdc-radio__native-control").click()
         rationale = fake.sentence(nb_words=6)
-        browser.find_element_by_class_name("id_rationale").send_keys(rationale)
+        browser.find_element_by_id("id_rationale").send_keys(rationale)
         browser.find_element_by_class_name("mdc-button").click()
         assert rationale in browser.find_element_by_id("your-rationale").text
         assert "A" in browser.find_element_by_name("second_answer_choice").text
@@ -110,18 +119,30 @@ def test_question_answering(
     browser,
     assert_,
     mailoutbox,
-    student_new,
+    student,
     group,
     teacher,
     student_group_assignment,
     assignment,
 ):
     group.teacher.add(teacher)
+    group.save()
+    for question in assignment.questions.all():
+        for i in range(0, 4):
+            q = AnswerChoice.objects.create(
+                question=question,
+                text=fake.sentence(nb_words=6),
+                correct=False,
+            )
+            if i == 0:
+                q.correct = True
+        q.save()
+    assignment.save()
     student_group_assignment.assignment = assignment
     student_group_assignment.group = group
     student_group_assignment.distribution_date = datetime.now()
     student_group_assignment.due_date = datetime.now() + timedelta(days=30)
-    signin(browser, student_new, mailoutbox, new=True)
-    consent_to_tos(browser)
+    student_group_assignment.save()
+    signin(browser, student, mailoutbox)
     join_group_with_link(browser, group)
-    answer_questions(browser, student_new, assignment)
+    answer_questions(browser, student, assignment)

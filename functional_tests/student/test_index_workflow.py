@@ -13,7 +13,7 @@ from selenium.webdriver.support.expected_conditions import (
 from selenium.webdriver.support.ui import Select, WebDriverWait
 
 from functional_tests.fixtures import *  # noqa
-import time
+
 
 timeout = 1
 
@@ -58,7 +58,6 @@ def join_group_with_link(browser, group):
     input_ = browser.find_element_by_name("new-group")
     input_.clear()
     input_.send_keys(link)
-    time.sleep(10)
     input_.send_keys(Keys.ENTER)
 
     try:

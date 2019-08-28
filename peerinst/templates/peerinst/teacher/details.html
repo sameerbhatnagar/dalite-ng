@@ -300,7 +300,7 @@
               </span>
             </span>
             <span class="mdc-list-item__meta">
-              <i id="activate-dialog-{{a.pk|slugify}}" class="material-icons md-24 mdc-ripple-surface icon-list">bar_chart</i>
+              <i id="activate-dialog-{{a.pk|slugify}}" class="material-icons md-24 mdc-ripple-surface icon-list collection-stats" pk="{{a.pk}}">bar_chart</i>
               <a href="{% url 'collection-delete' a.pk %}">
                 <i class="material-icons md-24 mdc-ripple-surface icon-list">delete</i>
               </a>
@@ -331,17 +331,17 @@
                 <div>
                   <b>{% trans 'Collection Statistics' %}</b
                 </div>
-                <div>
-                  {% trans 'Total Answers' %}: {{ collection_data|get_value:a.pk|get_value:"total_answers" }}
+                <div id="total-answers-{{a.pk}}">
+                  {% trans 'Total Answers' %}: N/A
                 </div>
-                <div>
-                  {% trans 'Answers Switched' %}: {{ collection_data|get_value:a.pk|get_value:"switches" }}
+                <div id="switches-{{a.pk}}">
+                  {% trans 'Answers Switched' %}: N/A
                 </div>
-                <div>
-                  {% trans 'Correct Answers on First Attempt' %}: {{ collection_data|get_value:a.pk|get_value:"correct_first_answers" }}
+                <div id="correct-first-answers-{{a.pk}}">
+                  {% trans 'Correct Answers on First Attempt' %}: N/A
                 </div>
-                <div>
-                  {% trans 'Correct Answers on Second Attempt' %}: {{ collection_data|get_value:a.pk|get_value:"correct_second_answers" }}
+                <div id="correct-second-answers-{{a.pk}}">
+                  {% trans 'Correct Answers on Second Attempt' %}: N/A
                 </div>
                 <div>
                   {% trans 'Followers' %}: {{ a.followers.count }}
@@ -564,6 +564,25 @@
       const pk=el.getAttribute('id');
       const collectionUrl = "{% url 'collection-detail' 0 %}"
       window.location.assign(collectionUrl.replace("0", pk ));
+    });
+  });
+  $.ajaxSetup({
+      beforeSend: function(xhr, settings) {
+          if (!bundle.csrfSafeMethod(settings.type) && !this.crossDomain) {
+              xhr.setRequestHeader("X-CSRFToken", bundle.getCsrfToken());
+          }
+      },
+  });
+  [].forEach.call(document.querySelectorAll(".collection-stats"), el => {
+    el.addEventListener("click", () => {
+      const pk=el.getAttribute("pk");
+      var posting = $.post("{% url 'collection-statistics' %}", {pk: pk});
+      posting.done(function(data) {
+        document.getElementById("total-answers-"+pk).innerHTML = ("{% trans 'Total Answers' %}: " +data.totalAnswers);
+        document.getElementById("correct-first-answers-"+pk).innerHTML = ("{% trans 'Correct Answers on First Attempt' %}: " +data.correctFirstAnswers);
+        document.getElementById("correct-second-answers-"+pk).innerHTML = ("{% trans 'Correct Answers on Second Attempt' %}: " +data.correctSecondAnswers);
+        document.getElementById("switches-"+pk).innerHTML = ("{% trans 'Answers Switched' %}: " +data.switches);
+    })
     });
   });
 </script>
