@@ -233,7 +233,7 @@ def check_notifications(browser, assert_):
     )
 
 
-def click_all_forums(browser, assert_):
+def click_all_forums(browser):
     links = browser.find_element_by_id("forum-list")
     n = len(links.find_elements_by_class_name("mdc-list-item"))
     for i in range(n):
@@ -276,7 +276,7 @@ def test_forum_workflow(browser, assert_, teachers, forum):
     check_follow_page(browser)
 
 
-def test_forums_list(browser, assert_, teacher, forums):
+def test_forums_list(browser, teacher, forums):
     login(browser, teacher)
     go_to_forums(browser, forums[0])
-    click_all_forums(browser, assert_)
+    click_all_forums(browser)
