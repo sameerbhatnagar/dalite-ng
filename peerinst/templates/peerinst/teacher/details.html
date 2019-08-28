@@ -295,7 +295,8 @@
             <span class="mdc-list-item__text mdc-theme--secondary bold">
               <a class="mdc-theme--secondary" href="{% url 'collection-detail' a.pk %}">{{ a.title }}</a>
               <span class="mdc-list-item__secondary-text">
-                {{ a.assignments.count }} {% trans 'assignments' %}, {{ a.followers.count }} {% trans 'followers' %}
+                {{ a.assignments.count }} {% if a.assignments.count == 1 %}{% trans 'assignment' %}{% else %}{% trans 'assignments' %}{% endif %},
+                {{ a.followers.count }} {% if a.followers.count == 1 %}{% trans 'follower' %}{% else %}{% trans 'followers' %}{% endif %}
               </span>
             </span>
             <span class="mdc-list-item__meta">
@@ -323,7 +324,8 @@
               <section id="assignment-parameters-description" class="mdc-dialog__body mdc-dialog__body--scrollable">
                 <div>
                   <h2 class="mdc-typography--display1 mdc-theme--secondary">
-                    {{ a.title }} {% trans 'contains' %} {{ a.assignments.count }} {% trans 'assignments about' %} {{ a.discipline }}.
+                    {{ a.title }} {% trans 'contains' %} {{ a.assignments.count }}
+                    {% if a.assignments.count == 1 %}{% trans 'assignment about' %}{% else %}{% trans 'assignments about' %}{% endif %} {{ a.discipline }}.
                   </h2>
                 </div>
                 <div>

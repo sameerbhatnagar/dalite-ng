@@ -41,10 +41,25 @@
 -->
 
 <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Most active contributors' %}</h2>
-<ul>
-{% for u in most_active_members %}
-  <li>{{ u.user }}: {{ u.count  }} {% trans 'posts' %}</li>
-{% endfor %}
+<ul class="mdc-list mdc-list--two-line">
+  {% for u in most_active_members %}
+  <li role="separator" class="mdc-list-divider"></li>
+  <li class="mdc-list-item">
+      <span class="mdc-list-item__graphic mdc-theme--primary">
+        <i class="mdc-theme--primary material-icons md-48">person_outline</i>
+      </span>
+      <span class="mdc-list-item__text mdc-theme--secondary bold">
+          {{ u.user }}: {{ u.count  }} {% if u.count == 1 %}{% trans 'post' %}{% else %}{% trans 'posts' %}{% endif %}
+        <span class="mdc-list-item__secondary-text">
+            {% trans 'Has taught' %} {{ u.user.teacher.disciplines.first }} {% trans 'at' %} {{ u.user.teacher.institutions.first }}
+        </span>
+        <span class="mdc-list-item__secondary-text">
+            {% trans 'Currently teaches' %} {{ u.user.teacher.current_groups.count }} {% if u.user.teacher.current_groups.count == 1 %}{% trans 'group on MyDalite' %}{% else %}{% trans 'groups on MyDalite' %}{% endif %}
+        </span>
+      </span>
+  </li>
+  {% endfor %}
+  <li role="separator" class="mdc-list-divider"></li>
 </ul>
 
 <!--
