@@ -1,0 +1,75 @@
+@import "../../variables.scss";
+
+#questions {
+  & .flag-question {
+    position: relative;
+
+    & .flag-question__btn {
+      cursor: pointer;
+    }
+
+    & .flag-question__form {
+      background: #ffffff;
+      border: 1px solid rgba($mdc-theme-primary, 0.5);
+      border-radius: 10px;
+      bottom: 0;
+      box-shadow: 0 1px 2px 1px rgba(darken($mdc-theme-primary, 20%), 0.25);
+      display: grid;
+      grid-gap: 10px;
+      grid-template-columns: max-content max-content;
+      justify-items: center;
+      min-width: 200px;
+      padding: 10px;
+      position: absolute;
+      right: 0;
+      transform: scale(1);
+      transform-origin: right bottom;
+      transition: right 300ms, bottom 300ms, transform 300ms,
+        visibility 0ms 0ms;
+      visibility: visible;
+      width: auto;
+
+      & h3 {
+        color: $mdc-theme-primary;
+        font-size: 1.4rem;
+        grid-column: 1 / -1;
+        margin: 0;
+      }
+
+      & form {
+        display: contents;
+
+        & select {
+          background: rgba($mdc-theme-primary, 0.25);
+          border: 1px solid rgba($mdc-theme-primary, 0.5);
+          border-radius: 3px;
+          color: $mdc-theme-secondary;
+          font-family: inherit;
+          font-size: 1rem;
+          font-weight: bold;
+          grid-column: 1 / -1;
+          padding: 5px 10px;
+          text-align: center;
+        }
+
+        & input[type="button"] {
+          border: 1px solid rgba($mdc-theme-primary, 0.5);
+          color: $mdc-theme-primary !important;
+          justify-self: end;
+        }
+        & input[type="submit"] {
+          justify-self: start;
+        }
+      }
+
+      &[hidden] {
+        bottom: 26px;
+        right: 26px;
+        transform: scale(0);
+        transition: right 300ms, bottom 300ms, transform 300ms,
+          visibility 0ms 300ms;
+        visibility: hidden;
+      }
+    }
+  }
+}

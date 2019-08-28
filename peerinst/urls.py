@@ -754,14 +754,30 @@ def teacher_patterns():
     ]
 
 
+def question_patterns():
+    return [
+        url(
+            r"^question/flag/reasons$",
+            views.question_.get_flag_question_reasons,
+            name="question--flag--reasons",
+        ),
+        url(
+            r"^question/flag/flag$",
+            views.question_.flag_question,
+            name="question--flag--flag",
+        ),
+    ]
+
+
 urlpatterns = sum(
     [
-        old_patterns(),
-        group_patterns(),
-        student_patterns(),
-        search_patterns(),
-        researcher_patterns(),
         collection_patterns(),
+        group_patterns(),
+        old_patterns(),
+        question_patterns(),
+        researcher_patterns(),
+        search_patterns(),
+        student_patterns(),
         teacher_patterns(),
     ],
     [],

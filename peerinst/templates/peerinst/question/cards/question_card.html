@@ -83,7 +83,8 @@
          data-id="{{ g.pk|safe }}"
          role="button"
          aria-pressed="false"
-         aria-label="{% trans 'Add to favorites' %}" tabindex="0"
+         aria-label="{% trans 'Add to favorites' %}"
+         tabindex="0"
          title="{% trans 'Add to favorites' %}"
          {% if g in request.user.teacher.favourite_questions.all %}
          data-toggle-off='{"label": "Remove from favourites", "content": "favorite"}'
@@ -94,6 +95,31 @@
          {% endif %}>
          favorite_border
       </i>
+      <div class="flag-question" data-id="{{ g.pk }}">
+        <svg class="flag-question__btn icon"
+             role="button"
+             aria-pressed="false"
+             aria-label="{% trans 'Flag question' %}"
+             tabindex="0"
+             title="{% trans 'Flag question' %}">
+          <use xlink:href="#flag"></use>
+        </svg>
+        <div class="flag-question__form" hidden>
+          <h3>{% trans 'Flag question' %}</h3>
+          <form>
+            <select class="flag-question__form__select"
+                    title="{% trans 'Possible reasons' %}"
+                    aria-label="{% trans 'Possible reasons' %}">
+            </select>
+            <input class="flag-question__form__cancel mdc-button"
+                   type="button"
+                   value="{% trans 'Cancel' %}">
+            <input type="submit"
+                   class="mdc-button mdc-button--raised"
+                   value="{% trans 'Flag' %}">
+          </form>
+        </div>
+      </div>
       {% endif %}
 
     </div>
