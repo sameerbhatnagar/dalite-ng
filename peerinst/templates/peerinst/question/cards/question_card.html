@@ -69,30 +69,30 @@
     <div class="mdc-card__action-icons">
 
       <i class="mdc-icon-toggle material-icons mdc-theme--primary remove-btn"
-          data-id="{{ g.pk|safe }}"
-          role="button"
-          aria-pressed="false"
-          aria-label="{% trans 'See another question' %}"
-          tabindex="0"
-          title="{% trans 'See another question' %}">
-          autorenew
+         data-id="{{ g.pk|safe }}"
+         role="button"
+         aria-pressed="false"
+         aria-label="{% trans 'See another question' %}"
+         tabindex="0"
+         title="{% trans 'See another question' %}">
+         autorenew
       </i>
       {% if request.user.teacher %}
       <i class="mdc-icon-toggle material-icons mdc-theme--primary favourite-btn"
-          id="favourite-btn-{{ g.pk|safe }}"
-          data-id="{{ g.pk|safe }}"
-          role="button"
-          aria-pressed="false"
-          aria-label="{% trans 'Add to favorites' %}" tabindex="0"
-          title="{% trans 'Add to favorites' %}"
-          {% if g in request.user.teacher.favourite_questions.all %}
-          data-toggle-off='{"label": "Remove from favourites", "content": "favorite"}'
-          data-toggle-on='{"label": "Add to favourites", "content": "favorite_border"}'
-          {% else %}
-          data-toggle-on='{"label": "Remove from favourites", "content": "favorite"}'
-          data-toggle-off='{"label": "Add to favourites", "content": "favorite_border"}'
-          {% endif %}>
-          favorite_border
+         id="favourite-btn-{{ g.pk|safe }}"
+         data-id="{{ g.pk|safe }}"
+         role="button"
+         aria-pressed="false"
+         aria-label="{% trans 'Add to favorites' %}" tabindex="0"
+         title="{% trans 'Add to favorites' %}"
+         {% if g in request.user.teacher.favourite_questions.all %}
+         data-toggle-off='{"label": "Remove from favourites", "content": "favorite"}'
+         data-toggle-on='{"label": "Add to favourites", "content": "favorite_border"}'
+         {% else %}
+         data-toggle-on='{"label": "Remove from favourites", "content": "favorite"}'
+         data-toggle-off='{"label": "Add to favourites", "content": "favorite_border"}'
+         {% endif %}>
+         favorite_border
       </i>
       {% endif %}
 
