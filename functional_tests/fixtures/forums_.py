@@ -15,3 +15,8 @@ class ForumFactory(factory.django.DjangoModelFactory):
 @pytest.fixture
 def forum():
     return ForumFactory()
+
+
+@pytest.fixture
+def forums(n=5):
+    return [ForumFactory() for i in range(n)]
