@@ -332,16 +332,16 @@
                   <b>{% trans 'Collection Statistics' %}</b
                 </div>
                 <div id="total-answers-{{a.pk}}">
-                  {% trans 'Total Answers' %}: N/A
+                  {% trans 'Total Answers' %}: {% trans 'Loading...' %}
                 </div>
                 <div id="switches-{{a.pk}}">
-                  {% trans 'Answers Switched' %}: N/A
+                  {% trans 'Answers Switched' %}: {% trans 'Loading...' %}
                 </div>
                 <div id="correct-first-answers-{{a.pk}}">
-                  {% trans 'Correct Answers on First Attempt' %}: N/A
+                  {% trans 'Correct Answers on First Attempt' %}: {% trans 'Loading...' %}
                 </div>
                 <div id="correct-second-answers-{{a.pk}}">
-                  {% trans 'Correct Answers on Second Attempt' %}: N/A
+                  {% trans 'Correct Answers on Second Attempt' %}: {% trans 'Loading..' %}
                 </div>
                 <div>
                   {% trans 'Followers' %}: {{ a.followers.count }}
