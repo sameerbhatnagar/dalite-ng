@@ -1,6 +1,6 @@
 -r requirements.txt
 
-django-storages-redux==1.3
+django-storages
 sentry-sdk==0.7.2
 boto3
 gunicorn==19.4.5
