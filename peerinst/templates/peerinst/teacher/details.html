@@ -25,7 +25,7 @@
       <div class="foldable--body">
         <div class="admin-link">
           <a href="{% url 'teacher-groups' teacher.id %}">{% trans 'Manage groups' %}</a>
-          <span class="admin-link--padded">|</span><a href="{% url 'group-assignments' teacher.id %}">{% trans 'Homework list' %}</a>
+          <span class="links-divider">|</span><a href="{% url 'group-assignments' teacher.id %}">{% trans 'Homework list' %}</a>
         </div>
         {% if not object.current_groups.all %}
         <p class='mdc-typography--body1'>{% blocktrans %}You have no active student groups.{% endblocktrans %}</p>
@@ -70,7 +70,7 @@
       <div class="foldable--body">
         <div class="admin-link">
             <a href="{% url 'teacher-assignments' teacher.id %}">{% trans 'Manage assignments' %}</a>
-            <span class="admin-link--padded">|</span><a href="{% url 'report_selector' %}">{% trans 'Custom reports' %}</a>
+            <span class="links-divider">|</span><a href="{% url 'report_selector' %}">{% trans 'Custom reports' %}</a>
         </div>
         {% if not object.assignments.all %}
         <p class='mdc-typography--body1'>{% blocktrans %}You do not have any assignments.{% endblocktrans %}</p>
@@ -158,7 +158,7 @@
       <div class="foldable--body">
         <div class="admin-link">
           <a href="{% url 'question-create' %}">{% trans 'Create new' %}</a>
-          <span class="admin-link--padded">|</span><span id='show-deleted-questions' class='toggle-deleted-questions fake-link clickable'>{% trans 'Show deleted' %}</span><span id='hide-deleted-questions' class='toggle-deleted-questions fake-link clickable'>{% trans 'Hide deleted' %}</span>
+          <span class="links-divider">|</span><span id='show-deleted-questions' class='toggle-deleted-questions fake-link clickable'>{% trans 'Show deleted' %}</span><span id='hide-deleted-questions' class='toggle-deleted-questions fake-link clickable'>{% trans 'Hide deleted' %}</span>
         </div>
 
         <h3>{% trans 'My questions' %}</h3>
