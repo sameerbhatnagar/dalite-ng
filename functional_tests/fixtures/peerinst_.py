@@ -1,7 +1,12 @@
 import factory
 import pytest
 
-from peerinst.models import AnswerChoice, Institution, Question
+from peerinst.models import (
+    AnswerChoice,
+    Institution,
+    Question,
+    StudentGroupAssignment,
+)
 from peerinst.tests.fixtures import *  # noqa
 from peerinst.tests.fixtures.question.factories import CategoryFactory
 
@@ -51,3 +56,11 @@ class InstitutionFactory(factory.django.DjangoModelFactory):
 @pytest.fixture
 def institution():
     return InstitutionFactory()
+
+
+@pytest.fixture
+def undistributed_assignment(assignment, group):
+    undistributed_assignment = StudentGroupAssignment.objects.create(
+        assignment=assignment, group=group
+    )
+    return undistributed_assignment

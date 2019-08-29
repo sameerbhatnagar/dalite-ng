@@ -40,6 +40,7 @@ class Criterion(models.Model):
     )
     badge_colour = models.CharField(max_length=16, default="#0066ff")
     points_per_threshold = CommaSepField(
+        default="[1]",
         verbose_name="Points per threshold",
         help_text="Number of reputation points for each criterion point up to "
         "the next threadhold, split by commas. This list should have the same "

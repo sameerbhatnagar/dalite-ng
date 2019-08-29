@@ -128,11 +128,6 @@ def old_patterns():
             name="question-search",
         ),
         url(r"^heartbeat/$", views.HeartBeatUrl.as_view(), name="heartbeat"),
-        url(
-            r"^collection/create$",
-            views.CollectionCreateView.as_view(),
-            name="collection-create",
-        ),
         # Standalone
         url(
             r"^live/access/(?P<token>[0-9A-Za-z=_-]+)/(?P<assignment_hash>[0-9A-Za-z=_-]+)$",  # noqa
@@ -602,7 +597,83 @@ def researcher_patterns():
 
 
 def collection_patterns():
-    return []
+    return [
+        url(
+            r"^collection/create/$",
+            views.CollectionCreateView.as_view(),
+            name="collection-create",
+        ),
+        url(
+            r"^collection/(?P<pk>[0-9]+)$",
+            views.CollectionDetailView.as_view(),
+            name="collection-detail",
+        ),
+        url(
+            r"^collection/update/(?P<pk>[0-9]+)$",
+            views.CollectionUpdateView.as_view(),
+            name="collection-update",
+        ),
+        url(
+            r"^collection/delete/(?P<pk>[0-9]+)$",
+            views.CollectionDeleteView.as_view(),
+            name="collection-delete",
+        ),
+        url(
+            r"^collection/list/$",
+            views.CollectionListView.as_view(),
+            name="collection-list",
+        ),
+        url(
+            r"^collection/personal/$",
+            views.PersonalCollectionListView.as_view(),
+            name="personal-collection-list",
+        ),
+        url(
+            r"^collection/followed/$",
+            views.FollowedCollectionListView.as_view(),
+            name="followed-collection-list",
+        ),
+        url(
+            r"^collection/featured/$",
+            views.FeaturedCollectionListView.as_view(),
+            name="featured-collection-list",
+        ),
+        url(
+            r"^collection/distribute/(?P<pk>[0-9]+)$",
+            views.CollectionDistributeDetailView.as_view(),
+            name="collection-distribute",
+        ),
+        url(
+            r"^collection/follower",
+            views.teacher_toggle_follower,
+            name="teacher-toggle-follower",
+        ),
+        url(
+            r"^collection/assignment",
+            views.collection_toggle_assignment,
+            name="collection-toggle-assignment",
+        ),
+        url(
+            r"^collection/add/assignment",
+            views.collection_add_assignment,
+            name="collection-add-assignment",
+        ),
+        url(
+            r"^collection/assign",
+            views.collection_assign,
+            name="collection-assign",
+        ),
+        url(
+            r"^collection/unassign",
+            views.collection_unassign,
+            name="collection-unassign",
+        ),
+        url(
+            r"^collection/featured-data/$",
+            views.featured_collections,
+            name="collection-featured-data",
+        ),
+    ]
 
 
 def teacher_patterns():

@@ -18,6 +18,9 @@ __all__ = [
     "teacher",
     "teachers",
     "tos_teacher",
+    "group",
+    "student_group_assignment",
+    "undistributed_assignment",
 ]
 
 from .forums_ import forum
@@ -34,6 +37,9 @@ from .peerinst_ import (
     teacher,
     teachers,
     tos_teacher,
+    group,
+    student_group_assignment,
+    undistributed_assignment,
 )
 from .quality_ import min_words_criterion, min_words_rules, quality_min_words
 from .reputation_ import student_reputation_with_criteria
