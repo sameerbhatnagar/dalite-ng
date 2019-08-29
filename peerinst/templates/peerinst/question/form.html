@@ -5,7 +5,9 @@
 {% block stylesheets %}
 {{ block.super }}
 <!-- Self-hosted tinyMCE -->
+{% compress js %}
 <script src="{% static 'peerinst/js/tinymce/js/tinymce/tinymce.min.js' %}"></script>
+{% endcompress %}
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 <style nonce="{{ request.csp_nonce }}">
 .spinning {
