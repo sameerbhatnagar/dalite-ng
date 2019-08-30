@@ -60,6 +60,9 @@ def batch(iterable, size):
 
 
 def format_time(seconds):
+    if seconds is None:
+        return None
+
     days = seconds / 60 / 60 / 24
     seconds = seconds - days * 60 * 60 * 24
     hours = seconds / 60 / 60
