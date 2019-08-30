@@ -53,7 +53,7 @@
       </div>
       <div class="mdc-card__actions">
         <div class="mdc-card__action-buttons">
-          <div class="mdc-typography--caption" id="caption">
+          <div class="mdc-typography--caption caption">
             <div>
               {% trans 'Discipline' %}: {{ object.discipline|bleach_html|safe }}
             </div>
@@ -94,7 +94,7 @@
       </div>
       <div class="mdc-card__actions">
         <div class="mdc-card__action-buttons">
-          <div class="mdc-typography--caption" id="caption">
+          <div class="mdc-typography--caption caption">
             <div>
               {% trans 'Total Answers' %}: {{ collection_data.total_answers }}
             </div>
@@ -105,7 +105,7 @@
         </div>
         <div class="mdc-card__action-icons">
           <div class="mdc-card__action-buttons">
-            <div class="mdc-typography--caption" id="caption">
+            <div class="mdc-typography--caption caption">
               <div>
                 {% trans 'Correct Answers on First Attempt' %}:
                 {{ collection_data.correct_first_answers }}
@@ -138,7 +138,7 @@
             </div>
             <div class="mdc-card__actions">
               <div class="mdc-card__action-buttons">
-                <div class="mdc-typography--caption" id="caption">
+                <div class="mdc-typography--caption caption">
                   <div>
                     {% trans 'Total Answers' %}:
                     {{ assignment_data|get_value:obj.pk|get_value:"total_answers" }}
@@ -151,7 +151,7 @@
               </div>
               <div class="mdc-card__action-icons">
                 <div class="mdc-card__action-buttons">
-                  <div class="mdc-typography--caption" id="caption">
+                  <div class="mdc-typography--caption caption">
                     <div>
                       {% trans 'Correct Answers on First Attempt' %}:
                       {{ assignment_data|get_value:obj.pk|get_value:"correct_first_answers" }}
@@ -323,7 +323,7 @@
 
   [].forEach.call(document.querySelectorAll(".follower-btn"), el => {
     el.addEventListener("click", () => {
-      data = toggleFollower(el.getAttribute('pk'));
+      toggleFollower(el.getAttribute('pk'));
     });
   });
 

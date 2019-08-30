@@ -7,17 +7,17 @@ from django.views.generic.edit import CreateView
 from django.views.generic import ListView, DetailView, UpdateView, DeleteView
 from django.forms import ModelForm
 from ..models import (
-    Collection,
-    Teacher,
     Assignment,
+    Collection,
     StudentGroup,
     StudentGroupAssignment,
+    Teacher,
 )
 from ..mixins import (
     LoginRequiredMixin,
     NoStudentsMixin,
-    TOSAcceptanceRequiredMixin,
     student_check,
+    TOSAcceptanceRequiredMixin,
 )
 from django.shortcuts import get_object_or_404
 from django.core.urlresolvers import reverse
