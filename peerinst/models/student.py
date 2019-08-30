@@ -40,7 +40,7 @@ class Student(models.Model):
     )
 
     def __unicode__(self):
-        return self.student.username
+        return self.student.email
 
     class Meta:
         verbose_name = _("student")

@@ -150,6 +150,14 @@ class StudentReputationHeader extends ReputationHeader {
     }
 
     function progressView(reputation: Reputation): HTMLElement {
+      if (window.innerWidth <= 500) {
+        return mobileProgressView(reputation);
+      } else {
+        return desktopProgressView(reputation);
+      }
+    }
+
+    function desktopProgressView(reputation: Reputation): HTMLElement {
       const container = document.createElement("div");
       container.classList.add("badge");
 
@@ -246,7 +254,189 @@ class StudentReputationHeader extends ReputationHeader {
       return container;
     }
 
+    function mobileProgressView(reputation: Reputation): HTMLElement {
+      const container = document.createElement("div");
+      container.classList.add("badge");
+
+      const svg = d3
+        .select(container)
+        .append("svg")
+        .attr("viewBox", "0 0 200 40")
+        .append("g");
+
+      svg
+        .append("text")
+        .attr("data-val", reputation.reputation)
+        .attr("dominant-baseline", "central")
+        .attr("x", 10)
+        .attr("y", 20)
+        .attr("class", "fill-primary badge__reputation")
+        .attr("font-size", 16)
+        .text(0);
+
+      if (
+        reputation.badgeThresholds[reputation.badgeThresholds.length - 1] <=
+        reputation.reputation
+      ) {
+        const badge = svg.append("g");
+        badge
+          .append("path")
+          .attr(
+            "d",
+            "M11 9.16V2c-5 .5-9 4.79-9 10s4 9.5 9 " +
+              "10v-7.16c-1-.41-2-1.52-2-2.84s1-2.43 " +
+              "2-2.84zM14.86 11H22c-.48-4.75-4-8.53-9-9v7.16c1 " +
+              ".3 1.52.98 1.86 1.84zM13 14.84V22c5-.47 8.52-4.25 " +
+              "9-9h-7.14c-.34.86-.86 1.54-1.86 1.84z",
+          )
+          .attr("height", 10)
+          .attr("width", 10)
+          .attr("fill", reputation.badgeColour)
+          .attr("fill-opacity", 1)
+          .attr(
+            "transform",
+            "translate(" +
+              `${Math.min(172.5, Math.max(38.5, 30))}, ` +
+              "10.65" +
+              ")" +
+              ` scale(${19.5 / 25})`,
+          );
+
+        badge
+          .append("title")
+          .text(`Obtained at ${reputation.badgeThresholds[0]}`);
+      } else {
+        const idx = reputation.badgeThresholds
+          .map((t, i) => [t, i])
+          .filter(([t, i]) => t > reputation.reputation)
+          .map(([t, i]) => i)[0];
+        let width;
+        const thresholds = [];
+        if (idx == 0) {
+          width = reputation.badgeThresholds[0];
+        } else {
+          width =
+            reputation.badgeThresholds[idx] -
+            reputation.badgeThresholds[idx - 1];
+          thresholds.push(reputation.badgeThresholds[idx - 1]);
+        }
+        thresholds.push(reputation.badgeThresholds[idx]);
+
+        svg
+          .append("rect")
+          .attr("x", 40)
+          .attr("y", 5)
+          .attr("height", 32)
+          .attr("width", 150)
+          .attr("rx", 16)
+          .attr("ry", 16)
+          .attr("stroke", "var(--reputation-colour)")
+          .attr("stroke-width", 1)
+          .attr("fill", "none");
+
+        svg
+          .append("rect")
+          .attr("class", "badge__bar")
+          .attr("x", 40)
+          .attr(
+            "y",
+            5 +
+              Math.max(
+                0,
+                16 -
+                  Math.sqrt(
+                    72 *
+                      Math.max(
+                        thresholds.length == 1 ? 0 : 32,
+                        (150 *
+                          (reputation.reputation -
+                            (thresholds.length == 1 ? 0 : thresholds[0]))) /
+                          width,
+                      ),
+                  ) /
+                    2,
+              ),
+          )
+          .attr(
+            "height",
+            Math.min(
+              Math.sqrt(
+                72 *
+                  Math.max(
+                    thresholds.length == 1 ? 0 : 32,
+                    (150 *
+                      (reputation.reputation -
+                        (thresholds.length == 1 ? 0 : thresholds[0]))) /
+                      width,
+                  ),
+              ),
+              32,
+            ),
+          )
+          .attr("rx", 16)
+          .attr("ry", 16)
+          .attr("stroke", "var(--reputation-colour)")
+          .attr("stroke-width", 2)
+          .attr("fill", "var(--reputation-colour)");
+
+        thresholds.forEach((threshold, i) => {
+          const badge = svg.append("g");
+          badge
+            .append("path")
+            .attr(
+              "d",
+              "M11 9.16V2c-5 .5-9 4.79-9 10s4 9.5 9 " +
+                "10v-7.16c-1-.41-2-1.52-2-2.84s1-2.43 " +
+                "2-2.84zM14.86 11H22c-.48-4.75-4-8.53-9-9v7.16c1 " +
+                ".3 1.52.98 1.86 1.84zM13 14.84V22c5-.47 8.52-4.25 " +
+                "9-9h-7.14c-.34.86-.86 1.54-1.86 1.84z",
+            )
+            .attr("height", 10)
+            .attr("width", 10)
+            .attr("fill", reputation.badgeColour)
+            .attr("fill-opacity", reputation.reputation < threshold ? 0.5 : 1)
+            .attr(
+              "transform",
+              "translate(" +
+                `${Math.min(
+                  155,
+                  Math.max(
+                    35,
+                    30 +
+                      (150 *
+                        (i == 0 && thresholds.length > 1 ? 0 : threshold)) /
+                        width,
+                  ),
+                )}, ` +
+                "2.5" +
+                ")" +
+                ` scale(${40 / 25})`,
+            );
+
+          if (reputation.reputation < reputation.badgeThresholds[0]) {
+            badge
+              .append("title")
+              .text(`Next badge at ${reputation.badgeThresholds[0]}`);
+          } else {
+            badge
+              .append("title")
+              .text(`Obtained at ${reputation.badgeThresholds[0]}`);
+          }
+        });
+      }
+
+      return container;
+    }
+
     function toggleReputationView() {
+      if (window.innerWidth <= 500) {
+        return toggleMobileReputationView();
+      } else {
+        return toggleDesktopReputationView();
+      }
+    }
+
+    function toggleDesktopReputationView() {
       const duration = 500;
 
       const counts = model.shadow.querySelectorAll(".badge__reputation");
@@ -278,6 +468,82 @@ class StudentReputationHeader extends ReputationHeader {
             .attr(
               "width",
               Math.min((150 * reputation.reputation) / width, 150),
+            );
+        } else {
+          count
+            .transition()
+            .duration(duration)
+            .ease(d3.easeCubicInOut)
+            .tween("text", function() {
+              const interpolate = d3.interpolate(this.textContent, 0); // eslint-disable-line
+              return function(t) {
+                this.textContent = Math.round(interpolate(t)); // eslint-disable-line
+              };
+            });
+          bar
+            .transition()
+            .duration(duration)
+            .ease(d3.easeCubicInOut)
+            .attr("width", 0);
+        }
+      }
+    }
+
+    function toggleMobileReputationView() {
+      const duration = 500;
+
+      const counts = model.shadow.querySelectorAll(".badge__reputation");
+      const bars = model.shadow.querySelectorAll(".badge__bar");
+
+      for (let i = 0; i < model.reputations.length; i++) {
+        const reputation = model.reputations[i];
+        const count = d3.select(counts[i]);
+        const bar = d3.select(bars[i]);
+        const idx = reputation.badgeThresholds
+          .map((t, i) => [t, i])
+          .filter(([t, i]) => t > reputation.reputation)
+          .map(([t, i]) => i)[0];
+        let width: number;
+        const thresholds: Array<number> = [];
+        if (idx == 0) {
+          width = reputation.badgeThresholds[0];
+        } else {
+          width =
+            reputation.badgeThresholds[idx] -
+            reputation.badgeThresholds[idx - 1];
+          thresholds.push(reputation.badgeThresholds[idx - 1]);
+        }
+        thresholds.push(reputation.badgeThresholds[idx]);
+        if (model.element.open) {
+          count
+            .transition()
+            .duration(duration)
+            .ease(d3.easeCubicInOut)
+            .tween("text", function() {
+              const interpolate = d3.interpolate(
+                this.textContent, // eslint-disable-line
+                reputation.reputation,
+              );
+              return function(t) {
+                this.textContent = Math.round(interpolate(t)); // eslint-disable-line
+              };
+            });
+          bar
+            .transition()
+            .duration(duration)
+            .ease(d3.easeCubicInOut)
+            .attr(
+              "width",
+              Math.min(
+                Math.max(
+                  thresholds.length == 1 ? 0 : 32,
+                  (150 *
+                    (reputation.reputation -
+                      (thresholds.length == 1 ? 0 : thresholds[0]))) /
+                    width,
+                ),
+                150,
+              ),
             );
         } else {
           count
