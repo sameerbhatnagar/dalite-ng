@@ -43,6 +43,7 @@ function toggleFlagQuestion(question) {
   const open = question.getAttribute("open");
   const id = question.getAttribute("data-id");
   const form = question.querySelector(".flag-question__form");
+  const icon = question.querySelector(".flag-question__btn");
 
   if (id === null) {
     console.log(
@@ -54,9 +55,11 @@ function toggleFlagQuestion(question) {
   if (open === null) {
     question.setAttribute("open", "");
     form.removeAttribute("hidden");
+    icon.textContent = "flag";
   } else {
     question.removeAttribute("open");
     form.setAttribute("hidden", "");
+    icon.textContent = "outlined_flag";
   }
 }
 
@@ -139,7 +142,7 @@ function flagQuestionView() {
 function addFlagQuestionListeners() {
   [...document.getElementsByClassName("flag-question")].forEach(question => {
     question
-      .querySelector(".flag-question__form__cancel")
+      .querySelector(".flag-question__close")
       .addEventListener("click", event => {
         event.stopPropagation();
         toggleFlagQuestion(question);
