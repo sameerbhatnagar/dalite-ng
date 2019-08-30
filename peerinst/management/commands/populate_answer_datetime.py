@@ -3,14 +3,12 @@ from __future__ import print_function
 import datetime
 import logging
 import time
-import pytz
 
+import pytz
 from django.core.management.base import BaseCommand
 
-from peerinst.util import (
-    populate_answer_start_time_from_ltievent_logs,
-    make_daterange,
-)
+from peerinst.task import populate_answer_start_time_from_ltievent_logs_task
+from peerinst.util import make_daterange
 
 LOGGER = logging.getLogger("peerinst-models")
 
@@ -37,7 +35,7 @@ class Command(BaseCommand):
 
         for day_of_logs in make_daterange(start_date, end_date):
             LOGGER.info(day_of_logs)
-            populate_answer_start_time_from_ltievent_logs(
+            populate_answer_start_time_from_ltievent_logs_task(
                 day_of_logs=day_of_logs, event_type=event_type
             )
 

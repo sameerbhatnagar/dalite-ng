@@ -128,3 +128,12 @@ def compute_gradebook_async(group_pk, assignment_pk):
     from .gradebooks import compute_gradebook
 
     return compute_gradebook(group_pk, assignment_pk)
+
+
+@shared_task
+def populate_answer_start_time_from_ltievent_logs_task(
+    day_of_logs, event_type
+):
+    from .util import populate_answer_start_time_from_ltievent_logs
+
+    populate_answer_start_time_from_ltievent_logs(day_of_logs, event_type)
