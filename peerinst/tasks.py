@@ -6,9 +6,10 @@ import operator
 import smtplib
 
 from celery import shared_task
+from celery.schedules import crontab
 from django.core.mail import send_mail
 
-from dalite.celery import try_async
+from dalite.celery import app, try_async
 
 logger = logging.getLogger("peerinst-models")
 
@@ -128,3 +129,17 @@ def compute_gradebook_async(group_pk, assignment_pk):
     from .gradebooks import compute_gradebook
 
     return compute_gradebook(group_pk, assignment_pk)
+
+
+@app.on_after_configure.connect
+def setup_periodic_tasks(sender, **kwargs):
+    sender.add_periodic_task(
+        crontab(hour=5, minute=30), clean_notifications.s()
+    )
+
+
+@app.task
+def clean_notifications():
+    from .models import StudentNotification
+
+    StudentNotification.clean()
