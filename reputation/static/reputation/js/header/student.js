@@ -71,6 +71,22 @@ class StudentReputationHeader extends ReputationHeader {
     }
 
     function toggleReputationList() {
+      const header = model.element;
+      document.querySelectorAll(".header--togglable > *").forEach(header_ => {
+        console.log(header_);
+        if (header_ != header && header_.hasAttribute("open")) {
+          if (header_.shadowRoot) {
+            header_.shadowRoot
+              .querySelector(".header__icon")
+              .dispatchEvent(new Event("click"));
+          } else {
+            console.log(header_.querySelector("header__icon"));
+            header_
+              .querySelector(".header__icon")
+              .dispatchEvent(new Event("click"));
+          }
+        }
+      });
       model.element.open = !model.element.open;
       iconView();
       listView();
@@ -98,6 +114,7 @@ class StudentReputationHeader extends ReputationHeader {
       if (!icon) {
         icon = document.createElement("div");
         icon.id = "icon";
+        icon.classList.add("header__icon");
         icon.title = "Reputation";
         icon.addEventListener("click", (event: MouseEvent) => {
           event.stopPropagation();

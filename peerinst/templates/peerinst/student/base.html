@@ -37,14 +37,14 @@ class="logged-in-layout"
 
 {% block header-right %}
 {% if not request.session.LTI %}
-<div class="header">
+<div class="header header--togglable">
   <student-reputation-header
     reputation-url="{% url 'reputation:reputation' %}"
     reputation-id="{{ request.user.student.pk }}"
     nonce="{{ request.csp_nonce }}">
   </student-reputation-header>
 </div>
-<div class="header">
+<div class="header header--togglable">
   {% include 'peerinst/student/header/notifications.html' %}
 </div>
 {% endif %}

@@ -24,6 +24,20 @@ function initModel(data) {
 /**********/
 
 function toggleNotifications() {
+  const header = document.querySelector(".notifications");
+  document.querySelectorAll(".header--togglable > *").forEach(header_ => {
+    if (header_ != header && header_.hasAttribute("open")) {
+      if (header_.shadowRoot) {
+        header_.shadowRoot
+          .querySelector(".header__icon")
+          .dispatchEvent(new Event("click"));
+      } else {
+        header_
+          .querySelector(".header__icon")
+          .dispatchEvent(new Event("click"));
+      }
+    }
+  });
   model.notificationsOpen = !model.notificationsOpen;
   notificationsView();
 }
@@ -103,8 +117,10 @@ function notificationsView() {
   }
 
   if (model.notificationsOpen) {
+    notifications.setAttribute("open", "");
     notifications.classList.add("notifications--open");
   } else {
+    notifications.removeAttribute("open");
     notifications.classList.remove("notifications--open");
   }
 }
