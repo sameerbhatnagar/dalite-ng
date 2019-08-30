@@ -1,6 +1,7 @@
 *.ipynb
 *.ipynb_checkpoints/
 *.log
+*.map
 *.mypy_cache/
 *.py[cdo]
 *.rdb

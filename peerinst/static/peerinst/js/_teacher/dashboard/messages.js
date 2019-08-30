@@ -67,9 +67,13 @@ function view() {
 
 function messagesView() {
   const messages = document.querySelector("#dalite-messages");
-  model.messages.forEach(message => {
-    messages.appendChild(messageView(message));
-  });
+  if (model.messages.length) {
+    model.messages.forEach(message => {
+      messages.appendChild(messageView(message));
+    });
+  } else {
+    messages.remove();
+  }
 }
 
 function messageView(message) {
