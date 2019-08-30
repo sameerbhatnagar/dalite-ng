@@ -71,9 +71,14 @@
           }
       }
   });
-  window.addEventListener("load", () => {
+  window.addEventListener("load", async () => {
     teacher.initDashboard({{ data|safe }});
-    teacher.initQuestionCards("{% url 'teacher-toggle-favourite' %}", "{% url 'teacher-dashboard--new-questions' %}");
+    await teacher.initQuestionCards(
+      "{% url 'teacher-toggle-favourite' %}",
+      "{% url 'teacher-dashboard--new-questions' %}",
+      "{% url 'question--flag--reasons' %}",
+      "{% url 'question--flag--flag' %}"
+    );
     teacher.initStudentActivityCards({{ student_activity_json|safe }});
     teacher.initRationalesToScoreCards("{% url 'teacher-dashboard--evaluate-rationale' %}");
   })

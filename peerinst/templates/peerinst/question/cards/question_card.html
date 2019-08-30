@@ -2,7 +2,7 @@
 
 {% for g in question_list %}
 
-<div class="mdc-card"
+<div class="mdc-card question"
      id="{{ g.id|safe }}"
      discipline="'{{ g.discipline|safe }}'"
      category="{% for c in g.category.all %}{{ c.title|safe }} {% endfor %}"
@@ -69,31 +69,57 @@
     <div class="mdc-card__action-icons">
 
       <i class="mdc-icon-toggle material-icons mdc-theme--primary remove-btn"
-          data-id="{{ g.pk|safe }}"
-          role="button"
-          aria-pressed="false"
-          aria-label="{% trans 'See another question' %}"
-          tabindex="0"
-          title="{% trans 'See another question' %}">
-          autorenew
+         data-id="{{ g.pk|safe }}"
+         role="button"
+         aria-pressed="false"
+         aria-label="{% trans 'See another question' %}"
+         tabindex="0"
+         title="{% trans 'See another question' %}">
+         autorenew
       </i>
       {% if request.user.teacher %}
       <i class="mdc-icon-toggle material-icons mdc-theme--primary favourite-btn"
-          id="favourite-btn-{{ g.pk|safe }}"
-          data-id="{{ g.pk|safe }}"
-          role="button"
-          aria-pressed="false"
-          aria-label="{% trans 'Add to favorites' %}" tabindex="0"
-          title="{% trans 'Add to favorites' %}"
-          {% if g in request.user.teacher.favourite_questions.all %}
-          data-toggle-off='{"label": "Remove from favourites", "content": "favorite"}'
-          data-toggle-on='{"label": "Add to favourites", "content": "favorite_border"}'
-          {% else %}
-          data-toggle-on='{"label": "Remove from favourites", "content": "favorite"}'
-          data-toggle-off='{"label": "Add to favourites", "content": "favorite_border"}'
-          {% endif %}>
-          favorite_border
+         id="favourite-btn-{{ g.pk|safe }}"
+         data-id="{{ g.pk|safe }}"
+         role="button"
+         aria-pressed="false"
+         aria-label="{% trans 'Add to favorites' %}"
+         tabindex="0"
+         title="{% trans 'Add to favorites' %}"
+         {% if g in request.user.teacher.favourite_questions.all %}
+         data-toggle-off='{"label": "Remove from favourites", "content": "favorite"}'
+         data-toggle-on='{"label": "Add to favourites", "content": "favorite_border"}'
+         {% else %}
+         data-toggle-on='{"label": "Remove from favourites", "content": "favorite"}'
+         data-toggle-off='{"label": "Add to favourites", "content": "favorite_border"}'
+         {% endif %}>
+         favorite_border
       </i>
+      <div class="flag-question" data-id="{{ g.pk }}">
+        <i class="mdc-icon-toggle material-icons mdc-theme--primary flag-question__btn"
+           role="button"
+           aria-pressed="false"
+           aria-label="{% trans 'Flag question' %}"
+           tabindex="0"
+           title="{% trans 'Flag question' %}">
+           outlined_flag
+        </i>
+        <div class="flag-question__form" hidden>
+          <h3>{% trans 'Flag question' %}</h3>
+          <form>
+            <select class="flag-question__form__select"
+                    title="{% trans 'Possible reasons' %}"
+                    aria-label="{% trans 'Possible reasons' %}">
+            </select>
+            <input type="submit"
+                   class="mdc-button mdc-button--raised"
+                   value="{% trans 'Flag' %}">
+          </form>
+          <svg class="icon flag-question__close">
+            <use xlink:href="#close"></use>
+          </svg>
+        </div>
+        </div>
       {% endif %}
 
     </div>
