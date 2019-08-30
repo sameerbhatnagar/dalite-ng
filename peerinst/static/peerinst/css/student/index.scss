@@ -132,7 +132,11 @@ i {
       color: #ffffff;
       display: grid;
       grid-template-columns: 200px minmax(min-content, 1fr) 200px;
+      height: min-content;
+      overflow: hidden;
       padding: 10px 5px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
 
       & .student-group--id {
         align-items: center;
@@ -353,7 +357,11 @@ i {
         & .student-group--assignment-title {
           font-size: 18px;
           justify-self: start;
+          overflow: hidden;
           padding-left: 20px;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          width: calc(100% - 50px);
         }
 
         & .student-group--assignment-date {

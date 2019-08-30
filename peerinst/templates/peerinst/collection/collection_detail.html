@@ -166,7 +166,7 @@
           </div>
           <div class="foldable">
             <h1 class="foldable--title mdc-typography--display1 mdc-theme--secondary">
-              {{ obj.questions.count }} {% trans 'Questions' %}
+              {{ obj.questions.count }} {% if obj.questions.count == 1 %}{% trans 'Question' %}{% else %}{% trans 'Questions' %}{% endif %}
             </h1>
             <div class="foldable--body">
               <ul>
@@ -336,8 +336,5 @@
       window.location.assign("{% url 'collection-distribute' object.pk %}");
     });
   });
-
-
-
 </script>
 {% endblock %}

@@ -1,6 +1,6 @@
 {% extends 'peerinst/base.html' %}
 
-{% load staticfiles i18n compress %}
+{% load compress i18n staticfiles %}
 
 {% block stylesheets %}
 {{ block.super }}
@@ -86,7 +86,10 @@
 
 {% block scripts %}
   {% if user.student %}
+  {% compress js %}
   <script src="{% static 'peerinst/js/student.min.js' %}"></script>
+  {% endcompress %}
+  
   <script nonce="{{ request.csp_nonce }}">
     window.addEventListener("load", function() {
       student.initStudentHeader(
