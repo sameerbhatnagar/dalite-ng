@@ -1,27 +1,26 @@
 # -*- coding: utf-8 -*-
 from __future__ import division, unicode_literals
 
-import itertools
-import string
 import datetime
-from collections import defaultdict, Counter
+import itertools
 import logging
+import string
+from collections import Counter, defaultdict
 
-from django.utils.safestring import mark_safe
 from django.db.models import (
-    Count,
-    Value,
+    Avg,
     Case,
+    CharField,
+    Count,
+    DurationField,
+    ExpressionWrapper,
+    F,
     Q,
     QuerySet,
+    Value,
     When,
-    CharField,
-    DurationField,
-    F,
-    ExpressionWrapper,
-    Avg,
 )
-
+from django.utils.safestring import mark_safe
 
 logger = logging.getLogger("peerinst_console_log")
 
