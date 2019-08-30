@@ -27,7 +27,6 @@
     </div>
   </div>
 
-  {{create_form.errors}}
   <form method="post">
     {% csrf_token %}
     {% for field in create_form %}

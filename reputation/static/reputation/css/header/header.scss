@@ -42,6 +42,7 @@
     display: grid;
     font-size: 0.9rem;
     grid-auto-rows: minmax(50px, max-content);
+    grid-template-columns: max-content 1fr;
     padding: 10px;
     position: absolute;
     right: 0;
@@ -64,6 +65,7 @@
 
     .list__name {
       cursor: pointer;
+      justify-self: start;
       text-decoration: underline;
     }
 
@@ -95,6 +97,33 @@
     & #list {
       border-radius: 10px 0 10px 10px;
       transform: scale(1);
+    }
+  }
+}
+
+@media only screen and (max-width: 500px) {
+  #container {
+    position: static;
+    & #list {
+      grid-template-columns: 100vw;
+      height: calc(100vh - 50px);
+      left: 0;
+      right: 0;
+      top: 0;
+      transform: scaleY(0);
+      transform-origin: top center;
+    }
+  }
+
+  :host([open]) {
+    & #container {
+      & #list {
+        border-radius: 0;
+        left: 0;
+        right: 0;
+        top: 47px;
+        transform: scaleY(1);
+      }
     }
   }
 }

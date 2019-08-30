@@ -1497,6 +1497,8 @@ if (hStyles['position'] == 'relative') {
   h.style.marginTop = '200px';
 }
 </script>
+{% endcompress %}
+
 <script nonce="{{ request.csp_nonce }}">
   window.addEventListener("load", function() {
     {% for d in disciplines %}
@@ -1506,5 +1508,4 @@ if (hStyles['position'] == 'relative') {
     {% endfor %}
   })
 </script>
-{% endcompress %}
 {% endblock %}

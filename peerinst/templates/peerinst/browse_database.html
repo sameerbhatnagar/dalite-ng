@@ -112,7 +112,9 @@
 
 {% block scripts %}
 {{ block.super }}
+{% compress js %}
 <script src="{% static 'peerinst/js/search.min.js' %}"></script>
+{% endcompress %}
 
 <script nonce="{{ request.csp_nonce }}">
   bundle.toggleImages();
