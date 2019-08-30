@@ -1,6 +1,6 @@
 {% extends 'peerinst/question/review_base.html' %}
 
-{% load add_class i18n staticfiles %}
+{% load add_class compress i18n staticfiles %}
 
 {% block answers %}
 {{ block.super }}
@@ -65,7 +65,9 @@
 
 {% block scripts %}
 {{ block.super }}
+{% compress js %}
   <script src="{% static 'peerinst/js/question_review.js' %}"></script>
+{% endcompress %}
   <script nonce="{{ request.csp_nonce }}">
   window.addEventListener("load", function() {
     question.initReview()

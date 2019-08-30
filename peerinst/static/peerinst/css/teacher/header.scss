@@ -194,3 +194,31 @@
     }
   }
 }
+
+@media only screen and (max-width: 400px) {
+  .notifications {
+    position: static;
+    & .notifications__list {
+      border-radius: 0;
+      grid-template-columns: 100vw;
+      height: calc(100vh - 50px);
+      left: 0;
+      right: 0;
+      top: 0;
+      transform: scaleY(0);
+      transform-origin: top center;
+      & .notifications__notifications {
+        max-height: calc(100vh - 50px - 50px);
+      }
+    }
+
+    &.notifications--open {
+      & .notifications__list {
+        left: 0;
+        right: 0;
+        top: 50px;
+        transform: scaleY(1);
+      }
+    }
+  }
+}

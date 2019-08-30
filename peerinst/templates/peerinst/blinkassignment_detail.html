@@ -277,7 +277,6 @@
 
 {% block scripts %}
 {{ block.super }}
-{% compress js inline %}
 <script nonce="{{ request.csp_nonce }}">
 bundle.toggleImages();
 bundle.toggleAnswers();
@@ -313,6 +312,7 @@ function pageNav(page) {
   $('#search_results').load("{% url 'question-search' %}?page="+page, "search_string="+input.value+"&type=blink&id={{ object.id|urlencode }}&limit_search="+limitSearch.checked, search.processResponse);
 }
 </script>
+
 <script nonce="{{ request.csp_nonce }}">
   window.addEventListener("load", function() {
     document.getElementById("reset-filters").addEventListener("click", () => {
@@ -320,5 +320,4 @@ function pageNav(page) {
     })
   })
 </script>
-{% endcompress %}
 {% endblock %}
