@@ -101,7 +101,7 @@
 
         & .message__mark-read {
           cursor: pointer;
-          font-family: 'Material icons', sans-serif;
+          font-family: "Material icons", sans-serif;
           font-size: 1rem;
           padding-left: 8px;
           vertical-align: text-bottom;
@@ -158,6 +158,33 @@
 
       & .message {
         opacity: 1;
+      }
+    }
+  }
+}
+
+@media only screen and (max-width: 500px) {
+  .messages {
+    position: static;
+
+    & .messages__list {
+      height: calc(100vh - 50px);
+      left: 0;
+      max-height: 100vh;
+      right: 0;
+      top: 0;
+      transform: scaleY(0);
+      transform-origin: top center;
+      width: calc(100vw - 20px);
+    }
+
+    &.messages--open {
+      & .messages__list {
+        border-radius: 0;
+        left: 0;
+        right: 0;
+        top: 47px;
+        transform: scaleY(1);
       }
     }
   }
