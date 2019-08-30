@@ -10,11 +10,13 @@
 
     & .flag-question__form {
       align-items: center;
-      background: #ffffff;
-      border: 1px solid rgba($mdc-theme-primary, 0.5);
+      background: $mdc-theme-background;
       border-radius: 10px;
       bottom: 55px;
-      box-shadow: 0 1px 2px 1px rgba(darken($mdc-theme-primary, 20%), 0.25);
+      box-shadow:
+        0px 3px 1px -2px rgba(0,0,0,0.2),
+        0px 2px 2px 0px rgba(0,0,0,0.14),
+        0px 1px 5px 0px rgba(0,0,0,0.12);
       display: flex;
       flex-direction: column;
       grid-gap: 10px;
@@ -31,8 +33,7 @@
       width: max-content;
 
       & h3 {
-        color: $mdc-theme-primary;
-        font-size: 1.4rem;
+        color: $mdc-theme-secondary;
         margin: 0;
       }
 
@@ -40,18 +41,18 @@
         display: contents;
 
         & select {
-          background: rgba($mdc-theme-primary, 0.25);
-          border: 1px solid rgba($mdc-theme-primary, 0.5);
+          background: white;
+          border: 1px solid rgba($mdc-theme-secondary, 0.5);
           border-radius: 3px;
           color: $mdc-theme-secondary;
           font-family: inherit;
-          font-size: 1rem;
-          font-weight: bold;
-          padding: 5px 10px;
+          font-size: 0.85rem;
+          margin: 10px;
           text-align: center;
         }
 
         & input {
+          background-color: $mdc-theme-secondary;
           grid-column: 1 / -1;
         }
       }
@@ -59,7 +60,7 @@
       & .flag-question__close {
         border-radius: 50%;
         cursor: pointer;
-        fill: $mdc-theme-primary;
+        fill: $mdc-theme-secondary;
         height: 22px;
         padding: 3px;
         position: absolute;
@@ -84,24 +85,6 @@
         transition: right 300ms, bottom 300ms, transform 300ms,
           visibility 0ms 300ms;
         visibility: hidden;
-      }
-    }
-  }
-}
-
-@media only screen and (max-width: 500px) {
-  #questions {
-    & .flag-question {
-      & .flag-question__form {
-        border-radius: 0;
-        bottom: auto;
-        left: 0;
-        padding: 30px 20px;
-        position: fixed;
-        right: 0;
-        top: 25vh;
-        width: calc(100vw - 40px);
-        z-index: 1;
       }
     }
   }
