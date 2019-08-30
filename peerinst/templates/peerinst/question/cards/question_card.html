@@ -2,7 +2,7 @@
 
 {% for g in question_list %}
 
-<div class="mdc-card"
+<div class="mdc-card question"
      id="{{ g.id|safe }}"
      discipline="'{{ g.discipline|safe }}'"
      category="{% for c in g.category.all %}{{ c.title|safe }} {% endfor %}"
