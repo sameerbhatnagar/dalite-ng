@@ -68,6 +68,7 @@ function view() {
 function messagesView() {
   const messages = document.querySelector("#dalite-messages");
   if (model.messages.length) {
+    messages.classList.remove("hidden");
     model.messages.forEach(message => {
       messages.appendChild(messageView(message));
     });
