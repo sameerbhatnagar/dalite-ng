@@ -136,7 +136,7 @@
     }
   }
 
-  &.messages--open {
+  &[open] {
     & .messages__icon {
       background: #ffffff;
       border-radius: 20px 20px 0 0;
@@ -179,7 +179,7 @@
       width: calc(100vw - 20px);
     }
 
-    &.messages--open {
+    &[open] {
       & .messages__list {
         border-radius: 0;
         left: 0;

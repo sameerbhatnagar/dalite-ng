@@ -45,6 +45,20 @@ function update(): void {
 }
 
 function toggleMessages(): void {
+  const header = document.querySelector(".messages");
+  document.querySelectorAll(".header--togglable > *").forEach(header_ => {
+    if (header_ != header && header_.hasAttribute("open")) {
+      if (header_.shadowRoot) {
+        header_.shadowRoot
+          .querySelector(".header__icon")
+          .dispatchEvent(new Event("click"));
+      } else {
+        header_
+          .querySelector(".header__icon")
+          .dispatchEvent(new Event("click"));
+      }
+    }
+  });
   model.open = !model.open;
   messagesView();
 }
@@ -136,8 +150,10 @@ function messagesView(): void {
   }
 
   if (model.open) {
+    messages.setAttribute("open", "");
     messages.classList.add("messages--open");
   } else {
+    messages.removeAttribute("open");
     messages.classList.remove("messages--open");
   }
 }

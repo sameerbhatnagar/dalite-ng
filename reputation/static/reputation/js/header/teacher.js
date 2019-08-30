@@ -70,6 +70,20 @@ class TeacherReputationHeader extends ReputationHeader {
     }
 
     function toggleReputationList() {
+      const header = model.element;
+      document.querySelectorAll(".header--togglable > *").forEach(header_ => {
+        if (header_ != header && header_.hasAttribute("open")) {
+          if (header_.shadowRoot) {
+            header_.shadowRoot
+              .querySelector(".header__icon")
+              .dispatchEvent(new Event("click"));
+          } else {
+            header_
+              .querySelector(".header__icon")
+              .dispatchEvent(new Event("click"));
+          }
+        }
+      });
       model.element.open = !model.element.open;
       iconView();
       listView();
@@ -97,6 +111,7 @@ class TeacherReputationHeader extends ReputationHeader {
       if (!icon) {
         icon = document.createElement("div");
         icon.id = "icon";
+        icon.classList.add("header__icon");
         icon.title = "Reputation";
         icon.addEventListener("click", (event: MouseEvent) => {
           event.stopPropagation();
