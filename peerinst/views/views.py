@@ -2103,10 +2103,9 @@ def collection_unassign(request):
 def student_activity(request):
 
     teacher = request.user.teacher
-    current_groups = teacher.current_groups.all()
 
     all_answers_by_group, json_data = get_student_activity_data(
-        teacher, current_groups
+        teacher=teacher
     )
 
     return TemplateResponse(

@@ -33,7 +33,7 @@ def login(browser, teacher):
     submit_button = browser.find_element_by_xpath("//input[@value='Submit']")
     submit_button.click()
 
-    assert browser.current_url.endswith("browse/")
+    assert browser.current_url.endswith("teacher/dashboard/")
 
 
 def logout(browser, assert_):

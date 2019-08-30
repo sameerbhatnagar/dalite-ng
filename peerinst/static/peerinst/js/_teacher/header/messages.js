@@ -183,7 +183,7 @@ function messageView(
   if (message.nNew) {
     const new_ = document.createElement("div");
     new_.classList.add("message__new");
-    new_.textContent = `${message.nNew} new`;
+    new_.textContent = "New!";
     div.appendChild(new_);
   }
 

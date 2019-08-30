@@ -233,6 +233,20 @@ def check_notifications(browser, assert_):
     )
 
 
+def click_all_forums(browser):
+    links = browser.find_element_by_id("forum-list")
+    n = len(links.find_elements_by_class_name("mdc-list-item"))
+    for i in range(n):
+        link = links.find_elements_by_class_name("mdc-list-item")[i]
+        forum_name = link.find_element_by_class_name(
+            "mdc-list-item__text"
+        ).text
+        link.click()
+        assert browser.find_element_by_tag_name("h1").text in forum_name
+        browser.execute_script("window.history.go(-1)")
+        links = browser.find_element_by_id("forum-list")
+
+
 def test_forum_workflow(browser, assert_, teachers, forum):
     teacher = teachers[0]
     login(browser, teacher)
@@ -260,3 +274,9 @@ def test_forum_workflow(browser, assert_, teachers, forum):
     check_notifications(browser, assert_)
     go_to_forums(browser, forum)
     check_follow_page(browser)
+
+
+def test_forums_list(browser, teacher, forums):
+    login(browser, teacher)
+    go_to_forums(browser, forums[0])
+    click_all_forums(browser)
