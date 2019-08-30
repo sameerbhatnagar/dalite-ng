@@ -2,6 +2,6 @@
 
 django-storages
 sentry-sdk==0.7.2
-boto3
+boto
 gunicorn==19.4.5
 watchtower
