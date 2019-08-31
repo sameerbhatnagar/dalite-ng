@@ -174,8 +174,6 @@ class Quality(models.Model):
             gen = iter(combined)
             combined = [q if q[0] is not None else next(gen) for q in cached]
 
-        print(combined)
-
         return combined
 
     def add_criterion(self, name):
