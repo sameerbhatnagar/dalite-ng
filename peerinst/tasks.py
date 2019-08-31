@@ -138,7 +138,8 @@ def populate_answer_start_time_from_ltievent_logs_task(
     from .util import populate_answer_start_time_from_ltievent_logs
 
     populate_answer_start_time_from_ltievent_logs(day_of_logs, event_type)
-    
+
+
 @app.on_after_configure.connect
 def setup_periodic_tasks(sender, **kwargs):
     sender.add_periodic_task(
