@@ -578,7 +578,6 @@ def remove_notification(req, student):
         group_membership = StudentGroupMembership.objects.get(
             student=student, group=group
         )
-        print(group_membership.student_school_id)
         if group_membership.student_school_id == "":
             return HttpResponse(group.name)
         else:
