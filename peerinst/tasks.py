@@ -143,7 +143,7 @@ def populate_answer_start_time_from_ltievent_logs_task(
 @app.on_after_configure.connect
 def setup_periodic_tasks(sender, **kwargs):
     sender.add_periodic_task(
-        crontab(hour=5, minute=30), clean_notifications.s()
+        crontab(hour=0, minute=0), clean_notifications.s()
     )
 
 
