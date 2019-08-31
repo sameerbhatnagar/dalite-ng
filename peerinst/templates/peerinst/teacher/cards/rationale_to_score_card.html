@@ -36,6 +36,19 @@
   <div class="mdc-card__actions">
 
     <div class="mdc-card__action-buttons">
+
+    </div>
+
+    <div class="mdc-card__action-icons">
+      <i
+        class="mdc-icon-toggle material-icons mdc-theme--primary flag"
+        role="button"
+        aria-pressed="false"
+        aria-label="{% trans 'Flag' %}" tabindex="0"
+        data-rank="0"
+        title="{% trans 'This rationale should NEVER be shown to students' %}">
+          outlined_flag
+      </i>
       <i
         class="mdc-icon-toggle material-icons mdc-theme--primary star"
         role="button"
@@ -69,9 +82,8 @@
         title="{% trans 'This rationale should be shown OFTEN to students' %}">
           star_border
       </i>
-    </div>
 
-    <div class="mdc-card__action-icons">
+      <!--
       <button
         class="mdc-button mdc-button--raised mdc-theme-primary mdc-ripple"
         disabled="true"
@@ -88,6 +100,7 @@
         type="button">
         {% trans 'Flag' %}
       </button>
+      -->
     </div>
   </div>
 </div>
