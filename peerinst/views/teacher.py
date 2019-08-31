@@ -284,6 +284,68 @@ def rationales_to_score(req, teacher):
     )
 
 
+@require_POST
+@teacher_required
+def evaluate_rationale(req, teacher):
+    """
+    Add the `teacher`'s evaluation for a rationale.
+
+    Parameters
+    ----------
+    req : HttpRequest
+        Request with:
+            parameters:
+                id: int
+                    Primary key of the rationale
+                score: int
+                    Given score
+    teacher : Teacher
+        Teacher instance returned by `teacher_required`
+
+    Returns
+    -------
+    HttpResponse
+        Error response or empty 200 response
+    """
+
+    id_ = req.POST.get("id", None)
+    score = req.POST.get("score", None)
+
+    if not id_ or not score:
+        return response_400(
+            req,
+            msg=translate("Missing parameters."),
+            logger_msg=("Score and/or ID are missing from request."),
+            log=logger.warning,
+        )
+
+    score = int(score)
+
+    if score not in range(0, 4):
+        return response_400(
+            req,
+            msg=translate("The score wasn't in a valid range."),
+            logger_msg=("The score wasn't valid; was {}.".format(score)),
+            log=logger.warning,
+        )
+
+    try:
+        answer = Answer.objects.get(id=id_)
+    except Answer.DoesNotExist:
+        return response_400(
+            req,
+            msg=translate("Unkown answer id sent."),
+            logger_msg=("No answer could be found for pk {}.".format(id_)),
+            log=logger.warning,
+        )
+
+    AnswerAnnotation.objects.create(
+        answer=answer, annotator=teacher.user, score=score
+    )
+
+    return redirect(reverse("teacher-dashboard--rationales"))
+
+
 @require_GET
 @teacher_required
 def messages(req, teacher):
@@ -438,68 +500,6 @@ def unsubscribe_from_thread(req, teacher):
     thread.subscriptions.filter(user=teacher.user).delete()
 
     return HttpResponse("")
-
-
-@require_POST
-@teacher_required
-def evaluate_rationale(req, teacher):
-    """
-    Add the `teacher`'s evaluation for a rationale.
-
-    Parameters
-    ----------
-    req : HttpRequest
-        Request with:
-            parameters:
-                id: int
-                    Primary key of the rationale
-                score: int
-                    Given score
-    teacher : Teacher
-        Teacher instance returned by `teacher_required`
-
-    Returns
-    -------
-    HttpResponse
-        Error response or empty 200 response
-    """
-
-    id_ = req.POST.get("id", None)
-    score = req.POST.get("score", None)
-
-    if not id_ or not score:
-        return response_400(
-            req,
-            msg=translate("Missing parameters."),
-            logger_msg=("Score and/or ID are missing from request."),
-            log=logger.warning,
-        )
-
-    score = int(score)
-
-    if score not in range(0, 4):
-        return response_400(
-            req,
-            msg=translate("The score wasn't in a valid range."),
-            logger_msg=("The score wasn't valid; was {}.".format(score)),
-            log=logger.warning,
-        )
-
-    try:
-        answer = Answer.objects.get(id=id_)
-    except Answer.DoesNotExist:
-        return response_400(
-            req,
-            msg=translate("Unkown answer id sent."),
-            logger_msg=("No answer could be found for pk {}.".format(id_)),
-            log=logger.warning,
-        )
-
-    AnswerAnnotation.objects.create(
-        answer=answer, annotator=teacher.user, score=score
-    )
-
-    return redirect(reverse("teacher-dashboard--rationales"))
 
 
 @require_POST

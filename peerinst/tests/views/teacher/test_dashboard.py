@@ -68,21 +68,35 @@ def test_new_questions__dashboard(
     # E.g. no questions from teacher assignments, no favourites etc.
 
 
-def test_rationales__dashboard(
-    client, teacher, discipline, questions, answers
-):
+def test_rationales__dashboard(client, teacher, discipline, answers):
     assert login_teacher(client, teacher)
 
     teacher.disciplines.add(discipline)
-    questions[0].discipline = discipline
-    questions[0].save()
+    for i, answer in enumerate(answers):
+        answer.question.discipline = discipline
+        answer.question.save()
+        answer.second_answer_choice = 1
+        answer.save()
 
     n = AnswerAnnotation.objects.count()
 
-    print(answers[0].second_answer_choice)
-
     resp = client.get(reverse("teacher-dashboard--rationales"))
 
-    print(resp)
+    assert resp.status_code == 200
+    assert any(
+        t.name == "peerinst/teacher/cards/rationale_to_score_card.html"
+        for t in resp.templates
+    )
 
+    resp = client.post(
+        reverse("teacher-dashboard--evaluate-rationale"),
+        {"id": answers[0].id, "score": 0},
+        follow=True,
+    )
+
+    assert resp.status_code == 200
+    assert any(
+        t.name == "peerinst/teacher/cards/rationale_to_score_card.html"
+        for t in resp.templates
+    )
     assert AnswerAnnotation.objects.count() == n + 1

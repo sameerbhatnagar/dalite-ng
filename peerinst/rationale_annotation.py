@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 from operator import itemgetter
 
-from django.db.models import F, Count
+from django.db.models import Count, F, Q
 
 from quality.models import Quality
 
@@ -115,18 +115,20 @@ def choose_rationales_no_quality(teacher, n=5):
     ).values_list("chosen_rationale", flat=True)
 
     no_score_needed = (
-        AnswerAnnotation.objects.exclude(score__isnull=True)
-        .annotate(times_scored=Count("answer"))
-        .filter(times_scored__lte=2)
-        .exclude(annotator=teacher.user)
+        AnswerAnnotation.objects.annotate(times_scored=Count("answer"))
+        .filter(
+            Q(times_scored__gt=2)
+            | Q(annotator=teacher.user)
+            | Q(score__isnull=False)
+        )
         .values_list("answer", flat=True)
     )
 
     if convincing:
         answers = (
             Answer.objects.filter(
-                question__discipline__in=teacher.disciplines.all(),
-                question_id__in=q_list,
+                Q(question__discipline__in=teacher.disciplines.all())
+                | Q(question_id__in=q_list)
             )
             .exclude(second_answer_choice__isnull=True)
             .filter(pk__in=convincing)
@@ -137,8 +139,8 @@ def choose_rationales_no_quality(teacher, n=5):
     else:
         answers = (
             Answer.objects.filter(
-                question__discipline__in=teacher.disciplines.all(),
-                question_id__in=q_list,
+                Q(question__discipline__in=teacher.disciplines.all())
+                | Q(question_id__in=q_list)
             )
             .exclude(second_answer_choice__isnull=True)
             .exclude(first_answer_choice=F("second_answer_choice"))
