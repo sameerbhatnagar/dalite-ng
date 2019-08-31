@@ -1,9 +1,10 @@
 from __future__ import absolute_import, unicode_literals
 
 import os
-
 from functools import wraps
+
 from celery import Celery
+from celery.schedules import crontab
 from celery.utils.log import get_logger
 
 logger = get_logger(__name__)
@@ -66,3 +67,17 @@ def try_async(func):
                 return func(*args, **kwargs)
 
     return wrapper
+
+
+@app.on_after_configure.connect
+def setup_periodic_tasks(sender, **kwargs):
+    app.conf.beat_schedule = {
+        "clean_notifications": {
+            "task": "peerinst.tasks.clean_notifications",
+            "schedule": crontab(hour=0, minute=0),
+        },
+        "update_reputation_history": {
+            "task": "reputation.tasks.update_reputation_history",
+            "schedule": crontab(hour=0, minute=0),
+        },
+    }
