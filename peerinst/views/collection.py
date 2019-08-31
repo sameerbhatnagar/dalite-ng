@@ -7,15 +7,16 @@ from django.views.generic.edit import CreateView
 from django.views.generic import ListView, DetailView, UpdateView, DeleteView
 from django.forms import ModelForm
 from ..models import (
-    Collection,
-    Teacher,
     Assignment,
+    Collection,
     StudentGroup,
     StudentGroupAssignment,
+    Teacher,
 )
 from ..mixins import (
     LoginRequiredMixin,
     NoStudentsMixin,
+    student_check,
     TOSAcceptanceRequiredMixin,
 )
 from django.shortcuts import get_object_or_404
@@ -27,6 +28,7 @@ from .decorators import teacher_required
 from django.views.decorators.http import require_POST
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q
+from django.contrib.auth.decorators import login_required, user_passes_test
 
 
 class CollectionForm(ModelForm):
@@ -276,6 +278,20 @@ class CollectionDistributeDetailView(
                 ).exists():
                     context["group_data"][group.pk] = False
         return context
+
+
+@login_required
+@user_passes_test(student_check, login_url="/access_denied_and_logout/")
+def collection_statistics(request):
+    collection = get_object_or_404(Collection, pk=request.POST.get("pk"))
+    collection_stats = collection_data(collection=collection)
+    data = {
+        "totalAnswers": collection_stats["total_answers"],
+        "correctFirstAnswers": collection_stats["correct_first_answers"],
+        "correctSecondAnswers": collection_stats["correct_second_answers"],
+        "switches": collection_stats["switches"],
+    }
+    return JsonResponse(data)
 
 
 @teacher_required

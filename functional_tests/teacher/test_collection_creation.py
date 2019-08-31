@@ -280,7 +280,7 @@ def collection_buttons(
     assert "Collection Statistics" in browser.page_source
     assert "Collections" in browser.find_element_by_tag_name("h1").text
     # click on assign button
-    browser.find_element_by_class_name("mdc-button").click()
+    browser.find_element_by_class_name("collection-distribute").click()
     # assure user is on distribute detail view
     assert (
         "Your may assign the this collection to one of your student groups by"
@@ -293,6 +293,7 @@ def collection_buttons(
     # assure button changes to assign
     assert "ASSIGN" in browser.find_element_by_tag_name("button").text
     # go to group
+    time.sleep(6)
     browser.find_element_by_id("group-title").click()
     # assure on group detail view
     assert (

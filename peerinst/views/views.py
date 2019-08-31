@@ -98,7 +98,6 @@ from ..util import (
     report_data_by_student,
     roundrobin,
 )
-from peerinst.views.collection import collection_data
 
 LOGGER = logging.getLogger(__name__)
 LOGGER_teacher_activity = logging.getLogger("teacher_activity")
@@ -1828,13 +1827,6 @@ class TeacherDetailView(TeacherBase, DetailView):
         context["owned_collections"] = Collection.objects.filter(
             owner=self.request.user.teacher
         )
-        context["collection_data"] = {}
-        for collection in Collection.objects.filter(
-            owner=self.request.user.teacher
-        ):
-            context["collection_data"][collection.pk] = collection_data(
-                collection=collection
-            )
         context["LTI_key"] = str(settings.LTI_CLIENT_KEY)
         context["LTI_secret"] = str(settings.LTI_CLIENT_SECRET)
         context["LTI_launch_url"] = str(

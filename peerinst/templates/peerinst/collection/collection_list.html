@@ -69,15 +69,16 @@
       </div>
       <div class="mdc-card__actions">
         <div class="mdc-card__action-buttons">
-          <div class="mdc-typography--caption">
+          <div class="mdc-typography--caption caption">
             <div>
               {% trans 'Discipline' %}: {{ obj.discipline|bleach_html|safe }}
             </div>
+            <div class="followers-number"
+                 id="follower-count-{{ obj.pk }}"
+                 data-count="{{ obj.followers.count }}">{% trans 'Followers' %}: {{ obj.followers.count }}</div>
             <div>
               {% trans 'Published on' %} {{ obj.created_on }}
             </div>
-            <div>
-              </div>
           </div>
         </div>
         <div class="mdc-card__action-icons">
@@ -92,7 +93,8 @@
               data-toggle-on='{"label": "Remove from favourites", "content": "favorite"}'
               data-toggle-off='{"label": "Add to favourites", "content": "favorite_border"}'
               {% endif %}
-              pk="{{ obj.pk|safe }}">
+              pk="{{ obj.pk|safe }}"
+              data-count="{{ obj.followers.count }}">
               favorite_border
             </i>
           </div>
@@ -128,6 +130,14 @@ function toggleFollower(pk) {
   var posting = $.post("{% url 'teacher-toggle-follower' %}", {pk: pk});
   posting.done(function(data) {
     console.info(data);
+    let followerValue = document.getElementById("follower-count-"+pk).innerHTML;
+    followerValue = followerValue.substring(11);
+    followerValue = parseInt(followerValue);
+    if (data.action == "added") {
+      document.getElementById("follower-count-"+pk).innerHTML = ("{% trans 'Followers' %}: " + (followerValue+1));
+    } else if (data.action == "removed") {
+      document.getElementById("follower-count-"+pk).innerHTML = ("{% trans 'Followers' %}: " + (followerValue-1));
+    }
   })
 }
 
