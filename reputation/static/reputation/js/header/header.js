@@ -1,4 +1,9 @@
 export class ReputationHeader extends HTMLElement {
+  static get observedAttributes() {
+    // Any change to stale attribute should fire a refresh event
+    return ["stale"];
+  }
+
   get reputationUrl(): string {
     const url = this.getAttribute("reputation-url");
     if (!url) {
@@ -55,5 +60,11 @@ export class ReputationHeader extends HTMLElement {
     this.hidden = true;
 
     this.init(shadow);
+  }
+
+  attributeChangedCallback(attrName, oldVal, newVal) {
+    if (attrName === "stale") {
+      this.update();
+    }
   }
 }

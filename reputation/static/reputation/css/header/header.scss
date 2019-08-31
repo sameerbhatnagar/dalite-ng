@@ -10,7 +10,7 @@
     cursor: pointer;
     display: flex;
     justify-content: space-between;
-    padding: 4px;
+    padding: 5px;
     transition: 250ms;
 
     &:hover {
@@ -29,7 +29,7 @@
     }
 
     & #icon__reputation {
-      font-size: 15pt;
+      font-size: 12pt;
       text-align: center;
     }
   }
@@ -47,7 +47,7 @@
     position: absolute;
     right: 0;
     text-align: center;
-    top: 38px;
+    top: 42px;
     transform: scale(0);
     transform-origin: top right;
     transition: transform 250ms, border-radius 250ms;
@@ -95,7 +95,7 @@
     }
 
     & #list {
-      border-radius: 20px 0 20px 20px;
+      border-radius: 10px 0 10px 10px;
       transform: scale(1);
     }
   }
@@ -109,7 +109,7 @@
       height: calc(100vh - 50px);
       left: 0;
       right: 0;
-      top: 0;
+      top: 50px;
       transform: scaleY(0);
       transform-origin: top center;
     }
@@ -121,7 +121,7 @@
         border-radius: 0;
         left: 0;
         right: 0;
-        top: 47px;
+        top: 50px;
         transform: scaleY(1);
       }
     }

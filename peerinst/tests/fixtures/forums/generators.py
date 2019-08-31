@@ -1,11 +1,14 @@
 import random
 
+from django.contrib.contenttypes.models import ContentType
 from pinax.forums.models import (
     Forum,
     ForumReply,
     ForumThread,
     ThreadSubscription,
 )
+
+from peerinst.models import TeacherNotification
 
 
 def new_forum():
@@ -17,6 +20,7 @@ def new_threads(n, forum, teachers, n_messages):
         i = 0
         while True:
             i += 1
+
             yield {
                 "title": "test{}".format(i),
                 "author": random.choice(teachers).user,
@@ -42,6 +46,9 @@ def add_forum(forum):
 
 
 def add_threads(threads, teachers):
+    notification_type = ContentType.objects.get(
+        app_label="pinax_forums", model="ThreadSubscription"
+    )
     threads_ = [
         ForumThread.objects.create(
             title=t["title"],
@@ -66,4 +73,12 @@ def add_threads(threads, teachers):
                 content_html=post["content_html"],
                 thread=t_,
             )
+            for subscription in ThreadSubscription.objects.filter(
+                thread=thread
+            ):
+                TeacherNotification.objects.get_or_create(
+                    teacher=teacher,
+                    notification_type=notification_type,
+                    object_id=subscription.id,
+                )
     return threads_

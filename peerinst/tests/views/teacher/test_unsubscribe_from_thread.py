@@ -14,7 +14,7 @@ def test_unsubscribe_from_thread(client, teacher, thread):
     ).count()
 
     resp = client.post(
-        reverse("teacher-page--unsubscribe-thread"),
+        reverse("teacher-dashboard--unsubscribe-thread"),
         json.dumps({"id": thread.pk}),
         content_type="application/json",
     )
@@ -31,7 +31,7 @@ def test_unsubscribe_from_thread__missing_params(client, teacher, thread):
     ).count()
 
     resp = client.post(
-        reverse("teacher-page--unsubscribe-thread"),
+        reverse("teacher-dashboard--unsubscribe-thread"),
         json.dumps({}),
         content_type="application/json",
     )
@@ -45,7 +45,7 @@ def test_unsubscribe_from_thread__wrong_thread(client, teacher):
     assert login_teacher(client, teacher)
 
     resp = client.post(
-        reverse("teacher-page--unsubscribe-thread"),
+        reverse("teacher-dashboard--unsubscribe-thread"),
         json.dumps({"id": 1}),
         content_type="application/json",
     )

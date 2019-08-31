@@ -210,11 +210,6 @@ def no_notification(browser, assert_):
     ActionChains(browser).send_keys(Keys.ESCAPE).perform()
 
 
-def check_follow_page(browser):
-    browser.find_element_by_link_text("Follows").click()
-    assert "new_releases" in browser.page_source
-
-
 def check_notifications(browser, assert_):
     icon = browser.find_element_by_xpath("//i[contains(text(), 'menu')]")
     icon.click()
@@ -231,6 +226,24 @@ def check_notifications(browser, assert_):
             "New!" in browser.find_element_by_id("#icon-with-text-demo").text
         )
     )
+
+    time.sleep(1)
+    forum_button.click()
+    assert "new_releases" in browser.page_source
+
+
+def click_all_forums(browser):
+    links = browser.find_element_by_id("forum-list")
+    n = len(links.find_elements_by_class_name("mdc-list-item"))
+    for i in range(n):
+        link = links.find_elements_by_class_name("mdc-list-item")[i]
+        forum_name = link.find_element_by_class_name(
+            "mdc-list-item__text"
+        ).text
+        link.click()
+        assert browser.find_element_by_tag_name("h1").text in forum_name
+        browser.execute_script("window.history.go(-1)")
+        links = browser.find_element_by_id("forum-list")
 
 
 def test_forum_workflow(browser, assert_, teachers, forum):
@@ -258,5 +271,9 @@ def test_forum_workflow(browser, assert_, teachers, forum):
 
     login(browser, teacher)
     check_notifications(browser, assert_)
-    go_to_forums(browser, forum)
-    check_follow_page(browser)
+
+
+def test_forums_list(browser, teacher, forums):
+    login(browser, teacher)
+    go_to_forums(browser, forums[0])
+    click_all_forums(browser)
