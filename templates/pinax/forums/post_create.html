@@ -1,4 +1,4 @@
-{% extends './base.html' %}
+{% extends 'pinax/forums/base.html' %}
 
 {% load add_class compress i18n static %}
 
@@ -55,7 +55,8 @@
 </form>
 {% endblock %}
 
-{% block extrascripts %}
+{% block scripts %}
+{{ block.super }}
 {% compress js file forums__upload_limit %}
 <script src="{% static 'pinax/forums/js/limit.min.js' %}"></script>
 {% endcompress %}
