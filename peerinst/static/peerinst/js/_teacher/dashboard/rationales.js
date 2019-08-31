@@ -34,7 +34,7 @@ export function init(url) {
         });
 
         // Submit score
-        star.addEventListener("click", () => {
+        $(star).one("click", () => {
           const posting = $.post(url, { id: id, score: score });
           posting.done(data => {
             processResponse(data);
@@ -56,7 +56,7 @@ export function init(url) {
             _flag.innerHTML = "outlined_flag";
           });
         });
-        flag.addEventListener("click", () => {
+        $(flag).one("click", () => {
           const posting = $.post(url, { id: id, score: 0 });
           posting.done(data => {
             processResponse(data);
