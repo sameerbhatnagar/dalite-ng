@@ -167,7 +167,7 @@ blockquote {
   margin: auto;
   overflow: visible;
 }
-@media (max-width: 450px) {
+@media (max-width: $breakpoint-two) {
   .blurb {
     margin-bottom: 20pt;
   }
