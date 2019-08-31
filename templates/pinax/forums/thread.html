@@ -1,6 +1,6 @@
 {% extends './base.html' %}
 
-{% load add_class compress i18n staticfiles %}
+{% load add_class compress i18n static %}
 
 {% block heading %}
 {{ thread.forum }}
@@ -146,7 +146,7 @@
 {% endblock %}
 
 {% block extrascripts %}
-{% compress js %}
+{% compress js file forums__thread %}
 <script src="{% static 'pinax/forums/js/thread.min.js' %}"></script>
 {% endcompress %}
 

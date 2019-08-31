@@ -1,6 +1,6 @@
 {% extends './base.html' %}
 
-{% load add_class compress i18n staticfiles %}
+{% load add_class compress i18n static %}
 
 {% block heading %}
 {% trans 'Create a New Post' %}
@@ -56,7 +56,7 @@
 {% endblock %}
 
 {% block extrascripts %}
-{% compress js %}
+{% compress js file forums__upload_limit %}
 <script src="{% static 'pinax/forums/js/limit.min.js' %}"></script>
 {% endcompress %}
 {% endblock %}
