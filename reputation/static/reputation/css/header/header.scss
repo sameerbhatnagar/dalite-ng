@@ -109,7 +109,7 @@
       height: calc(100vh - 50px);
       left: 0;
       right: 0;
-      top: 0;
+      top: 50px;
       transform: scaleY(0);
       transform-origin: top center;
     }
@@ -121,7 +121,7 @@
         border-radius: 0;
         left: 0;
         right: 0;
-        top: 47px;
+        top: 50px;
         transform: scaleY(1);
       }
     }

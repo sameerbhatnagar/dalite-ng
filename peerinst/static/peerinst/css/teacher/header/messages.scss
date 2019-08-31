@@ -174,7 +174,7 @@
       left: 0;
       max-height: 100vh;
       right: 0;
-      top: 0;
+      top: 50px;
       transform: scaleY(0);
       transform-origin: top center;
       width: calc(100vw - 20px);
@@ -185,7 +185,7 @@
         border-radius: 0;
         left: 0;
         right: 0;
-        top: 47px;
+        top: 50px;
         transform: scaleY(1);
       }
     }
