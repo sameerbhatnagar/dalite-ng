@@ -1,15 +1,26 @@
 import time
 
 from django.core.urlresolvers import reverse
+from selenium.webdriver.common.by import By
+from selenium.common.exceptions import NoSuchElementException
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
 
 from functional_tests.fixtures import *  # noqa
 
 
 def go_to_account(browser):
-    link = browser.find_element_by_link_text("Go to My Account").get_attribute(
-        "href"
-    )
-    browser.get(link)
+    icon = browser.find_element_by_xpath("//i[contains(text(), 'menu')]")
+    icon.click()
+
+    try:
+        account_button = WebDriverWait(browser, 5).until(
+            EC.element_to_be_clickable((By.LINK_TEXT, "My account"))
+        )
+        time.sleep(1)
+        account_button.click()
+    except NoSuchElementException:
+        pass
 
 
 def login(browser, teacher):
