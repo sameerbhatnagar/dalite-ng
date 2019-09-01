@@ -8,6 +8,7 @@
 <link href="{% static 'peerinst/css/layout.min.css' %}" rel="stylesheet">
 {% endcompress %}
 
+<!-- Compress web-component css -->
 {% compress css file reputation__teacher %}
 <link href="{% static 'reputation/css/header/teacher.min.css' %}" rel="stylesheet">
 {% endcompress %}
@@ -54,7 +55,7 @@ class="logged-in-layout"
 {% block header-right %}
 <div class="header header--togglable">
   <teacher-reputation-header
-    reputation-style-url="https://static-dev.mydalite.org/CACHE/css/reputation__teacher.2ad53229d1d7.css"
+    reputation-style-url="https://dalite-static-dev.s3.amazonaws.com/CACHE/css/reputation__teacher.2ad53229d1d7.css"
     reputation-url="{% url 'reputation:reputation' %}"
     reputation-id="{{ request.user.teacher.pk }}"
     nonce="{{ request.csp_nonce }}"

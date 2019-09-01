@@ -8,6 +8,7 @@
 <link href="{% static 'peerinst/css/layout.min.css' %}" rel="stylesheet">
 {% endcompress %}
 
+<!-- Compress web-component css -->
 {% compress css file reputation__student %}
 <link href="{% static 'reputation/css/header/student.min.css' %}" rel="stylesheet">
 {% endcompress %}
@@ -43,7 +44,7 @@ class="logged-in-layout"
 {% if not request.session.LTI %}
 <div class="header header--togglable">
   <student-reputation-header
-    reputation-style-url="https://static-dev.mydalite.org/CACHE/css/reputation__student.04d7a35d89ad.css"
+    reputation-style-url="https://dalite-static-dev.s3.amazonaws.com/CACHE/css/reputation__student.04d7a35d89ad.css"
     reputation-url="{% url 'reputation:reputation' %}"
     reputation-id="{{ request.user.student.pk }}"
     nonce="{{ request.csp_nonce }}">
