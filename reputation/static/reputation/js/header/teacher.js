@@ -1,10 +1,7 @@
 // @flow
 "use strict";
 import { buildReq } from "../../../../../peerinst/static/peerinst/js/ajax.js";
-import {
-  clear,
-  createSvg,
-} from "../../../../../peerinst/static/peerinst/js/utils.js";
+import { clear } from "../../../../../peerinst/static/peerinst/js/utils.js";
 import { ReputationHeader } from "./header.js";
 
 class TeacherReputationHeader extends ReputationHeader {
@@ -119,8 +116,9 @@ class TeacherReputationHeader extends ReputationHeader {
           toggleReputationList();
         });
 
-        const star = createSvg("star");
+        const star = document.createElement("i");
         star.id = "icon__icon";
+        star.textContent = "star";
         icon.appendChild(star);
 
         const span = document.createElement("span");
