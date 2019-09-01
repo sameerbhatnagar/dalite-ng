@@ -24,8 +24,11 @@
     & #icon__icon {
       fill: #ffffff;
       font-family: "Material Icons", sans-serif;
+      font-size: 30px;
       font-style: normal;
       height: 32px;
+      text-align: center;
+      transform: translateY(2px);
       transition: 250ms;
       width: 32px;
     }
