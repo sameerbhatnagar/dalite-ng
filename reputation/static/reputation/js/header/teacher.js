@@ -33,6 +33,7 @@ class TeacherReputationHeader extends ReputationHeader {
       id: parseInt(this.reputationId),
       element: this,
       reputation: null,
+      reputationStyleUrl: this.reputationStyleUrl,
       reputationType: "teacher",
       reputationUrl: this.reputationUrl,
       reputations: [],
@@ -198,13 +199,7 @@ class TeacherReputationHeader extends ReputationHeader {
 
     function styleView() {
       const style = document.createElement("link");
-      style.setAttribute(
-        "href",
-        window.location.protocol +
-          "//" +
-          window.location.host +
-          "/static/reputation/css/header/teacher.min.css",
-      );
+      style.setAttribute("href", model.reputationStyleUrl);
       style.setAttribute("rel", "stylesheet");
       style.setAttribute("nonce", model.element.nonce_);
       return style;

@@ -13,6 +13,15 @@ export class ReputationHeader extends HTMLElement {
     }
     return url;
   }
+  get reputationStyleUrl(): string {
+    const style = this.getAttribute("reputation-style-url");
+    if (!style) {
+      throw new Error(
+        "The reputation-header needs a `reputation-style-url` attribute",
+      );
+    }
+    return url;
+  }
   get reputationId(): string {
     const id = this.getAttribute("reputation-id");
     if (!id) {

@@ -1,16 +1,20 @@
 {% extends 'peerinst/_base.html' %}
 
-{% load compress staticfiles i18n %}
+{% load compress i18n static %}
 
 {% block stylesheets %}
-{% compress css %}
+{% compress css file teacher__base %}
 <link href="{% static 'peerinst/css/teacher.min.css' %}" rel="stylesheet">
 <link href="{% static 'peerinst/css/layout.min.css' %}" rel="stylesheet">
+{% endcompress %}
+
+{% compress css file reputation__teacher %}
+<link href="{% static 'reputation/css/header/teacher.min.css' %}" rel="stylesheet">
 {% endcompress %}
 {% endblock %}
 
 {% block scripts %}
-{% compress js %}
+{% compress js file teacher__base %}
 <script src="{% static 'peerinst/js/teacher.min.js' %}"></script>
 <script src="{% static 'peerinst/js/custom_elements.min.js' %}"></script>
 <script src="{% static 'reputation/js/header/teacher.min.js' %}"></script>
@@ -50,6 +54,7 @@ class="logged-in-layout"
 {% block header-right %}
 <div class="header header--togglable">
   <teacher-reputation-header
+    reputation-style-url=""
     reputation-url="{% url 'reputation:reputation' %}"
     reputation-id="{{ request.user.teacher.pk }}"
     nonce="{{ request.csp_nonce }}"

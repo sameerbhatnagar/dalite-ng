@@ -3,14 +3,18 @@
 {% load compress staticfiles i18n %}
 
 {% block stylesheets %}
-{% compress css %}
+{% compress css file student__base %}
 <link href="{% static 'peerinst/css/student.min.css' %}" rel="stylesheet">
 <link href="{% static 'peerinst/css/layout.min.css' %}" rel="stylesheet">
+{% endcompress %}
+
+{% compress css file reputation__student %}
+<link href="{% static 'reputation/css/header/student.min.css' %}" rel="stylesheet">
 {% endcompress %}
 {% endblock %}
 
 {% block scripts %}
-{% compress js %}
+{% compress js file student__base %}
 <script src="{% static 'peerinst/js/student.min.js' %}"></script>
 <script src="{% static 'reputation/js/header/student.min.js' %}"></script>
 {% endcompress %}
@@ -39,6 +43,7 @@ class="logged-in-layout"
 {% if not request.session.LTI %}
 <div class="header header--togglable">
   <student-reputation-header
+    reputation-style-url=""
     reputation-url="{% url 'reputation:reputation' %}"
     reputation-id="{{ request.user.student.pk }}"
     nonce="{{ request.csp_nonce }}">
