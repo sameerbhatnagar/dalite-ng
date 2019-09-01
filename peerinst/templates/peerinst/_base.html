@@ -31,12 +31,14 @@
   {% endcompress %}
 
   <!-- Cookie law -->
+  {% if not request.session.LTI %}
   {% compress js file cookie_law %}
   <script src="{% static 'cookielaw/js/cookielaw.js' %}" defer="true"></script>
   {% endcompress %}
   {% compress css file cookie_law %}
   <link href="{% static 'cookie_law/css/cookie_law.min.css' %}" rel="stylesheet">
   {% endcompress %}
+  {% endif %}
 
   <!-- External resources -->
   <link href="https://unpkg.com/ionicons@4.2.4/dist/css/ionicons.min.css" rel="stylesheet">
@@ -124,7 +126,9 @@
   {% piwik %}
   {% endscript %}
 
+  {% if not request.session.LTI %}
   {% cookielaw_banner %}
+  {% endif %}
 
   {% include 'icons.svg' %}
 </body>
