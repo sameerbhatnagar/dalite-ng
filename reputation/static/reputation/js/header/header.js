@@ -20,7 +20,7 @@ export class ReputationHeader extends HTMLElement {
         "The reputation-header needs a `reputation-style-url` attribute",
       );
     }
-    return url;
+    return style;
   }
   get reputationId(): string {
     const id = this.getAttribute("reputation-id");
