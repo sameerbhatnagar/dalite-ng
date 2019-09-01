@@ -141,7 +141,7 @@ function notificationView(notification: Notification): HTMLDivElement {
 
   const description = document.createElement("span");
   description.classList.add("notification__description");
-  description.textContent = notification.text;
+  description.innerHTML = notification.text;
   div.appendChild(description);
 
   return div;

@@ -29,17 +29,17 @@
     & .notifications__icon__badge {
       align-items: center;
       background: #b30000;
-      border-radius: 9pt;
+      border-radius: 50%;
       color: #ffffff;
       display: none;
       font-size: 10pt;
-      height: 14pt;
       justify-content: center;
-      min-width: 14pt;
+      min-height: 12pt;
+      min-width: 12pt;
       padding: 2pt;
       position: absolute;
-      right: -5px;
-      top: -5px;
+      right: -1px;
+      top: -1px;
       z-index: 3;
     }
 
@@ -65,10 +65,10 @@
     background: #ffffff;
     border-radius: 10px 0 10px 10px;
     display: grid;
-    font-size: 1.1rem;
+    font-size: 0.8rem;
     grid-auto-rows: 50px;
     grid-template-columns: minmax(500px, 50%);
-    padding: 20px 0;
+    padding: 20px 10px;
     position: absolute;
     right: 21px;
     text-align: center;

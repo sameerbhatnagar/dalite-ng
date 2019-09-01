@@ -16,6 +16,7 @@ from django.http import HttpResponse, JsonResponse, StreamingHttpResponse
 from django.shortcuts import redirect, render
 from django.template.defaultfilters import date, linebreaks
 from django.template.response import TemplateResponse
+from django.utils.html import format_html
 from django.utils.translation import ugettext_lazy as translate
 from django.views.decorators.http import (
     require_GET,
@@ -625,7 +626,9 @@ def request_gradebook(req, teacher):
     result = compute_gradebook_async(group_pk, assignment_pk)
 
     if assignment_pk is None:
-        description = "gradebook for group {}".format(group.name)
+        description = format_html(
+            "gradebook for group <strong>{}</strong>", group.name
+        )
     else:
         description = "gradebook for assignment {} and group {}".format(
             assignment.assignment.identifier, group.name
