@@ -3,11 +3,12 @@
 #container {
   & #list {
     box-shadow: 0 1px 1px #bdbdbd;
-    grid-template-columns: repeat(2, minmax(125px, max-content));
+    grid-template-columns: 160px 40px;
 
     .list__header {
       align-content: center;
       color: $mdc-theme-secondary;
+      display: none;
       font-size: 1.1rem;
       font-weight: bold;
       justify-content: center;

@@ -28,7 +28,6 @@
       font-style: normal;
       height: 32px;
       text-align: center;
-      transform: translateY(2px);
       transition: 250ms;
       width: 32px;
     }
@@ -45,13 +44,12 @@
     border-radius: 20px;
     color: var(--reputation-text-colour, #000000);
     display: grid;
-    font-size: 0.9rem;
-    grid-auto-rows: minmax(50px, max-content);
+    font-size: 0.8rem;
+    grid-auto-rows: minmax(30px, max-content);
     grid-template-columns: max-content 1fr;
     padding: 10px;
     position: absolute;
     right: 0;
-    text-align: center;
     top: 42px;
     transform: scale(0);
     transform-origin: top right;
@@ -70,12 +68,13 @@
 
     .list__name {
       cursor: pointer;
-      justify-self: start;
+      text-align: left;
       text-decoration: underline;
     }
 
     .list__reputation {
       cursor: default;
+      text-align: right;
     }
   }
 }
