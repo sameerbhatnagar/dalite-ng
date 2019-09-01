@@ -43,7 +43,7 @@ class="logged-in-layout"
 {% if not request.session.LTI %}
 <div class="header header--togglable">
   <student-reputation-header
-    reputation-style-url="https://static-dev/CACHE/css/reputation__student.04d7a35d89ad.css"
+    reputation-style-url="https://static-dev.mydalite.org/CACHE/css/reputation__student.04d7a35d89ad.css"
     reputation-url="{% url 'reputation:reputation' %}"
     reputation-id="{{ request.user.student.pk }}"
     nonce="{{ request.csp_nonce }}">
