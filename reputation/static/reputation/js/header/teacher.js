@@ -119,7 +119,7 @@ class TeacherReputationHeader extends ReputationHeader {
           toggleReputationList();
         });
 
-        const star = createSvg("star", false);
+        const star = createSvg("star");
         star.id = "icon__icon";
         icon.appendChild(star);
 
