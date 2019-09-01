@@ -32,6 +32,7 @@ INSTALLED_APPS = (
     "peerinst",
     "grappelli",
     "password_validation",
+    "cookielaw",
     "csp",
     "security_headers",
     "django.contrib.admin",

@@ -226,6 +226,27 @@ function stylesPeerinstMain() {
   return build;
 }
 
+function stylesPeerinstCookieLaw() {
+  const build = gulp
+    .src("./peerinst/static/cookie_law/css/*.scss")
+    .pipe(sourcemaps.init())
+    .pipe(
+      sass({
+        outputStyle: "compressed",
+        includePaths: "./node_modules/",
+      }),
+    )
+    .pipe(
+      rename(path => {
+        path.extname = ".min.css";
+      }),
+    )
+    .pipe(sourcemaps.write("."))
+    .pipe(gulp.dest("./peerinst/static/cookie_law/css/"));
+
+  return build;
+}
+
 function stylesPeerinstPinax() {
   const build = gulp
     .src("./peerinst/static/pinax/forums/css/*.scss")
@@ -332,6 +353,10 @@ function watch() {
     open: false,
   });
   gulp.watch("./peerinst/static/peerinst/css/*.scss", stylesPeerinstMain);
+  gulp.watch(
+    "./peerinst/static/pinax/forums/css/*.scss",
+    stylesPeerinstCookieLaw,
+  );
   gulp.watch("./peerinst/static/pinax/forums/css/*.scss", stylesPeerinstPinax);
   styleBuilds.forEach(s => s.modules.forEach(m => watchStyle(s.app, m)));
   scriptBuilds.forEach(s => s.modules.forEach(m => watchScript(s.app, m)));
@@ -354,6 +379,7 @@ function watch() {
 
 const styles = gulp.parallel(
   stylesPeerinstMain,
+  stylesPeerinstCookieLaw,
   stylesPeerinstPinax,
   ...[].concat(
     ...styleBuilds.map(s => s.modules.map(m => () => buildStyle(s.app, m))),

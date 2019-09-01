@@ -3,6 +3,7 @@ celery[redis]
 django-celery-beat
 django-analytical
 django-compressor
+django-cookie-law
 django-grappelli
 django-htmlmin
 django-password-validation
