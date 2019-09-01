@@ -104,6 +104,33 @@ def choose_rationales_no_quality(teacher, n=5):
     """
     assert isinstance(teacher, Teacher), "Precondition failed for `teacher`"
     assert isinstance(n, int), "Precondition failed for `n`"
+    from .util import student_list_from_student_groups
+
+    # if teacher has active students, sample from their most recent student
+    # answers
+    current_assignments = teacher.current_groups.values_list(
+        "studentgroupassignment__assignment__identifier", flat=True
+    )
+    current_students = student_list_from_student_groups(
+        teacher.current_groups.all().values_list("pk", flat=True)
+    )
+    _answers = Answer.objects.filter(
+        user_token__in=current_students, assignment_id__in=current_assignments
+    ).order_by("datetime_second")
+
+    print(_answers.count())
+    print(_answers)
+
+    # if not, sample from answers of previously active students
+
+    # if not, sample from answers to favourite_questions
+
+    # if still nothing, sample from most popular answers in teacher disciplines
+
+    # if no teacher discipline, get most popular answers amongst students
+
+    # remove answers that have been scored twice already, or that
+    # have been scored by the current users
 
     q_list = list(teacher.favourite_questions.all())
     for a in teacher.assignments.all():
