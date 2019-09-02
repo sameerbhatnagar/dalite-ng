@@ -116,8 +116,13 @@ function questionView(question) {
   nStudents.classList.add("mdc-list-item__secondary-text");
   nStudents.textContent = question.nStudents + " students";
   const timeSpent = document.createElement("span");
-  timeSpent.classList.add("mdc-list-item__secondary-text");
-  timeSpent.textContent = question.timeSpent + " seconds";
+  timeSpent.classList.add(
+    "mdc-list-item__secondary-text",
+    "student-progress__time_taken",
+  );
+  if (question.timeSpent) {
+    timeSpent.textContent = question.timeSpent;
+  }
   title.append(nStudents);
   title.append(timeSpent);
   li.append(title);
