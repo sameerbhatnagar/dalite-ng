@@ -58,6 +58,7 @@ jobs:
       - run:
           name: Collect static content and compress
           command: |
+            . .venv/bin/activate
             ./manage.py collectstatic -c
             ./manage.py compress
       - run:
