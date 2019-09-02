@@ -37,8 +37,10 @@
         {% endfor %}
         </ul>
       </div>
-    <svg id="timer" class="block-auto" width=300 height=200></svg>
-    <svg id="results" class="block-auto" width=300 height=200></svg>
+      {% if request.user.teacher %}
+      <svg id="timer" class="block-auto" width=300 height=200></svg>
+      {% endif %}
+      <svg id="results" class="block-auto" width=300 height=200></svg>
     </div>
     <div class="clear-both"></div>
 
