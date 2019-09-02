@@ -1263,7 +1263,7 @@ def get_student_activity_data(teacher):
         except StudentGroupAssignment.DoesNotExist:
             standalone_assignments = StudentGroupAssignment.objects.none()
 
-    print(standalone_assignments)
+    # print(standalone_assignments)
 
     standalone_answers = Answer.objects.filter(
         assignment__in=standalone_assignments.values("assignment")
@@ -1275,30 +1275,21 @@ def get_student_activity_data(teacher):
             "assignment__identifier"
         )
     )
-    #
-    # [
-    #     a
-    #     for a in teacher.assignments.all()
-    #     if a not in [b.assignment for b in standalone_assignments_all.all()]
-    # ]
 
-    # currently assuming that teacher uses either LTI or standalone
-    # if standalone_assignments.count() == 0:
-    #     lti_assignments = teacher.assignments.all()
-    # else:
-    #     lti_assignments = []
-
-    print(lti_assignments)
+    # print(lti_assignments)
 
     lti_answers = Answer.objects.filter(assignment__in=lti_assignments).filter(
         user_token__in=all_current_students.values("student__username")
     )
 
     # logic to infer most recent lti assignments
-    recent_assignments = (
+    recent_assignments_list = (
         lti_answers.filter(datetime_second__gte=last_week)
         .order_by("-datetime_second")
         .values_list("assignment_id", flat=True)
+    )
+    recent_assignments = lti_assignments.filter(
+        identifier__in=recent_assignments_list
     )
     # if in between semesters, simply get assignment of most recent answer
     if len(recent_assignments) == 0 and lti_answers.count() > 0:
@@ -1321,10 +1312,10 @@ def get_student_activity_data(teacher):
         if a.answer_set.latest("datetime_second").datetime_second
         < three_months_ago
     ]
-    print("recent_assignments")
-    print(recent_assignments)
-    print("stale")
-    print(stale_lti_assignments)
+    # print("recent_assignments")
+    # print(recent_assignments)
+    # print("stale")
+    # print(stale_lti_assignments)
     if len(stale_lti_assignments) > 0:
         recent_assignments = recent_assignments.exclude(
             identifier__in=stale_lti_assignments
@@ -1351,9 +1342,9 @@ def get_student_activity_data(teacher):
                         if a.user_token in student_list
                         and a.assignment == ga.assignment
                     ]
-                    print("standalone keys")
-                    print(g, ga)
-                    print(len(answers))
+                    # print("standalone keys")
+                    # print(g, ga)
+                    # print(len(answers))
                     all_answers_by_group[g][ga] = {}
                     all_answers_by_group[g][ga]["answers"] = answers
                     all_answers_by_group[g][ga]["new"] = [
@@ -1393,9 +1384,9 @@ def get_student_activity_data(teacher):
                     if a.user_token in student_list and a.assignment == l
                 ]
                 if l.questions.count() > 0 and len(answers) > 0:
-                    print("lti keys")
-                    print(l, g)
-                    print(len(answers))
+                    # print("lti keys")
+                    # print(l, g)
+                    # print(len(answers))
                     all_answers_by_group[g][l] = {}
                     all_answers_by_group[g][l]["answers"] = answers
                     all_answers_by_group[g][l]["new"] = [
