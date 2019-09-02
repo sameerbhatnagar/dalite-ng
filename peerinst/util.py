@@ -1295,10 +1295,13 @@ def get_student_activity_data(teacher):
     )
 
     # logic to infer most recent lti assignments
-    recent_assignments = (
+    recent_assignments_list = (
         lti_answers.filter(datetime_second__gte=last_week)
         .order_by("-datetime_second")
         .values_list("assignment_id", flat=True)
+    )
+    recent_assignments = lti_assignments.filter(
+        identifier__in=recent_assignments_list
     )
     # if in between semesters, simply get assignment of most recent answer
     if len(recent_assignments) == 0 and lti_answers.count() > 0:
