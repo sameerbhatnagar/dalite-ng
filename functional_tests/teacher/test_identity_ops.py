@@ -6,11 +6,12 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import Select
 
 from functional_tests.fixtures import *  # noqa
-from .utils import go_to_account, login, logout
+from .utils import accept_cookies, go_to_account, login, logout
 
 
 def start(browser, teacher):
     login(browser, teacher)
+    accept_cookies(browser)
     go_to_account(browser)
     browser.find_element_by_id("identity-section").click()
 

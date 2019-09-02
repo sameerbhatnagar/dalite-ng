@@ -6,7 +6,7 @@ from selenium.webdriver.support.expected_conditions import (
 from selenium.webdriver.support.ui import WebDriverWait, Select
 
 from functional_tests.fixtures import *  # noqa
-from .utils import login
+from .utils import accept_cookies, login
 from django.urls import reverse
 import time
 
@@ -345,6 +345,7 @@ def test_create_collection(
     group.teacher.add(teacher)
     teacher.current_groups.add(group)
     login(browser, teacher)
+    accept_cookies(browser)
     create_collection(browser, assert_, teacher)
     collection_buttons(
         browser, assert_, teacher, group, undistributed_assignment

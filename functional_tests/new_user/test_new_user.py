@@ -12,6 +12,9 @@ def test_new_user_signup_workflow(
 
     # Hit landing page
     browser.get(browser.server_url + "/#Features")
+
+    browser.find_element_by_id("accept-cookies").click()
+
     browser.wait_for(
         lambda: assert_(
             "Features" in browser.find_element_by_tag_name("h1").text
@@ -139,6 +142,8 @@ def test_new_user_signup_with_email_server_error(browser, assert_, settings):
 
     browser.get(browser.server_url + "/signup")
 
+    browser.find_element_by_id("accept-cookies").click()
+
     form = browser.find_element_by_tag_name("form")
     assert form.get_attribute("method") == "post"
 
@@ -166,6 +171,9 @@ def test_inactive_user_login(browser, assert_, inactive_user):
 
     # Any inactive user cannot login
     browser.get(browser.server_url + "/login")
+
+    browser.find_element_by_id("accept-cookies").click()
+
     inputbox = browser.find_element_by_id("id_username")
     inputbox.send_keys(inactive_user.username)
 
@@ -185,6 +193,7 @@ def test_new_teacher(browser, assert_, new_teacher, tos_teacher):
 
     # Teacher can login and access account
     browser.get(browser.server_url + "/login")
+
     inputbox = browser.find_element_by_id("id_username")
     inputbox.send_keys(new_teacher.user.username)
 
@@ -195,6 +204,8 @@ def test_new_teacher(browser, assert_, new_teacher, tos_teacher):
 
     # Redirected to dashboard
     assert browser.current_url.endswith("dashboard/")
+
+    browser.find_element_by_id("accept-cookies").click()
 
     go_to_account(browser)
 

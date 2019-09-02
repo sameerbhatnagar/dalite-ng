@@ -5,7 +5,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import Select
 
 from functional_tests.fixtures import *  # noqa
-from .utils import go_to_account, login
+from .utils import accept_cookies, go_to_account, login
 
 fake = Faker()
 
@@ -691,12 +691,14 @@ def edit_RO_question():
 
 def test_create_category(browser, assert_, teacher):
     login(browser, teacher)
+    accept_cookies(browser)
     go_to_account(browser)
     create_category(browser, assert_)
 
 
 def test_create_discipline(browser, assert_, teacher):
     login(browser, teacher)
+    accept_cookies(browser)
     go_to_account(browser)
     create_discipline(browser, assert_)
 
@@ -713,6 +715,7 @@ def test_create_PI_question(
     teacher.assignments.add(assignment)
     assignment.owner.add(teacher.user)
     login(browser, teacher)
+    accept_cookies(browser)
     go_to_account(browser)
     create_PI_question(
         browser, assert_, category, discipline, quality_min_words, assignment
@@ -722,6 +725,7 @@ def test_create_PI_question(
 
 def test_create_RO_question(browser, assert_, category, discipline, teacher):
     login(browser, teacher)
+    accept_cookies(browser)
     go_to_account(browser)
     create_RO_question(browser, assert_, category, discipline, teacher)
     edit_RO_question()

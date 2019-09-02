@@ -9,6 +9,10 @@ from selenium.webdriver.support.ui import WebDriverWait
 from functional_tests.fixtures import *  # noqa
 
 
+def accept_cookies(browser):
+    browser.find_element_by_id("accept-cookies").click()
+
+
 def go_to_account(browser):
     icon = browser.find_element_by_xpath("//i[contains(text(), 'menu')]")
     icon.click()

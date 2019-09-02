@@ -8,7 +8,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
 from functional_tests.fixtures import *  # noqa
-from .utils import go_to_account, login
+from .utils import accept_cookies, go_to_account, login
 
 
 def search(browser, assert_, realistic_questions):
@@ -135,6 +135,7 @@ def test_search_function(
     browser, assert_, teacher, realistic_questions, assignment
 ):
     login(browser, teacher)
+    accept_cookies(browser)
     search(browser, assert_, realistic_questions)
     teacher.assignments.add(assignment)
     assignment.owner.add(teacher.user)

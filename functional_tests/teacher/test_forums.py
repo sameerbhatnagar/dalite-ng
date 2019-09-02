@@ -9,7 +9,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
 from functional_tests.fixtures import *  # noqa
-from .utils import login, logout
+from .utils import accept_cookies, login, logout
 
 fake = Faker()
 
@@ -249,6 +249,7 @@ def click_all_forums(browser):
 def test_forum_workflow(browser, assert_, teachers, forum):
     teacher = teachers[0]
     login(browser, teacher)
+    accept_cookies(browser)
     go_to_forums(browser, forum)
     create_post(browser)
     edit_post(browser)
