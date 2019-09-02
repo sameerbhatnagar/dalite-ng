@@ -37,7 +37,9 @@ def test_request_gradebook__group(client, teacher, group):
     assert resp.status_code == 201
     data = json.loads(resp.content)
     assert data["id"] == 1
-    assert data["description"] == "gradebook for group {}".format(group.name)
+    assert data[
+        "description"
+    ] == "gradebook for group <strong>{}</strong>".format(group.name)
     assert not data["completed"]
 
     assert RunningTask.objects.filter(id=1).exists()

@@ -1,12 +1,14 @@
 {% extends 'peerinst/base.html' %}
 
 {% load compress bleach_html staticfiles add_class i18n %}
+
 {% block stylesheets %}
 {{ block.super }}
 {% compress css %}
 <link href="{% static 'peerinst/css/collection.min.css' %}" rel="stylesheet">
 {% endcompress %}
 {% endblock %}
+
 {% block body %}
 <main>
   <section>

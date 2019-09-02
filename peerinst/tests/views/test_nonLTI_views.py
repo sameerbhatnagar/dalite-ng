@@ -1027,9 +1027,10 @@ class TeacherTest(TestCase):
             reverse("collection-update", args=str(q.pk))
         )
         self.assertEqual(response.status_code, 200)
+
         self.assertContains(
             response,
-            '<form id="collection-update-form" enctype="multipart/form-data"',
+            '<form enctype="multipart/form-data" id="collection-update-form" method="post">',  # noqa
         )
 
         response = self.client.get(
