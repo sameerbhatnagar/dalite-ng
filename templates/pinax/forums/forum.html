@@ -1,4 +1,4 @@
-{% extends './base.html' %}
+{% extends 'pinax/forums/base.html' %}
 
 {% load i18n %}
 
@@ -45,7 +45,8 @@
 
 {% endblock %}
 
-{% block extrascripts %}
+{% block scripts %}
+{{ block.super }}
 <script nonce="{{ request.csp_nonce }}">
   window.addEventListener("load", function() {
     const links = document.getElementsByClassName("thread-link")

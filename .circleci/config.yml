@@ -56,6 +56,12 @@ jobs:
             . .venv/bin/activate
             ./manage.py migrate
       - run:
+          name: Collect static content and compress
+          command: |
+            . .venv/bin/activate
+            ./manage.py collectstatic -c
+            ./manage.py compress
+      - run:
           name: Tests
           command: |
             . .venv/bin/activate

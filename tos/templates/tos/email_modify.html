@@ -8,7 +8,9 @@
     <link rel="stylesheet" href="{% static 'tos/css/styles.min.css' %}"></link>
   {% endcompress %}
   {% if user.student %}
+  {% compress css %}
   <link href="{% static 'peerinst/css/student.min.css' %}" rel="stylesheet">
+  {% endcompress %}
   {% endif %}
 {% endblock %}
 

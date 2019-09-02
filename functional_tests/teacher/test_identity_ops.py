@@ -30,7 +30,6 @@ def test_change_password(browser, assert_, teacher):
     browser.find_element_by_link_text("Back to My Account").click()
     assert "My Account" in browser.find_element_by_tag_name("h1").text
 
-    browser.find_element_by_id("identity-section").click()
     browser.find_element_by_id("edit-user-btn").click()
 
     browser.find_element_by_id("id_old_password").send_keys("test")
@@ -65,7 +64,7 @@ def test_change_password(browser, assert_, teacher):
     submit_button = browser.find_element_by_xpath("//input[@value='Submit']")
     submit_button.click()
 
-    assert browser.current_url.endswith("browse/")
+    assert browser.current_url.endswith("dashboard/")
 
 
 def test_email_address_change(browser, assert_, teacher):

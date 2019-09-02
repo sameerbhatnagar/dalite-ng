@@ -684,42 +684,54 @@ def collection_patterns():
 def teacher_patterns():
     return [
         url(
-            r"^teacher/page/$", views.teacher.teacher_page, name="teacher-page"
+            r"^teacher/dashboard/$",
+            views.teacher.dashboard,
+            name="teacher-dashboard",
         ),
         url(
-            r"^teacher/page/new-questions/$",
+            r"^teacher/dashboard/new-questions/$",
             views.teacher.new_questions,
-            name="teacher-page--new-questions",
+            name="teacher-dashboard--new-questions",
         ),
         url(
-            r"^teacher/page/student-activity/$",
-            views.teacher.student_activity,
-            name="teacher-page--student-activity",
-        ),
-        url(
-            r"^teacher/page/rationales/evaluate$",
+            r"^teacher/dashboard/rationales/evaluate$",
             views.teacher.evaluate_rationale,
-            name="teacher-page--evaluate-rationale",
+            name="teacher-dashboard--evaluate-rationale",
         ),
         url(
-            r"^teacher/page/rationales/$",
+            r"^teacher/dashboard/rationales/$",
             views.teacher.rationales_to_score,
-            name="teacher-page--rationales",
+            name="teacher-dashboard--rationales",
         ),
         url(
-            r"^teacher/page/collections/$",
+            r"^teacher/dashboard/collections/$",
             views.teacher.collections,
-            name="teacher-page--collections",
+            name="teacher-dashboard--collections",
         ),
         url(
-            r"^teacher/page/messages/$",
+            r"^teacher/dashboard/messages/$",
             views.teacher.messages,
-            name="teacher-page--messages",
+            name="teacher-dashboard--messages",
         ),
         url(
-            r"^teacher/page/unsubscribe-thread/$",
+            r"^teacher/dashboard/dalite-messages/$",
+            views.teacher.dalite_messages,
+            name="teacher-dashboard--dalite-messages",
+        ),
+        url(
+            r"^teacher/dashboard/dalite-messages/remove$",
+            views.teacher.remove_dalite_message,
+            name="teacher-dashboard--dalite-messages--remove",
+        ),
+        url(
+            r"^teacher/dashboard/messages/read$",
+            views.teacher.mark_message_read,
+            name="teacher-dashboard--messages--read",
+        ),
+        url(
+            r"^teacher/dashboard/unsubscribe-thread/$",
             views.teacher.unsubscribe_from_thread,
-            name="teacher-page--unsubscribe-thread",
+            name="teacher-dashboard--unsubscribe-thread",
         ),
         url(
             r"^teacher/gradebook/request/$",
@@ -747,14 +759,30 @@ def teacher_patterns():
     ]
 
 
+def question_patterns():
+    return [
+        url(
+            r"^question/flag/reasons$",
+            views.question_.get_flag_question_reasons,
+            name="question--flag--reasons",
+        ),
+        url(
+            r"^question/flag/flag$",
+            views.question_.flag_question,
+            name="question--flag--flag",
+        ),
+    ]
+
+
 urlpatterns = sum(
     [
-        old_patterns(),
-        group_patterns(),
-        student_patterns(),
-        search_patterns(),
-        researcher_patterns(),
         collection_patterns(),
+        group_patterns(),
+        old_patterns(),
+        question_patterns(),
+        researcher_patterns(),
+        search_patterns(),
+        student_patterns(),
         teacher_patterns(),
     ],
     [],

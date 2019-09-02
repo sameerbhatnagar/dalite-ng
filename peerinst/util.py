@@ -7,6 +7,7 @@ import logging
 import string
 from collections import Counter, defaultdict
 
+import pytz
 from django.db.models import (
     Avg,
     Case,
@@ -1225,3 +1226,257 @@ def populate_answer_start_time_from_ltievent_logs(day_of_logs, event_type):
 
     logger.info("{} answer {} times updated".format(i, field))
     return
+
+
+def get_student_activity_data(teacher):
+    # TODO: Refactor to avoid circular import
+    from datetime import datetime, timedelta
+    from .models import Answer, Student, StudentGroupAssignment
+
+    current_groups = teacher.current_groups.all()
+
+    all_current_students = Student.objects.filter(groups__in=current_groups)
+
+    last_week = datetime.utcnow().replace(tzinfo=pytz.utc) - timedelta(days=7)
+    next_week = datetime.utcnow().replace(tzinfo=pytz.utc) + timedelta(days=7)
+
+    if not teacher.last_dashboard_access:
+        teacher.last_dashboard_access = last_week
+
+    # Standalone
+    standalone_assignments_all = StudentGroupAssignment.objects.filter(
+        group__in=current_groups
+    ).filter(distribution_date__isnull=False)
+
+    standalone_assignments = standalone_assignments_all.filter(
+        distribution_date__gte=last_week, due_date__lte=next_week
+    )
+
+    # if in between semesters, find most recent standalone assignment
+    if standalone_assignments.count() == 0:
+        try:
+            last_assignment = standalone_assignments_all.latest("due_date")
+            standalone_assignments = StudentGroupAssignment.objects.filter(
+                pk=last_assignment.pk
+            )
+        except StudentGroupAssignment.DoesNotExist:
+            standalone_assignments = StudentGroupAssignment.objects.none()
+
+    # print(standalone_assignments)
+
+    standalone_answers = Answer.objects.filter(
+        assignment__in=standalone_assignments.values("assignment")
+    ).filter(user_token__in=all_current_students.values("student__username"))
+
+    # LTI
+    lti_assignments = teacher.assignments.exclude(
+        identifier__in=standalone_assignments_all.values(
+            "assignment__identifier"
+        )
+    )
+
+    # print(lti_assignments)
+
+    lti_answers = Answer.objects.filter(assignment__in=lti_assignments).filter(
+        user_token__in=all_current_students.values("student__username")
+    )
+
+    # logic to infer most recent lti assignments
+    recent_assignments_list = (
+        lti_answers.filter(datetime_second__gte=last_week)
+        .order_by("-datetime_second")
+        .values_list("assignment_id", flat=True)
+    )
+    recent_assignments = lti_assignments.filter(
+        identifier__in=recent_assignments_list
+    )
+    # if in between semesters, simply get assignment of most recent answer
+    if len(recent_assignments) == 0 and lti_answers.count() > 0:
+        print(lti_answers.count())
+        most_recent_lti_assignment = lti_answers.latest(
+            "datetime_second"
+        ).assignment
+        print("most recent lti answer")
+        recent_assignments = lti_assignments.filter(
+            identifier=most_recent_lti_assignment.identifier
+        )
+
+    # drop any assignment whose last answer is older than 3 months
+    three_months_ago = datetime.utcnow().replace(tzinfo=pytz.utc) + timedelta(
+        days=90
+    )
+    stale_lti_assignments = [
+        a.identifier
+        for a in recent_assignments
+        if a.answer_set.latest("datetime_second").datetime_second
+        < three_months_ago
+    ]
+    # print("recent_assignments")
+    # print(recent_assignments)
+    # print("stale")
+    # print(stale_lti_assignments)
+    if len(stale_lti_assignments) > 0:
+        recent_assignments = recent_assignments.exclude(
+            identifier__in=stale_lti_assignments
+        )
+
+    lti_answers = lti_answers.filter(assignment_id__in=recent_assignments)
+
+    all_answers_by_group = {}
+    for g in current_groups:
+        all_answers_by_group[g] = {}
+        student_list = g.student_set.all().values_list(
+            "student__username", flat=True
+        )
+        if len(student_list) > 0:
+            # Keyed on studentgroupassignment
+            for ga in standalone_assignments:
+                if (
+                    ga.assignment.questions.count() > 0
+                    and ga in g.studentgroupassignment_set.all()
+                ):
+                    answers = [
+                        a
+                        for a in standalone_answers
+                        if a.user_token in student_list
+                        and a.assignment == ga.assignment
+                    ]
+                    # print("standalone keys")
+                    # print(g, ga)
+                    # print(len(answers))
+                    all_answers_by_group[g][ga] = {}
+                    all_answers_by_group[g][ga]["answers"] = answers
+                    all_answers_by_group[g][ga]["new"] = [
+                        a
+                        for a in standalone_answers
+                        if a.user_token in student_list
+                        and a.assignment == ga.assignment
+                        and (
+                            (
+                                a.datetime_start
+                                and a.datetime_start
+                                > teacher.last_dashboard_access
+                            )
+                            or (
+                                a.datetime_first
+                                and a.datetime_first
+                                > teacher.last_dashboard_access
+                            )
+                            or (
+                                a.datetime_second
+                                and a.datetime_second
+                                > teacher.last_dashboard_access
+                            )
+                        )
+                    ]
+                    all_answers_by_group[g][ga]["percent_complete"] = int(
+                        100.0
+                        * len(all_answers_by_group[g][ga]["answers"])
+                        / (len(student_list) * ga.assignment.questions.count())
+                    )
+
+            # Keyed on assignment
+            for l in lti_assignments:
+                answers = [
+                    a
+                    for a in lti_answers
+                    if a.user_token in student_list and a.assignment == l
+                ]
+                if l.questions.count() > 0 and len(answers) > 0:
+                    # print("lti keys")
+                    # print(l, g)
+                    # print(len(answers))
+                    all_answers_by_group[g][l] = {}
+                    all_answers_by_group[g][l]["answers"] = answers
+                    all_answers_by_group[g][l]["new"] = [
+                        a
+                        for a in lti_answers
+                        if a.user_token in student_list
+                        and a.assignment == l
+                        and (
+                            (
+                                a.datetime_start
+                                and a.datetime_start
+                                > teacher.last_dashboard_access
+                            )
+                            or (
+                                a.datetime_first
+                                and a.datetime_first
+                                > teacher.last_dashboard_access
+                            )
+                            or (
+                                a.datetime_second
+                                and a.datetime_second
+                                > teacher.last_dashboard_access
+                            )
+                        )
+                    ]
+                    all_answers_by_group[g][l]["percent_complete"] = int(
+                        100.0
+                        * len(all_answers_by_group[g][l]["answers"])
+                        / (len(student_list) * l.questions.count())
+                    )
+
+    # JSON
+    json_data = {}
+    for group_key, group_assignments in all_answers_by_group.items():
+        json_data[group_key.name] = {}
+        for key, value_list in group_assignments.items():
+            if len(value_list["answers"]) > 0:
+                try:
+                    assignment = key.assignment
+                    id = key.assignment.identifier
+
+                    date = (
+                        value_list["answers"][0].datetime_first
+                        if value_list["answers"][0].datetime_first
+                        else value_list["answers"][0].datetime_second
+                    )
+
+                    if key.distribution_date < date:
+                        start_date = key.distribution_date
+                    else:
+                        start_date = date
+
+                    date = (
+                        value_list["answers"][-1].datetime_first
+                        if value_list["answers"][-1].datetime_first
+                        else value_list["answers"][-1].datetime_second
+                    )
+
+                    if key.due_date > date:
+                        end_date = key.due_date
+                    else:
+                        end_date = date
+                except Exception:
+                    assignment = key
+                    id = key.identifier
+                    start_date = value_list["answers"][0].datetime_first
+                    end_date = value_list["answers"][-1].datetime_first
+
+                json_data[group_key.name][id] = {}
+                json_data[group_key.name][id]["distribution_date"] = str(
+                    start_date
+                )
+                json_data[group_key.name][id]["due_date"] = str(end_date)
+                json_data[group_key.name][id]["last_login"] = str(
+                    teacher.last_dashboard_access
+                )
+                json_data[group_key.name][id]["now"] = str(
+                    datetime.utcnow().replace(tzinfo=pytz.utc)
+                )
+                json_data[group_key.name][id]["total"] = (
+                    group_key.student_set.count()
+                    * assignment.questions.count()
+                )
+                json_data[group_key.name][id]["answers"] = []
+                for answer in value_list["answers"]:
+                    json_data[group_key.name][id]["answers"].append(
+                        str(
+                            answer.datetime_first
+                            if answer.datetime_first
+                            else answer.datetime_second
+                        )
+                    )
+
+    return all_answers_by_group, json_data

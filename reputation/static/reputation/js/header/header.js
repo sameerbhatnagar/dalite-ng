@@ -1,4 +1,9 @@
 export class ReputationHeader extends HTMLElement {
+  static get observedAttributes() {
+    // Any change to stale attribute should fire a refresh event
+    return ["stale"];
+  }
+
   get reputationUrl(): string {
     const url = this.getAttribute("reputation-url");
     if (!url) {
@@ -7,6 +12,15 @@ export class ReputationHeader extends HTMLElement {
       );
     }
     return url;
+  }
+  get reputationStyleUrl(): string {
+    const style = this.getAttribute("reputation-style-url");
+    if (!style) {
+      throw new Error(
+        "The reputation-header needs a `reputation-style-url` attribute",
+      );
+    }
+    return style;
   }
   get reputationId(): string {
     const id = this.getAttribute("reputation-id");
@@ -55,5 +69,11 @@ export class ReputationHeader extends HTMLElement {
     this.hidden = true;
 
     this.init(shadow);
+  }
+
+  attributeChangedCallback(attrName, oldVal, newVal) {
+    if (attrName === "stale") {
+      this.update();
+    }
   }
 }

@@ -6,12 +6,12 @@ from functools import wraps
 from celery import Celery
 from celery.utils.log import get_logger
 
-logger = get_logger(__name__)
+logger = get_logger("peerinst-scheduled")
 
 # Set the default Django settings module for the 'celery' program.
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "dalite.settings")
 
-app = Celery("proj")
+app = Celery("dalite")
 
 # Using a string here means the worker doesn't have to serialize
 # the configuration object to child processes.
@@ -30,7 +30,7 @@ def debug_task(self):
 
 @app.task
 def heartbeat():
-    pass
+    logger.info("Heartbeat check")
 
 
 def try_async(func):
@@ -54,13 +54,19 @@ def try_async(func):
 
         else:
             logger.info("Checking for available workers...")
+            # FIXME - This method of checking does not work across servers
             available_workers = app.control.ping(timeout=0.4)
 
-            if len(available_workers):
+            # FIXME
+            if True:
+                info = "Celery workers available ({}).  Executing {} asynchronously.".format(  # noqa
+                    available_workers, func.__name__
+                )
+                logger.info(info)
                 return func.delay(*args, **kwargs)
             else:
-                info = "No celery workers available.  Executing {} synchronously.".format(  # noqa
-                    func.__name__
+                info = "No celery workers available ({}).  Executing {} synchronously.".format(  # noqa
+                    available_workers, func.__name__
                 )
                 logger.info(info)
                 return func(*args, **kwargs)

@@ -1,10 +1,7 @@
 // @flow
 "use strict";
 import { buildReq } from "../../../../../peerinst/static/peerinst/js/ajax.js";
-import {
-  clear,
-  createSvg,
-} from "../../../../../peerinst/static/peerinst/js/utils.js";
+import { clear } from "../../../../../peerinst/static/peerinst/js/utils.js";
 import { ReputationHeader } from "./header.js";
 
 class TeacherReputationHeader extends ReputationHeader {
@@ -33,6 +30,7 @@ class TeacherReputationHeader extends ReputationHeader {
       id: parseInt(this.reputationId),
       element: this,
       reputation: null,
+      reputationStyleUrl: this.reputationStyleUrl,
       reputationType: "teacher",
       reputationUrl: this.reputationUrl,
       reputations: [],
@@ -42,6 +40,7 @@ class TeacherReputationHeader extends ReputationHeader {
     /**********/
     /* update */
     /**********/
+    this.update = update;
 
     async function update() {
       await getReputation();
@@ -69,6 +68,20 @@ class TeacherReputationHeader extends ReputationHeader {
     }
 
     function toggleReputationList() {
+      const header = model.element;
+      document.querySelectorAll(".header--togglable > *").forEach(header_ => {
+        if (header_ != header && header_.hasAttribute("open")) {
+          if (header_.shadowRoot) {
+            header_.shadowRoot
+              .querySelector(".header__icon")
+              .dispatchEvent(new Event("click"));
+          } else {
+            header_
+              .querySelector(".header__icon")
+              .dispatchEvent(new Event("click"));
+          }
+        }
+      });
       model.element.open = !model.element.open;
       iconView();
       listView();
@@ -96,14 +109,16 @@ class TeacherReputationHeader extends ReputationHeader {
       if (!icon) {
         icon = document.createElement("div");
         icon.id = "icon";
+        icon.classList.add("header__icon");
         icon.title = "Reputation";
         icon.addEventListener("click", (event: MouseEvent) => {
           event.stopPropagation();
           toggleReputationList();
         });
 
-        const star = createSvg("star", false);
+        const star = document.createElement("i");
         star.id = "icon__icon";
+        star.textContent = "star";
         icon.appendChild(star);
 
         const span = document.createElement("span");
@@ -182,13 +197,7 @@ class TeacherReputationHeader extends ReputationHeader {
 
     function styleView() {
       const style = document.createElement("link");
-      style.setAttribute(
-        "href",
-        window.location.protocol +
-          "//" +
-          window.location.host +
-          "/static/reputation/css/header/teacher.min.css",
-      );
+      style.setAttribute("href", model.reputationStyleUrl);
       style.setAttribute("rel", "stylesheet");
       style.setAttribute("nonce", model.element.nonce_);
       return style;

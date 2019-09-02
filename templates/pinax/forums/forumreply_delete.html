@@ -1,4 +1,4 @@
-{% extends './base.html' %}
+{% extends 'pinax/forums/base.html' %}
 
 {% load i18n %}
 
@@ -55,6 +55,6 @@
 <form method="post">
   {% csrf_token %}
   <a class="padded-top mdc-button mdc-button--raised padded-top" href="{% url 'pinax_forums:thread' object.thread.id %}">{% trans 'Cancel' %}</a>
-  <input type="submit" class="padded-top mdc-button mdc-button--raised delete padded-top" value="{% trans 'Delete' %}"/>
+  <input type="submit" class="padded-top mdc-button mdc-button--raised delete" value="{% trans 'Delete' %}"/>
 </form>
 {% endblock %}

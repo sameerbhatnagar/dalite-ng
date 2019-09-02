@@ -236,8 +236,7 @@ if (desktop) {
 {% endblock %}
 
 {% block scripts %}
-{% compress js %}
-<script>
+<script nonce="{{ request.csp_nonce }}">
 // MDC binds
 var arrow = document.getElementById('scrollprompt');
 if (desktop) {
@@ -257,7 +256,7 @@ if (desktop) {
 }
 </script>
 
-<script>
+<script nonce="{{ request.csp_nonce }}">
 // Animations
 function logo(){
   'use strict';
@@ -549,7 +548,7 @@ logo();
 window.addEventListener("resize", logo);
 </script>
 
-<script>
+<script nonce="{{ request.csp_nonce }}">
 // Counts
 data = {{ json|safe }};
 labels = bundle.keys(data['All']);
@@ -688,7 +687,7 @@ function update(t,e) {
 }
 </script>
 
-<script>
+<script nonce="{{ request.csp_nonce }}">
 function icons() {
   'use strict';
 
@@ -945,7 +944,7 @@ icons();
 window.addEventListener('resize', icons);
 </script>
 
-<script>
+<script nonce="{{ request.csp_nonce }}">
 // History
 function timeline() {
   'use strict';
@@ -1201,7 +1200,7 @@ window.addEventListener('resize', timeline);
 
 </script>
 
-<script>
+<script nonce="{{ request.csp_nonce }}">
 function pillars() {
   var pillars = bundle.select("#pillars");
   pillars.attr("width",document.querySelector(".blurb").offsetWidth);
@@ -1455,7 +1454,7 @@ pillars();
 window.addEventListener('resize', pillars);
 </script>
 
-<script>
+<script nonce="{{ request.csp_nonce }}">
 // Async load video as per API
 // https://developers.google.com/youtube/iframe_api_reference#Loading_a_Video_Player
 var tag = document.createElement('script');
@@ -1497,7 +1496,6 @@ if (hStyles['position'] == 'relative') {
   h.style.marginTop = '200px';
 }
 </script>
-{% endcompress %}
 
 <script nonce="{{ request.csp_nonce }}">
   window.addEventListener("load", function() {

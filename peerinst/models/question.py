@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import hashlib
 import itertools
 import string
 from datetime import datetime
@@ -25,6 +26,16 @@ from .search import MetaSearch
 def no_hyphens(value):
     if "-" in value:
         raise ValidationError(_("Hyphens may not be used in this field."))
+
+
+def images(instance, filename):
+    hash = hashlib.sha256(
+        "{}-{}".format(datetime.now(), smart_bytes(filename))
+    ).hexdigest()[:8]
+    path = "images/{0}/{1}/{2}_{3}".format(
+        instance.user.username, datetime.now().month, hash, filename
+    )
+    return path
 
 
 class Category(models.Model):
@@ -171,11 +182,12 @@ class Question(models.Model):
     )
     created_on = models.DateTimeField(auto_now_add=True, null=True)
     last_modified = models.DateTimeField(auto_now=True, null=True)
+
     image = models.ImageField(
         _("Question image"),
         blank=True,
         null=True,
-        upload_to="images",
+        upload_to=images,
         help_text=_(
             "Optional. An image to include after the question text. Accepted "
             "formats: .jpg, .jpeg, .png, .gif"

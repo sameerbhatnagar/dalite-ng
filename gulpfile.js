@@ -54,6 +54,7 @@ const scriptBuilds = [
       "question",
       "teacher",
       "custom_elements",
+      "teacher",
       "collection",
     ],
   },
@@ -100,7 +101,7 @@ function buildStyle(app, module) {
   const build = gulp
     .src(
       [
-        "./" + app + "/static/" + app + "/css/" + module + "/*.scss",
+        "./" + app + "/static/" + app + "/css/" + module + "/**/*.scss",
         "./" + app + "/static/" + app + "/css/" + module + ".scss",
       ],
       { allowEmpty: true },
@@ -124,8 +125,8 @@ function buildStyle(app, module) {
 function watchStyle(app, module) {
   gulp.watch(
     [
-      "./" + app + "/static/" + app + "/css/" + module + "/*.scss",
-      "./" + app + "/static/" + app + "/css/" + module + "*.scss",
+      "./" + app + "/static/" + app + "/css/" + module + "/**/*.scss",
+      "./" + app + "/static/" + app + "/css/" + module + ".scss",
     ],
     () => buildStyle(app, module),
   );
@@ -196,9 +197,8 @@ function buildScript(app, module) {
 function watchScript(app, module) {
   gulp.watch(
     [
-      "./" + app + "/static/" + app + "/js/_" + module + "/*.js",
-      "./" + app + "/static/" + app + "/js/" + module + "*.js",
-      "!./" + app + "/static/" + app + "/js/" + module + "*.min.js",
+      "./" + app + "/static/" + app + "/js/_" + module + "/**/*.js",
+      "./" + app + "/static/" + app + "/js/" + module + ".js",
     ],
     () => buildScript(app, module),
   );
@@ -222,6 +222,27 @@ function stylesPeerinstMain() {
     )
     .pipe(sourcemaps.write("."))
     .pipe(gulp.dest("./peerinst/static/peerinst/css/"));
+
+  return build;
+}
+
+function stylesPeerinstCookieLaw() {
+  const build = gulp
+    .src("./peerinst/static/cookie_law/css/*.scss")
+    .pipe(sourcemaps.init())
+    .pipe(
+      sass({
+        outputStyle: "compressed",
+        includePaths: "./node_modules/",
+      }),
+    )
+    .pipe(
+      rename(path => {
+        path.extname = ".min.css";
+      }),
+    )
+    .pipe(sourcemaps.write("."))
+    .pipe(gulp.dest("./peerinst/static/cookie_law/css/"));
 
   return build;
 }
@@ -332,6 +353,10 @@ function watch() {
     open: false,
   });
   gulp.watch("./peerinst/static/peerinst/css/*.scss", stylesPeerinstMain);
+  gulp.watch(
+    "./peerinst/static/pinax/forums/css/*.scss",
+    stylesPeerinstCookieLaw,
+  );
   gulp.watch("./peerinst/static/pinax/forums/css/*.scss", stylesPeerinstPinax);
   styleBuilds.forEach(s => s.modules.forEach(m => watchStyle(s.app, m)));
   scriptBuilds.forEach(s => s.modules.forEach(m => watchScript(s.app, m)));
@@ -354,6 +379,7 @@ function watch() {
 
 const styles = gulp.parallel(
   stylesPeerinstMain,
+  stylesPeerinstCookieLaw,
   stylesPeerinstPinax,
   ...[].concat(
     ...styleBuilds.map(s => s.modules.map(m => () => buildStyle(s.app, m))),

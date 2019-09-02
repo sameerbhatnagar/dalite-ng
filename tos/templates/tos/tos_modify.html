@@ -3,13 +3,15 @@
 {% load compress i18n staticfiles %}
 
 {% block stylesheets %}
-{{ block.super }}
+  {{ block.super }}
   {% compress css %}
     <link rel="stylesheet" href="{% static 'tos/css/styles.min.css' %}"></link>
-    {% if user.student %}
-    <link href="{% static 'peerinst/css/student.min.css' %}" rel="stylesheet">
-    {% endif %}
   {% endcompress %}
+  {% if user.student %}
+  {% compress css %}
+  <link href="{% static 'peerinst/css/student.min.css' %}" rel="stylesheet">
+  {% endcompress %}
+  {% endif %}
   <style nonce="{{ request.csp_nonce }}">
     .footnote {
       margin-top:15px;
@@ -89,7 +91,7 @@
   {% compress js %}
   <script src="{% static 'peerinst/js/student.min.js' %}"></script>
   {% endcompress %}
-  
+
   <script nonce="{{ request.csp_nonce }}">
     window.addEventListener("load", function() {
       student.initStudentHeader(

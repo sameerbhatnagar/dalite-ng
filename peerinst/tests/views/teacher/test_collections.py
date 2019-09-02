@@ -20,7 +20,7 @@ def test_collections(client, collections, teachers, discipline):
         collection.followers.remove(*teachers[: -i - 1])
 
     resp = client.post(
-        reverse("teacher-page--collections"),
+        reverse("teacher-dashboard--collections"),
         json.dumps({}),
         content_type="application/json",
     )
@@ -51,7 +51,7 @@ def test_collections__with_params(client, collections, teachers, discipline):
         collection.followers.remove(*teachers[: -i - 1])
 
     resp = client.post(
-        reverse("teacher-page--collections"),
+        reverse("teacher-dashboard--collections"),
         json.dumps({"n": 1}),
         content_type="application/json",
     )
@@ -78,7 +78,7 @@ def test_collections__wrong_params(client, teacher):
         return_value=HttpResponse("", status=400),
     ):
         resp = client.post(
-            reverse("teacher-page--collections"),
+            reverse("teacher-dashboard--collections"),
             json.dumps({}),
             content_type="application/json",
         )

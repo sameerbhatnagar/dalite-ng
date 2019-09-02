@@ -17,7 +17,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
 
@@ -32,6 +32,7 @@ INSTALLED_APPS = (
     "peerinst",
     "grappelli",
     "password_validation",
+    "cookielaw",
     "csp",
     "security_headers",
     "django.contrib.admin",
@@ -167,10 +168,11 @@ STATICFILES_FINDERS = (
     "compressor.finders.CompressorFinder",
 )
 
-COMPRESS_ENABLED = True
 KEEP_COMMENTS_ON_MINIFYING = False
 HTML_MINIFY = not DEBUG
 
+COMPRESS_ENABLED = True
+COMPRESS_OFFLINE = True
 COMPRESS_URL = STATIC_URL
 COMPRESS_ROOT = STATIC_ROOT
 
@@ -369,14 +371,12 @@ TEACHER_GROUP = "Teacher"
 
 DEFAULT_TIMEZONE = "America/Montreal"
 
-CELERY_BROKER_URL = "redis://localhost:6379/0"
 CELERY_BROKER_TRANSPORT_OPTIONS = {
     "max_retries": 3,
     "interval_start": 0,
     "interval_step": 0.4,
     "interval_max": 2,
 }
-CELERY_RESULT_BACKEND = "redis://localhost:6379/0"
 CELERY_RESULT_SERIALIZER = "json"
 CELERY_TASK_SERIALIZER = "json"
 CELERY_ACKS_LATE = True
@@ -394,6 +394,7 @@ CSP_SCRIPT_SRC = [
     "cdn.jsdelivr.net",
     "unpkg.com",
     "cdn.datatables.net",
+    "code.jquery.com",
 ]
 CSP_STYLE_SRC = [
     "'self'",

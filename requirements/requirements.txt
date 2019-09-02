@@ -2,11 +2,12 @@ bleach
 celery[redis]
 django-celery-beat
 django-analytical
-django-compressor
+django-compressor>=2.3
+django-cookie-law
 django-grappelli
 django-htmlmin
 django-password-validation
-django
+django>1.11.22
 mysqlclient==1.3.14
 pillow
 pyjwt

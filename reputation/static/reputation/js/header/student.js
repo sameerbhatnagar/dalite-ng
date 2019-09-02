@@ -1,10 +1,7 @@
 // @flow
 "use strict";
 import { buildReq } from "../../../../../peerinst/static/peerinst/js/ajax.js";
-import {
-  clear,
-  createSvg,
-} from "../../../../../peerinst/static/peerinst/js/utils.js";
+import { clear } from "../../../../../peerinst/static/peerinst/js/utils.js";
 import * as d3 from "d3";
 import { ReputationHeader } from "./header.js";
 
@@ -34,6 +31,7 @@ class StudentReputationHeader extends ReputationHeader {
     const model: Model = {
       id: parseInt(this.reputationId),
       element: this,
+      reputationStyleUrl: this.reputationStyleUrl,
       reputationType: "student",
       reputationUrl: this.reputationUrl,
       reputations: [],
@@ -71,6 +69,22 @@ class StudentReputationHeader extends ReputationHeader {
     }
 
     function toggleReputationList() {
+      const header = model.element;
+      document.querySelectorAll(".header--togglable > *").forEach(header_ => {
+        console.log(header_);
+        if (header_ != header && header_.hasAttribute("open")) {
+          if (header_.shadowRoot) {
+            header_.shadowRoot
+              .querySelector(".header__icon")
+              .dispatchEvent(new Event("click"));
+          } else {
+            console.log(header_.querySelector("header__icon"));
+            header_
+              .querySelector(".header__icon")
+              .dispatchEvent(new Event("click"));
+          }
+        }
+      });
       model.element.open = !model.element.open;
       iconView();
       listView();
@@ -98,15 +112,17 @@ class StudentReputationHeader extends ReputationHeader {
       if (!icon) {
         icon = document.createElement("div");
         icon.id = "icon";
+        icon.classList.add("header__icon");
         icon.title = "Reputation";
         icon.addEventListener("click", (event: MouseEvent) => {
           event.stopPropagation();
           toggleReputationList();
         });
 
-        const symbol = createSvg("donut_small", false);
-        symbol.id = "icon__icon";
-        icon.appendChild(symbol);
+        const star = document.createElement("i");
+        star.id = "icon__icon";
+        star.textContent = "star";
+        icon.appendChild(star);
 
         // $FlowFixMe
         document.body?.addEventListener("click", (event: MouseEvent) => {
@@ -567,13 +583,7 @@ class StudentReputationHeader extends ReputationHeader {
 
     function styleView() {
       const style = document.createElement("link");
-      style.setAttribute(
-        "href",
-        window.location.protocol +
-          "//" +
-          window.location.host +
-          "/static/reputation/css/header/student.min.css",
-      );
+      style.setAttribute("href", model.reputationStyleUrl);
       style.setAttribute("rel", "stylesheet");
       style.setAttribute("nonce", model.element.nonce_);
       return style;

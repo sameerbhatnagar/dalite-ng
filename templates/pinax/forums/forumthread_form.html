@@ -1,6 +1,6 @@
-{% extends './base.html' %}
+{% extends 'pinax/forums/base.html' %}
 
-{% load add_class compress i18n staticfiles %}
+{% load add_class compress i18n static %}
 
 {% block heading %}
 {% trans 'Edit Post' %}
@@ -49,8 +49,9 @@
 </form>
 {% endblock %}
 
-{% block extrascripts %}
-{% compress js %}
+{% block scripts %}
+{{ block.super }}
+{% compress js file forums__upload_limit %}
 <script src="{% static 'pinax/forums/js/limit.min.js' %}"></script>
 {% endcompress %}
 {% endblock %}

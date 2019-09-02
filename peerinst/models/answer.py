@@ -318,3 +318,6 @@ class AnswerAnnotation(models.Model):
         null=True, default=None, blank=True, choices=SCORE_CHOICES
     )
     note = models.CharField(max_length=500, null=True, blank=True)
+
+    def __unicode__(self):
+        return "{}: {} by {}".format(self.answer, self.score, self.annotator)

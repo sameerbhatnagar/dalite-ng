@@ -1,10 +1,10 @@
 {% extends 'peerinst/base.html' %}
 
-{% load compress i18n staticfiles %}
+{% load compress i18n static %}
 
 {% block stylesheets %}
 {{ block.super }}
-{% compress css %}
+{% compress css file forums %}
 <link href="{% static 'pinax/forums/css/forums.min.css' %}" rel="stylesheet">
 {% endcompress %}
 {% endblock %}
@@ -28,7 +28,4 @@
 </main>
 {% endblock %}
 
-{% block scripts %}
-{{ block.super }}
-{% block extrascripts %}{% endblock %}
-{% endblock %}
+{% block scripts %}{% endblock %}

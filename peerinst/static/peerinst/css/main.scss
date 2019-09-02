@@ -80,7 +80,7 @@ h4 ~ .admin-link {
 .foldable--body .admin-link {
   font-size: 9pt;
   margin-bottom: 12pt;
-  margin-left: 58px;
+  margin-left: 50px;
   margin-top: 0px;
 }
 /* - Theming */
@@ -171,6 +171,10 @@ header i {
   font-size: 10pt;
   justify-self: end;
   line-height: 1.2;
+}
+
+#custom-instance-header {
+  display: inline;
 }
 
 footer {
@@ -569,6 +573,10 @@ input[type="submit"].thumbs-button {
   color: white !important;
   font-weight: bold;
 }
+.mdc-button.delete {
+  background-color: red !important;
+  margin-left: 20px;
+}
 
 div.input-ripple-wrapper input {
   color: grey !important;
@@ -715,54 +723,7 @@ div.input-ripple-wrapper input {
   opacity: 0.3;
 }
 
-@media (max-height: 650px) {
-  .mdc-dialog__body--scrollable {
-    max-height: 350px;
-  }
-}
-
-@media (max-width: 450px) {
-  section {
-    padding-right: 5pt;
-  }
-  ul,
-  ol {
-    -moz-padding-start: 20px;
-    -webkit-padding-start: 20px;
-  }
-  .header {
-    margin-left: 5px;
-  }
-  .header.branding {
-    padding-top: 3px;
-  }
-  img#logo {
-    display: none;
-  }
-  img {
-    max-height: 200px;
-    max-width: 100%;
-  }
-  .site-content {
-    margin: 2px;
-  }
-  .rationales {
-    margin-left: 20px;
-  }
-  .mdc-typography--display3 {
-    font-size: 2.5rem;
-  }
-  .mdc-typography--display1 {
-    font-size: 20pt;
-  }
-  .mdc-list-item__text {
-    max-width: 130px;
-  }
-  .icon-list {
-    margin: 0pt;
-  }
-}
-
+/* Generic */
 .hidden {
   display: none;
 }
@@ -948,4 +909,58 @@ div.input-ripple-wrapper input {
 
 .greenyellow {
   color: greenyellow;
+}
+
+
+/* Media queries */
+@media (max-height: 650px) {
+  .mdc-dialog__body--scrollable {
+    max-height: 350px;
+  }
+}
+
+@media (max-width: $breakpoint-two) {
+  section {
+    padding-right: 5px;
+  }
+  ul,
+  ol {
+    -moz-padding-start: 20px;
+    -webkit-padding-start: 20px;
+  }
+  .header {
+    margin-left: 5px;
+  }
+  .header.branding {
+    padding-top: 3px;
+  }
+  img {
+    max-height: 200px;
+    max-width: 100%;
+  }
+  #custom-instance-header {
+    display: none;
+  }
+  .site-content {
+    margin: 2px;
+  }
+  .rationales {
+    margin-left: 20px;
+  }
+  .mdc-typography--display3 {
+    font-size: 2.0rem;
+  }
+  .mdc-typography--display1 {
+    font-size: 20pt;
+  }
+  .mdc-list-item__text {
+    max-width: 130px;
+  }
+  .icon-list {
+    margin: 0pt;
+  }
+}
+
+@media (max-width: $breakpoint-one) {
+  /* Smallest screen */
 }

@@ -1,6 +1,7 @@
 import re
 
 from functional_tests.fixtures import *  # noqa
+from functional_tests.teacher.utils import go_to_account
 from tos.models import Role, Tos
 
 
@@ -129,13 +130,8 @@ def test_new_user_signup_workflow(
 
     browser.find_element_by_id("submit-btn").click()
 
-    # Redirected to Browse Database
-    browser.wait_for(
-        lambda: assert_(
-            "Browse Database"
-            in browser.find_elements_by_tag_name("h1")[0].text
-        )
-    )
+    # Redirected to dashboard
+    assert browser.current_url.endswith("dashboard/")
 
 
 def test_new_user_signup_with_email_server_error(browser, assert_, settings):
@@ -197,15 +193,10 @@ def test_new_teacher(browser, assert_, new_teacher, tos_teacher):
 
     browser.find_element_by_id("submit-btn").click()
 
-    # Redirected to Browse Database
-    browser.wait_for(
-        lambda: assert_(
-            "Browse Database"
-            in browser.find_elements_by_tag_name("h1")[0].text
-        )
-    )
+    # Redirected to dashboard
+    assert browser.current_url.endswith("dashboard/")
 
-    browser.find_element_by_xpath("//a[text()='Go to My Account']").click()
+    go_to_account(browser)
 
     # Access to account redirected to TOS if no TOS registered
     browser.wait_for(
@@ -246,7 +237,7 @@ def test_new_teacher(browser, assert_, new_teacher, tos_teacher):
 
     browser.find_element_by_id("submit-btn").click()
 
-    browser.find_element_by_xpath("//a[text()='Go to My Account']").click()
+    go_to_account(browser)
 
     browser.wait_for(
         lambda: assert_(
@@ -261,7 +252,7 @@ def test_new_teacher(browser, assert_, new_teacher, tos_teacher):
 
     browser.get(browser.server_url + "/login")
 
-    browser.find_element_by_xpath("//a[text()='Go to My Account']").click()
+    go_to_account(browser)
 
     browser.wait_for(
         lambda: assert_(
@@ -274,9 +265,5 @@ def test_new_teacher(browser, assert_, new_teacher, tos_teacher):
     # Teacher generally redirected to welcome page if logged in
     browser.get(browser.server_url + "/login")
 
-    browser.wait_for(
-        lambda: assert_(
-            "Browse Database"
-            in browser.find_elements_by_tag_name("h1")[0].text
-        )
-    )
+    # Redirected to dashboard
+    assert browser.current_url.endswith("dashboard/")

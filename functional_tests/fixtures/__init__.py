@@ -7,6 +7,7 @@ __all__ = [
     "category",
     "discipline",
     "forum",
+    "forums",
     "group",
     "inactive_user",
     "institution",
@@ -28,7 +29,7 @@ __all__ = [
     "undistributed_assignment",
 ]
 
-from .forums_ import forum
+from .forums_ import forum, forums
 from .peerinst_ import (
     admin,
     assignment,

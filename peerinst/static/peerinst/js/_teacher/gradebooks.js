@@ -1,7 +1,7 @@
 // @flow
 import { buildReq } from "../ajax.js";
-import { updateNotifications } from "./notifications.js";
-import type { Notification } from "./notifications.js";
+import { updateNotifications } from "./header/notifications.js";
+import type { Notification } from "./header/notifications.js";
 
 /*********/
 /* model */

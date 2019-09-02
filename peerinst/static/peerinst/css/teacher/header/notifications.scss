@@ -1,4 +1,4 @@
-@import "../variables";
+@import "../../variables";
 
 .notifications {
   color: $mdc-theme-secondary;
@@ -29,16 +29,17 @@
     & .notifications__icon__badge {
       align-items: center;
       background: #b30000;
-      border-radius: 11px;
+      border-radius: 50%;
       color: #ffffff;
       display: none;
-      font-size: 17px;
-      height: 22px;
+      font-size: 10pt;
       justify-content: center;
+      min-height: 12pt;
+      min-width: 12pt;
+      padding: 2pt;
       position: absolute;
-      right: 2px;
-      top: 2px;
-      width: 22px;
+      right: -1px;
+      top: -1px;
       z-index: 3;
     }
 
@@ -62,12 +63,12 @@
   & .notifications__list {
     align-items: center;
     background: #ffffff;
-    border-radius: 20px 0 20px 20px;
+    border-radius: 10px 0 10px 10px;
     display: grid;
-    font-size: 1.1rem;
+    font-size: 0.8rem;
     grid-auto-rows: 50px;
     grid-template-columns: minmax(500px, 50%);
-    padding: 20px 0;
+    padding: 20px 10px;
     position: absolute;
     right: 21px;
     text-align: center;
@@ -124,8 +125,6 @@
         grid-column: 2;
         grid-row: 1;
         overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
       }
 
       & .notification__icon {
@@ -161,36 +160,36 @@
       }
     }
   }
-}
 
-.notifications--open {
-  & .notifications__icon {
-    background: #ffffff;
-    border-radius: 20px 20px 0 0;
-
-    &:hover {
+  &.notifications--open {
+    & .notifications__icon {
       background: #ffffff;
+      border-radius: 20px 20px 0 0;
+
+      &:hover {
+        background: #ffffff;
+      }
+
+      & i {
+        color: $mdc-theme-primary;
+      }
+
+      & .notifications__spinner {
+        --spinner-ring-stroke: #{lighten($mdc-theme-primary, 30%)};
+        --spinner-segment-stroke: #{$mdc-theme-primary};
+      }
     }
 
-    & i {
-      color: $mdc-theme-primary;
-    }
+    & .notifications__list {
+      box-shadow: 0 1px 1px #bdbdbd;
+      right: 0;
+      top: 42px;
+      transform: scale(1);
+      z-index: 2;
 
-    & .notifications__spinner {
-      --spinner-ring-stroke: #{lighten($mdc-theme-primary, 30%)};
-      --spinner-segment-stroke: #{$mdc-theme-primary};
-    }
-  }
-
-  & .notifications__list {
-    box-shadow: 0 1px 1px #bdbdbd;
-    right: 0;
-    top: 42px;
-    transform: scale(1);
-    z-index: 2;
-
-    & .notification {
-      opacity: 1;
+      & .notification {
+        opacity: 1;
+      }
     }
   }
 }
@@ -204,7 +203,7 @@
       height: calc(100vh - 50px);
       left: 0;
       right: 0;
-      top: 0;
+      top: 50px;
       transform: scaleY(0);
       transform-origin: top center;
       & .notifications__notifications {

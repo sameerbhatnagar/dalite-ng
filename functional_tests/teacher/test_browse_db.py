@@ -12,6 +12,17 @@ from .utils import go_to_account, login
 
 
 def search(browser, assert_, realistic_questions):
+    icon = browser.find_element_by_xpath("//i[contains(text(), 'menu')]")
+    icon.click()
+
+    try:
+        forum_button = WebDriverWait(browser, 5).until(
+            EC.element_to_be_clickable((By.LINK_TEXT, "Search database"))
+        )
+        time.sleep(1)
+        forum_button.click()
+    except NoSuchElementException:
+        pass
     assert "Browse Database" in browser.find_element_by_tag_name("h1").text
 
     # Search
