@@ -11,7 +11,7 @@ logger = get_logger("peerinst-scheduled")
 # Set the default Django settings module for the 'celery' program.
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "dalite.settings")
 
-app = Celery("proj")
+app = Celery("dalite")
 
 # Using a string here means the worker doesn't have to serialize
 # the configuration object to child processes.
@@ -57,14 +57,14 @@ def try_async(func):
             available_workers = app.control.ping(timeout=0.4)
 
             if len(available_workers):
-                info = "Celery workers available.  Executing {} asynchronously.".format(  # noqa
-                    func.__name__
+                info = "Celery workers available ({}).  Executing {} asynchronously.".format(  # noqa
+                    available_workers, func.__name__
                 )
                 logger.info(info)
                 return func.delay(*args, **kwargs)
             else:
-                info = "No celery workers available.  Executing {} synchronously.".format(  # noqa
-                    func.__name__
+                info = "No celery workers available ({}).  Executing {} synchronously.".format(  # noqa
+                    available_workers, func.__name__
                 )
                 logger.info(info)
                 return func(*args, **kwargs)
