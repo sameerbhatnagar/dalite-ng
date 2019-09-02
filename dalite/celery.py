@@ -30,7 +30,7 @@ def debug_task(self):
 
 @app.task
 def heartbeat():
-    pass
+    logger.info("Heartbeat check")
 
 
 def try_async(func):
@@ -56,7 +56,7 @@ def try_async(func):
             logger.info("Checking for available workers...")
             available_workers = app.control.ping(timeout=0.4)
 
-            if len(available_workers):
+            if True:
                 info = "Celery workers available ({}).  Executing {} asynchronously.".format(  # noqa
                     available_workers, func.__name__
                 )
