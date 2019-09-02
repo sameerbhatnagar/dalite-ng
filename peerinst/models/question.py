@@ -35,7 +35,6 @@ def images(instance, filename):
     path = "{0}/{1}/{2}_{3}".format(
         instance.user.username, datetime.now().month, hash, filename
     )
-    print(path)
     return path
 
 
