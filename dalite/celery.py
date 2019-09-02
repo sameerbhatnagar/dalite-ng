@@ -54,8 +54,10 @@ def try_async(func):
 
         else:
             logger.info("Checking for available workers...")
+            # FIXME - This method of checking does not work across servers
             available_workers = app.control.ping(timeout=0.4)
 
+            # FIXME
             if True:
                 info = "Celery workers available ({}).  Executing {} asynchronously.".format(  # noqa
                     available_workers, func.__name__
