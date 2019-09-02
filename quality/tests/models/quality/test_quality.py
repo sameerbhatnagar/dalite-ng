@@ -145,7 +145,7 @@ def test_evaluate__cached(assignment_validation_quality):
         def evaluate():
             i = 0
             while True:
-                time.sleep(0.1)
+                time.sleep(0.3)
                 i += 1
                 yield {"quality": i + 1, "threshold": 1}
 
@@ -287,7 +287,7 @@ def test_batch_evaluate__cached_all(assignment_validation_quality):
         def evaluate():
             i = 0
             while True:
-                time.sleep(0.1)
+                time.sleep(0.3)
                 i += 1
                 yield [
                     {"quality": i + 1, "threshold": 1}
@@ -347,7 +347,7 @@ def test_batch_evaluate__cached_some(assignment_validation_quality):
         def evaluate():
             i = 0
             while True:
-                time.sleep(0.1)
+                time.sleep(0.3)
                 i += 1
                 yield [
                     {"quality": i + 1, "threshold": 1}
