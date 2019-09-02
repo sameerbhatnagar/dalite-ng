@@ -24,6 +24,7 @@ from django.views.decorators.http import (
     require_safe,
 )
 from pinax.forums.models import ForumThread
+from redis import ConnectionError
 
 from dalite.views.errors import response_400, response_403, response_500
 from dalite.views.utils import get_json_params
@@ -40,14 +41,12 @@ from ..models import (
     UserMessage,
 )
 from ..rationale_annotation import (
-    choose_rationales_no_quality,
     choose_questions,
+    choose_rationales_no_quality,
 )
 from ..tasks import compute_gradebook_async
-from .decorators import teacher_required
-
 from ..util import get_student_activity_data
-
+from .decorators import teacher_required
 
 logger = logging.getLogger("peerinst-views")
 
@@ -739,17 +738,20 @@ def remove_gradebook_task(req, teacher):
 @require_safe
 @teacher_required
 def get_tasks(req, teacher):
-    tasks = [
-        {
-            "id": task.id,
-            "description": task.description,
-            "completed": AsyncResult(task.id).ready(),
-            "datetime": task.datetime.strftime("%Y-%m-%d %H:%M:%S.%f"),
-        }
-        for task in RunningTask.objects.filter(teacher=teacher).order_by(
-            "-datetime"
-        )
-    ]
+    try:
+        tasks = [
+            {
+                "id": task.id,
+                "description": task.description,
+                "completed": AsyncResult(task.id).ready(),
+                "datetime": task.datetime.strftime("%Y-%m-%d %H:%M:%S.%f"),
+            }
+            for task in RunningTask.objects.filter(teacher=teacher).order_by(
+                "-datetime"
+            )
+        ]
+    except ConnectionError:
+        tasks = []
 
     data = {"tasks": tasks}
 
