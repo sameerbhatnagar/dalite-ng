@@ -32,7 +32,7 @@ def images(instance, filename):
     hash = hashlib.sha256(
         "{}-{}".format(datetime.now(), smart_bytes(filename))
     ).hexdigest()[:8]
-    path = "{0}/{1}/{2}_{3}".format(
+    path = "images/{0}/{1}/{2}_{3}".format(
         instance.user.username, datetime.now().month, hash, filename
     )
     return path
