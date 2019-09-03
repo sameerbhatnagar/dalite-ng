@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 
 import pytest
 
+from peerinst.tests.fixtures import *  # noqa
 from peerinst.util import report_data_by_assignment
 
 from .fixtures import *  # noqa F403
