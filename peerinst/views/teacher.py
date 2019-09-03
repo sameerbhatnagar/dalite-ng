@@ -308,10 +308,21 @@ def evaluate_rationale(req, teacher):
         Error response or empty 200 response
     """
 
-    id_ = req.POST.get("id", None)
-    score = req.POST.get("score", None)
+    if req.META["CONTENT_TYPE"] == "application/json":
+        args = get_json_params(
+            req, args=["id", "score"], opt_args=["redirect"]
+        )
+        if isinstance(args, HttpResponse):
+            return args
+        (id_, score), (redirect_,) = args
+        if redirect_ is None:
+            redirect_ = True
+    else:
+        id_ = req.POST.get("id", None)
+        score = req.POST.get("score", None)
+        redirect_ = True
 
-    if not id_ or not score:
+    if id_ is None or score is None:
         return response_400(
             req,
             msg=translate("Missing parameters."),
@@ -339,11 +350,23 @@ def evaluate_rationale(req, teacher):
             log=logger.warning,
         )
 
-    AnswerAnnotation.objects.create(
-        answer=answer, annotator=teacher.user, score=score
-    )
+    if AnswerAnnotation.objects.filter(
+        answer=answer, annotator=teacher.user
+    ).exists():
+        annotation = AnswerAnnotation.objects.get(
+            answer=answer, annotator=teacher.user
+        )
+        annotation.score = score
+        annotation.save()
+    else:
+        AnswerAnnotation.objects.create(
+            answer=answer, annotator=teacher.user, score=score
+        )
 
-    return redirect(reverse("teacher-dashboard--rationales"))
+    if redirect_:
+        return redirect(reverse("teacher-dashboard--rationales"))
+    else:
+        return HttpResponse("")
 
 
 @require_GET

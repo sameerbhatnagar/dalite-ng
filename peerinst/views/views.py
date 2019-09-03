@@ -78,6 +78,7 @@ from ..models import (
     BlinkQuestion,
     BlinkRound,
     Category,
+    Collection,
     Discipline,
     Question,
     RationaleOnlyQuestion,
@@ -86,7 +87,6 @@ from ..models import (
     StudentGroup,
     StudentGroupAssignment,
     Teacher,
-    Collection,
 )
 from ..util import (
     SessionStageData,
@@ -3057,7 +3057,7 @@ def report(request, assignment_id="", group_id=""):
         )
 
     assignment_data = report_data_by_assignment(
-        assignment_list, student_groups
+        assignment_list, student_groups, teacher
     )
 
     context = {}

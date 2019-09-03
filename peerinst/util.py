@@ -454,7 +454,7 @@ def get_correct_answer_choices(question):
     return correct_answer_choices
 
 
-def report_data_by_assignment(assignment_list, student_groups):
+def report_data_by_assignment(assignment_list, student_groups, teacher):
     """
     Returns data for report by assignment
 
@@ -718,6 +718,16 @@ def report_data_by_assignment(assignment_list, student_groups):
             d_q["student_responses"] = []
             for student_response in answer_qs_question:
                 d_q_a = {}
+                d_q_a["id"] = student_response.pk
+                d_q_a["score"] = (
+                    student_response.answerannotation_set.get(
+                        annotator=teacher.user
+                    ).score
+                    if student_response.answerannotation_set.filter(
+                        annotator=teacher.user
+                    ).exists()
+                    else ""
+                )
                 # d_q_a["student"] = student_response.user_token
                 d_q_a["student"] = student_obj_qs.get(
                     student__username=student_response.user_token
