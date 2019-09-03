@@ -133,18 +133,13 @@ class Student(models.Model):
 
             else:
 
-                if request:
-                    host = request.get_host()
-                    protocol = request.scheme
+                host = settings.ALLOWED_HOSTS[0]
 
+                if host == "localhost" or host == "127.0.0.1":
+                    protocol = "http"
+                    host = "{}:{}".format(host, settings.DEV_PORT)
                 else:
-                    host = settings.ALLOWED_HOSTS[0]
-
-                    if host == "localhost" or host == "127.0.0.1":
-                        protocol = "http"
-                        host = "{}:{}".format(host, settings.DEV_PORT)
-                    else:
-                        protocol = "https"
+                    protocol = "https"
 
                 token = create_student_token(username, user_email)
 
