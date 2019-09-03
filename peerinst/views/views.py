@@ -317,7 +317,7 @@ def terms_teacher(request):
 
 def logout_view(request):
     logout(request)
-    return HttpResponseRedirect(reverse("landing_page"))
+    return HttpResponseRedirect(reverse("login"))
 
 
 @login_required
@@ -336,7 +336,7 @@ def welcome(request):
         return HttpResponseRedirect(reverse("student-page"))
 
     else:
-        return HttpResponseRedirect(reverse("assignment-list"))
+        return logout_view(request)
 
 
 def access_denied(request):
