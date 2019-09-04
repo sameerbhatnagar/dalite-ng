@@ -335,6 +335,8 @@ def welcome(request):
     elif Student.objects.filter(student=request.user).exists():
         return HttpResponseRedirect(reverse("student-page"))
 
+    elif request.user.is_staff:
+        return HttpResponseRedirect(reverse("assignment-list"))
     else:
         return logout_view(request)
 
