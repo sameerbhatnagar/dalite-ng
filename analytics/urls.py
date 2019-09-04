@@ -8,7 +8,7 @@ from . import views
 
 def reputation_patterns():
     return [
-        url(r"^teachers/$", views.teachers.index, name="teachers--index"),
+        url(r"^teachers/$", views.teachers.index, name="teachers"),
         url(
             r"^teachers/criteria$",
             views.teachers.get_reputation_criteria_list,
