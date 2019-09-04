@@ -2729,23 +2729,21 @@ def blink_get_current_url(request, username):
     try:
         # Return url of current active blinkquestion, if any
         blinkquestion = teacher.blinkquestion_set.get(active=True)
-        return HttpResponse(
-            reverse("blink-question", kwargs={"pk": blinkquestion.pk})
-        )
+        url = reverse("blink-question", kwargs={"pk": blinkquestion.pk})
+        return JsonResponse({"action": url})
     except Exception:
         if not teacher.blinkassignment_set.filter(active=True).exists():
-            return HttpResponse("stop")
+            return JsonResponse({"action": "stop"})
         try:
             latest_round = BlinkRound.objects.filter(
                 question__in=teacher.blinkquestion_set.all()
             ).latest("activate_time")
-            return HttpResponse(
-                reverse(
-                    "blink-summary", kwargs={"pk": latest_round.question.pk}
-                )
+            url = reverse(
+                "blink-summary", kwargs={"pk": latest_round.question.pk}
             )
+            return JsonResponse({"action": url})
         except Exception:
-            return HttpResponse("stop")
+            return JsonResponse({"action": "stop"})
 
 
 def blink_count(request, pk):

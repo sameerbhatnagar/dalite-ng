@@ -104,7 +104,7 @@ function set_counter(json) {
 
 // Schedule AJAX event
 {% if request.user.is_authenticated %}
-var counterID = window.setInterval(get,1000,"{% url 'blink-count' pk=object.pk %}",set_counter);
+var counterID = window.setInterval(get,1000,"{% url 'blink-count' pk=object.pk %}", set_counter);
 {% endif %}
 
 // Countdown
