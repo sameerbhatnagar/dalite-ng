@@ -196,7 +196,7 @@ function addNotificationsOpenListener(): void {
 function addClearAllListener(): void {
   document
     .querySelector(".notifications__clear-all-btn")
-    .addEventListener("click", () => clearAll());
+    ?.addEventListener("click", () => clearAll());
 }
 
 /********/
