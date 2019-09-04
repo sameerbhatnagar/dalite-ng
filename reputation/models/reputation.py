@@ -32,7 +32,7 @@ class Reputation(models.Model):
         Returns
         -------
         Optional[float]
-            Quality of the answer or None of no criteria present
+            Quality of the answer or None if no criteria present
         Either
             List[Dict[str, Any]]
                 If `criterion` is None, individual criteria under the format
