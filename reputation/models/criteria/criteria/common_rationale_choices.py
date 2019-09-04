@@ -13,6 +13,15 @@ class CommonRationaleChoicesCriterion(Criterion):
         max_length=32, default="common_rationale_choices", editable=False
     )
 
+    @staticmethod
+    def general_info():
+        return {
+            "name": "common_rationale_choices",
+            "full_name": "Choosing good rationales",
+            "description": "Number of times the rationales you "
+            "chose were also chosen by other students as convincing.",
+        }
+
     def evaluate(self, instance):
         """
         Evaluates the how often a student chooses rationales that
@@ -43,10 +52,5 @@ class CommonRationaleChoicesCriterion(Criterion):
 
     def info(self):
         return super(CommonRationaleChoicesCriterion, self).info(
-            {
-                "name": "common_rationale_choices",
-                "full_name": "Choosing good rationales",
-                "description": "Number of times the rationales you "
-                "chose were also chosen by other students as convincing.",
-            }
+            CommonRationaleChoicesCriterion.general_info()
         )

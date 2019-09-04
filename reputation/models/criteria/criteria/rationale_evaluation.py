@@ -13,6 +13,15 @@ class RationaleEvaluationCriterion(Criterion):
         max_length=32, default="rationale_evaluation", editable=False
     )
 
+    @staticmethod
+    def general_info():
+        return {
+            "name": "rationale_evaluation",
+            "full_name": "Evaluation of rationales",
+            "description": "Gives a score based on your evaluation of "
+            "rationales.",
+        }
+
     def evaluate(self, teacher):
         """
         Evaluates the `teacher` using the number of rationale evaluations done.
@@ -49,10 +58,5 @@ class RationaleEvaluationCriterion(Criterion):
 
     def info(self):
         return super(RationaleEvaluationCriterion, self).info(
-            {
-                "name": "rationale_evaluation",
-                "full_name": "Evaluation of rationales",
-                "description": "Gives a score based on your evaluation of "
-                "rationales.",
-            }
+            RationaleEvaluationCriterion.general_info()
         )
