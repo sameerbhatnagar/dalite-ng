@@ -11,7 +11,11 @@ from dalite.views.errors import response_400
 logger = logging.getLogger("reputation")
 
 
-def get_json_params(req, args=[], opt_args=[]):
+def get_json_params(req, args=None, opt_args=None):
+    if args is None:
+        args = []
+    if opt_args is None:
+        opt_args = []
     try:
         data = json.loads(req.body)
     except ValueError:
@@ -24,6 +28,26 @@ def get_json_params(req, args=[], opt_args=[]):
     try:
         args = [data[arg] for arg in args]
         opt_args = [data.get(arg) for arg in opt_args]
+    except KeyError as e:
+        return response_400(
+            req,
+            msg=_("There are missing parameters."),
+            logger_msg=(
+                "The arguments {} were missing.".format(", ".join(e.args))
+            ),
+            log=logger.warning,
+        )
+    return args, opt_args
+
+
+def get_query_string_params(req, args=None, opt_args=None):
+    if args is None:
+        args = []
+    if opt_args is None:
+        opt_args = []
+    try:
+        args = [req.GET[arg] for arg in args]
+        opt_args = [req.GET.get(arg) for arg in opt_args]
     except KeyError as e:
         return response_400(
             req,
