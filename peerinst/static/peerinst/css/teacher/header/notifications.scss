@@ -139,12 +139,13 @@
         }
 
         & .notification__close {
-          border-radius: 11px;
+          border-radius: 50%;
           cursor: pointer;
           fill: $mdc-theme-primary;
           grid-column: 3;
           grid-row: 1;
           height: 20px;
+          margin: auto;
           padding: 2px;
           transition: background 300ms;
           width: 20px;
@@ -211,6 +212,7 @@
       grid-template-columns: 100vw;
       height: calc(100vh - 50px);
       left: 0;
+      padding: 20px 0px;
       right: 0;
       top: 50px;
       transform: scaleY(0);
