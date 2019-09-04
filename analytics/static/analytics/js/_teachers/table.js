@@ -92,18 +92,18 @@ function tableView() {
       "fg-toolbar" +
       " ui-toolbar" +
       " ui-widget-header" +
-      " ui-helper-clearfix " +
-      "ui-corner-tl " +
-      'ui-corner-tr"Bf' + // eslint-disable-line quotes
+      " ui-helper-clearfix" +
+      " ui-corner-tl" +
+      ' ui-corner-tr"Bf' + // eslint-disable-line quotes
       ">" +
       "t" +
       '<"' + // eslint-disable-line quotes
       "fg-toolbar" +
       " ui-toolbar" +
       " ui-widget-header" +
-      " ui-helper-clearfix " +
-      "ui-corner-tl " +
-      'ui-corner-tr"ip' + // eslint-disable-line quotes
+      " ui-helper-clearfix" +
+      " ui-corner-tl" +
+      ' ui-corner-tr"ip' + // eslint-disable-line quotes
       ">",
     buttons: ["csv", "colvis"],
   });
@@ -116,7 +116,7 @@ function tableHeadersView() {
   model.criteria.forEach(criterion => {
     const header = document.createElement("th");
     header.title = criterion.description;
-    header.textContent = criterion.name;
+    header.textContent = criterion.full_name;
     headers.appendChild(header);
   });
 }
@@ -136,7 +136,7 @@ function tableRowView(teacher) {
           ).reputation,
       ),
     ])
-    .draw();
+    .draw(false);
 }
 
 /********/
