@@ -38,19 +38,19 @@
   </section>
   <section id="questions">
     <h1 class="mdc-typography--display3">{% trans 'New question for ' %} {{ teacher.user.username }}
-            <i id="activate-dialog" class="mdc-theme--primary material-icons md-24 mdc-ripple-surface icon-list">help</i>
-            <aside id="dialog"
+            <i id="activate-dialog-question-help" class="mdc-theme--primary material-icons md-24 mdc-ripple-surface icon-list">help</i>
+            <aside id="dialog-question-help"
               class="mdc-dialog"
               role="alertdialog"
-              aria-labelledby="assignment-parameters-label"
-              aria-describedby="assignment-parameters-description">
+              aria-labelledby="question-help-label"
+              aria-describedby="question-help-description">
               <div class="mdc-dialog__surface">
                 <header class="mdc-dialog__header">
-                  <h2 id="assignment-parameters-label" class="mdc-dialog__header__title">
+                  <h2 id="question-help-label" class="mdc-dialog__header__title">
                     {% trans 'New questions chosen for you' %}
                   </h2>
                 </header>
-                <section id="assignment-parameters-description" class="mdc-dialog__body mdc-dialog__body--scrollable">
+                <section id="question-help-description" class="mdc-dialog__body mdc-dialog__body--scrollable">
                   <p class="mdc-typography--body1">
                     {% blocktrans %}
                     Everyday, teachers are making new questions on myDALITE and sharing them with the SALTISE community. Here is a sampling of these new questions selected especially for you! If the questions here are not relevant to your teaching, please help us make better recomendations by updating the discpline information on your account page.<br><br>
