@@ -78,6 +78,7 @@ from ..models import (
     BlinkQuestion,
     BlinkRound,
     Category,
+    Collection,
     Discipline,
     Question,
     RationaleOnlyQuestion,
@@ -86,7 +87,6 @@ from ..models import (
     StudentGroup,
     StudentGroupAssignment,
     Teacher,
-    Collection,
 )
 from ..util import (
     SessionStageData,
@@ -317,7 +317,7 @@ def terms_teacher(request):
 
 def logout_view(request):
     logout(request)
-    return HttpResponseRedirect(reverse("landing_page"))
+    return HttpResponseRedirect(reverse("login"))
 
 
 @login_required
@@ -335,8 +335,10 @@ def welcome(request):
     elif Student.objects.filter(student=request.user).exists():
         return HttpResponseRedirect(reverse("student-page"))
 
-    else:
+    elif request.user.is_staff:
         return HttpResponseRedirect(reverse("assignment-list"))
+    else:
+        return logout_view(request)
 
 
 def access_denied(request):
@@ -3055,7 +3057,7 @@ def report(request, assignment_id="", group_id=""):
         )
 
     assignment_data = report_data_by_assignment(
-        assignment_list, student_groups
+        assignment_list, student_groups, teacher
     )
 
     context = {}

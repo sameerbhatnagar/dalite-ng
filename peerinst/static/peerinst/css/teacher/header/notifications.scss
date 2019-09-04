@@ -80,84 +80,94 @@
 
     & .notifications__notifications {
       display: contents;
+
+      & .notification {
+        align-items: center;
+        border-bottom: 1px solid rgba($mdc-theme-primary, 0.25);
+        border-top: none;
+        display: grid;
+        grid-template-columns: 50px 1fr 35px;
+        grid-template-rows: 1fr;
+        height: 30px;
+        opacity: 0;
+        padding: 10px 0;
+        text-align: start;
+        user-select: none;
+
+        &:first-child {
+          border-top: 1px solid rgba($mdc-theme-primary, 0.25);
+        }
+
+        &.notification--completed {
+          cursor: pointer;
+
+          &:hover {
+            background: rgba($mdc-theme-primary, 0.25);
+            transition: background 300ms;
+          }
+
+          &:active {
+            background: rgba($mdc-theme-primary, 0.5);
+            transition: background 300ms;
+          }
+        }
+
+        & .notification__spinner {
+          --spinner-ring-stroke: #{$mdc-theme-primary};
+          --spinner-segment-stroke: #{lighten($mdc-theme-primary, 30%)};
+          height: 25px;
+          justify-self: center;
+          width: 25px;
+        }
+
+        & .notification__description {
+          grid-column: 2;
+          grid-row: 1;
+          overflow: hidden;
+        }
+
+        & .notification__icon {
+          fill: $mdc-theme-primary;
+          grid-row: 1;
+          height: 25px;
+          justify-self: center;
+          width: 25px;
+
+          &.notification__icon--error {
+            fill: $error;
+          }
+        }
+
+        & .notification__close {
+          border-radius: 50%;
+          cursor: pointer;
+          fill: $mdc-theme-primary;
+          grid-column: 3;
+          grid-row: 1;
+          height: 20px;
+          margin: auto;
+          padding: 2px;
+          transition: background 300ms;
+          width: 20px;
+
+          &:hover {
+            background: rgba(lighten($mdc-theme-primary, 10%), 0.25);
+          }
+
+          &:active {
+            background: rgba(lighten($mdc-theme-primary, 5%), 0.5);
+          }
+        }
+      }
     }
 
-    & .notification {
-      align-items: center;
-      border-bottom: 1px solid rgba($mdc-theme-primary, 0.25);
-      border-top: none;
-      display: grid;
-      grid-template-columns: 50px 1fr 35px;
-      grid-template-rows: 1fr;
-      height: 30px;
-      opacity: 0;
-      padding: 10px 0;
-      text-align: start;
-      user-select: none;
-
-      &:first-child {
-        border-top: 1px solid rgba($mdc-theme-primary, 0.25);
-      }
-
-      &.notification--completed {
-        cursor: pointer;
-
-        &:hover {
-          background: rgba($mdc-theme-primary, 0.25);
-          transition: background 300ms;
-        }
-
-        &:active {
-          background: rgba($mdc-theme-primary, 0.5);
-          transition: background 300ms;
-        }
-      }
-
-      & .notification__spinner {
-        --spinner-ring-stroke: #{$mdc-theme-primary};
-        --spinner-segment-stroke: #{lighten($mdc-theme-primary, 30%)};
-        height: 25px;
-        justify-self: center;
-        width: 25px;
-      }
-
-      & .notification__description {
-        grid-column: 2;
-        grid-row: 1;
-        overflow: hidden;
-      }
-
-      & .notification__icon {
-        fill: $mdc-theme-primary;
-        grid-row: 1;
-        height: 25px;
-        justify-self: center;
-        width: 25px;
-
-        &.notification__icon--error {
-          fill: $error;
-        }
-      }
-
-      & .notification__close {
-        border-radius: 11px;
-        cursor: pointer;
-        fill: $mdc-theme-primary;
-        grid-column: 3;
-        grid-row: 1;
-        height: 20px;
-        padding: 2px;
-        transition: background 300ms;
-        width: 20px;
-
-        &:hover {
-          background: rgba(lighten($mdc-theme-primary, 10%), 0.25);
-        }
-
-        &:active {
-          background: rgba(lighten($mdc-theme-primary, 5%), 0.5);
-        }
-      }
+    & .notifications__clear-all-btn {
+      align-self: center;
+      cursor: pointer;
+      font-size: 0.75rem;
+      justify-self: center;
+      padding-top: 10px;
+      text-align: center;
     }
   }
 
@@ -202,6 +212,7 @@
       grid-template-columns: 100vw;
       height: calc(100vh - 50px);
       left: 0;
+      padding: 20px 0px;
       right: 0;
       top: 50px;
       transform: scaleY(0);

@@ -54,6 +54,12 @@ export function updateNotifications(notifications: Array<Notification>): void {
   notificationsView();
 }
 
+function clearAll(): void {
+  model.notifications.forEach(notification => {
+    notification.onCloseClick();
+  });
+}
+
 /********/
 /* view */
 /********/
@@ -90,8 +96,14 @@ function notificationsView(): void {
     model.notifications.map(function(notification) {
       notificationsList.appendChild(notificationView(notification));
     });
+    document
+      .querySelector(".notifications__clear-all-btn")
+      .removeAttribute("hidden");
   } else {
     notificationsList.appendChild(noNotificationView());
+    document
+      .querySelector(".notifications__clear-all-btn")
+      .setAttribute("hidden", "");
   }
 
   if (model.notifications.some(notification => notification.inProgress)) {
@@ -127,10 +139,6 @@ function notificationView(notification: Notification): HTMLDivElement {
     if (notification.error) {
       icon = createSvg("error");
       icon.classList.add("notification__icon--error");
-      const remove = createSvg("close");
-      remove.classList.add("notification__close");
-      remove.addEventListener("click", notification.onCloseClick);
-      div.appendChild(remove);
     } else {
       div.classList.add("notification--completed");
       icon = createSvg("cloud_download");
@@ -143,6 +151,10 @@ function notificationView(notification: Notification): HTMLDivElement {
   description.classList.add("notification__description");
   description.innerHTML = notification.text;
   div.appendChild(description);
+  const remove = createSvg("close");
+  remove.classList.add("notification__close");
+  remove.addEventListener("click", notification.onCloseClick);
+  div.appendChild(remove);
 
   return div;
 }
@@ -159,6 +171,7 @@ function noNotificationView(): HTMLDivElement {
 
 function initEventListeners(): void {
   addNotificationsOpenListener();
+  addClearAllListener();
 }
 
 function addNotificationsOpenListener(): void {
@@ -178,6 +191,12 @@ function addNotificationsOpenListener(): void {
       toggleNotifications();
     }
   });
+}
+
+function addClearAllListener(): void {
+  document
+    .querySelector(".notifications__clear-all-btn")
+    ?.addEventListener("click", () => clearAll());
 }
 
 /********/
