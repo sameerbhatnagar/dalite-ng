@@ -64,6 +64,7 @@
     transform: scale(0);
     transform-origin: top right;
     transition: transform 300ms, top 300ms, right 300ms;
+    width: 360px;
     z-index: 2;
 
     & .messages__messages {
@@ -80,7 +81,6 @@
         padding: 8px 10px;
         text-align: start;
         user-select: none;
-        width: 360px;
 
         &:first-child {
           border-top: 1px solid rgba($mdc-theme-primary, 0.25);
@@ -173,11 +173,12 @@
       height: calc(100vh - 50px);
       left: 0;
       max-height: 100vh;
+      padding: 20px 0px;
       right: 0;
       top: 50px;
       transform: scaleY(0);
       transform-origin: top center;
-      width: calc(100vw - 20px);
+      width: 100vw;
     }
 
     &[open] {

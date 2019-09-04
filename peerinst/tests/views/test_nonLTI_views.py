@@ -9,10 +9,10 @@ from django.test import TestCase, TransactionTestCase
 
 from peerinst.models import (
     Assignment,
+    Collection,
     Discipline,
     Question,
     Teacher,
-    Collection,
 )
 from quality.models import UsesCriterion
 from tos.models import Consent, Role, Tos
@@ -194,7 +194,7 @@ class TeacherTest(TestCase):
         # Logout
         response = self.client.get(reverse("logout"), follow=True)
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "registration/landing_page.html")
+        self.assertTemplateUsed(response, "registration/login.html")
 
         # Attempt access after logout
         response = self.client.get(
