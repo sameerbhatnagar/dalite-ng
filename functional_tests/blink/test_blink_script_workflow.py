@@ -1,18 +1,98 @@
 import time
 
 from django.urls import reverse
+from selenium.webdriver.common.keys import Keys
 
 from functional_tests.fixtures import *  # noqa
-from functional_tests.teacher.utils import login
+from functional_tests.teacher.utils import accept_cookies, go_to_account, login
 
 
-def test_blink_script(browser, second_browser, assert_, teacher):
+def make_blink_script(browser, q):
+    print(q)
+    browser.find_element_by_id("blink-section").click()
+    browser.find_element_by_link_text("Add script").click()
+
+    script_name = "New blink script"
+
+    input = browser.find_element_by_id("id_title")
+    input.send_keys(script_name)
+    input.send_keys(Keys.ENTER)
+
+    assert "Update Script" in browser.find_element_by_tag_name("h1").text
+    assert script_name in browser.find_element_by_tag_name("h2").text
+
+    checkbox = browser.find_element_by_id("limit-search")
+    checkbox.click()
+
+    search = browser.find_element_by_id("search-bar")
+    search.send_keys(q[0].title)
+    search.send_keys(Keys.ENTER)
+
+    time.sleep(1)
+    assert q[0].title in browser.find_element_by_id("search_results").text
+
+    card = browser.find_element_by_id(str(q[0].id))
+    add_btn = card.find_elements_by_xpath("//input[@value='add']")[0]
+    add_btn.click()
+
+    search = browser.find_element_by_id("search-bar")
+    search.send_keys(q[1].title)
+    search.send_keys(Keys.ENTER)
+
+    time.sleep(1)
+    assert q[1].title in browser.find_element_by_id("search_results").text
+
+    card = browser.find_element_by_id(str(q[1].id))
+    add_btn = card.find_elements_by_xpath("//input[@value='add']")[0]
+    add_btn.click()
+
+    go_to_account(browser)
+
+
+def start_blink_script(browser):
+    link = browser.find_element_by_class_name("blink")
+    link.click()
+
+    start_btn = browser.find_element_by_xpath("//input[@value='Start']")
+    start_btn.click()
+
+
+def validate_teacher_page(browser, q):
+    time.sleep(5)
+    assert "Blink Question" in browser.find_element_by_tag_name("h1").text
+    assert q.title in browser.find_element_by_tag_name("h2").text
+
+
+def validate_student_page(second_browser, q):
+    time.sleep(5)
+    assert "Blink" in second_browser.find_element_by_tag_name("h1").text
+    assert q.title in second_browser.find_element_by_tag_name("h2").text
+
+
+def test_blink_script(
+    browser, second_browser, assert_, realistic_questions, teacher
+):
+    browser.set_window_rect(0, 0, 800, 1000)
+    second_browser.set_window_rect(900, 0, 800, 1000)
+
     blink_url = "{}{}".format(
         browser.server_url,
         reverse("blink-waiting", args=(teacher.user.username,)),
     )
     second_browser.get(blink_url)
-    time.sleep(5)
+    accept_cookies(second_browser)
+    assert (
+        "Waiting for teacher"
+        in second_browser.find_element_by_tag_name("h2").text
+    )
 
     login(browser, teacher)
-    time.sleep(5)
+    accept_cookies(browser)
+    go_to_account(browser)
+    make_blink_script(browser, realistic_questions[:2])
+    start_blink_script(browser)
+    print(realistic_questions)
+    print(realistic_questions[0])
+    print(realistic_questions[1])
+    validate_teacher_page(browser, realistic_questions[0])
+    validate_student_page(second_browser, realistic_questions[0])
