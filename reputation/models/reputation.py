@@ -32,7 +32,7 @@ class Reputation(models.Model):
         Returns
         -------
         Optional[float]
-            Quality of the answer or None of no criteria present
+            Quality of the answer or None if no criteria present
         Either
             List[Dict[str, Any]]
                 If `criterion` is None, individual criteria under the format
@@ -80,15 +80,17 @@ class Reputation(models.Model):
         ValueError
             If this reputation doesn't correspond to any type of reputation
         """
-        for model in ReputationType.objects.values_list("type", flat=True):
-            if hasattr(self, model):
-                return getattr(self, model)
-        msg = (
-            "Reputation needs to have a OneToOne field with a model defined "
-            "as a ReputationType. See Teacher for an example."
-        )
-        logger.error(msg)
-        raise ValueError(msg)
+        try:
+            return getattr(self, self.reputation_type.model_name)
+        except AttributeError:
+            msg = (
+                "This reputation is associated with a "
+                "reputation type using the model {}".format(
+                    self.reputation_type.model_name
+                )
+            )
+            logger.error(msg)
+            raise ValueError(msg)
 
     @staticmethod
     def create(cls):

@@ -60,6 +60,10 @@ class Criterion(models.Model):
     class Meta:
         abstract = True
 
+    @staticmethod
+    def general_info():
+        raise NotImplementedError("This method has to be implemented.")
+
     def __iter__(self):
         """
         Any attribute specific to the criterion version  should

@@ -13,6 +13,15 @@ class NQuestionsCriterion(Criterion):
         max_length=32, default="n_questions", editable=False
     )
 
+    @staticmethod
+    def general_info():
+        return {
+            "name": "n_questions",
+            "full_name": "Number of questions",
+            "description": "Gives a score representing the number of "
+            "questions.",
+        }
+
     def evaluate(self, teacher):
         """
         Evaluates the `teacher` using the number of questions composed.
@@ -44,10 +53,5 @@ class NQuestionsCriterion(Criterion):
 
     def info(self):
         return super(NQuestionsCriterion, self).info(
-            {
-                "name": "n_questions",
-                "full_name": "Number of questions",
-                "description": "Gives a score representing the number of "
-                "questions.",
-            }
+            NQuestionsCriterion.general_info()
         )

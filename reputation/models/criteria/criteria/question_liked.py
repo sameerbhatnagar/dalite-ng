@@ -15,6 +15,16 @@ class QuestionLikedCriterion(Criterion):
     points_liked = models.IntegerField(default=1)
     points_used = models.IntegerField(default=2)
 
+    @staticmethod
+    def general_info():
+        return {
+            "name": "question_liked",
+            "full_name": "Question popularity",
+            "description": "Gives a score representing the number of times"
+            " the questions you have made are liked and used by other"
+            " teachers.",
+        }
+
     def _evaluate_question(self, question, teacher=None):
         """
         Evaluates the `question` using the number of teachers having liked it
@@ -121,11 +131,5 @@ class QuestionLikedCriterion(Criterion):
 
     def info(self):
         return super(QuestionLikedCriterion, self).info(
-            {
-                "name": "question_liked",
-                "full_name": "Question popularity",
-                "description": "Gives a score representing the number of times"
-                " the questions you have made are liked and used by other"
-                " teachers.",
-            }
+            QuestionLikedCriterion.general_info()
         )

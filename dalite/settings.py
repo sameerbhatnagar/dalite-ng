@@ -26,6 +26,7 @@ DEV_PORT = 8000  # port used during development
 # Application definition
 
 INSTALLED_APPS = (
+    "analytics",
     "reputation",
     "quality",
     "tos",
@@ -270,6 +271,18 @@ LOGGING = {
             "formatter": "complete",
             "stream": "ext://sys.stdout",
         },
+        "analytics_file_log": {
+            "level": "DEBUG" if DEBUG else "INFO",
+            "class": "logging.FileHandler",
+            "formatter": "complete",
+            "filename": os.path.join(BASE_DIR, "log", "analytics.log"),
+        },
+        "analytics_console_log": {
+            "level": "DEBUG" if DEBUG else "INFO",
+            "class": "logging.StreamHandler",
+            "formatter": "complete",
+            "stream": "ext://sys.stdout",
+        },
     },
     "loggers": {
         "django.request": {
@@ -334,6 +347,11 @@ LOGGING = {
         },
         "reputation": {
             "handlers": ["reputation_file_log", "reputation_console_log"],
+            "level": "DEBUG" if DEBUG else "INFO",
+            "propagate": True,
+        },
+        "analytics": {
+            "handlers": ["analytics_file_log", "analytics_console_log"],
             "level": "DEBUG" if DEBUG else "INFO",
             "propagate": True,
         },

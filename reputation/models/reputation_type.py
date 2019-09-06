@@ -12,6 +12,7 @@ from ..logger import logger
 
 class ReputationType(models.Model):
     type = models.CharField(max_length=32, unique=True)
+    model_name = models.CharField(max_length=32, default="")
 
     def __str__(self):
         return self.type
