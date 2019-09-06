@@ -138,7 +138,16 @@ def populate_answer_start_time_from_ltievent_logs_task(
     from .util import populate_answer_start_time_from_ltievent_logs
 
     populate_answer_start_time_from_ltievent_logs(day_of_logs, event_type)
-    
+
+
+@shared_task
+def answer_datetime_start_and_first_from_log_files():
+
+    from .util import load_timestamps_from_logs
+
+    load_timestamps_from_logs(["student_logA.log", ["studestudent_logB.log"]])
+
+
 @app.on_after_configure.connect
 def setup_periodic_tasks(sender, **kwargs):
     sender.add_periodic_task(
