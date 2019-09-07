@@ -7,8 +7,10 @@ from functional_tests.fixtures import *  # noqa
 from functional_tests.teacher.utils import accept_cookies, go_to_account, login
 
 
+TIME = 15
+
+
 def make_blink_script(browser, q):
-    print(q)
     browser.find_element_by_id("blink-section").click()
     browser.find_element_by_link_text("Add script").click()
 
@@ -31,9 +33,7 @@ def make_blink_script(browser, q):
     time.sleep(1)
     assert q[0].title in browser.find_element_by_id("search_results").text
 
-    card = browser.find_element_by_id(str(q[0].id))
-    add_btn = card.find_elements_by_xpath("//input[@value='add']")[0]
-    add_btn.click()
+    card = browser.find_element_by_id("add-{}".format(q[0].pk)).click()
 
     search = browser.find_element_by_id("search-bar")
     search.send_keys(q[1].title)
@@ -42,9 +42,7 @@ def make_blink_script(browser, q):
     time.sleep(1)
     assert q[1].title in browser.find_element_by_id("search_results").text
 
-    card = browser.find_element_by_id(str(q[1].id))
-    add_btn = card.find_elements_by_xpath("//input[@value='add']")[0]
-    add_btn.click()
+    card = browser.find_element_by_id("add-{}".format(q[1].pk)).click()
 
     go_to_account(browser)
 
@@ -53,20 +51,38 @@ def start_blink_script(browser):
     link = browser.find_element_by_class_name("blink")
     link.click()
 
+    input = browser.find_element_by_id("id_time_limit")
+    input.clear()
+    input.send_keys(TIME)
+
     start_btn = browser.find_element_by_xpath("//input[@value='Start']")
     start_btn.click()
 
 
 def validate_teacher_page(browser, q):
-    time.sleep(5)
+    time.sleep(2)
     assert "Blink Question" in browser.find_element_by_tag_name("h1").text
     assert q.title in browser.find_element_by_tag_name("h2").text
 
 
 def validate_student_page(second_browser, q):
-    time.sleep(5)
-    assert "Blink" in second_browser.find_element_by_tag_name("h1").text
+    time.sleep(2)
+    assert (
+        "Blink Question" in second_browser.find_element_by_tag_name("h1").text
+    )
     assert q.title in second_browser.find_element_by_tag_name("h2").text
+    assert len(second_browser.find_elements_by_class_name("mdc-radio")) > 0
+
+
+def answer_blink(second_browser, q, choice):
+    second_browser.find_elements_by_class_name("mdc-radio")[choice].click()
+    second_browser.find_element_by_id("submit-answer").click()
+
+    assert (
+        "Blink Question" in second_browser.find_element_by_tag_name("h1").text
+    )
+    assert q.title in second_browser.find_element_by_tag_name("h2").text
+    assert len(second_browser.find_elements_by_class_name("mdc-radio")) == 0
 
 
 def test_blink_script(
@@ -91,8 +107,33 @@ def test_blink_script(
     go_to_account(browser)
     make_blink_script(browser, realistic_questions[:2])
     start_blink_script(browser)
-    print(realistic_questions)
-    print(realistic_questions[0])
-    print(realistic_questions[1])
     validate_teacher_page(browser, realistic_questions[0])
     validate_student_page(second_browser, realistic_questions[0])
+
+    answer_blink(second_browser, realistic_questions[0], 0)
+    assert browser.find_element_by_id("round").text == "1"
+    assert browser.find_element_by_id("counter").text == "1"
+
+    browser.find_element_by_id("reset_button").click()
+    validate_teacher_page(browser, realistic_questions[0])
+    validate_student_page(second_browser, realistic_questions[0])
+
+    answer_blink(second_browser, realistic_questions[0], 1)
+    assert browser.find_element_by_id("round").text == "2"
+    assert browser.find_element_by_id("counter").text == "1"
+
+    browser.find_element_by_id("next_button").click()
+    validate_teacher_page(browser, realistic_questions[1])
+    validate_student_page(second_browser, realistic_questions[1])
+
+    answer_blink(second_browser, realistic_questions[1], 2)
+    assert browser.find_element_by_id("round").text == "1"
+    assert browser.find_element_by_id("counter").text == "1"
+
+    browser.find_element_by_id("next_button").click()
+    time.sleep(2)
+    assert (
+        "Waiting for teacher"
+        in second_browser.find_element_by_tag_name("h2").text
+    )
+    assert "My Account" in browser.find_element_by_tag_name("h1").text

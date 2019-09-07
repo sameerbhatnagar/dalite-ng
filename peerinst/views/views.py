@@ -2357,9 +2357,14 @@ class BlinkQuestionDetailView(DetailView):
                 r = BlinkRound.objects.get(
                     question=self.object, deactivate_time__isnull=True
                 )
-                elapsed_time = (timezone.now() - r.activate_time).seconds
-                time_left = max(self.object.time_limit - elapsed_time, 0)
-            except Exception:
+                elapsed_time = timezone.now() - r.activate_time
+                time_left = max(
+                    self.object.time_limit
+                    - elapsed_time.seconds
+                    - elapsed_time.microseconds / 1e6,
+                    0,
+                )
+            except Exception as e:
                 time_left = 0
 
             # Get latest vote, if any
