@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 """
 import os
 
-from security_headers.settings import *  # noqa
+from security_headers.defaults import *  # noqa
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 

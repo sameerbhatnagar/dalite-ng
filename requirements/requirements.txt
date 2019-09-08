@@ -7,7 +7,7 @@ django-cookie-law
 django-grappelli
 django-htmlmin
 django-password-validation
-django>1.11.22
+django>=1.11.24
 mysqlclient==1.3.14
 pillow
 pyjwt
@@ -15,7 +15,7 @@ pyjwt
 python-memcached==1.59
 pytz
 requests
-django-security-headers
+django-security-headers>=0.3
 packaging
 
 -e git+https://github.com/open-craft/ansible-sanity-checker@v0.0.2#egg=sanity_checker
