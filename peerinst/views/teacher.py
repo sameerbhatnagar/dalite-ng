@@ -89,6 +89,7 @@ def dashboard(req, teacher):
         "student_activity_data": student_activity_data,
         "student_activity_json": json.dumps(student_activity_json),
         "rationales": rationales,
+        "teacher": teacher,
     }
 
     return render(req, "peerinst/teacher/dashboard.html", context)
