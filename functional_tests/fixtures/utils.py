@@ -132,3 +132,6 @@ def browser(live_server):
     driver.close()
     if os.path.exists("geckodriver.log"):
         os.remove("geckodriver.log")
+
+
+second_browser = browser

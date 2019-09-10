@@ -7,9 +7,6 @@
 {% compress css %}
 <link href="{% static 'peerinst/css/search.min.css' %}" rel="stylesheet">
 {% endcompress %}
-{% compress js %}
-<script src="{% static 'peerinst/js/search.min.js' %}"></script>
-{% endcompress %}
 {% endblock %}
 
 {% block body %}
@@ -257,7 +254,7 @@
       </div>
     </div>
 
-    <div id="filters hidden">
+    <div id="filters" class="display-none">
       <h2 class='mdc-typography--display1  mdc-theme--secondary'>{% trans 'Filters' %}</h2>
 
       <div id="select-filters">
@@ -277,43 +274,45 @@
 
 {% block scripts %}
 {{ block.super }}
+{% compress js %}
+<script src="{% static 'peerinst/js/search.min.js' %}"></script>
+{% endcompress %}
+
 <script nonce="{{ request.csp_nonce }}">
-bundle.toggleImages();
-bundle.toggleAnswers();
+  bundle.toggleImages();
+  bundle.toggleAnswers();
 
-$.ajaxSetup({
-    beforeSend: function(xhr, settings) {
-        if (!bundle.csrfSafeMethod(settings.type) && !this.crossDomain) {
-            xhr.setRequestHeader("X-CSRFToken", bundle.getCsrfToken());
-        }
+  const limitSearch = document.querySelector('#limit-search');
+  bundle.iconToggle.MDCIconToggle.attachTo(limitSearch);
+
+  const filterBar = document.getElementById('filter-bar');
+  filterBar.oninput = function() {
+    bundle.search('.searchable', filterBar);
+  }
+
+  const input = document.getElementById('search-bar');
+  input.onchange = function() {
+    if (input.value != "") {
+      search.setupSearch();
+      console.info("Searching: "+input.value);
+      $('#search_results').load("{% url 'question-search' %}", "search_string="+input.value+"&type=blink&id={{ object.id|urlencode }}&limit_search="+limitSearch.checked, search.processResponse);
     }
-});
+  }
 
-var limitSearch = document.querySelector('#limit-search');
-bundle.iconToggle.MDCIconToggle.attachTo(limitSearch);
+  $.ajaxSetup({
+      beforeSend: function(xhr, settings) {
+          if (!bundle.csrfSafeMethod(settings.type) && !this.crossDomain) {
+              xhr.setRequestHeader("X-CSRFToken", bundle.getCsrfToken());
+          }
+      }
+  });
 
-var filterBar = document.getElementById('filter-bar');
-filterBar.oninput = function() {
-  bundle.search('.searchable', filterBar);
-}
-
-var input = document.getElementById('search-bar');
-input.onchange = function() {
-  if (input.value != "") {
+  function pageNav(page) {
     search.setupSearch();
     console.info("Searching: "+input.value);
-    $('#search_results').load("{% url 'question-search' %}", "search_string="+input.value+"&type=blink&id={{ object.id|urlencode }}&limit_search="+limitSearch.checked, search.processResponse);
+    $('#search_results').load("{% url 'question-search' %}?page="+page, "search_string="+input.value+"&type=blink&id={{ object.id|urlencode }}&limit_search="+limitSearch.checked, search.processResponse);
   }
-}
 
-function pageNav(page) {
-  search.setupSearch();
-  console.info("Searching: "+input.value);
-  $('#search_results').load("{% url 'question-search' %}?page="+page, "search_string="+input.value+"&type=blink&id={{ object.id|urlencode }}&limit_search="+limitSearch.checked, search.processResponse);
-}
-</script>
-
-<script nonce="{{ request.csp_nonce }}">
   window.addEventListener("load", function() {
     document.getElementById("reset-filters").addEventListener("click", () => {
       search.reset()

@@ -2357,9 +2357,14 @@ class BlinkQuestionDetailView(DetailView):
                 r = BlinkRound.objects.get(
                     question=self.object, deactivate_time__isnull=True
                 )
-                elapsed_time = (timezone.now() - r.activate_time).seconds
-                time_left = max(self.object.time_limit - elapsed_time, 0)
-            except Exception:
+                elapsed_time = timezone.now() - r.activate_time
+                time_left = max(
+                    self.object.time_limit
+                    - elapsed_time.seconds
+                    - elapsed_time.microseconds / 1e6,
+                    0,
+                )
+            except Exception as e:
                 time_left = 0
 
             # Get latest vote, if any
@@ -2731,23 +2736,21 @@ def blink_get_current_url(request, username):
     try:
         # Return url of current active blinkquestion, if any
         blinkquestion = teacher.blinkquestion_set.get(active=True)
-        return HttpResponse(
-            reverse("blink-question", kwargs={"pk": blinkquestion.pk})
-        )
+        url = reverse("blink-question", kwargs={"pk": blinkquestion.pk})
+        return JsonResponse({"action": url})
     except Exception:
         if not teacher.blinkassignment_set.filter(active=True).exists():
-            return HttpResponse("stop")
+            return JsonResponse({"action": "stop"})
         try:
             latest_round = BlinkRound.objects.filter(
                 question__in=teacher.blinkquestion_set.all()
             ).latest("activate_time")
-            return HttpResponse(
-                reverse(
-                    "blink-summary", kwargs={"pk": latest_round.question.pk}
-                )
+            url = reverse(
+                "blink-summary", kwargs={"pk": latest_round.question.pk}
             )
+            return JsonResponse({"action": url})
         except Exception:
-            return HttpResponse("stop")
+            return JsonResponse({"action": "stop"})
 
 
 def blink_count(request, pk):
