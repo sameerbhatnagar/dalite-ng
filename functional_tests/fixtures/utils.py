@@ -49,6 +49,7 @@ def browser(live_server):
 
     options = webdriver.ChromeOptions()
     options.add_experimental_option("w3c", False)
+    options.add_argument("auto-open-devtools-for-tabs")
 
     if hasattr(settings, "HEADLESS_TESTING") and settings.HEADLESS_TESTING:
         os.environ["MOZ_HEADLESS"] = "1"
@@ -135,3 +136,4 @@ def browser(live_server):
 
 
 second_browser = browser
+third_browser = browser
