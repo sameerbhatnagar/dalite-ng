@@ -234,24 +234,25 @@ def load_timestamps_from_logs(log_filename_list):
         problem_check_events = 0
         skipped_events = 0
         for line in open(fname, "r"):
-            log_event = json.loads(line)
+            try:
+                log_event = json.loads(line)
+            except ValueError:
+                continue
             if (
                 log_event["event_type"] == "problem_check"
                 and "rationales" in log_event["event"]
             ):
-                logger.info("skipping log event")
                 skipped_events += 1
                 continue
             if log_event["event_type"] == "save_problem_success":
                 # logs.append(log_event)
-                logger.info("skipping log event")
                 skipped_events += 1
                 # we are ignoring save_problem_success events,
                 # as they have already been handled
                 continue
             else:
                 answer_obj = get_answer_corresponding_to_ltievent_log(
-                    event_json=log_event["event"]
+                    event_json=log_event
                 )
                 event_type = log_event["event_type"]
                 if event_type == "problem_show":
@@ -275,11 +276,21 @@ def load_timestamps_from_logs(log_filename_list):
                         ):
                             setattr(answer_obj, field, timestamp)
                             answer_obj.save()
+                            logger.info(
+                                "parsing file {}-Answer {} -{} updated".format(
+                                    name, answer_obj, field
+                                )
+                            )
                         else:
                             pass
                     else:
                         setattr(answer_obj, field, timestamp)
                         answer_obj.save()
+                        logger.info(
+                            "parsing file {} - Answer {} - {} updated".format(
+                                name, answer_obj, field
+                            )
+                        )
 
                 else:
                     logger.info(
