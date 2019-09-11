@@ -17,6 +17,15 @@ class StudentRationaleEvaluationCriterion(Criterion):
     points_score_2 = models.IntegerField(default=1)
     points_score_3 = models.IntegerField(default=1)
 
+    @staticmethod
+    def general_info():
+        return {
+            "name": "student_rationale_evaluation",
+            "full_name": "Rationale evaluation",
+            "description": "Gives a score representing the evaluation of "
+            "your rationales by teachers.",
+        }
+
     def evaluate(self, student):
         """
         Evaluates the `student` using the evaluations given by teachers for
@@ -60,10 +69,5 @@ class StudentRationaleEvaluationCriterion(Criterion):
 
     def info(self):
         return super(StudentRationaleEvaluationCriterion, self).info(
-            {
-                "name": "student_rationale_evaluation",
-                "full_name": "Rationale evaluation",
-                "description": "Gives a score representing the evaluation of "
-                "your rationales by teachers.",
-            }
+            StudentRationaleEvaluationCriterion.general_info()
         )

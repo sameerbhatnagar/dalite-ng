@@ -11,6 +11,15 @@ from ..criterion import Criterion
 class NAnswersCriterion(Criterion):
     name = models.CharField(max_length=32, default="n_answers", editable=False)
 
+    @staticmethod
+    def general_info():
+        return {
+            "name": "n_answers",
+            "full_name": "Number of answers",
+            "description": "Gives a score representing the number of "
+            "answers.",
+        }
+
     def evaluate(self, instance):
         """
         Evaluates the `questions` using the number of answers to it.
@@ -44,10 +53,5 @@ class NAnswersCriterion(Criterion):
 
     def info(self):
         return super(NAnswersCriterion, self).info(
-            {
-                "name": "n_answers",
-                "full_name": "Number of answers",
-                "description": "Gives a score representing the number of "
-                "answers.",
-            }
+            NAnswersCriterion.general_info()
         )

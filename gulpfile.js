@@ -41,6 +41,10 @@ const styleBuilds = [
     app: "reputation",
     modules: ["header/teacher", "header/student"],
   },
+  {
+    app: "analytics",
+    modules: [],
+  },
 ];
 
 const scriptBuilds = [
@@ -69,6 +73,10 @@ const scriptBuilds = [
   {
     app: "reputation",
     modules: ["header/teacher", "header/student"],
+  },
+  {
+    app: "analytics",
+    modules: ["teachers"],
   },
 ];
 

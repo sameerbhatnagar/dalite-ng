@@ -22,6 +22,7 @@ __all__ = [
     "new_user",
     "question",
     "questions",
+    "staff",
     "student",
     "student_assignment",
     "student_assignments",
@@ -73,4 +74,4 @@ from .student import (
 )
 from .teacher import teacher, teachers
 from .tos import tos_student, tos_teacher
-from .user import admin, inactive_user, new_teacher, new_user, user
+from .user import admin, inactive_user, new_teacher, new_user, staff, user

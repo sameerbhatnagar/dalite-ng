@@ -13,6 +13,15 @@ class ConvincingRationalesCriterion(Criterion):
         max_length=32, default="convincing_rationales", editable=False
     )
 
+    @staticmethod
+    def general_info():
+        return {
+            "name": "convincing_rationales",
+            "full_name": "Writing convincing rationales",
+            "description": "Number of times the rationales you "
+            "wrote were chosen by other students as convincing.",
+        }
+
     def evaluate(self, instance):
         """
         Evaluates the how how often a students rationales are chosen by others.
@@ -45,10 +54,5 @@ class ConvincingRationalesCriterion(Criterion):
 
     def info(self):
         return super(ConvincingRationalesCriterion, self).info(
-            {
-                "name": "convincing_rationales",
-                "full_name": "Writing convincing rationales",
-                "description": "Number of times the rationales you "
-                "wrote were chosen by other students as convincing.",
-            }
+            ConvincingRationalesCriterion.general_info()
         )

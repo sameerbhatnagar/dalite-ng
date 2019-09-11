@@ -12,7 +12,7 @@
   </div>
 
   <div class="mdc-typography--caption">
-    #{{ g.id|safe }} {% if g.user %}{% trans 'by' %} {{ g.user.username|safe }}{% endif %}
+    #{{ g.id }} {% if g.user %}{% trans 'by' %} {{ g.user.username }}{% endif %}
   </div>
 
   <div class="mdc-typography--body1 question-text">
@@ -50,12 +50,12 @@
     <div class="mdc-card__action-buttons">
       <div class="mdc-typography--caption">
         <div>
-          {% trans 'Discipline' %}: {{ g.discipline|safe }}
+          {% trans 'Discipline' %}: {{ g.discipline|title }}
         </div>
         <div>
           {% trans 'Categories' %}:
           {% for c in g.category.all %}
-          {{ c.title|safe }}{% if not forloop.last %}, {% endif %}
+          {{ c.title|title }}{% if not forloop.last %}, {% endif %}
           {% empty %}
           {% trans 'Uncategorized' %}
           {% endfor %}
