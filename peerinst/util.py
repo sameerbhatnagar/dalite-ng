@@ -24,6 +24,7 @@ from django.db.models import (
 from django.utils.safestring import mark_safe
 
 logger = logging.getLogger("peerinst_console_log")
+logger_scheduled = logging.getLogger("peerinst-scheduled")
 
 
 def get_object_or_none(model_class, *args, **kwargs):
@@ -194,7 +195,7 @@ def load_log_archive(json_log_archive):
     return
 
 
-def load_timestamps_from_logs(log_filename_list):
+def load_timestamps_from_logs(log_filename):
     """
     function to parse log files and add timestamps to previous records in
     Answer model with newly added time field
@@ -212,8 +213,6 @@ def load_timestamps_from_logs(log_filename_list):
     from peerinst.models import Answer
     from django.conf import settings
 
-    logger = logging.getLogger("peerinst-scheduled")
-
     # need to overwrite all values of answer.datetime_start
     answer_objects_updated = Answer.objects.filter(
         datetime_start__isnull=False
@@ -221,88 +220,95 @@ def load_timestamps_from_logs(log_filename_list):
     Answer.objects.filter(datetime_start__isnull=False).update(
         datetime_start=None
     )
-    logger.info(
+    logger_scheduled.info(
         "{} answer objects with datetime_start deleted".format(
             answer_objects_updated
         )
     )
 
     # load logs
-    for name in log_filename_list:
-        fname = os.path.join(settings.BASE_DIR, "log", name)
-        problem_show_events = 0
-        problem_check_events = 0
-        skipped_events = 0
-        for line in open(fname, "r"):
-            try:
-                log_event = json.loads(line)
-            except ValueError:
-                continue
-            if (
-                log_event["event_type"] == "problem_check"
-                and "rationales" in log_event["event"]
-            ):
-                skipped_events += 1
-                continue
-            if log_event["event_type"] == "save_problem_success":
-                # logs.append(log_event)
-                skipped_events += 1
-                # we are ignoring save_problem_success events,
-                # as they have already been handled
-                continue
-            else:
-                answer_obj = get_answer_corresponding_to_ltievent_log(
-                    event_json=log_event
-                )
-                event_type = log_event["event_type"]
-                if event_type == "problem_show":
-                    field = "datetime_start"
-                    problem_show_events += 1
-                elif event_type == "problem_check":
-                    field = "datetime_first"
-                    problem_check_events += 1
+    fname = os.path.join(settings.BASE_DIR, "log", log_filename)
+    problem_show_events = 0
+    problem_check_events = 0
+    skipped_events = 0
+    for line in open(fname, "r"):
+        try:
+            log_event = json.loads(line)
+        except ValueError:
+            continue
+        if (
+            log_event["event_type"] == "problem_check"
+            and "rationales" in log_event["event"]
+        ):
+            skipped_events += 1
+            continue
+        elif log_event["event_type"] == "save_problem_success":
+            # logs.append(log_event)
+            skipped_events += 1
+            # we are ignoring save_problem_success events,
+            # as they have already been handled
+            continue
+        else:
+            answer_obj = get_answer_corresponding_to_ltievent_log(
+                event_json=log_event
+            )
+            event_type = log_event["event_type"]
+            if event_type == "problem_show":
+                field = "datetime_start"
+                problem_show_events += 1
+            elif event_type == "problem_check":
+                field = "datetime_first"
+                problem_check_events += 1
 
-                timestamp = timezone.make_aware(
-                    dateparse.parse_datetime(log_event["time"])
-                )
+            timestamp = timezone.make_aware(
+                dateparse.parse_datetime(log_event["time"])
+            )
 
-                if answer_obj:
-                    # keep the latest time at which student accessed
-                    # problem start page
-                    if getattr(answer_obj, field):
-                        if (
-                            getattr(answer_obj, field) < timestamp
-                            and event_type == "problem_show"
-                        ):
-                            setattr(answer_obj, field, timestamp)
-                            answer_obj.save()
-                            logger.info(
-                                "parsing file {}-Answer {} -{} updated".format(
-                                    name, answer_obj, field
-                                )
-                            )
-                        else:
-                            pass
-                    else:
+            if answer_obj:
+                # keep the latest time at which student accessed
+                # problem start page,
+                # but earliest time student access peer rationales
+                if getattr(answer_obj, field):
+                    if (
+                        getattr(answer_obj, field) < timestamp
+                        and event_type == "problem_show"
+                    ) or (
+                        getattr(answer_obj, field) > timestamp
+                        and event_type == "problem_check"
+                    ):
                         setattr(answer_obj, field, timestamp)
                         answer_obj.save()
-                        logger.info(
-                            "parsing file {} - Answer {} - {} updated".format(
-                                name, answer_obj, field
+                        logger_scheduled.info(
+                            "parsing file {}-Answer {} -{} updated".format(
+                                log_filename, answer_obj, field
                             )
                         )
-
+                    else:
+                        pass
                 else:
-                    logger.info(
-                        "Not found : ",
+                    setattr(answer_obj, field, timestamp)
+                    answer_obj.save()
+                    logger_scheduled.info(
+                        "parsing file {} - Answer {} - {} updated".format(
+                            log_filename, answer_obj, field
+                        )
+                    )
+
+            else:
+                logger_scheduled.info(
+                    "Answer Not found : {}-{}-{}".format(
                         log_event["username"],
                         log_event["event"]["question_id"],
                         log_event["event"]["assignment_id"],
                     )
-
-    logger.info("{} problem_show log events".format(problem_show_events))
-    logger.info("{} problem_check log events".format(problem_check_events))
-    logger.info("{} skipped log events".format(skipped_events))
+                )
+    logger_scheduled.info(
+        "{} problem_show log events".format(problem_show_events)
+    )
+    logger_scheduled.info(
+        "{} problem_check log events".format(problem_check_events)
+    )
+    logger_scheduled.info("{} skipped log events".format(skipped_events))
     return
 
 

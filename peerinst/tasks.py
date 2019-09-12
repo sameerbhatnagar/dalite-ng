@@ -141,11 +141,11 @@ def populate_answer_start_time_from_ltievent_logs_task(
 
 
 @shared_task
-def answer_datetime_start_and_first_from_log_files():
+def answer_datetime_start_and_first_from_log_files(log_filename):
 
     from .util import load_timestamps_from_logs
 
-    load_timestamps_from_logs(["student_logA.log", "student_logB.log"])
+    load_timestamps_from_logs(log_filename)
 
 
 @app.on_after_configure.connect
