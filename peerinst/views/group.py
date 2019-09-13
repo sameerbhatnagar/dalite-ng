@@ -193,6 +193,11 @@ def group_assignment_page(req, assignment_hash, teacher, group, assignment):
                 "translations": {
                     "distribute": ugettext("Distribute"),
                     "distributed": ugettext("Distributed"),
+                    "distribution_warning": ugettext(
+                        "Distributing the assignment will send an email to "
+                        "all students in the group with a link to the "
+                        "assignment."
+                    ),
                 },
             }
         ),

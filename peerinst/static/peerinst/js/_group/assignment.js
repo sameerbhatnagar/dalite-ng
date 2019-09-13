@@ -1,7 +1,8 @@
 import { initStudentProgress } from "./student_progress.js";
-import { formatDatetime } from "../utils.js";
-import { buildReq } from "../ajax.js";
+
 import { editField } from "./common.js";
+import { clear, formatDatetime } from "../utils.js";
+import { buildReq } from "../ajax.js";
 
 /*********/
 /* model */
@@ -26,6 +27,7 @@ function initModel(data) {
     translations: {
       distribute: data.translations.distribute,
       distributed: data.translations.distributed,
+      distributionWarning: data.translations.distribution_warning,
     },
   };
 }
@@ -123,6 +125,7 @@ function view() {
 
 function distributedView() {
   const span = document.querySelector("#assignment-distribution");
+  clear(span);
   if (model.assignment.distributionDate) {
     span.textContent = model.translations.distributed;
     const datetimeSpan = document.createElement("span");
@@ -136,6 +139,10 @@ function distributedView() {
     button.classList.add("mdc-button", "mdc-button--raised");
     button.textContent = model.translations.distribute;
     span.append(button);
+    const warning = document.createElement("span");
+    warning.classList.add("assignment-distribution__warning");
+    warning.textContent = model.translations.distributionWarning;
+    span.append(warning);
   }
 }
 
