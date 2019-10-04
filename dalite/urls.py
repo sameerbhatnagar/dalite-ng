@@ -19,6 +19,7 @@ urlpatterns = [url(r"^lti/", include("django_lti_tool_provider.urls"))]
 
 # Apps
 urlpatterns += i18n_patterns(
+    url(r"^dalite_lti/", include("dalite_lti.urls", namespace="dalite_lti")),
     url(r"^analytics/", include("analytics.urls", namespace="analytics")),
     url(r"^reputation/", include("reputation.urls", namespace="reputation")),
     url(r"^quality/", include("quality.urls", namespace="quality")),

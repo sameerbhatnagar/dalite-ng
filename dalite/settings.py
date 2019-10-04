@@ -26,6 +26,7 @@ DEV_PORT = 8000  # port used during development
 # Application definition
 
 INSTALLED_APPS = (
+    "dalite_lti",
     "analytics",
     "reputation",
     "quality",
