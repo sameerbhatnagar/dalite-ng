@@ -10,17 +10,19 @@ def index(request):
     consumer = ToolConsumer(
         consumer_key=settings.LTI_CLIENT_KEY,
         consumer_secret=settings.LTI_CLIENT_SECRET,
-        launch_url="http://127.0.0.1:8000/lti/",
+        launch_url=settings.LTI_LAUNCH_URL,
         params={
-            "lti_message_type": "basic-lti-launch-request",
-            "lti_version": "1.0",
-            "resource_link_id": "http://127.0.0.1:8000/lti/",
-            "custom_assignment_id": a.identifier,
-            "custom_question_id": str(q.pk),
-            "user_id": "sameer",
-            "lis_outcome_service_url": "http://127.0.0.1:8000",
             "context_id": "test",
             "context_title": "test",
+            "custom_assignment_id": a.identifier,
+            "custom_question_id": str(q.pk),
+            "lis_outcome_service_url": settings.LTI_LAUNCH_URL,
+            "lis_result_sourcedid": settings.LTI_LAUNCH_URL,
+            "lti_message_type": "basic-lti-launch-request",
+            "lti_version": "1.0",
+            "resource_link_id": settings.LTI_LAUNCH_URL,
+            "roles": "Learner",
+            "user_id": "test_user123",
         },
     )
 
