@@ -16,6 +16,7 @@ def test_oauth_signature(client, settings):
     settings.LTI_CLIENT_SECRET = "1234"  # The consumer secret
 
     oauth_parameters = {
+        "lti_version": "1.0",
         "user_id": "test",
         "custom_assignment_id": "test-assignment",
         "custom_question_id": "1",
@@ -37,6 +38,8 @@ def test_oauth_signature(client, settings):
         + oauth_parameters["custom_assignment_id"]
         + "%26custom_question_id%3D"
         + oauth_parameters["custom_question_id"]
+        + "%26lti_version%3D"
+        + oauth_parameters["lti_version"]
         + "%26oauth_consumer_key%3D"
         + oauth_parameters["oauth_consumer_key"]
         + "%26oauth_nonce%3Dnonce%26oauth_signature_method%3DHMAC-SHA1%26oauth_timestamp%3D"  # noqa E501
