@@ -178,7 +178,11 @@ def landing_page(request):
     return TemplateResponse(
         request,
         "registration/landing_page.html",
-        context={"disciplines": disciplines_array, "json": disciplines_json},
+        context={
+            "disciplines": disciplines_array,
+            "json": disciplines_json,
+            "url": request.build_absolute_uri(),
+        },
     )
 
 
