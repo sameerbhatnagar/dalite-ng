@@ -108,6 +108,12 @@ LOGGER_teacher_activity = logging.getLogger("teacher_activity")
 @require_safe
 def landing_page(request):
 
+    logger = logging.getLogger("peerinst-views")
+    logger.info(request.build_absolute_uri())
+    logger.info(request.is_secure())
+    logger.info(settings.SECURE_PROXY_SSL_HEADER)
+    logger.info(request.META)
+
     disciplines = {}
 
     disciplines[str("All")] = {}
