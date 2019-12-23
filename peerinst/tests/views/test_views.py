@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 import json
 import random
@@ -116,9 +116,7 @@ class QuestionViewTestCase(TestCase):
                 assignment_id=self.assignment.pk, question_id=question.pk
             ),
         )
-        self.custom_key = (
-            unicode(self.assignment.pk) + ":" + unicode(question.pk)
-        )
+        self.custom_key = str(self.assignment.pk) + ":" + str(question.pk)
         self.log_in_with_lti()
 
     def log_in_with_scoring_disabled(self):
@@ -152,8 +150,8 @@ class QuestionViewTestCase(TestCase):
             lti_params = self.LTI_PARAMS.copy()
         lti_params["lis_person_sourcedid"] = user.username
         lti_params["lis_person_contact_email_primary"] = user.email
-        lti_params["custom_assignment_id"] = unicode(self.assignment.pk)
-        lti_params["custom_question_id"] = unicode(self.question.pk)
+        lti_params["custom_assignment_id"] = str(self.assignment.pk)
+        lti_params["custom_question_id"] = str(self.question.pk)
         LtiUserData.store_lti_parameters(
             user, LTIView.authentication_manager, lti_params
         )

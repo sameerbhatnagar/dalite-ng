@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 import json
 
@@ -18,10 +18,12 @@ class RejectedAnswer(models.Model):
     )
 
     def __iter__(self):
-        return {
-            "rationale": self.rationale,
-            "reasons": json.loads(self.reasons),
-        }.iteritems()
+        return iter(
+            {
+                "rationale": self.rationale,
+                "reasons": json.loads(self.reasons),
+            }.items()
+        )
 
     @staticmethod
     def add(quality, rationale, reasons):

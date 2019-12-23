@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 import hashlib
 import itertools
@@ -351,7 +351,7 @@ class Question(models.Model):
         if self.answer_style == Question.ALPHA:
             return iter(string.ascii_uppercase)
         elif self.answer_style == Question.NUMERIC:
-            return itertools.imap(str, itertools.count(1))
+            return map(str, itertools.count(1))
         raise ValueError(
             "The field Question.answer_style has an invalid value."
         )
@@ -496,7 +496,7 @@ class Question(models.Model):
         ]
         return [
             {"answer_label": key, "frequency": value}
-            for key, value in frequency_dict.items()
+            for key, value in list(frequency_dict.items())
         ]
 
     class Meta:

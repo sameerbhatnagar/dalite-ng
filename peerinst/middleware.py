@@ -1,6 +1,6 @@
 from django.contrib.contenttypes.models import ContentType
 
-from models import TeacherNotification
+from .models import TeacherNotification
 
 
 class NotificationMiddleware(object):

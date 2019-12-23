@@ -2,17 +2,17 @@ exclude: "/tinymce/*"
 fail_fast: false
 repos:
   - repo: https://github.com/ambv/black
-    rev: stable
+    rev: 19.10b0
     hooks:
       - id: black
         exclude: "^.*/migrations/.*.py$"
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v2.0.0
+    rev: v2.4.0
     hooks:
       - id: flake8
         exclude: "^.*/migrations/.*.py$"
   - repo: https://github.com/pre-commit/mirrors-eslint
-    rev: v5.9.0
+    rev: v6.8.0
     hooks:
       - id: eslint
         additional_dependencies:
@@ -22,7 +22,7 @@ repos:
           - rollup-plugin-eslint
         exclude: "^.*\\.min\\..*$"
   - repo: https://github.com/prettier/prettier
-    rev: 1.15.2
+    rev: 1.19.1
     hooks:
       - id: prettier
         files: \.js$

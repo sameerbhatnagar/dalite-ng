@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 from django.contrib.auth.models import User
 from django.db import models
@@ -109,7 +109,7 @@ class Answer(models.Model):
     second_answer_choice_label.admin_order_field = "second_answer_choice"
 
     def __unicode__(self):
-        return unicode(
+        return str(
             _("{} for question {}").format(self.id, self.question.title)
         )
 

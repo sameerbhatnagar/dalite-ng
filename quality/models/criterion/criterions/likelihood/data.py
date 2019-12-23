@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 import codecs
 import io
@@ -28,9 +28,9 @@ def read_data(language, urls, left_to_right):
         data = {
             gram: {
                 "".join(g): val.get("".join(g), 1e-16)
-                for g in product(*["".join(data[1].keys())] * gram)
+                for g in product(*["".join(list(data[1].keys()))] * gram)
             }
-            for gram, val in data.items()
+            for gram, val in list(data.items())
         }
         data = {"n_grams": data, "left_to_right": left_to_right}
         with open(pkl_path, "wb") as f:
@@ -75,13 +75,13 @@ def download_gram_file(language, gram, url, path):
         data = {line[0].lower(): float(line[1]) for line in lines}
 
     total = sum(data.values())
-    data = {key: val / total for key, val in data.items()}
+    data = {key: val / total for key, val in list(data.items())}
 
     if not os.path.exists(os.path.dirname(path)):
         os.makedirs(os.path.dirname(path))
     with codecs.open(path, "w", "utf8") as f:
         f.write("n-gram\tfrequency\n")
-        for n_gram, frequency in data.items():
+        for n_gram, frequency in list(data.items()):
             f.write("{}\t{}\n".format(n_gram, frequency))
 
     return data

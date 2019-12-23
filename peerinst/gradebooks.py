@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 import csv
 
@@ -119,9 +119,11 @@ def compute_gradebook(group_pk, assignment_pk=None):
                     "assignments": [
                         {
                             key: val
-                            for key, val in _assignment.studentassignment_set.get(  # noqa
-                                student=membership.student
-                            ).results.items()
+                            for key, val in list(
+                                _assignment.studentassignment_set.get(  # noqa
+                                    student=membership.student
+                                ).results.items()
+                            )
                             if key in ("n_completed", "n_correct")
                         }
                         if _assignment.studentassignment_set.filter(

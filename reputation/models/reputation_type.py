@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 from itertools import chain
 
 from django.db import models
 
-from criterion_list import get_criterion
+from .criterion_list import get_criterion
 
 from ..logger import logger
 
@@ -164,7 +164,9 @@ class ReputationType(models.Model):
             reputations = [
                 dict(
                     chain(
-                        self._calculate_points(criterion_, model).items(),
+                        list(
+                            self._calculate_points(criterion_, model).items()
+                        ),
                         criterion_.__iter__(),
                     )
                 )
@@ -180,7 +182,7 @@ class ReputationType(models.Model):
                         if key == "description"
                         else val
                     )
-                    for key, val in reputation.items()
+                    for key, val in list(reputation.items())
                 }
                 for reputation in reputations
             ]
@@ -201,7 +203,7 @@ class ReputationType(models.Model):
 
             reputations = dict(
                 chain(
-                    self._calculate_points(criterion_, model).items(),
+                    list(self._calculate_points(criterion_, model).items()),
                     criterion_.__iter__(),
                 )
             )
@@ -211,7 +213,7 @@ class ReputationType(models.Model):
                     if key == "description"
                     else val
                 )
-                for key, val in reputations.items()
+                for key, val in list(reputations.items())
             }
             reputation = reputations["reputation"]
 

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 import json
 import logging
@@ -293,7 +293,7 @@ def index_page(req):
             }
             for assignment in assignments
         ]
-        for group, assignments in assignments.items()
+        for group, assignments in list(assignments.items())
     }
 
     if not Consent.objects.filter(

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 import re
 from datetime import datetime
@@ -117,15 +117,15 @@ class ReviewAnswerForm(forms.Form):
             answer_choices.append((choice, label))
             rationale_choice_fields.append(self[field_name])
         self.fields["second_answer_choice"].choices = answer_choices
-        self.rationale_groups = zip(
-            self["second_answer_choice"], rationale_choice_fields
+        self.rationale_groups = list(
+            zip(self["second_answer_choice"], rationale_choice_fields)
         )
 
     def clean(self):
         cleaned_data = forms.Form.clean(self)
         rationale_choices = [
             value
-            for key, value in cleaned_data.iteritems()
+            for key, value in cleaned_data.items()
             if key.startswith(self.RATIONALE_CHOICE)
         ]
         if sum(map(bool, rationale_choices)) != 1:

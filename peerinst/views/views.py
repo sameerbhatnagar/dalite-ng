@@ -1,12 +1,11 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 import base64
 import json
 import logging
 import random
 import re
-import urllib
+import urllib.request
+import urllib.parse
+import urllib.error
 from datetime import datetime
 
 import pytz
@@ -1325,7 +1324,7 @@ class QuestionReviewView(QuestionReviewBaseView):
             rationale_algorithm=dict(
                 name=self.question.rationale_selection_algorithm,
                 version=self.choose_rationales.version,
-                description=unicode(self.choose_rationales.description),
+                description=str(self.choose_rationales.description),
             ),
             rationales=[
                 {"id": id, "text": rationale}
@@ -1394,7 +1393,7 @@ class QuestionReviewView(QuestionReviewBaseView):
         rationale_votes = self.stage_data.get("rationale_votes")
         if rationale_votes is None:
             return
-        for rationale_id, vote in rationale_votes.iteritems():
+        for rationale_id, vote in rationale_votes.items():
             try:
                 rationale = models.Answer.objects.get(id=rationale_id)
             except models.Answer.DoesNotExist:
@@ -1418,7 +1417,7 @@ class QuestionReviewView(QuestionReviewBaseView):
         fake_attributions = self.stage_data.get("fake_attributions")
         if fake_attributions is None:
             return
-        fake_username, fake_country = fake_attributions[unicode(answer.id)]
+        fake_username, fake_country = fake_attributions[str(answer.id)]
         models.AnswerVote(
             answer=answer,
             assignment=self.assignment,
@@ -1670,7 +1669,7 @@ def question(request, assignment_id, question_id):
     if question.type == "RO":
         question = get_object_or_404(RationaleOnlyQuestion, pk=question_id)
 
-    custom_key = unicode(assignment.pk) + ":" + unicode(question.pk)
+    custom_key = str(assignment.pk) + ":" + str(question.pk)
     stage_data = SessionStageData(request.session, custom_key)
     user_token = request.user.username
     view_data = dict(
@@ -2696,7 +2695,7 @@ def question_search(request):
 
         query = []
 
-        for term in query_meta.keys():
+        for term in list(query_meta.keys()):
             query_dict = {}
             query_dict["term"] = term
             query_dict["questions"] = [
@@ -3006,9 +3005,9 @@ def network_data(request, assignment_id):
 
     # serialize
     links_array = []
-    for source, targets in links.items():
+    for source, targets in list(links.items()):
         d = {}
-        for t in targets.keys():
+        for t in list(targets.keys()):
             d["source"] = source
             d["target"] = t
             d["value"] = targets[t]
@@ -3047,7 +3046,7 @@ def report(request, assignment_id="", group_id=""):
         student_groups = request.GET.getlist("student_groups")
     elif group_id:
         student_groups = [
-            StudentGroup.objects.get(name=urllib.unquote(group_id)).pk
+            StudentGroup.objects.get(name=urllib.parse.unquote(group_id)).pk
         ]
     else:
         student_groups = teacher.current_groups.all().values_list("pk")
@@ -3055,7 +3054,7 @@ def report(request, assignment_id="", group_id=""):
     if request.GET.getlist("assignments"):
         assignment_list = request.GET.getlist("assignments")
     elif assignment_id:
-        assignment_list = [urllib.unquote(assignment_id)]
+        assignment_list = [urllib.parse.unquote(assignment_id)]
     else:
         assignment_list = teacher.assignments.all().values_list(
             "identifier", flat=True
@@ -3124,7 +3123,7 @@ def report_assignment_aggregates(request):
                 perpage=50,
                 student_groups=student_groups,
             )
-            for trx, rationale_list in output.items():
+            for trx, rationale_list in list(output.items()):
                 d_q_i = {}
                 d_q_i["transition_type"] = trx
                 d_q_i["rationales"] = []

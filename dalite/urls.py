@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 from django.conf import settings
 from django.conf.urls import include, url
@@ -9,7 +9,7 @@ from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.clickjacking import xframe_options_sameorigin
 
-import views
+from . import views
 from peerinst import views as peerinst_views
 
 admin.site.site_header = admin.site.site_title = _("Dalite NG administration")

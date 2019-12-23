@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 import json
 import logging
@@ -333,7 +333,7 @@ def evaluate_rationale(req, teacher):
 
     score = int(score)
 
-    if score not in range(0, 4):
+    if score not in list(range(0, 4)):
         return response_400(
             req,
             msg=translate("The score wasn't in a valid range."),

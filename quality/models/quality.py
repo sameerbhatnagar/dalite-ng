@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 import hashlib
 import json
@@ -37,13 +37,15 @@ class Quality(models.Model):
 
     def __iter__(self):
         return chain(
-            {
-                "pk": self.pk,
-                "quality_type": self.quality_type.type,
-                "quality_use_type": self.quality_use_type.type,
-            }.iteritems(),
+            iter(
+                {
+                    "pk": self.pk,
+                    "quality_type": self.quality_type.type,
+                    "quality_use_type": self.quality_use_type.type,
+                }.items()
+            ),
             *(
-                dict(criterion).iteritems()
+                iter(dict(criterion).items())
                 for criterion in self.criterions.all()
             )
         )
@@ -95,13 +97,15 @@ class Quality(models.Model):
             qualities = [
                 dict(
                     chain(
-                        dict(c["criterion"]).iteritems(),
-                        {
-                            "weight": c["weight"],
-                            "quality": c["criterion"].evaluate(
-                                answer, c["rules"]
-                            ),
-                        }.iteritems(),
+                        iter(dict(c["criterion"]).items()),
+                        iter(
+                            {
+                                "weight": c["weight"],
+                                "quality": c["criterion"].evaluate(
+                                    answer, c["rules"]
+                                ),
+                            }.items()
+                        ),
                     )
                 )
                 for c in criterions_
@@ -148,8 +152,8 @@ class Quality(models.Model):
             [
                 dict(
                     chain(
-                        dict(c["criterion"]).iteritems(),
-                        {"weight": c["weight"], "quality": q}.iteritems(),
+                        iter(dict(c["criterion"]).items()),
+                        iter({"weight": c["weight"], "quality": q}.items()),
                     )
                 )
                 for c, q in zip(criterions_, quality)
@@ -290,7 +294,7 @@ class Quality(models.Model):
     def available(self):
         return [
             criterion["criterion"].info()
-            for criterion in criterions.values()
+            for criterion in list(criterions.values())
             if criterion["criterion"]
             .objects.filter(
                 for_quality_types=self.quality_type,
@@ -317,12 +321,12 @@ class UsesCriterion(models.Model):
         data.update(
             {
                 key: value
-                for key, value in dict(rules).items()
+                for key, value in list(dict(rules).items())
                 if key in criterion.rules or key == "threshold"
             }
         )
         data.update({"weight": self.weight})
-        return ((field, value) for field, value in data.items())
+        return ((field, value) for field, value in list(data.items()))
 
     def __str__(self):
         return "{} for quality {}".format(self.name, str(self.quality))
@@ -336,7 +340,7 @@ class QualityCache(models.Model):
 
     @classmethod
     def get(cls, quality, answer):
-        if isinstance(answer, basestring):
+        if isinstance(answer, str):
             answer_pk = None
             rationale = answer
         else:
@@ -351,7 +355,7 @@ class QualityCache(models.Model):
                             version=c.version
                         )
                     ),
-                    {"rules": c.rules, "weight": c.weight}.items(),
+                    list({"rules": c.rules, "weight": c.weight}.items()),
                 )
             )
             for c in quality.criterions.all()
@@ -369,7 +373,7 @@ class QualityCache(models.Model):
 
     @classmethod
     def cache(cls, quality_instance, answer, quality, qualities):
-        if isinstance(answer, basestring):
+        if isinstance(answer, str):
             answer_pk = None
             rationale = answer
         else:
@@ -384,7 +388,7 @@ class QualityCache(models.Model):
                             version=c.version
                         )
                     ),
-                    {"rules": c.rules, "weight": c.weight}.items(),
+                    list({"rules": c.rules, "weight": c.weight}.items()),
                 )
             )
             for c in quality_instance.criterions.all()

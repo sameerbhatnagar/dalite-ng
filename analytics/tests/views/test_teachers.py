@@ -89,7 +89,7 @@ def test_get_teacher_information(
     data = json.loads(resp.content)
     assert len(data) == 3
     assert data["username"] == teacher.user.username
-    assert isinstance(data["last_login"], basestring)
+    assert isinstance(data["last_login"], str)
     for criterion in data["reputations"]:
         assert criterion["name"] in [c.name for c in criteria]
         assert "reputation" in criterion

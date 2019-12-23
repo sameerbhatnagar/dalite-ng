@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import division, unicode_literals
+
 
 import datetime
 import itertools
@@ -44,7 +44,7 @@ def roundrobin(iterables):
     # Recipe taken from the itertools documentation.
     iterables = list(iterables)
     pending = len(iterables)
-    nexts = itertools.cycle(iter(it).next for it in iterables)
+    nexts = itertools.cycle(iter(it).__next__ for it in iterables)
     while pending:
         try:
             for next in nexts:
@@ -170,7 +170,7 @@ def load_log_archive(json_log_archive):
     new_students = 0
     new_groups = 0
 
-    for pair in test.items():
+    for pair in list(test.items()):
         user, created_user = User.objects.get_or_create(username=pair[0])
         if created_user:
             user.save()
@@ -188,8 +188,8 @@ def load_log_archive(json_log_archive):
             student.groups.add(group)
             student.save()
 
-    print("{} new students loaded into db".format(new_students))
-    print("{} new groups loaded into db".format(new_groups))
+    print(("{} new students loaded into db".format(new_students)))
+    print(("{} new groups loaded into db".format(new_groups)))
 
     return
 
@@ -220,7 +220,7 @@ def load_timestamps_from_logs(log_filename_list):
             log_event = json.loads(line)
             if log_event["event_type"] == "save_problem_success":
                 logs.append(log_event)
-    print("{} save_problem_success log events".format(len(logs)))
+    print(("{} save_problem_success log events".format(len(logs))))
 
     # get records that don't have a timestamp
     answer_qs = Answer.objects.filter(time__isnull=True)
@@ -229,8 +229,8 @@ def load_timestamps_from_logs(log_filename_list):
     records_not_in_logs = 0
 
     # iterate through each record, find its log entry, and save the timestamp
-    print("{} records to parse".format(len(answer_qs)))
-    print("start time: {}".format(timezone.now()))
+    print(("{} records to parse".format(len(answer_qs))))
+    print(("start time: {}".format(timezone.now())))
     records_parsed = 0
     for a in answer_qs:
         for log in logs:
@@ -249,19 +249,23 @@ def load_timestamps_from_logs(log_filename_list):
             records_not_in_logs += 1
         records_parsed += 1
         if records_parsed % 1000 == 0:
-            print("{} db records parsed".format(records_parsed))
-            print("{} db records updated".format(records_updated))
-            print("time: {}".format(timezone.now()))
+            print(("{} db records parsed".format(records_parsed)))
+            print(("{} db records updated".format(records_updated)))
+            print(("time: {}".format(timezone.now())))
 
-    print("End time: {}".format(timezone.now()))
+    print(("End time: {}".format(timezone.now())))
     print(
-        "{} total answer table records in db updated with time field from logs".format(  # noqa
-            records_updated
+        (
+            "{} total answer table records in db updated with time field from logs".format(  # noqa
+                records_updated
+            )
         )
     )
     print(
-        "{} total answer table records in db not found in logs; likely seed rationales from teacher backend".format(  # noqa
-            records_updated
+        (
+            "{} total answer table records in db not found in logs; likely seed rationales from teacher backend".format(  # noqa
+                records_updated
+            )
         )
     )
     return
@@ -309,10 +313,10 @@ def rename_groups():
         try:
             if id_title_dict[g.name]:
                 print("** adding title **")
-                print(g.name)
+                print((g.name))
                 g.title = id_title_dict[g.name]
                 g.save()
-                print(g.title)
+                print((g.title))
         except KeyError as e:
             print(e)
             pass
@@ -763,7 +767,7 @@ def report_data_by_assignment(assignment_list, student_groups, teacher):
 
             d_a["questions"].append(d_q)
             d_a["transitions"] = []
-            for name, count in student_gradebook_transitions.items():
+            for name, count in list(student_gradebook_transitions.items()):
                 d_t = {}
                 d_t["transition_type"] = name
                 d_t["count"] = count
@@ -837,7 +841,7 @@ def report_data_by_student(assignment_list, student_groups):
     )
 
     # aggregate results for each student
-    for question, student_entries in student_transitions_by_q.items():
+    for question, student_entries in list(student_transitions_by_q.items()):
         for student_entry in student_entries:
 
             student_obj = Student.objects.get(
@@ -856,7 +860,7 @@ def report_data_by_student(assignment_list, student_groups):
 
     # dict from just above that serializes into array for template
     gradebook_student = []
-    for student_obj, grades_dict in student_gradebook_dict.items():
+    for student_obj, grades_dict in list(student_gradebook_dict.items()):
         d_g = {}
         d_g["student"] = student_obj.student.email.split("@")[0]
 
@@ -914,14 +918,14 @@ def report_data_by_question(assignment_list, student_groups):
     )
 
     # aggregate results for each question
-    for q, student_entries in student_transitions_by_q.items():
+    for q, student_entries in list(student_transitions_by_q.items()):
         question = Question.objects.get(title=q)
         for student_entry in student_entries:
             question_gradebook_dict[question][student_entry["transition"]] += 1
 
     # array for template
     gradebook_question = []
-    for question, grades_dict in question_gradebook_dict.items():
+    for question, grades_dict in list(question_gradebook_dict.items()):
         d_g = {}
         d_g["question"] = question
         for metric, metric_label in zip(metric_list, metric_labels):
@@ -1024,7 +1028,7 @@ def get_lti_data_as_csv(weeks_ago_start, weeks_ago_stop=0, username=None):
     from django.conf import settings
 
     print("start")
-    print(datetime.datetime.now())
+    print((datetime.datetime.now()))
 
     start = datetime.datetime.now() - datetime.timedelta(weeks=weeks_ago_start)
     end = datetime.datetime.now() - datetime.timedelta(weeks=weeks_ago_stop)
@@ -1033,12 +1037,12 @@ def get_lti_data_as_csv(weeks_ago_start, weeks_ago_stop=0, username=None):
         start_date=start, stop_date=end, username=username
     )
     print("events filtered")
-    print(datetime.datetime.now())
+    print((datetime.datetime.now()))
 
     df = serialize_events_to_dataframe(events)
 
     print("serialied df")
-    print(datetime.datetime.now())
+    print((datetime.datetime.now()))
 
     fname = os.path.join(settings.BASE_DIR, "data.csv")
     with open(fname, "w") as f:
@@ -1074,14 +1078,19 @@ def load_shown_rationales_from_ltievent_logs(day_of_logs):
                     )
                 except Answer.MultipleObjectsReturned:
                     print(
-                        "Multiple : ",
-                        e_json["username"],
-                        e_json["event"]["question_id"],
-                        e_json["event"]["assignment_id"],
+                        (
+                            "Multiple : ",
+                            e_json["username"],
+                            e_json["event"]["question_id"],
+                            e_json["event"]["assignment_id"],
+                        )
                     )
                 try:
                     for r in e_json["event"]["rationales"]:
-                        obj, created = ShownRationale.objects.get_or_create(  # noqa
+                        (
+                            obj,
+                            created,
+                        ) = ShownRationale.objects.get_or_create(  # noqa
                             shown_answer=Answer.objects.get(pk=r["id"]),
                             shown_for_answer=shown_for_answer,
                         )
@@ -1091,10 +1100,12 @@ def load_shown_rationales_from_ltievent_logs(day_of_logs):
 
             except Answer.DoesNotExist:
                 print(
-                    "Not found : ",
-                    e_json["username"],
-                    e_json["event"]["question_id"],
-                    e_json["event"]["assignment_id"],
+                    (
+                        "Not found : ",
+                        e_json["username"],
+                        e_json["event"]["question_id"],
+                        e_json["event"]["assignment_id"],
+                    )
                 )
     return
 
@@ -1302,7 +1313,7 @@ def get_student_activity_data(teacher):
     )
     # if in between semesters, simply get assignment of most recent answer
     if len(recent_assignments) == 0 and lti_answers.count() > 0:
-        print(lti_answers.count())
+        print((lti_answers.count()))
         most_recent_lti_assignment = lti_answers.latest(
             "datetime_second"
         ).assignment
@@ -1429,9 +1440,9 @@ def get_student_activity_data(teacher):
 
     # JSON
     json_data = {}
-    for group_key, group_assignments in all_answers_by_group.items():
+    for group_key, group_assignments in list(all_answers_by_group.items()):
         json_data[group_key.name] = {}
-        for key, value_list in group_assignments.items():
+        for key, value_list in list(group_assignments.items()):
             if len(value_list["answers"]) > 0:
                 try:
                     assignment = key.assignment

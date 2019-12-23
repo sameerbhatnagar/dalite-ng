@@ -1,4 +1,3 @@
-from __future__ import unicode_literals
 from datetime import timedelta
 import random
 import string
@@ -20,7 +19,7 @@ class TestTokens(TestCase):
         for payload in payloads:
             payload_, err = verify_token(create_token(payload))
             self.assertIs(err, None)
-            for k, v in payload.items():
+            for k, v in list(payload.items()):
                 self.assertEqual(v, payload_[k])
 
     def test_token_expired(self):

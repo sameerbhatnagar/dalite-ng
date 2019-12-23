@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 import random
 import string
 
@@ -128,14 +126,20 @@ def new_email_types(
     if type_for_every_role:
         for role in roles[1:]:
             types += [
-                {f: (role if f == "role" else v) for f, v in elem.items()}
+                {
+                    f: (role if f == "role" else v)
+                    for f, v in list(elem.items())
+                }
                 for elem in types[:n_per_role]
             ]
     elif n_overlapping_types > 0:
         for role in roles[1:]:
             gen = generator(role)
             types += [
-                {f: (role if f == "role" else v) for f, v in elem.items()}
+                {
+                    f: (role if f == "role" else v)
+                    for f, v in list(elem.items())
+                }
                 for elem in random.sample(
                     types[:n_per_role], k=n_overlapping_types
                 )

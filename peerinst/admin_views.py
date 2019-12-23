@@ -1,9 +1,8 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 import collections
 import itertools
-import urllib
+import urllib.request
+import urllib.parse
+import urllib.error
 import re
 
 from django import forms
@@ -313,7 +312,7 @@ class QuestionRationaleView(StaffMemberRequiredMixin, TemplateView):
                     link_answers="?".join(
                         [
                             reverse("admin:peerinst_answer_changelist"),
-                            urllib.urlencode(
+                            urllib.parse.urlencode(
                                 dict(chosen_rationale__id__exact=rationale.id)
                             ),
                         ]
@@ -330,7 +329,7 @@ class QuestionRationaleView(StaffMemberRequiredMixin, TemplateView):
                     link_answers="?".join(
                         [
                             reverse("admin:peerinst_answer_changelist"),
-                            urllib.urlencode(
+                            urllib.parse.urlencode(
                                 dict(chosen_rationale__isnull=True)
                             ),
                         ]
@@ -441,15 +440,15 @@ class AssignmentResultsViewBase(TemplateView):
             labels.append(
                 _("Switches to answer {index}:").format(index=choice_index)
             )
-        return zip(labels, self.prepare_stats(sums, switch_columns))
+        return list(zip(labels, self.prepare_stats(sums, switch_columns)))
 
     def prepare_question_data(self, question_data, switch_columns):
         rows = []
         for i, (question, sums) in enumerate(question_data, 1):
-            get_params_this = urllib.urlencode(
+            get_params_this = urllib.parse.urlencode(
                 dict(assignment=self.assignment_id, question=question.id)
             )
-            get_params_all = urllib.urlencode(dict(question=question.id))
+            get_params_all = urllib.parse.urlencode(dict(question=question.id))
             rows.append(
                 dict(
                     data=[i, question.title]
@@ -583,9 +582,8 @@ class QuestionPreviewViewBase(
             **kwargs
         )
         if self.question.get_frequency(all_rationales=True)["first_choice"]:
-            save_allowed = (
-                0
-                not in self.question.get_frequency(all_rationales=True)[
+            save_allowed = 0 not in list(
+                self.question.get_frequency(all_rationales=True)[
                     "first_choice"
                 ].values()
             )
@@ -860,14 +858,10 @@ class AttributionAnalysis(TemplateView):
         votes_qs = models.AnswerVote.objects.filter(**filters)
         username_data, country_data = aggregate_fake_attribution_data(votes_qs)
         username_data_table = list(
-            itertools.starmap(
-                extract_columns, sorted(username_data.iteritems())
-            )
+            itertools.starmap(extract_columns, sorted(username_data.items()))
         )
         country_data_table = list(
-            itertools.starmap(
-                extract_columns, sorted(country_data.iteritems())
-            )
+            itertools.starmap(extract_columns, sorted(country_data.items()))
         )
         return username_data_table, country_data_table
 
@@ -875,9 +869,10 @@ class AttributionAnalysis(TemplateView):
         context = TemplateView.get_context_data(self, **kwargs)
         form = AttributionAnalysisFilterForm(data=self.request.GET)
         if form.is_valid() and self.request.GET:
-            context["username_data"], context[
-                "country_data"
-            ] = self.get_aggregates(form.cleaned_data.copy())
+            (
+                context["username_data"],
+                context["country_data"],
+            ) = self.get_aggregates(form.cleaned_data.copy())
         context.update(form=form)
         return context
 

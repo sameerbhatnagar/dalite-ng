@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 import base64
 from datetime import datetime, timedelta
@@ -56,7 +56,7 @@ def batch(iterable, size):
     source_iter = iter(iterable)
     while True:
         batch_iter = islice(source_iter, size)
-        yield chain([batch_iter.next()], batch_iter)
+        yield chain([next(batch_iter)], batch_iter)
 
 
 def format_time(seconds):

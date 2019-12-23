@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 # Backport of django 1.9 password validation
 import password_validation.views as password_views

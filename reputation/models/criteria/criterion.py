@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 from itertools import chain
 
@@ -73,14 +73,16 @@ class Criterion(models.Model):
         to combine them.
         """
         return chain(
-            self.info().iteritems(),
-            {
-                "version": self.version,
-                "badge_thresholds": self.badge_thresholds,
-                "badge_colour": self.badge_colour,
-                "points_per_threshold": self.points_per_threshold,
-                "thresholds": self.thresholds,
-            }.iteritems(),
+            iter(self.info().items()),
+            iter(
+                {
+                    "version": self.version,
+                    "badge_thresholds": self.badge_thresholds,
+                    "badge_colour": self.badge_colour,
+                    "points_per_threshold": self.points_per_threshold,
+                    "thresholds": self.thresholds,
+                }.items()
+            ),
         )
 
     def __str__(self):

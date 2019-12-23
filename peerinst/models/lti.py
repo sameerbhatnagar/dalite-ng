@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 from django.utils.translation import ugettext_lazy as _
 
@@ -24,9 +24,9 @@ class FakeCountry(models.Model):
 
 
 class LtiEvent(models.Model):
-    question_id = models.IntegerField(blank=True,null=True)
-    assignment_id = models.CharField(max_length=100,blank=True,null=True)
-    username = models.CharField(max_length=100,blank=True, null=True)
+    question_id = models.IntegerField(blank=True, null=True)
+    assignment_id = models.CharField(max_length=100, blank=True, null=True)
+    username = models.CharField(max_length=100, blank=True, null=True)
     event_type = models.CharField(max_length=100)
     event_log = JSONField(default={})
     timestamp = models.DateTimeField(auto_now_add=True, null=True)

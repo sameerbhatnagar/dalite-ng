@@ -27,7 +27,7 @@ The callable must have the following attributes:
 To make an algorithm available to users, make sure to add it to
 the "algorithms" dictionary at the end of this file.
 """
-from __future__ import unicode_literals
+
 
 from itertools import chain
 
@@ -265,4 +265,4 @@ def algorithm_choices():
     parameter of a model field, i.e. pairs of the form
     (value, human-readable value).
     """
-    return [(name, fn.verbose_name) for name, fn in algorithms.viewitems()]
+    return [(name, fn.verbose_name) for name, fn in algorithms.items()]

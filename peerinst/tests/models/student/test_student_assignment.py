@@ -103,7 +103,7 @@ def test_send_email__assignment_about_to_expire_in_0_days(student_assignment):
 
 
 def test_send_email__assignment_about_to_expire_with_localhost(
-    student_assignment
+    student_assignment,
 ):
     student_assignment.student.student.email = "fake-email@localhost"
     student_assignment.student.student.save()
@@ -141,7 +141,10 @@ def test_get_current_question__no_answers(student_assignment):
 
     for _ in range(5):
         new_order = ",".join(
-            map(str, random.sample(range(len(questions)), k=len(questions)))
+            map(
+                str,
+                random.sample(list(range(len(questions))), k=len(questions)),
+            )
         )
         student_assignment.group_assignment._modify_order(new_order)
         questions = student_assignment.group_assignment.questions
@@ -332,7 +335,7 @@ def test_send_reminder__reminder_sent_send_day_before(student_assignment):
 
 
 def test_send_reminder__reminder_sent_send_day_before_last_day(
-    student_assignment
+    student_assignment,
 ):
     student_assignment.reminder_sent = True
     student_assignment.send_reminder_email_day_before = True
@@ -356,7 +359,7 @@ def test_send_reminder__reminder_sent_send_day_before_last_day(
 
 
 def test_send_reminder__reminder_sent_send_every_day_and_day_before_last_day(
-    student_assignment
+    student_assignment,
 ):
     student_assignment.reminder_sent = True
     student_assignment.save()
@@ -703,7 +706,7 @@ def test_results__some_answered_correct_first_and_second(student_assignment):
 
 
 def test_results__all_answered_correct_first_and_none_second(
-    student_assignment
+    student_assignment,
 ):
     assignment = student_assignment.group_assignment.assignment
     questions = assignment.questions.all()
@@ -749,7 +752,7 @@ def test_results__all_answered_correct_first_and_none_second(
 
 
 def test_results__none_answered_correct_first_and_all_second(
-    student_assignment
+    student_assignment,
 ):
     assignment = student_assignment.group_assignment.assignment
     questions = assignment.questions.all()

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 import base64
 import logging
@@ -327,7 +327,7 @@ class StudentGroupAssignment(models.Model):
     def save(self, *args, **kwargs):
         if not self.order:
             self.order = ",".join(
-                map(str, range(len(self.assignment.questions.all())))
+                map(str, list(range(len(self.assignment.questions.all()))))
             )
         super(StudentGroupAssignment, self).save(*args, **kwargs)
 
@@ -391,7 +391,7 @@ class StudentGroupAssignment(models.Model):
     def questions(self):
         questions_ = self.assignment.questions.all()
         if not self.order:
-            self.order = ",".join(map(str, range(len(questions_))))
+            self.order = ",".join(map(str, list(range(len(questions_)))))
             self.save()
         if questions_:
             questions_ = [

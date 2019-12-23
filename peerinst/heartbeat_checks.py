@@ -1,4 +1,6 @@
-import urllib2
+import urllib.request
+import urllib.error
+import urllib.parse
 
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
@@ -6,7 +8,7 @@ from django.db.utils import DatabaseError
 
 from peerinst import models
 
-from sanity_check import SanityCheckResult, test_global_free_percentage
+from sanity_check import SanityCheckResult
 
 
 def check_db_query():
@@ -20,11 +22,11 @@ def check_db_query():
 def check_staticfiles():
     path = None
 
-    canary = 'canary contents'
+    canary = "canary contents"
 
     try:
-        path = default_storage.save('image.gif', ContentFile(canary))
-        response = urllib2.urlopen(default_storage.url(path))
+        path = default_storage.save("image.gif", ContentFile(canary))
+        response = urllib.request.urlopen(default_storage.url(path))
         response_content = response.read()
         if response_content != canary:
             return SanityCheckResult(False, "Cant load uploaded file")

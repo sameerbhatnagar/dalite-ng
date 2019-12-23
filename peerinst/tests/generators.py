@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 import random
 import string
 from datetime import datetime, timedelta
@@ -36,7 +34,9 @@ def new_answers(n, assignments):
         for i, a in enumerate(assignments)
     }
     while len(answers) < n:
-        i = random.choice([k for k, v in current.items() if v is not None])
+        i = random.choice(
+            [k for k, v in list(current.items()) if v is not None]
+        )
         answers.append(
             {
                 "question": assignments[
@@ -279,7 +279,7 @@ def add_answers(answers):
 def add_assignments(assignments):
     assignments_ = [
         Assignment.objects.create(
-            **{k: v for k, v in a.items() if k != "questions"}
+            **{k: v for k, v in list(a.items()) if k != "questions"}
         )
         for a in assignments
     ]

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 import json
 from datetime import date as date_
@@ -115,7 +115,7 @@ class Reputation(models.Model):
         ReputationType.DoesNotExist
             If there is no reputation type for the given class
         """
-        if not isinstance(cls, basestring):
+        if not isinstance(cls, str):
             cls = cls.__class__.__name__
 
         reputation_type = ReputationType.objects.get(type=cls.lower())
