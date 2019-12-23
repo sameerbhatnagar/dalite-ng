@@ -57,7 +57,7 @@ from dalite.views.errors import response_400, response_404
 # tos
 from tos.models import Consent, Tos
 
-from .. import admin, forms, heartbeat_checks, models, rationale_choice
+from .. import admin, forms, models, rationale_choice
 from ..admin_views import get_question_rationale_aggregates
 from ..mixins import (
     LoginRequiredMixin,
@@ -1491,31 +1491,6 @@ class RationaleOnlyQuestionSummaryView(QuestionMixin, TemplateView):
     # question that has already been answered.  Simply redirect here as GET.
     def post(self, request, *args, **kwargs):
         return redirect(request.path)
-
-
-class HeartBeatUrl(View):
-    def get(self, request):
-
-        checks = []
-
-        checks.append(heartbeat_checks.check_db_query())
-        checks.append(heartbeat_checks.check_staticfiles())
-        checks.extend(
-            heartbeat_checks.test_global_free_percentage(
-                settings.HEARTBEAT_REQUIRED_FREE_SPACE_PERCENTAGE
-            )
-        )
-
-        checks_ok = all((check.is_ok for check in checks))
-
-        status = 200 if checks_ok else 500
-
-        return TemplateResponse(
-            request,
-            "peerinst/heartbeat.html",
-            context={"checks": checks},
-            status=status,
-        )
 
 
 class AnswerSummaryChartView(View):

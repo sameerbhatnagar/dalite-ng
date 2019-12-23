@@ -18,7 +18,6 @@ requests
 django-security-headers>=0.3
 packaging
 
--e git+https://github.com/open-craft/ansible-sanity-checker@v0.0.2#egg=sanity_checker
 -e git+https://github.com/SALTISES4/django-lti-tool-provider@with-pylti#egg=django_lti_tool_provider
 -e git+https://github.com/edx/opaque-keys@27dc382ea587483b1e3889a3d19cbd90b9023a06#egg=opaque-keys
 -e git+https://github.com/SALTISES4/pinax-forums@c3b3f4ec22882490337593653540da2d89773980#egg=pinax_forums

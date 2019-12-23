@@ -58,7 +58,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='assignment',
             name='questions',
-            field=models.ManyToManyField(to=b'peerinst.Question', verbose_name='Questions'),
+            field=models.ManyToManyField(to='peerinst.Question', verbose_name='Questions'),
         ),
         migrations.AddField(
             model_name='answerchoice',
