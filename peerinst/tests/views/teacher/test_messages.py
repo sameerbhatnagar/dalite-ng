@@ -18,7 +18,7 @@ def test_messages(client, teacher, thread):
 
     resp = client.get(reverse("teacher-dashboard--messages"))
     assert resp.status_code == 200
-    data = json.loads(resp.content)["threads"]
+    data = json.loads(resp.content.decode())["threads"]
 
     assert len(data) == 1
     for thread in data:

@@ -58,7 +58,7 @@ def download_gram_file(language, gram, url, path):
     resp.raise_for_status()
 
     if url.endswith("zip"):
-        with zipfile.ZipFile(io.BytesIO(resp.content)) as f_zip:
+        with zipfile.ZipFile(io.BytesIO(resp.content.decode())) as f_zip:
             with f_zip.open(os.path.basename(url)[:-4]) as f:
                 lines = [line.strip().split() for line in f]
                 data = {
@@ -69,7 +69,7 @@ def download_gram_file(language, gram, url, path):
     else:
         lines = [
             line.strip().split()
-            for line in resp.content.decode("utf-8").split("\n")
+            for line in resp.content.decode().decode("utf-8").split("\n")
             if line
         ]
         data = {line[0].lower(): float(line[1]) for line in lines}

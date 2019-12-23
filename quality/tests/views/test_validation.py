@@ -35,7 +35,7 @@ def test_validate_rationale(client, student_group_assignment, teacher):
         follow=True,
     )
     assert resp.status_code == 200
-    data = json.loads(resp.content)
+    data = json.loads(resp.content.decode())
     assert not data["failed"]
 
 
@@ -49,7 +49,7 @@ def test_validate_rationale__no_quality(client, teacher):
         follow=True,
     )
     assert resp.status_code == 200
-    data = json.loads(resp.content)
+    data = json.loads(resp.content.decode())
     assert not data["failed"]
 
 
@@ -78,7 +78,7 @@ def test_validate_rationale__failed(
         follow=True,
     )
     assert resp.status_code == 200
-    data = json.loads(resp.content)
+    data = json.loads(resp.content.decode())
     assert data["failed"]
     assert len(data["failed"]) == 1
     assert RejectedAnswer.objects.count() == n + 1
@@ -133,7 +133,7 @@ def test_validate_rationale__failed_global_and_specific(
     )
 
     assert resp.status_code == 200
-    data = json.loads(resp.content)
+    data = json.loads(resp.content.decode())
     assert data["failed"]
     assert len(data["failed"]) == 1
     assert RejectedAnswer.objects.count() == n + 2

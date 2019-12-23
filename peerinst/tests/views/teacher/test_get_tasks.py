@@ -24,7 +24,7 @@ def test_get_tasks(client, teacher):
         resp = client.get(reverse("teacher-tasks"))
 
     assert resp.status_code == 200
-    data = json.loads(resp.content)
+    data = json.loads(resp.content.decode())
     for task, i in zip(data["tasks"], reversed(list(range(1, 11)))):
         assert task["id"] == str(i)
         assert task["description"] == "test{}".format(i)

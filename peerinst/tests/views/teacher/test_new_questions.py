@@ -30,7 +30,7 @@ def test_new_questions(client, teacher, questions, assignment, disciplines):
     )
 
     assert resp.status_code == 200
-    data = json.loads(resp.content)
+    data = json.loads(resp.content.decode())
     assert len(data["questions"]) == len(questions) // 2
 
     for i, (question, question_) in enumerate(
@@ -72,7 +72,7 @@ def test_new_questions__with_params(
     )
 
     assert resp.status_code == 200
-    data = json.loads(resp.content)
+    data = json.loads(resp.content.decode())
     assert len(data["questions"]) == 2
 
     for i, (question, question_) in enumerate(
@@ -110,7 +110,7 @@ def test_new_questions__with_params(
     )
 
     assert resp.status_code == 200
-    data = json.loads(resp.content)
+    data = json.loads(resp.content.decode())
     assert len(data["questions"]) == len(questions) // 2 - 2
 
     for i, (question, question_) in enumerate(
@@ -146,7 +146,7 @@ def test_new_questions__with_params(
     )
 
     assert resp.status_code == 200
-    data = json.loads(resp.content)
+    data = json.loads(resp.content.decode())
     assert len(data["questions"]) == 2
 
     for i, (question, question_) in enumerate(

@@ -18,7 +18,7 @@ def test_index_fail_on_no_logged_in_and_no_token(client):
     assert any(t.name == "403.html" for t in resp.templates)
     assert (
         "You must be a logged in student to access this resource."
-        in resp.content
+        in resp.content.decode()
     )
 
 
@@ -30,7 +30,7 @@ def test_index_fail_on_logged_in_not_student(client, user):
     assert any(t.name == "403.html" for t in resp.templates)
     assert (
         "You must be a logged in student to access this resource."
-        in resp.content
+        in resp.content.decode()
     )
 
 
@@ -40,7 +40,7 @@ def test_index_student_logged_in(client, student):
     resp = client.get(reverse("student-page"))
     assert resp.status_code == 200
     assert any(t.name == "peerinst/student/index.html" for t in resp.templates)
-    assert student.student.email in resp.content
+    assert student.student.email in resp.content.decode()
 
 
 def test_index_student_not_logged_in_token(client, student):
@@ -51,7 +51,7 @@ def test_index_student_not_logged_in_token(client, student):
     resp = client.get(reverse("student-page") + "?token={}".format(token))
     assert resp.status_code == 200
     assert any(t.name == "peerinst/student/index.html" for t in resp.templates)
-    assert student.student.email in resp.content
+    assert student.student.email in resp.content.decode()
 
 
 def test_index_student_logged_in_token_same_user(client, student):
@@ -64,7 +64,7 @@ def test_index_student_logged_in_token_same_user(client, student):
     resp = client.get(reverse("student-page") + "?token={}".format(token))
     assert resp.status_code == 200
     assert any(t.name == "peerinst/student/index.html" for t in resp.templates)
-    assert student.student.email in resp.content
+    assert student.student.email in resp.content.decode()
 
 
 def test_index_student_logged_in_token_different_user(client, students):
@@ -77,8 +77,8 @@ def test_index_student_logged_in_token_different_user(client, students):
     resp = client.get(reverse("student-page") + "?token={}".format(token))
     assert resp.status_code == 200
     assert any(t.name == "peerinst/student/index.html" for t in resp.templates)
-    assert students[1].student.email in resp.content
-    assert not students[0].student.email in resp.content
+    assert students[1].student.email in resp.content.decode()
+    assert not students[0].student.email in resp.content.decode()
 
 
 def test_index_new_student(client, student):
@@ -94,7 +94,7 @@ def test_index_new_student(client, student):
     resp = client.get(reverse("student-page") + "?token={}".format(token))
     assert resp.status_code == 200
     assert any(t.name == "peerinst/student/index.html" for t in resp.templates)
-    assert student.student.email in resp.content
+    assert student.student.email in resp.content.decode()
     assert Student.objects.get(student=student.student).student.is_active
 
 
@@ -103,7 +103,7 @@ def test_leave_group_no_data(client, student):
     resp = client.post(reverse("student-leave-group"))
     assert resp.status_code == 400
     assert any(t.name == "400.html" for t in resp.templates)
-    assert "Wrong data type was sent." in resp.content
+    assert "Wrong data type was sent." in resp.content.decode()
 
 
 def test_leave_group_wrong_data(client, student, group):
@@ -116,7 +116,7 @@ def test_leave_group_wrong_data(client, student, group):
     )
     assert resp.status_code == 400
     assert any(t.name == "400.html" for t in resp.templates)
-    assert "There are missing parameters." in resp.content
+    assert "There are missing parameters." in resp.content.decode()
 
 
 def test_leave_group_is_member_of_group(client, student, group):
@@ -168,7 +168,7 @@ def test_send_signin_link_single_account(client, student):
         t.name == "peerinst/student/login_confirmation.html"
         for t in resp.templates
     )
-    assert "Email sent" in resp.content
+    assert "Email sent" in resp.content.decode()
 
 
 def test_send_signin_link_multiple_accounts(client, student):
@@ -184,7 +184,7 @@ def test_send_signin_link_multiple_accounts(client, student):
         t.name == "peerinst/student/login_confirmation.html"
         for t in resp.templates
     )
-    assert "Email sent" in resp.content
+    assert "Email sent" in resp.content.decode()
 
 
 def test_send_signin_link_wrong_method(client):
@@ -196,7 +196,7 @@ def test_send_signin_link_missing_params(client):
     resp = client.post(reverse("student-send-signin-link"))
     assert resp.status_code == 400
     assert any(t.name == "400.html" for t in resp.templates)
-    assert "There are missing parameters." in resp.content
+    assert "There are missing parameters." in resp.content.decode()
 
 
 def test_update_student_id(client, student, group):

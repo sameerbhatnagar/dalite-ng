@@ -57,7 +57,7 @@ class TestEmailConsentModifyView(TestCase):
             self.assertEqual(resp.status_code, 400)
             self.assertIn(
                 "The role {} doesn't seem to exist.".format(test["role"]),
-                resp.content,
+                resp.content.decode(),
             )
 
 
@@ -117,5 +117,5 @@ class TestEmailConsentUpdateView(TestCase):
             self.assertEqual(resp.status_code, 400)
             self.assertIn(
                 "The role {} doesn't seem to exist.".format(test["role"]),
-                resp.content,
+                resp.content.decode(),
             )

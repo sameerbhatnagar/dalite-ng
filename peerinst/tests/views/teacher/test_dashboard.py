@@ -33,10 +33,14 @@ def test_student_activity__dashboard(
     assert any(
         t.name == "peerinst/teacher/dashboard.html" for t in resp.templates
     )
-    assert str(student_group_assignments[0].assignment.title) in resp.content
-    assert str(group.title) in resp.content
     assert (
-        str(student_group_assignments[1].assignment.title) not in resp.content
+        str(student_group_assignments[0].assignment.title)
+        in resp.content.decode()
+    )
+    assert str(group.title) in resp.content.decode()
+    assert (
+        str(student_group_assignments[1].assignment.title)
+        not in resp.content.decode()
     )
 
 
@@ -61,8 +65,8 @@ def test_new_questions__dashboard(
         t.name == "peerinst/question/cards/question_card.html"
         for t in resp.templates
     )
-    assert str(disciplines[0]) in resp.content
-    assert str(disciplines[1]) not in resp.content
+    assert str(disciplines[0]) in resp.content.decode()
+    assert str(disciplines[1]) not in resp.content.decode()
 
     # TODO: Add tests to validate choose_questions logic
     # E.g. no questions from teacher assignments, no favourites etc.

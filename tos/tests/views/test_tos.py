@@ -44,7 +44,7 @@ class TestTosConsentView(TestCase):
         for test in tests:
             resp = self.client.get(reverse("tos:tos_consent", kwargs=test))
             self.assertEqual(resp.status_code, 200)
-            body = json.loads(resp.content)
+            body = json.loads(resp.content.decode())
             self.assertEqual(body["consent"], True)
 
     def test_consent_exists_and_is_false(self):
@@ -58,7 +58,7 @@ class TestTosConsentView(TestCase):
 
         for test in tests:
             resp = self.client.get(reverse("tos:tos_consent", kwargs=test))
-            body = json.loads(resp.content)
+            body = json.loads(resp.content.decode())
             self.assertEqual(resp.status_code, 200)
             self.assertEqual(body["consent"], False)
 
@@ -87,7 +87,7 @@ class TestTosConsentView(TestCase):
             self.assertIn(
                 "There is no terms of service with version "
                 "{} for role {}".format(test["version"], test["role"]),
-                resp.content,
+                resp.content.decode(),
             )
 
     def test_consent_wrong_method(self):
@@ -102,7 +102,8 @@ class TestTosConsentView(TestCase):
             resp = self.client.get(reverse("tos:tos_consent", kwargs=test))
             self.assertEqual(resp.status_code, 400)
             self.assertIn(
-                "{} isn't a valid role.".format(test["role"]), resp.content
+                "{} isn't a valid role.".format(test["role"]),
+                resp.content.decode(),
             )
 
 
@@ -156,7 +157,7 @@ class TestTosConsentModifyView(TestCase):
             self.assertIn(
                 "There is no terms of service with version "
                 "{} for role {}".format(test["version"], test["role"]),
-                resp.content,
+                resp.content.decode(),
             )
 
     def test_consent_modify_wrong_method(self):
@@ -171,7 +172,8 @@ class TestTosConsentModifyView(TestCase):
             resp = self.client.get(reverse("tos:tos_modify", kwargs=test))
             self.assertEqual(resp.status_code, 400)
             self.assertIn(
-                "{} isn't a valid role.".format(test["role"]), resp.content
+                "{} isn't a valid role.".format(test["role"]),
+                resp.content.decode(),
             )
 
 
@@ -271,7 +273,7 @@ class TestTosConsentUpdateView(TestCase):
             self.assertIn(
                 "There is no terms of service with version "
                 "{} for role {}".format(test[0]["version"], test[0]["role"]),
-                resp.content,
+                resp.content.decode(),
             )
 
     def test_consent_update_wrong_method(self):
@@ -295,5 +297,6 @@ class TestTosConsentUpdateView(TestCase):
             )
             self.assertEqual(resp.status_code, 400)
             self.assertIn(
-                "{} isn't a valid role.".format(test[0]["role"]), resp.content
+                "{} isn't a valid role.".format(test[0]["role"]),
+                resp.content.decode(),
             )

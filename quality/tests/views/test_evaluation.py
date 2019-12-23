@@ -32,7 +32,7 @@ def test_evaluate_rationale(
         follow=True,
     )
     assert resp.status_code == 200
-    data = json.loads(resp.content)
+    data = json.loads(resp.content.decode())
     assert data
     assert len(data) == 2
     assert "quality" in data

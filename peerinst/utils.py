@@ -24,7 +24,7 @@ def create_token(payload, exp=timedelta(weeks=16)):
     )
 
     return base64.urlsafe_b64encode(
-        jwt.encode(payload_, key, algorithm="HS256").encode()
+        jwt.encode(payload_, key, algorithm="HS256")
     ).decode()
 
 

@@ -32,7 +32,7 @@ def test_rationales_to_score(client, teacher, answers, discipline):
         )
 
         assert resp.status_code == 200
-        data = json.loads(resp.content)
+        data = json.loads(resp.content.decode())
         assert len(data["rationales"]) == 5
 
         for a, a_ in zip(data["rationales"], answers[::-1]):
@@ -76,7 +76,7 @@ def test_rationales_to_score__with_params(
         )
 
         assert resp.status_code == 200
-        data = json.loads(resp.content)
+        data = json.loads(resp.content.decode())
         assert len(data["rationales"]) == 3
 
         for a, a_ in zip(data["rationales"], answers[::-1]):
@@ -101,7 +101,7 @@ def test_rationales_to_score__with_params(
         )
 
         assert resp.status_code == 200
-        data = json.loads(resp.content)
+        data = json.loads(resp.content.decode())
         assert len(data["rationales"]) == 5
 
         for a, a_ in zip(data["rationales"], answers[:-3][::-1]):
@@ -126,7 +126,7 @@ def test_rationales_to_score__with_params(
         )
 
         assert resp.status_code == 200
-        data = json.loads(resp.content)
+        data = json.loads(resp.content.decode())
         assert len(data["rationales"]) == 3
 
         for a, a_ in zip(data["rationales"], answers[:-3][::-1]):
