@@ -12,20 +12,18 @@ def create_model(language, urls, left_to_right, max_gram=3):
 
     data = {
         gram: val
-        for gram, val in list(read_data(language, urls, left_to_right).items())
+        for gram, val in read_data(language, urls, left_to_right).items()
         if gram <= max_gram
     }
     data = read_data(language, urls, left_to_right)
     data["n_grams"] = {
-        gram: val
-        for gram, val in list(data["n_grams"].items())
-        if gram <= max_gram
+        gram: val for gram, val in data["n_grams"].items() if gram <= max_gram
     }
 
     other = {
         "n_grams": {
-            gram: {g: 1.0 / len(val) for g in list(val.keys())}
-            for gram, val in list(data["n_grams"].items())
+            gram: {g: 1.0 / len(val) for g in val.keys()}
+            for gram, val in data["n_grams"].items()
         },
         "left_to_right": data["left_to_right"],
     }
