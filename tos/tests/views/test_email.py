@@ -81,15 +81,19 @@ class TestEmailConsentUpdateView(TestCase):
 
     def test_consent_update(self):
         data = [
-            {"email_type": email_type.type, "accepted": random.random() > 0.5}
+            {
+                "email_type": email_type.type,
+                "accepted": random.random() > 0.5,
+                "role": role,
+            }
             for role in self.roles
             for email_type in self.email_types
             if email_type.role == role
         ]
         tests = [
             (
-                {"role": d["email_type"].role.role},
-                {"{}-consent".format(d["email_type"].type): True},
+                {"role": d["role"].role},
+                {"{}-consent".format(d["email_type"]): True},
             )
             for d in data
             if d["accepted"]
