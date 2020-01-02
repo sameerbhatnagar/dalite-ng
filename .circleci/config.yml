@@ -2,7 +2,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/python:2.7-node-browsers
+      - image: circleci/python:3.7-node-browsers
         environment:
           DALITE_DB_PASSWORD: test key
           DALITE_DB_HOST: 127.0.0.1
