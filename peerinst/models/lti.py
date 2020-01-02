@@ -31,5 +31,5 @@ class LtiEvent(models.Model):
     event_log = JSONField(default={})
     timestamp = models.DateTimeField(auto_now_add=True, null=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return str(self.timestamp)

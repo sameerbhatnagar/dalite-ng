@@ -8,7 +8,7 @@ from django.db import models
 class UserType(models.Model):
     type = models.CharField(max_length=32)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.type
 
 
@@ -16,7 +16,7 @@ class SaltiseMember(models.Model):
     name = models.CharField(max_length=64)
     picture = models.ImageField(blank=True, null=True, upload_to="images")
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
 
@@ -25,7 +25,7 @@ class MessageType(models.Model):
     removable = models.BooleanField(default=True)
     colour = models.CharField(max_length=7)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.type
 
 
@@ -40,7 +40,7 @@ class Message(models.Model):
     link = models.URLField(blank=True, null=True)
     for_users = models.ManyToManyField(UserType)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.title
 
 

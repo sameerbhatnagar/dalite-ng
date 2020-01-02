@@ -47,7 +47,7 @@ class Assignment(models.Model):
         Reputation, blank=True, null=True, on_delete=models.SET_NULL
     )
 
-    def __unicode__(self):
+    def __str__(self):
         return self.identifier
 
     def get_absolute_url(self):
@@ -108,7 +108,7 @@ class StudentGroupAssignment(models.Model):
 
         return assignment
 
-    def __unicode__(self):
+    def __str__(self):
         return "{} for {}".format(self.assignment, self.group)
 
     def _verify_order(self, order):

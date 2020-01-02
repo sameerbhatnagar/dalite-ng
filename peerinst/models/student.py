@@ -39,7 +39,7 @@ class Student(models.Model):
         Reputation, blank=True, null=True, on_delete=models.SET_NULL
     )
 
-    def __unicode__(self):
+    def __str__(self):
         return self.student.email
 
     class Meta:
@@ -404,7 +404,7 @@ class StudentAssignment(models.Model):
     class Meta:
         unique_together = ("student", "group_assignment")
 
-    def __unicode__(self):
+    def __str__(self):
         return "{} for {}".format(self.group_assignment, self.student)
 
     def send_email(self, mail_type):
@@ -737,7 +737,7 @@ class StudentNotificationType(models.Model):
     type = models.CharField(max_length=32, unique=True)
     icon = models.TextField()
 
-    def __unicode__(self):
+    def __str__(self):
         return self.type
 
 
@@ -749,7 +749,7 @@ class StudentNotification(models.Model):
     text = models.TextField()
     expiration = models.DateTimeField(null=True, blank=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return "{} for {}".format(self.notification, self.student)
 
     @staticmethod

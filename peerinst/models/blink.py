@@ -16,7 +16,7 @@ class BlinkQuestion(models.Model):
     time_limit = models.PositiveSmallIntegerField(_("Time limit"), null=True)
     key = models.CharField(unique=True, max_length=8, primary_key=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.question.text
 
     def save(self, *args, **kwargs):
@@ -47,7 +47,7 @@ class BlinkAssignment(models.Model):
     key = models.CharField(unique=True, max_length=8)
     active = models.BooleanField(default=False)
 
-    def __unicode__(self):
+    def __str__(self):
         return "{} < {} >".format(
             self.title,
             " ; ".join(
@@ -128,7 +128,7 @@ class BlinkAssignmentQuestion(models.Model):
 
         return
 
-    def __unicode__(self):
+    def __str__(self):
         return "{} : rank {} - {}-{}".format(
             self.blinkassignment.title,
             self.rank,

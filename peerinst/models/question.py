@@ -47,7 +47,7 @@ class Category(models.Model):
         validators=[no_hyphens],
     )
 
-    def __unicode__(self):
+    def __str__(self):
         return self.title
 
     class Meta:
@@ -64,7 +64,7 @@ class Discipline(models.Model):
         validators=[no_hyphens],
     )
 
-    def __unicode__(self):
+    def __str__(self):
         return self.title
 
     class Meta:
@@ -94,7 +94,7 @@ class QuestionFlag(models.Model):
     datetime_created = models.DateTimeField(auto_now_add=True)
     datetime_last_modified = models.DateTimeField(auto_now=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return "{} - {}- {}- {}".format(
             self.question.pk, self.question, self.user.email, self.comment
         )
@@ -290,7 +290,7 @@ class Question(models.Model):
     )
     meta_search = GenericRelation(MetaSearch, related_query_name="questions")
 
-    def __unicode__(self):
+    def __str__(self):
         if self.discipline:
             return "{} - {}".format(self.discipline, self.title)
         return self.title
@@ -513,7 +513,7 @@ class QuestionFlagReason(models.Model):
         validators=[no_hyphens],
     )
 
-    def __unicode__(self):
+    def __str__(self):
         return self.title
 
     class Meta:

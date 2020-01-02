@@ -10,8 +10,8 @@ logger = logging.getLogger("tos-models")
 class Role(models.Model):
     role = models.CharField(max_length=32, primary_key=True)
 
-    def __unicode__(self):
-        return "role {}".format(self.role)
+    def __str__(self):
+        return self.role
 
     def save(self, *args, **kwargs):
         self.role = self.role.lower()
@@ -26,7 +26,7 @@ class Tos(models.Model):
     current = models.BooleanField()
     role = models.ForeignKey(Role, on_delete=models.CASCADE)
 
-    def __unicode__(self):
+    def __str__(self):
         return str(self.role) + "_" + str(self.version)
 
     class Meta:
@@ -113,7 +113,7 @@ class Consent(models.Model):
 
         return consent
 
-    def __unicode__(self):
+    def __str__(self):
         return (
             "version "
             + str(self.tos.version)
@@ -131,7 +131,7 @@ class EmailType(models.Model):
     description = models.TextField()
     show_order = models.PositiveIntegerField(blank=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return "email type {} for {}".format(self.type, self.role)
 
     class Meta:
@@ -198,7 +198,7 @@ class EmailConsent(models.Model):
 
         return consent
 
-    def __unicode__(self):
+    def __str__(self):
         return "{} for {}".format(self.email_type, self.user)
 
 

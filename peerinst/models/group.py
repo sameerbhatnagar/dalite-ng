@@ -19,7 +19,7 @@ class StudentGroup(models.Model):
         Quality, blank=True, null=True, on_delete=models.SET_NULL
     )
 
-    def __unicode__(self):
+    def __str__(self):
         if not self.title:
             return self.name
         else:

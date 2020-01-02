@@ -26,7 +26,7 @@ class Institution(models.Model):
         max_length=100, unique=True, help_text=_("Name of school.")
     )
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     class Meta:
@@ -111,7 +111,7 @@ class Teacher(models.Model):
             str(self.user.username).encode()
         ).decode()
 
-    def __unicode__(self):
+    def __str__(self):
         return self.user.username
 
     class Meta:
@@ -141,7 +141,7 @@ class TeacherNotification(models.Model):
     class Meta:
         unique_together = ("teacher", "notification_type", "object_id")
 
-    def __unicode__(self):
+    def __str__(self):
         return "{}-{} for {}".format(
             self.notification_type.model, self.object_id, self.teacher
         )

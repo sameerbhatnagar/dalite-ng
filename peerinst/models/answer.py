@@ -34,7 +34,7 @@ class AnswerChoice(models.Model):
     text = models.CharField(_("Text"), max_length=500)
     correct = models.BooleanField(_("Correct?"))
 
-    def __unicode__(self):
+    def __str__(self):
         return self.text
 
     class Meta:
@@ -108,7 +108,7 @@ class Answer(models.Model):
     second_answer_choice_label.short_description = _("Second answer choice")
     second_answer_choice_label.admin_order_field = "second_answer_choice"
 
-    def __unicode__(self):
+    def __str__(self):
         return str(
             _("{} for question {}").format(self.id, self.question.title)
         )
@@ -319,5 +319,5 @@ class AnswerAnnotation(models.Model):
     )
     note = models.CharField(max_length=500, null=True, blank=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return "{}: {} by {}".format(self.answer, self.score, self.annotator)

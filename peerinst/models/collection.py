@@ -34,7 +34,7 @@ class Collection(models.Model):
     last_modified = models.DateTimeField(auto_now=True, null=True)
     featured = models.BooleanField(default=False)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.title
 
     def make_studentgroupassignments(self, studentgroup_hash):
