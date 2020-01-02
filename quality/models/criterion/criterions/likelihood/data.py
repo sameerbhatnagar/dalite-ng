@@ -69,7 +69,7 @@ def download_gram_file(language, gram, url, path):
     else:
         lines = [
             line.strip().split()
-            for line in resp.content.decode().decode("utf-8").split("\n")
+            for line in resp.content.decode("utf-8").split("\n")
             if line
         ]
         data = {line[0].lower(): float(line[1]) for line in lines}
