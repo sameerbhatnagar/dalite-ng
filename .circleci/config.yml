@@ -20,6 +20,11 @@ jobs:
     steps:
       - checkout
       - run:
+        name: Setup
+        command: |
+          sudo apt update
+          sudo apt install mariadb-client
+      - run:
           name: Build
           command: |
             sudo pip2 install virtualenv
@@ -53,6 +58,7 @@ jobs:
       - run:
           name: Setup db
           command: |
+            mysql -u root -p$MYSQL_ROOT_PASSWORD -e "grant all privileges on test_dalite.* to dalite@'%'"
             . .venv/bin/activate
             ./manage.py migrate
       - run:
