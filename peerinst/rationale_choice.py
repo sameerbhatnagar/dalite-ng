@@ -82,7 +82,7 @@ def _base_selection_algorithm(
         batch_size = getattr(settings, "BATCH_SIZE", 128)
         qualities = chain(
             *(
-                quality.batch_evaluate(answers)
+                quality.batch_evaluate(list(answers))
                 for answers in batch(all_rationales.iterator(), batch_size)
             )
         )
@@ -151,7 +151,9 @@ def simple(
     rng, first_answer_choice, entered_rationale, question, max_rationales=4
 ):
     def callback(rng, rationales):
-        return rng.sample(rationales, min(max_rationales, rationales.count()))
+        return rng.sample(
+            list(rationales), min(max_rationales, rationales.count())
+        )
 
     return _base_selection_algorithm(
         rng, first_answer_choice, entered_rationale, question, callback

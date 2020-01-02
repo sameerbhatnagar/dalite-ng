@@ -55,8 +55,11 @@ def verify_token(token):
 def batch(iterable, size):
     source_iter = iter(iterable)
     while True:
-        batch_iter = islice(source_iter, size)
-        yield chain([next(batch_iter)], batch_iter)
+        try:
+            batch_iter = islice(source_iter, size)
+            yield chain([next(batch_iter)], batch_iter)
+        except StopIteration:
+            break
 
 
 def format_time(seconds):
