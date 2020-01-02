@@ -25,10 +25,10 @@ def test_download_gradebook__with_results__group(rf, teacher):
         assert resp.status_code == 200
         assert isinstance(resp, StreamingHttpResponse)
         assert (
-            next(resp.streaming_content).strip()
+            next(resp.streaming_content).strip().decode()
             == "myDALITE_gradebook_test.csv"
         )
-        assert next(resp.streaming_content).strip() == "test"
+        assert next(resp.streaming_content).strip().decode() == "test"
 
 
 def test_download_gradebook__with_results__assignment(rf, teacher):
@@ -46,10 +46,10 @@ def test_download_gradebook__with_results__assignment(rf, teacher):
         assert resp.status_code == 200
         assert isinstance(resp, StreamingHttpResponse)
         assert (
-            next(resp.streaming_content).strip()
+            next(resp.streaming_content).strip().decode()
             == "myDALITE_gradebook_test_test.csv"
         )
-        assert next(resp.streaming_content).strip() == "test"
+        assert next(resp.streaming_content).strip().decode() == "test"
 
 
 def test_download_gradebook__group(client, teacher):
@@ -77,10 +77,10 @@ def test_download_gradebook__group(client, teacher):
         assert resp.status_code == 200
         assert isinstance(resp, StreamingHttpResponse)
         assert (
-            next(resp.streaming_content).strip()
+            next(resp.streaming_content).strip().decode()
             == "myDALITE_gradebook_test.csv"
         )
-        assert next(resp.streaming_content).strip() == "test"
+        assert next(resp.streaming_content).strip().decode() == "test"
         assert not RunningTask.objects.filter(id=1).exists()
 
 
@@ -109,10 +109,10 @@ def test_download_gradebook__assignment(client, teacher):
         assert resp.status_code == 200
         assert isinstance(resp, StreamingHttpResponse)
         assert (
-            next(resp.streaming_content).strip()
+            next(resp.streaming_content).strip().decode()
             == "myDALITE_gradebook_test_test.csv"
         )
-        assert next(resp.streaming_content).strip() == "test"
+        assert next(resp.streaming_content).strip().decode() == "test"
         assert not RunningTask.objects.filter(id=1).exists()
 
 
@@ -201,7 +201,7 @@ def test_download_gradebook__no_running_task(client, teacher):
         assert resp.status_code == 200
         assert isinstance(resp, StreamingHttpResponse)
         assert (
-            next(resp.streaming_content).strip()
+            next(resp.streaming_content).strip().decode()
             == "myDALITE_gradebook_test.csv"
         )
-        assert next(resp.streaming_content).strip() == "test"
+        assert next(resp.streaming_content).strip().decode() == "test"
