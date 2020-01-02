@@ -2,7 +2,7 @@
 -r test-requirements.txt
 
 bandit
-# black
+black
 django-sslserver
 flake8
 ipython
