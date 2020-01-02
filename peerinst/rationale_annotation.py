@@ -76,10 +76,7 @@ def choose_rationales(teacher, n=5):
             )
         )
         answers = [
-            a
-            for a, q in sorted(
-                zip(answers, qualities), key=itemgetter(1), reverse=True
-            )
+            a for a, q in sorted(zip(answers, qualities), key=itemgetter(1))
         ]
 
     return answers[:n]
