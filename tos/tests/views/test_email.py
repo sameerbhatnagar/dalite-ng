@@ -88,8 +88,8 @@ class TestEmailConsentUpdateView(TestCase):
         ]
         tests = [
             (
-                {"role": email_type.role.role},
-                {"{}-consent".format(email_type.type): True},
+                {"role": d["email_type"].role.role},
+                {"{}-consent".format(d["email_type"].type): True},
             )
             for d in data
             if d["accepted"]
