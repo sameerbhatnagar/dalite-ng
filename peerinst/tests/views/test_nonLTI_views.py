@@ -257,7 +257,7 @@ class TeacherTest(TestCase):
             reverse("question-list", kwargs={"assignment_id": "Assignment1"})
         )
         self.assertEqual(response.status_code, 200)
-        self.assertItemsEqual(
+        self.assertCountEqual(
             response.context["object_list"],
             Assignment.objects.get(pk="Assignment1").questions.all(),
         )
