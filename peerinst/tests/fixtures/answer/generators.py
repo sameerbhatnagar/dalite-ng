@@ -1,4 +1,5 @@
 import random
+from datetime import datetime, timezone, timedelta
 
 from peerinst.models import Answer, AnswerChoice, ShownRationale
 
@@ -42,6 +43,11 @@ def new_first_answers_no_shown(
                 "user_token": students[
                     (i - 1) // (len(answer_choices))
                 ].student.username,
+                "datetime_start": datetime.now(timezone.utc),
+                "datetime_first": datetime.now(timezone.utc)
+                + timedelta(minutes=1),
+                "datetime_second": datetime.now(timezone.utc)
+                + timedelta(minutes=2),
             }
 
     gen = generator()
