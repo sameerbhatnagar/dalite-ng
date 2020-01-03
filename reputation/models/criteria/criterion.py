@@ -78,6 +78,7 @@ class Criterion(models.Model):
             {
                 "version": self.version,
                 "badge_thresholds": self.badge_thresholds,
+                "badge_icon": self.badge_icon,
                 "badge_colour": self.badge_colour,
                 "points_per_threshold": self.points_per_threshold,
                 "thresholds": self.thresholds,

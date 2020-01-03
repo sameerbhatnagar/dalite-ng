@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 import json
+import re
 import logging
 
 from django.contrib.auth.decorators import login_required
@@ -23,6 +24,7 @@ from peerinst.models import (
 )
 
 from .decorators import group_access_required
+from reputation.models import ReputationType
 
 logger = logging.getLogger("peerinst-views")
 
@@ -75,11 +77,31 @@ def group_details_page(req, group_hash, teacher, group):
         },
     }
 
+    student_reputation_criteria = [
+        dict(c)
+        for c in ReputationType.objects.get(type="student").criteria.all()
+    ]
+
     context = {
         "data": json.dumps(data),
         "group": group,
         "assignments": assignments,
         "teacher": teacher,
+        "student_reputation_criteria": [
+            {
+                "name": c["name"],
+                "icon": c["badge_icon"],
+                "colour": c["badge_colour"],
+                "description": ugettext(
+                    re.sub(
+                        r"\bYou\b",
+                        "They",
+                        re.sub(r"\byou\b", "they", c["description"]),
+                    )
+                ),
+            }
+            for c in student_reputation_criteria
+        ],
     }
 
     return render(req, "peerinst/group/details.html", context)
@@ -341,6 +363,10 @@ def get_student_reputation(req):
             ),
             log=logger.warning,
         )
+    criteria = {
+        c.name: student.evaluate_reputation(c.name)
+        for c in ReputationType.objects.get(type="student").criteria.all()
+    }
 
     return JsonResponse(
         {
@@ -348,6 +374,6 @@ def get_student_reputation(req):
             "last_login": student.student.last_login.isoformat()
             if student.student.last_login is not None
             else None,
-            "popularity": student.evaluate_reputation("convincing_rationales"),
+            "criteria": criteria,
         }
     )

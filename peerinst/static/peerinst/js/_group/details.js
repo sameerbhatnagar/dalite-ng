@@ -126,7 +126,7 @@ async function getStudentInformation(student: Student): Promise<void> {
   const data = await resp.json();
   student.email = data.email;
   student.lastLogin = new Date(data.last_login);
-  student.popularity = data.popularity;
+  student.criteria = data.criteria;
 
   studentListTableView(student);
 }
@@ -136,21 +136,28 @@ async function getStudentInformation(student: Student): Promise<void> {
 /********/
 
 function studentListTableView(student: Student): void {
+  const criteria = [
+    ...document.querySelectorAll("#student-reputation-table th"),
+  ]
+    .slice(2)
+    .map(header => header.getAttribute("name"));
   // $FlowFixMe
-  const table = $("#student_reputation_table").DataTable(); // eslint-disable-line
+  const table = $("#student-reputation-table").DataTable(); // eslint-disable-line
   table.row
     .add([
-      student.email,
-      student.lastLogin
-        ? student.lastLogin.toLocaleString(model.language, {
-            month: "short", // eslint-disable-line
-            day: "numeric", // eslint-disable-line
-            year: "numeric", // eslint-disable-line
-            hour: "2-digit", // eslint-disable-line
-            minute: "2-digit", // eslint-disable-line
-          }) // eslint-disable-line
-        : "",
-      student.popularity,
+      ...[
+        student.email,
+        student.lastLogin
+          ? student.lastLogin.toLocaleString(model.language, {
+              month: "short", // eslint-disable-line
+              day: "numeric", // eslint-disable-line
+              year: "numeric", // eslint-disable-line
+              hour: "2-digit", // eslint-disable-line
+              minute: "2-digit", // eslint-disable-line
+            }) // eslint-disable-line
+          : "",
+      ],
+      ...criteria.map(criterion => student.criteria[criterion]),
     ])
     .draw();
 }

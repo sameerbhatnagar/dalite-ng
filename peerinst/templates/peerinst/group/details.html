@@ -263,12 +263,19 @@ https://datatables.net/extensions/buttons/examples/styling/jqueryui.html
 
       <div class="foldable--body">
 
-    <table id='student_reputation_table' class="display">
+    <table id='student-reputation-table' class="display">
       <thead>
         <tr>
           <th>{% trans 'Email' %}</th>
           <th>{% trans 'Last Login' %}</th>
-          <th title='{% trans "Measure of how many times the rationales written by this student have been chosen by others." %}'>{% trans 'Popularity' %}</th>
+          {% for criterion in student_reputation_criteria %}
+            <th name="{{ criterion.name }}"
+                title="{{ criterion.description }}">
+              <svg fill="{{ criterion.colour }}">
+                <use xlink:href="#{{ criterion.icon }}"></use>
+              </svg>
+            </th>
+          {% endfor %}
         </tr>
       </thead>
       <tbody></tbody>
