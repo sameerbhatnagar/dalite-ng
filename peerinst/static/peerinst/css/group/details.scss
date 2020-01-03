@@ -33,3 +33,10 @@
   max-height: 45px;
   overflow-y: auto;
 }
+
+#student-reputation-table {
+  & th svg {
+    height: 24px;
+    width: 24px;
+  }
+}

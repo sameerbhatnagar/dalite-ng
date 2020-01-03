@@ -38,6 +38,7 @@ class Criterion(models.Model):
         validators=[validate_list_floats_greater_0],
         help_text="Thresholds for the badges to be awarded.",
     )
+    badge_icon = models.CharField(max_length=32, default="donut_small")
     badge_colour = models.CharField(max_length=16, default="#0066ff")
     points_per_threshold = CommaSepField(
         default="[1]",
@@ -77,6 +78,7 @@ class Criterion(models.Model):
             {
                 "version": self.version,
                 "badge_thresholds": self.badge_thresholds,
+                "badge_icon": self.badge_icon,
                 "badge_colour": self.badge_colour,
                 "points_per_threshold": self.points_per_threshold,
                 "thresholds": self.thresholds,

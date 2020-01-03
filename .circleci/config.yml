@@ -7,6 +7,7 @@ jobs:
           DALITE_DB_PASSWORD: test key
           DALITE_DB_HOST: 127.0.0.1
           DALITE_DB_PORT: 3306
+          MYSQL_ROOT_PASSWORD: mariadb
       - image: mariadb
         environment:
           MYSQL_ALLOW_EMPTY_PASSWORD: true
@@ -19,6 +20,11 @@ jobs:
     working_directory: ~/repo
     steps:
       - checkout
+      - run:
+          name: Setup
+          command: |
+            sudo apt update
+            sudo apt install mariadb-client
       - run:
           name: Build
           command: |
@@ -53,6 +59,7 @@ jobs:
       - run:
           name: Setup db
           command: |
+            mysql --host=$DALITE_DB_HOST --port=$DALITE_DB_PORT -u root --password=$MYSQL_ROOT_PASSWORD -e "grant all privileges on test_dalite_ng.* to dalite@'%'"
             . .venv/bin/activate
             ./manage.py migrate
       - run:
