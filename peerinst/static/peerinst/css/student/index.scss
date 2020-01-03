@@ -202,11 +202,13 @@ i {
           border-radius: 5px;
           color: $mdc-theme-secondary;
           font-size: 0.9rem;
-          height: 50px;
+          height: 45px;
           padding: 10px;
           position: absolute;
           right: -110px;
-          top: -25px;
+          text-align: justify;
+          top: -20px;
+          white-space: normal;
           width: 200px;
         }
       }
