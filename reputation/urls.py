@@ -1,4 +1,4 @@
-from django.urls import re_path
+from django.urls import path
 
 from . import views
 
@@ -7,9 +7,7 @@ app_name = "reputation"
 
 def reputation_patterns():
     return [
-        re_path(
-            r"^reputation/$", views.reputation.reputation, name="reputation"
-        )
+        path("reputation/", views.reputation.reputation, name="reputation")
     ]
 
 

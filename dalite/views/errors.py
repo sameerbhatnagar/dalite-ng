@@ -9,7 +9,9 @@ from django.template.response import TemplateResponse
 logger = logging.getLogger("dalite")
 
 
-def response_400(req, msg="", logger_msg="", log=None, use_template=True):
+def response_400(
+    req, msg="", logger_msg="", log=None, use_template=True, exception=None
+):
     """
     Returns a 400 error with the passed in msg, logging at the same time.
 
@@ -52,7 +54,9 @@ def response_400(req, msg="", logger_msg="", log=None, use_template=True):
         return HttpResponse(msg, status=400)
 
 
-def response_403(req, msg="", logger_msg="", log=None, use_template=True):
+def response_403(
+    req, msg="", logger_msg="", log=None, use_template=True, exception=None
+):
     """
     Returns a 403 error with the passed in msg, logging at the same time.
 
@@ -95,7 +99,9 @@ def response_403(req, msg="", logger_msg="", log=None, use_template=True):
         return HttpResponse(msg, status=403)
 
 
-def response_404(req, msg="", logger_msg="", log=None, use_template=True):
+def response_404(
+    req, msg="", logger_msg="", log=None, use_template=True, exception=None
+):
     """
     Returns a 404 error with the passed in msg, logging at the same time.
 
@@ -138,7 +144,9 @@ def response_404(req, msg="", logger_msg="", log=None, use_template=True):
         return HttpResponse(msg, status=404)
 
 
-def response_500(req, msg="", logger_msg="", log=None, use_template=True):
+def response_500(
+    req, msg="", logger_msg="", log=None, use_template=True, exception=None
+):
     """
     Returns a 500 error with the passed in msg, logging at the same time.
 
