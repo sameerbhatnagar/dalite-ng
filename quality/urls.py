@@ -21,7 +21,7 @@ def edit_patterns():
             name="remove-criterion",
         ),
         url(
-            r"^edit/remove/(?P<pk>\d+)/$",
+            r"^edit/remove/<int:pk>/$",
             views.edit.remove_criterion,
             name="remove-criterion_",
         ),

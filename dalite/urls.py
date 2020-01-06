@@ -26,7 +26,7 @@ urlpatterns += i18n_patterns(
     url(r"", include("peerinst.urls")),
     url(r"^forums/", include("pinax.forums.urls", namespace="pinax_forums")),
     url(
-        r"^assignment/(?P<assignment_id>[^/]+)/",
+        r"^assignment/<int:assignment_id>/",
         include(
             [
                 # Question table of contents for assignment - Enforce
@@ -39,7 +39,7 @@ urlpatterns += i18n_patterns(
                     name="question-list",
                 ),
                 url(
-                    r"(?P<question_id>\d+)/",
+                    r"<int:question_id>/",
                     include(
                         [
                             # Dalite question
