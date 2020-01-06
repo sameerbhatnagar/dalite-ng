@@ -4,7 +4,7 @@ import pytz
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import Group, Permission, User
 from django.core import mail
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.test import TestCase, TransactionTestCase
 
 from peerinst.models import (

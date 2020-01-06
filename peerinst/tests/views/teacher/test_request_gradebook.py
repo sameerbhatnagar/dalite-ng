@@ -2,7 +2,7 @@ import json
 
 import mock
 from celery.result import AsyncResult
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.http import HttpResponse
 
 from peerinst.models import RunningTask

@@ -5,7 +5,7 @@ import mock
 
 from itertools import repeat
 from django.test import TestCase
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from . import factories
 from .. import admin_views
 from .. import models

@@ -4,7 +4,7 @@
 import json
 
 from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 from peerinst.models import Student, StudentGroupMembership
 from peerinst.students import create_student_token

@@ -1,7 +1,7 @@
 import json
 
 from django.contrib.contenttypes.models import ContentType
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from pinax.forums.models import ForumThread
 
 from peerinst.models import TeacherNotification

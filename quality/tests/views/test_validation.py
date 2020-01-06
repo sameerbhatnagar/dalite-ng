@@ -1,6 +1,6 @@
 import json
 
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 from peerinst.tests.fixtures import *  # noqa
 from quality.models import (

@@ -1,4 +1,4 @@
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 from peerinst.models import AnswerAnnotation
 from peerinst.tests.fixtures import *  # noqa

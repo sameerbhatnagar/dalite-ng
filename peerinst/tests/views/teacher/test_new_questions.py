@@ -3,7 +3,7 @@ from datetime import datetime
 import pytest
 
 import mock
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.http import HttpResponse
 
 from peerinst.tests.fixtures import *  # noqa
