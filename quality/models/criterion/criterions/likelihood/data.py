@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 
-import codecs
 import io
 import os
 import pickle
@@ -58,12 +57,11 @@ def download_gram_file(language, gram, url, path):
     resp.raise_for_status()
 
     if url.endswith("zip"):
-        with zipfile.ZipFile(io.BytesIO(resp.content.decode())) as f_zip:
+        with zipfile.ZipFile(io.BytesIO(resp.content)) as f_zip:
             with f_zip.open(os.path.basename(url)[:-4]) as f:
                 lines = [line.strip().split() for line in f]
                 data = {
-                    line[0].decode("utf-8").lower(): float(line[1])
-                    for line in lines
+                    line[0].decode().lower(): float(line[1]) for line in lines
                 }
 
     else:
@@ -79,7 +77,7 @@ def download_gram_file(language, gram, url, path):
 
     if not os.path.exists(os.path.dirname(path)):
         os.makedirs(os.path.dirname(path))
-    with codecs.open(path, "w", "utf8") as f:
+    with open(path, "w") as f:
         f.write("n-gram\tfrequency\n")
         for n_gram, frequency in list(data.items()):
             f.write("{}\t{}\n".format(n_gram, frequency))
