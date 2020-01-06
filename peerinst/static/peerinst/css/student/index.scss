@@ -132,11 +132,7 @@ i {
       color: #ffffff;
       display: grid;
       grid-template-columns: 200px minmax(min-content, 1fr) 200px;
-      height: min-content;
-      overflow: hidden;
       padding: 10px 5px;
-      text-overflow: ellipsis;
-      white-space: nowrap;
 
       & .student-group--id {
         align-items: center;
@@ -202,11 +198,13 @@ i {
           border-radius: 5px;
           color: $mdc-theme-secondary;
           font-size: 0.9rem;
-          height: 50px;
+          height: 60px;
           padding: 10px;
           position: absolute;
           right: -110px;
-          top: -25px;
+          text-align: justify;
+          top: -20px;
+          white-space: normal;
           width: 200px;
         }
       }
@@ -215,9 +213,12 @@ i {
         display: flex;
         font-weight: bold;
         grid-column: 2;
+        height: min-content;
         justify-content: center;
         margin: 0;
-        word-wrap: break-word;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
 
       & .student-group--icons {
