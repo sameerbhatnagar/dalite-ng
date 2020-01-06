@@ -8,7 +8,7 @@ django-grappelli
 django-htmlmin
 django-password-validation
 django<3.0.0
-mysqlclient==1.3.14
+mysqlclient
 pillow
 pyjwt
 # pymysql
