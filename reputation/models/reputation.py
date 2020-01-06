@@ -11,7 +11,7 @@ from .reputation_type import ReputationType
 
 
 class Reputation(models.Model):
-    reputation_type = models.ForeignKey(ReputationType)
+    reputation_type = models.ForeignKey(ReputationType, on_delete="CASCADE")
 
     def __str__(self):
         return "{} for {}: {}".format(
@@ -124,7 +124,9 @@ class Reputation(models.Model):
 
 
 class ReputationHistory(models.Model):
-    reputation = models.ForeignKey(Reputation, editable=False)
+    reputation = models.ForeignKey(
+        Reputation, editable=False, on_delete="CASCADE"
+    )
     date = models.DateField(auto_now_add=True)
     reputation_value = models.FloatField(null=True, blank=True, editable=False)
     reputation_details = models.TextField(editable=False)

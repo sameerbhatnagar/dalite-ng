@@ -222,7 +222,7 @@ class ReputationType(models.Model):
 
 class UsesCriterion(models.Model):
     reputation_type = models.ForeignKey(
-        ReputationType, related_name="criteria"
+        ReputationType, related_name="criteria", on_delete="CASCADE"
     )
     name = models.CharField(max_length=32)
     version = models.PositiveIntegerField()

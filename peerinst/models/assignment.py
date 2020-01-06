@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 import base64
 import logging
 from datetime import datetime, timedelta
@@ -8,7 +5,7 @@ from datetime import datetime, timedelta
 import pytz
 from django.contrib.auth.models import User
 from django.core import validators
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db import models
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _

@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 import logging
 from datetime import datetime
 from operator import itemgetter
@@ -8,7 +5,7 @@ from operator import itemgetter
 import pytz
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db import IntegrityError, models
 from django.template import loader
 from django.utils.translation import ugettext_lazy as _
@@ -382,8 +379,8 @@ class Student(models.Model):
 
 
 class StudentGroupMembership(models.Model):
-    student = models.ForeignKey(Student)
-    group = models.ForeignKey(StudentGroup)
+    student = models.ForeignKey(Student, on_delete="CASCADE")
+    group = models.ForeignKey(StudentGroup, on_delete="CASCADE")
     current_member = models.BooleanField(default=True)
     send_emails = models.BooleanField(default=True)
     student_school_id = models.TextField(null=True, blank=True)
@@ -742,8 +739,10 @@ class StudentNotificationType(models.Model):
 
 
 class StudentNotification(models.Model):
-    student = models.ForeignKey(Student)
-    notification = models.ForeignKey(StudentNotificationType)
+    student = models.ForeignKey(Student, on_delete="CASCADE")
+    notification = models.ForeignKey(
+        StudentNotificationType, on_delete="CASCADE"
+    )
     created_on = models.DateTimeField(auto_now=True, null=True)
     link = models.URLField(max_length=500, blank=True, null=True)
     text = models.TextField()

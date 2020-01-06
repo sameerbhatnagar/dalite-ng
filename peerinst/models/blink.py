@@ -9,8 +9,8 @@ from .teacher import Teacher
 
 
 class BlinkQuestion(models.Model):
-    question = models.ForeignKey(Question)
-    teacher = models.ForeignKey(Teacher, null=True)
+    question = models.ForeignKey(Question, on_delete="CASCADE")
+    teacher = models.ForeignKey(Teacher, null=True, on_delete="CASCADE")
     current = models.BooleanField(default=True)
     active = models.BooleanField(default=False)
     time_limit = models.PositiveSmallIntegerField(_("Time limit"), null=True)
@@ -26,21 +26,21 @@ class BlinkQuestion(models.Model):
 
 
 class BlinkRound(models.Model):
-    question = models.ForeignKey(BlinkQuestion)
+    question = models.ForeignKey(BlinkQuestion, on_delete="CASCADE")
     activate_time = models.DateTimeField()
     deactivate_time = models.DateTimeField(null=True)
 
 
 class BlinkAnswer(models.Model):
-    question = models.ForeignKey(BlinkQuestion)
+    question = models.ForeignKey(BlinkQuestion, on_delete="CASCADE")
     answer_choice = models.PositiveSmallIntegerField(_("Answer choice"))
     vote_time = models.DateTimeField()
-    voting_round = models.ForeignKey(BlinkRound)
+    voting_round = models.ForeignKey(BlinkRound, on_delete="CASCADE")
 
 
 class BlinkAssignment(models.Model):
     title = models.CharField(_("Title"), max_length=200)
-    teacher = models.ForeignKey(Teacher, null=True)
+    teacher = models.ForeignKey(Teacher, null=True, on_delete="CASCADE")
     blinkquestions = models.ManyToManyField(
         BlinkQuestion, through="BlinkAssignmentQuestion"
     )

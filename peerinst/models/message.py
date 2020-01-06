@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 from django.contrib.auth.models import User
 from django.db import models
 
@@ -30,7 +27,7 @@ class MessageType(models.Model):
 
 
 class Message(models.Model):
-    type = models.ForeignKey(MessageType)
+    type = models.ForeignKey(MessageType, on_delete="CASCADE")
     authors = models.ManyToManyField(SaltiseMember, blank=True)
     title = models.CharField(max_length=128)
     text = models.TextField()
@@ -45,6 +42,6 @@ class Message(models.Model):
 
 
 class UserMessage(models.Model):
-    user = models.ForeignKey(User)
-    message = models.ForeignKey(Message)
+    user = models.ForeignKey(User, on_delete="CASCADE")
+    message = models.ForeignKey(Message, on_delete="CASCADE")
     showing = models.BooleanField(default=True)

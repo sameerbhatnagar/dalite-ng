@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 import json
 import logging
 import re
@@ -8,7 +5,7 @@ import re
 from django.conf import settings
 from django.contrib.auth import login, logout
 from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.utils.translation import ugettext

@@ -86,9 +86,9 @@ class QuestionManager(models.Manager):
 
 
 class QuestionFlag(models.Model):
-    question = models.ForeignKey("Question")
+    question = models.ForeignKey("Question", on_delete="CASCADE")
     flag_reason = models.ManyToManyField("QuestionFlagReason")
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, on_delete="CASCADE")
     flag = models.BooleanField(default=True)
     comment = models.CharField(max_length=200, null=True, blank=True)
     datetime_created = models.DateTimeField(auto_now_add=True)
@@ -240,6 +240,7 @@ class Question(models.Model):
             "Optional. Select the discipline to which this item should "
             "be associated."
         ),
+        on_delete="CASCADE",
     )
     fake_attributions = models.BooleanField(
         _("Add fake attributions"),

@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 import json
 import logging
 from datetime import datetime
@@ -10,7 +7,7 @@ from operator import attrgetter
 import pytz
 from celery.result import AsyncResult
 from django.contrib.contenttypes.models import ContentType
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db import models
 from django.http import HttpResponse, JsonResponse, StreamingHttpResponse
 from django.shortcuts import redirect, render

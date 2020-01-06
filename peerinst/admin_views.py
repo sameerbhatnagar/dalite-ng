@@ -8,7 +8,7 @@ import re
 from django import forms
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db.models import F
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _

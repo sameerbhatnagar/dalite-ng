@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
@@ -12,8 +9,10 @@ from .teacher import Teacher
 
 class Collection(models.Model):
     assignments = models.ManyToManyField(Assignment, blank=True)
-    discipline = models.ForeignKey(Discipline)
-    owner = models.ForeignKey(Teacher, related_name="owner")
+    discipline = models.ForeignKey(Discipline, on_delete="CASCADE")
+    owner = models.ForeignKey(
+        Teacher, related_name="owner", on_delete="CASCADE"
+    )
     followers = models.ManyToManyField(
         Teacher, blank=True, related_name="followers"
     )

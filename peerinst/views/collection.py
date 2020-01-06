@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 from django.http import JsonResponse, HttpResponse
 from django.core import serializers
 from django.views.generic.edit import CreateView
@@ -20,7 +17,7 @@ from ..mixins import (
     TOSAcceptanceRequiredMixin,
 )
 from django.shortcuts import get_object_or_404
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from peerinst.admin_views import get_assignment_aggregates
 import collections
 from dalite.views.utils import get_json_params
