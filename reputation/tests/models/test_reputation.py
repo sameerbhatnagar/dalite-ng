@@ -21,11 +21,10 @@ def test_str(question_reputation, assignment_reputation, teacher_reputation):
     )
 
 
-def test_str__raises_error():
+def test_str__unkown_reputation():
     reputation_type = ReputationType.objects.get(type="teacher")
     reputation = Reputation.objects.create(reputation_type=reputation_type)
-    with pytest.raises(ValueError):
-        str(reputation)
+    assert str(reputation).endswith("Unknown")
 
 
 def test_reputation_model(
