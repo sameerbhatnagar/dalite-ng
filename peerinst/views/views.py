@@ -32,7 +32,6 @@ from django.shortcuts import (
     get_object_or_404,
     redirect,
     render,
-    render_to_response,
 )
 from django.template import loader
 from django.template.response import TemplateResponse
@@ -1621,8 +1620,8 @@ def redirect_to_login_or_show_cookie_help(request):
         # We probably got here from within the LMS, and the user has
         # third-party cookies disabled, so we show help on enabling cookies for
         # this site.
-        return render_to_response(
-            "peerinst/cookie_help.html", dict(host=request.get_host())
+        return render(
+            request, "peerinst/cookie_help.html", dict(host=request.get_host())
         )
     return redirect_to_login(request.get_full_path())
 
