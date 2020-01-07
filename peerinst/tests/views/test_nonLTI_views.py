@@ -82,7 +82,7 @@ class SignUpTest(TestCase):
 
     def test_email_error(self):
 
-        with self.settings(EMAIL_BACKEND=""):
+        with self.settings(EMAIL_BACKEND="", DEBUG=True):
             response = self.client.post(
                 reverse("sign_up"),
                 data={
@@ -129,7 +129,7 @@ class AdminTest(TestCase):
         inactive_user.is_active = False
         inactive_user.save()
 
-        with self.settings(EMAIL_BACKEND=""):
+        with self.settings(EMAIL_BACKEND="", DEBUG=True):
             response = self.client.post(
                 reverse("dashboard"), {"user": 3, "is_teacher": "on"}
             )
