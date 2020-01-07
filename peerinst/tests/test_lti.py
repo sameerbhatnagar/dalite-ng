@@ -292,7 +292,7 @@ class TestUpdateStaffUser(TestCase):
 class TestViews(TestCase):
     def test_admin_index_wrapper_authenticated(self):
         request = mock.Mock()
-        request.user.is_authenticated.return_value = True
+        request.user.is_authenticated = True
         response = admin_index_wrapper(request)
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response["Location"], "/en/admin/")
@@ -300,6 +300,9 @@ class TestViews(TestCase):
     def test_admin_index_wrapper_not_authenticated(self):
         request = mock.Mock()
         request.user.is_authenticated = False
+        request.user.teacher.pk = 1
+        request.get_host.return_value = "localhost"
+        request.META = {}
         response = admin_index_wrapper(request)
         self.assertEqual(response.status_code, 200)
         self.assertContains(
