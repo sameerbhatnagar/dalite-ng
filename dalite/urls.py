@@ -29,7 +29,7 @@ urlpatterns += i18n_patterns(
                 # Question table of contents for assignment - Enforce
                 # sameorigin to prevent access from LMS
                 path(
-                    "$",
+                    "",
                     xframe_options_sameorigin(
                         peerinst_views.QuestionListView.as_view()
                     ),
@@ -40,13 +40,11 @@ urlpatterns += i18n_patterns(
                     include(
                         [
                             # Dalite question
-                            path(
-                                "$", peerinst_views.question, name="question"
-                            ),
+                            path("", peerinst_views.question, name="question"),
                             # Question reset (for testing purposes) - Enforce
                             # sameorigin to prevent access from LMS
                             path(
-                                "reset/$",
+                                "reset/",
                                 peerinst_views.reset_question,
                                 name="reset-question",
                             ),
@@ -54,7 +52,7 @@ urlpatterns += i18n_patterns(
                     ),
                 ),
                 path(
-                    "update/$",
+                    "update/",
                     peerinst_views.AssignmentUpdateView.as_view(),
                     name="assignment-update",
                 ),
