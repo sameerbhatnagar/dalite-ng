@@ -23,7 +23,7 @@ urlpatterns += i18n_patterns(
     path(r"", include("peerinst.urls")),
     path("forums/", include("pinax.forums.urls", namespace="pinax_forums")),
     path(
-        "assignment/<int:assignment_id>/",
+        "assignment/<assignment_id>/",
         include(
             [
                 # Question table of contents for assignment - Enforce

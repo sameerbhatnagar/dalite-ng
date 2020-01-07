@@ -102,7 +102,7 @@ def old_patterns():
             name="sample-answer-form-done",
         ),
         path(
-            "assignment/copy/<int:assignment_id>",
+            "assignment/copy/<assignment_id>",
             views.AssignmentCopyView.as_view(),
             name="assignment-copy",
         ),
@@ -112,7 +112,7 @@ def old_patterns():
             name="assignment-edit-ajax",
         ),
         path(
-            "assignment/edit/<int:assignment_id>",
+            "assignment/edit/<assignment_id>",
             views.AssignmentEditView.as_view(),
             name="assignment-edit",
         ),
@@ -126,7 +126,7 @@ def old_patterns():
             name="live",
         ),
         re_path(
-            "live/navigate/<int:assignment_id>/<int:question_id/(?P<direction>(next|prev|goto))/(?P<index>[0-9x]+)",  # noqa
+            "live/navigate/<assignment_id>/<int:question_id/(?P<direction>(next|prev|goto))/(?P<index>[0-9x]+)",  # noqa
             views.navigate_assignment,
             name="navigate-assignment",
         ),
@@ -136,7 +136,7 @@ def old_patterns():
             name="signup-through-link",
         ),
         path(
-            "live/studentgroupassignment/create/<int:assignment_id>",
+            "live/studentgroupassignment/create/<assignment_id>",
             views.StudentGroupAssignmentCreateView.as_view(),
             name="student-group-assignment-create",
         ),
@@ -150,7 +150,7 @@ def old_patterns():
             include(
                 [
                     path(
-                        "assignment_results/<int:assignment_id>/",
+                        "assignment_results/<assignment_id>/",
                         include(
                             [
                                 path(
@@ -241,7 +241,7 @@ def old_patterns():
             name="student-activity",
         ),
         path(
-            "teacher/report/all_groups/<int:assignment_id>/",
+            "teacher/report/all_groups/<assignment_id>/",
             views.report,
             name="report-all-groups",
         ),
@@ -516,7 +516,7 @@ def researcher_patterns():
             name="research-discipline-question-index-by-discipline",
         ),
         path(
-            "research/assignment/<int:assignment_id>",
+            "research/assignment/<assignment_id>",
             views.research_discipline_question_index,
             name="research-assignment-question-index-by-assignment",
         ),
@@ -526,7 +526,7 @@ def researcher_patterns():
             name="research-all-annotations-for-question-by-discipline",
         ),
         path(
-            "research/all_scores/assignment/<int:assignment_id>/<int:question_pk>",  # noqa
+            "research/all_scores/assignment/<assignment_id>/<int:question_pk>",  # noqa
             views.research_all_annotations_for_question,
             name="research-all-annotations-for-question-by-assignment",
         ),
@@ -536,7 +536,7 @@ def researcher_patterns():
             name="research-question-answer-list-by-discipline",
         ),
         path(
-            "research/assignment/<int:assignment_id>/<int:question_pk>/<int:answerchoice_value>",  # noqa
+            "research/assignment/<assignment_id>/<int:question_pk>/<int:answerchoice_value>",  # noqa
             views.research_question_answer_list,
             name="research-question-answer-list-by-assignment",
         ),
@@ -546,7 +546,7 @@ def researcher_patterns():
             name="research-flag-question-by-discipline",
         ),
         path(
-            "research/question/flag/assignment/<int:assignment_id>/<int:question_pk>",  # noqa
+            "research/question/flag/assignment/<assignment_id>/<int:question_pk>",  # noqa
             views.flag_question_form,
             name="research-flag-question-by-assignment",
         ),
@@ -556,7 +556,7 @@ def researcher_patterns():
             name="research-fix-expert-rationale",
         ),
         path(
-            "research/assignment/<int:assignment_id>/expert/rationale/<int:question_id>",  # noqa
+            "research/assignment/<assignment_id>/expert/rationale/<int:question_id>",  # noqa
             admin_views.QuestionExpertRationaleView.as_view(),
             name="research-fix-expert-rationale",
         ),
