@@ -14,8 +14,12 @@ class Reputation(models.Model):
     reputation_type = models.ForeignKey(ReputationType)
 
     def __str__(self):
+        try:
+            reputation_model = self.reputation_model
+        except ValueError:
+            reputation_model = "Unknown"
         return "{} for {}: {}".format(
-            self.pk, self.reputation_type, self.reputation_model
+            self.pk, self.reputation_type, reputation_model
         )
 
     def evaluate(self, criterion=None):
@@ -63,7 +67,11 @@ class Reputation(models.Model):
             If the given criterion isn't part of the list for this reputation
             type
         """
-        return self.reputation_type.evaluate(self.reputation_model, criterion)
+        try:
+            reputation_model = self.reputation_model
+        except ValueError:
+            return None, []
+        return self.reputation_type.evaluate(reputation_model, criterion)
 
     @property
     def reputation_model(self):
