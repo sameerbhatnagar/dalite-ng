@@ -7,6 +7,6 @@ class RunningTask(models.Model):
     id = models.CharField(max_length=50, primary_key=True)
     description = models.TextField()
     teacher = models.ForeignKey(
-        Teacher, related_name="running_tasks", on_delete="CASCADE"
+        Teacher, related_name="running_tasks", on_delete=models.CASCADE
     )
     datetime = models.DateTimeField(auto_now_add=True)

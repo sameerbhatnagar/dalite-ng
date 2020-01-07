@@ -379,8 +379,8 @@ class Student(models.Model):
 
 
 class StudentGroupMembership(models.Model):
-    student = models.ForeignKey(Student, on_delete="CASCADE")
-    group = models.ForeignKey(StudentGroup, on_delete="CASCADE")
+    student = models.ForeignKey(Student, on_delete=models.CASCADE)
+    group = models.ForeignKey(StudentGroup, on_delete=models.CASCADE)
     current_member = models.BooleanField(default=True)
     send_emails = models.BooleanField(default=True)
     student_school_id = models.TextField(null=True, blank=True)
@@ -739,9 +739,9 @@ class StudentNotificationType(models.Model):
 
 
 class StudentNotification(models.Model):
-    student = models.ForeignKey(Student, on_delete="CASCADE")
+    student = models.ForeignKey(Student, on_delete=models.CASCADE)
     notification = models.ForeignKey(
-        StudentNotificationType, on_delete="CASCADE"
+        StudentNotificationType, on_delete=models.CASCADE
     )
     created_on = models.DateTimeField(auto_now=True, null=True)
     link = models.URLField(max_length=500, blank=True, null=True)

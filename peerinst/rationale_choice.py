@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Selection algorithms for rationales shown during question review.
 
 Each algorithm is a callable taking these arguments:
@@ -82,7 +81,7 @@ def _base_selection_algorithm(
         batch_size = getattr(settings, "BATCH_SIZE", 128)
         qualities = chain(
             *(
-                quality.batch_evaluate(list(answers))
+                quality.batch_evaluate(answers)
                 for answers in batch(all_rationales.iterator(), batch_size)
             )
         )
@@ -224,7 +223,9 @@ def prefer_expert_and_highly_voted(
 
         # Fill up with random other rationales
         chosen.extend(
-            rng.sample(rationales, min(4 - len(chosen), rationales.count()))
+            rng.sample(
+                list(rationales), min(4 - len(chosen), rationales.count())
+            )
         )
         rng.shuffle(chosen)
         return chosen

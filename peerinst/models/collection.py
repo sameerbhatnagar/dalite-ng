@@ -9,9 +9,9 @@ from .teacher import Teacher
 
 class Collection(models.Model):
     assignments = models.ManyToManyField(Assignment, blank=True)
-    discipline = models.ForeignKey(Discipline, on_delete="CASCADE")
+    discipline = models.ForeignKey(Discipline, on_delete=models.CASCADE)
     owner = models.ForeignKey(
-        Teacher, related_name="owner", on_delete="CASCADE"
+        Teacher, related_name="owner", on_delete=models.CASCADE
     )
     followers = models.ManyToManyField(
         Teacher, blank=True, related_name="followers"

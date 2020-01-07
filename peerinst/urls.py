@@ -126,7 +126,7 @@ def old_patterns():
             name="live",
         ),
         re_path(
-            "live/navigate/<assignment_id>/<int:question_id/(?P<direction>(next|prev|goto))/(?P<index>[0-9x]+)",  # noqa
+            "live/navigate/(?P<assignment_id>\w+)/(?P<question_id>\d+)/(?P<direction>(next|prev|goto))/(?P<index>[0-9x]+)",  # noqa
             views.navigate_assignment,
             name="navigate-assignment",
         ),
@@ -159,7 +159,7 @@ def old_patterns():
                                     name="assignment-results",
                                 ),
                                 path(
-                                    "rationales/(?P<question_id>\d+)",
+                                    "rationales/<int:question_id>",
                                     admin_views.QuestionRationaleView.as_view(),  # noqa
                                     name="question-rationales",
                                 ),
@@ -531,12 +531,12 @@ def researcher_patterns():
             name="research-all-annotations-for-question-by-assignment",
         ),
         path(
-            "research/discipline/<discipline_title>/<int:question_pk>/<int:answerchoice_value>",  # noqa
+            "research/discipline/<discipline_title>/<int:question_pk>/<answerchoice_value>",  # noqa
             views.research_question_answer_list,
             name="research-question-answer-list-by-discipline",
         ),
         path(
-            "research/assignment/<assignment_id>/<int:question_pk>/<int:answerchoice_value>",  # noqa
+            "research/assignment/<assignment_id>/<int:question_pk>/<answerchoice_value>",  # noqa
             views.research_question_answer_list,
             name="research-question-answer-list-by-assignment",
         ),

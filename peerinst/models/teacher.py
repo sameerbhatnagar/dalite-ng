@@ -127,7 +127,7 @@ class LastLogout(models.Model):
 class TeacherNotification(models.Model):
     """ Generic framework for notifications based on ContentType """
 
-    teacher = models.ForeignKey(Teacher, on_delete="CASCADE")
+    teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE)
     notification_type = models.ForeignKey(
         ContentType, on_delete=models.CASCADE
     )
@@ -152,4 +152,4 @@ class VerifiedDomain(models.Model):
             "Email addresses with these domains will be treated as verified."
         ),
     )
-    institution = models.ForeignKey(Institution, on_delete="CASCADE")
+    institution = models.ForeignKey(Institution, on_delete=models.CASCADE)

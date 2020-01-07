@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 import re
 from datetime import datetime
 
@@ -174,7 +171,9 @@ class AssignmentMultiselectForm(forms.Form):
         else:
             queryset = Assignment.objects.all()
 
-        num_student_rationales = Count("answer", filter=~Q(user_token=""))
+        num_student_rationales = Count(
+            "answer", filter=~Q(answer__user_token="")
+        )
 
         if question:
             queryset = (

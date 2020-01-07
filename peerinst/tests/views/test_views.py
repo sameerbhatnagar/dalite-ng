@@ -169,6 +169,8 @@ class QuestionViewTestCase(TestCase):
         form_data["datetime_start"] = datetime.now(pytz.utc).strftime(
             "%Y-%m-%d %H:%M:%S.%f"
         )
+        print(form_data)
+        form_data = {k: v for k, v in form_data.items() if v is not None}
         response = self.client.post(self.question_url, form_data, follow=True)
         self.assertEqual(response.status_code, 200)
         return response

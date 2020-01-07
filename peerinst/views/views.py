@@ -1156,7 +1156,7 @@ class QuestionReviewBaseView(QuestionFormView):
                 rng, self.first_answer_choice, self.rationale, self.question
             )
         except rationale_choice.RationaleSelectionError as e:
-            self.start_over(e.message)
+            self.start_over(str(e))
         if self.question.fake_attributions:
             self.add_fake_attributions(rng)
         else:
@@ -1686,6 +1686,7 @@ def question(request, assignment_id, question_id):
             )
         stage_class = QuestionStartView
 
+    print(stage_class)
     # Delegate to the view
     stage = stage_class(**view_data)
     try:
