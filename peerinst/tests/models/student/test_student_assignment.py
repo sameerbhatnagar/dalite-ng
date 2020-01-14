@@ -10,6 +10,7 @@ from peerinst.models import (
     StudentNotification,
 )
 from peerinst.tests.generators import add_answers, new_student_assignments
+from peerinst.models import Assignment
 
 from .fixtures import *  # noqa F403
 
@@ -565,6 +566,50 @@ def test_completed__all_first_and_second_answers(student_assignment):
     )
 
     assert student_assignment.completed
+
+
+def test_completed__multiple_same_assignment(student_assignment):
+    assignment = student_assignment.group_assignment.assignment
+    questions = assignment.questions.all()
+    student = student_assignment.student
+
+    add_answers(
+        [
+            {
+                "question": question,
+                "assignment": assignment,
+                "user_token": student.student.username,
+                "first_answer_choice": 1,
+                "rationale": "test",
+                "second_answer_choice": 1,
+                "chosen_rationale": None,
+            }
+            for i, question in enumerate(questions)
+        ]
+    )
+
+    assert student_assignment.completed
+
+    assignment_clone = Assignment.objects.create(
+        identifier="__test__", title=assignment.title
+    )
+    for question in questions:
+        assignment_clone.questions.add(question)
+
+    add_answers(
+        [
+            {
+                "question": question,
+                "assignment": assignment,
+                "user_token": student.student.username,
+                "first_answer_choice": 1,
+                "rationale": "test",
+            }
+            for i, question in enumerate(questions)
+        ]
+    )
+
+    assert not student_assignment.completed
 
 
 def test_results__no_answers(student_assignment):

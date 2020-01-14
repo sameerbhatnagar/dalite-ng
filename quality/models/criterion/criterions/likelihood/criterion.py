@@ -265,13 +265,22 @@ class LikelihoodCache(models.Model):
                 max_gram,
             )
             likelihood, likelihood_random = predict(rationale)
-            cls.objects.create(
-                answer=answer_pk,
-                language=language,
-                hash=hash_,
-                likelihood=likelihood,
-                likelihood_random=likelihood_random,
-            )
+            # Because multiple servers are used, sometimes the likelihood is
+            # written to the db by the first server while the second one is
+            # computing it. In these cases, the likelihood written to the db
+            # will be used.
+            try:
+                cls.objects.create(
+                    answer=answer_pk,
+                    language=language,
+                    hash=hash_,
+                    likelihood=likelihood,
+                    likelihood_random=likelihood_random,
+                )
+            except IntegrityError:
+                cache = cls.objects.get(hash=hash_)
+                likelihood = cache.likelihood
+                likelihood_random = cache.likelihood_random
         return likelihood, likelihood_random
 
     @classmethod

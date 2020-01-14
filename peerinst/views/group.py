@@ -265,9 +265,8 @@ def send_student_assignment(req, assignment_hash, teacher, group, assignment):
     except KeyError:
         return response_400(req, msg=_("There are missing parameters."))
 
-    try:
-        student = Student.objects.get(student__email=email)
-    except Student.DoesNotExist:
+    student = Student.objects.filter(student__email=email).last()
+    if student is None:
         return response_400(
             req, msg=_('There is no student with email "{}".'.format(email))
         )
