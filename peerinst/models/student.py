@@ -651,11 +651,13 @@ class StudentAssignment(models.Model):
                 user_token=self.student.student.username,
                 question=question,
             ).exists()
-            or not Answer.objects.get(
+            or not Answer.objects.filter(
                 assignment=self.group_assignment.assignment,
                 user_token=self.student.student.username,
                 question=question,
-            ).completed
+            )
+            .last()
+            .completed
             for question in self.group_assignment.questions
         )
 
