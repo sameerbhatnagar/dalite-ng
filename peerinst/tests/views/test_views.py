@@ -512,7 +512,7 @@ class EventLogTest(QuestionViewTestCase):
         logger.reset_mock()
 
         # Select our own rationale and verify the logged event
-        self.question_post(second_answer_choice=2, rationale_choice_0=None)
+        self.question_post(second_answer_choice=2, rationale_choice_0="None")
         event = self.verify_event(
             logger,
             scoring_disabled=scoring_disabled,
