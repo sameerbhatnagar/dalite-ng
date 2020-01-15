@@ -231,7 +231,7 @@ class LikelihoodCriterionRules(CriterionRules):
 
 class LikelihoodCache(models.Model):
     answer = models.PositiveIntegerField(null=True, blank=True)
-    language = models.ForeignKey(LikelihoodLanguage, on_delete="CASCADE")
+    language = models.ForeignKey(LikelihoodLanguage, on_delete=models.CASCADE)
     hash = models.CharField(max_length=32, unique=True, db_index=True)
     likelihood = ProbabilityField()
     likelihood_random = ProbabilityField()

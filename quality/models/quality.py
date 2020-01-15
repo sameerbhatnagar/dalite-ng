@@ -15,8 +15,10 @@ logger = logging.getLogger("quality")
 
 
 class Quality(models.Model):
-    quality_type = models.ForeignKey(QualityType, on_delete="CASCADE")
-    quality_use_type = models.ForeignKey(QualityUseType, on_delete="CASCADE")
+    quality_type = models.ForeignKey(QualityType, on_delete=models.CASCADE)
+    quality_use_type = models.ForeignKey(
+        QualityUseType, on_delete=models.CASCADE
+    )
 
     def __str__(self):
         if self.quality_type.type == "global":
@@ -306,7 +308,7 @@ class Quality(models.Model):
 
 class UsesCriterion(models.Model):
     quality = models.ForeignKey(
-        Quality, related_name="criterions", on_delete="CASCADE"
+        Quality, related_name="criterions", on_delete=models.CASCADE
     )
     name = models.CharField(max_length=32)
     version = models.PositiveIntegerField()

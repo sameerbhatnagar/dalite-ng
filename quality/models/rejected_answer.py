@@ -10,7 +10,7 @@ from ..utils import LazyEncoder
 
 
 class RejectedAnswer(models.Model):
-    quality = models.ForeignKey(Quality, on_delete="CASCADE")
+    quality = models.ForeignKey(Quality, on_delete=models.CASCADE)
     rationale = models.TextField()
     reasons = models.TextField(
         help_text="json string containing info about criterions used to "
