@@ -58,11 +58,6 @@ jobs:
           name: Waiting for db
           command: dockerize -wait tcp://127.0.0.1:3306 -timeout 1m
       - run:
-          name: Setup db
-          command: |
-            mysql --host=$DALITE_DB_HOST --port=$DALITE_DB_PORT -u root --password=$MYSQL_ROOT_PASSWORD -e "create database test_$DALITE_DB_NAME"
-            mysql --host=$DALITE_DB_HOST --port=$DALITE_DB_PORT -u root --password=$MYSQL_ROOT_PASSWORD -e "grant all privileges on test_$DALITE_DB_NAME.* to '$DALITE_DB_USER'@'%'"
-      - run:
           name: Collect static content and compress
           command: |
             . .venv/bin/activate
@@ -72,4 +67,5 @@ jobs:
           name: Tests
           command: |
             . .venv/bin/activate
+            mysql --host=$DALITE_DB_HOST --port=$DALITE_DB_PORT -u root --password=$MYSQL_ROOT_PASSWORD -e "grant all privileges on test_$DALITE_DB_NAME.* to '$DALITE_DB_USER'@'%'"
             pytest --migrations --cov --create-db --reruns 3
