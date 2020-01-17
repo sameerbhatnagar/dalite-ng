@@ -122,7 +122,7 @@ def compute_gradebook(group_pk, assignment_pk=None):
                             for key, val in _assignment.studentassignment_set.get(  # noqa
                                 student=membership.student
                             ).results.items()
-                            if key in ("n_completed", "n_correct")
+                            if key in ("grade", "n_correct")
                         }
                         if _assignment.studentassignment_set.filter(
                             student=membership.student
@@ -254,7 +254,7 @@ def convert_gradebook_to_csv(results):
             + [
                 "{} - {}".format(n, assignment)
                 for assignment in results["assignments"]
-                for n in ("n_correct", "n_completed")
+                for n in ("grade", "n_completed")
             ]
         )
         yield writer.writerow(header)
@@ -266,7 +266,7 @@ def convert_gradebook_to_csv(results):
                 + [
                     "-" if assignment[n] is None else str(assignment[n])
                     for assignment in student["assignments"]
-                    for n in ("n_correct", "n_completed")
+                    for n in ("grade", "n_completed")
                 ]
             )
             yield writer.writerow(row)
