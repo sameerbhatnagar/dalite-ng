@@ -122,7 +122,7 @@ def compute_gradebook(group_pk, assignment_pk=None):
                             for key, val in _assignment.studentassignment_set.get(  # noqa
                                 student=membership.student
                             ).results.items()
-                            if key in ("grade", "n_correct")
+                            if key in ("n_completed", "grade")
                         }
                         if _assignment.studentassignment_set.filter(
                             student=membership.student
