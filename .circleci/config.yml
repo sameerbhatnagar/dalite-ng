@@ -68,4 +68,5 @@ jobs:
           command: |
             . .venv/bin/activate
             mysql --host=$DALITE_DB_HOST --port=$DALITE_DB_PORT -u root --password=$MYSQL_ROOT_PASSWORD -e "grant all privileges on test_$DALITE_DB_NAME.* to '$DALITE_DB_USER'@'%'"
+            mysql --host=$DALITE_DB_HOST --port=$DALITE_DB_PORT -u root --password=$MYSQL_ROOT_PASSWORD -e "grant all privileges on test_test_$DALITE_DB_NAME.* to '$DALITE_DB_USER'@'%'"
             pytest --migrations --cov --create-db --reruns 3
