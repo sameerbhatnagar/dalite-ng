@@ -1,0 +1,7 @@
+-r dev-requirements.txt
+
+spacy
+spacy-readability
+django_extensions
+dframcy
+django_pandas
