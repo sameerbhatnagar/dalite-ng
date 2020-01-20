@@ -12,6 +12,8 @@ addons:
   mariadb: "10.4"
 before_install:
   - sudo mysql -e "create database if not exists test_$DALITE_DB_NAME"
+  - sudo mysql -e "create user '$DALITE_DB_USER'@'localhost' identified by '$DALITE_DB_PASSWORD'"
+  - sudo mysql -e "grant all privileges on test_$DALITE_DB_NAME.* to '$DALITE_DB_USER'@'localhost'"
 install:
   - pip install -r requirements/dev-requirements.txt
   - |
