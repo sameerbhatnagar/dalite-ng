@@ -26,6 +26,10 @@ install:
     echo 'EMAIL_SUBJECT_PREFIX = "SALTISE/S4 @ Dawson College: "' >> dalite/local_settings.py
     echo 'DEFAULT_FROM_EMAIL = "no-reply-SALTISES4@dawsoncollege.qc.ca"' >> dalite/local_settings.py
     echo 'EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"' >> dalite/local_settings.py
+  - |
+    ./manage.py collectstatic -c
+    ./manage.py compress
+
 script:
 jobs:
   include:
