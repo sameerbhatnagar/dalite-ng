@@ -264,7 +264,9 @@ def convert_gradebook_to_csv(results):
                 ([student["school_id"]] if results["school_id_needed"] else [])
                 + [student["email"]]
                 + [
-                    "-" if assignment[n] is None else str(assignment[n])
+                    "-"
+                    if assignment is None or assignment.get(n) is None
+                    else str(assignment[n])
                     for assignment in student["assignments"]
                     for n in ("grade", "n_completed")
                 ]
