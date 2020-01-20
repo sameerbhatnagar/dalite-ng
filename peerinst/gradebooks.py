@@ -56,8 +56,8 @@ def compute_gradebook(group_pk, assignment_pk=None):
                     assignments: [{
                         n_completed: Optional[int]
                             Number of completed questions
-                        n_correct: Optional[int]
-                            Number of correct questions
+                        grade: Optional[int]
+                            Grade for the assignment
                     }]
                 }]
             }
@@ -192,8 +192,8 @@ def convert_gradebook_to_csv(results):
                         assignments: [{
                             n_completed: Optional[int]
                                 Number of completed questions
-                            n_correct: Optional[int]
-                                Number of correct questions
+                            grade: Optional[int]
+                                Grade for the assignment
                         }]
                     }]
                 }
