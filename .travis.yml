@@ -10,7 +10,7 @@ env:
 addons:
   mariadb: "10.4"
 before_install:
-  - mysql -e "create database if not exists test_$DALITE_DB_NAME"
+  - sudo mysql -e "create database if not exists test_$DALITE_DB_NAME"
 install:
   - pip install -r requirements/dev-requirements.txt
   - |
