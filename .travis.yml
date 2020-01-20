@@ -2,11 +2,12 @@ language: python
 python:
   - "3.8"
 env:
-  - DALITE_DB_NAME=dalite_ng
-  - DALITE_DB_USER=dalite
-  - DALITE_DB_PASSWORD=test key
-  - DALITE_DB_HOST=127.0.0.1
-  - DALITE_DB_PORT=3306
+  global:
+    - DALITE_DB_NAME=dalite_ng
+    - DALITE_DB_USER=dalite
+    - DALITE_DB_PASSWORD=test key
+    - DALITE_DB_HOST=127.0.0.1
+    - DALITE_DB_PORT=3306
 addons:
   mariadb: "10.4"
 before_install:
