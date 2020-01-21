@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 import json
 import logging
 import re
@@ -8,7 +5,7 @@ import re
 from django.conf import settings
 from django.contrib.auth import login, logout
 from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.utils.translation import ugettext
@@ -293,7 +290,7 @@ def index_page(req):
             }
             for assignment in assignments
         ]
-        for group, assignments in assignments.items()
+        for group, assignments in list(assignments.items())
     }
 
     if not Consent.objects.filter(

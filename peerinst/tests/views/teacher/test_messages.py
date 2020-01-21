@@ -1,7 +1,7 @@
 import json
 
 from django.contrib.contenttypes.models import ContentType
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from pinax.forums.models import ForumThread
 
 from peerinst.models import TeacherNotification
@@ -18,7 +18,7 @@ def test_messages(client, teacher, thread):
 
     resp = client.get(reverse("teacher-dashboard--messages"))
     assert resp.status_code == 200
-    data = json.loads(resp.content)["threads"]
+    data = json.loads(resp.content.decode())["threads"]
 
     assert len(data) == 1
     for thread in data:

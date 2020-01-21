@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 import random
 import string
@@ -38,7 +38,7 @@ def test_evaluate__english_french__english(
     )
     answer.save()
 
-    likelihood_rules.languages = ["english", "french"]
+    likelihood_rules.languages.set(["english", "french"])
     likelihood_rules.max_gram = 3
     likelihood_rules.save()
 
@@ -58,7 +58,7 @@ def test_evaluate__english_french__french(
     )
     answer.save()
 
-    likelihood_rules.languages = ["english", "french"]
+    likelihood_rules.languages.set(["english", "french"])
     likelihood_rules.max_gram = 3
     likelihood_rules.save()
 
@@ -78,7 +78,7 @@ def test_evaluate__english_french__random(
     )
     answer.save()
 
-    likelihood_rules.languages = ["english", "french"]
+    likelihood_rules.languages.set(["english", "french"])
     likelihood_rules.max_gram = 3
     likelihood_rules.save()
 
@@ -98,7 +98,7 @@ def test_evaluate__english__english(
     )
     answer.save()
 
-    likelihood_rules.languages = ["english"]
+    likelihood_rules.languages.set(["english"])
     likelihood_rules.max_gram = 3
     likelihood_rules.save()
 
@@ -118,7 +118,7 @@ def test_evaluate__english__french(
     )
     answer.save()
 
-    likelihood_rules.languages = ["english"]
+    likelihood_rules.languages.set(["english"])
     likelihood_rules.max_gram = 3
     likelihood_rules.save()
 
@@ -138,7 +138,7 @@ def test_evaluate__english__random(
     )
     answer.save()
 
-    likelihood_rules.languages = ["english"]
+    likelihood_rules.languages.set(["english"])
     likelihood_rules.max_gram = 3
     likelihood_rules.save()
 
@@ -158,7 +158,7 @@ def test_evaluate__french__english(
     )
     answer.save()
 
-    likelihood_rules.languages = ["french"]
+    likelihood_rules.languages.set(["french"])
     likelihood_rules.max_gram = 3
     likelihood_rules.save()
 
@@ -178,7 +178,7 @@ def test_evaluate__french__french(
     )
     answer.save()
 
-    likelihood_rules.languages = ["french"]
+    likelihood_rules.languages.set(["french"])
     likelihood_rules.max_gram = 3
     likelihood_rules.save()
 
@@ -198,7 +198,7 @@ def test_evaluate__french__random(
     )
     answer.save()
 
-    likelihood_rules.languages = ["french"]
+    likelihood_rules.languages.set(["french"])
     likelihood_rules.max_gram = 3
     likelihood_rules.save()
 
@@ -268,7 +268,7 @@ def test_batch_evaluate__english_french__english(
         )
         answer.save()
 
-    likelihood_rules.languages = ["english", "french"]
+    likelihood_rules.languages.set(["english", "french"])
     likelihood_rules.max_gram = 3
     likelihood_rules.save()
 
@@ -289,7 +289,7 @@ def test_batch_evaluate__english_french__french(
         )
         answer.save()
 
-    likelihood_rules.languages = ["english", "french"]
+    likelihood_rules.languages.set(["english", "french"])
     likelihood_rules.max_gram = 3
     likelihood_rules.save()
 
@@ -310,7 +310,7 @@ def test_batch_evaluate__english_french__random(
         )
         answer.save()
 
-    likelihood_rules.languages = ["english", "french"]
+    likelihood_rules.languages.set(["english", "french"])
     likelihood_rules.max_gram = 3
     likelihood_rules.save()
 
@@ -331,7 +331,7 @@ def test_batch_evaluate__english__english(
         )
         answer.save()
 
-    likelihood_rules.languages = ["english"]
+    likelihood_rules.languages.set(["english"])
     likelihood_rules.max_gram = 3
     likelihood_rules.save()
 
@@ -352,7 +352,7 @@ def test_batch_evaluate__english__french(
         )
         answer.save()
 
-    likelihood_rules.languages = ["english"]
+    likelihood_rules.languages.set(["english"])
     likelihood_rules.max_gram = 3
     likelihood_rules.save()
 
@@ -373,7 +373,7 @@ def test_batch_evaluate__english__random(
         )
         answer.save()
 
-    likelihood_rules.languages = ["english"]
+    likelihood_rules.languages.set(["english"])
     likelihood_rules.max_gram = 3
     likelihood_rules.save()
 
@@ -394,7 +394,7 @@ def test_batch_evaluate__french__english(
         )
         answer.save()
 
-    likelihood_rules.languages = ["french"]
+    likelihood_rules.languages.set(["french"])
     likelihood_rules.max_gram = 3
     likelihood_rules.save()
 
@@ -415,7 +415,7 @@ def test_batch_evaluate__french__french(
         )
         answer.save()
 
-    likelihood_rules.languages = ["french"]
+    likelihood_rules.languages.set(["french"])
     likelihood_rules.max_gram = 3
     likelihood_rules.save()
 
@@ -436,7 +436,7 @@ def test_batch_evaluate__french__random(
         )
         answer.save()
 
-    likelihood_rules.languages = ["french"]
+    likelihood_rules.languages.set(["french"])
     likelihood_rules.max_gram = 3
     likelihood_rules.save()
 

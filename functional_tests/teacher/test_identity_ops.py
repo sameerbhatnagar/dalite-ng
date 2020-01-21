@@ -1,6 +1,6 @@
 import time
 
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import Select

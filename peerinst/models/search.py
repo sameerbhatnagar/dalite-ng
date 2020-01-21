@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 from django.db import models
 from django.contrib.contenttypes.fields import GenericForeignKey
@@ -22,7 +22,7 @@ class MetaFeature(models.Model):
             return int(self.value)
         return self.value
 
-    def __unicode__(self):
+    def __str__(self):
         return "{} = {}".format(self.key, self.get_value)
 
     class Meta:
@@ -47,5 +47,5 @@ class MetaSearch(models.Model):
                 if obj.meta_feature.key == self.meta_feature.key:
                     obj.delete()
 
-    def __unicode__(self):
+    def __str__(self):
         return "{}: {}".format(self.content_object, self.meta_feature)

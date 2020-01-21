@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 import json
 import random
@@ -9,7 +9,7 @@ import ddt
 import mock
 import pytz
 from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.test import TestCase
 from django_lti_tool_provider.models import LtiUserData
 from django_lti_tool_provider.views import LTIView
@@ -116,9 +116,7 @@ class QuestionViewTestCase(TestCase):
                 assignment_id=self.assignment.pk, question_id=question.pk
             ),
         )
-        self.custom_key = (
-            unicode(self.assignment.pk) + ":" + unicode(question.pk)
-        )
+        self.custom_key = str(self.assignment.pk) + ":" + str(question.pk)
         self.log_in_with_lti()
 
     def log_in_with_scoring_disabled(self):
@@ -152,8 +150,8 @@ class QuestionViewTestCase(TestCase):
             lti_params = self.LTI_PARAMS.copy()
         lti_params["lis_person_sourcedid"] = user.username
         lti_params["lis_person_contact_email_primary"] = user.email
-        lti_params["custom_assignment_id"] = unicode(self.assignment.pk)
-        lti_params["custom_question_id"] = unicode(self.question.pk)
+        lti_params["custom_assignment_id"] = str(self.assignment.pk)
+        lti_params["custom_question_id"] = str(self.question.pk)
         LtiUserData.store_lti_parameters(
             user, LTIView.authentication_manager, lti_params
         )
@@ -171,6 +169,8 @@ class QuestionViewTestCase(TestCase):
         form_data["datetime_start"] = datetime.now(pytz.utc).strftime(
             "%Y-%m-%d %H:%M:%S.%f"
         )
+        print(form_data)
+        form_data = {k: v for k, v in form_data.items() if v is not None}
         response = self.client.post(self.question_url, form_data, follow=True)
         self.assertEqual(response.status_code, 200)
         return response
@@ -512,7 +512,7 @@ class EventLogTest(QuestionViewTestCase):
         logger.reset_mock()
 
         # Select our own rationale and verify the logged event
-        self.question_post(second_answer_choice=2, rationale_choice_0=None)
+        self.question_post(second_answer_choice=2, rationale_choice_0="None")
         event = self.verify_event(
             logger,
             scoring_disabled=scoring_disabled,

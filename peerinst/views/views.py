@@ -1,12 +1,11 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 import base64
 import json
 import logging
 import random
 import re
-import urllib
+import urllib.request
+import urllib.parse
+import urllib.error
 from datetime import datetime
 
 import pytz
@@ -20,7 +19,7 @@ from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import PermissionDenied
 from django.core.mail import mail_admins, send_mail
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 # reports
 from django.db.models import Count, Q
@@ -33,7 +32,6 @@ from django.shortcuts import (
     get_object_or_404,
     redirect,
     render,
-    render_to_response,
 )
 from django.template import loader
 from django.template.response import TemplateResponse
@@ -58,7 +56,7 @@ from dalite.views.errors import response_400, response_404
 # tos
 from tos.models import Consent, Tos
 
-from .. import admin, forms, heartbeat_checks, models, rationale_choice
+from .. import admin, forms, models, rationale_choice
 from ..admin_views import get_question_rationale_aggregates
 from ..mixins import (
     LoginRequiredMixin,
@@ -1158,7 +1156,7 @@ class QuestionReviewBaseView(QuestionFormView):
                 rng, self.first_answer_choice, self.rationale, self.question
             )
         except rationale_choice.RationaleSelectionError as e:
-            self.start_over(e.message)
+            self.start_over(str(e))
         if self.question.fake_attributions:
             self.add_fake_attributions(rng)
         else:
@@ -1325,7 +1323,7 @@ class QuestionReviewView(QuestionReviewBaseView):
             rationale_algorithm=dict(
                 name=self.question.rationale_selection_algorithm,
                 version=self.choose_rationales.version,
-                description=unicode(self.choose_rationales.description),
+                description=str(self.choose_rationales.description),
             ),
             rationales=[
                 {"id": id, "text": rationale}
@@ -1394,7 +1392,7 @@ class QuestionReviewView(QuestionReviewBaseView):
         rationale_votes = self.stage_data.get("rationale_votes")
         if rationale_votes is None:
             return
-        for rationale_id, vote in rationale_votes.iteritems():
+        for rationale_id, vote in rationale_votes.items():
             try:
                 rationale = models.Answer.objects.get(id=rationale_id)
             except models.Answer.DoesNotExist:
@@ -1418,7 +1416,7 @@ class QuestionReviewView(QuestionReviewBaseView):
         fake_attributions = self.stage_data.get("fake_attributions")
         if fake_attributions is None:
             return
-        fake_username, fake_country = fake_attributions[unicode(answer.id)]
+        fake_username, fake_country = fake_attributions[str(answer.id)]
         models.AnswerVote(
             answer=answer,
             assignment=self.assignment,
@@ -1492,31 +1490,6 @@ class RationaleOnlyQuestionSummaryView(QuestionMixin, TemplateView):
     # question that has already been answered.  Simply redirect here as GET.
     def post(self, request, *args, **kwargs):
         return redirect(request.path)
-
-
-class HeartBeatUrl(View):
-    def get(self, request):
-
-        checks = []
-
-        checks.append(heartbeat_checks.check_db_query())
-        checks.append(heartbeat_checks.check_staticfiles())
-        checks.extend(
-            heartbeat_checks.test_global_free_percentage(
-                settings.HEARTBEAT_REQUIRED_FREE_SPACE_PERCENTAGE
-            )
-        )
-
-        checks_ok = all((check.is_ok for check in checks))
-
-        status = 200 if checks_ok else 500
-
-        return TemplateResponse(
-            request,
-            "peerinst/heartbeat.html",
-            context={"checks": checks},
-            status=status,
-        )
 
 
 class AnswerSummaryChartView(View):
@@ -1647,8 +1620,8 @@ def redirect_to_login_or_show_cookie_help(request):
         # We probably got here from within the LMS, and the user has
         # third-party cookies disabled, so we show help on enabling cookies for
         # this site.
-        return render_to_response(
-            "peerinst/cookie_help.html", dict(host=request.get_host())
+        return render(
+            request, "peerinst/cookie_help.html", dict(host=request.get_host())
         )
     return redirect_to_login(request.get_full_path())
 
@@ -1670,7 +1643,7 @@ def question(request, assignment_id, question_id):
     if question.type == "RO":
         question = get_object_or_404(RationaleOnlyQuestion, pk=question_id)
 
-    custom_key = unicode(assignment.pk) + ":" + unicode(question.pk)
+    custom_key = str(assignment.pk) + ":" + str(question.pk)
     stage_data = SessionStageData(request.session, custom_key)
     user_token = request.user.username
     view_data = dict(
@@ -1713,6 +1686,7 @@ def question(request, assignment_id, question_id):
             )
         stage_class = QuestionStartView
 
+    print(stage_class)
     # Delegate to the view
     stage = stage_class(**view_data)
     try:
@@ -2696,7 +2670,7 @@ def question_search(request):
 
         query = []
 
-        for term in query_meta.keys():
+        for term in list(query_meta.keys()):
             query_dict = {}
             query_dict["term"] = term
             query_dict["questions"] = [
@@ -3006,9 +2980,9 @@ def network_data(request, assignment_id):
 
     # serialize
     links_array = []
-    for source, targets in links.items():
+    for source, targets in list(links.items()):
         d = {}
-        for t in targets.keys():
+        for t in list(targets.keys()):
             d["source"] = source
             d["target"] = t
             d["value"] = targets[t]
@@ -3047,7 +3021,7 @@ def report(request, assignment_id="", group_id=""):
         student_groups = request.GET.getlist("student_groups")
     elif group_id:
         student_groups = [
-            StudentGroup.objects.get(name=urllib.unquote(group_id)).pk
+            StudentGroup.objects.get(name=urllib.parse.unquote(group_id)).pk
         ]
     else:
         student_groups = teacher.current_groups.all().values_list("pk")
@@ -3055,7 +3029,7 @@ def report(request, assignment_id="", group_id=""):
     if request.GET.getlist("assignments"):
         assignment_list = request.GET.getlist("assignments")
     elif assignment_id:
-        assignment_list = [urllib.unquote(assignment_id)]
+        assignment_list = [urllib.parse.unquote(assignment_id)]
     else:
         assignment_list = teacher.assignments.all().values_list(
             "identifier", flat=True
@@ -3124,7 +3098,7 @@ def report_assignment_aggregates(request):
                 perpage=50,
                 student_groups=student_groups,
             )
-            for trx, rationale_list in output.items():
+            for trx, rationale_list in list(output.items()):
                 d_q_i = {}
                 d_q_i["transition_type"] = trx
                 d_q_i["rationales"] = []

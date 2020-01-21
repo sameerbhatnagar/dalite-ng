@@ -1,9 +1,7 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 # Backport of django 1.9 password validation
 import password_validation.views as password_views
-from django.conf.urls import include, url
+from django.conf.urls import include
+from django.urls import path, re_path
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.decorators import user_passes_test
 from django.views.decorators.cache import cache_page
@@ -24,181 +22,172 @@ def old_patterns():
     return [
         # DALITE
         # Assignment table of contents - Enforce sameorigin to prevent access from LMS  # noqa
-        url(
-            r"^browse/$",
+        path(
+            "browse/",
             xframe_options_sameorigin(views.browse_database),
             name="browse-database",
         ),
-        url(
-            r"^assignment-list/$",
+        path(
+            "assignment-list/",
             xframe_options_sameorigin(views.AssignmentListView.as_view()),
             name="assignment-list",
         ),
-        url(
-            r"^question/create$",
+        path(
+            "question/create",
             views.QuestionCreateView.as_view(),
             name="question-create",
         ),
-        url(
-            r"^question/clone/(?P<pk>[0-9]+)$",
+        path(
+            "question/clone/<int:pk>",
             views.QuestionCloneView.as_view(),
             name="question-clone",
         ),
-        url(
-            r"^question/update/(?P<pk>[0-9]+)$",
+        path(
+            "question/update/<int:pk>",
             views.QuestionUpdateView.as_view(),
             name="question-update",
         ),
-        url(
-            r"^question/delete", views.question_delete, name="question-delete"
-        ),
-        url(
-            r"^discipline/create$",
+        path("question/delete", views.question_delete, name="question-delete"),
+        path(
+            "discipline/create",
             views.DisciplineCreateView.as_view(),
             name="discipline-create",
         ),
-        url(
-            r"^discipline/form/(?P<pk>[0-9]+)$",
+        path(
+            "discipline/form/<int:pk>",
             views.discipline_select_form,
             name="discipline-form",
         ),
-        url(
-            r"^discipline/form$",
+        path(
+            "discipline/form",
             views.discipline_select_form,
             name="discipline-form",
         ),
-        url(
-            r"^disciplines/form/(?P<pk>[0-9]+)$",
+        path(
+            "disciplines/form/<int:pk>",
             views.disciplines_select_form,
             name="disciplines-form",
         ),
-        url(
-            r"^disciplines/form$",
+        path(
+            "disciplines/form",
             views.disciplines_select_form,
             name="disciplines-form",
         ),
-        url(
-            r"^category/create$",
+        path(
+            "category/create",
             views.CategoryCreateView.as_view(),
             name="category-create",
         ),
-        url(
-            r"^category/form/(?P<pk>[0-9]+)$",
+        path(
+            "category/form/<int:pk>",
             views.category_select_form,
             name="category-form",
         ),
-        url(
-            r"^category/form$",
-            views.category_select_form,
-            name="category-form",
+        path(
+            "category/form", views.category_select_form, name="category-form",
         ),
-        url(
-            r"^answer-choice/form/(?P<question_id>[0-9]+)$",
+        path(
+            "answer-choice/form/<int:question_id>",
             views.answer_choice_form,
             name="answer-choice-form",
         ),
-        url(
-            r"^sample-answer/form/(?P<question_id>[0-9]+)$",
+        path(
+            "sample-answer/form/<int:question_id>",
             admin_views.QuestionPreviewViewBase.as_view(),
             name="sample-answer-form",
         ),
-        url(
-            r"^sample-answer/form/(?P<question_id>[0-9]+)/done$",
+        path(
+            "sample-answer/form/<int:question_id>/done",
             views.sample_answer_form_done,
             name="sample-answer-form-done",
         ),
-        url(
-            r"^assignment/copy/(?P<assignment_id>[^/]+)$",
+        path(
+            "assignment/copy/<assignment_id>",
             views.AssignmentCopyView.as_view(),
             name="assignment-copy",
         ),
-        url(
-            r"^assignment/edit$",
+        path(
+            "assignment/edit",
             views.update_assignment_question_list,
             name="assignment-edit-ajax",
         ),
-        url(
-            r"^assignment/edit/(?P<assignment_id>[^/]+)$",
+        path(
+            "assignment/edit/<assignment_id>",
             views.AssignmentEditView.as_view(),
             name="assignment-edit",
         ),
-        url(
-            r"^question-search/$",
-            views.question_search,
-            name="question-search",
+        path(
+            "question-search/", views.question_search, name="question-search",
         ),
-        url(r"^heartbeat/$", views.HeartBeatUrl.as_view(), name="heartbeat"),
         # Standalone
-        url(
-            r"^live/access/(?P<token>[0-9A-Za-z=_-]+)/(?P<assignment_hash>[0-9A-Za-z=_-]+)$",  # noqa
+        path(
+            "live/access/<token>/<assignment_hash>",  # noqa
             views.live,
             name="live",
         ),
-        url(
-            r"^live/navigate/(?P<assignment_id>[^/]+)/(?P<question_id>\d+)/(?P<direction>(next|prev|goto))/(?P<index>[0-9x]+)$",  # noqa
+        re_path(
+            "live/navigate/(?P<assignment_id>\w+)/(?P<question_id>\d+)/(?P<direction>(next|prev|goto))/(?P<index>[0-9x]+)",  # noqa
             views.navigate_assignment,
             name="navigate-assignment",
         ),
-        url(
-            r"^live/signup/form/(?P<group_hash>[0-9A-Za-z=_-]+)$",
+        path(
+            "live/signup/form/<group_hash>",
             views.signup_through_link,
             name="signup-through-link",
         ),
-        url(
-            r"^live/studentgroupassignment/create/(?P<assignment_id>[^/]+)$",
+        path(
+            "live/studentgroupassignment/create/<assignment_id>",
             views.StudentGroupAssignmentCreateView.as_view(),
             name="student-group-assignment-create",
         ),
         # Admin
-        url(r"^dashboard/$", views.dashboard, name="dashboard"),
-        url(
-            r"^admin/$",
-            admin_views.AdminIndexView.as_view(),
-            name="admin-index",
+        path("dashboard/", views.dashboard, name="dashboard"),
+        path(
+            "admin/", admin_views.AdminIndexView.as_view(), name="admin-index",
         ),
-        url(
-            r"^admin/peerinst/",
+        path(
+            "admin/peerinst/",
             include(
                 [
-                    url(
-                        r"^assignment_results/(?P<assignment_id>[^/]+)/",
+                    path(
+                        "assignment_results/<assignment_id>/",
                         include(
                             [
-                                url(
-                                    r"^$",
+                                path(
+                                    "",
                                     admin_views.AssignmentResultsView.as_view(),  # noqa
                                     name="assignment-results",
                                 ),
-                                url(
-                                    r"^rationales/(?P<question_id>\d+)$",
+                                path(
+                                    "rationales/<int:question_id>",
                                     admin_views.QuestionRationaleView.as_view(),  # noqa
                                     name="question-rationales",
                                 ),
                             ]
                         ),
                     ),
-                    url(
-                        r"^question_preview/(?P<question_id>[^/]+)$",
+                    path(
+                        "question_preview/<int:question_id>",
                         admin_views.QuestionPreviewView.as_view(),
                         name="question-preview",
                     ),
-                    url(
-                        r"^fake_usernames/$",
+                    path(
+                        "fake_usernames/",
                         admin_views.FakeUsernames.as_view(),
                         name="fake-usernames",
                     ),
-                    url(
-                        r"^fake_countries/$",
+                    path(
+                        "fake_countries/",
                         admin_views.FakeCountries.as_view(),
                         name="fake-countries",
                     ),
-                    url(
-                        r"^attribution_analysis/$",
+                    path(
+                        "attribution_analysis/",
                         admin_views.AttributionAnalysis.as_view(),
                         name="attribution-analysis",
                     ),
-                    url(
-                        r"^group_assignment_management/$",
+                    path(
+                        "group_assignment_management/",
                         admin_views.StudentGroupAssignmentManagement.as_view(),
                         name="group-assignment-management",
                     ),
@@ -206,213 +195,199 @@ def old_patterns():
             ),
         ),
         # Teachers
-        url(
-            r"^teacher-account/(?P<pk>[0-9]+)/$",
+        path(
+            "teacher-account/<int:pk>/",
             views.TeacherDetailView.as_view(),
             name="teacher",
         ),
-        url(
-            r"^teacher/(?P<pk>[0-9]+)/$",
+        path(
+            "teacher/<int:pk>/",
             views.TeacherUpdate.as_view(),
             name="teacher-update",
         ),
-        url(
-            r"^teacher/(?P<pk>[0-9]+)/assignments/$",
+        path(
+            "teacher/<int:pk>/assignments/",
             views.TeacherAssignments.as_view(),
             name="teacher-assignments",
         ),
-        url(
-            r"^teacher/(?P<pk>[0-9]+)/blinks/$",
+        path(
+            "teacher/<int:pk>/blinks/",
             views.TeacherBlinks.as_view(),
             name="teacher-blinks",
         ),
-        url(
-            r"^teacher/favourite",
+        path(
+            "teacher/favourite",
             views.teacher_toggle_favourite,
             name="teacher-toggle-favourite",
         ),
-        url(
-            r"^teacher/(?P<pk>[0-9]+)/groups/$",
+        path(
+            "teacher/<int:pk>/groups/",
             views.TeacherGroups.as_view(),
             name="teacher-groups",
         ),
-        url(
-            r"^teacher/(?P<pk>[0-9]+)/group/(?P<group_hash>[0-9A-Za-z=_-]+)/share$",  # noqa
+        path(
+            "teacher/<int:pk>/group/<group_hash>/share",  # noqa
             views.TeacherGroupShare.as_view(),
             name="group-share",
         ),
-        url(
-            r"^teacher/(?P<teacher_id>[0-9]+)/group_assignments/$",
+        path(
+            "teacher/<int:teacher_id>/group_assignments/",
             views.StudentGroupAssignmentListView.as_view(),
             name="group-assignments",
         ),
-        url(
-            r"^teacher/student_activity/$",
+        path(
+            "teacher/student_activity/",
             views.student_activity,
             name="student-activity",
         ),
-        url(
-            r"^teacher/report/all_groups/(?P<assignment_id>[^/]+)/$",
+        path(
+            "teacher/report/all_groups/<assignment_id>/",
             views.report,
             name="report-all-groups",
         ),
-        url(
-            r"^teacher/report/all_assignments/(?P<group_id>[^/]+)/$",
+        path(
+            "teacher/report/all_assignments/<int:group_id>/",
             views.report,
             name="report-all-assignments",
         ),
-        url(
-            r"^teacher/report_selector$",
+        path(
+            "teacher/report_selector",
             views.report_selector,
             name="report_selector",
         ),
-        url(r"^teacher/custom_report/$", views.report, name="report-custom"),
-        url(
-            r"^report_rationales_chosen$",
+        path("teacher/custom_report/", views.report, name="report-custom"),
+        path(
+            "report_rationales_chosen",
             views.report_assignment_aggregates,
             name="report_rationales_chosen",
         ),
         # Auth
-        url(r"^$", views.landing_page, name="landing_page"),
-        url(r"^signup/$", views.sign_up, name="sign_up"),
-        url(
-            r"^login/$",
+        path("", views.landing_page, name="landing_page"),
+        path("signup/", views.sign_up, name="sign_up"),
+        path(
+            "login/",
             user_passes_test(not_authenticated, login_url="/welcome/")(
-                auth_views.login
+                auth_views.LoginView.as_view()
             ),
             name="login",
         ),
-        url(r"^logout/$", views.logout_view, name="logout"),
-        url(r"^welcome/$", views.welcome, name="welcome"),
+        path("logout/", views.logout_view, name="logout"),
+        path("welcome/", views.welcome, name="welcome"),
         # Only non-students can change their password
-        url(
-            r"^password_change/$",
+        path(
+            "password_change/",
             user_passes_test(student_check)(password_views.password_change),
             name="password_change",
         ),
-        url(
-            r"^password_change/done/$",
-            auth_views.password_change_done,
+        path(
+            "password_change/done/",
+            auth_views.PasswordChangeDoneView.as_view(),
             name="password_change_done",
         ),
-        url(
-            r"^password_reset/$",
-            auth_views.password_reset,
+        path(
+            "password_reset/",
+            auth_views.PasswordResetView.as_view(),
             {
                 "html_email_template_name": "registration/password_reset_email_html.html",  # noqa
                 "password_reset_form": NonStudentPasswordResetForm,
             },
             name="password_reset",
         ),
-        url(
-            r"^password_reset/done/$",
-            auth_views.password_reset_done,
+        path(
+            "password_reset/done/",
+            auth_views.PasswordResetDoneView.as_view(),
             name="password_reset_done",
         ),
-        url(
-            r"^reset/(?P<uidb64>[0-9A-Za-z_\-=]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$",  # noqa
+        path(
+            "reset/<uidb64>/<token>/",  # noqa
             password_views.password_reset_confirm,
             name="password_reset_confirm",
         ),
-        url(
-            r"^reset/done/$",
-            auth_views.password_reset_complete,
+        path(
+            "reset/done/",
+            auth_views.PasswordResetCompleteView.as_view(),
             name="password_reset_complete",
         ),
-        url(
-            r"^terms_of_service/teachers/$",
+        path(
+            "terms_of_service/teachers/",
             views.terms_teacher,
             name="terms_teacher",
         ),
-        url(r"^access_denied/$", views.access_denied, name="access_denied"),
-        url(
-            r"^access_denied_and_logout/$",
+        path("access_denied/", views.access_denied, name="access_denied"),
+        path(
+            "access_denied_and_logout/",
             views.access_denied_and_logout,
             name="access_denied_and_logout",
         ),
         # Blink
-        url(
-            r"^blink/(?P<pk>[0-9]+)/$",
+        path(
+            "blink/<int:pk>/",
             views.BlinkQuestionFormView.as_view(),
             name="blink-question",
         ),
-        url(
-            r"^blink/(?P<pk>[0-9]+)/summary/$",
+        path(
+            "blink/<int:pk>/summary/",
             views.BlinkQuestionDetailView.as_view(),
             name="blink-summary",
         ),
-        url(
-            r"^blink/(?P<pk>[0-9]+)/count/$",
-            views.blink_count,
-            name="blink-count",
-        ),
-        url(
-            r"^blink/(?P<pk>[0-9]+)/close/$",
-            views.blink_close,
-            name="blink-close",
-        ),
-        url(
-            r"^blink/(?P<pk>[0-9]+)/latest_results/$",
+        path("blink/<int:pk>/count/", views.blink_count, name="blink-count",),
+        path("blink/<int:pk>/close/", views.blink_close, name="blink-close",),
+        path(
+            "blink/<int:pk>/latest_results/",
             views.blink_latest_results,
             name="blink-results",
         ),
-        url(
-            r"^blink/(?P<pk>[0-9]+)/reset/$",
-            views.blink_reset,
-            name="blink-reset",
+        path("blink/<int:pk>/reset/", views.blink_reset, name="blink-reset",),
+        path(
+            "blink/<int:pk>/status/", views.blink_status, name="blink-status",
         ),
-        url(
-            r"^blink/(?P<pk>[0-9]+)/status/$",
-            views.blink_status,
-            name="blink-status",
-        ),
-        url(
-            r"^blink/(?P<username>[\w.@+-]+)/$",
+        path(
+            "blink/<username>/",
             views.blink_get_current,
             name="blink-get-current",
         ),
-        url(
-            r"^blink/(?P<username>[\w.@+-]+)/url/$",
+        path(
+            "blink/<username>/url/",
             cache_page(1)(views.blink_get_current_url),
             name="blink-get-current-url",
         ),
-        url(
-            r"^blink/(?P<pk>[0-9]+)/get_next/$",
+        path(
+            "blink/<int:pk>/get_next/",
             views.blink_get_next,
             name="blink-get-next",
         ),
-        url(
-            r"^blink/waiting/(?P<username>[\w.@+-]+)/$",
+        path(
+            "blink/waiting/<username>/",
             views.blink_waiting,
             name="blink-waiting",
         ),
-        url(
-            r"^blink/waiting/(?P<username>[\w.@+-]+)/(?P<assignment>[0-9]+)/$",
+        path(
+            "blink/waiting/<username>/<int:assignment>/",
             views.blink_waiting,
             name="blink-waiting",
         ),
-        url(
-            r"^blinkAssignment/create/$",
+        path(
+            "blinkAssignment/create/",
             views.BlinkAssignmentCreate.as_view(),
             name="blinkAssignment-create",
         ),
-        url(
-            r"^blinkAssignment/(?P<pk>[0-9]+)/delete/$",
+        path(
+            "blinkAssignment/<int:pk>/delete/",
             views.blink_assignment_delete,
             name="blinkAssignment-delete",
         ),
-        url(
-            r"^blinkAssignment/(?P<pk>[0-9]+)/set_time/$",
+        path(
+            "blinkAssignment/<int:pk>/set_time/",
             views.blink_assignment_set_time,
             name="blinkAssignment-set-time",
         ),
-        url(
-            r"^blinkAssignment/(?P<pk>[0-9]+)/start/$",
+        path(
+            "blinkAssignment/<int:pk>/start/",
             views.blink_assignment_start,
             name="blinkAssignment-start",
         ),
-        url(
-            r"^blinkAssignment/(?P<pk>[0-9]+)/update/$",
+        path(
+            "blinkAssignment/<int:pk>/update/",
             views.BlinkAssignmentUpdate.as_view(),
             name="blinkAssignment-update",
         ),
@@ -421,49 +396,48 @@ def old_patterns():
 
 def group_patterns():
     return [
-        url(
-            r"^group/student-information/$",
+        path(
+            "group/student-information/",
             views.group.get_student_reputation,
             name="group-details--student-information",
         ),
-        url(
-            r"^group/(?P<group_hash>[0-9A-Za-z=_-]+)/$",
+        path(
+            "group/<group_hash>/",
             views.group_details_page,
             name="group-details",
         ),
-        url(
-            r"^group/(?P<group_hash>[0-9A-Za-z=_-]+)/update/$",
+        path(
+            "group/<group_hash>/update/",
             views.group_details_update,
             name="group-details-update",
         ),
-        url(
-            r"^group-assignment/(?P<assignment_hash>[0-9A-Za-z=_-]+)/$",
+        path(
+            "group-assignment/<assignment_hash>/",
             views.group_assignment_page,
             name="group-assignment",
         ),
-        url(
-            r"^group-assignment/(?P<assignment_hash>[0-9A-Za-z=_-]+)/remove/$",
+        path(
+            "group-assignment/<assignment_hash>/remove/",
             views.group_assignment_remove,
             name="group-assignment-remove",
         ),
-        url(
-            r"^group-assignment/(?P<assignment_hash>[0-9A-Za-z=_-]+)/update/$",
+        path(
+            "group-assignment/<assignment_hash>/update/",
             views.group_assignment_update,
             name="group-assignment-update",
         ),
-        url(
-            r"^group-assignment/(?P<assignment_hash>[0-9A-Za-z=_-]+)/send/$",
+        path(
+            "group-assignment/<assignment_hash>/send/",
             views.send_student_assignment,
             name="send-student-assignment",
         ),
-        url(
-            r"^group-assignment/(?P<assignment_hash>[0-9A-Za-z=_-]+)/student-progress/$",  # noqa
+        path(
+            "group-assignment/<assignment_hash>/student-progress/",  # noqa
             views.get_assignment_student_progress,
             name="get-assignment-student-progress",
         ),
-        url(
-            r"^group-assignment/(?P<assignment_hash>[0-9A-Za-z=_-]+)/"
-            r"distribute/$",
+        path(
+            "group-assignment/<assignment_hash>/distribute/",
             views.distribute_assignment,
             name="distribute-assignment",
         ),
@@ -472,52 +446,50 @@ def group_patterns():
 
 def student_patterns():
     return [
-        url(
-            r"^assignment-complete/$",
+        path(
+            "assignment-complete/",
             views.finish_assignment,
             name="finish-assignment",
         ),
-        url(r"^student/$", views.student.index_page, name="student-page"),
-        url(
-            r"^student/join-group/$",
+        path("student/", views.student.index_page, name="student-page"),
+        path(
+            "student/join-group/",
             views.student.join_group,
             name="student-join-group",
         ),
-        url(
-            r"^student/leave-group/$",
+        path(
+            "student/leave-group/",
             views.student.leave_group,
             name="student-leave-group",
         ),
-        url(
-            r"^student/toggle-group-notifications/$",
+        path(
+            "student/toggle-group-notifications/",
             views.student.toggle_group_notifications,
             name="student-toggle-group-notifications",
         ),
-        url(
-            r"^student/login/$", views.student.login_page, name="student-login"
-        ),
-        url(
-            r"^student/login-confirm/$",
+        path("student/login/", views.student.login_page, name="student-login"),
+        path(
+            "student/login-confirm/",
             views.student.send_signin_link,
             name="student-send-signin-link",
         ),
-        url(
-            r"^student/remove-notification/$",
+        path(
+            "student/remove-notification/",
             views.student.remove_notification,
             name="student-remove-notification",
         ),
-        url(
-            r"^student/remove-notifications/$",
+        path(
+            "student/remove-notifications/",
             views.student.remove_notifications,
             name="student-remove-notifications",
         ),
-        url(
-            r"^student/get-notifications/$",
+        path(
+            "student/get-notifications/",
             views.student.get_notifications,
             name="student-get-notifications",
         ),
-        url(
-            r"^student/update/student-id/$",
+        path(
+            "student/update/student-id/",
             views.student.update_student_id,
             name="student-change-id",
         ),
@@ -526,9 +498,9 @@ def student_patterns():
 
 def search_patterns():
     return [
-        url(r"^search/user$", views.search_users, name="search-users"),
-        url(
-            r"^search/category$",
+        path("search/user", views.search_users, name="search-users"),
+        path(
+            "search/category",
             views.search_categories,
             name="search-categories",
         ),
@@ -537,59 +509,59 @@ def search_patterns():
 
 def researcher_patterns():
     return [
-        url(r"^research/$", views.research_index, name="research-index"),
-        url(
-            r"^research/discipline/(?P<discipline_title>[^/]+)$",
+        path("research/", views.research_index, name="research-index"),
+        path(
+            "research/discipline/<discipline_title>",
             views.research_discipline_question_index,
             name="research-discipline-question-index-by-discipline",
         ),
-        url(
-            r"^research/assignment/(?P<assignment_id>[^/]+)$",
+        path(
+            "research/assignment/<assignment_id>",
             views.research_discipline_question_index,
             name="research-assignment-question-index-by-assignment",
         ),
-        url(
-            r"^research/all_scores/discipline/(?P<discipline_title>[^/]+)/(?P<question_pk>[^/]+)$",  # noqa
+        path(
+            "research/all_scores/discipline/<discipline_title>/<int:question_pk>",  # noqa
             views.research_all_annotations_for_question,
             name="research-all-annotations-for-question-by-discipline",
         ),
-        url(
-            r"^research/all_scores/assignment/(?P<assignment_id>[^/]+)/(?P<question_pk>[^/]+)$",  # noqa
+        path(
+            "research/all_scores/assignment/<assignment_id>/<int:question_pk>",  # noqa
             views.research_all_annotations_for_question,
             name="research-all-annotations-for-question-by-assignment",
         ),
-        url(
-            r"^research/discipline/(?P<discipline_title>[^/]+)/(?P<question_pk>[^/]+)/(?P<answerchoice_value>[^/]+)$",  # noqa
+        path(
+            "research/discipline/<discipline_title>/<int:question_pk>/<answerchoice_value>",  # noqa
             views.research_question_answer_list,
             name="research-question-answer-list-by-discipline",
         ),
-        url(
-            r"^research/assignment/(?P<assignment_id>[^/]+)/(?P<question_pk>[^/]+)/(?P<answerchoice_value>[^/]+)$",  # noqa
+        path(
+            "research/assignment/<assignment_id>/<int:question_pk>/<answerchoice_value>",  # noqa
             views.research_question_answer_list,
             name="research-question-answer-list-by-assignment",
         ),
-        url(
-            r"^research/question/flag/discipline/(?P<discipline_title>[^/]+)/(?P<question_pk>[^/]+)$",  # noqa
+        path(
+            "research/question/flag/discipline/<discipline_title>/<int:question_pk>",  # noqa
             views.flag_question_form,
             name="research-flag-question-by-discipline",
         ),
-        url(
-            r"^research/question/flag/assignment/(?P<assignment_id>[^/]+)/(?P<question_pk>[^/]+)$",  # noqa
+        path(
+            "research/question/flag/assignment/<assignment_id>/<int:question_pk>",  # noqa
             views.flag_question_form,
             name="research-flag-question-by-assignment",
         ),
-        url(
-            r"^expert/rationales/(?P<question_id>[0-9]+)$",
+        path(
+            "expert/rationales/<int:question_id>",
             admin_views.QuestionExpertRationaleView.as_view(),
             name="research-fix-expert-rationale",
         ),
-        url(
-            r"^research/assignment/(?P<assignment_id>[^/]+)/expert/rationale/(?P<question_id>[0-9]+)$",  # noqa
+        path(
+            "research/assignment/<assignment_id>/expert/rationale/<int:question_id>",  # noqa
             admin_views.QuestionExpertRationaleView.as_view(),
             name="research-fix-expert-rationale",
         ),
-        url(
-            r"^research/expert/rationale/fix/(?P<pk>[0-9]+)$",
+        path(
+            "research/expert/rationale/fix/<int:pk>",
             views.AnswerExpertUpdateView.as_view(),
             name="research-rationale-update-expert",
         ),
@@ -598,83 +570,83 @@ def researcher_patterns():
 
 def collection_patterns():
     return [
-        url(
-            r"^collection/create/$",
+        path(
+            "collection/create/",
             views.CollectionCreateView.as_view(),
             name="collection-create",
         ),
-        url(
-            r"^collection/(?P<pk>[0-9]+)$",
+        path(
+            "collection/<int:pk>",
             views.CollectionDetailView.as_view(),
             name="collection-detail",
         ),
-        url(
-            r"^collection/update/(?P<pk>[0-9]+)$",
+        path(
+            "collection/update/<int:pk>",
             views.CollectionUpdateView.as_view(),
             name="collection-update",
         ),
-        url(
-            r"^collection/delete/(?P<pk>[0-9]+)$",
+        path(
+            "collection/delete/<int:pk>",
             views.CollectionDeleteView.as_view(),
             name="collection-delete",
         ),
-        url(
-            r"^collection/list/$",
+        path(
+            "collection/list/",
             views.CollectionListView.as_view(),
             name="collection-list",
         ),
-        url(
-            r"^collection/personal/$",
+        path(
+            "collection/personal/",
             views.PersonalCollectionListView.as_view(),
             name="personal-collection-list",
         ),
-        url(
-            r"^collection/followed/$",
+        path(
+            "collection/followed/",
             views.FollowedCollectionListView.as_view(),
             name="followed-collection-list",
         ),
-        url(
-            r"^collection/featured/$",
+        path(
+            "collection/featured/",
             views.FeaturedCollectionListView.as_view(),
             name="featured-collection-list",
         ),
-        url(
-            r"^collection/distribute/(?P<pk>[0-9]+)$",
+        path(
+            "collection/distribute/<int:pk>",
             views.CollectionDistributeDetailView.as_view(),
             name="collection-distribute",
         ),
-        url(
-            r"^collection/follower",
+        path(
+            "collection/follower",
             views.teacher_toggle_follower,
             name="teacher-toggle-follower",
         ),
-        url(
-            r"^collection/assignment",
+        path(
+            "collection/assignment",
             views.collection_toggle_assignment,
             name="collection-toggle-assignment",
         ),
-        url(
-            r"^collection/add/assignment",
+        path(
+            "collection/add/assignment",
             views.collection_add_assignment,
             name="collection-add-assignment",
         ),
-        url(
-            r"^collection/assign",
+        path(
+            "collection/assign",
             views.collection_assign,
             name="collection-assign",
         ),
-        url(
-            r"^collection/unassign",
+        path(
+            "collection/unassign",
             views.collection_unassign,
             name="collection-unassign",
         ),
-        url(
-            r"^collection/collection-statistics",
+        path(
+            "collection/collection-statistics",
             views.collection_statistics,
             name="collection-statistics",
         ),
-        url(
-            r"^collection/featured-data/$",
+        path(
+            "collection/featured-data/",
             views.featured_collections,
             name="collection-featured-data",
         ),
@@ -683,91 +655,89 @@ def collection_patterns():
 
 def teacher_patterns():
     return [
-        url(
-            r"^teacher/dashboard/$",
+        path(
+            "teacher/dashboard/",
             views.teacher.dashboard,
             name="teacher-dashboard",
         ),
-        url(
-            r"^teacher/dashboard/new-questions/$",
+        path(
+            "teacher/dashboard/new-questions/",
             views.teacher.new_questions,
             name="teacher-dashboard--new-questions",
         ),
-        url(
-            r"^teacher/dashboard/rationales/evaluate$",
+        path(
+            "teacher/dashboard/rationales/evaluate",
             views.teacher.evaluate_rationale,
             name="teacher-dashboard--evaluate-rationale",
         ),
-        url(
-            r"^teacher/dashboard/rationales/$",
+        path(
+            "teacher/dashboard/rationales/",
             views.teacher.rationales_to_score,
             name="teacher-dashboard--rationales",
         ),
-        url(
-            r"^teacher/dashboard/collections/$",
+        path(
+            "teacher/dashboard/collections/",
             views.teacher.collections,
             name="teacher-dashboard--collections",
         ),
-        url(
-            r"^teacher/dashboard/messages/$",
+        path(
+            "teacher/dashboard/messages/",
             views.teacher.messages,
             name="teacher-dashboard--messages",
         ),
-        url(
-            r"^teacher/dashboard/dalite-messages/$",
+        path(
+            "teacher/dashboard/dalite-messages/",
             views.teacher.dalite_messages,
             name="teacher-dashboard--dalite-messages",
         ),
-        url(
-            r"^teacher/dashboard/dalite-messages/remove$",
+        path(
+            "teacher/dashboard/dalite-messages/remove",
             views.teacher.remove_dalite_message,
             name="teacher-dashboard--dalite-messages--remove",
         ),
-        url(
-            r"^teacher/dashboard/messages/read$",
+        path(
+            "teacher/dashboard/messages/read",
             views.teacher.mark_message_read,
             name="teacher-dashboard--messages--read",
         ),
-        url(
-            r"^teacher/dashboard/unsubscribe-thread/$",
+        path(
+            "teacher/dashboard/unsubscribe-thread/",
             views.teacher.unsubscribe_from_thread,
             name="teacher-dashboard--unsubscribe-thread",
         ),
-        url(
-            r"^teacher/gradebook/request/$",
+        path(
+            "teacher/gradebook/request/",
             views.teacher.request_gradebook,
             name="teacher-gradebook--request",
         ),
-        url(
-            r"^teacher/gradebook/result/$",
+        path(
+            "teacher/gradebook/result/",
             views.teacher.get_gradebook_task_result,
             name="teacher-gradebook--result",
         ),
-        url(
-            r"^teacher/gradebook/remove/$",
+        path(
+            "teacher/gradebook/remove/",
             views.teacher.remove_gradebook_task,
             name="teacher-gradebook--remove",
         ),
-        url(
-            r"^teacher/gradebook/download/$",
+        path(
+            "teacher/gradebook/download/",
             views.teacher.download_gradebook,
             name="teacher-gradebook--download",
         ),
-        url(
-            r"^teacher/tasks/$", views.teacher.get_tasks, name="teacher-tasks"
-        ),
+        path("teacher/tasks/", views.teacher.get_tasks, name="teacher-tasks"),
     ]
 
 
 def question_patterns():
     return [
-        url(
-            r"^question/flag/reasons$",
+        path(
+            "question/flag/reasons",
             views.question_.get_flag_question_reasons,
             name="question--flag--reasons",
         ),
-        url(
-            r"^question/flag/flag$",
+        path(
+            "question/flag/flag",
             views.question_.flag_question,
             name="question--flag--flag",
         ),

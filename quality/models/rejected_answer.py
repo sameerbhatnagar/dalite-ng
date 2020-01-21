@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 import json
 
@@ -10,7 +10,7 @@ from ..utils import LazyEncoder
 
 
 class RejectedAnswer(models.Model):
-    quality = models.ForeignKey(Quality)
+    quality = models.ForeignKey(Quality, on_delete=models.CASCADE)
     rationale = models.TextField()
     reasons = models.TextField(
         help_text="json string containing info about criterions used to "
@@ -18,10 +18,12 @@ class RejectedAnswer(models.Model):
     )
 
     def __iter__(self):
-        return {
-            "rationale": self.rationale,
-            "reasons": json.loads(self.reasons),
-        }.iteritems()
+        return iter(
+            {
+                "rationale": self.rationale,
+                "reasons": json.loads(self.reasons),
+            }.items()
+        )
 
     @staticmethod
     def add(quality, rationale, reasons):

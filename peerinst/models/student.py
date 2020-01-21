@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 import logging
 from datetime import datetime
 from operator import itemgetter
@@ -8,7 +5,7 @@ from operator import itemgetter
 import pytz
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db import IntegrityError, models
 from django.template import loader
 from django.utils.translation import ugettext_lazy as _
@@ -39,7 +36,7 @@ class Student(models.Model):
         Reputation, blank=True, null=True, on_delete=models.SET_NULL
     )
 
-    def __unicode__(self):
+    def __str__(self):
         return self.student.email
 
     class Meta:
@@ -382,8 +379,8 @@ class Student(models.Model):
 
 
 class StudentGroupMembership(models.Model):
-    student = models.ForeignKey(Student)
-    group = models.ForeignKey(StudentGroup)
+    student = models.ForeignKey(Student, on_delete=models.CASCADE)
+    group = models.ForeignKey(StudentGroup, on_delete=models.CASCADE)
     current_member = models.BooleanField(default=True)
     send_emails = models.BooleanField(default=True)
     student_school_id = models.TextField(null=True, blank=True)
@@ -404,7 +401,7 @@ class StudentAssignment(models.Model):
     class Meta:
         unique_together = ("student", "group_assignment")
 
-    def __unicode__(self):
+    def __str__(self):
         return "{} for {}".format(self.group_assignment, self.student)
 
     def send_email(self, mail_type):
@@ -739,19 +736,21 @@ class StudentNotificationType(models.Model):
     type = models.CharField(max_length=32, unique=True)
     icon = models.TextField()
 
-    def __unicode__(self):
+    def __str__(self):
         return self.type
 
 
 class StudentNotification(models.Model):
-    student = models.ForeignKey(Student)
-    notification = models.ForeignKey(StudentNotificationType)
+    student = models.ForeignKey(Student, on_delete=models.CASCADE)
+    notification = models.ForeignKey(
+        StudentNotificationType, on_delete=models.CASCADE
+    )
     created_on = models.DateTimeField(auto_now=True, null=True)
     link = models.URLField(max_length=500, blank=True, null=True)
     text = models.TextField()
     expiration = models.DateTimeField(null=True, blank=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return "{} for {}".format(self.notification, self.student)
 
     @staticmethod

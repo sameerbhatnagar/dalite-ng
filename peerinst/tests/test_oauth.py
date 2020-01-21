@@ -17,6 +17,7 @@ def test_oauth_signature(client, settings):
 
     oauth_parameters = {
         "lti_version": "1.0",
+        "lti_message_type": "basic-lti-message",
         "user_id": "test",
         "custom_assignment_id": "test-assignment",
         "custom_question_id": "1",
@@ -24,6 +25,7 @@ def test_oauth_signature(client, settings):
         "oauth_nonce": "nonce",
         "oauth_signature_method": "HMAC-SHA1",
         "oauth_timestamp": str(int(time.time())),
+        #  "oauth_timestamp": "1578323651",
     }
 
     # Build oauth base string
@@ -38,26 +40,31 @@ def test_oauth_signature(client, settings):
         + oauth_parameters["custom_assignment_id"]
         + "%26custom_question_id%3D"
         + oauth_parameters["custom_question_id"]
+        + "%26lti_message_type%3D"
+        + oauth_parameters["lti_message_type"]
         + "%26lti_version%3D"
         + oauth_parameters["lti_version"]
         + "%26oauth_consumer_key%3D"
         + oauth_parameters["oauth_consumer_key"]
-        + "%26oauth_nonce%3Dnonce%26oauth_signature_method%3DHMAC-SHA1%26oauth_timestamp%3D"  # noqa E501
+        + "%26oauth_nonce%3D"
+        + oauth_parameters["oauth_nonce"]
+        + "%26oauth_signature_method%3D"
+        + oauth_parameters["oauth_signature_method"]
+        + "%26oauth_timestamp%3D"
         + oauth_parameters["oauth_timestamp"]
-        + "%26user_id%3Dtest"
+        + "%26user_id%3D"
+        + oauth_parameters["user_id"]
     )
 
     # Build oauth signature from basestring and consumer secret (no token here)
     key = settings.LTI_CLIENT_SECRET + "&"
 
-    hashed = hmac.new(key, base_string, sha1)
-    oauth_signature = binascii.b2a_base64(hashed.digest())[:-1]
+    hashed = hmac.new(key.encode(), base_string.encode(), sha1)
+    oauth_signature = binascii.b2a_base64(hashed.digest())[:-1].decode()
 
     oauth_parameters.update({"oauth_signature": oauth_signature})
 
     response = client.post("/lti/", oauth_parameters, follow=True)
-
-    print(response)
 
     assert (
         response.status_code == 404

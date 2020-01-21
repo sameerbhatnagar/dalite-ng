@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 from peerinst.tests.fixtures import *  # noqa
 from quality.models import QualityCache

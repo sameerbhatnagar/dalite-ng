@@ -1,80 +1,75 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 from django.conf import settings
-from django.conf.urls import include, url
+from django.conf.urls import include
+from django.urls import path
 from django.conf.urls.i18n import i18n_patterns
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.clickjacking import xframe_options_sameorigin
 
-import views
+from . import views
 from peerinst import views as peerinst_views
 
 admin.site.site_header = admin.site.site_title = _("Dalite NG administration")
 
 # LTI
-urlpatterns = [url(r"^lti/", include("django_lti_tool_provider.urls"))]
+urlpatterns = [path("lti/", include("django_lti_tool_provider.urls"))]
 
 # Apps
 urlpatterns += i18n_patterns(
-    url(r"^analytics/", include("analytics.urls", namespace="analytics")),
-    url(r"^reputation/", include("reputation.urls", namespace="reputation")),
-    url(r"^quality/", include("quality.urls", namespace="quality")),
-    url(r"^tos/", include("tos.urls")),
-    url(r"", include("peerinst.urls")),
-    url(r"^forums/", include("pinax.forums.urls", namespace="pinax_forums")),
-    url(
-        r"^assignment/(?P<assignment_id>[^/]+)/",
+    path("reputation/", include("reputation.urls", namespace="reputation")),
+    path("quality/", include("quality.urls", namespace="quality")),
+    path("tos/", include("tos.urls")),
+    path(r"", include("peerinst.urls")),
+    path("forums/", include("pinax.forums.urls", namespace="pinax_forums")),
+    path(
+        "assignment/<assignment_id>/",
         include(
             [
                 # Question table of contents for assignment - Enforce
                 # sameorigin to prevent access from LMS
-                url(
-                    r"^$",
+                path(
+                    "",
                     xframe_options_sameorigin(
                         peerinst_views.QuestionListView.as_view()
                     ),
                     name="question-list",
                 ),
-                url(
-                    r"(?P<question_id>\d+)/",
+                path(
+                    r"<int:question_id>/",
                     include(
                         [
                             # Dalite question
-                            url(
-                                r"^$", peerinst_views.question, name="question"
-                            ),
+                            path("", peerinst_views.question, name="question"),
                             # Question reset (for testing purposes) - Enforce
                             # sameorigin to prevent access from LMS
-                            url(
-                                r"^reset/$",
+                            path(
+                                "reset/",
                                 peerinst_views.reset_question,
                                 name="reset-question",
                             ),
                         ]
                     ),
                 ),
-                url(
-                    r"^update/$",
+                path(
+                    "update/",
                     peerinst_views.AssignmentUpdateView.as_view(),
                     name="assignment-update",
                 ),
             ]
         ),
     ),
-    url(r"^grappelli/", include("grappelli.urls")),
-    url(
+    path("grappelli/", include("grappelli.urls")),
+    path(
         r"admin_index_wrapper/",
         views.admin_index_wrapper,
         name="admin_index_wrapper",
     ),
-    url(r"^admin/", include(admin.site.urls)),
+    path("admin/", admin.site.urls),
 )
 
 # Set language view
-urlpatterns += [url(r"^i18n/", include("django.conf.urls.i18n"))]
+urlpatterns += [path("i18n/", include("django.conf.urls.i18n"))]
 
 # Media
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

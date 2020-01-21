@@ -1,4 +1,5 @@
 import pytest
+from unittest.mock import MagicMock
 
 from peerinst.models import ShownRationale
 from peerinst.tests.fixtures import *  # noqa
@@ -170,189 +171,18 @@ def test_evaluate__wrong_argument(
         )
 
 
-def test_batch_evaluate__never_shown(
-    selected_answer_criterion, selected_answer_rules, answers
+def test_batch_evaluate(
+    selected_answer_criterion, selected_answer_rules, answers, mocker
 ):
     answers = answers[:3]
-    ShownRationale.objects.all().delete()
+    qualities = iter(range(len(answers)))
+    evaluate = MagicMock(side_effect=lambda *_: next(qualities))
+    mocker.patch.object(SelectedAnswerCriterion, "evaluate", evaluate)
 
-    selected_answer_rules.default_if_never_shown = 1
-    selected_answer_rules.save()
-
-    for quality in selected_answer_criterion.batch_evaluate(
-        answers, selected_answer_rules.pk
-    ):
-        assert quality["quality"] == 1
-
-
-def test_batch_evaluate__always_selected(
-    selected_answer_criterion, selected_answer_rules, answers
-):
-    answers = answers[:3]
-    selected_answer_rules.default_if_never_shown = 0
-    selected_answer_rules.save()
-
-    for i, answer in enumerate(answers):
-
-        for a in (a for j, a in enumerate(answers) if j != i):
-            a.chosen_rationale = answer
-            a.save()
-            ShownRationale.objects.create(
-                shown_for_answer=a, shown_answer=answer
-            )
-
-        for j, quality in enumerate(
-            selected_answer_criterion.batch_evaluate(
-                answers, selected_answer_rules.pk
-            )
-        ):
-            assert quality["quality"] == (i == j)
-
-
-def test_batch_evaluate__never_selected(
-    selected_answer_criterion, selected_answer_rules, answers
-):
-    answers = answers[:3]
-    for i, answer in enumerate(answers):
-        for a in (a for j, a in enumerate(answers) if j != i):
-            a.chosen_rationale = answers[(i + 1) % len(answers)]
-            a.save()
-            ShownRationale.objects.create(
-                shown_for_answer=a, shown_answer=answer
-            )
-
-    selected_answer_rules.default_if_never_shown = 1
-    selected_answer_rules.save()
-
-    for quality in selected_answer_criterion.batch_evaluate(
-        answers, selected_answer_rules.pk
-    ):
-        assert quality["quality"] == 0
-
-
-def test_batch_evaluate__some_selected(
-    selected_answer_criterion, selected_answer_rules, answers
-):
-    answers = answers[:3]
-    selecteds = [
-        [int(i % 2 == 0) for i in range(1, len(answers))] for _ in answers
-    ]
-    for (i, answer), selected in zip(enumerate(answers), selecteds):
-        for a, s in zip(
-            (a for j, a in enumerate(answers) if j != i), selected
-        ):
-            a.chosen_rationale = answers[s]
-            a.save()
-            ShownRationale.objects.create(
-                shown_for_answer=a, shown_answer=answer
-            )
-
-    selected_answer_rules.default_if_never_shown = 1
-    selected_answer_rules.save()
-
-    for quality, selected in zip(
-        selected_answer_criterion.batch_evaluate(
-            answers, selected_answer_rules.pk
-        ),
-        selecteds,
-    ):
-        assert quality["quality"] == sum(s == 0 for s in selected) / len(
-            selected
-        )
-
-
-def test_batch_evaluate__default__never_shown(
-    selected_answer_criterion, answers
-):
-    answers = answers[:3]
-    selected_answer_rules = SelectedAnswerCriterionRules.get_or_create()
-    ShownRationale.objects.all().delete()
-
-    for quality in selected_answer_criterion.batch_evaluate(
-        answers, selected_answer_rules.pk
-    ):
-        assert quality["quality"] == 0
-
-
-def test_batch_evaluate__default__always_selected(
-    selected_answer_criterion, answers
-):
-    answers = answers[:3]
-    selected_answer_rules = SelectedAnswerCriterionRules.get_or_create()
-
-    for i, answer in enumerate(answers):
-
-        for a in (a for j, a in enumerate(answers) if j != i):
-            a.chosen_rationale = answer
-            a.save()
-            ShownRationale.objects.create(
-                shown_for_answer=a, shown_answer=answer
-            )
-
-        for j, quality in enumerate(
-            selected_answer_criterion.batch_evaluate(
-                answers, selected_answer_rules.pk
-            )
-        ):
-            assert quality["quality"] == (i == j)
-
-
-def test_batch_evaluate__default__never_selected(
-    selected_answer_criterion, answers
-):
-    answers = answers[:3]
-    selected_answer_rules = SelectedAnswerCriterionRules.get_or_create()
-    for i, answer in enumerate(answers):
-        for a in (a for j, a in enumerate(answers) if j != i):
-            a.chosen_rationale = answers[(i + 1) % len(answers)]
-            a.save()
-            ShownRationale.objects.create(
-                shown_for_answer=a, shown_answer=answer
-            )
-
-    for quality in selected_answer_criterion.batch_evaluate(
-        answers, selected_answer_rules.pk
-    ):
-        assert quality["quality"] == 0
-
-
-def test_batch_evaluate__default__some_selected(
-    selected_answer_criterion, answers
-):
-    answers = answers[:3]
-    selected_answer_rules = SelectedAnswerCriterionRules.get_or_create()
-    selecteds = [
-        [int(i % 2 == 0) for i in range(1, len(answers))] for _ in answers
-    ]
-    for (i, answer), selected in zip(enumerate(answers), selecteds):
-        for a, s in zip(
-            (a for j, a in enumerate(answers) if j != i), selected
-        ):
-            a.chosen_rationale = answers[s]
-            a.save()
-            ShownRationale.objects.create(
-                shown_for_answer=a, shown_answer=answer
-            )
-
-    for quality, selected in zip(
-        selected_answer_criterion.batch_evaluate(
-            answers, selected_answer_rules.pk
-        ),
-        selecteds,
-    ):
-        assert quality["quality"] == sum(s == 0 for s in selected) / len(
-            selected
-        )
-
-
-def test_batch_evaluate__wrong_argument(
-    selected_answer_criterion, selected_answer_rules, answers
-):
-    answers = answers[:3]
-    with pytest.raises(ValueError):
-        selected_answer_criterion.batch_evaluate(
-            [answer.rationale for answer in answers], selected_answer_rules.pk
-        )
+    qualities = selected_answer_criterion.batch_evaluate(
+        answers, selected_answer_rules
+    )
+    assert qualities == [0, 1, 2]
 
 
 def test_rules(right_answer_criterion):

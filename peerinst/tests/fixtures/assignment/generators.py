@@ -28,7 +28,7 @@ def new_assignments(n, questions, min_questions=1):
 def add_assignments(assignments):
     assignments_ = [
         Assignment.objects.create(
-            **{k: v for k, v in a.items() if k != "questions"}
+            **{k: v for k, v in list(a.items()) if k != "questions"}
         )
         for a in assignments
     ]

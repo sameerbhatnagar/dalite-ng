@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 import json
 import logging
 from datetime import datetime
@@ -10,7 +7,7 @@ from operator import attrgetter
 import pytz
 from celery.result import AsyncResult
 from django.contrib.contenttypes.models import ContentType
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db import models
 from django.http import HttpResponse, JsonResponse, StreamingHttpResponse
 from django.shortcuts import redirect, render
@@ -333,7 +330,7 @@ def evaluate_rationale(req, teacher):
 
     score = int(score)
 
-    if score not in range(0, 4):
+    if score not in list(range(0, 4)):
         return response_400(
             req,
             msg=translate("The score wasn't in a valid range."),
