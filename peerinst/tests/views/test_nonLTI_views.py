@@ -4,7 +4,7 @@ import pytz
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import Group, Permission, User
 from django.core import mail
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.test import TestCase, TransactionTestCase
 
 from peerinst.models import (
@@ -82,7 +82,7 @@ class SignUpTest(TestCase):
 
     def test_email_error(self):
 
-        with self.settings(EMAIL_BACKEND=""):
+        with self.settings(EMAIL_BACKEND="", DEBUG=True):
             response = self.client.post(
                 reverse("sign_up"),
                 data={
@@ -129,7 +129,7 @@ class AdminTest(TestCase):
         inactive_user.is_active = False
         inactive_user.save()
 
-        with self.settings(EMAIL_BACKEND=""):
+        with self.settings(EMAIL_BACKEND="", DEBUG=True):
             response = self.client.post(
                 reverse("dashboard"), {"user": 3, "is_teacher": "on"}
             )
@@ -257,7 +257,7 @@ class TeacherTest(TestCase):
             reverse("question-list", kwargs={"assignment_id": "Assignment1"})
         )
         self.assertEqual(response.status_code, 200)
-        self.assertItemsEqual(
+        self.assertCountEqual(
             response.context["object_list"],
             Assignment.objects.get(pk="Assignment1").questions.all(),
         )

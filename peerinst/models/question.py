@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 import hashlib
 import itertools
@@ -47,7 +47,7 @@ class Category(models.Model):
         validators=[no_hyphens],
     )
 
-    def __unicode__(self):
+    def __str__(self):
         return self.title
 
     class Meta:
@@ -64,7 +64,7 @@ class Discipline(models.Model):
         validators=[no_hyphens],
     )
 
-    def __unicode__(self):
+    def __str__(self):
         return self.title
 
     class Meta:
@@ -86,15 +86,15 @@ class QuestionManager(models.Manager):
 
 
 class QuestionFlag(models.Model):
-    question = models.ForeignKey("Question")
+    question = models.ForeignKey("Question", on_delete=models.CASCADE)
     flag_reason = models.ManyToManyField("QuestionFlagReason")
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     flag = models.BooleanField(default=True)
     comment = models.CharField(max_length=200, null=True, blank=True)
     datetime_created = models.DateTimeField(auto_now_add=True)
     datetime_last_modified = models.DateTimeField(auto_now=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return "{} - {}- {}- {}".format(
             self.question.pk, self.question, self.user.email, self.comment
         )
@@ -240,6 +240,7 @@ class Question(models.Model):
             "Optional. Select the discipline to which this item should "
             "be associated."
         ),
+        on_delete=models.CASCADE,
     )
     fake_attributions = models.BooleanField(
         _("Add fake attributions"),
@@ -290,7 +291,7 @@ class Question(models.Model):
     )
     meta_search = GenericRelation(MetaSearch, related_query_name="questions")
 
-    def __unicode__(self):
+    def __str__(self):
         if self.discipline:
             return "{} - {}".format(self.discipline, self.title)
         return self.title
@@ -351,7 +352,7 @@ class Question(models.Model):
         if self.answer_style == Question.ALPHA:
             return iter(string.ascii_uppercase)
         elif self.answer_style == Question.NUMERIC:
-            return itertools.imap(str, itertools.count(1))
+            return map(str, itertools.count(1))
         raise ValueError(
             "The field Question.answer_style has an invalid value."
         )
@@ -496,7 +497,7 @@ class Question(models.Model):
         ]
         return [
             {"answer_label": key, "frequency": value}
-            for key, value in frequency_dict.items()
+            for key, value in list(frequency_dict.items())
         ]
 
     class Meta:
@@ -513,7 +514,7 @@ class QuestionFlagReason(models.Model):
         validators=[no_hyphens],
     )
 
-    def __unicode__(self):
+    def __str__(self):
         return self.title
 
     class Meta:

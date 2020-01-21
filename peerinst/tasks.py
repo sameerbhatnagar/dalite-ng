@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, unicode_literals
+
 
 import logging
 import operator
@@ -19,7 +19,7 @@ def update_question_meta_search_difficulty():
     from peerinst.models import Question, MetaFeature, MetaSearch
 
     qs = Question.objects.all()
-    difficulty_levels = qs[0].get_matrix().keys()
+    difficulty_levels = list(qs[0].get_matrix().keys())
     for d in difficulty_levels:
         f, created = MetaFeature.objects.get_or_create(
             key="difficulty", value=d, type="S"
@@ -28,7 +28,9 @@ def update_question_meta_search_difficulty():
             logger.info("New difficulty level created: {}".format(f))
 
     for q in qs:
-        level = max(q.get_matrix().iteritems(), key=operator.itemgetter(1))[0]
+        level = max(iter(q.get_matrix().items()), key=operator.itemgetter(1))[
+            0
+        ]
         f = MetaFeature.objects.get(key="difficulty", value=level, type="S")
         s = MetaSearch.objects.create(meta_feature=f, content_object=q)
         q.meta_search.add(s)

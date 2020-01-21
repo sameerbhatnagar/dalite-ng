@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Selection algorithms for rationales shown during question review.
 
 Each algorithm is a callable taking these arguments:
@@ -27,7 +26,7 @@ The callable must have the following attributes:
 To make an algorithm available to users, make sure to add it to
 the "algorithms" dictionary at the end of this file.
 """
-from __future__ import unicode_literals
+
 
 from itertools import chain
 
@@ -151,7 +150,9 @@ def simple(
     rng, first_answer_choice, entered_rationale, question, max_rationales=4
 ):
     def callback(rng, rationales):
-        return rng.sample(rationales, min(max_rationales, rationales.count()))
+        return rng.sample(
+            list(rationales), min(max_rationales, rationales.count())
+        )
 
     return _base_selection_algorithm(
         rng, first_answer_choice, entered_rationale, question, callback
@@ -222,7 +223,9 @@ def prefer_expert_and_highly_voted(
 
         # Fill up with random other rationales
         chosen.extend(
-            rng.sample(rationales, min(4 - len(chosen), rationales.count()))
+            rng.sample(
+                list(rationales), min(4 - len(chosen), rationales.count())
+            )
         )
         rng.shuffle(chosen)
         return chosen
@@ -265,4 +268,4 @@ def algorithm_choices():
     parameter of a model field, i.e. pairs of the form
     (value, human-readable value).
     """
-    return [(name, fn.verbose_name) for name, fn in algorithms.viewitems()]
+    return [(name, fn.verbose_name) for name, fn in algorithms.items()]

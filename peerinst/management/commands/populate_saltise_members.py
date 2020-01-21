@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import print_function, unicode_literals
-
 import os
 import re
 
@@ -49,7 +46,7 @@ class Command(BaseCommand):
                 member_ = SaltiseMember.objects.create(name=member["name"])
                 if "placehoder" not in member["picture_link"]:
                     resp = requests.get(member["picture_link"])
-                    content = ContentFile(resp.content)
+                    content = ContentFile(resp.content.decode())
                     member_.picture.save(
                         os.path.basename(member["picture_link"]),
                         content,

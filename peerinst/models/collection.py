@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
@@ -12,8 +9,10 @@ from .teacher import Teacher
 
 class Collection(models.Model):
     assignments = models.ManyToManyField(Assignment, blank=True)
-    discipline = models.ForeignKey(Discipline)
-    owner = models.ForeignKey(Teacher, related_name="owner")
+    discipline = models.ForeignKey(Discipline, on_delete=models.CASCADE)
+    owner = models.ForeignKey(
+        Teacher, related_name="owner", on_delete=models.CASCADE
+    )
     followers = models.ManyToManyField(
         Teacher, blank=True, related_name="followers"
     )
@@ -34,7 +33,7 @@ class Collection(models.Model):
     last_modified = models.DateTimeField(auto_now=True, null=True)
     featured = models.BooleanField(default=False)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.title
 
     def make_studentgroupassignments(self, studentgroup_hash):

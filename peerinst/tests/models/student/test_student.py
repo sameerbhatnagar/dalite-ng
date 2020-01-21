@@ -2,7 +2,7 @@ import hashlib
 
 import pytest
 from django.core import mail
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 from peerinst.models import (
     Student,

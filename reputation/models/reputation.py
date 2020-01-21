@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 import json
 from datetime import date as date_
@@ -11,7 +11,9 @@ from .reputation_type import ReputationType
 
 
 class Reputation(models.Model):
-    reputation_type = models.ForeignKey(ReputationType)
+    reputation_type = models.ForeignKey(
+        ReputationType, on_delete=models.CASCADE
+    )
 
     def __str__(self):
         try:
@@ -123,7 +125,7 @@ class Reputation(models.Model):
         ReputationType.DoesNotExist
             If there is no reputation type for the given class
         """
-        if not isinstance(cls, basestring):
+        if not isinstance(cls, str):
             cls = cls.__class__.__name__
 
         reputation_type = ReputationType.objects.get(type=cls.lower())
@@ -132,7 +134,9 @@ class Reputation(models.Model):
 
 
 class ReputationHistory(models.Model):
-    reputation = models.ForeignKey(Reputation, editable=False)
+    reputation = models.ForeignKey(
+        Reputation, editable=False, on_delete=models.CASCADE
+    )
     date = models.DateField(auto_now_add=True)
     reputation_value = models.FloatField(null=True, blank=True, editable=False)
     reputation_details = models.TextField(editable=False)

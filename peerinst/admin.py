@@ -1,11 +1,8 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 from django import forms
 from django.contrib import admin
 from django.contrib.admin.models import DELETION, LogEntry
 from django.core import exceptions
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.utils.html import escape, format_html
 from django.utils.translation import ugettext_lazy as _
 

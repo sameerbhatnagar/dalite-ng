@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 import base64
 import hashlib
@@ -145,14 +145,19 @@ def get_student_username_and_password(email, max_username_length=30):
 def get_old_lti_student_username_and_password(user_id):
     """Copied from `dalite/__init__.py`"""
     try:
-        binary_username = user_id.decode("hex")
+        binary_username = user_id.encode()
     except TypeError:
         username = user_id
     else:
-        username = base64.urlsafe_b64encode(binary_username).replace("=", "+")
+        print(binary_username)
+        username = (
+            base64.urlsafe_b64encode(binary_username)
+            .decode()
+            .replace("=", "+")
+        )
 
     password = hashlib.md5(
-        user_id + settings.PASSWORD_GENERATOR_NONCE
+        (user_id + settings.PASSWORD_GENERATOR_NONCE).encode()
     ).digest()
 
     return username, password

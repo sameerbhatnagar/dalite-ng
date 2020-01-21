@@ -109,7 +109,7 @@ def update_forum_notifications(sender, user, thread, **kwarsg):
 
 @receiver(user_logged_out)
 def update_last_logout(sender, request, user, **kwargs):
-    if user and user.is_authenticated():
+    if user and user.is_authenticated:
         try:
             last_logout = LastLogout.objects.get(user=user)
             last_logout.save()

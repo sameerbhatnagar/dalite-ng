@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 from functools import partial
 from itertools import chain
@@ -13,7 +13,7 @@ def create_model(language, urls, left_to_right, max_gram=3):
     data = {
         gram: val
         for gram, val in read_data(language, urls, left_to_right).items()
-        if gram <= max_gram
+        if len(gram) <= max_gram
     }
     data = read_data(language, urls, left_to_right)
     data["n_grams"] = {
