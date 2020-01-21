@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+from django.db.utils import IntegrityError
 
 import time
 
@@ -55,6 +56,30 @@ def test_get__rationale_only(answers):
     assert abs(likelihood_1 - likelihood_2) < 1e-5
     assert abs(likelihood_random_1 - likelihood_random_2) < 1e-5
     assert time_taken_2 < time_taken_1
+
+
+def test_get__added_by_other_server(answers, mocker):
+    answer = answers[0]
+    answer.rationale = (
+        "All happy families are alike; each unhappy family is unhappy in its "
+        "own way."
+    )
+    answer.save()
+
+    english = LikelihoodLanguage.objects.get(language="english")
+
+    likelihood_1, likelihood_random_1 = LikelihoodCache.get(answer, english, 3)
+
+    mocker.patch(
+        "quality.models.criterion.criterions.likelihood.LikelihoodCache"
+        ".objects.create",
+        side_effect=IntegrityError(),
+    )
+
+    likelihood_2, likelihood_random_2 = LikelihoodCache.get(answer, english, 3)
+
+    assert likelihood_1 == likelihood_2
+    assert likelihood_random_1 == likelihood_random_2
 
 
 def test_batch(answers):
