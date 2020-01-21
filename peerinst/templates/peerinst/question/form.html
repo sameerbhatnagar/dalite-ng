@@ -638,13 +638,17 @@
       });
     });
 
+  });
+</script>
+{% endif %}
+<script nonce="{{ request.csp_nonce }}">
+  window.addEventListener("load", function() {
     const cloneBtn = document.getElementById("clone-btn");
-    if (cloneBtn != null) {
+    if (cloneBtn) {
       cloneBtn.addEventListener("click", function() {
         window.location.href=this.getAttribute('href');
       });
     }
   });
 </script>
-{% endif %}
 {% endblock %}

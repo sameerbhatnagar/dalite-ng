@@ -19,7 +19,7 @@ def test_compute_gradebook__group__no_student_assignment(
         assert student["email"] in [s.student.email for s in students]
         for assignment in student["assignments"]:
             assert assignment["n_completed"] is None
-            assert assignment["n_correct"] is None
+            assert assignment["grade"] is None
 
 
 def test_compute_gradebook__group__no_student_assignment__student_id(
@@ -43,7 +43,7 @@ def test_compute_gradebook__group__no_student_assignment__student_id(
         ].index(student["email"])
         for assignment in student["assignments"]:
             assert assignment["n_completed"] is None
-            assert assignment["n_correct"] is None
+            assert assignment["grade"] is None
 
 
 def test_compute_gradebook__group__none_done(
@@ -60,7 +60,7 @@ def test_compute_gradebook__group__none_done(
         assert student["email"] in [s.student.email for s in students]
         for assignment in student["assignments"]:
             assert assignment["n_completed"] == 0
-            assert assignment["n_correct"] == 0
+            assert assignment["grade"] == 0
 
 
 def test_compute_gradebook__group__all_correct(
@@ -95,7 +95,7 @@ def test_compute_gradebook__group__all_correct(
                 ).questions
             )
             assert assignment["n_completed"] == n
-            assert assignment["n_correct"] == 0
+            assert assignment["grade"] == 0
 
 
 def test_compute_gradebook__group__all_correct(
@@ -130,7 +130,7 @@ def test_compute_gradebook__group__all_correct(
                 ).questions
             )
             assert assignment["n_completed"] == n
-            assert assignment["n_correct"] == n
+            assert assignment["grade"] == n
 
 
 def test_compute_gradebook__assignment__no_student_assignment(
@@ -254,7 +254,7 @@ def test_convert_gradebook_to_csv__group():
                 "school_id": None,
                 "email": "test{}@test.com".format(i),
                 "assignments": [
-                    {"n_completed": j * 10 + i, "n_correct": j * 10 + i % 10}
+                    {"n_completed": j * 10 + i, "grade": j * 10 + i % 10}
                     for j in range(n_assignments)
                 ],
             }
@@ -266,9 +266,7 @@ def test_convert_gradebook_to_csv__group():
     assert header == (
         "Student Email,"
         + ",".join(
-            "n_correct - assignment_{},n_completed - assignment_{}".format(
-                i, i
-            )
+            "grade - assignment_{},n_completed - assignment_{}".format(i, i)
             for i in range(n_assignments)
         )
         + "\r\n"
@@ -300,7 +298,7 @@ def test_convert_gradebook_to_csv__group__school_id():
                 "school_id": str(i),
                 "email": "test{}@test.com".format(i),
                 "assignments": [
-                    {"n_completed": j * 10 + i, "n_correct": j * 10 + i % 10}
+                    {"n_completed": j * 10 + i, "grade": j * 10 + i % 10}
                     for j in range(n_assignments)
                 ],
             }
@@ -312,9 +310,7 @@ def test_convert_gradebook_to_csv__group__school_id():
     assert header == (
         "Student ID,Student Email,"
         + ",".join(
-            "n_correct - assignment_{},n_completed - assignment_{}".format(
-                i, i
-            )
+            "grade - assignment_{},n_completed - assignment_{}".format(i, i)
             for i in range(n_assignments)
         )
         + "\r\n"
