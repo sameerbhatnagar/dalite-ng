@@ -72,4 +72,4 @@ jobs:
           name: Tests
           command: |
             . .venv/bin/activate
-            pytest --migrations --cov --create-db
+            pytest --migrations --cov --create-db --reruns 1
