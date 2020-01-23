@@ -33,3 +33,4 @@ pytest-logs.txt
 scripts/
 tags
 yarn.lock
+#data_inventory.py

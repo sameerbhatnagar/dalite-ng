@@ -1,7 +1,9 @@
 -r dev-requirements.txt
 
+jupyter
 spacy
 spacy-readability
-django_extensions
+django-extensions
 dframcy
 django_pandas
+seaborn

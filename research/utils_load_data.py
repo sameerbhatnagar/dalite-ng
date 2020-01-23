@@ -20,6 +20,7 @@ from peerinst.models import (
     Question,
     Teacher,
     Answer,
+    Assignment,
 )
 from tos.models import Consent
 
@@ -31,6 +32,24 @@ group_names = (
     .filter(num_students__gt=MIN_STUDENTS)
     .values_list("name", flat=True)
 )
+
+
+def get_group_metadata(group):
+    if group.teacher.first().disciplines.first():
+        discipline=group.teacher.first().disciplines.first().title
+    else:
+        discipline="Unknown"
+    d={
+        "teacher":group.teacher.first().user.username,
+        "discipline":discipline,
+        "name":group.name,
+        "title":group.title,
+        "N_students":len(filter_student_list(group.name)),
+        "N_questions":len(get_pi_question_list(group.name)),
+        "N_answers":get_answers_df(group.name).shape[0],
+    }
+    return d
+
 
 
 def filter_student_list(group_name):
@@ -385,9 +404,9 @@ def get_answers_df(group_name):
         )
 
         # id of longest rationale
-        df_answers["l_s_r_id"] = df_answers["id"].apply(
-            lambda x: get_longest_shown_rationale_id(x)
-        )
+        # df_answers["l_s_r_id"] = df_answers["id"].apply(
+        #     lambda x: get_longest_shown_rationale_id(x)
+        # )
 
     # rest of features are same for all groups
 
