@@ -28,7 +28,7 @@ jobs:
       - run:
           name: Build
           command: |
-            pip -m venv .venv
+            python -m venv .venv
             . .venv/bin/activate
             pip install -r requirements/dev-requirements.txt
             yarn install
