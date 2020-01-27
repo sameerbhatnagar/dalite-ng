@@ -36,20 +36,19 @@ group_names = (
 
 def get_group_metadata(group):
     if group.teacher.first().disciplines.first():
-        discipline=group.teacher.first().disciplines.first().title
+        discipline = group.teacher.first().disciplines.first().title
     else:
-        discipline="Unknown"
-    d={
-        "teacher":group.teacher.first().user.username,
-        "discipline":discipline,
-        "name":group.name,
-        "title":group.title,
-        "N_students":len(filter_student_list(group.name)),
-        "N_questions":len(get_pi_question_list(group.name)),
-        "N_answers":get_answers_df(group.name).shape[0],
+        discipline = "Unknown"
+    d = {
+        "teacher": group.teacher.first().user.username,
+        "discipline": discipline,
+        "name": group.name,
+        "title": group.title,
+        "N_students": len(filter_student_list(group.name)),
+        "N_questions": len(get_pi_question_list(group.name)),
+        "N_answers": get_answers_df(group.name).shape[0],
     }
     return d
-
 
 
 def filter_student_list(group_name):
@@ -111,7 +110,9 @@ def get_pi_question_list(group_name):
     pi_question_list = []
 
     if len(assignment_list) > 0:
-        sg_assignment_list = sg.studentgroupassignment_set.all()
+        sg_assignment_list = sg.studentgroupassignment_set.filter(
+            distribution_date__isnull=False
+        )
 
         for _a in sg_assignment_list:
             pi_question_list.extend(_a.assignment.questions.filter(type="PI"))
