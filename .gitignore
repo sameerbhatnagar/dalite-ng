@@ -27,6 +27,7 @@
 celerybeat.pid
 locust*
 mysql_scripts/
+notes
 partner*.png
 pytest-logs.txt
 scripts/
