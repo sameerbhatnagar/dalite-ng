@@ -1,5 +1,7 @@
 import os
+import json
 import spacy
+
 from collections import Counter
 import pandas as pd
 
@@ -15,10 +17,12 @@ from research.utils_spacy import (
     extract_readability_features,
 )
 
-from research.data_inventory import DATA_INVENTORY
-
 
 def append_features_and_save(path_to_data, group_name):
+
+    fpath = os.path.join(path_to_data, "data_inventory.json")
+    with open(fpath, "r") as f:
+        DATA_INVENTORY = json.load(f)
 
     prefix = "df_"
     fpath = os.path.join(path_to_data, prefix + group_name + ".csv")
