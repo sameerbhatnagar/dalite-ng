@@ -70,7 +70,9 @@ def append_features_and_save(path_to_data, group_name):
     df = extract_timestamp_features(df)
 
     fpath = os.path.join(
-        path_to_data, prefix + group_name + "_with_features.csv"
+        path_to_data,
+        "with_features",
+        prefix + group_name + "_with_features.csv",
     )
     df.to_csv(fpath)
 
