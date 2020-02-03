@@ -4,6 +4,7 @@ import json
 import re
 from django.conf import settings
 from spacy.matcher import PhraseMatcher
+from spacy_readability import Readability
 import pandas as pd
 
 
@@ -24,14 +25,14 @@ def get_matcher(subject, nlp, on_match=None):
     OpenStax textbook of that discipline
     """
     openstax_textbook_disciplines = {
-        "chem": ["chemistry-2e"],
-        "bio": ["biology-2e"],
-        "phys": [
+        "Chemistry": ["chemistry-2e"],
+        "Biology": ["biology-2e"],
+        "Physics": [
             "university-physics-volume-3",
             "university-physics-volume-2",
             "university-physics-volume-1",
         ],
-        "stats": ["introductory-statistics"],
+        "Statistics": ["introductory-statistics"],
     }
 
     books = openstax_textbook_disciplines[subject]
@@ -119,3 +120,32 @@ def extract_syntactic_features(rationales, nlp):
     ]
 
     return syntactic_features
+
+
+def extract_readability_features(rationales, nlp):
+    """
+    given array of rationales,
+    return dict of arrays holding synctatic features for each, including:
+        - flesch_kincaid_grade_level
+        - flesch_kincaid_reading_ease
+        - dale_chall
+        - automated_readability_index
+        - coleman_liau_index
+    """
+    nlp.add_pipe(Readability())
+    readability_features_list = [
+        ("flesch_kincaid_grade_level"),
+        ("flesch_kincaid_reading_ease"),
+        ("dale_chall"),
+        ("automated_readability_index"),
+        ("coleman_liau_index"),
+    ]
+
+    readability_features = {}
+
+    for f in readability_features_list:
+        readability_features[f] = [
+            getattr(doc._, f) for doc in nlp.pipe(rationales, batch_size=50)
+        ]
+
+    return readability_features

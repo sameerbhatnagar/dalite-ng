@@ -1,23 +1,16 @@
 from __future__ import unicode_literals
-import os
-import json
-import spacy
+
 import pandas as pd
 import numpy as np
-from spacy.matcher import PhraseMatcher
-from django.conf import settings
 from django_pandas.io import read_frame
 from django.db.models import Max
 
 import re
-import scipy
 import pandas as pd
-from collections import defaultdict
 from django.db.models import Count
 from peerinst.models import (
     StudentGroup,
     ShownRationale,
-    Question,
     Teacher,
     Answer,
     Assignment,
@@ -254,22 +247,24 @@ def append_first_correct_column(df_answers, id_column_name):
 
 
 # utility print function
-def print_rationales(a_list):
-    for a in Answer.objects.filter(id__in=a_list):
-        print("Question:")
-        print(a.question.text)
-        if a.question.image:
-            print(Image(url="." + a.question.image.url))
-        print("\n")
-        print("Student Rationale")
-        print(a.rationale)
-        print("\n\n\n\n")
-    return
+# def print_rationales(a_list):
+#     for a in Answer.objects.filter(id__in=a_list):
+#         print("Question:")
+#         print(a.question.text)
+#         if a.question.image:
+#             print(Image(url="." + a.question.image.url))
+#         print("\n")
+#         print("Student Rationale")
+#         print(a.rationale)
+#         print("\n\n\n\n")
+#     return
 
 
 def shown_answer_ids(shown_for_answer_id, justiceX=pd.DataFrame()):
     """
-    given Answer id, return dataframe with columns shown_answer_id,shown_word count) of the answers that were shown to the student
+    given Answer id, return dataframe with
+    columns shown_answer_id,shown_word count)
+    of the answers that were shown to the student
     """
     if not justiceX.empty:
         string_list = justiceX.loc[
@@ -351,7 +346,8 @@ def get_convincingness_ratio(df_answers):
     df["times_shown"] = df["times_shown"].fillna(0)
 
     # prior of 1/14 = 1/7 chance of being chosen at random if shown once
-    #                               * 1/2 chance students choose their own rationale
+    #                               * 1/2 chance students choose their
+    # own rationale
     df["chosen_ratio"] = (df["times_chosen"] + 1) / (df["times_shown"] + 14)
 
     return df
@@ -434,3 +430,31 @@ def get_answers_df(group_name):
     ] = 1
 
     return df_answers
+
+
+def extract_timestamp_features(df):
+    """
+    given a dataframe with columns
+        - with timestamps for when:
+            - student started question
+            - student submitted first_answer_choice + rationale
+            - student submits second_answer_choice,
+        - the question id,
+
+    Return same dataframe with extra columns:
+        - a numerical rank for when the student completed their rationale with respect to other students
+        - time spent writing rationale and first answer first_answer_choice
+        - time spent reading and selecting second answer choice
+    """
+
+    for c in ["datetime_start", "datetime_first", "datetime_second"]:
+        df[c] = pd.to_datetime(df[c])
+
+    # earliest students have lowest rank
+    df["a_rank_by_time"] = df.groupby("question__id")["datetime_second"].rank()
+
+    df["time_writing"] = df["datetime_first"] - df["datetime_start"]
+
+    df["time_reading"] = df["datetime_second"] - df["datetime_first"]
+
+    return df
