@@ -453,8 +453,12 @@ def extract_timestamp_features(df):
     # earliest students have lowest rank
     df["a_rank_by_time"] = df.groupby("question__id")["datetime_second"].rank()
 
-    df["time_writing"] = df["datetime_first"] - df["datetime_start"]
+    df["time_writing"] = (
+        df["datetime_first"] - df["datetime_start"]
+    ).dt.seconds
 
-    df["time_reading"] = df["datetime_second"] - df["datetime_first"]
+    df["time_reading"] = (
+        df["datetime_second"] - df["datetime_first"]
+    ).dt.seconds
 
     return df
