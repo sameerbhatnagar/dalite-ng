@@ -18,7 +18,6 @@ from django.contrib.auth.models import Group, User
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import PermissionDenied
-from django.core.mail import mail_admins, send_mail
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.core.urlresolvers import reverse
 
@@ -88,6 +87,7 @@ from ..models import (
     StudentGroupAssignment,
     Teacher,
 )
+from ..tasks import mail_admins_async, send_mail_async
 from ..util import (
     SessionStageData,
     get_object_or_none,
@@ -223,7 +223,7 @@ def dashboard(request):
             )
 
             # Notify user
-            send_mail(
+            send_mail_async(
                 _("Please verify your myDalite account"),
                 "Dear {},".format(user.username)
                 + "\n\nYour account has been recently activated. Please visit "
@@ -276,7 +276,7 @@ def sign_up(request):
                 url=form.cleaned_data["url"],
                 site_name="myDALITE",
             )
-            mail_admins(
+            mail_admins_async(
                 "New user request",
                 "Dear administrator,"
                 "\n\nA new user {} was created on {}.".format(
