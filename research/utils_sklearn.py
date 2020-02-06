@@ -5,6 +5,12 @@ import spacy
 from collections import Counter
 import pandas as pd
 
+
+from sklearn.preprocessing import QuantileTransformer, OneHotEncoder
+from sklearn.impute import SimpleImputer
+from sklearn.compose import ColumnTransformer
+from sklearn.pipeline import Pipeline
+
 from research.utils_load_data import (
     get_convincingness_ratio,
     extract_timestamp_features,
@@ -81,3 +87,32 @@ def append_features_and_save(path_to_data, group_name):
     df.to_csv(fpath)
 
     return
+
+
+def get_feature_transformation_pipeline(
+    data, feature_columns_numeric, feature_columns_categorical
+):
+    """
+    given:
+        - dataframe
+        - array indicating which columns are numeric features
+        - array indicating which columns are categorical features
+    return:
+        - numpy array of transformed data, ready for model
+    """
+
+    num_pipeline = Pipeline(
+        [
+            ("imputer", SimpleImputer()),
+            ("std_scaler", QuantileTransformer(output_distribution="normal")),
+        ]
+    )
+
+    full_pipeline = ColumnTransformer(
+        [
+            ("num_pipeline", num_pipeline, feature_columns_numeric),
+            ("cat_pipeline", OneHotEncoder(), feature_columns_categorical),
+        ]
+    )
+
+    return full_pipeline

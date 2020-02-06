@@ -7,3 +7,4 @@ django-extensions
 dframcy
 django_pandas
 seaborn
+statsmodels
