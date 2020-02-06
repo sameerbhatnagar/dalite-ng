@@ -10,6 +10,8 @@ from sklearn.preprocessing import QuantileTransformer, OneHotEncoder
 from sklearn.impute import SimpleImputer
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
+from sklearn.model_selection import StratifiedShuffleSplit
+
 
 from research.utils_load_data import (
     get_convincingness_ratio,
@@ -22,6 +24,8 @@ from research.utils_spacy import (
     extract_syntactic_features,
     extract_readability_features,
 )
+
+RANDOM_SEED = 123
 
 
 def append_features_and_save(path_to_data, group_name):
@@ -89,12 +93,38 @@ def append_features_and_save(path_to_data, group_name):
     return
 
 
+def split_train_test(data, split_axis, target, test_fraction=0.2):
+    """
+    given:
+     - DataFrame
+     - split_axis: name of feature for stratification in training and test set
+     - target variable name
+     - test_fraction (optional)
+    returns:
+        - train_set
+        - train labels
+        - test set
+        - test labels
+    """
+
+    strat_split = StratifiedShuffleSplit(
+        n_splits=1, test_size=test_fraction, random_state=RANDOM_SEED
+    )
+
+    for train_index, test_index in strat_split.split(data, data[split_axis]):
+        train_set = data.iloc[train_index].drop(target, axis=1).copy()
+        train_labels = data.iloc[train_index][target]
+        test_set = data.iloc[test_index]
+        test_labels = data.iloc[test_index][target]
+
+    return train_set, train_labels, test_set, test_labels
+
+
 def get_feature_transformation_pipeline(
-    data, feature_columns_numeric, feature_columns_categorical
+    feature_columns_numeric, feature_columns_categorical
 ):
     """
     given:
-        - dataframe
         - array indicating which columns are numeric features
         - array indicating which columns are categorical features
     return:
