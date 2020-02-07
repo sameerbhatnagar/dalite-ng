@@ -19,27 +19,66 @@ from tos.models import Consent
 
 MIN_STUDENTS = 10
 MIN_PI_QUESTIONS = 10
+MIN_TIMES_SHOWN = 3
 
-group_names = (
-    StudentGroup.objects.annotate(num_students=Count("student"))
-    .filter(num_students__gt=MIN_STUDENTS)
-    .values_list("name", flat=True)
-)
+SEMESTERS = [
+    (1, "WINTER"),
+    (2, "SUMMER"),
+    (3, "FALL"),
+]
+
+MONTH_SEMESTER_MAP = {
+    1: SEMESTERS[0],
+    2: SEMESTERS[0],
+    3: SEMESTERS[0],
+    4: SEMESTERS[0],
+    5: SEMESTERS[1],
+    6: SEMESTERS[1],
+    7: SEMESTERS[1],
+    8: SEMESTERS[2],
+    9: SEMESTERS[2],
+    10: SEMESTERS[2],
+    11: SEMESTERS[2],
+    12: SEMESTERS[2],
+}
+
+# group_names = (
+#     StudentGroup.objects.annotate(num_students=Count("student"))
+#     .filter(num_students__gt=MIN_STUDENTS)
+#     .values_list("name", flat=True)
+# )
 
 
-def get_group_metadata(group):
+def get_group_semester(df):
+
+    df["datetime_second"] = pd.to_datetime(df["datetime_second"])
+    df.index = df["datetime_second"]
+    month, year = df.groupby([df.index.month, df.index.year]).size().idxmax()
+    return (month, year)
+
+
+def get_group_metadata(group, path_to_output):
+    """
+    """
+    df_answers = get_answers_df(group.name)
+    month, year = get_group_semester(df_answers)
+    semester_season = MONTH_SEMESTER_MAP[month][1]
+
     if group.teacher.first().disciplines.first():
         discipline = group.teacher.first().disciplines.first().title
     else:
         discipline = "Unknown"
+
     d = {
+        "year": year,
+        "season": semester_season,
         "teacher": group.teacher.first().user.username,
         "discipline": discipline,
         "name": group.name,
         "title": group.title,
         "N_students": len(filter_student_list(group.name)),
         "N_questions": len(get_pi_question_list(group.name)),
-        "N_answers": get_answers_df(group.name).shape[0],
+        "N_answers": df_answers.shape[0],
     }
     return d
 
@@ -214,10 +253,6 @@ def filter_groups(group_name):
         return None, _message
 
 
-# utility functions
-
-pattern = re.compile("[ ''\[\]]")
-
 # utility function to append firt correct
 def append_first_correct_column(df_answers, id_column_name):
     """
@@ -267,6 +302,8 @@ def shown_answer_ids(shown_for_answer_id, justiceX=pd.DataFrame()):
     of the answers that were shown to the student
     """
     if not justiceX.empty:
+        pattern = re.compile("[ ''\[\]]")  # noqa
+
         string_list = justiceX.loc[
             justiceX["id"] == shown_for_answer_id, "rationales"
         ].iat[0]
@@ -359,12 +396,12 @@ def get_answers_df(group_name):
     """
 
     if group_name == "justiceX":  # not in same db
-
-        df_answers = read_from_harvard_db2()
+        pass
+        # df_answers = read_from_harvard_db2()
         # id of longest rationale
-        df_answers["l_s_r_id"] = df_answers["id"].apply(
-            lambda x: get_longest_shown_rationale_id(x, justiceX=df_answers)
-        )
+        # df_answers["l_s_r_id"] = df_answers["id"].apply(
+        #     lambda x: get_longest_shown_rationale_id(x, justiceX=df_answers)
+        # )
 
     else:
         assignment_list = get_assignment_list(group_name)
@@ -395,6 +432,22 @@ def get_answers_df(group_name):
 
         df_answers = read_frame(qs)
 
+        # responses for students who repeat the same course with same
+        # assignments need to be filtered out
+
+        month, year = get_group_semester(df_answers)
+        semester_int = MONTH_SEMESTER_MAP[month][0]
+
+        semester_months = [
+            m for m, s in MONTH_SEMESTER_MAP.items() if s[0] == semester_int
+        ]
+
+        df_answers = df_answers[
+            pd.to_datetime(df_answers["datetime_second"]).dt.month.isin(
+                semester_months
+            )
+        ]
+
         # append first_correct
         df_answers = append_first_correct_column(
             df_answers=df_answers, id_column_name="id"
@@ -408,7 +461,9 @@ def get_answers_df(group_name):
     # rest of features are same for all groups
 
     # word counts
-    df_answers["rationale_word_count"] = df_answers.rationale.str.count("\w+")
+    df_answers["rationale_word_count"] = df_answers.rationale.str.count(
+        "\w+"
+    )  # noqa
 
     # switch
     df_answers.loc[
@@ -424,7 +479,7 @@ def get_answers_df(group_name):
                 df_answers["first_answer_choice"]
                 == df_answers["second_answer_choice"]
             )
-            & (df_answers["chosen_rationale__id"].isna() == False)
+            & (df_answers["chosen_rationale__id"].isna() == False)  # noqa
         ),
         "switch_rationale",
     ] = 1
@@ -442,7 +497,8 @@ def extract_timestamp_features(df):
         - the question id,
 
     Return same dataframe with extra columns:
-        - a numerical rank for when the student completed their rationale with respect to other students
+        - a numerical rank for when the student completed their rationale
+        with respect to other students
         - time spent writing rationale and first answer first_answer_choice
         - time spent reading and selecting second answer choice
     """
