@@ -8,6 +8,7 @@ from django.db.models import Max
 import os
 import re
 import datetime
+import itertools
 from collections import Counter
 import pandas as pd
 from django.db.models import Count
@@ -17,6 +18,7 @@ from peerinst.models import (
     Teacher,
     Answer,
     Assignment,
+    Question,
 )
 from tos.models import Consent
 
@@ -638,3 +640,62 @@ def build_data_inventory(path_to_data):
         pd.DataFrame(rejected_groups).to_csv(f)
 
     return rejected_groups, data_inventory
+
+
+def get_questions_df(path_to_data):
+    """
+    make dataframe with contextual data on each question
+    """
+    all_q = pd.DataFrame(
+        [
+            {
+                "text": q.text,
+                "image": q.image.url if q.image else None,
+                "image_alt_text": q.image_alt_text if q.image else None,
+                "video": q.video_url,
+                "rationale_selection_algorithm": q.rationale_selection_algorithm,  # noqa
+                "categories": ";".join(
+                    q.category.all().values_list("title", flat=True)
+                ),
+                "expert_rationale": ";".join(
+                    q.answer_set.filter(expert=True).values_list(
+                        "rationale", flat=True
+                    )
+                ),
+                "correct_answerchoice": list(
+                    itertools.compress(
+                        (itertools.count(1)),
+                        (
+                            q.answerchoice_set.all().values_list(
+                                "correct", flat=True
+                            )
+                        ),
+                    )
+                ),
+                "correct_answerchoice_text": ";".join(
+                    itertools.compress(
+                        (
+                            q.answerchoice_set.all().values_list(
+                                "text", flat=True
+                            )
+                        ),
+                        (
+                            q.answerchoice_set.all().values_list(
+                                "correct", flat=True
+                            )
+                        ),
+                    )
+                ),
+            }
+            for q in Question.objects.all()
+        ]
+    )
+    fpath = os.path.join(
+        path_to_data,
+        datetime.datetime.today().strftime("%Y_%m_%d") + "__all_questions.csv",
+    )
+
+    with open(fpath, "w") as f:
+        all_q.to_csv(f)
+
+    return all_q
