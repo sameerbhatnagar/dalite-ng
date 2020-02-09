@@ -79,17 +79,22 @@ def get_group_metadata(group, path_to_data=None):
         pi_question_list + ro_question_list + pi_question_list_all_correct
     )
 
+    if group.teacher.last():
+        institution = ",".join(
+            group.teacher.last()
+            .institutions.all()
+            .values_list("name", flat=True)
+        )
+    else:
+        institution = "Unknown"
+
     month, year = get_group_semester(df_answers)
     semester_season = MONTH_SEMESTER_MAP[month][1]
 
     d = {
         "year": str(year),
         "season": semester_season,
-        "institution": ",".join(
-            group.teacher.last()
-            .institutions.all()
-            .values_list("name", flat=True)
-        ),
+        "institution": institution,
         "teachers": ",".join(
             group.teacher.all().values_list("user__username", flat=True)
         ),
@@ -619,7 +624,16 @@ def build_data_inventory(path_to_data):
         if _group_name:
             data_inventory.append(get_group_metadata(group, path_to_data))
         else:
-            rejected_groups.append({"group": group.name, "message": _message})
+            rejected_groups.append(
+                {
+                    "group": group.name,
+                    "title": group.title,
+                    "teacher": group.teacher.last().user.username
+                    if group.teacher.last()
+                    else "Unknown",
+                    "message": _message,
+                }
+            )
             print("\t {} - {}".format(_group_name, _message))
 
     fpath = os.path.join(
