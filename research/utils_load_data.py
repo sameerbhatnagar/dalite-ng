@@ -5,7 +5,10 @@ import numpy as np
 from django_pandas.io import read_frame
 from django.db.models import Max
 
+import os
 import re
+import datetime
+from collections import Counter
 import pandas as pd
 from django.db.models import Count
 from peerinst.models import (
@@ -18,8 +21,9 @@ from peerinst.models import (
 from tos.models import Consent
 
 MIN_STUDENTS = 10
-MIN_PI_QUESTIONS = 10
+MIN_PI_QUESTIONS = 5
 MIN_TIMES_SHOWN = 3
+MIN_ANSWERS = MIN_STUDENTS * MIN_PI_QUESTIONS
 
 SEMESTERS = [
     (1, "WINTER"),
@@ -42,44 +46,75 @@ MONTH_SEMESTER_MAP = {
     12: SEMESTERS[2],
 }
 
-# group_names = (
-#     StudentGroup.objects.annotate(num_students=Count("student"))
-#     .filter(num_students__gt=MIN_STUDENTS)
-#     .values_list("name", flat=True)
-# )
-
 
 def get_group_semester(df):
 
     df["datetime_second"] = pd.to_datetime(df["datetime_second"])
     df.index = df["datetime_second"]
-    month, year = df.groupby([df.index.month, df.index.year]).size().idxmax()
+
+    try:
+        month, year = (
+            df.groupby([df.index.month, df.index.year]).size().idxmax()
+        )
+    except ValueError:
+        month, year = None, None
+
     return (month, year)
 
 
-def get_group_metadata(group, path_to_output):
+def get_group_metadata(group, path_to_data=None):
     """
     """
-    df_answers = get_answers_df(group.name)
+    df_answers = get_answers_df(group.name, path_to_data)
+
+    (
+        pi_question_list,
+        ro_question_list,
+        pi_question_list_all_correct,
+    ) = get_pi_question_list(group.name)
+
+    all_questions = (
+        pi_question_list + ro_question_list + pi_question_list_all_correct
+    )
+
     month, year = get_group_semester(df_answers)
     semester_season = MONTH_SEMESTER_MAP[month][1]
 
-    if group.teacher.first().disciplines.first():
-        discipline = group.teacher.first().disciplines.first().title
-    else:
-        discipline = "Unknown"
-
     d = {
-        "year": year,
+        "year": str(year),
         "season": semester_season,
-        "teacher": group.teacher.first().user.username,
-        "discipline": discipline,
+        "institution": ",".join(
+            group.teacher.last()
+            .institutions.all()
+            .values_list("name", flat=True)
+        ),
+        "teachers": ",".join(
+            group.teacher.all().values_list("user__username", flat=True)
+        ),
+        "discipline": ",".join(
+            Counter(
+                [q.discipline.title for q in all_questions if q.discipline]
+            ).keys()
+        ),
         "name": group.name,
         "title": group.title,
         "N_students": len(filter_student_list(group.name)),
-        "N_questions": len(get_pi_question_list(group.name)),
-        "N_answers": df_answers.shape[0],
+        "N_questions_PI": len(pi_question_list),
+        "N_answers_PI": df_answers.groupby(["question_type"])["question__id"]
+        .size()
+        .get("PI"),
+        "N_questions_PI_AC": len(pi_question_list_all_correct),
+        "N_answers_PI_AC": df_answers.groupby(["question_type"])[
+            "question__id"
+        ]
+        .size()
+        .get("PI_AC"),
+        "N_questions_RO": len(ro_question_list),
+        "N_answers_RO": df_answers.groupby(["question_type"])["question__id"]
+        .size()
+        .get("RO"),
     }
+
     return d
 
 
@@ -140,6 +175,7 @@ def get_pi_question_list(group_name):
         "assignment", flat=True
     )
     pi_question_list = []
+    ro_question_list = []
 
     if len(assignment_list) > 0:
         sg_assignment_list = sg.studentgroupassignment_set.filter(
@@ -148,6 +184,7 @@ def get_pi_question_list(group_name):
 
         for _a in sg_assignment_list:
             pi_question_list.extend(_a.assignment.questions.filter(type="PI"))
+            ro_question_list.extend(_a.assignment.questions.filter(type="RO"))
 
     # LTI groups, keep assignments that have at least 10 answers
     if assignment_list.count() == 0:
@@ -164,14 +201,18 @@ def get_pi_question_list(group_name):
 
         for _a in assignment_list_qs:
             pi_question_list.extend(_a.questions.filter(type="PI"))
+            ro_question_list.extend(_a.questions.filter(type="RO"))
 
     # remove those where all answerchoices are marked as correct
-    pi_question_list = [
+    pi_question_list_all_correct = [
         q
         for q in pi_question_list
-        if not all(q.answerchoice_set.all().values_list("correct", flat=True))
+        if all(q.answerchoice_set.all().values_list("correct", flat=True))
     ]
-    return pi_question_list
+    pi_question_list = [
+        q for q in pi_question_list if q not in pi_question_list_all_correct
+    ]
+    return pi_question_list, ro_question_list, pi_question_list_all_correct
 
 
 def filter_groups_on_min_students(group_name):
@@ -188,10 +229,18 @@ def filter_groups_on_min_students(group_name):
 
 
 def filter_groups_on_min_qs(group_name):
-    pi_question_list = get_pi_question_list(group_name)
+    (
+        pi_question_list,
+        ro_question_list,
+        pi_question_list_all_correct,
+    ) = get_pi_question_list(group_name)
 
-    message = "{} pi questions".format(len(pi_question_list))
-    if len(pi_question_list) < MIN_PI_QUESTIONS:
+    message = "{} pi questions;{} ro questions,{} AC questions".format(
+        len(pi_question_list),
+        len(ro_question_list),
+        len(pi_question_list_all_correct),
+    )
+    if len(pi_question_list + pi_question_list_all_correct) < MIN_PI_QUESTIONS:
         return (None, message)
     else:
         return (group_name, message)
@@ -202,7 +251,11 @@ def filter_groups_on_min_a(group_name):
     if _group_name:
         student_list_filtered = filter_student_list(group_name)
         assignment_list = get_assignment_list(group_name)
-        pi_question_list = get_pi_question_list(group_name)
+        (
+            pi_question_list,
+            ro_question_list,
+            pi_question_list_all_correct,
+        ) = get_pi_question_list(group_name)
         answers = (
             Answer.objects.filter(
                 user_token__in=student_list_filtered,
@@ -390,7 +443,7 @@ def get_convincingness_ratio(df_answers):
     return df
 
 
-def get_answers_df(group_name):
+def get_answers_df(group_name, path_to_data=None):
     """
     given group name, return df_answers
     """
@@ -406,7 +459,16 @@ def get_answers_df(group_name):
     else:
         assignment_list = get_assignment_list(group_name)
 
-        pi_question_list = get_pi_question_list(group_name)
+        (
+            pi_question_list,
+            ro_question_list,
+            pi_question_list_all_correct,
+        ) = get_pi_question_list(group_name)
+        q_type_map = {
+            **{q.pk: "PI" for q in pi_question_list},
+            **{q.pk: "PI_AC" for q in pi_question_list_all_correct},
+            **{q.pk: "RO" for q in ro_question_list},
+        }
 
         filtered_student_list = filter_student_list(group_name)
 
@@ -414,7 +476,9 @@ def get_answers_df(group_name):
         a_qs = Answer.objects.filter(
             user_token__in=filtered_student_list,
             assignment_id__in=assignment_list,
-            question_id__in=pi_question_list,
+            question_id__in=pi_question_list
+            + pi_question_list_all_correct
+            + ro_question_list,
         )
 
         qs = a_qs.values(
@@ -432,21 +496,28 @@ def get_answers_df(group_name):
 
         df_answers = read_frame(qs)
 
+        df_answers["question_type"] = df_answers["question__id"].map(
+            q_type_map
+        )
+
         # responses for students who repeat the same course with same
         # assignments need to be filtered out
 
         month, year = get_group_semester(df_answers)
-        semester_int = MONTH_SEMESTER_MAP[month][0]
+        if month:
+            semester_int = MONTH_SEMESTER_MAP[month][0]
 
-        semester_months = [
-            m for m, s in MONTH_SEMESTER_MAP.items() if s[0] == semester_int
-        ]
+            semester_months = [
+                m
+                for m, s in MONTH_SEMESTER_MAP.items()
+                if s[0] == semester_int
+            ]
 
-        df_answers = df_answers[
-            pd.to_datetime(df_answers["datetime_second"]).dt.month.isin(
-                semester_months
-            )
-        ]
+            df_answers = df_answers[
+                pd.to_datetime(df_answers["datetime_second"]).dt.month.isin(
+                    semester_months
+                )
+            ]
 
         # append first_correct
         df_answers = append_first_correct_column(
@@ -484,6 +555,12 @@ def get_answers_df(group_name):
         "switch_rationale",
     ] = 1
 
+    if path_to_data:
+        prefix = "df_"
+        group_name_fn = re.sub("/", "_", group_name)
+        fpath = os.path.join(path_to_data, prefix + group_name_fn + ".csv")
+        df_answers.to_csv(fpath)
+
     return df_answers
 
 
@@ -520,3 +597,44 @@ def extract_timestamp_features(df):
     ).dt.seconds
 
     return df
+
+
+def build_data_inventory(path_to_data):
+    """
+    """
+
+    rejected_groups = []
+    data_inventory = []
+
+    all_groups = StudentGroup.objects.all()
+
+    for i, group in enumerate(all_groups):
+
+        print("{}- {}".format(i, group.name))
+
+        _group_name, _message = filter_groups(group_name=group.name)
+
+        if _group_name:
+            data_inventory.append(get_group_metadata(group, path_to_data))
+        else:
+            rejected_groups.append({"group": group.name, "message": _message})
+            print("\t {} - {}".format(_group_name, _message))
+
+    fpath = os.path.join(
+        path_to_data,
+        datetime.datetime.today().strftime("%Y_%m_%d") + "_data_inventory.csv",
+    )
+
+    with open(fpath, "w") as f:
+        pd.DataFrame(data_inventory).to_csv(f)
+
+    fpath = os.path.join(
+        path_to_data,
+        datetime.datetime.today().strftime("%Y_%m_%d")
+        + "_rejected_groups.csv",
+    )
+
+    with open(fpath, "w") as f:
+        pd.DataFrame(rejected_groups).to_csv(f)
+
+    return rejected_groups, data_inventory
