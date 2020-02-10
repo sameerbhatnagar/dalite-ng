@@ -1,4 +1,3 @@
-import base64
 import json
 import logging
 import random
@@ -13,11 +12,9 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.contrib.auth.models import Group, User
-from django.contrib.auth.tokens import default_token_generator
+from django.contrib.auth.models import Group
 from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import PermissionDenied
-from django.core.mail import send_mail
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 
 # reports
@@ -28,11 +25,9 @@ from django.forms import Textarea, inlineformset_factory
 # blink
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
-from django.template import loader
 from django.template.response import TemplateResponse
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.encoding import force_bytes
 from django.utils.html import escape, format_html
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
@@ -178,72 +173,6 @@ def landing_page(request):
 
 def admin_check(user):
     return user.is_superuser
-
-
-@login_required
-@user_passes_test(admin_check, login_url="/welcome/", redirect_field_name=None)
-def dashboard(request):
-
-    html_email_template_name = "registration/verification_email.html"
-
-    if request.method == "POST":
-        form = forms.ActivateForm(request.POST)
-        if form.is_valid():
-            user = form.cleaned_data["user"]
-            user.is_active = True
-            user.save()
-
-            if form.cleaned_data["is_teacher"]:
-                teacher = Teacher(user=user)
-                teacher.save()
-
-            if not settings.EMAIL_BACKEND.startswith(
-                "django.core.mail.backends"
-            ):
-                return HttpResponse(status=503)
-
-            link = "{}://{}{}".format(
-                request.scheme,
-                request.get_host(),
-                reverse(
-                    "password_reset_confirm",
-                    kwargs={
-                        "uidb64": base64.urlsafe_b64encode(
-                            force_bytes(user.pk)
-                        ),
-                        "token": default_token_generator.make_token(user),
-                    },
-                ),
-            )
-
-            # Notify user
-            send_mail(
-                _("Please verify your myDalite account"),
-                "Dear {},".format(user.username)
-                + "\n\nYour account has been recently activated. Please visit "
-                "the following link to verify your email address and "
-                "to set your password:\n\n"
-                + link
-                + "\n\nCheers,\nThe myDalite Team",
-                "noreply@myDALITE.org",
-                [user.email],
-                fail_silently=True,
-                html_message=loader.render_to_string(
-                    html_email_template_name,
-                    context={"username": user.username, "link": link},
-                    request=request,
-                ),
-            )
-
-    return TemplateResponse(
-        request,
-        "peerinst/dashboard.html",
-        context={
-            "new_users": User.objects.filter(is_active=False).order_by(
-                "-date_joined"
-            )
-        },
-    )
 
 
 def terms_teacher(request):

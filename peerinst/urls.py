@@ -694,7 +694,6 @@ def question_patterns():
 
 def admin_patterns() -> List[URLPattern]:
     return [
-        path("dashboard/", views.dashboard, name="dashboard"),
         path(
             "admin/", admin_views.AdminIndexView.as_view(), name="admin-index",
         ),
