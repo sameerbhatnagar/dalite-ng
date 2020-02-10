@@ -119,12 +119,10 @@ def compute_gradebook(group_pk, assignment_pk=None):
                     "assignments": [
                         {
                             key: val
-                            for key, val in list(
-                                _assignment.studentassignment_set.get(  # noqa
-                                    student=membership.student
-                                ).results.items()
-                            )
-                            if key in ("n_completed", "n_correct")
+                            for key, val in _assignment.studentassignment_set.get(  # noqa
+                                student=membership.student
+                            ).results.items()
+                            if key in ("n_completed", "grade")
                         }
                         if _assignment.studentassignment_set.filter(
                             student=membership.student

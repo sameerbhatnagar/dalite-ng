@@ -355,7 +355,7 @@ function icons() {
 
 function watch() {
   browserSync.init({
-    port: 8001,
+    port: 3000,
     proxy: "http://127.0.0.1:8000",
     notify: false,
     open: false,
