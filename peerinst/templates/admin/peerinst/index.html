@@ -28,33 +28,6 @@
     <div class="grp-module">
       <h2>{% trans 'Management' %}</h2>
       <div class="grp-row">
-        <p><a href="{% url 'admin:peerinst_assignment_changelist' %}">
-            {% trans 'Assignments' %}
-        </a></p>
-      </div>
-      <div class="grp-row">
-        <p><a href="{% url 'admin:peerinst_question_changelist' %}">
-            {% trans 'Questions' %}
-        </a></p>
-      </div>
-      <div class="grp-row">
-        <p><a href="{% url 'admin:peerinst_category_changelist' %}">
-            {% trans 'Question categories' %}
-        </a></p>
-      </div>
-      <div class="grp-row">
-        <p><a href="{% url 'admin:peerinst_answer_changelist' %}">
-            {% trans 'Answers' %}
-        </a></p>
-      </div>
-      {% if "auth.add_user" in perms %}
-      <div class="grp-row">
-        <p><a href="{% url 'admin:app_list' app_label='auth' %}">
-            {% trans 'Users' %}
-        </a></p>
-      </div>
-      {% endif %}
-      <div class="grp-row">
         <p><a href="{% url 'attribution-analysis' %}">
             {% trans 'Attribution bias analysis' %}
         </a></p>
@@ -67,6 +40,31 @@
       <div class="grp-row">
         <p><a href="{% url 'admin--new-user-approval' %}">
             {% trans 'Approve new users' %}
+        </a></p>
+      </div>
+      <div class="grp-row">
+        <p><a href="{% url 'admin:peerinst_message_changelist' %}">
+            {% trans 'Manage messages' %}
+        </a></p>
+      </div>
+      <div class="grp-row">
+        <p><a href="{% url 'admin:peerinst_questionflag_changelist' %}">
+            {% trans 'Flagged questions' %}
+        </a></p>
+      </div>
+      <div class="grp-row">
+        <p><a href="{% url 'admin:peerinst_questionflagreason_changelist' %}">
+            {% trans 'Reasons for flagged questions' %}
+        </a></p>
+      </div>
+      <div class="grp-row">
+        <p><a href="{% url 'admin:peerinst_discipline_changelist' %}">
+            {% trans 'Disciplines' %}
+        </a></p>
+      </div>
+      <div class="grp-row">
+        <p><a href="{% url 'admin:peerinst_discipline_changelist' %}">
+            {% trans 'Flagged rationales' %}
         </a></p>
       </div>
     </div>

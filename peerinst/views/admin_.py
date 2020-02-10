@@ -68,7 +68,9 @@ def sign_up(request):
                 + "\n\nAccess your administrator account to activate this "
                 "new user."
                 "\n\n{}://{}{}".format(
-                    request.scheme, request.get_host(), reverse("dashboard")
+                    request.scheme,
+                    request.get_host(),
+                    reverse("admin--new-user-approval"),
                 )
                 + "\n\nCheers,"
                 "\nThe myDalite Team",
@@ -164,4 +166,10 @@ def verify_user(
         request.user.delete()
         logger.info(f"New user {username} refused")
 
+    return HttpResponse("")
+
+
+@staff_member_required
+@require_safe
+def flagged_rationales_page(req: HttpRequest) -> HttpResponse:
     return HttpResponse("")

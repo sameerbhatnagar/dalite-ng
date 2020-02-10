@@ -753,6 +753,11 @@ def admin_patterns() -> List[URLPattern]:
                         views.admin_.verify_user,
                         name="admin--verify-user",
                     ),
+                    path(
+                        "flagged-rationales",
+                        views.admin_.flagged_rationales_page,
+                        name="admin--flagged-rationales",
+                    ),
                 ]
             ),
         ),
