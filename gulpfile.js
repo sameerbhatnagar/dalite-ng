@@ -27,6 +27,7 @@ const styleBuilds = [
       "collection",
       "teacher",
       "layout",
+      "admin",
     ],
   },
   {
@@ -60,6 +61,7 @@ const scriptBuilds = [
       "custom_elements",
       "teacher",
       "collection",
+      "admin",
     ],
   },
   {

@@ -3,9 +3,9 @@ import json
 import logging
 import random
 import re
-import urllib.request
-import urllib.parse
 import urllib.error
+import urllib.parse
+import urllib.request
 from datetime import datetime
 
 import pytz
@@ -17,9 +17,8 @@ from django.contrib.auth.models import Group, User
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import PermissionDenied
-from django.core.mail import mail_admins, send_mail
+from django.core.mail import send_mail
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
-from django.urls import reverse
 
 # reports
 from django.db.models import Count, Q
@@ -28,13 +27,10 @@ from django.forms import Textarea, inlineformset_factory
 
 # blink
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
-from django.shortcuts import (
-    get_object_or_404,
-    redirect,
-    render,
-)
+from django.shortcuts import get_object_or_404, redirect, render
 from django.template import loader
 from django.template.response import TemplateResponse
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.encoding import force_bytes
 from django.utils.html import escape, format_html
@@ -248,62 +244,6 @@ def dashboard(request):
             )
         },
     )
-
-
-def sign_up(request):
-    template = "registration/sign_up.html"
-    html_email_template_name = "registration/sign_up_admin_email_html.html"
-    context = {}
-
-    if request.method == "POST":
-        form = forms.SignUpForm(request.POST)
-        if form.is_valid():
-            # Set new users as inactive until verified by an administrator
-            form.instance.is_active = False
-            form.save()
-            # Notify administrators
-            if not settings.EMAIL_BACKEND.startswith(
-                "django.core.mail.backends"
-            ):
-                return HttpResponse(status=503)
-
-            email_context = dict(
-                user=form.cleaned_data["username"],
-                date=timezone.now(),
-                email=form.cleaned_data["email"],
-                url=form.cleaned_data["url"],
-                site_name="myDALITE",
-            )
-            mail_admins(
-                "New user request",
-                "Dear administrator,"
-                "\n\nA new user {} was created on {}.".format(
-                    form.cleaned_data["username"], timezone.now()
-                )
-                + "\n\nEmail: {}".format(form.cleaned_data["email"])
-                + "\nVerification url: {}".format(form.cleaned_data["url"])
-                + "\n\nAccess your administrator account to activate this "
-                "new user."
-                "\n\n{}://{}{}".format(
-                    request.scheme, request.get_host(), reverse("dashboard")
-                )
-                + "\n\nCheers,"
-                "\nThe myDalite Team",
-                fail_silently=True,
-                html_message=loader.render_to_string(
-                    html_email_template_name,
-                    context=email_context,
-                    request=request,
-                ),
-            )
-
-            return TemplateResponse(request, "registration/sign_up_done.html")
-        else:
-            context["form"] = form
-    else:
-        context["form"] = forms.SignUpForm()
-
-    return render(request, template, context)
 
 
 def terms_teacher(request):

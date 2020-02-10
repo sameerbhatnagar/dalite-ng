@@ -140,65 +140,6 @@ def old_patterns():
             views.StudentGroupAssignmentCreateView.as_view(),
             name="student-group-assignment-create",
         ),
-        # Admin
-        path("dashboard/", views.dashboard, name="dashboard"),
-        path(
-            "admin/", admin_views.AdminIndexView.as_view(), name="admin-index",
-        ),
-        path(
-            "admin/peerinst/",
-            include(
-                [
-                    path(
-                        "assignment_results/<assignment_id>/",
-                        include(
-                            [
-                                path(
-                                    "",
-                                    admin_views.AssignmentResultsView.as_view(),  # noqa
-                                    name="assignment-results",
-                                ),
-                                path(
-                                    "rationales/<int:question_id>",
-                                    admin_views.QuestionRationaleView.as_view(),  # noqa
-                                    name="question-rationales",
-                                ),
-                            ]
-                        ),
-                    ),
-                    path(
-                        "question_preview/<int:question_id>",
-                        admin_views.QuestionPreviewView.as_view(),
-                        name="question-preview",
-                    ),
-                    path(
-                        "fake_usernames/",
-                        admin_views.FakeUsernames.as_view(),
-                        name="fake-usernames",
-                    ),
-                    path(
-                        "fake_countries/",
-                        admin_views.FakeCountries.as_view(),
-                        name="fake-countries",
-                    ),
-                    path(
-                        "attribution_analysis/",
-                        admin_views.AttributionAnalysis.as_view(),
-                        name="attribution-analysis",
-                    ),
-                    path(
-                        "group_assignment_management/",
-                        admin_views.StudentGroupAssignmentManagement.as_view(),
-                        name="group-assignment-management",
-                    ),
-                    path(
-                        "new-user-approval",
-                        views.admin_.new_user_approval,
-                        name="admin--new-user-approval",
-                    ),
-                ]
-            ),
-        ),
         # Teachers
         path(
             "teacher-account/<int:pk>/",
@@ -268,7 +209,7 @@ def old_patterns():
         ),
         # Auth
         path("", views.landing_page, name="landing_page"),
-        path("signup/", views.sign_up, name="sign_up"),
+        path("signup/", views.admin_.sign_up, name="sign_up"),
         path(
             "login/",
             user_passes_test(not_authenticated, login_url="/welcome/")(
@@ -751,6 +692,74 @@ def question_patterns():
     ]
 
 
+def admin_patterns() -> List[URLPattern]:
+    return [
+        path("dashboard/", views.dashboard, name="dashboard"),
+        path(
+            "admin/", admin_views.AdminIndexView.as_view(), name="admin-index",
+        ),
+        path(
+            "admin/peerinst/",
+            include(
+                [
+                    path(
+                        "assignment_results/<assignment_id>/",
+                        include(
+                            [
+                                path(
+                                    "",
+                                    admin_views.AssignmentResultsView.as_view(),  # noqa
+                                    name="assignment-results",
+                                ),
+                                path(
+                                    "rationales/<int:question_id>",
+                                    admin_views.QuestionRationaleView.as_view(),  # noqa
+                                    name="question-rationales",
+                                ),
+                            ]
+                        ),
+                    ),
+                    path(
+                        "question_preview/<int:question_id>",
+                        admin_views.QuestionPreviewView.as_view(),
+                        name="question-preview",
+                    ),
+                    path(
+                        "fake_usernames/",
+                        admin_views.FakeUsernames.as_view(),
+                        name="fake-usernames",
+                    ),
+                    path(
+                        "fake_countries/",
+                        admin_views.FakeCountries.as_view(),
+                        name="fake-countries",
+                    ),
+                    path(
+                        "attribution_analysis/",
+                        admin_views.AttributionAnalysis.as_view(),
+                        name="attribution-analysis",
+                    ),
+                    path(
+                        "group_assignment_management/",
+                        admin_views.StudentGroupAssignmentManagement.as_view(),
+                        name="group-assignment-management",
+                    ),
+                    path(
+                        "new-user-approval",
+                        views.admin_.new_user_approval_page,
+                        name="admin--new-user-approval",
+                    ),
+                    path(
+                        "verify-user",
+                        views.admin_.verify_user,
+                        name="admin--verify-user",
+                    ),
+                ]
+            ),
+        ),
+    ]
+
+
 urlpatterns: List[URLPattern] = sum(
     [
         collection_patterns(),
@@ -761,6 +770,7 @@ urlpatterns: List[URLPattern] = sum(
         search_patterns(),
         student_patterns(),
         teacher_patterns(),
+        admin_patterns(),
     ],
     [],
 )
