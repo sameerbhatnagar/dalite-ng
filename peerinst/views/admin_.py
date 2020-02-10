@@ -2,6 +2,7 @@ import base64
 import logging
 
 from django.conf import settings
+from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.tokens import default_token_generator
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
@@ -11,6 +12,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.encoding import force_bytes
 from django.utils.translation import ugettext_lazy as translate
+from django.views.decorators.http import require_POST, require_safe
 
 from dalite.views.utils import with_json_params
 
@@ -33,6 +35,8 @@ def sign_up(request):
             form.instance.is_active = False
             form.save()
             # Notify administrators
+
+            #  print(settings.EMAIL_BACKEND)
             if not settings.EMAIL_BACKEND.startswith(
                 "django.core.mail.backends"
             ):
@@ -85,6 +89,8 @@ def sign_up(request):
     return render(request, template, context)
 
 
+@staff_member_required
+@require_safe
 def new_user_approval_page(req: HttpRequest) -> HttpResponse:
     new_users = [
         {
@@ -100,6 +106,8 @@ def new_user_approval_page(req: HttpRequest) -> HttpResponse:
     return render(req, "admin/peerinst/new_user_approval.html", context)
 
 
+@staff_member_required
+@require_POST
 @with_json_params(args=["username", "approve"])
 def verify_user(
     req: HttpRequest, username: str, approve: bool
@@ -130,8 +138,6 @@ def verify_user(
                 },
             ),
         )
-
-        # Notify user
         send_mail_async(
             translate("Please verify your myDalite account"),
             "Dear {},".format(request.user.username)
@@ -149,7 +155,9 @@ def verify_user(
                 request=req,
             ),
         )
+
         request.delete()
+
         logger.info(f"New user {username} approved")
 
     else:
