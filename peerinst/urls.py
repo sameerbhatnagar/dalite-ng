@@ -1,13 +1,9 @@
 # Backport of django 1.9 password validation
 import password_validation.views as password_views
 from django.conf.urls import include
-from django.urls import path, re_path
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.decorators import user_passes_test
-<<<<<<< Updated upstream
-=======
 from django.urls import path, re_path
->>>>>>> Stashed changes
 from django.views.decorators.cache import cache_page
 
 # testing
