@@ -1,0 +1,55 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static grp_tags %}
+
+{% block title %}{% trans 'New user approval' %}{% endblock %}
+
+{% block extrastyle %}
+<link href="{% static 'peerinst/css/admin.min.css' %}" rel="stylesheet" type="text/css" />
+{% endblock %}
+
+{% block breadcrumbs %}
+<ul>
+  <li><a href="{% url 'admin-index' %}">{% trans 'Home' %}</a></li>
+  <li>{% trans 'New user approval' %}</li>
+</ul>
+{% endblock %}
+
+{% block content_title %}
+<h1>{% trans 'New user approval' %}</h1>
+{% endblock %}
+
+{% block content %}
+{# <div class="g-d-c-fluid"> #}
+  {# <form action="" method="get"> #}
+    {# <fieldset class="grp-module"> #}
+      {# <div class="grp-row"> #}
+        {# {{ form.as_p }} #}
+      {# </div> #}
+      {# <div class="grp-row"> #}
+        {# <input type="submit" value="{% trans 'Run report' %}" /> #}
+      {# </div> #}
+    {# </fieldset> #}
+  {# </form> #}
+{# </div> #}
+{#  #}
+{# <div class="g-d-c-fluid"> #}
+{# <form action="" method="post"> #}
+  {# {% csrf_token %} #}
+  {# <fieldset class="grp-module"> #}
+    {# <div class="grp-row"> #}
+      {# <p>{% trans 'Students in group:' %} {{ student_list.count }}</p> #}
+      {# <p>{% trans 'Student assignments:' %} {{ student_assignment_list.count }}</p> #}
+      {# {% if assignments_created %} #}
+      {# <p>{% trans 'Assignments created:' %} {{assignments_created}}</p> #}
+      {# <p>{% trans 'Emails sent:' %} {{emails_sent}}</p> #}
+      {# {% endif %} #}
+    {# </div> #}
+    {# <div class="grp-row"> #}
+      {# <input type="hidden" name="group_assignment" value="{{ group_assignment.pk }}"> #}
+      {# <input type="submit" value="{% trans 'Send all missing' %}" {% if student_list.count == student_assignment_list.count %}disabled{% endif %} /> #}
+    {# </div> #}
+  {# </fieldset> #}
+{# </form> #}
+{# </div> #}
+
+{% endblock %}

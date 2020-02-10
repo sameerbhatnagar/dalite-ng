@@ -4,6 +4,10 @@ from django.conf.urls import include
 from django.urls import path, re_path
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.decorators import user_passes_test
+<<<<<<< Updated upstream
+=======
+from django.urls import path, re_path
+>>>>>>> Stashed changes
 from django.views.decorators.cache import cache_page
 
 # testing
@@ -190,6 +194,11 @@ def old_patterns():
                         "group_assignment_management/",
                         admin_views.StudentGroupAssignmentManagement.as_view(),
                         name="group-assignment-management",
+                    ),
+                    path(
+                        "new-user-approval",
+                        views.admin_.new_user_approval,
+                        name="admin--new-user-approval",
                     ),
                 ]
             ),
