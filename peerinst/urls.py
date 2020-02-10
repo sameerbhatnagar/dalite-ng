@@ -1,9 +1,8 @@
 # Backport of django 1.9 password validation
-import password_validation.views as password_views
 from django.conf.urls import include
-from django.urls import path, re_path
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.decorators import user_passes_test
+from django.urls import path, re_path
 from django.views.decorators.cache import cache_page
 
 # testing
@@ -276,7 +275,9 @@ def old_patterns():
         # Only non-students can change their password
         path(
             "password_change/",
-            user_passes_test(student_check)(password_views.password_change),
+            user_passes_test(student_check)(
+                auth_views.PasswordChangeView.as_view()
+            ),
             name="password_change",
         ),
         path(
@@ -300,7 +301,7 @@ def old_patterns():
         ),
         path(
             "reset/<uidb64>/<token>/",  # noqa
-            password_views.password_reset_confirm,
+            auth_views.PasswordResetConfirmView.as_view(),
             name="password_reset_confirm",
         ),
         path(
