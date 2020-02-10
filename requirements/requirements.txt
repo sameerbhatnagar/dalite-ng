@@ -6,7 +6,6 @@ django-compressor>=2.3
 django-cookie-law
 django-grappelli
 django-htmlmin
-django-password-validation
 django<3.0.0
 mysqlclient
 pillow
