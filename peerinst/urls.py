@@ -1,9 +1,11 @@
 # Backport of django 1.9 password validation
+from typing import List
+
 import password_validation.views as password_views
 from django.conf.urls import include
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.decorators import user_passes_test
-from django.urls import path, re_path
+from django.urls import URLPattern, path, re_path
 from django.views.decorators.cache import cache_page
 
 # testing
@@ -749,7 +751,7 @@ def question_patterns():
     ]
 
 
-urlpatterns = sum(
+urlpatterns: List[URLPattern] = sum(
     [
         collection_patterns(),
         group_patterns(),
