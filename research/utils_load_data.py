@@ -64,10 +64,14 @@ def get_group_semester(df):
     return (month, year)
 
 
-def get_group_metadata(group, path_to_data=None):
+def get_group_metadata(group, path_to_data=None, research_consent=True):
     """
+    set `research_consent` to False if you want to include all students,
+    even  those who have refused consent for their data to be used for
+    academic research. This should only be done for generating
+    internal operational reports. Default is set to True.
     """
-    df_answers = get_answers_df(group.name, path_to_data)
+    df_answers = get_answers_df(group.name, path_to_data, research_consent)
 
     (
         pi_question_list,
@@ -105,7 +109,7 @@ def get_group_metadata(group, path_to_data=None):
         ),
         "name": group.name,
         "title": group.title,
-        "N_students": len(filter_student_list(group.name)),
+        "N_students": len(filter_student_list(group.name, research_consent)),
         "N_questions_PI": len(pi_question_list),
         "N_answers_PI": df_answers.groupby(["question_type"])["question__id"]
         .size()
@@ -125,7 +129,8 @@ def get_group_metadata(group, path_to_data=None):
     return d
 
 
-def filter_student_list(group_name):
+def filter_student_list(group_name, research_consent=True):
+
     sg = StudentGroup.objects.get(name=group_name)
     student_list_full = sg.students.values_list("student__username", flat=True)
     # remove students who have not given consent
@@ -151,7 +156,10 @@ def filter_student_list(group_name):
         .filter(student__in=usernames_tos)
     )
 
-    return student_list
+    if research_consent:
+        return student_list
+    else:
+        return student_list_full
 
 
 def get_assignment_list(group_name):
@@ -222,8 +230,8 @@ def get_pi_question_list(group_name):
     return pi_question_list, ro_question_list, pi_question_list_all_correct
 
 
-def filter_groups_on_min_students(group_name):
-    student_list_filtered = filter_student_list(group_name)
+def filter_groups_on_min_students(group_name, research_consent=True):
+    student_list_filtered = filter_student_list(group_name, research_consent)
     sg = StudentGroup.objects.get(name=group_name)
     student_list_full = sg.students.values_list("student__username", flat=True)
     message = "{}/{} students accepted consent".format(
@@ -253,10 +261,14 @@ def filter_groups_on_min_qs(group_name):
         return (group_name, message)
 
 
-def filter_groups_on_min_a(group_name):
-    _group_name, _message = filter_groups_on_min_students(group_name)
+def filter_groups_on_min_a(group_name, research_consent=True):
+    _group_name, _message = filter_groups_on_min_students(
+        group_name, research_consent
+    )
     if _group_name:
-        student_list_filtered = filter_student_list(group_name)
+        student_list_filtered = filter_student_list(
+            group_name, research_consent
+        )
         assignment_list = get_assignment_list(group_name)
         (
             pi_question_list,
@@ -297,12 +309,16 @@ def filter_groups_on_min_a(group_name):
         return (None, _message)
 
 
-def filter_groups(group_name):
-    _group_name, _message = filter_groups_on_min_students(group_name)
+def filter_groups(group_name, research_consent=True):
+    _group_name, _message = filter_groups_on_min_students(
+        group_name, research_consent
+    )
     if _group_name:
         __group_name, __message = filter_groups_on_min_qs(group_name)
         if __group_name:
-            ___group_name, ___message = filter_groups_on_min_a(group_name)
+            ___group_name, ___message = filter_groups_on_min_a(
+                group_name, research_consent
+            )
             if ___group_name:
                 return group_name, None
             else:
@@ -450,7 +466,7 @@ def get_convincingness_ratio(df_answers):
     return df
 
 
-def get_answers_df(group_name, path_to_data=None):
+def get_answers_df(group_name, path_to_data=None, research_consent=True):
     """
     given group name, return df_answers
     """
@@ -477,7 +493,9 @@ def get_answers_df(group_name, path_to_data=None):
             **{q.pk: "RO" for q in ro_question_list},
         }
 
-        filtered_student_list = filter_student_list(group_name)
+        filtered_student_list = filter_student_list(
+            group_name, research_consent
+        )
 
         # load data
         a_qs = Answer.objects.filter(
@@ -606,7 +624,7 @@ def extract_timestamp_features(df):
     return df
 
 
-def build_data_inventory(path_to_data):
+def build_data_inventory(path_to_data, research_consent=True):
     """
     """
 
@@ -619,7 +637,9 @@ def build_data_inventory(path_to_data):
 
         print("{}- {}".format(i, group.name))
 
-        _group_name, _message = filter_groups(group_name=group.name)
+        _group_name, _message = filter_groups(
+            group_name=group.name, research_consent=research_consent
+        )
 
         if _group_name:
             data_inventory.append(get_group_metadata(group, path_to_data))
@@ -638,7 +658,7 @@ def build_data_inventory(path_to_data):
 
     fpath = os.path.join(
         path_to_data,
-        datetime.datetime.today().strftime("%Y_%m_%d") + "_data_inventory.csv",
+        "data_inventory_research_consent_" + str(research_consent) + ".csv",
     )
 
     with open(fpath, "w") as f:
@@ -646,8 +666,7 @@ def build_data_inventory(path_to_data):
 
     fpath = os.path.join(
         path_to_data,
-        datetime.datetime.today().strftime("%Y_%m_%d")
-        + "_rejected_groups.csv",
+        "rejected_groups_research_consent_" + str(research_consent) + ".csv",
     )
 
     with open(fpath, "w") as f:
