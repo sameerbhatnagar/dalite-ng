@@ -72,7 +72,7 @@ def verify_user(
                 kwargs={
                     "uidb64": base64.urlsafe_b64encode(
                         force_bytes(request.user.pk)
-                    ),
+                    ).decode(),
                     "token": default_token_generator.make_token(request.user),
                 },
             ),
