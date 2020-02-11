@@ -17,6 +17,8 @@ const svgSprite = require("gulp-svg-sprite");
 const { eslint } = require("rollup-plugin-eslint");
 const { uglify } = require("rollup-plugin-uglify");
 
+const templateModules = ["peerinst", "quality", "reputation", "tos"];
+
 const styleBuilds = [
   {
     app: "peerinst",
@@ -385,6 +387,11 @@ function watch() {
     () => buildScript("peerinst", "index"),
   );
   gulp.watch("./peerinst/static/peerinst/icons/*.svg", icons);
+  templateModules.forEach(app =>
+    gulp
+      .watch(`./${app}/templates/**/*.html`)
+      .on("change", browserSync.reload),
+  );
 }
 
 const styles = gulp.parallel(
