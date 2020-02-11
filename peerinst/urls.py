@@ -758,6 +758,11 @@ def admin_patterns() -> List[URLPattern]:
                         views.admin_.flagged_rationales_page,
                         name="admin--flagged-rationales",
                     ),
+                    path(
+                        "get-flagged-rationales",
+                        views.admin_.get_flagged_rationales,
+                        name="admin--get-flagged-rationales",
+                    ),
                 ]
             ),
         ),
