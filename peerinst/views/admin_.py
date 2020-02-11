@@ -14,7 +14,7 @@ from django.views.decorators.http import require_POST, require_safe
 from dalite.views.utils import with_json_params
 from quality.models import RejectedAnswer, UsesCriterion, get_criterion
 
-from ..models import NewUserRequest, Teacher
+from ..models import Discipline, NewUserRequest, Teacher
 from ..tasks import send_mail_async
 
 logger = logging.getLogger("peerinst-views")
@@ -149,3 +149,11 @@ def get_flagged_rationales(
 
     data = {"rationales": rationales, "done": idx + len(rationales) == total}
     return JsonResponse(data)
+
+
+@require_safe
+def activity_page(req: HttpRequest) -> HttpResponse:
+    context = {
+        "disciplines": list(Discipline.objects.values_list("title", flat=True))
+    }
+    return render(req, "peerinst/saltise_admin/activity.html", context)

@@ -1,0 +1,38 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static grp_tags %}
+
+{% block title %}{% trans 'Activity' %} | myDalite{% endblock %}
+
+{% block extrastyle %}
+<link href="{% static 'peerinst/css/admin.min.css' %}" rel="stylesheet" type="text/css" />
+{% endblock %}
+
+{% block extrahead %}
+{{ block.super }}
+<script src="{% static 'peerinst/js/admin.min.js' %}"></script>
+<script nonce="{{ request.csp_nonce }}">
+  window.addEventListener("load", () => {
+    // admin.initNewUserApproval({
+    //   urls: {
+    //     verify: "{% url 'saltise-admin:verify-user' %}"
+    //   }
+    // });
+  });
+</script>
+{% endblock %}
+
+{% block breadcrumbs %}
+<ul>
+  <li><a href="{% url 'saltise-admin:index' %}">{% trans 'Home' %}</a></li>
+  <li>{% trans 'Activity' %}</li>
+</ul>
+{% endblock %}
+
+{% block content_title %}
+<h1>{% trans 'Activity' %}</h1>
+{% endblock %}
+
+{% block content %}
+  {% csrf_token %}
+  {% include 'icons.svg' %}
+{% endblock %}

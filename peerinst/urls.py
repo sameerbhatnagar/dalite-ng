@@ -790,6 +790,11 @@ def admin_patterns() -> List[URLPattern]:
                             ),
                             name="get-flagged-rationales",
                         ),
+                        path(
+                            "activity",
+                            staff_member_required(views.admin_.activity_page),
+                            name="activity",
+                        ),
                     ],
                     "saltise-admin",
                 ),
