@@ -84,7 +84,11 @@ def with_json_params(
                     else {}
                 ),
                 **(
-                    {arg: all_args[1][i] for i, arg in enumerate(opt_args)}
+                    {
+                        arg: all_args[1][i]
+                        for i, arg in enumerate(opt_args)
+                        if all_args[1][i] is not None
+                    }
                     if opt_args
                     else {}
                 ),
@@ -116,7 +120,11 @@ def with_query_string_params(
                     else {}
                 ),
                 **(
-                    {arg: all_args[1][i] for i, arg in enumerate(opt_args)}
+                    {
+                        arg: all_args[1][i]
+                        for i, arg in enumerate(opt_args)
+                        if all_args[1][i] is not None
+                    }
                     if opt_args
                     else {}
                 ),
