@@ -15,6 +15,7 @@ from django.utils.translation import ugettext_lazy as translate
 from django.views.decorators.http import require_POST, require_safe
 
 from dalite.views.utils import with_json_params
+from quality.models import RejectedAnswer
 
 from .. import forms
 from ..models import NewUserRequest, Teacher, UserType, UserUrl
@@ -175,4 +176,9 @@ def verify_user(
 @staff_member_required
 @require_safe
 def flagged_rationales_page(req: HttpRequest) -> HttpResponse:
-    return HttpResponse("")
+    context = {
+        "rationales": [
+            dict(rationale) for rationale in RejectedAnswer.objects.iterator()
+        ]
+    }
+    return render(req, "admin/peerinst/flagged_rationales.html", context)
