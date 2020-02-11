@@ -94,17 +94,20 @@ def sign_up(request):
 @staff_member_required
 @require_safe
 def new_user_approval_page(req: HttpRequest) -> HttpResponse:
-    new_users = [
-        {
-            "username": request.user.username,
-            "date_joined": request.user.date_joined,
-            "email": request.user.email,
-            "url": request.user.url.url,
-            "type": request.type.type,
-        }
-        for request in NewUserRequest.objects.order_by("-user__date_joined")
-    ]
-    context = {"new_users": new_users}
+    context = {
+        "new_users": [
+            {
+                "username": request.user.username,
+                "date_joined": request.user.date_joined,
+                "email": request.user.email,
+                "url": request.user.url.url,
+                "type": request.type.type,
+            }
+            for request in NewUserRequest.objects.order_by(
+                "-user__date_joined"
+            )
+        ]
+    }
     return render(req, "admin/peerinst/new_user_approval.html", context)
 
 
