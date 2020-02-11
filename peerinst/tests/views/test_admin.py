@@ -2,49 +2,15 @@ from django.contrib.auth.models import User
 from django.core import mail
 from django.urls import reverse
 
-from peerinst.forms import SignUpForm
-from peerinst.models import NewUserRequest, UserUrl
+from peerinst.models import NewUserRequest
 from quality.models import RejectedAnswer
 from quality.tests.fixtures import *  # noqa
-
-
-def test_signup__get(client):
-    resp = client.get(reverse("sign_up"))
-    assert "registration/sign_up.html" in [t.name for t in resp.templates]
-    assert isinstance(resp.context["form"], SignUpForm)
-
-
-def test_signup__post(client, mocker):
-    data = {"username": "test", "email": "test@test.com", "url": "test.com"}
-    mail_admins = mocker.patch("peerinst.views.admin_.mail_admins_async")
-    resp = client.post(reverse("sign_up"), data)
-    assert "registration/sign_up_done.html" in [t.name for t in resp.templates]
-    assert User.objects.filter(
-        username=data["username"], email=data["email"]
-    ).exists()
-    assert (
-        UserUrl.objects.get(user__username=data["username"]).url
-        == f"http://{data['url']}"
-    )
-    assert NewUserRequest.objects.filter(
-        user__username=data["username"]
-    ).exists()
-    mail_admins.assert_called_once()
-
-
-def test_signup__backend_missing(client, mocker):
-    data = {"username": "test", "email": "test@test.com", "url": "test.com"}
-    settings = mocker.patch("peerinst.views.admin_.settings")
-    settings.EMAIL_BACKEND = ""
-    mail_admins = mocker.patch("peerinst.views.admin_.mail_admins_async")
-    resp = client.post(reverse("sign_up"), data)
-    assert resp.status_code == 503
 
 
 def test_new_user_approval_page(client, staff, new_user_requests):
     assert client.login(username=staff.username, password="test")
     resp = client.get(reverse("saltise-admin:new-user-approval"))
-    assert "admin/peerinst/new_user_approval.html" in [
+    assert "peerinst/saltise_admin/new_user_approval.html" in [
         t.name for t in resp.templates
     ]
     assert len(new_user_requests) == len(resp.context["new_users"])
@@ -118,7 +84,7 @@ def test_flagged_rationales_page(
     resp = client.get(reverse("saltise-admin:flagged-rationales"))
 
     assert resp.status_code == 200
-    assert "admin/peerinst/flagged_rationales.html" in [
+    assert "peerinst/saltise_admin/flagged_rationales.html" in [
         t.name for t in resp.templates
     ]
     assert ["Toxicity"] == resp.context["criteria"]

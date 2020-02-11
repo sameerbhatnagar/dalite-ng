@@ -223,7 +223,7 @@ def sign_up(request):
                 "\n\n{}://{}{}".format(
                     request.scheme,
                     request.get_host(),
-                    reverse("saltise-admin--new-user-approval"),
+                    reverse("saltise-admin:new-user-approval"),
                 )
                 + "\n\nCheers,"
                 "\nThe myDalite Team",
@@ -276,7 +276,7 @@ def welcome(request):
         return HttpResponseRedirect(reverse("student-page"))
 
     elif request.user.is_staff:
-        return HttpResponseRedirect(reverse("assignment-list"))
+        return HttpResponseRedirect(reverse("saltise-admin:index"))
     else:
         return logout_view(request)
 
