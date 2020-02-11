@@ -10,6 +10,16 @@
 {% block extrahead %}
 {{ block.super }}
 <script src="{% static 'peerinst/js/admin.min.js' %}"></script>
+<script nonce="{{ request.csp_nonce }}">
+  window.addEventListener("load", () => {
+    admin.initFlaggedRationales({
+      urls: {
+        getRationales: "{% url 'admin--get-flagged-rationales' %}"
+      },
+      criteria: {{ criteria|safe }}
+    });
+  });
+</script>
 {% endblock %}
 
 {% block breadcrumbs %}
@@ -21,4 +31,18 @@
 
 {% block content_title %}
 <h1>{% trans 'Flagged rationales' %}</h1>
+{% endblock %}
+
+{% block content %}
+  {% csrf_token %}
+  <div id="flagged-rationales">
+    <div id="flagged-rationales__table">
+      <span class="header">Rationale</span>
+      <span class="header">Quality</span>
+      {% for criterion in criteria %}
+        <span class="header">{{ criterion }}</span>
+      {% endfor %}
+    </div>
+  </div>
+  {% include 'icons.svg' %}
 {% endblock %}
