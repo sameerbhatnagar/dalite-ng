@@ -155,3 +155,15 @@ def test_get_flagged_rationales(
         for d, d_ in zip(data["rationales"], RejectedAnswer.objects.all()[1:2])
     )
     assert not data["done"]
+
+
+def test_activity_page(client, staff, disciplines):
+    assert client.login(username=staff.username, password="test")
+    resp = client.get(reverse("saltise-admin:activity"))
+
+    assert resp.status_code == 200
+    assert "peerinst/saltise_admin/activity.html" in [
+        t.name for t in resp.templates
+    ]
+    assert len(disciplines) == len(resp.context["disciplines"])
+    assert all(d.title in resp.context["disciplines"] for d in disciplines)
