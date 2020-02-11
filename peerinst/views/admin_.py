@@ -1,10 +1,11 @@
 import base64
 import logging
+from itertools import islice
 
 from django.conf import settings
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.tokens import default_token_generator
-from django.http import HttpRequest, HttpResponse
+from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.template import loader
 from django.template.response import TemplateResponse
@@ -15,7 +16,7 @@ from django.utils.translation import ugettext_lazy as translate
 from django.views.decorators.http import require_POST, require_safe
 
 from dalite.views.utils import with_json_params
-from quality.models import RejectedAnswer
+from quality.models import RejectedAnswer, UsesCriterion, get_criterion
 
 from .. import forms
 from ..models import NewUserRequest, Teacher, UserType, UserUrl
@@ -177,8 +178,42 @@ def verify_user(
 @require_safe
 def flagged_rationales_page(req: HttpRequest) -> HttpResponse:
     context = {
-        "rationales": [
-            dict(rationale) for rationale in RejectedAnswer.objects.iterator()
+        "criteria": [
+            get_criterion(criterion)["criterion"].info()["full_name"]
+            for criterion in set(
+                UsesCriterion.objects.values_list("name", flat=True)
+            )
         ]
     }
     return render(req, "admin/peerinst/flagged_rationales.html", context)
+
+
+@staff_member_required
+@require_POST
+@with_json_params(opt_args=["idx", "n"])
+def get_flagged_rationales(
+    req: HttpRequest, idx: int = 0, n: int = 0
+) -> HttpResponse:
+    rationales = RejectedAnswer.objects.iterator()
+    total = RejectedAnswer.objects.count()
+
+    if n:
+        if idx:
+            rationales = [
+                dict(rationale)
+                for rationale in islice(rationales, idx, idx + n)
+            ]
+        else:
+            rationales = [
+                dict(rationale) for rationale in islice(rationales, n)
+            ]
+    else:
+        if idx:
+            rationales = [
+                dict(rationale) for rationale in islice(rationales, idx, None)
+            ]
+        else:
+            rationales = [dict(rationale) for rationale in rationales]
+
+    data = {"rationales": rationales, "done": idx + len(rationales) == total}
+    return JsonResponse(data)
