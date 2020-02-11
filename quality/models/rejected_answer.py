@@ -19,6 +19,7 @@ class RejectedAnswer(models.Model):
             {
                 "rationale": self.rationale,
                 "reasons": json.loads(self.reasons),
+                "quality_type": self.quality.quality_type.type,
             }.items()
         )
 
