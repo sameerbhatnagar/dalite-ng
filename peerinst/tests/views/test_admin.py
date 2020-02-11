@@ -4,6 +4,8 @@ from django.urls import reverse
 
 from peerinst.forms import SignUpForm
 from peerinst.models import NewUserRequest, UserUrl
+from quality.models import RejectedAnswer
+from quality.tests.fixtures import *  # noqa
 
 
 def test_signup__get(client):
@@ -97,3 +99,26 @@ def test_verify_user__refuse(client, staff, new_user_requests):
     assert not NewUserRequest.objects.filter(
         user__username=user.username
     ).exists()
+
+
+def test_flagged_rationales_page(
+    client, staff, answers, global_validation_quality_with_criteria
+):
+    answers = answers[:3]
+    for answer in answers:
+        RejectedAnswer.add(
+            global_validation_quality_with_criteria,
+            answer.rationale,
+            global_validation_quality_with_criteria.evaluate(answer.rationale)[
+                1
+            ],
+        )
+
+    assert client.login(username=staff.username, password="test")
+    resp = client.get(reverse("admin--flagged-rationales"))
+
+    assert resp.status_code == 200
+    assert "admin/peerinst/flagged_rationales.html" in [
+        t.name for t in resp.templates
+    ]
+    assert RejectedAnswer.objects.count() == len(resp.context["rationales"])
