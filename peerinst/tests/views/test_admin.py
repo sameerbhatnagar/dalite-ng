@@ -121,4 +121,71 @@ def test_flagged_rationales_page(
     assert "admin/peerinst/flagged_rationales.html" in [
         t.name for t in resp.templates
     ]
-    assert RejectedAnswer.objects.count() == len(resp.context["rationales"])
+    assert ["Toxicity"] == resp.context["criteria"]
+
+
+def test_get_flagged_rationales(
+    client, staff, answers, global_validation_quality_with_criteria
+):
+    answers = answers[:3]
+    for answer in answers:
+        RejectedAnswer.add(
+            global_validation_quality_with_criteria,
+            answer.rationale,
+            global_validation_quality_with_criteria.evaluate(answer.rationale)[
+                1
+            ],
+        )
+
+    assert client.login(username=staff.username, password="test")
+
+    resp = client.post(
+        reverse("admin--get-flagged-rationales"),
+        content_type="application/json",
+    )
+    data = resp.json()
+    assert resp.status_code == 200
+    assert RejectedAnswer.objects.count() == len(data["rationales"])
+    assert data["done"]
+
+    resp = client.post(
+        reverse("admin--get-flagged-rationales"),
+        {"n": 2},
+        content_type="application/json",
+    )
+    data = resp.json()
+    assert resp.status_code == 200
+    assert len(data["rationales"]) == 2
+    assert all(
+        d == dict(d_)
+        for d, d_ in zip(data["rationales"], RejectedAnswer.objects.all()[:2])
+    )
+    assert not data["done"]
+
+    resp = client.post(
+        reverse("admin--get-flagged-rationales"),
+        {"idx": 1},
+        content_type="application/json",
+    )
+    data = resp.json()
+    assert resp.status_code == 200
+    assert len(data["rationales"]) == 2
+    assert all(
+        d == dict(d_)
+        for d, d_ in zip(data["rationales"], RejectedAnswer.objects.all()[1:])
+    )
+    assert data["done"]
+
+    resp = client.post(
+        reverse("admin--get-flagged-rationales"),
+        {"idx": 1, "n": 1},
+        content_type="application/json",
+    )
+    data = resp.json()
+    assert resp.status_code == 200
+    assert len(data["rationales"]) == 1
+    assert all(
+        d == dict(d_)
+        for d, d_ in zip(data["rationales"], RejectedAnswer.objects.all()[1:2])
+    )
+    assert not data["done"]
