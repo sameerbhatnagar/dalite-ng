@@ -25,6 +25,7 @@ from django.forms import Textarea, inlineformset_factory
 # blink
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.template import loader
 from django.template.response import TemplateResponse
 from django.urls import reverse
 from django.utils import timezone
@@ -69,6 +70,7 @@ from ..models import (
     Category,
     Collection,
     Discipline,
+    NewUserRequest,
     Question,
     RationaleOnlyQuestion,
     ShownRationale,
@@ -76,7 +78,10 @@ from ..models import (
     StudentGroup,
     StudentGroupAssignment,
     Teacher,
+    UserType,
+    UserUrl,
 )
+from ..tasks import mail_admins_async
 from ..util import (
     SessionStageData,
     get_object_or_none,
@@ -169,6 +174,74 @@ def landing_page(request):
         "registration/landing_page.html",
         context={"disciplines": disciplines_array, "json": disciplines_json},
     )
+
+
+def sign_up(request):
+    template = "registration/sign_up.html"
+    html_email_template_name = "registration/sign_up_admin_email_html.html"
+    context = {}
+
+    if request.method == "POST":
+        form = forms.SignUpForm(request.POST)
+        if form.is_valid():
+            # Set new users as inactive until verified by an administrator
+            form.instance.is_active = False
+            form.save()
+            # Notify administrators
+
+            #  print(settings.EMAIL_BACKEND)
+            if not settings.EMAIL_BACKEND.startswith(
+                "django.core.mail.backends"
+            ):
+                return HttpResponse(status=503)
+
+            # TODO Adapt to different types of user
+            NewUserRequest.objects.create(
+                user=form.instance, type=UserType.objects.get(type="teacher")
+            )
+            UserUrl.objects.create(
+                user=form.instance, url=form.cleaned_data["url"]
+            )
+
+            email_context = dict(
+                user=form.cleaned_data["username"],
+                date=timezone.now(),
+                email=form.cleaned_data["email"],
+                url=form.cleaned_data["url"],
+                site_name="myDALITE",
+            )
+            mail_admins_async(
+                "New user request",
+                "Dear administrator,"
+                "\n\nA new user {} was created on {}.".format(
+                    form.cleaned_data["username"], timezone.now()
+                )
+                + "\n\nEmail: {}".format(form.cleaned_data["email"])
+                + "\nVerification url: {}".format(form.cleaned_data["url"])
+                + "\n\nAccess your administrator account to activate this "
+                "new user."
+                "\n\n{}://{}{}".format(
+                    request.scheme,
+                    request.get_host(),
+                    reverse("saltise-admin--new-user-approval"),
+                )
+                + "\n\nCheers,"
+                "\nThe myDalite Team",
+                fail_silently=True,
+                html_message=loader.render_to_string(
+                    html_email_template_name,
+                    context=email_context,
+                    request=request,
+                ),
+            )
+
+            return TemplateResponse(request, "registration/sign_up_done.html")
+        else:
+            context["form"] = form
+    else:
+        context["form"] = forms.SignUpForm()
+
+    return render(request, template, context)
 
 
 def admin_check(user):

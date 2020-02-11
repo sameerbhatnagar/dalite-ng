@@ -2,15 +2,11 @@ import base64
 import logging
 from itertools import islice
 
-from django.conf import settings
-from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.tokens import default_token_generator
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.template import loader
-from django.template.response import TemplateResponse
 from django.urls import reverse
-from django.utils import timezone
 from django.utils.encoding import force_bytes
 from django.utils.translation import ugettext_lazy as translate
 from django.views.decorators.http import require_POST, require_safe
@@ -18,82 +14,17 @@ from django.views.decorators.http import require_POST, require_safe
 from dalite.views.utils import with_json_params
 from quality.models import RejectedAnswer, UsesCriterion, get_criterion
 
-from .. import forms
-from ..models import NewUserRequest, Teacher, UserType, UserUrl
-from ..tasks import mail_admins_async, send_mail_async
+from ..models import NewUserRequest, Teacher
+from ..tasks import send_mail_async
 
 logger = logging.getLogger("peerinst-views")
 
 
-def sign_up(request):
-    template = "registration/sign_up.html"
-    html_email_template_name = "registration/sign_up_admin_email_html.html"
-    context = {}
-
-    if request.method == "POST":
-        form = forms.SignUpForm(request.POST)
-        if form.is_valid():
-            # Set new users as inactive until verified by an administrator
-            form.instance.is_active = False
-            form.save()
-            # Notify administrators
-
-            #  print(settings.EMAIL_BACKEND)
-            if not settings.EMAIL_BACKEND.startswith(
-                "django.core.mail.backends"
-            ):
-                return HttpResponse(status=503)
-
-            # TODO Adapt to different types of user
-            NewUserRequest.objects.create(
-                user=form.instance, type=UserType.objects.get(type="teacher")
-            )
-            UserUrl.objects.create(
-                user=form.instance, url=form.cleaned_data["url"]
-            )
-
-            email_context = dict(
-                user=form.cleaned_data["username"],
-                date=timezone.now(),
-                email=form.cleaned_data["email"],
-                url=form.cleaned_data["url"],
-                site_name="myDALITE",
-            )
-            mail_admins_async(
-                "New user request",
-                "Dear administrator,"
-                "\n\nA new user {} was created on {}.".format(
-                    form.cleaned_data["username"], timezone.now()
-                )
-                + "\n\nEmail: {}".format(form.cleaned_data["email"])
-                + "\nVerification url: {}".format(form.cleaned_data["url"])
-                + "\n\nAccess your administrator account to activate this "
-                "new user."
-                "\n\n{}://{}{}".format(
-                    request.scheme,
-                    request.get_host(),
-                    reverse("admin--new-user-approval"),
-                )
-                + "\n\nCheers,"
-                "\nThe myDalite Team",
-                fail_silently=True,
-                html_message=loader.render_to_string(
-                    html_email_template_name,
-                    context=email_context,
-                    request=request,
-                ),
-            )
-
-            return TemplateResponse(request, "registration/sign_up_done.html")
-        else:
-            context["form"] = form
-    else:
-        context["form"] = forms.SignUpForm()
-
-    return render(request, template, context)
+@require_safe
+def index(req):
+    return render(req, "peerinst/saltise_admin/index.html")
 
 
-@staff_member_required
 @require_safe
 def new_user_approval_page(req: HttpRequest) -> HttpResponse:
     context = {
@@ -110,10 +41,11 @@ def new_user_approval_page(req: HttpRequest) -> HttpResponse:
             )
         ]
     }
-    return render(req, "admin/peerinst/new_user_approval.html", context)
+    return render(
+        req, "peerinst/saltise_admin/new_user_approval.html", context
+    )
 
 
-@staff_member_required
 @require_POST
 @with_json_params(args=["username", "approve"])
 def verify_user(
@@ -174,7 +106,6 @@ def verify_user(
     return HttpResponse("")
 
 
-@staff_member_required
 @require_safe
 def flagged_rationales_page(req: HttpRequest) -> HttpResponse:
     context = {
@@ -185,10 +116,11 @@ def flagged_rationales_page(req: HttpRequest) -> HttpResponse:
             )
         ]
     }
-    return render(req, "admin/peerinst/flagged_rationales.html", context)
+    return render(
+        req, "peerinst/saltise_admin/flagged_rationales.html", context
+    )
 
 
-@staff_member_required
 @require_POST
 @with_json_params(opt_args=["idx", "n"])
 def get_flagged_rationales(

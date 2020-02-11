@@ -1,6 +1,7 @@
 from typing import List
 
 from django.conf.urls import include
+from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.decorators import user_passes_test
 from django.urls import URLPattern, path, re_path
@@ -209,7 +210,7 @@ def old_patterns():
         ),
         # Auth
         path("", views.landing_page, name="landing_page"),
-        path("signup/", views.admin_.sign_up, name="sign_up"),
+        path("signup/", views.sign_up, name="sign_up"),
         path(
             "login/",
             user_passes_test(not_authenticated, login_url="/welcome/")(
@@ -338,6 +339,58 @@ def old_patterns():
             "blinkAssignment/<int:pk>/update/",
             views.BlinkAssignmentUpdate.as_view(),
             name="blinkAssignment-update",
+        ),
+        path(
+            "admin/", admin_views.AdminIndexView.as_view(), name="admin-index",
+        ),
+        path(
+            "admin/peerinst/",
+            include(
+                [
+                    path(
+                        "assignment_results/<assignment_id>/",
+                        include(
+                            [
+                                path(
+                                    "",
+                                    admin_views.AssignmentResultsView.as_view(),  # noqa
+                                    name="assignment-results",
+                                ),
+                                path(
+                                    "rationales/<int:question_id>",
+                                    admin_views.QuestionRationaleView.as_view(),  # noqa
+                                    name="question-rationales",
+                                ),
+                            ]
+                        ),
+                    ),
+                    path(
+                        "question_preview/<int:question_id>",
+                        admin_views.QuestionPreviewView.as_view(),
+                        name="question-preview",
+                    ),
+                    path(
+                        "fake_usernames/",
+                        admin_views.FakeUsernames.as_view(),
+                        name="fake-usernames",
+                    ),
+                    path(
+                        "fake_countries/",
+                        admin_views.FakeCountries.as_view(),
+                        name="fake-countries",
+                    ),
+                    path(
+                        "attribution_analysis/",
+                        admin_views.AttributionAnalysis.as_view(),
+                        name="attribution-analysis",
+                    ),
+                    path(
+                        "group_assignment_management/",
+                        admin_views.StudentGroupAssignmentManagement.as_view(),
+                        name="group-assignment-management",
+                    ),
+                ]
+            ),
         ),
     ]
 
@@ -695,77 +748,54 @@ def question_patterns():
 def admin_patterns() -> List[URLPattern]:
     return [
         path(
-            "admin/", admin_views.AdminIndexView.as_view(), name="admin-index",
-        ),
-        path(
-            "admin/peerinst/",
+            "saltise/admin/",
             include(
-                [
-                    path(
-                        "assignment_results/<assignment_id>/",
-                        include(
-                            [
-                                path(
-                                    "",
-                                    admin_views.AssignmentResultsView.as_view(),  # noqa
-                                    name="assignment-results",
-                                ),
-                                path(
-                                    "rationales/<int:question_id>",
-                                    admin_views.QuestionRationaleView.as_view(),  # noqa
-                                    name="question-rationales",
-                                ),
-                            ]
+                (
+                    [
+                        path(
+                            "",
+                            staff_member_required(views.admin_.index),
+                            name="index",
                         ),
-                    ),
-                    path(
-                        "question_preview/<int:question_id>",
-                        admin_views.QuestionPreviewView.as_view(),
-                        name="question-preview",
-                    ),
-                    path(
-                        "fake_usernames/",
-                        admin_views.FakeUsernames.as_view(),
-                        name="fake-usernames",
-                    ),
-                    path(
-                        "fake_countries/",
-                        admin_views.FakeCountries.as_view(),
-                        name="fake-countries",
-                    ),
-                    path(
-                        "attribution_analysis/",
-                        admin_views.AttributionAnalysis.as_view(),
-                        name="attribution-analysis",
-                    ),
-                    path(
-                        "group_assignment_management/",
-                        admin_views.StudentGroupAssignmentManagement.as_view(),
-                        name="group-assignment-management",
-                    ),
-                    path(
-                        "new-user-approval",
-                        views.admin_.new_user_approval_page,
-                        name="admin--new-user-approval",
-                    ),
-                    path(
-                        "verify-user",
-                        views.admin_.verify_user,
-                        name="admin--verify-user",
-                    ),
-                    path(
-                        "flagged-rationales",
-                        views.admin_.flagged_rationales_page,
-                        name="admin--flagged-rationales",
-                    ),
-                    path(
-                        "get-flagged-rationales",
-                        views.admin_.get_flagged_rationales,
-                        name="admin--get-flagged-rationales",
-                    ),
-                ]
+                        path(
+                            "group-assignment-management/",
+                            staff_member_required(
+                                admin_views.StudentGroupAssignmentManagement.as_view()  # noqa
+                            ),
+                            name="group-assignment-management",
+                        ),
+                        path(
+                            "new-user-approval",
+                            staff_member_required(
+                                views.admin_.new_user_approval_page
+                            ),
+                            name="new-user-approval",
+                        ),
+                        path(
+                            "verify-user",
+                            staff_member_required(views.admin_.verify_user),
+                            name="verify-user",
+                        ),
+                        path(
+                            "flagged-rationales",
+                            staff_member_required(
+                                views.admin_.flagged_rationales_page
+                            ),
+                            name="flagged-rationales",
+                        ),
+                        path(
+                            "get-flagged-rationales",
+                            staff_member_required(
+                                views.admin_.get_flagged_rationales
+                            ),
+                            name="get-flagged-rationales",
+                        ),
+                    ],
+                    "saltise-admin",
+                ),
+                namespace="saltise-admin",
             ),
-        ),
+        )
     ]
 
 

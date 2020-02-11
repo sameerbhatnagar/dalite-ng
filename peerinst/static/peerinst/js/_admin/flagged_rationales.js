@@ -19,7 +19,6 @@ function initModel(data) {
       nPerFetch: 50,
     },
   };
-  console.log(model);
 }
 
 /**********/

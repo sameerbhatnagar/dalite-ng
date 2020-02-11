@@ -14,7 +14,7 @@
   window.addEventListener("load", () => {
     admin.initFlaggedRationales({
       urls: {
-        getRationales: "{% url 'admin--get-flagged-rationales' %}"
+        getRationales: "{% url 'saltise-admin:get-flagged-rationales' %}"
       },
       criteria: {{ criteria|safe }}
     });

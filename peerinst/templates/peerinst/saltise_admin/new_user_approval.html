@@ -14,7 +14,7 @@
   window.addEventListener("load", () => {
     admin.initNewUserApproval({
       urls: {
-        verify: "{% url 'admin--verify-user' %}"
+        verify: "{% url 'saltise-admin:verify-user' %}"
       }
     });
   });

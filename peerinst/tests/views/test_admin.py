@@ -43,7 +43,7 @@ def test_signup__backend_missing(client, mocker):
 
 def test_new_user_approval_page(client, staff, new_user_requests):
     assert client.login(username=staff.username, password="test")
-    resp = client.get(reverse("admin--new-user-approval"))
+    resp = client.get(reverse("saltise-admin:new-user-approval"))
     assert "admin/peerinst/new_user_approval.html" in [
         t.name for t in resp.templates
     ]
@@ -66,7 +66,7 @@ def test_verify_user__approve(client, staff, new_user_requests):
     assert not user.is_active
 
     resp = client.post(
-        reverse("admin--verify-user"),
+        reverse("saltise-admin:verify-user"),
         {"username": user.username, "approve": True},
         content_type="application/json",
     )
@@ -86,7 +86,7 @@ def test_verify_user__refuse(client, staff, new_user_requests):
     assert not user.is_active
 
     resp = client.post(
-        reverse("admin--verify-user"),
+        reverse("saltise-admin:verify-user"),
         {"username": user.username, "approve": False},
         content_type="application/json",
     )
@@ -115,7 +115,7 @@ def test_flagged_rationales_page(
         )
 
     assert client.login(username=staff.username, password="test")
-    resp = client.get(reverse("admin--flagged-rationales"))
+    resp = client.get(reverse("saltise-admin:flagged-rationales"))
 
     assert resp.status_code == 200
     assert "admin/peerinst/flagged_rationales.html" in [
@@ -140,7 +140,7 @@ def test_get_flagged_rationales(
     assert client.login(username=staff.username, password="test")
 
     resp = client.post(
-        reverse("admin--get-flagged-rationales"),
+        reverse("saltise-admin:get-flagged-rationales"),
         content_type="application/json",
     )
     data = resp.json()
@@ -149,7 +149,7 @@ def test_get_flagged_rationales(
     assert data["done"]
 
     resp = client.post(
-        reverse("admin--get-flagged-rationales"),
+        reverse("saltise-admin:get-flagged-rationales"),
         {"n": 2},
         content_type="application/json",
     )
@@ -163,7 +163,7 @@ def test_get_flagged_rationales(
     assert not data["done"]
 
     resp = client.post(
-        reverse("admin--get-flagged-rationales"),
+        reverse("saltise-admin:get-flagged-rationales"),
         {"idx": 1},
         content_type="application/json",
     )
@@ -177,7 +177,7 @@ def test_get_flagged_rationales(
     assert data["done"]
 
     resp = client.post(
-        reverse("admin--get-flagged-rationales"),
+        reverse("saltise-admin:get-flagged-rationales"),
         {"idx": 1, "n": 1},
         content_type="application/json",
     )
