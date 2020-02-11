@@ -66,37 +66,4 @@
     </ul>
   </div>
   {% include 'icons.svg' %}
-{# <div class="g-d-c-fluid"> #}
-  {# <form action="" method="get"> #}
-    {# <fieldset class="grp-module"> #}
-      {# <div class="grp-row"> #}
-        {# {{ form.as_p }} #}
-      {# </div> #}
-      {# <div class="grp-row"> #}
-        {# <input type="submit" value="{% trans 'Run report' %}" /> #}
-      {# </div> #}
-    {# </fieldset> #}
-  {# </form> #}
-{# </div> #}
-{#  #}
-{# <div class="g-d-c-fluid"> #}
-{# <form action="" method="post"> #}
-  {# {% csrf_token %} #}
-  {# <fieldset class="grp-module"> #}
-    {# <div class="grp-row"> #}
-      {# <p>{% trans 'Students in group:' %} {{ student_list.count }}</p> #}
-      {# <p>{% trans 'Student assignments:' %} {{ student_assignment_list.count }}</p> #}
-      {# {% if assignments_created %} #}
-      {# <p>{% trans 'Assignments created:' %} {{assignments_created}}</p> #}
-      {# <p>{% trans 'Emails sent:' %} {{emails_sent}}</p> #}
-      {# {% endif %} #}
-    {# </div> #}
-    {# <div class="grp-row"> #}
-      {# <input type="hidden" name="group_assignment" value="{{ group_assignment.pk }}"> #}
-      {# <input type="submit" value="{% trans 'Send all missing' %}" {% if student_list.count == student_assignment_list.count %}disabled{% endif %} /> #}
-    {# </div> #}
-  {# </fieldset> #}
-{# </form> #}
-{# </div> #}
-
 {% endblock %}
