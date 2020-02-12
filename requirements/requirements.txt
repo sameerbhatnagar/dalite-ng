@@ -24,3 +24,4 @@ djangorestframework==3.10.3
 -e git+https://github.com/SALTISES4/pinax-forums@dev#egg=pinax_forums
 -e git+https://github.com/SALTISES4/django-cookies-samesite#egg=django_cookies_samesite
 -e git+https://github.com/SALTISES4/CourseFlow#egg=CourseFlow
+-e git+https://github.com/aahilgert/UserFeedback@master#egg=user_feedback
