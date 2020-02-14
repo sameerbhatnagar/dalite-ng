@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 import os
 import json
 import re
+import spacy
 from django.conf import settings
 from spacy.matcher import PhraseMatcher
 from spacy_readability import Readability
@@ -149,3 +150,50 @@ def extract_readability_features(rationales, nlp):
         ]
 
     return readability_features
+
+
+def get_features(
+    group_name,
+    path_to_data,
+    syntactic=False,
+    lexical=False,
+    subject=None,
+    readability=False,
+):
+    """
+    append lexical, syntactic and readability features for rationales
+    assumes csv file is already made for each group
+    """
+    prefix = "df_"
+    nlp = spacy.load("en_core_web_sm")
+
+    fpath = os.path.join(path_to_data, prefix + group_name + ".csv")
+    df_answers = pd.read_csv(fpath)
+
+    df_answers["rationale"] = df_answers["rationale"].fillna(" ")
+
+    if syntactic:
+        syntax_features = extract_syntactic_features(
+            df_answers["rationale"], nlp=nlp
+        )
+        for f in syntax_features:
+            df_answers.loc[:, f] = syntax_features[f]
+    else:
+        pass
+
+    if readability:
+        pass
+    else:
+        pass
+
+    if lexical:
+        lexical_features = extract_lexical_features(
+            df_answers["rationale"], nlp=nlp, subject=subject
+        )
+        for f in lexical_features:
+            df_answers.loc[:, f] = lexical_features[f]
+
+    else:
+        pass
+
+    return df_answers
