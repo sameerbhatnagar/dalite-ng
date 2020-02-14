@@ -3,7 +3,6 @@ from django.core import mail
 from django.urls import reverse
 
 from peerinst.models import NewUserRequest
-from quality.models import RejectedAnswer
 from quality.tests.fixtures import *  # noqa
 
 
@@ -17,7 +16,7 @@ def test_index__staff(client, staff):
     assert client.login(username=staff.username, password="test")
     resp = client.get(reverse("admin:index"))
     assert resp.status_code == 302
-    assert resp.url == "/en/admin/saltise"
+    assert resp.url == "/en/admin/saltise/"
 
 
 def test_new_user_approval_page(client, staff, new_user_requests):
@@ -80,96 +79,6 @@ def test_verify_user__refuse(client, staff, new_user_requests):
     ).exists()
 
 
-def test_flagged_rationales_page(
-    client, staff, answers, global_validation_quality_with_criteria
-):
-    answers = answers[:3]
-    for answer in answers:
-        RejectedAnswer.add(
-            global_validation_quality_with_criteria,
-            answer.rationale,
-            global_validation_quality_with_criteria.evaluate(answer.rationale)[
-                1
-            ],
-        )
-
-    assert client.login(username=staff.username, password="test")
-    resp = client.get(reverse("saltise-admin:flagged-rationales"))
-
-    assert resp.status_code == 200
-    assert "peerinst/saltise_admin/flagged_rationales.html" in [
-        t.name for t in resp.templates
-    ]
-    assert ["Toxicity"] == resp.context["criteria"]
-
-
-def test_get_flagged_rationales(
-    client, staff, answers, global_validation_quality_with_criteria
-):
-    answers = answers[:3]
-    for answer in answers:
-        RejectedAnswer.add(
-            global_validation_quality_with_criteria,
-            answer.rationale,
-            global_validation_quality_with_criteria.evaluate(answer.rationale)[
-                1
-            ],
-        )
-
-    assert client.login(username=staff.username, password="test")
-
-    resp = client.post(
-        reverse("saltise-admin:get-flagged-rationales"),
-        content_type="application/json",
-    )
-    data = resp.json()
-    assert resp.status_code == 200
-    assert RejectedAnswer.objects.count() == len(data["rationales"])
-    assert data["done"]
-
-    resp = client.post(
-        reverse("saltise-admin:get-flagged-rationales"),
-        {"n": 2},
-        content_type="application/json",
-    )
-    data = resp.json()
-    assert resp.status_code == 200
-    assert len(data["rationales"]) == 2
-    assert all(
-        d == dict(d_)
-        for d, d_ in zip(data["rationales"], RejectedAnswer.objects.all()[:2])
-    )
-    assert not data["done"]
-
-    resp = client.post(
-        reverse("saltise-admin:get-flagged-rationales"),
-        {"idx": 1},
-        content_type="application/json",
-    )
-    data = resp.json()
-    assert resp.status_code == 200
-    assert len(data["rationales"]) == 2
-    assert all(
-        d == dict(d_)
-        for d, d_ in zip(data["rationales"], RejectedAnswer.objects.all()[1:])
-    )
-    assert data["done"]
-
-    resp = client.post(
-        reverse("saltise-admin:get-flagged-rationales"),
-        {"idx": 1, "n": 1},
-        content_type="application/json",
-    )
-    data = resp.json()
-    assert resp.status_code == 200
-    assert len(data["rationales"]) == 1
-    assert all(
-        d == dict(d_)
-        for d, d_ in zip(data["rationales"], RejectedAnswer.objects.all()[1:2])
-    )
-    assert not data["done"]
-
-
 def test_activity_page(client, staff, disciplines):
     assert client.login(username=staff.username, password="test")
     resp = client.get(reverse("saltise-admin:activity"))
@@ -180,70 +89,3 @@ def test_activity_page(client, staff, disciplines):
     ]
     assert len(disciplines) == len(resp.context["disciplines"])
     assert all(d.title in resp.context["disciplines"] for d in disciplines)
-
-
-def test_get_group_activity(
-    client, staff, answers, global_validation_quality_with_criteria
-):
-    answers = answers[:3]
-    for answer in answers:
-        RejectedAnswer.add(
-            global_validation_quality_with_criteria,
-            answer.rationale,
-            global_validation_quality_with_criteria.evaluate(answer.rationale)[
-                1
-            ],
-        )
-
-    assert client.login(username=staff.username, password="test")
-
-    resp = client.post(
-        reverse("saltise-admin:get-group-activity"),
-        content_type="application/json",
-    )
-    data = resp.json()
-    assert resp.status_code == 200
-    assert RejectedAnswer.objects.count() == len(data["rationales"])
-    assert data["done"]
-
-    resp = client.post(
-        reverse("saltise-admin:get-group-activity"),
-        {"n": 2},
-        content_type="application/json",
-    )
-    data = resp.json()
-    assert resp.status_code == 200
-    assert len(data["rationales"]) == 2
-    assert all(
-        d == dict(d_)
-        for d, d_ in zip(data["rationales"], RejectedAnswer.objects.all()[:2])
-    )
-    assert not data["done"]
-
-    resp = client.post(
-        reverse("saltise-admin:get-group-activity"),
-        {"idx": 1},
-        content_type="application/json",
-    )
-    data = resp.json()
-    assert resp.status_code == 200
-    assert len(data["rationales"]) == 2
-    assert all(
-        d == dict(d_)
-        for d, d_ in zip(data["rationales"], RejectedAnswer.objects.all()[1:])
-    )
-    assert data["done"]
-
-    resp = client.post(
-        reverse("saltise-admin:get-group-activity"),
-        {"idx": 1, "n": 1},
-        content_type="application/json",
-    )
-    data = resp.json()
-    assert resp.status_code == 200
-    assert len(data["rationales"]) == 1
-    assert all(
-        d == dict(d_)
-        for d, d_ in zip(data["rationales"], RejectedAnswer.objects.all()[1:2])
-    )
-    assert not data["done"]
