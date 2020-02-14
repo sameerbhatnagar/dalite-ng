@@ -340,58 +340,6 @@ def old_patterns():
             views.BlinkAssignmentUpdate.as_view(),
             name="blinkAssignment-update",
         ),
-        path(
-            "admin/", admin_views.AdminIndexView.as_view(), name="admin-index",
-        ),
-        path(
-            "admin/peerinst/",
-            include(
-                [
-                    path(
-                        "assignment_results/<assignment_id>/",
-                        include(
-                            [
-                                path(
-                                    "",
-                                    admin_views.AssignmentResultsView.as_view(),  # noqa
-                                    name="assignment-results",
-                                ),
-                                path(
-                                    "rationales/<int:question_id>",
-                                    admin_views.QuestionRationaleView.as_view(),  # noqa
-                                    name="question-rationales",
-                                ),
-                            ]
-                        ),
-                    ),
-                    path(
-                        "question_preview/<int:question_id>",
-                        admin_views.QuestionPreviewView.as_view(),
-                        name="question-preview",
-                    ),
-                    path(
-                        "fake_usernames/",
-                        admin_views.FakeUsernames.as_view(),
-                        name="fake-usernames",
-                    ),
-                    path(
-                        "fake_countries/",
-                        admin_views.FakeCountries.as_view(),
-                        name="fake-countries",
-                    ),
-                    path(
-                        "attribution_analysis/",
-                        admin_views.AttributionAnalysis.as_view(),
-                        name="attribution-analysis",
-                    ),
-                    path(
-                        "group_assignment_management/",
-                        admin_views.StudentGroupAssignmentManagement.as_view(),
-                        name="group-assignment-management",
-                    ),
-                ]
-            ),
-        ),
     ]
 
 
@@ -745,16 +693,83 @@ def question_patterns():
     ]
 
 
-def admin_patterns() -> List[URLPattern]:
+def dev_admin_patterns() -> List[URLPattern]:
+    return [
+        path("admin/", views.admin_.index, name="index"),
+        path(
+            "admin/dev",
+            include(
+                [
+                    path(
+                        "",
+                        admin_views.AdminIndexView.as_view(),
+                        name="admin-index",
+                    ),
+                    path(
+                        "peerinst/",
+                        include(
+                            [
+                                path(
+                                    "assignment_results/<assignment_id>/",
+                                    include(
+                                        [
+                                            path(
+                                                "",
+                                                admin_views.AssignmentResultsView.as_view(),  # noqa
+                                                name="assignment-results",
+                                            ),
+                                            path(
+                                                "rationales/<int:question_id>",
+                                                admin_views.QuestionRationaleView.as_view(),  # noqa
+                                                name="question-rationales",
+                                            ),
+                                        ]
+                                    ),
+                                ),
+                                path(
+                                    "question_preview/<int:question_id>",
+                                    admin_views.QuestionPreviewView.as_view(),
+                                    name="question-preview",
+                                ),
+                                path(
+                                    "fake_usernames/",
+                                    admin_views.FakeUsernames.as_view(),
+                                    name="fake-usernames",
+                                ),
+                                path(
+                                    "fake_countries/",
+                                    admin_views.FakeCountries.as_view(),
+                                    name="fake-countries",
+                                ),
+                                path(
+                                    "attribution_analysis/",
+                                    admin_views.AttributionAnalysis.as_view(),
+                                    name="attribution-analysis",
+                                ),
+                                path(
+                                    "group_assignment_management/",
+                                    admin_views.StudentGroupAssignmentManagement.as_view(),  # noqa
+                                    name="group-assignment-management",
+                                ),
+                            ]
+                        ),
+                    ),
+                ]
+            ),
+        ),
+    ]
+
+
+def saltise_admin_patterns() -> List[URLPattern]:
     return [
         path(
-            "saltise/admin/",
+            "admin/saltise",
             include(
                 (
                     [
                         path(
                             "",
-                            staff_member_required(views.admin_.index),
+                            staff_member_required(views.admin_.saltise_index),
                             name="index",
                         ),
                         path(
@@ -814,7 +829,8 @@ urlpatterns: List[URLPattern] = sum(
         search_patterns(),
         student_patterns(),
         teacher_patterns(),
-        admin_patterns(),
+        dev_admin_patterns(),
+        saltise_admin_patterns(),
     ],
     [],
 )

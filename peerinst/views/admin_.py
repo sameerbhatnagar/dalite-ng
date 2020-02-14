@@ -2,9 +2,10 @@ import base64
 import logging
 from itertools import islice
 
+from django.contrib.admin import site
 from django.contrib.auth.tokens import default_token_generator
 from django.http import HttpRequest, HttpResponse, JsonResponse
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from django.template import loader
 from django.urls import reverse
 from django.utils.encoding import force_bytes
@@ -20,8 +21,15 @@ from ..tasks import send_mail_async
 logger = logging.getLogger("peerinst-views")
 
 
+def index(req: HttpRequest) -> HttpResponse:
+    if req.user.is_superuser:
+        return site.index(req)
+    else:
+        return redirect(reverse("saltise-admin:index"))
+
+
 @require_safe
-def index(req):
+def saltise_index(req: HttpRequest) -> HttpResponse:
     return render(req, "peerinst/saltise_admin/index.html")
 
 
