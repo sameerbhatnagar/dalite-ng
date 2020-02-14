@@ -5,6 +5,7 @@ __all__ = [
     "new_user",
     "new_user_requests",
     "staff",
+    "superuser",
     "user",
     "users",
 ]
@@ -16,6 +17,7 @@ from .fixtures import (
     new_user,
     new_user_requests,
     staff,
+    superuser,
     user,
     users,
 )

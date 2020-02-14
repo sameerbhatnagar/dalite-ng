@@ -31,6 +31,7 @@ __all__ = [
     "student_group_assignments",
     "student_new",
     "students",
+    "superuser",
     "teacher",
     "teachers",
     "thread",
@@ -83,6 +84,7 @@ from .user import (
     new_user,
     new_user_requests,
     staff,
+    superuser,
     user,
     users,
 )

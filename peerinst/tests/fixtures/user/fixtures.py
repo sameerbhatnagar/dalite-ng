@@ -30,6 +30,14 @@ def inactive_user():
 
 
 @pytest.fixture
+def superuser():
+    user = add_users(new_users(1))[0]
+    user.is_superuser = True
+    user.save()
+    return user
+
+
+@pytest.fixture
 def new_teacher():
     return f.TeacherFactory()
 
