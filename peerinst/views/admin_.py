@@ -12,10 +12,11 @@ from django.utils.encoding import force_bytes
 from django.utils.translation import ugettext_lazy as translate
 from django.views.decorators.http import require_POST, require_safe
 
-from dalite.views.utils import with_json_params
+from dalite.views.errors import response_400
+from dalite.views.utils import with_json_params, with_query_string_params
 from quality.models import RejectedAnswer, UsesCriterion, get_criterion
 
-from ..models import Discipline, NewUserRequest, Teacher
+from ..models import Discipline, NewUserRequest, StudentGroup, Teacher
 from ..tasks import send_mail_async
 
 logger = logging.getLogger("peerinst-views")
@@ -165,3 +166,39 @@ def activity_page(req: HttpRequest) -> HttpResponse:
         "disciplines": list(Discipline.objects.values_list("title", flat=True))
     }
     return render(req, "peerinst/saltise_admin/activity.html", context)
+
+
+@require_safe
+@with_query_string_params(args=["discipline"])
+def get_groups_activity(req: HttpRequest, discipline: str) -> HttpResponse:
+    try:
+        discipline = Discipline.objects.get(title=discipline)
+    except Discipline.DoesNotExist:
+        return response_400(
+            req,
+            f"There is no discipline {discipline}.",
+            "A request to get group activity for non existing "
+            f"discipline {discipline} was made.",
+            logger.warning,
+            use_template=False,
+        )
+
+    groups = [
+        group
+        for group in StudentGroup.objects.iterator()
+        if group.teacher.count()
+        and discipline in group.teacher.first().disciplines.all()
+    ]
+
+    data = {
+        "activity": [
+            {
+                "name": group.title,
+                "teacher": group.teacher.last().user.username,
+                "n_students": group.studentgroupmembership_set.count(),
+            }
+            for group in groups
+        ]
+    }
+
+    return JsonResponse(data)

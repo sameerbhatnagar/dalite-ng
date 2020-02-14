@@ -763,7 +763,7 @@ def dev_admin_patterns() -> List[URLPattern]:
 def saltise_admin_patterns() -> List[URLPattern]:
     return [
         path(
-            "admin/saltise",
+            "admin/saltise/",
             include(
                 (
                     [
@@ -809,6 +809,13 @@ def saltise_admin_patterns() -> List[URLPattern]:
                             "activity",
                             staff_member_required(views.admin_.activity_page),
                             name="activity",
+                        ),
+                        path(
+                            "get-groups-activity",
+                            staff_member_required(
+                                views.admin_.get_groups_activity
+                            ),
+                            name="get-groups-activity",
                         ),
                     ],
                     "saltise-admin",

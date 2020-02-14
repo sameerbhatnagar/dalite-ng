@@ -153,6 +153,7 @@ function buildScript(app, module) {
     format: "iife",
     name: name,
     globals: {
+      jquery: "jquery", // eslint-disable-line
       flatpickr: "flatpickr", // eslint-disable-line
       "@babel/runtime": "@babel/runtime",
       "@material/auto-init": "@material/auto-init",
@@ -169,6 +170,7 @@ function buildScript(app, module) {
       "material/snackbar": "material/snackbar",
     },
     external: [
+      "jquery",
       "flatpickr",
       "@babel/runtime",
       "@material/auto-init",
