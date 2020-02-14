@@ -1,5 +1,4 @@
 import { buildReq } from "../ajax.js";
-import { createElement, createSvg } from "../utils.js";
 
 /*********/
 /* model */
@@ -8,15 +7,11 @@ let model;
 
 function initModel(data) {
   model = {
-    data: {
+    state: {
       rationales: [],
-      criteria: data.criteria,
     },
     urls: {
       getRationales: data.urls.getRationales,
-    },
-    config: {
-      nPerFetch: 50,
     },
   };
 }
@@ -26,58 +21,50 @@ function initModel(data) {
 /**********/
 
 async function getRationales() {
-  let done = false;
-  let idx = 0;
-  while (!done) {
-    const req = buildReq(
-      {
-        idx: idx,
-        n: model.config.nPerFetch,
-      },
-      "post",
-    );
-    const resp = await fetch(model.urls.getRationales, req);
-    const data = await resp.json();
-    model.data.rationales = [...model.data.rationales, data.rationales];
-    idx = idx + data.rationales.length;
-    done = data.done;
-    addRationalesView(data.rationales);
-  }
+  const req = buildReq({}, "get");
+  const resp = await fetch(model.urls.getRationales, req);
+  model.state.rationales = (await resp.json()).rationales;
+  updateTableData();
 }
 
 /********/
 /* view */
 /********/
 
-function addRationalesView(rationales) {
-  const startingPair =
-    (model.data.rationales.length - rationales.length) % 2 == 0;
-  rationales.forEach((rationale, i) => {
-    const isPair =
-      (i % 2 == 0 && startingPair) || (i % 2 == 1 && !startingPair);
-    const table = document.querySelector("#flagged-rationales__table");
-    table.append(
-      createElement("span", rationale.rationale, {
-        class: `item rationale ${isPair ? "item--pair" : ""}`,
-      }),
-    );
-    table.append(
-      createElement("span", rationale.quality_type, {
-        class: `item ${isPair ? "item--pair" : ""}`,
-      }),
-    );
-    model.data.criteria.forEach(criterion => {
-      const span = createElement("span", "", {
-        class: `item ${isPair ? "item--pair" : ""}`,
-      });
-      const icon = createSvg("close");
-      if (rationale.reasons.some(r => r.full_name == criterion)) {
-        icon.classList.add("show");
-      }
-      span.append(icon);
-      table.append(span);
+function initView() {
+  initTables();
+}
+
+function initTables() {
+  document.querySelectorAll("table.display").forEach(elem => {
+    // prettier-ignore
+    const table = $(elem).DataTable({ // eslint-disable-line
+      pageLength: 10,
+      dom:
+        '<"fg-toolbar ui-toolbar ui-widget-header ui-helper-clearfix ui-corner-tl ui-corner-tr"Bf>t<"fg-toolbar ui-toolbar ui-widget-header ui-helper-clearfix ui-corner-bl ui-corner-br"ip>', // eslint-disable-line
+      buttons: [],
     });
+    table.order(2, "desc");
   });
+}
+
+function updateTableData() {
+  const table = $("#flagged-rationales__table").DataTable(); // eslint-disable-line
+  table.rows().remove();
+  table.rows
+    .add(
+      model.state.rationales.map(d => [
+        d.rationale,
+        d.annotator,
+        new Date(d.timestamp).toLocaleDateString({
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        }),
+        d.note,
+      ]),
+    )
+    .draw();
 }
 
 /********/
@@ -86,5 +73,6 @@ function addRationalesView(rationales) {
 
 export async function init(data) {
   initModel(data);
-  await getRationales();
+  initView();
+  getRationales();
 }

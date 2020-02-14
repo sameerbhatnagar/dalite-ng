@@ -81,7 +81,7 @@ function initTables() {
 }
 
 function updateTableData() {
-  const table = $("table.display").DataTable(); // eslint-disable-line
+  const table = $("#discipline-activity__groups").DataTable(); // eslint-disable-line
   table.rows().remove();
   table.rows
     .add(model.state.activity.map(d => [d.name, d.teacher, d.n_students]))
