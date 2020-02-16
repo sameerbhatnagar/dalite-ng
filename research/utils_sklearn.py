@@ -93,7 +93,7 @@ def append_features_and_save(path_to_data, group_name):
     return
 
 
-def split_train_test(data, split_axis, target, test_fraction=0.2):
+def split_train_test(data, target, test_fraction=0.2):
     """
     given:
      - DataFrame
@@ -111,7 +111,7 @@ def split_train_test(data, split_axis, target, test_fraction=0.2):
         n_splits=1, test_size=test_fraction, random_state=RANDOM_SEED
     )
 
-    for train_index, test_index in strat_split.split(data, data[split_axis]):
+    for train_index, test_index in strat_split.split(data, data[target]):
         train_set = data.iloc[train_index].drop(target, axis=1).copy()
         train_labels = data.iloc[train_index][target]
         test_set = data.iloc[test_index]
