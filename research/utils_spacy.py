@@ -152,16 +152,49 @@ def extract_readability_features(rationales, nlp):
     return readability_features
 
 
-def get_features(
-    group_name,
-    path_to_data,
-    syntactic=False,
-    lexical=False,
-    subject=None,
-    readability=False,
+def extract_features_and_save(
+    with_features_dir, df_answers, group_name, feature_type, nlp, subject=None
 ):
     """
-    append lexical, syntactic and readability features for rationales
+
+    """
+    feature_type_fpath = os.path.join(
+        with_features_dir, group_name + "_" + feature_type + ".csv"
+    )
+
+    if os.path.exists(feature_type_fpath):
+        print(feature_type + " features already calculated")
+        df_answers = pd.read_csv(feature_type_fpath)
+        return df_answers
+
+    else:
+        if feature_type == "syntax":
+            features = extract_syntactic_features(
+                df_answers["rationale"], nlp=nlp
+            )
+        elif feature_type == "readability":
+            features = extract_syntactic_features(
+                df_answers["rationale"], nlp=nlp
+            )
+        elif feature_type == "lexical":
+            features = extract_lexical_features(
+                df_answers["rationale"], nlp=nlp, subject=subject,
+            )
+
+        for f in features:
+            df_answers.loc[:, f] = features[f]
+
+        cols = ["id"] + list(features.keys())
+        df_answers.loc[:, cols].to_csv(os.path.join(feature_type_fpath))
+
+        return df_answers
+
+
+def get_features(
+    group_name, path_to_data, feature_type, subject=None,
+):
+    """
+    append lexical, syntactic or readability features for rationales
     assumes csv file is already made for each group
     """
     prefix = "df_"
@@ -172,28 +205,18 @@ def get_features(
 
     df_answers["rationale"] = df_answers["rationale"].fillna(" ")
 
-    if syntactic:
-        syntax_features = extract_syntactic_features(
-            df_answers["rationale"], nlp=nlp
-        )
-        for f in syntax_features:
-            df_answers.loc[:, f] = syntax_features[f]
-    else:
-        pass
+    with_features_dir = os.path.join(path_to_data, group_name + "_features")
 
-    if readability:
-        pass
-    else:
-        pass
+    if not os.path.exists(with_features_dir):
+        os.mkdir(with_features_dir)
 
-    if lexical:
-        lexical_features = extract_lexical_features(
-            df_answers["rationale"], nlp=nlp, subject=subject
-        )
-        for f in lexical_features:
-            df_answers.loc[:, f] = lexical_features[f]
-
-    else:
-        pass
+    df_answers = extract_features_and_save(
+        with_features_dir=with_features_dir,
+        df_answers=df_answers,
+        group_name=group_name,
+        feature_type=feature_type,
+        nlp=nlp,
+        subject=subject,
+    )
 
     return df_answers
