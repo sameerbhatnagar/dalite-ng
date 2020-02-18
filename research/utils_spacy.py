@@ -7,6 +7,7 @@ from django.conf import settings
 from spacy.matcher import PhraseMatcher
 from spacy_readability import Readability
 import pandas as pd
+from .utils_load_data import get_answers_df
 
 
 def on_match(matcher, doc, id, matches):
@@ -146,7 +147,8 @@ def extract_readability_features(rationales, nlp):
 
     for f in readability_features_list:
         readability_features[f] = [
-            getattr(doc._, f) for doc in nlp.pipe(rationales, batch_size=50)
+            round(getattr(doc._, f), 3)
+            for doc in nlp.pipe(rationales, batch_size=50)
         ]
 
     return readability_features
@@ -159,39 +161,37 @@ def extract_features_and_save(
 
     """
     feature_type_fpath = os.path.join(
-        with_features_dir, group_name + "_" + feature_type + ".csv"
+        with_features_dir, group_name + "_" + feature_type + ".json"
     )
 
     if os.path.exists(feature_type_fpath):
         print(feature_type + " features already calculated")
-        df_answers = pd.read_csv(feature_type_fpath)
-        return df_answers
+        with open(feature_type_fpath, "r") as f:
+            features = json.load(f)
+        return features
 
     else:
+        print("calculating features " + feature_type)
         if feature_type == "syntax":
             features = extract_syntactic_features(
                 df_answers["rationale"], nlp=nlp
             )
         elif feature_type == "readability":
-            features = extract_syntactic_features(
+            features = extract_readability_features(
                 df_answers["rationale"], nlp=nlp
             )
         elif feature_type == "lexical":
             features = extract_lexical_features(
                 df_answers["rationale"], nlp=nlp, subject=subject,
             )
+        with open(feature_type_fpath, "w") as f:
+            json.dump(features, f, indent=2)
 
-        for f in features:
-            df_answers.loc[:, f] = features[f]
-
-        cols = ["id"] + list(features.keys())
-        df_answers.loc[:, cols].to_csv(os.path.join(feature_type_fpath))
-
-        return df_answers
+        return features
 
 
 def get_features(
-    group_name, path_to_data, feature_type, subject=None,
+    group_name, path_to_data, subject=None,
 ):
     """
     append lexical, syntactic or readability features for rationales
@@ -201,7 +201,13 @@ def get_features(
     nlp = spacy.load("en_core_web_sm")
 
     fpath = os.path.join(path_to_data, prefix + group_name + ".csv")
-    df_answers = pd.read_csv(fpath)
+    if os.path.exists(fpath):
+        df_answers = pd.read_csv(fpath)
+    else:
+        print("extracting df_answers from db")
+        df_answers = get_answers_df(
+            group_name=group_name, path_to_data=path_to_data
+        )
 
     df_answers["rationale"] = df_answers["rationale"].fillna(" ")
 
@@ -210,13 +216,16 @@ def get_features(
     if not os.path.exists(with_features_dir):
         os.mkdir(with_features_dir)
 
-    df_answers = extract_features_and_save(
-        with_features_dir=with_features_dir,
-        df_answers=df_answers,
-        group_name=group_name,
-        feature_type=feature_type,
-        nlp=nlp,
-        subject=subject,
-    )
+    for feature_type in ["lexical", "syntax", "readability"]:
+        features = extract_features_and_save(
+            with_features_dir=with_features_dir,
+            df_answers=df_answers,
+            group_name=group_name,
+            feature_type=feature_type,
+            nlp=nlp,
+            subject=subject,
+        )
+        for f in features:
+            df_answers.loc[:, f] = features[f]
 
     return df_answers
