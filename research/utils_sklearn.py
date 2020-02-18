@@ -11,7 +11,7 @@ from sklearn.impute import SimpleImputer
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
 from sklearn.model_selection import StratifiedShuffleSplit
-
+from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 
 from research.utils_load_data import (
     get_convincingness_ratio,
@@ -138,10 +138,18 @@ def get_feature_transformation_pipeline(
         ]
     )
 
+    tfidf_tranformer_pipe = Pipeline(
+        [
+            ("count", CountVectorizer(stop_words="english")),
+            ("tfidf", TfidfTransformer()),
+        ]
+    )
+
     full_pipeline = ColumnTransformer(
         [
             ("num_pipeline", num_pipeline, feature_columns_numeric),
             ("cat_pipeline", OneHotEncoder(), feature_columns_categorical),
+            ("tfidf", tfidf_tranformer_pipe, "rationale"),
         ]
     )
 
