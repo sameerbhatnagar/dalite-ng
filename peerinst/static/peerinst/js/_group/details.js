@@ -111,7 +111,18 @@ export async function createCollection(
   const req = buildReq({ group_pk: groupPk }, "post");
   const resp = await fetch(addAssignmentUrl, req);
   const data = await resp.json();
-  window.location.assign(collectionUpdateUrl.replace("0", `${data.pk}`));
+}
+
+export async function linkCourse(groupPk, coursePk, linkUrl) {
+  const req = buildReq({ group_pk: groupPk, course_pk: coursePk }, "post");
+  const resp = await fetch(addAssignmentUrl, req);
+  const data = await resp.json();
+}
+
+export async function unlinkCourse(groupPk, coursePk, unlinkUrl) {
+  const req = buildReq({ group_pk: groupPk }, "post");
+  const resp = await fetch(addAssignmentUrl, req);
+  const data = await resp.json();
 }
 
 async function getStudentInformation(student: Student): Promise<void> {

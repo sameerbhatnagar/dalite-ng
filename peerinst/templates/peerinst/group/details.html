@@ -210,6 +210,10 @@ https://datatables.net/extensions/buttons/examples/styling/jqueryui.html
                 class="admin-link clickable"
                 data-pk="{{ group.pk|safe }}">{% trans 'Add to Collection' %}
         </div>
+        <div id="course-select"
+            class="admin-link clickable">
+            {% trans 'Link a Course' %}
+        </div>
         <ul id="assignment-list" class="mdc-list mdc-list--two-line">
           {% for a in assignments %}
           <li class="mdc-list-divider" role="separator"></li>
@@ -324,6 +328,12 @@ https://datatables.net/extensions/buttons/examples/styling/jqueryui.html
       );
       return;
   });
+
+
+      
+
+
+
 
   window.addEventListener("load", () => {
     group.initDetails({{ data|safe }});
