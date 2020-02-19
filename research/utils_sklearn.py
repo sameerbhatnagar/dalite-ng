@@ -1,9 +1,9 @@
 import os
-import json
-import spacy
+import datetime
 
-from collections import Counter
 import pandas as pd
+import numpy as np
+from scipy import stats
 
 
 from sklearn.preprocessing import QuantileTransformer, OneHotEncoder
@@ -12,85 +12,110 @@ from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
 from sklearn.model_selection import StratifiedShuffleSplit
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
+from sklearn.feature_selection import SelectKBest, f_regression
 
 from research.utils_load_data import (
     get_convincingness_ratio,
     extract_timestamp_features,
-    get_answers_df,
 )
 
-from research.utils_spacy import (
-    extract_lexical_features,
-    extract_syntactic_features,
-    extract_readability_features,
-)
+from research.utils_spacy import get_features
 
 RANDOM_SEED = 123
 
 
-def append_features_and_save(path_to_data, group_name):
+def get_features_and_save(path_to_data):
+    """
+    calculate and save lexical,syntax and readability features
+    """
+    fpath_data_inventory = os.path.join(
+        path_to_data, "data_inventory_research_consent_True_clean.csv",
+    )
 
-    fpath = os.path.join(path_to_data, "data_inventory.json")
-    with open(fpath, "r") as f:
-        DATA_INVENTORY = json.load(f)
+    with open(fpath_data_inventory, "r") as f:
+        DATA_INVENTORY = pd.read_csv(fpath_data_inventory)
 
-    prefix = "df_"
-    fpath = os.path.join(path_to_data, prefix + group_name + ".csv")
+    disciplines = (
+        DATA_INVENTORY.groupby(["discipline"])["N_answers_PI"]
+        .sum()
+        .sort_values()
+        .index[-3:]
+        .to_list()
+    )
+    DATA_INVENTORY["semester"] = DATA_INVENTORY["season"].str.cat(
+        DATA_INVENTORY["year"].map(str)
+    )
+    semesters = (
+        DATA_INVENTORY.groupby(["semester"])["N_answers_PI"]
+        .sum()
+        .sort_values()
+        .index[-4:]
+        .to_list()
+    )
 
-    try:
-        df = pd.read_csv(fpath)
-    except FileNotFoundError:
-        print("get_answers_df for " + group_name)
-        df = get_answers_df(group_name)
-        df.to_csv(fpath)
+    df = pd.DataFrame()
+    for discipline in disciplines:
+        df_discipline = pd.DataFrame()
 
-    df["rationale"] = df["rationale"].fillna(" ")
+        for semester in semesters:
+
+            df_semester = pd.DataFrame()
+
+            # need to calculate features for all
+            group_names = DATA_INVENTORY.loc[
+                (
+                    (DATA_INVENTORY["discipline"] == discipline)
+                    & (DATA_INVENTORY["semester"] == semester)
+                ),
+                "name",
+            ]
+
+            for group_name in group_names:
+                print(group_name)
+                print(
+                    "{} - calculating features".format(datetime.datetime.now())
+                )
+                df_group = get_features(
+                    group_name=group_name,
+                    path_to_data=path_to_data,
+                    subject=discipline,
+                )
+
+                df_group["group"] = group_name
+                df_semester = pd.concat([df_semester, df_group], sort=False)
+            df_semester["semester"] = semester
+            df_discipline = pd.concat([df_discipline, df_semester], sort=False)
+
+        df_discipline["discipline"] = discipline
+        df = pd.concat([df, df_discipline], sort=False)
 
     df = get_convincingness_ratio(df)
 
-    nlp = spacy.load("en_core_web_sm")
-
-    possible_disciplines = [
-        [c["discipline"] for c in s["courses"] if c["name"] == group_name]
-        for s in DATA_INVENTORY
-    ]
-    subject = [d[0] for d in possible_disciplines if len(d) > 0][0]
-
-    print("computing lexical_features")
-    lexical_features = extract_lexical_features(
-        rationales=df["rationale"], nlp=nlp, subject=subject
-    )
-    for key in lexical_features:
-        print(key)
-        print(Counter(lexical_features[key]))
-
-    print("computing syntax_features")
-    syntax_features = extract_syntactic_features(
-        rationales=df["rationale"], nlp=nlp,
-    )
-    for key in syntax_features:
-        print(key)
-        print(Counter(syntax_features[key]))
-
-    readability_features = extract_readability_features(
-        rationales=df["rationale"], nlp=nlp,
-    )
-    df = (
-        df.join(pd.DataFrame(lexical_features))
-        .join(pd.DataFrame(syntax_features))
-        .join(pd.DataFrame(readability_features))
-    )
-
     df = extract_timestamp_features(df)
 
-    fpath = os.path.join(
-        path_to_data,
-        "with_features",
-        prefix + group_name + "_with_features.csv",
-    )
-    df.to_csv(fpath)
+    fpath_all = os.path.join(path_to_data, "all_groups_with_features.csv")
 
-    return
+    df.to_csv(fpath_all)
+
+    return df
+
+
+def filter_data(df, feature_columns_numeric):
+    """
+    """
+    MIN_TIMES_SHOWN = 3
+    df_filtered_times_shown = df[df["times_shown"] > MIN_TIMES_SHOWN]
+
+    df_filtered = df_filtered_times_shown[
+        (
+            np.abs(
+                stats.zscore(df_filtered_times_shown[feature_columns_numeric])
+            )
+            < 3
+        ).all(axis=1)
+    ]
+
+    return df_filtered
 
 
 def split_train_test(data, target, test_fraction=0.2):
@@ -121,7 +146,7 @@ def split_train_test(data, target, test_fraction=0.2):
 
 
 def get_feature_transformation_pipeline(
-    feature_columns_numeric, feature_columns_categorical
+    n_samples, feature_columns_numeric, feature_columns_categorical
 ):
     """
     given:
@@ -134,7 +159,12 @@ def get_feature_transformation_pipeline(
     num_pipeline = Pipeline(
         [
             ("imputer", SimpleImputer()),
-            ("std_scaler", QuantileTransformer(output_distribution="normal")),
+            (
+                "std_scaler",
+                QuantileTransformer(
+                    n_quantiles=n_samples, output_distribution="normal"
+                ),
+            ),
         ]
     )
 
@@ -150,6 +180,10 @@ def get_feature_transformation_pipeline(
             ("num_pipeline", num_pipeline, feature_columns_numeric),
             ("cat_pipeline", OneHotEncoder(), feature_columns_categorical),
             ("tfidf", tfidf_tranformer_pipe, "rationale"),
+            (
+                "feature_selector",
+                SelectKBest(f_regression, k=int(n_samples / 10)),
+            ),
         ]
     )
 
