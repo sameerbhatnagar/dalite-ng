@@ -3128,7 +3128,7 @@ def connect_group_to_course(request):
     course_pk = request.POST.get("course_pk")
     student_group = StudentGroup.objects.get(pk=request.POST.get("group_pk"))
 
-    students_as_students = student_group.student_set.all().values_list(
+    students_as_students = student_group.students.values_list(
         "student", flat=True
     )
     students_as_users = User.objects.filter(pk__in=students_as_students)

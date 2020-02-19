@@ -6,6 +6,85 @@ import { editField } from "./common.js";
 /* model */
 /*********/
 
+import { MDCSnackbar } from "@material/snackbar";
+
+export function initCourseLinking(
+  linkUrl,
+  unlinkUrl,
+  linkTrans,
+  unlinkTrans,
+  linkedTo,
+  unlinkedFrom,
+  error,
+) {
+  const snackbar = new MDCSnackbar(document.querySelector(".mdc-snackbar"));
+
+  function clickLink(el) {
+    const posting = $.post(assignUrl, {
+      group_pk: el.getAttribute("data-group-pk"),
+      course_pk: el.getAttribute("data-course-pk"),
+    });
+    posting.done(function(data) {
+      console.info(data);
+      el.innerHTML = unassignTrans;
+      el.classList.add("linked");
+      el.classList.remove("unlinked");
+      const dataObjAssigned = {
+        message: linkedTo + el.getAttribute("data-name"),
+      };
+      snackbar.show(dataObjAssigned);
+    });
+    posting.fail(function(data) {
+      console.info(data);
+      const err = {
+        message: error,
+      };
+      snackbar.show(err);
+    });
+  }
+
+  function clickUnlink(el) {
+    const posting = $.post(unassignUrl, {
+      course_pk: el.getAttribute("id_pk"),
+    });
+    posting.done(function(data) {
+      console.info(data);
+      el.innerHTML = assignTrans;
+      el.classList.remove("linked");
+      el.classList.add("unlinked");
+      const dataObjUnassigned = {
+        message: unlinkedFrom + el.getAttribute("data-name"),
+      };
+      snackbar.show(dataObjUnassigned);
+    });
+    posting.fail(function(data) {
+      console.info(data);
+      const err = {
+        message: error,
+      };
+      snackbar.show(err);
+    });
+  }
+
+  [].forEach.call(document.querySelectorAll(".course-toggle-link"), el => {
+    el.addEventListener("click", () => {
+      if (el.classList.contains("removed")) {
+        clickLink(el);
+      } else {
+        clickUnlink(el);
+      }
+    });
+  });
+  /*
+  [].forEach.call(document.querySelectorAll(".md-48"), el => {
+    el.addEventListener("click", () => {
+      const hash = el.getAttribute("id");
+      window.location.assign(groupUrl.replace("0", hash));
+    });
+  });
+  */
+}
+
 type InitialData = {
   assignments: Array<{ url: string }>,
   students: Array<number>,
@@ -108,18 +187,6 @@ export async function createCollection(
   addAssignmentUrl,
   collectionUpdateUrl,
 ) {
-  const req = buildReq({ group_pk: groupPk }, "post");
-  const resp = await fetch(addAssignmentUrl, req);
-  const data = await resp.json();
-}
-
-export async function linkCourse(groupPk, coursePk, linkUrl) {
-  const req = buildReq({ group_pk: groupPk, course_pk: coursePk }, "post");
-  const resp = await fetch(addAssignmentUrl, req);
-  const data = await resp.json();
-}
-
-export async function unlinkCourse(groupPk, coursePk, unlinkUrl) {
   const req = buildReq({ group_pk: groupPk }, "post");
   const resp = await fetch(addAssignmentUrl, req);
   const data = await resp.json();
