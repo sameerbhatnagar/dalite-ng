@@ -11,8 +11,8 @@ from sklearn.impute import SimpleImputer
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
 from sklearn.model_selection import StratifiedShuffleSplit
+from sklearn.decomposition import TruncatedSVD
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
-from sklearn.feature_selection import SelectKBest, f_regression
 
 from research.utils_load_data import (
     get_convincingness_ratio,
@@ -103,7 +103,7 @@ def get_features_and_save(path_to_data):
 def filter_data(df, feature_columns_numeric):
     """
     """
-    MIN_TIMES_SHOWN = 3
+    MIN_TIMES_SHOWN = 2
     df_filtered_times_shown = df[df["times_shown"] > MIN_TIMES_SHOWN]
 
     df_filtered = df_filtered_times_shown[
@@ -146,7 +146,10 @@ def split_train_test(data, target, test_fraction=0.2):
 
 
 def get_feature_transformation_pipeline(
-    n_samples, feature_columns_numeric, feature_columns_categorical
+    n_samples,
+    feature_columns_numeric,
+    feature_columns_categorical,
+    n_components,
 ):
     """
     given:
@@ -172,19 +175,16 @@ def get_feature_transformation_pipeline(
         [
             ("count", CountVectorizer(stop_words="english")),
             ("tfidf", TfidfTransformer()),
+            ("SVD", TruncatedSVD(n_components=n_components)),
         ]
     )
 
-    full_pipeline = ColumnTransformer(
+    feature_transformation_pipeline = ColumnTransformer(
         [
             ("num_pipeline", num_pipeline, feature_columns_numeric),
             ("cat_pipeline", OneHotEncoder(), feature_columns_categorical),
             ("tfidf", tfidf_tranformer_pipe, "rationale"),
-            (
-                "feature_selector",
-                SelectKBest(f_regression, k=int(n_samples / 10)),
-            ),
         ]
     )
 
-    return full_pipeline
+    return feature_transformation_pipeline
