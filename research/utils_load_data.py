@@ -675,6 +675,38 @@ def build_data_inventory(path_to_data, research_consent=True):
     return rejected_groups, data_inventory
 
 
+def get_common_questions(groups):
+    """
+    Given array of group names,
+    return array of question ids completed by all groups
+    """
+    d = {}
+    for group in groups:
+        (
+            pi_question_list,
+            ro_question_list,
+            pi_question_list_all_correct,
+        ) = get_pi_question_list(group)
+        d[group] = pi_question_list
+
+    most_active_group = sorted(
+        d.items(), key=lambda x: len(x[1]), reverse=True
+    )[0][0]
+
+    common_q_list = list(set(d[most_active_group]).intersection(*d.values()))
+
+    return common_q_list
+
+
+def get_corpus(question_id):
+
+    corpus = Answer.objects.filter(question_id=question_id).values_list(
+        "rationale", flat=True
+    )
+
+    return corpus
+
+
 def get_questions_df(path_to_data):
     """
     make dataframe with contextual data on each question

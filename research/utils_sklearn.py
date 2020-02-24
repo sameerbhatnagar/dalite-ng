@@ -11,7 +11,7 @@ from sklearn.impute import SimpleImputer
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
 from sklearn.model_selection import StratifiedShuffleSplit
-from sklearn.decomposition import TruncatedSVD
+from sklearn.decomposition import TruncatedSVD, LatentDirichletAllocation
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 
 from research.utils_load_data import (
@@ -145,6 +145,39 @@ def split_train_test(data, target, test_fraction=0.2):
     return train_set, train_labels, test_set, test_labels
 
 
+def get_pipeline(n_components=None, model="lsa"):
+    """
+    Return sklearn pipeline object which build Term Document Matrix, and then
+    transforms into Tf-Idf, and performs SVD, truncated to `n_componentss`
+    """
+    pipeline = Pipeline([("count", CountVectorizer(stop_words="english"))])
+
+    model_dict = {
+        "lda": (
+            "lda",
+            LatentDirichletAllocation(
+                n_components=n_components,
+                max_iter=5,
+                learning_method="online",
+                learning_offset=50.0,
+                random_state=0,
+            ),
+        ),
+        "lsa": (
+            ("tfidf", TfidfTransformer()),
+            ("SVD", TruncatedSVD(n_components=n_components)),
+        ),
+    }
+
+    pipeline.steps.append(model_dict[model])
+    return pipeline
+
+
+def get_most_convincing_rationale(question_id):
+    most_convincing = {}
+    return most_convincing
+
+
 def get_feature_transformation_pipeline(
     n_samples,
     feature_columns_numeric,
@@ -171,13 +204,7 @@ def get_feature_transformation_pipeline(
         ]
     )
 
-    tfidf_tranformer_pipe = Pipeline(
-        [
-            ("count", CountVectorizer(stop_words="english")),
-            ("tfidf", TfidfTransformer()),
-            ("SVD", TruncatedSVD(n_components=n_components)),
-        ]
-    )
+    tfidf_tranformer_pipe = get_pipeline()
 
     feature_transformation_pipeline = ColumnTransformer(
         [
