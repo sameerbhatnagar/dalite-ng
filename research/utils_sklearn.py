@@ -21,6 +21,9 @@ from research.utils_load_data import (
 
 from research.utils_spacy import get_features
 
+from peerinst.models import Answer
+from django.db.models import Count
+
 RANDOM_SEED = 123
 
 
@@ -174,7 +177,28 @@ def get_pipeline(n_components=None, model="lsa"):
 
 
 def get_most_convincing_rationale(question_id):
-    most_convincing = {}
+    most_convincing = df_conv = pd.DataFrame(
+        Answer.objects.filter(question_id=1145)
+        .annotate(
+            times_chosen=Count("chosen_rationale_id"),
+            times_shown=Count("shown_rationales__shown_answer"),
+        )
+        .values(
+            "id",
+            "first_answer_choice",
+            "times_chosen",
+            "times_shown",
+            "rationale",
+        )
+        .order_by("-times_chosen")
+    )
+    df_conv.groupby(["first_answer_choice", "id"])[
+        "times_chosen"
+    ].sum().to_frame().sort_values("times_chosen", ascending=False).groupby(
+        level=0
+    ).head(
+        1
+    )
     return most_convincing
 
 
