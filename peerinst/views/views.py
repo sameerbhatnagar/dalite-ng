@@ -3142,7 +3142,7 @@ def connect_group_to_course(request):
     except ValidationError:
         return JsonResponse({"action": "error"})
 
-    return JsonResponse({"action": "posted"})
+    return JsonResponse({"action": "posted", "linked_course_pk": clone.pk})
 
 
 @login_required

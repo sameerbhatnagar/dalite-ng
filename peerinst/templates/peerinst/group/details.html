@@ -231,7 +231,7 @@ https://datatables.net/extensions/buttons/examples/styling/jqueryui.html
             <section id="assignment-parameters-description" class="mdc-dialog__body mdc-dialog__body--scrollable">
               {% if is_connected_to_course %}
               <li role="separator" class="mdc-list-divider"></li>
-              <li class="mdc-list-item">
+              <li class="mdc-list-item" id="course-{{ connected_course.pk }}">
                 <span class="mdc-list-item__graphic mdc-theme--primary">
                   <i class="clickable mdc-theme--primary material-icons md-48 course-icon"
                      data-course-pk="{{ connected_course.pk|safe }}">dns</i>
@@ -272,7 +272,7 @@ https://datatables.net/extensions/buttons/examples/styling/jqueryui.html
                   </span>
                 </span>
                 <span class="mdc-list-item__meta">
-                  <button class="mdc-button mdc-button--raised course-toggle-link unlinked" disabled
+                  <button class="mdc-button mdc-button--raised course-toggle-link unlinked"{% if is_connected_to_course %} disabled{% endif %}
                           data-group-pk="{{ group.pk|safe }}"
                           data-course-pk="{{ course.pk|safe }}"
                           data-name="{{ course.title|safe }}">
@@ -437,25 +437,31 @@ async function courseLinking(
         });
         posting.done(function(data) {
           console.info(data);
-          document.getElementsByClassName("unlinked").forEach(function(item, i){
-            item.setAttribute("disabled");
+          Array.from(document.getElementsByClassName("unlinked")).forEach((el) => {
+            el.disabled = true;
           });
           const listElement = document.getElementById("course-"+el.getAttribute("data-course-pk"));
           const cloneListElement = listElement.cloneNode(true);
+          listElement.parentNode.prepend(cloneListElement);
+          const cloneButton = cloneListElement.getElementsByTagName("button")[0];
+          const cloneLink = cloneListElement.getElementsByTagName("i")[0];
+          cloneLink.setAttribute("data-course-pk",data.linked_course_pk);
+          cloneLink.addEventListener("click", () => {
+            window.location.assign(courseUrl.replace("0", el.getAttribute("data-course-pk")));
+          });
+          cloneListElement.setAttribute("id","course-"+data.linked_course_pk);
+          cloneButton.setAttribute("data-course-pk",data.linked_course_pk);
+          cloneButton.disabled = false;
+          cloneButton.classList.remove("unlinked");
+          cloneButton.classList.add("linked");
+          cloneButton.innerHTML = "{% trans 'Unlink' %}";
+          cloneButton.addEventListener("click", () => {
+            clickUnlink(cloneButton);
+          });
           const dataObjAssigned = {
             message: linkedTo + el.getAttribute("data-name"),
           };
           //snackbar.show(dataObjAssigned);
-          courseLinking(
-            "{% url 'connect-group-course' %}",
-            "{% url 'disconnect-group-course' %}",
-            "{% trans 'Link' %}",
-            "{% trans 'Unlink' %}",
-            "{% trans 'Linked to ' %}",
-            "{% trans 'Unlinked from ' %}",
-            "{% trans 'Unable to contact server' %}",
-            "{% url 'course_flow:course-detail-view' pk=0 %}",
-          );
         });
         posting.fail(function(data) {
           console.info(data);
@@ -472,24 +478,15 @@ async function courseLinking(
         });
         posting.done(function(data) {
           console.info(data);
-          document.getElementsByClassName("unlinked").forEach(function(item, i){
-            item.removeAttribute("disabled");
+          Array.from(document.getElementsByClassName("unlinked")).forEach((el) => {
+            el.removeAttribute("disabled");
           });
-          el.remove();
+          const listElement = document.getElementById("course-"+el.getAttribute("data-course-pk"));
+          listElement.remove();
           const dataObjUnassigned = {
             message: unlinkedFrom + el.getAttribute("data-name"),
           };
           //snackbar.show(dataObjUnassigned);
-          courseLinking(
-            "{% url 'connect-group-course' %}",
-            "{% url 'disconnect-group-course' %}",
-            "{% trans 'Link' %}",
-            "{% trans 'Unlink' %}",
-            "{% trans 'Linked to ' %}",
-            "{% trans 'Unlinked from ' %}",
-            "{% trans 'Unable to contact server' %}",
-            "{% url 'course_flow:course-detail-view' pk=0 %}",
-          );
         });
         posting.fail(function(data) {
           console.info(data);
