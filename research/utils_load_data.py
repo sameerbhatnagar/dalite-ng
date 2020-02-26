@@ -750,7 +750,7 @@ def get_corpus(question_id):
         "rationale", flat=True
     )
 
-    return corpus
+    return list(corpus)
 
 
 def get_questions_df(path_to_data):

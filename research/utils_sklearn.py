@@ -10,9 +10,10 @@ from sklearn.preprocessing import QuantileTransformer, OneHotEncoder
 from sklearn.impute import SimpleImputer
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
-from sklearn.model_selection import StratifiedShuffleSplit
+from sklearn.model_selection import StratifiedShuffleSplit, GridSearchCV
 from sklearn.decomposition import TruncatedSVD, LatentDirichletAllocation
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
+
 
 from research.utils_load_data import (
     get_convincingness_ratio,
@@ -148,33 +149,24 @@ def split_train_test(data, target, test_fraction=0.2):
     return train_set, train_labels, test_set, test_labels
 
 
-def get_pipeline(n_components=None, model="lsa"):
+def get_pipeline(corpus, model="lda"):
     """
-    Return sklearn pipeline object which build Term Document Matrix, and then
-    transforms into Tf-Idf, and performs SVD, truncated to `n_componentss`
+    Return sklearn pipeline object which has gone through grid search for
+    best fit based on corpus
     """
     pipeline = Pipeline([("count", CountVectorizer(stop_words="english"))])
 
-    model_dict = {
-        "lda": (
-            (
-                "lda",
-                LatentDirichletAllocation(
-                    n_components=n_components,
-                    max_iter=5,
-                    learning_method="online",
-                    learning_offset=50.0,
-                    random_state=0,
-                ),
-            ),
-        ),
-        "lsa": (
-            ("tfidf", TfidfTransformer()),
-            ("SVD", TruncatedSVD(n_components=n_components)),
-        ),
-    }
+    if model == "lda":
+        param_grid = {"lda__n_components": [1, 2, 3, 4]}
+        pipeline.steps.append(("lda", LatentDirichletAllocation()))
+        search = GridSearchCV(pipeline, param_grid).fit(corpus)
+        return search.best_estimator_
 
-    pipeline.steps.extend(model_dict[model])
+    if model == "lsa":
+        pipeline.steps.extend(
+            ("tfidf", TfidfTransformer()), ("svd", TruncatedSVD()),
+        )
+
     return pipeline
 
 
@@ -229,7 +221,7 @@ def get_feature_transformation_pipeline(
             ),
         ]
     )
-
+    # lsa
     tfidf_tranformer_pipe = get_pipeline()
 
     feature_transformation_pipeline = ColumnTransformer(
