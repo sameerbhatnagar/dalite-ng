@@ -157,13 +157,15 @@ def get_pipeline(n_components=None, model="lsa"):
 
     model_dict = {
         "lda": (
-            "lda",
-            LatentDirichletAllocation(
-                n_components=n_components,
-                max_iter=5,
-                learning_method="online",
-                learning_offset=50.0,
-                random_state=0,
+            (
+                "lda",
+                LatentDirichletAllocation(
+                    n_components=n_components,
+                    max_iter=5,
+                    learning_method="online",
+                    learning_offset=50.0,
+                    random_state=0,
+                ),
             ),
         ),
         "lsa": (
@@ -172,7 +174,7 @@ def get_pipeline(n_components=None, model="lsa"):
         ),
     }
 
-    pipeline.steps.append(model_dict[model])
+    pipeline.steps.extend(model_dict[model])
     return pipeline
 
 
