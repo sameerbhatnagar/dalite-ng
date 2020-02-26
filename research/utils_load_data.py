@@ -425,43 +425,89 @@ def get_longest_shown_rationale_id(answer_id, justiceX=pd.DataFrame()):
         return None
 
 
-def get_convincingness_ratio(df_answers):
-
-    df_times_chosen = (
-        df_answers["chosen_rationale__id"]
-        .value_counts()
-        .to_frame()
-        .reset_index()
-        .rename(
-            columns={"chosen_rationale__id": "times_chosen", "index": "id"}
+def get_vote_data():
+    """
+    return a dataframe, where
+     - index : answer id
+     - times chosen
+     - times shown
+    """
+    df_chosen_ids = pd.DataFrame(
+        Answer.objects.all().values(
+            "chosen_rationale__id", "question_id", "user_token"
         )
     )
+    # # TODO: include weights that take into account people or questions that
+    # #       usually do not change minds
+    # df_chosen_ids["user_stubborn_prior"] = df_chosen_ids.groupby(
+    #     ["user_token"]
+    # )["chosen_rationale__id"].transform(
+    #     lambda x: x.isna().sum() / ((x.shape[0]))
+    # )
+    # df_chosen_ids["question_sticky_prior"] = df_chosen_ids.groupby(
+    #     ["question_id"]
+    # )["chosen_rationale__id"].transform(lambda x: x.isna().sum()/x.shape[0])
 
-    df = pd.merge(df_answers, df_times_chosen, on="id", how="left")
-    df["times_chosen"] = df["times_chosen"].fillna(0)
+    # df_chosen_ids["weight"] = df_chosen_ids["user_stubborn_prior"]#(
+    #     df_chosen_ids["question_sticky_prior"]
+    #     * df_chosen_ids["user_stubborn_prior"]
+    # )
 
-    df_shown = read_frame(
-        ShownRationale.objects.filter(
-            shown_for_answer__pk__in=df_answers["id"].to_list()
-        ).values("shown_for_answer__id", "shown_answer__id")
-    )
+    # df_chosen = (
+    #     df_chosen_ids.groupby("chosen_rationale__id")["weight"]
+    #     .mean()
+    #     .to_frame()
+    #     .rename(columns={"weight": "vote_score"})
+    # )
 
-    df_times_shown = (
-        df_shown["shown_answer__id"]
+    df_chosen = (
+        df_chosen_ids["chosen_rationale__id"]
         .value_counts()
         .to_frame()
-        .reset_index()
-        .rename(columns={"shown_answer__id": "times_shown", "index": "id"})
+        .rename(columns={"chosen_rationale__id": "times_chosen"})
     )
 
-    df = pd.merge(df, df_times_shown, on="id", how="left")
+    df_shown_ids = pd.DataFrame(
+        ShownRationale.objects.all().values("shown_answer__id")
+    )
 
+    df_shown = df_shown_ids["shown_answer__id"].value_counts().to_frame()
+
+    df_votes = (
+        pd.merge(
+            df_chosen, df_shown, left_index=True, right_index=True, how="right"
+        )
+        .rename(columns={"shown_answer__id": "times_shown"})
+        .sort_values("times_shown", ascending=False)
+    )
+
+    df_votes["times_chosen"] = df_votes["times_chosen"].fillna(0)
+
+    return df_votes
+
+
+def get_convincingness_ratio(df_answers):
+    """
+    given a set of data for a group, append "times_shown" and "times_chosen"
+    columns.
+
+    """
+
+    df_votes = get_vote_data()
+    # df = df[df["vote_score"]<=df["times_shown"]]
+
+    df = pd.merge(
+        df_answers, df_votes, left_on="id", right_index=True, how="left"
+    )
     df["times_shown"] = df["times_shown"].fillna(0)
 
     # prior of 1/14 = 1/7 chance of being chosen at random if shown once
     #                               * 1/2 chance students choose their
     # own rationale
-    df["chosen_ratio"] = (df["times_chosen"] + 1) / (df["times_shown"] + 14)
+
+    # df.loc[df["times_shown"] > MIN_TIMES_SHOWN, "chosen_ratio"] = df[
+    #     "times_chosen"
+    # ] / (df["times_shown"])
 
     return df
 
