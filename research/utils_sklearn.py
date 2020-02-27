@@ -1,5 +1,6 @@
 import os
 import datetime
+import spacy
 
 import pandas as pd
 import numpy as np
@@ -26,6 +27,8 @@ from peerinst.models import Answer
 from django.db.models import Count
 
 RANDOM_SEED = 123
+
+nlp = spacy.load("en_core_web_sm")
 
 
 def get_features_and_save(path_to_data):
@@ -149,12 +152,19 @@ def split_train_test(data, target, test_fraction=0.2):
     return train_set, train_labels, test_set, test_labels
 
 
+def spacy_tokenizer(doc):
+    tokens = nlp(doc)
+    return [token.lemma_ for token in tokens]
+
+
 def get_pipeline(corpus, model="lda"):
     """
     Return sklearn pipeline object which has gone through grid search for
     best fit based on corpus
     """
-    pipeline = Pipeline([("count", CountVectorizer(stop_words="english"))])
+    pipeline = Pipeline(
+        [("count", CountVectorizer(tokenizer=spacy_tokenizer))]
+    )
 
     if model == "lda":
         param_grid = {"lda__n_components": [1, 2, 3, 4]}
