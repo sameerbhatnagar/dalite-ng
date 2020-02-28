@@ -3142,7 +3142,16 @@ def connect_group_to_course(request):
     except ValidationError:
         return JsonResponse({"action": "error"})
 
-    return JsonResponse({"action": "posted", "linked_course_pk": clone.pk})
+    date = clone.created_on.strftime("%b. %d, %Y, %I:%S %p")
+
+    return JsonResponse(
+        {
+            "action": "posted",
+            "linked_course_pk": clone.pk,
+            "linked_course_title": clone.title,
+            "linked_course_created_date": date,
+        }
+    )
 
 
 @login_required

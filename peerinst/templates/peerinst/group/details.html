@@ -237,11 +237,10 @@ https://datatables.net/extensions/buttons/examples/styling/jqueryui.html
                      data-course-pk="{{ connected_course.pk|safe }}">dns</i>
                 </span>
                 <span class="mdc-list-item__text mdc-theme--secondary bold">
-                  <a id="group-title"
-                     class="mdc-theme--secondary">
+                  <a class="mdc-theme--secondary course-title">
                     {{ connected_course.title|safe }}
                   </a>
-                  <span class="mdc-list-item__secondary-text">
+                  <span class="mdc-list-item__secondary-text course-date">
                     {% trans "Created: " %} {{ connected_course.created_on }}
                   </span>
                 </span>
@@ -263,11 +262,10 @@ https://datatables.net/extensions/buttons/examples/styling/jqueryui.html
                      data-course-pk="{{ course.pk|safe }}">dns</i>
                 </span>
                 <span class="mdc-list-item__text mdc-theme--secondary bold">
-                  <a id="group-title"
-                     class="mdc-theme--secondary">
+                  <a class="mdc-theme--secondary course-title">
                     {{ course.title|safe }}
                   </a>
-                  <span class="mdc-list-item__secondary-text">
+                  <span class="mdc-list-item__secondary-text course-date">
                     {% trans "Created: " %} {{ course.created_on }}
                   </span>
                 </span>
@@ -455,6 +453,8 @@ async function courseLinking(
           cloneButton.classList.remove("unlinked");
           cloneButton.classList.add("linked");
           cloneButton.innerHTML = "{% trans 'Unlink' %}";
+          cloneListElement.getElementsByClassName("course-title")[0].innerHTML = data.linked_course_title;
+          cloneListElement.getElementsByClassName("course-date")[0].innerHTML = "Created: " + data.linked_course_created_date;
           cloneButton.addEventListener("click", () => {
             clickUnlink(cloneButton);
           });
