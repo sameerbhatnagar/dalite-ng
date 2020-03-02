@@ -1,6 +1,6 @@
 -r requirements.txt
 
-django-storages-redux
+django-storages
 sentry-sdk
 boto3
 gunicorn
