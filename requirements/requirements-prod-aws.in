@@ -1,0 +1,7 @@
+-r requirements.txt
+
+django-storages-redux
+sentry-sdk
+boto3
+gunicorn
+watchtower
