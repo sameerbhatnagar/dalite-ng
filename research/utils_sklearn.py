@@ -12,6 +12,7 @@ from sklearn.impute import SimpleImputer
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
 from sklearn.model_selection import StratifiedShuffleSplit, GridSearchCV
+from sklearn.feature_selection import SelectKBest, mutual_info_regression
 from sklearn.decomposition import TruncatedSVD, LatentDirichletAllocation
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 
@@ -27,6 +28,7 @@ from peerinst.models import Answer
 from django.db.models import Count
 
 RANDOM_SEED = 123
+
 
 nlp = spacy.load("en_core_web_sm")
 
@@ -78,10 +80,10 @@ def get_features_and_save(path_to_data):
             ]
 
             for group_name in group_names:
-                print(group_name)
-                print(
-                    "{} - calculating features".format(datetime.datetime.now())
-                )
+                # print(group_name)
+                # print(
+                #     "{} - calculating features".format(datetime.datetime.now())
+                # )
                 df_group = get_features(
                     group_name=group_name,
                     path_to_data=path_to_data,
@@ -157,7 +159,7 @@ def spacy_tokenizer(doc):
     return [token.lemma_ for token in tokens]
 
 
-def get_pipeline(corpus, model="lda"):
+def get_pipeline(corpus=None, vector_model="lda"):
     """
     Return sklearn pipeline object which has gone through grid search for
     best fit based on corpus
@@ -166,51 +168,26 @@ def get_pipeline(corpus, model="lda"):
         [("count", CountVectorizer(tokenizer=spacy_tokenizer))]
     )
 
-    if model == "lda":
+    if vector_model == "lda":
         param_grid = {"lda__n_components": [1, 2, 3, 4]}
         pipeline.steps.append(("lda", LatentDirichletAllocation()))
         search = GridSearchCV(pipeline, param_grid).fit(corpus)
         return search.best_estimator_
 
-    if model == "lsa":
+    if vector_model == "lsa":
         pipeline.steps.extend(
-            ("tfidf", TfidfTransformer()), ("svd", TruncatedSVD()),
+            [
+                ("tfidf", TfidfTransformer()),
+                # ("svd", TruncatedSVD()),
+                ("select_k_best", SelectKBest(mutual_info_regression)),
+            ]
         )
 
     return pipeline
 
 
-def get_most_convincing_rationale(question_id):
-    most_convincing = df_conv = pd.DataFrame(
-        Answer.objects.filter(question_id=1145)
-        .annotate(
-            times_chosen=Count("chosen_rationale_id"),
-            times_shown=Count("shown_rationales__shown_answer"),
-        )
-        .values(
-            "id",
-            "first_answer_choice",
-            "times_chosen",
-            "times_shown",
-            "rationale",
-        )
-        .order_by("-times_chosen")
-    )
-    df_conv.groupby(["first_answer_choice", "id"])[
-        "times_chosen"
-    ].sum().to_frame().sort_values("times_chosen", ascending=False).groupby(
-        level=0
-    ).head(
-        1
-    )
-    return most_convincing
-
-
 def get_feature_transformation_pipeline(
-    n_samples,
-    feature_columns_numeric,
-    feature_columns_categorical,
-    n_components,
+    n_samples, feature_columns_numeric, feature_columns_categorical=None,
 ):
     """
     given:
@@ -232,7 +209,7 @@ def get_feature_transformation_pipeline(
         ]
     )
     # lsa
-    tfidf_tranformer_pipe = get_pipeline()
+    tfidf_tranformer_pipe = get_pipeline(vector_model="lsa")
 
     feature_transformation_pipeline = ColumnTransformer(
         [

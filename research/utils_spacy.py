@@ -165,7 +165,7 @@ def extract_features_and_save(
     )
 
     if os.path.exists(feature_type_fpath):
-        print(feature_type + " features already calculated")
+        # print(feature_type + " features already calculated")
         with open(feature_type_fpath, "r") as f:
             features = json.load(f)
         return features
@@ -204,7 +204,7 @@ def get_features(
     if os.path.exists(fpath):
         df_answers = pd.read_csv(fpath)
     else:
-        print("extracting df_answers from db")
+        # print("extracting df_answers from db")
         df_answers = get_answers_df(
             group_name=group_name, path_to_data=path_to_data
         )

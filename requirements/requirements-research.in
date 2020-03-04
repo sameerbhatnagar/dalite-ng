@@ -1,10 +1,10 @@
--r dev-requirements.txt
+-r requirements-dev.txt
 
 jupyter
 spacy
 spacy-readability
 django-extensions
-dframcy
 django_pandas
 seaborn
 statsmodels
+scikit-learn
