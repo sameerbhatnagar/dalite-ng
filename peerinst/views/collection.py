@@ -43,7 +43,7 @@ class CollectionForm(ModelForm):
     def __init__(self, *args, **kwargs):
         teacher = kwargs.pop("teacher")
         super(CollectionForm, self).__init__(*args, **kwargs)
-        self.fields["assignments"].queryset = teacher.assignments.all()
+        self.fields["private"].initial = True
         self.fields["discipline"].queryset = teacher.disciplines.all()
 
 
