@@ -236,14 +236,16 @@
                             {% endfor %}
                           </div>
                           <div>
-                            {% trans 'Student answers' %}: {{ obj.answer_set.all.count }}
+                            {% trans 'Student answers' %}: {{ question.answer_set.all.count }}
                           </div>
                         </div>
                       </div>
                       <div class="mdc-card__action-icons">
                         <div id="stats-{{ question.id|safe }}" class="stats">
+                          <i id="activate-dialog-assignments-{{question.id}}" class="material-icons md-24 analytics-tags">description</i>{{ question.assignment_set.all.count }}
+                          <i id="activate-dialog-rationales-{{question.id}}" class="material-icons md-24 analytics-tags">chat</i>{{ question.answer_set.all.count }}
                           <i id="activate-dialog-analytics-{{ question.id|safe }}"
-                             ref_id="{{ question.id|safe }}"
+                             ref_id="{{ question.id }}"
                              class="material-icons md-24 analytics-tags">assessment</i>
                           <span id="rating-{{ question.id|safe }}"></span>
                         </div>
@@ -264,6 +266,81 @@
                       </div>
                     </div>
                   </div>
+
+                     <aside id="dialog-assignments-{{question.id}}"
+                       class="mdc-dialog"
+                       role="alertdialog"
+                       aria-labelledby="label"
+                       aria-describedby="description">
+                       <div class="mdc-dialog__surface">
+                         <header class="mdc-dialog__header">
+                           <h2 id="label" class="mdc-dialog__header__title">
+                             {% trans 'Assignments' %}
+                           </h2>
+                         </header>
+                         <section id="description" class="mdc-dialog__body mdc-dialog__body--scrollable">
+
+                             {% for assignment in question.assignment_set.all %}
+                               <p id="{{ question.id }}" name="assignment" class="items-for-question"><a href="{% url 'question-list' assignment_id=assignment.pk %}">{{ assignment.title }}</a></p>
+                             {% endfor %}
+
+                         </section>
+                         <footer class="mdc-dialog__footer">
+                           <button type="button" class="mdc-button mdc-dialog__footer__button mdc-dialog__footer__button--accept">Ok</button>
+                         </footer>
+                       </div>
+                       <div class="mdc-dialog__backdrop"></div>
+                     </aside>
+
+                     <aside id="dialog-rationales-{{question.id}}"
+                       class="mdc-dialog"
+                       role="alertdialog"
+                       aria-labelledby="label"
+                       aria-describedby="description">
+                       <div class="mdc-dialog__surface">
+                         <header class="mdc-dialog__header">
+                           <h2 id="label" class="mdc-dialog__header__title">
+                             {% trans 'Student rationales' %}
+                           </h2>
+                         </header>
+                         <section id="description" class="mdc-dialog__body mdc-dialog__body--scrollable">
+
+                             {% for answer in question.answer_set.all %}
+                               <p id="{{ question.id }}" name="rationale" class="items-for-question">{{ answer.rationale|safe|striptags  }}</p>
+                             {% endfor %}
+
+                         </section>
+                         <footer class="mdc-dialog__footer">
+                           <button type="button" class="mdc-button mdc-dialog__footer__button mdc-dialog__footer__button--accept">Ok</button>
+                         </footer>
+                       </div>
+                       <div class="mdc-dialog__backdrop"></div>
+                     </aside>
+
+                     <aside id="dialog-analytics-{{question.id}}"
+                       class="mdc-dialog"
+                       role="alertdialog"
+                       aria-labelledby="label"
+                       aria-describedby="description">
+                       <div class="mdc-dialog__surface">
+                         <header class="mdc-dialog__header">
+                           <h2 id="label" class="mdc-dialog__header__title">
+                             {% trans 'Analytics' %}
+                           </h2>
+                         </header>
+                         <section id="description" class="mdc-dialog__body">
+                           <div id="{{ question.id }}" name="analytics" class="items-for-question">
+                             <svg id="first-frequency-{{ question.id }}" width="300" height="80" class="vertical-align"></svg>
+                             <svg id="matrix-{{ question.id }}" width="60" height="60" class="vertical-align"></svg>
+                             <svg id="second-frequency-{{ question.id }}" width="300" height="80" class="vertical-align"></svg>
+                           </div>
+                         </section>
+                         <footer class="mdc-dialog__footer">
+                           <button type="button" class="mdc-button mdc-dialog__footer__button mdc-dialog__footer__button--accept">Ok</button>
+                         </footer>
+                       </div>
+                       <div class="mdc-dialog__backdrop"></div>
+                     </aside>
                   {% endfor %}
                 </li>
               </ul>
@@ -293,6 +370,7 @@
 {% block scripts %}
 {{ block.super }}
 <script nonce="{{ request.csp_nonce }}">
+  bundle.addDialog();
 
   [].forEach.call(document.querySelectorAll(".mdc-icon-toggle"), el => {
     bundle.iconToggle.MDCIconToggle.attachTo(el);
@@ -305,6 +383,26 @@
           }
       }
   });
+
+  [].forEach.call(document.querySelectorAll('.analytics-tags'),
+    function(el,i,list) {
+      el.addEventListener('click', function() {
+        showAnalytics(el.getAttribute('ref_id'));
+      }, false);
+    }
+  );
+
+  function showAnalytics(id){
+    bundle.selectAll("#first_choice-"+id).transition().duration(1000).attr("x",function(d){return bundle.select(this).attr("finalx");}).attr("width",function(d){return bundle.select(this).attr("finalwidth");});
+    bundle.selectAll("#second_choice-"+id).transition().delay(1000).duration(1000).attr("width",function(d){return bundle.select(this).attr("finalwidth");});
+    return;
+  }
+
+  [].forEach.call(document.querySelectorAll('.ripple-icon'),
+    function(el) {
+      const ripple = bundle.ripple.MDCRipple.attachTo(el);
+      ripple.unbounded = true;
+    });
 
   function toggleFollower(pk) {
     var posting = $.post("{% url 'teacher-toggle-follower' %}", {pk: pk});
@@ -333,7 +431,6 @@
       console.info(data);
     })
   }
-
   [].forEach.call(document.querySelectorAll(".favourite-btn"), el => {
     el.addEventListener("click", () => {
       toggleFavourite(el.getAttribute('pk'));
@@ -345,5 +442,13 @@
       window.location.assign("{% url 'collection-distribute' object.pk %}");
     });
   });
+</script>
+<script nonce="{{ request.csp_nonce }}">
+{% for assignment in object.assignments.all %}
+    {% for obj in assignment.questions.all%}
+    console.log({{ obj.get_matrix|safe }});
+    bundle.plot({{ obj.get_matrix|safe }},{{ obj.get_frequency|safe|striptags }},{{ obj.id }});
+    {% endfor %}
+{% endfor %}
 </script>
 {% endblock %}
