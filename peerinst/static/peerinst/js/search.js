@@ -217,8 +217,6 @@ export function processResponse() {
       bundle.difficulty(el.getAttribute("matrix").replace(/'/g, '"'), el.id); // eslint-disable-line
     },
   );
-
-  $(".analytics-tags").css("cursor", "default");
 }
 
 /** Set up search
