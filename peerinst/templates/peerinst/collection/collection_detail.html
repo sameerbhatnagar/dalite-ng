@@ -245,7 +245,7 @@
                           <i id="activate-dialog-assignments-{{question.id}}" class="material-icons md-24 analytics-tags">description</i>{{ question.assignment_set.all.count }}
                           <i id="activate-dialog-rationales-{{question.id}}" class="material-icons md-24 analytics-tags">chat</i>{{ question.answer_set.all.count }}
                           <i id="activate-dialog-analytics-{{ question.id|safe }}"
-                             ref_id="{{ question.id }}"
+                             ref_id="{{ question.id|safe }}"
                              class="material-icons md-24 analytics-tags">assessment</i>
                           <span id="rating-{{ question.id|safe }}"></span>
                         </div>
@@ -445,7 +445,7 @@
 </script>
 <script nonce="{{ request.csp_nonce }}">
 {% for assignment in object.assignments.all %}
-    {% for obj in assignment.questions.all%}
+    {% for obj in assignment.questions.all %}
     console.log({{ obj.get_matrix|safe }});
     bundle.plot({{ obj.get_matrix|safe }},{{ obj.get_frequency|safe|striptags }},{{ obj.id }});
     {% endfor %}
