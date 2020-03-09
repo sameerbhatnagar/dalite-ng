@@ -39,7 +39,7 @@
     <div class="mdc-card"
          id="{{ g.id|safe }}"
          discipline="'{{ g.discipline|safe }}'"
-         category="{% for c in g.category.all %}{{ c.title|safe }} {% endfor %}"
+         category="{% for c in g.category.all %}{{ c.title|safe }},{% endfor %}"
          matrix="{{ g.get_matrix|safe }}">
       <div class="mdc-typography--title bold">
         {{ g.title|safe }}
