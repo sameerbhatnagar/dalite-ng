@@ -1660,12 +1660,9 @@ def question(request, assignment_id, question_id):
         lti_data=get_object_or_none(
             LtiUserData, user=request.user, custom_key=custom_key
         ),
-        answer=get_object_or_none(
-            models.Answer,
-            assignment=assignment,
-            question=question,
-            user_token=user_token,
-        ),
+        answer=models.Answer.objects.filter(
+            assignment=assignment, question=question, user_token=user_token,
+        ).last(),
     )
 
     # Determine stage and view class

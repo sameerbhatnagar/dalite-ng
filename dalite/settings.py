@@ -35,7 +35,6 @@ INSTALLED_APPS = (
     "tos",
     "peerinst",
     "grappelli",
-    "password_validation",
     "cookielaw",
     "csp",
     "security_headers",
@@ -126,13 +125,19 @@ AUTHENTICATION_BACKENDS = ("peerinst.backends.CustomPermissionsBackend",)
 
 # Password validators through django-password-validation (backport from 1.9)
 AUTH_PASSWORD_VALIDATORS = [
-    {"NAME": "password_validation.UserAttributeSimilarityValidator"},
     {
-        "NAME": "password_validation.MinimumLengthValidator",
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"  # noqa
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",  # noqa
         "OPTIONS": {"min_length": 8},
     },
-    {"NAME": "password_validation.CommonPasswordValidator"},
-    {"NAME": "password_validation.NumericPasswordValidator"},
+    {
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"  # noqa
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"  # noqa
+    },
 ]
 
 # Internationalization

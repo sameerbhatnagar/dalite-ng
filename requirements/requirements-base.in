@@ -16,7 +16,7 @@ pytz
 requests
 django-security-headers>=0.3
 packaging
-djangorestframework==3.10.3
+djangorestframework
 
 -e git+https://github.com/SALTISES4/django-lti-tool-provider@dev#egg=django_lti_tool_provider
 -e git+https://github.com/edx/opaque-keys#egg=opaque-keys
