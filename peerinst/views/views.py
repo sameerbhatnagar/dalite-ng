@@ -84,6 +84,7 @@ from ..models import (
     Student,
     StudentGroup,
     StudentGroupAssignment,
+    Subject,
     Teacher,
 )
 from ..util import (
@@ -2594,6 +2595,11 @@ def question_search(request):
         id = request.GET.get("id", default=None)
         search_string = request.GET.get("search_string", default="")
         limit_search = request.GET.get("limit_search", default="false")
+        authors = request.GET.getlist("author", default=None)
+        disciplines = request.GET.getlist("discipline", default=None)
+        subjects = request.GET.getlist("subject", default=None)
+        categories = request.GET.getlist("category", default=None)
+
 
         # Exclusions based on type of search
         q_qs = []
@@ -2619,7 +2625,22 @@ def question_search(request):
             form_field_name = None
 
         # Establish pool of questions for search
-        search_list = Question.unflagged_objects.all()
+        q_obj = Q()
+        print(authors,disciplines,subjects,categories)
+        if authors:
+            q_obj |= Q(user__in=User.objects.filter(username__in=authors))
+            print(User.objects.filter(username__in=authors))
+        if disciplines:
+            q_obj |= Q(discipline__in=Discipline.objects.filter(title__in=disciplines))
+            print(Discipline.objects.filter(title__in=disciplines))
+        if subjects:
+            q_obj |= Q(category__in=Category.objects.filter(subjects__in=Subject.objects.filter(title__in=subjects)).distinct())
+        if categories:
+            q_obj |= Q(category__in=Category.objects.filter(title__in=categories))
+            print(Category.objects.filter(title__in=categories))
+
+        print(q_obj)
+        search_list = Question.unflagged_objects.filter(q_obj)
 
         if limit_search == "true":
             search_list = search_list.filter(
@@ -2643,7 +2664,6 @@ def question_search(request):
         query_meta = {}
         for term in search_terms:
             query_term = question_search_function(term, search_list)
-
             query_term = query_term.exclude(id__in=q_qs).distinct()
 
             query_term = [
@@ -2657,7 +2677,7 @@ def question_search(request):
 
             query_all.extend(query_term)
 
-        paginator = Paginator(query_all, 100)
+        paginator = Paginator(query_all, 50)
         try:
             query_subset = paginator.page(page)
         except PageNotAnInteger:

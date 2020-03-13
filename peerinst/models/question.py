@@ -55,6 +55,25 @@ class Category(models.Model):
         verbose_name_plural = _("categories")
 
 
+class Subject(models.Model):
+    title = models.CharField(
+        _("Subject name"),
+        unique=True,
+        max_length=100,
+        help_text=_("Enter the name of a new subject."),
+        validators=[no_hyphens],
+    )
+    discipline = models.ForeignKey("Discipline", blank=True, null=True, on_delete=models.SET_NULL)
+    categories = models.ManyToManyField(Category, related_name="subjects", blank=True)
+
+    def __str__(self):
+        return self.title
+
+    class Meta:
+        verbose_name = _("subject")
+        verbose_name_plural = _("subjects")
+
+
 class Discipline(models.Model):
     title = models.CharField(
         _("Discipline name"),

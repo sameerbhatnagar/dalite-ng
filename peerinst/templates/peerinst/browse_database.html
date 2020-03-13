@@ -56,8 +56,30 @@
         <div class="mdc-notched-outline__idle"></div>
       </div>
       <p class="mdc-text-field-helper-text mdc-text-field-helper-text--persistent" aria-hidden="true">
-        {% trans 'The search engine checks question texts for each keyword as well as the complete phrase.  You can also search on username to find all content from a certain contributor.' %}
+        {% trans 'The search engine checks question texts for each keyword as well as the complete phrase.' %}
       </p>
+    </div>
+
+    <div class='field'>
+      <div id='category_form'>
+        {% include 'peerinst/category_select_form.html' %}
+      </div>
+
+      <div id='current_categories' class='mdc-chip-set mdc-chip-set--input' data-mdc-auto-init='MDCChipSet'>
+        {% for c in object.category.all %}
+          <div d="{{c.username}}" v="{{c.pk}}" class='mdc-chip mdc-typography--caption category' tabindex='0' data-mdc-auto-init='MDCChip'>
+            <div class='mdc-chip__text'>{{c.title|title}}</div>
+            <i class='material-icons mdc-chip__icon mdc-chip__icon--trailing' tabindex='0' role='button'>cancel</i>
+            </div>
+        {% endfor %}
+      </div>
+
+      <select id='id_category' name='category' multiple='multiple' hidden='true'>
+        {% for c in object.category.all %}
+          <option selected="selected" value={{c.id}}>{{c.title|title}}</option>
+        {% endfor %}
+      </select>
+
     </div>
 
     <div class="mdc-form-field">
@@ -119,13 +141,18 @@
 <script nonce="{{ request.csp_nonce }}">
   bundle.toggleImages();
   bundle.toggleAnswers();
+  bundle.bindAjaxTextInputForm('show_category_form', 'category_form', "{% url 'category-create' %}", "{% url 'category-form' %}", bundle.categoryForm, "{% url 'search-categories' %}", null);
 
   const input = document.getElementById('search-bar');
   input.onchange = function() {
     if (input.value != "") {
+      let authors = ["Elimartel","sahirbhatnagar"]
+      let disciplines = ["physics"]
+      let subjects = []
+      let categories = ["Energy","Resistance"]
       search.setupSearch();
       console.info("Searching: "+input.value);
-      $('#search_results').load("{% url 'question-search' %}", "search_string="+input.value, search.processResponse);
+      $('#search_results').load("{% url 'question-search' %}?author="+authors.join("&author=")+"&discipline="+disciplines.join("&discipline=")+"&subject="+subjects.join("&subject=")+"&category="+categories.join("&category="), "search_string="+input.value, search.processResponse);
     }
   }
 
@@ -151,6 +178,11 @@
   }
 
   window.addEventListener("load", function() {
+    document.querySelectorAll(".category").forEach(btn => {
+      btn.addEventListener("click", function() {
+        updateSelect(this,'#id_category');
+      });
+    });
     document.getElementById("reset-filters").addEventListener("click", () => {
       search.reset();
     });
