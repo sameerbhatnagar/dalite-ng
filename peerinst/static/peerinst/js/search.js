@@ -153,7 +153,7 @@ export function processResponse() {
   );
   $("#search_results .mdc-card").each(function() {
     const c = this.getAttribute("category"); // eslint-disable-line
-    const list = c.split(" ");
+    const list = c.split(",");
     $(list).each(function(i) {
       if (!categoryList.includes(list[i].toLowerCase()) & (list[i] != "")) {
         categoryList.push(list[i].toLowerCase());
