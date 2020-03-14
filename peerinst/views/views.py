@@ -40,6 +40,7 @@ from django.utils.encoding import force_bytes
 from django.utils.html import escape, format_html
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import get_language
 from django.views.decorators.http import require_POST, require_safe
 from django.views.generic import DetailView
 from django.views.generic.base import TemplateView, View
@@ -97,6 +98,7 @@ from ..util import (
     report_data_by_student,
     roundrobin,
 )
+from ..stopwords import fr, en
 
 LOGGER = logging.getLogger(__name__)
 LOGGER_teacher_activity = logging.getLogger("teacher_activity")
@@ -2628,9 +2630,15 @@ def question_search(request):
 
         # if meta_search:
         #    search_list = filter(meta_search, search_list)
-
+        is_english = get_language() == "en"
         # All matching questions
+
         search_string_split_list = search_string.split()
+        for string in search_string.split():
+            if is_english and string in en:
+                search_string_split_list.remove(string)
+            elif not is_english and string in fr:
+                search_string_split_list.remove(string)
         search_terms = [search_string]
         if len(search_string_split_list) > 1:
             search_terms.extend(search_string_split_list)
