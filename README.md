@@ -11,8 +11,9 @@ Setting up the development server
 ---------------------------------
 
 1. Install the requirements (you probably want to set up a virtualenv first).
-
-        $ pip install -r requirements/requirements.txt
+using `pip-tools`
+        $ pip install pip-tools
+        $ pip-sync requirements/requirements-base.txt
 
 2. Set up the database connection.  The default configuration is to use the
    MySQL database `dalite_ng` and the user `dalite`.  To set up the database,

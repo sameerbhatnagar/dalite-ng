@@ -478,10 +478,10 @@ class Question(models.Model):
             )
             if len(label) > 50:
                 label = label[0:50] + "..."
-            choice1[smart_bytes(label)] = student_answers.filter(
+            choice1[label] = student_answers.filter(
                 first_answer_choice=c
             ).count()
-            choice2[smart_bytes(label)] = student_answers.filter(
+            choice2[label] = student_answers.filter(
                 second_answer_choice=c
             ).count()
             c = c + 1
