@@ -4,6 +4,8 @@
 #
 #    pip-compile requirements/requirements-dev.in
 #
+-e git+https://github.com/SALTISES4/CourseFlow#egg=CourseFlow  # via -r requirements/requirements.txt
+-e git+https://github.com/aahilgert/UserFeedback@master#egg=user_feedback  # via -r requirements/requirements.txt
 -e git+https://github.com/SALTISES4/django-cookies-samesite#egg=django_cookies_samesite  # via -r requirements/requirements.txt
 -e git+https://github.com/SALTISES4/django-lti-tool-provider@dev#egg=django_lti_tool_provider  # via -r requirements/requirements.txt
 -e git+https://github.com/edx/opaque-keys#egg=opaque-keys  # via -r requirements/requirements.txt
@@ -41,6 +43,7 @@ django-security-headers==0.3.1  # via -r requirements/requirements.txt
 django-sslserver==0.22    # via -r requirements/requirements-dev.in, django-security-headers
 django-timezone-field==4.0  # via django-celery-beat
 django==2.2.10            # via -r requirements/requirements.txt, django-analytical, django-appconf, django-celery-beat, django-classy-tags, django-cookie-law, django-csp, django-lti-tool-provider, django-security-headers, django-sslserver, django-timezone-field, jsonfield, pinax-forums
+djangorestframework==3.10.3  # via -r requirements/requirements.txt
 dparse==0.4.1             # via safety
 entrypoints==0.3          # via flake8
 factory_boy==2.6          # via -r requirements/test-requirements.txt
