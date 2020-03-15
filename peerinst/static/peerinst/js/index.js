@@ -687,9 +687,8 @@ export function plot(matrix, freq, id) {
 
   const matrixSvg = bundle.select("#matrix-" + id);
   matrixSvg.style("overflow", "visible");
-  let size = matrixSvg.attr("width");
+  let size = +matrixSvg.attr("width");
   const g = matrixSvg.append("g");
-
   g.append("text")
     .attr("class", "legend")
     .attr("x", size / 2)
@@ -728,6 +727,7 @@ export function plot(matrix, freq, id) {
     .style("font-size", "8pt")
     .style("fill", "white")
     .style("text-anchor", "middle")
+    .attr("pointer-events", "none")
     .text(parseInt(100 * matrix["easy"]) + "%");
 
   const hard = g
@@ -759,6 +759,7 @@ export function plot(matrix, freq, id) {
     .style("font-size", "8pt")
     .style("fill", "white")
     .style("text-anchor", "middle")
+    .attr("pointer-events", "none")
     .text(parseInt(100 * matrix["hard"]) + "%");
 
   const peer = g
@@ -790,6 +791,7 @@ export function plot(matrix, freq, id) {
     .style("font-size", "8pt")
     .style("fill", "white")
     .style("text-anchor", "middle")
+    .attr("pointer-events", "none")
     .text(parseInt(100 * matrix["peer"]) + "%");
 
   const tricky = g
@@ -821,6 +823,7 @@ export function plot(matrix, freq, id) {
     .style("font-size", "8pt")
     .style("fill", "white")
     .style("text-anchor", "middle")
+    .attr("pointer-events", "none")
     .text(parseInt(100 * matrix["tricky"]) + "%");
 
   const firstFreqSvg = bundle.select("#first-frequency-" + id);
@@ -840,7 +843,7 @@ export function plot(matrix, freq, id) {
     }
   }
 
-  size = secondFreqSvg.attr("width") - margin.left;
+  size = +secondFreqSvg.attr("width") - margin.left;
 
   const x = bundle
     .scaleLinear()
