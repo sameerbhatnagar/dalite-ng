@@ -5,6 +5,7 @@ import hashlib
 import itertools
 import string
 from datetime import datetime
+import pandas as pd
 
 import pytz
 from django.contrib.auth.models import User
@@ -499,6 +500,135 @@ class Question(models.Model):
             {"answer_label": key, "frequency": value}
             for key, value in list(frequency_dict.items())
         ]
+
+    def get_vote_data(self):
+        """
+        Returns:
+        --------
+        DataFrame with columns:
+            index: answer_id
+            times_shown -> int
+            times_chosen -> int
+        """
+
+        from peerinst.models import ShownRationale
+
+        answer_qs = self.answer_set.all()
+
+        df_chosen_ids = pd.DataFrame(
+            answer_qs.values(
+                "chosen_rationale__id", "question_id", "user_token"
+            )
+        )
+
+        df_chosen = (
+            df_chosen_ids["chosen_rationale__id"]
+            .value_counts()
+            .to_frame()
+            .rename(columns={"chosen_rationale__id": "times_chosen"})
+        )
+
+        df_shown_ids = pd.DataFrame(
+            ShownRationale.objects.filter(
+                shown_for_answer__in=answer_qs
+            ).values("shown_answer__id")
+        )
+
+        # ShownRationale data only collected since Jan 2019
+        if df_shown_ids.shape[0] > 0:
+
+            df_shown = (
+                df_shown_ids["shown_answer__id"].value_counts().to_frame()
+            )
+
+            df_votes = (
+                pd.merge(
+                    df_chosen,
+                    df_shown,
+                    left_index=True,
+                    right_index=True,
+                    how="right",
+                )
+                .rename(columns={"shown_answer__id": "times_shown"})
+                .sort_values("times_shown", ascending=False)
+            )
+        else:
+            df_votes = df_chosen
+            df_votes.loc[:, "times_shown"] = pd.Series(0)
+
+        df_votes["times_chosen"] = df_votes["times_chosen"].fillna(0)
+
+        df_votes = df_votes.astype(int)
+
+        return df_votes
+
+    def get_most_convincing_rationales(self):
+        """
+        Returns:
+        --------
+        List[
+            {
+                "answer" -> str,
+                "correct" -> bool,
+                "answer_text" -> str,
+                "most_convincing":{
+                    "times_chosen" -> int,
+                    "times_shown" -> int,
+                    "rationale" -> str
+                }
+            }
+        ]
+        """
+        answerchoice_correct = self.answerchoice_set.values_list(
+            "correct", flat=True
+        )
+
+        q_answerchoices = [
+            (label, text, correct)
+            for correct, (label, text) in zip(
+                answerchoice_correct, self.get_choices()
+            )
+        ]
+
+        if self.answer_set.all().count() > 0:
+
+            df_votes = self.get_vote_data()
+
+            df_answers = pd.DataFrame(
+                self.answer_set.all().values(
+                    "id", "first_answer_choice", "rationale"
+                )
+            )
+
+            df = pd.merge(df_answers, df_votes, left_on="id", right_index=True)
+
+            df_top5 = (
+                df.sort_values(
+                    ["first_answer_choice", "times_chosen", "times_shown"],
+                    ascending=[True, False, False],
+                )
+                .groupby("first_answer_choice")
+                .head(5)
+            )
+
+            r = []
+            for (
+                (answer, choice_text, correct),
+                (first_answer_choice, best_answers),
+            ) in zip(q_answerchoices, df_top5.groupby("first_answer_choice")):
+                d = {}
+                d["Answer"] = answer
+                d["answer_text"] = choice_text
+                d["correct"] = correct
+                d["most_convincing"] = best_answers.loc[
+                    :, ["times_chosen", "times_shown", "rationale"]
+                ].to_dict(orient="records")
+                r.append(d)
+
+        else:
+            r = []
+
+        return r
 
     class Meta:
         verbose_name = _("question")
