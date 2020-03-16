@@ -204,9 +204,9 @@
               <ul>
                 {% for rationale in answer_choice.most_convincing %}
                   {% if answer_choice.correct %}
-                    <li id="{{ g.id }}" name="rationale" class="items-for-question-correct">({{ rationale.times_chosen }}/{{ rationale.times_shown }}) {{ rationale.rationale|safe|striptags }}</li>
+                    <li id="{{ g.id }}" data_id="{{ rationale.id }}" name="rationale" class="items-for-question-correct">({{ rationale.times_chosen }}/{{ rationale.times_shown }}) {{ rationale.rationale|safe|striptags }}</li>
                   {% else %}
-                    <li id="{{ g.id }}" name="rationale" class="items-for-question">({{ rationale.times_chosen }}/{{ rationale.times_shown }}) {{ rationale.rationale|safe|striptags }}</li>
+                    <li id="{{ g.id }}" data-id="{{ rationale.id }}" name="rationale" class="items-for-question">({{ rationale.times_chosen }}/{{ rationale.times_shown }}) {{ rationale.rationale|safe|striptags }}</li>
                   {% endif %}
                 {% endfor %}
               </ul>
