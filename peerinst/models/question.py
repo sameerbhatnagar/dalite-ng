@@ -511,7 +511,46 @@ class Question(models.Model):
             times_chosen -> int
         """
 
-        return pd.DataFrame()
+        from peerinst.models import ShownRationale
+
+        answer_qs = self.answer_set.all()
+
+        df_chosen_ids = pd.DataFrame(
+            answer_qs.values(
+                "chosen_rationale__id", "question_id", "user_token"
+            )
+        )
+
+        df_chosen = (
+            df_chosen_ids["chosen_rationale__id"]
+            .value_counts()
+            .to_frame()
+            .rename(columns={"chosen_rationale__id": "times_chosen"})
+        )
+
+        df_shown_ids = pd.DataFrame(
+            ShownRationale.objects.filter(
+                shown_for_answer__in=answer_qs
+            ).values("shown_answer__id")
+        )
+
+        df_shown = df_shown_ids["shown_answer__id"].value_counts().to_frame()
+
+        df_votes = (
+            pd.merge(
+                df_chosen,
+                df_shown,
+                left_index=True,
+                right_index=True,
+                how="right",
+            )
+            .rename(columns={"shown_answer__id": "times_shown"})
+            .sort_values("times_shown", ascending=False)
+        )
+
+        df_votes["times_chosen"] = df_votes["times_chosen"].fillna(0)
+
+        return df_votes
 
     def get_most_convincing_rationales(self):
         """
