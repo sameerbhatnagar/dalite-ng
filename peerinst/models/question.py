@@ -583,12 +583,12 @@ class Question(models.Model):
             "correct", flat=True
         )
 
-        q_answerchoices = [
-            (label, text, correct)
-            for correct, (label, text) in zip(
-                answerchoice_correct, self.get_choices()
+        q_answerchoices = {
+            i: (label, correct, text)
+            for i, (correct, (label, text)) in enumerate(
+                zip(answerchoice_correct, self.get_choices()), start=1
             )
-        ]
+        }
 
         if self.answer_set.all().count() > 0:
 
@@ -612,16 +612,15 @@ class Question(models.Model):
             )
 
             r = []
-            for (
-                (answer, choice_text, correct),
-                (first_answer_choice, best_answers),
-            ) in zip(q_answerchoices, df_top5.groupby("first_answer_choice")):
+            for first_answer_choice, best_answers in df_top5.groupby(
+                "first_answer_choice"
+            ):
                 d = {}
-                d["Answer"] = answer
-                d["answer_text"] = choice_text
-                d["correct"] = correct
+                d["Answer"] = q_answerchoices[first_answer_choice][0]
+                d["answer_text"] = q_answerchoices[first_answer_choice][2]
+                d["correct"] = q_answerchoices[first_answer_choice][1]
                 d["most_convincing"] = best_answers.loc[
-                    :, ["times_chosen", "times_shown", "rationale"]
+                    :, ["id", "times_chosen", "times_shown", "rationale"]
                 ].to_dict(orient="records")
                 r.append(d)
 
