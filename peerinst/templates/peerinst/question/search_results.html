@@ -203,7 +203,11 @@
               <li id="{{ g.id }}" name="rationale" class="items-for-question">{{ answer_choice.Answer }}. {{ answer_choice.answer_text|safe|striptags }}</li>
               <ul>
                 {% for rationale in answer_choice.most_convincing %}
-                  <li id="{{ g.id }}" name="rationale" class="items-for-question">({{ rationale.times_chosen }}/{{ rationale.times_shown }}) {{ rationale.rationale|safe|striptags }}</li>
+                  {% if answer_choice.correct %}
+                    <li id="{{ g.id }}" name="rationale" class="items-for-question-correct">({{ rationale.times_chosen }}/{{ rationale.times_shown }}) {{ rationale.rationale|safe|striptags }}</li>
+                  {% else %}
+                    <li id="{{ g.id }}" name="rationale" class="items-for-question">({{ rationale.times_chosen }}/{{ rationale.times_shown }}) {{ rationale.rationale|safe|striptags }}</li>
+                  {% endif %}
                 {% endfor %}
               </ul>
 
