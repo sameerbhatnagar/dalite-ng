@@ -425,18 +425,24 @@ def get_longest_shown_rationale_id(answer_id, justiceX=pd.DataFrame()):
         return None
 
 
-def get_vote_data():
+def get_vote_data(question_id=None):
     """
     return a dataframe, where
      - index : answer id
      - times chosen
      - times shown
     """
+
+    if question_id:
+        answer_qs = Answer.objects.filter(question_id=question_id)
+
+    else:
+        answer_qs = Answer.objects.all()
+
     df_chosen_ids = pd.DataFrame(
-        Answer.objects.all().values(
-            "chosen_rationale__id", "question_id", "user_token"
-        )
+        answer_qs.values("chosen_rationale__id", "question_id", "user_token")
     )
+
     # # TODO: include weights that take into account people or questions that
     # #       usually do not change minds
     # df_chosen_ids["user_stubborn_prior"] = df_chosen_ids.groupby(
@@ -468,7 +474,9 @@ def get_vote_data():
     )
 
     df_shown_ids = pd.DataFrame(
-        ShownRationale.objects.all().values("shown_answer__id")
+        ShownRationale.objects.filter(shown_for_answer__in=answer_qs).values(
+            "shown_answer__id"
+        )
     )
 
     df_shown = df_shown_ids["shown_answer__id"].value_counts().to_frame()
