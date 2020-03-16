@@ -5,6 +5,7 @@ import hashlib
 import itertools
 import string
 from datetime import datetime
+import pandas as pd
 
 import pytz
 from django.contrib.auth.models import User
@@ -499,6 +500,79 @@ class Question(models.Model):
             {"answer_label": key, "frequency": value}
             for key, value in list(frequency_dict.items())
         ]
+
+    def get_vote_data(self):
+        """
+        Returns:
+        --------
+        DataFrame with columns:
+            index: answer_id
+            times_shown -> int
+            times_chosen -> int
+        """
+
+        return pd.DataFrame()
+
+    def get_most_convincing_rationales(self):
+        """
+        Returns:
+        --------
+        List[
+            {
+                "answer" -> str,
+                "correct" -> bool,
+                "answer_text" -> str,
+                "most_convincing":{
+                    "times_chosen" -> int,
+                    "times_shown" -> int,
+                    "rationale" -> str
+                }
+            }
+        ]
+        """
+        answerchoice_correct = self.answerchoice_set.values_list(
+            "correct", flat=True
+        )
+
+        q_answerchoices = [
+            (label, text, correct)
+            for correct, (label, text) in zip(
+                answerchoice_correct, self.get_choices()
+            )
+        ]
+
+        df_votes = self.get_vote_data()
+        df_answers = pd.DataFrame(
+            self.answer_set.all().values(
+                "id", "first_answer_choice", "rationale"
+            )
+        )
+        df = pd.merge(df_answers, df_votes, left_on="id", right_index=True)
+
+        df_top5 = (
+            df.sort_values(
+                ["first_answer_choice", "times_chosen", "times_shown"],
+                ascending=[True, False, False],
+            )
+            .groupby("first_answer_choice")
+            .head(5)
+        )
+
+        r = []
+        for (
+            (answer, choice_text, correct),
+            (first_answer_choice, best_answers),
+        ) in zip(q_answerchoices, df_top5.groupby("first_answer_choice")):
+            d = {}
+            d["Answer"] = answer
+            d["answer_text"] = choice_text
+            d["correct"] = correct
+            d["most_convincing"] = best_answers.loc[
+                :, ["times_chosen", "times_shown", "rationale"]
+            ].to_dict(orient="records")
+            r.append(d)
+
+        return r
 
     class Meta:
         verbose_name = _("question")
