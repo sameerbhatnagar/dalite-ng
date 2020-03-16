@@ -26,6 +26,9 @@ DEV_PORT = 8000  # port used during development
 # Application definition
 
 INSTALLED_APPS = (
+    "user_feedback.apps.UserFeedbackConfig",
+    "course_flow.apps.CourseFlowConfig",
+    "rest_framework",
     "analytics",
     "reputation",
     "quality",
@@ -408,6 +411,7 @@ CSP_DEFAULT_SRC = ["'self'", "*.mydalite.org"]
 CSP_SCRIPT_SRC = [
     "'self'",
     "*.mydalite.org",
+    "d3js.org",
     "ajax.googleapis.com",
     "cdn.polyfill.io",
     "www.youtube.com",

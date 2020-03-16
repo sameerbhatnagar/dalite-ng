@@ -11,6 +11,7 @@ from .answer import *  # noqa
 from .assignment import *  # noqa
 from .blink import *  # noqa
 from .collection import *  # noqa
+from .course_flow import *  # noqa
 from .lti import *  # noqa
 from .message import Message, MessageType, SaltiseMember, UserMessage, UserType
 from .question import *  # noqa

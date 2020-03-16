@@ -16,7 +16,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import Group, User
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.views import redirect_to_login
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, ValidationError
 from django.core.mail import mail_admins, send_mail
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.urls import reverse
@@ -40,6 +40,7 @@ from django.utils.encoding import force_bytes
 from django.utils.html import escape, format_html
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import get_language
 from django.views.decorators.http import require_POST, require_safe
 from django.views.generic import DetailView
 from django.views.generic.base import TemplateView, View
@@ -84,6 +85,7 @@ from ..models import (
     Student,
     StudentGroup,
     StudentGroupAssignment,
+    StudentGroupCourse,
     Subject,
     Teacher,
 )
@@ -98,6 +100,9 @@ from ..util import (
     report_data_by_student,
     roundrobin,
 )
+from ..stopwords import fr, en
+
+from course_flow.views import setup_link_to_group, setup_unlink_from_group
 
 LOGGER = logging.getLogger(__name__)
 LOGGER_teacher_activity = logging.getLogger("teacher_activity")
@@ -2600,7 +2605,6 @@ def question_search(request):
         subjects = request.GET.getlist("subject", default=None)
         categories = request.GET.getlist("category", default=None)
 
-
         # Exclusions based on type of search
         q_qs = []
         if type == "blink":
@@ -2626,17 +2630,25 @@ def question_search(request):
 
         # Establish pool of questions for search
         q_obj = Q()
-        print(authors,disciplines,subjects,categories)
+        print(authors, disciplines, subjects, categories)
         if authors:
             q_obj |= Q(user__in=User.objects.filter(username__in=authors))
             print(User.objects.filter(username__in=authors))
         if disciplines:
-            q_obj |= Q(discipline__in=Discipline.objects.filter(title__in=disciplines))
+            q_obj |= Q(
+                discipline__in=Discipline.objects.filter(title__in=disciplines)
+            )
             print(Discipline.objects.filter(title__in=disciplines))
         if subjects:
-            q_obj |= Q(category__in=Category.objects.filter(subjects__in=Subject.objects.filter(title__in=subjects)).distinct())
+            q_obj |= Q(
+                category__in=Category.objects.filter(
+                    subjects__in=Subject.objects.filter(title__in=subjects)
+                ).distinct()
+            )
         if categories:
-            q_obj |= Q(category__in=Category.objects.filter(title__in=categories))
+            q_obj |= Q(
+                category__in=Category.objects.filter(title__in=categories)
+            )
             print(Category.objects.filter(title__in=categories))
 
         print(q_obj)
@@ -2649,9 +2661,15 @@ def question_search(request):
 
         # if meta_search:
         #    search_list = filter(meta_search, search_list)
-
+        is_english = get_language() == "en"
         # All matching questions
+
         search_string_split_list = search_string.split()
+        for string in search_string.split():
+            if is_english and string in en:
+                search_string_split_list.remove(string)
+            elif not is_english and string in fr:
+                search_string_split_list.remove(string)
         search_terms = [search_string]
         if len(search_string_split_list) > 1:
             search_terms.extend(search_string_split_list)
@@ -3133,3 +3151,50 @@ def report_assignment_aggregates(request):
         j.append(d_a)
 
     return JsonResponse(j, safe=False)
+
+
+@login_required
+@user_passes_test(student_check, login_url="/access_denied_and_logout/")
+def connect_group_to_course(request):
+
+    course_pk = request.POST.get("course_pk")
+    student_group = StudentGroup.objects.get(pk=request.POST.get("group_pk"))
+
+    students_as_students = student_group.students.values_list(
+        "student", flat=True
+    )
+    students_as_users = User.objects.filter(pk__in=students_as_students)
+
+    clone = setup_link_to_group(course_pk, students_as_users)
+
+    try:
+        StudentGroupCourse.objects.create(
+            course=clone, student_group=student_group
+        )
+    except ValidationError:
+        return JsonResponse({"action": "error"})
+
+    date = clone.created_on.strftime("%b. %d, %Y, %I:%S %p")
+
+    return JsonResponse(
+        {
+            "action": "posted",
+            "linked_course_pk": clone.pk,
+            "linked_course_title": clone.title,
+            "linked_course_created_date": date,
+        }
+    )
+
+
+@login_required
+@user_passes_test(student_check, login_url="/access_denied_and_logout/")
+def disconnect_group_from_course(request):
+
+    course_pk = request.POST.get("course_pk")
+
+    try:
+        setup_unlink_from_group(course_pk)
+    except ValidationError:
+        return JsonResponse({"action": "error"})
+
+    return JsonResponse({"action": "posted"})

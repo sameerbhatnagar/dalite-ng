@@ -63,8 +63,12 @@ class Subject(models.Model):
         help_text=_("Enter the name of a new subject."),
         validators=[no_hyphens],
     )
-    discipline = models.ForeignKey("Discipline", blank=True, null=True, on_delete=models.SET_NULL)
-    categories = models.ManyToManyField(Category, related_name="subjects", blank=True)
+    discipline = models.ForeignKey(
+        "Discipline", blank=True, null=True, on_delete=models.SET_NULL
+    )
+    categories = models.ManyToManyField(
+        Category, related_name="subjects", blank=True
+    )
 
     def __str__(self):
         return self.title
@@ -497,10 +501,10 @@ class Question(models.Model):
             )
             if len(label) > 50:
                 label = label[0:50] + "..."
-            choice1[smart_bytes(label)] = student_answers.filter(
+            choice1[label] = student_answers.filter(
                 first_answer_choice=c
             ).count()
-            choice2[smart_bytes(label)] = student_answers.filter(
+            choice2[label] = student_answers.filter(
                 second_answer_choice=c
             ).count()
             c = c + 1
