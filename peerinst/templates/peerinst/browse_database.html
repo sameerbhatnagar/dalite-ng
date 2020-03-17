@@ -270,16 +270,16 @@
       let subjects = [];
       let categories = [];
       Array.from(document.getElementsByClassName("category")).forEach((item, i) => {
-        categories.push(item.getAttribute("d"));
+        categories.push(item.getAttribute("d").replace(" ","%20"));
       });
       Array.from(document.getElementsByClassName("username")).forEach((item, i) => {
         authors.push(item.getAttribute("d"));
       });
       Array.from(document.getElementsByClassName("subject")).forEach((item, i) => {
-        subjects.push(item.getAttribute("d"));
+        subjects.push(item.getAttribute("d").replace(" ","%20"));
       });
       Array.from(document.getElementsByClassName("discipline")).forEach((item, i) => {
-        disciplines.push(item.getAttribute("d"));
+        disciplines.push(item.getAttribute("d").replace(" ","%20"));
       });
       search.setupSearch();
       console.info("Searching: "+input.value);
@@ -312,11 +312,6 @@
   }
 
   window.addEventListener("load", function() {
-    document.querySelectorAll(".category").forEach(btn => {
-      btn.addEventListener("click", function() {
-        updateSelect(this,'#id_category');
-      });
-    });
     document.getElementById("reset-filters").addEventListener("click", () => {
       search.reset();
     });
