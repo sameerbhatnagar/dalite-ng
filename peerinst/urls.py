@@ -515,6 +515,21 @@ def search_patterns():
             views.search_categories,
             name="search-categories",
         ),
+        path(
+            "search/username",
+            views.search_usernames,
+            name="search-usernames",
+        ),
+        path(
+            "search/subject",
+            views.search_subjects,
+            name="search-subjects",
+        ),
+        path(
+            "search/discipline",
+            views.search_disciplines,
+            name="search-disciplines",
+        ),
     ]
 
 

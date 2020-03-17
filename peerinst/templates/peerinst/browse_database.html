@@ -7,6 +7,7 @@
 {% compress css %}
 <link href="{% static 'peerinst/css/search.min.css' %}" rel="stylesheet">
 {% endcompress %}
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 <style nonce="{{ request.csp_nonce }}">
   #category-filters {
     margin-top: 10px;
@@ -61,23 +62,101 @@
     </div>
 
     <div class='field'>
-      <div id='category_form'>
-        {% include 'peerinst/category_select_form.html' %}
-      </div>
 
+      <div id='category_form'>
+        <div class="mdc-text-field mdc-text-field--outlined mdc-text-field--dense" data-mdc-auto-init="MDCTextField">
+          <input type="text" id="autofill_categories" class="mdc-text-field__input"/>
+
+          <div class="mdc-notched-outline">
+            <svg>
+              <path class="mdc-notched-outline__path"/>
+            </svg>
+          </div>
+          <div class="mdc-notched-outline__idle"></div>
+        </div>
+      </div>
+      <p class="mdc-text-field-helper-text mdc-text-field-helper-text--persistent" aria-hidden="true">
+        {% trans 'Filter by Category.' %}
+      </p>
       <div id='current_categories' class='mdc-chip-set mdc-chip-set--input' data-mdc-auto-init='MDCChipSet'>
-        {% for c in object.category.all %}
-          <div d="{{c.username}}" v="{{c.pk}}" class='mdc-chip mdc-typography--caption category' tabindex='0' data-mdc-auto-init='MDCChip'>
-            <div class='mdc-chip__text'>{{c.title|title}}</div>
-            <i class='material-icons mdc-chip__icon mdc-chip__icon--trailing' tabindex='0' role='button'>cancel</i>
-            </div>
-        {% endfor %}
       </div>
 
       <select id='id_category' name='category' multiple='multiple' hidden='true'>
-        {% for c in object.category.all %}
-          <option selected="selected" value={{c.id}}>{{c.title|title}}</option>
-        {% endfor %}
+      </select>
+
+    </div>
+
+    <div class='field'>
+      <div id='username_form'>
+        <div class="mdc-text-field mdc-text-field--outlined mdc-text-field--dense" data-mdc-auto-init="MDCTextField">
+          <input type="text" id="autofill_usernames" class="mdc-text-field__input"/>
+
+          <div class="mdc-notched-outline">
+            <svg>
+              <path class="mdc-notched-outline__path"/>
+            </svg>
+          </div>
+          <div class="mdc-notched-outline__idle"></div>
+        </div>
+      </div>
+      <p class="mdc-text-field-helper-text mdc-text-field-helper-text--persistent" aria-hidden="true">
+        {% trans 'Filter by Author.' %}
+      </p>
+
+      <div id='current_usernames' class='mdc-chip-set mdc-chip-set--input' data-mdc-auto-init='MDCChipSet'>
+      </div>
+
+      <select id='id_username' name='username' multiple='multiple' hidden='true'>
+      </select>
+
+    </div>
+
+    <div class='field'>
+      <div id='subject_form'>
+        <div class="mdc-text-field mdc-text-field--outlined mdc-text-field--dense" data-mdc-auto-init="MDCTextField">
+          <input type="text" id="autofill_subjects" class="mdc-text-field__input"/>
+
+          <div class="mdc-notched-outline">
+            <svg>
+              <path class="mdc-notched-outline__path"/>
+            </svg>
+          </div>
+          <div class="mdc-notched-outline__idle"></div>
+        </div>
+      </div>
+      <p class="mdc-text-field-helper-text mdc-text-field-helper-text--persistent" aria-hidden="true">
+        {% trans 'Filter by Subject.' %}
+      </p>
+
+      <div id='current_subjects' class='mdc-chip-set mdc-chip-set--input' data-mdc-auto-init='MDCChipSet'>
+      </div>
+
+      <select id='id_subject' name='subject' multiple='multiple' hidden='true'>
+      </select>
+
+    </div>
+
+    <div class='field'>
+      <div id='discipline_form'>
+        <div class="mdc-text-field mdc-text-field--outlined mdc-text-field--dense" data-mdc-auto-init="MDCTextField">
+          <input type="text" id="autofill_disciplines" class="mdc-text-field__input"/>
+
+          <div class="mdc-notched-outline">
+            <svg>
+              <path class="mdc-notched-outline__path"/>
+            </svg>
+          </div>
+          <div class="mdc-notched-outline__idle"></div>
+        </div>
+      </div>
+      <p class="mdc-text-field-helper-text mdc-text-field-helper-text--persistent" aria-hidden="true">
+        {% trans 'Filter by Discipline.' %}
+      </p>
+
+      <div id='current_disciplines' class='mdc-chip-set mdc-chip-set--input' data-mdc-auto-init='MDCChipSet'>
+      </div>
+
+      <select id='id_discipline' name='discipline' multiple='multiple' hidden='true'>
       </select>
 
     </div>
@@ -137,12 +216,17 @@
 {% compress js %}
 <script src="{% static 'peerinst/js/search.min.js' %}"></script>
 {% endcompress %}
+<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
 <script src="https://unpkg.com/json5@2.1.1/dist/index.min.js" integrity="sha384-gRrJKgBpstjyexh9UmCoTPivgMMb7/EAtEdR5DLbVhiPYdl03QxdzMzbylHUSloD" crossorigin="anonymous"></script>
 
 <script nonce="{{ request.csp_nonce }}">
   bundle.toggleImages();
   bundle.toggleAnswers();
-  bundle.bindAjaxTextInputForm('show_category_form', 'category_form', "{% url 'category-create' %}", "{% url 'category-form' %}", bundle.categoryForm, "{% url 'search-categories' %}", null);
+
+  bundle.bindCategoryAutofill("{% url 'search-categories' %}");
+  bundle.bindUsernameAutofill("{% url 'search-usernames' %}");
+  bundle.bindSubjectAutofill("{% url 'search-subjects' %}");
+  bundle.bindDisciplineAutofill("{% url 'search-disciplines' %}");
 
 
   function setupAnalytics(){
@@ -181,13 +265,25 @@
   const input = document.getElementById('search-bar');
   input.onchange = async function() {
     if (input.value != "") {
-      let authors = ["Elimartel","sahirbhatnagar"]
-      let disciplines = ["physics"]
-      let subjects = []
-      let categories = ["Energy","Resistance"]
+      let authors = [];
+      let disciplines = [];
+      let subjects = [];
+      let categories = [];
+      Array.from(document.getElementsByClassName("category")).forEach((item, i) => {
+        categories.push(item.getAttribute("d"));
+      });
+      Array.from(document.getElementsByClassName("username")).forEach((item, i) => {
+        authors.push(item.getAttribute("d"));
+      });
+      Array.from(document.getElementsByClassName("subject")).forEach((item, i) => {
+        subjects.push(item.getAttribute("d"));
+      });
+      Array.from(document.getElementsByClassName("discipline")).forEach((item, i) => {
+        disciplines.push(item.getAttribute("d"));
+      });
       search.setupSearch();
       console.info("Searching: "+input.value);
-      $('#search_results').load("{% url 'question-search' %}?author="+authors.join("&author=")+"&discipline="+disciplines.join("&discipline=")+"&subject="+subjects.join("&subject=")+"&category="+categories.join("&category=")", "search_string="+input.value, function(response){
+      $('#search_results').load("{% url 'question-search' %}?author="+authors.join("&author=")+"&discipline="+disciplines.join("&discipline=")+"&subject="+subjects.join("&subject=")+"&category="+categories.join("&category="), "search_string="+input.value, function(response){
         setupAnalytics();
         search.processResponse(response);
       });
