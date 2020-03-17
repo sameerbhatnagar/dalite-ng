@@ -556,7 +556,7 @@ class Question(models.Model):
             df_votes = df_chosen
             df_votes.loc[:, "times_shown"] = pd.Series(0)
 
-        df_votes["times_chosen"] = df_votes["times_chosen"].fillna(0)
+        df_votes = df_votes.fillna(0)
 
         df_votes = df_votes.astype(int)
 
@@ -590,14 +590,16 @@ class Question(models.Model):
             )
         }
 
-        if self.answer_set.all().count() > 0:
+        answer_qs = self.answer_set.filter(
+            first_answer_choice__lte=self.answerchoice_set.count()
+        )
+
+        if answer_qs.count() > 0:
 
             df_votes = self.get_vote_data()
 
             df_answers = pd.DataFrame(
-                self.answer_set.all().values(
-                    "id", "first_answer_choice", "rationale"
-                )
+                answer_qs.values("id", "first_answer_choice", "rationale")
             )
 
             df = pd.merge(df_answers, df_votes, left_on="id", right_index=True)
