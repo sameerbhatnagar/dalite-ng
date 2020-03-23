@@ -768,10 +768,12 @@ def get_questions_df(path_to_data):
     all_q = pd.DataFrame(
         [
             {
+                "id": q.pk,
                 "text": q.text,
                 "image": q.image.url if q.image else None,
                 "image_alt_text": q.image_alt_text if q.image else None,
                 "video": q.video_url,
+                "discipline": q.discipline.title if q.discipline else "",
                 "rationale_selection_algorithm": q.rationale_selection_algorithm,  # noqa
                 "categories": ";".join(
                     q.category.all().values_list("title", flat=True)
