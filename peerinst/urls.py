@@ -119,7 +119,9 @@ def old_patterns():
             "question-search/", views.question_search, name="question-search",
         ),
         path(
-            "collection-search/", views.collection_search, name="collection-search",
+            "collection-search/",
+            views.collection_search,
+            name="collection-search",
         ),
         # Standalone
         path(
@@ -519,15 +521,9 @@ def search_patterns():
             name="search-categories",
         ),
         path(
-            "search/username",
-            views.search_usernames,
-            name="search-usernames",
+            "search/username", views.search_usernames, name="search-usernames",
         ),
-        path(
-            "search/subject",
-            views.search_subjects,
-            name="search-subjects",
-        ),
+        path("search/subject", views.search_subjects, name="search-subjects",),
         path(
             "search/discipline",
             views.search_disciplines,

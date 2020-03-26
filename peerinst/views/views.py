@@ -2635,11 +2635,7 @@ def collection_search(request):
         for term in search_terms:
             query_term = collection_search_function(term, search_list)
 
-            query_term = [
-                q
-                for q in query_term
-                if q not in query_all
-            ]
+            query_term = [q for q in query_term if q not in query_all]
 
             query_meta[term] = query_term
 
@@ -2664,7 +2660,6 @@ def collection_search(request):
             query_dict["count"] = len(query_dict["collections"])
             query.append(query_dict)
 
-
         return TemplateResponse(
             request,
             "peerinst/collection/search_results.html",
@@ -2683,7 +2678,6 @@ def collection_search(request):
 
 
 def collection_search_function(search_string, pre_filtered_list=None):
-
 
     query_result = pre_filtered_list.filter(
         Q(title__icontains=search_string)
