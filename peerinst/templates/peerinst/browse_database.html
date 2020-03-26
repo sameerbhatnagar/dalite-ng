@@ -7,10 +7,42 @@
 {% compress css %}
 <link href="{% static 'peerinst/css/search.min.css' %}" rel="stylesheet">
 {% endcompress %}
+{% compress css %}
+<link href="{% static 'peerinst/css/question.min.css' %}" rel="stylesheet">
+{% endcompress %}
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 <style nonce="{{ request.csp_nonce }}">
   #category-filters {
     margin-top: 10px;
+  }
+  .hidden-mdc-component {
+    display: none;
+  }
+  #querytype_form {
+    background-color: #54c0db;
+    border-radius: 25px;
+    box-shadow: 1px 1px 1px black;
+    cursor: pointer;
+    height: 60%;
+    margin: 0px auto;
+    position: relative;
+    width: 160px;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+  #querytype-text {
+    color: white;
+    cursor: pointer;
+    font-weight: 400;
+    left: 50%;
+    margin: 0;
+    margin-right: -50%;
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+  }
+  #querytype-container {
+    height: 80px;
   }
 </style>
 {% endblock %}
@@ -39,9 +71,128 @@
       <div class='field'>
         <p><small>
           {% blocktrans %}
-          Explore the myDalite database for questions using a keyword search.  You will be able to refine your search results using filters on discipline and category.
+          Explore the myDalite database using a keyword search.  You will be able to refine your search results using filters on discipline and category.
           {% endblocktrans %}
         </small></p>
+      </div>
+    </div>
+
+    <div id="querytype-container" class='field'>
+      <div id="querytype_form">
+        <p id="querytype-text">
+          {% trans 'Search Collections' %}
+        </p>
+      </div>
+    </div>
+
+    <div class='field-container'>
+      <div class='number-box flush-to-textbox'><span class='number'></span></div>
+      <div class='field' id='username-form-container'>
+        <div id='username_form'>
+          <div class="mdc-text-field mdc-text-field--outlined mdc-text-field--dense" data-mdc-auto-init="MDCTextField">
+            <input type="text" id="autofill_usernames" class="mdc-text-field__input"/>
+
+            <div class="mdc-notched-outline">
+              <svg>
+                <path class="mdc-notched-outline__path"/>
+              </svg>
+            </div>
+            <div class="mdc-notched-outline__idle"></div>
+          </div>
+        </div>
+        <p class="mdc-text-field-helper-text mdc-text-field-helper-text--persistent" aria-hidden="true">
+          {% trans 'Filter by Author.' %}
+        </p>
+
+        <div id='current_usernames' class='mdc-chip-set mdc-chip-set--input' data-mdc-auto-init='MDCChipSet'>
+        </div>
+
+        <select id='id_username' name='username' multiple='multiple' hidden='true'>
+        </select>
+
+      </div>
+    </div>
+
+    <div class='field-container'>
+      <div class='number-box flush-to-textbox'><span class='number'></span></div>
+      <div class='field' id='discipline-form-container'>
+        <div id='discipline_form'>
+          <div class="mdc-text-field mdc-text-field--outlined mdc-text-field--dense" data-mdc-auto-init="MDCTextField">
+            <input type="text" id="autofill_disciplines" class="mdc-text-field__input"/>
+
+            <div class="mdc-notched-outline">
+              <svg>
+                <path class="mdc-notched-outline__path"/>
+              </svg>
+            </div>
+            <div class="mdc-notched-outline__idle"></div>
+          </div>
+        </div>
+        <p class="mdc-text-field-helper-text mdc-text-field-helper-text--persistent" aria-hidden="true">
+          {% trans 'Filter by Discipline.' %}
+        </p>
+
+        <div id='current_disciplines' class='mdc-chip-set mdc-chip-set--input' data-mdc-auto-init='MDCChipSet'>
+        </div>
+
+        <select id='id_discipline' name='discipline' multiple='multiple' hidden='true'>
+        </select>
+
+      </div>
+    </div>
+
+    <div class='field-container' id='subject-box-container'>
+      <div class='number-box flush-to-textbox'><span class='number'></span></div>
+      <div class='field' id='subject-form-container'>
+        <div id='subject_form'>
+          <div class="mdc-text-field mdc-text-field--outlined mdc-text-field--dense" data-mdc-auto-init="MDCTextField">
+            <input type="text" id="autofill_subjects" class="mdc-text-field__input"/>
+
+            <div class="mdc-notched-outline">
+              <svg>
+                <path class="mdc-notched-outline__path"/>
+              </svg>
+            </div>
+            <div class="mdc-notched-outline__idle"></div>
+          </div>
+        </div>
+        <p class="mdc-text-field-helper-text mdc-text-field-helper-text--persistent" aria-hidden="true">
+          {% trans 'Filter by Subject.' %}
+        </p>
+
+        <div id='current_subjects' class='mdc-chip-set mdc-chip-set--input' data-mdc-auto-init='MDCChipSet'>
+        </div>
+
+        <select id='id_subject' name='subject' multiple='multiple' hidden='true'>
+        </select>
+
+      </div>
+    </div>
+
+    <div class='field-container' id='category-box-container'>
+      <div class='number-box flush-to-textbox'><span class='number'></span></div>
+      <div class='field' id='category-form-container'>
+        <div id='category_form'>
+          <div class="mdc-text-field mdc-text-field--outlined mdc-text-field--dense" data-mdc-auto-init="MDCTextField">
+            <input type="text" id="autofill_categories" class="mdc-text-field__input"/>
+
+            <div class="mdc-notched-outline">
+              <svg>
+                <path class="mdc-notched-outline__path"/>
+              </svg>
+            </div>
+            <div class="mdc-notched-outline__idle"></div>
+          </div>
+        </div>
+        <p class="mdc-text-field-helper-text mdc-text-field-helper-text--persistent" aria-hidden="true">
+          {% trans 'Filter by Category.' %}
+        </p>
+        <div id='current_categories' class='mdc-chip-set mdc-chip-set--input' data-mdc-auto-init='MDCChipSet'>
+        </div>
+
+        <select id='id_category' name='category' multiple='multiple' hidden='true'>
+        </select>
+
       </div>
     </div>
 
@@ -57,111 +208,11 @@
         <div class="mdc-notched-outline__idle"></div>
       </div>
       <p class="mdc-text-field-helper-text mdc-text-field-helper-text--persistent" aria-hidden="true">
-        {% trans 'The search engine checks question texts for each keyword as well as the complete phrase.' %}
+        {% trans 'The search engine checks titles and descriptions for each keyword as well as the complete phrase.' %}
       </p>
     </div>
 
-    <div class='field'>
-
-      <div id='category_form'>
-        <div class="mdc-text-field mdc-text-field--outlined mdc-text-field--dense" data-mdc-auto-init="MDCTextField">
-          <input type="text" id="autofill_categories" class="mdc-text-field__input"/>
-
-          <div class="mdc-notched-outline">
-            <svg>
-              <path class="mdc-notched-outline__path"/>
-            </svg>
-          </div>
-          <div class="mdc-notched-outline__idle"></div>
-        </div>
-      </div>
-      <p class="mdc-text-field-helper-text mdc-text-field-helper-text--persistent" aria-hidden="true">
-        {% trans 'Filter by Category.' %}
-      </p>
-      <div id='current_categories' class='mdc-chip-set mdc-chip-set--input' data-mdc-auto-init='MDCChipSet'>
-      </div>
-
-      <select id='id_category' name='category' multiple='multiple' hidden='true'>
-      </select>
-
-    </div>
-
-    <div class='field'>
-      <div id='username_form'>
-        <div class="mdc-text-field mdc-text-field--outlined mdc-text-field--dense" data-mdc-auto-init="MDCTextField">
-          <input type="text" id="autofill_usernames" class="mdc-text-field__input"/>
-
-          <div class="mdc-notched-outline">
-            <svg>
-              <path class="mdc-notched-outline__path"/>
-            </svg>
-          </div>
-          <div class="mdc-notched-outline__idle"></div>
-        </div>
-      </div>
-      <p class="mdc-text-field-helper-text mdc-text-field-helper-text--persistent" aria-hidden="true">
-        {% trans 'Filter by Author.' %}
-      </p>
-
-      <div id='current_usernames' class='mdc-chip-set mdc-chip-set--input' data-mdc-auto-init='MDCChipSet'>
-      </div>
-
-      <select id='id_username' name='username' multiple='multiple' hidden='true'>
-      </select>
-
-    </div>
-
-    <div class='field'>
-      <div id='subject_form'>
-        <div class="mdc-text-field mdc-text-field--outlined mdc-text-field--dense" data-mdc-auto-init="MDCTextField">
-          <input type="text" id="autofill_subjects" class="mdc-text-field__input"/>
-
-          <div class="mdc-notched-outline">
-            <svg>
-              <path class="mdc-notched-outline__path"/>
-            </svg>
-          </div>
-          <div class="mdc-notched-outline__idle"></div>
-        </div>
-      </div>
-      <p class="mdc-text-field-helper-text mdc-text-field-helper-text--persistent" aria-hidden="true">
-        {% trans 'Filter by Subject.' %}
-      </p>
-
-      <div id='current_subjects' class='mdc-chip-set mdc-chip-set--input' data-mdc-auto-init='MDCChipSet'>
-      </div>
-
-      <select id='id_subject' name='subject' multiple='multiple' hidden='true'>
-      </select>
-
-    </div>
-
-    <div class='field'>
-      <div id='discipline_form'>
-        <div class="mdc-text-field mdc-text-field--outlined mdc-text-field--dense" data-mdc-auto-init="MDCTextField">
-          <input type="text" id="autofill_disciplines" class="mdc-text-field__input"/>
-
-          <div class="mdc-notched-outline">
-            <svg>
-              <path class="mdc-notched-outline__path"/>
-            </svg>
-          </div>
-          <div class="mdc-notched-outline__idle"></div>
-        </div>
-      </div>
-      <p class="mdc-text-field-helper-text mdc-text-field-helper-text--persistent" aria-hidden="true">
-        {% trans 'Filter by Discipline.' %}
-      </p>
-
-      <div id='current_disciplines' class='mdc-chip-set mdc-chip-set--input' data-mdc-auto-init='MDCChipSet'>
-      </div>
-
-      <select id='id_discipline' name='discipline' multiple='multiple' hidden='true'>
-      </select>
-
-    </div>
-
-    <div class="mdc-form-field">
+    <div class="mdc-form-field" id="toggle-images-field">
       <span class="mdc-theme--secondary">{% trans 'Show images' %}</span>
       <i class="mdc-icon-toggle material-icons toggle-images mdc-theme--secondary" role="button" aria-pressed="false"
       aria-label="Toggle images" tabindex="0"
@@ -171,7 +222,7 @@
       </i>
     </div>
 
-    <div class="mdc-form-field">
+    <div class="mdc-form-field" id="toggle-answers-field">
       <span class="mdc-theme--secondary">{% trans 'Show answers' %}</span>
       <i class="mdc-icon-toggle material-icons toggle-answers mdc-theme--secondary" role="button" aria-pressed="false"
       id="toggle-answers"
@@ -228,6 +279,34 @@
   bundle.bindSubjectAutofill("{% url 'search-subjects' %}");
   bundle.bindDisciplineAutofill("{% url 'search-disciplines' %}");
 
+  let isCollectionsSearch = false;
+
+  function enumerate(){
+    $('.number-box:visible').each(function(i) {
+      $(this).children('.number')[0].innerHTML = i;
+      if (i==0) $(this).children('.number')[0].innerHTML = "?";
+    });
+  }
+
+  enumerate();
+
+  function toggleCollectionQuery(){
+    isCollectionsSearch = true;
+    document.getElementById("category-box-container").hidden = true;
+    document.getElementById("subject-box-container").hidden = true;
+    document.getElementById("toggle-images-field").classList.add("hidden-mdc-component");
+    document.getElementById("toggle-answers-field").classList.add("hidden-mdc-component");
+    document.getElementById("filters").hidden = true;
+  }
+
+  function toggleQuestionQuery(){
+    isCollectionsSearch = false;
+    document.getElementById("category-box-container").hidden = false;
+    document.getElementById("subject-box-container").hidden = false;
+    document.getElementById("toggle-images-field").classList.remove("hidden-mdc-component");
+    document.getElementById("toggle-answers-field").classList.remove("hidden-mdc-component");
+    document.getElementById("filters").hidden = false;
+  }
 
   function setupAnalytics(){
     console.log("called");
@@ -283,10 +362,16 @@
       });
       search.setupSearch();
       console.info("Searching: "+input.value);
-      $('#search_results').load("{% url 'question-search' %}?author="+authors.join("&author=")+"&discipline="+disciplines.join("&discipline=")+"&subject="+subjects.join("&subject=")+"&category="+categories.join("&category="), "search_string="+input.value, function(response){
-        setupAnalytics();
-        search.processResponse(response);
-      });
+      if (isCollectionsSearch) {
+        $('#search_results').load("{% url 'collection-search' %}?author="+authors.join("&author=")+"&discipline="+disciplines.join("&discipline=")+"&subject="+subjects.join("&subject=")+"&category="+categories.join("&category="), "search_string="+input.value, function(response){
+          processCollectionResponse();
+        });
+      } else {
+        $('#search_results').load("{% url 'question-search' %}?author="+authors.join("&author=")+"&discipline="+disciplines.join("&discipline=")+"&subject="+subjects.join("&subject=")+"&category="+categories.join("&category="), "search_string="+input.value, function(response){
+          setupAnalytics();
+          search.processResponse(response);
+        });
+      }
     }
   }
 
@@ -317,20 +402,80 @@
     });
     search.setupSearch();
     console.info("Searching: "+input.value);
-    $('#search_results').load("{% url 'question-search' %}?page="+page+"author="+authors.join("&author=")+"&discipline="+disciplines.join("&discipline=")+"&subject="+subjects.join("&subject=")+"&category="+categories.join("&category="), "search_string="+input.value, function(response){
-      setupAnalytics();
-      search.processResponse(response);
-    });
+    if (isCollectionsSearch) {
+      $('#search_results').load("{% url 'collection-search' %}?page="+page+"author="+authors.join("&author=")+"&discipline="+disciplines.join("&discipline=")+"&subject="+subjects.join("&subject=")+"&category="+categories.join("&category="), "search_string="+input.value, function(response){
+        processCollectionResponse();
+      });
+    } else {
+      $('#search_results').load("{% url 'question-search' %}?page="+page+"author="+authors.join("&author=")+"&discipline="+disciplines.join("&discipline=")+"&subject="+subjects.join("&subject=")+"&category="+categories.join("&category="), "search_string="+input.value, function(response){
+        setupAnalytics();
+        search.processResponse(response);
+      });
+    }
   }
 
-  function toggleFavourite(pk) {
-    const posting = $.post("{% url 'teacher-toggle-favourite' %}", {pk: pk});
+  function processCollectionResponse() {
+    bundle.toggleImages();
+    bundle.toggleAnswers();
+
+    $("#search-bar").attr("disabled", false);
+    $("#progressbar").addClass("mdc-linear-progress--closed");
+
+    // Update template response
+    $(".search-nav").each(function(i, el) {
+      el.addEventListener("click", function() {
+        pageNav(el.getAttribute("data-page"));
+      });
+    });
+
+    $(".follower-btn").each(function(i, el) {
+      el.addEventListener("click", function() {
+        toggleFollower(el.getAttribute('pk'));
+      });
+    });
+
+    [].forEach.call(document.querySelectorAll(".detail-view"), el => {
+      el.addEventListener("click", () => {
+        const pk=el.getAttribute('id');
+        const collectionUrl = "{% url 'collection-detail' 0 %}"
+        window.location.href = collectionUrl.replace("0", pk );
+      });
+    });
+
+    [].forEach.call(document.querySelectorAll(".mdc-icon-toggle"), el => {
+      bundle.iconToggle.MDCIconToggle.attachTo(el);
+    });
+
+    // Add filters based on search results
+    $("#filter-on-discipline").empty();
+    $("#filter-on-category").empty();
+  }
+
+  function toggleFollower(pk) {
+    var posting = $.post("{% url 'teacher-toggle-follower' %}", {pk: pk});
     posting.done(function(data) {
       console.info(data);
-    });
+      let followerValue = document.getElementById("follower-count-"+pk).innerHTML;
+      followerValue = followerValue.substring(11);
+      followerValue = parseInt(followerValue);
+      if (data.action == "added") {
+        document.getElementById("follower-count-"+pk).innerHTML = ("{% trans 'Followers' %}: " + (followerValue+1));
+      } else if (data.action == "removed") {
+        document.getElementById("follower-count-"+pk).innerHTML = ("{% trans 'Followers' %}: " + (followerValue-1));
+      }
+    })
   }
 
   window.addEventListener("load", function() {
+    document.getElementById("querytype_form").addEventListener("click", () => {
+      if (isCollectionsSearch) {
+        toggleQuestionQuery();
+        document.getElementById("querytype-text").innerHTML = "{% trans 'Search Collections' %}";
+      } else {
+        toggleCollectionQuery();
+        document.getElementById("querytype-text").innerHTML = "{% trans 'Search Questions' %}";
+      }
+    });
     document.getElementById("reset-filters").addEventListener("click", () => {
       search.reset();
     });

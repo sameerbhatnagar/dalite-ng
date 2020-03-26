@@ -2600,41 +2600,21 @@ def collection_search(request):
         limit_search = request.GET.get("limit_search", default="false")
         authors = request.GET.getlist("author", default=None)
         disciplines = request.GET.getlist("discipline", default=None)
-        subjects = request.GET.getlist("subject", default=None)
-        categories = request.GET.getlist("category", default=None)
 
         q_obj = Q()
-        print(authors, disciplines, subjects, categories)
-        if authors:
-            q_obj |= Q(
-                author__in=Teacher.objects.filter(
+        if authors[0]:
+            q_obj &= Q(
+                owner__in=Teacher.objects.filter(
                     user__in=User.objects.filter(username__in=authors)
                 )
             )
-            print(
-                Teacher.objects.filter(
-                    user__in=User.objects.filter(username__in=authors)
-                )
-            )
-        if disciplines:
-            q_obj |= Q(
+        if disciplines[0]:
+            q_obj &= Q(
                 discipline__in=Discipline.objects.filter(title__in=disciplines)
             )
-            print(Discipline.objects.filter(title__in=disciplines))
-        if subjects:
-            q_obj |= Q(
-                category__in=Category.objects.filter(
-                    subjects__in=Subject.objects.filter(title__in=subjects)
-                ).distinct()
-            )
-        if categories:
-            q_obj |= Q(
-                category__in=Category.objects.filter(title__in=categories)
-            )
-            print(Category.objects.filter(title__in=categories))
-
         is_english = get_language() == "en"
-        # All matching questions
+        # All matching collections
+        search_list = Collection.objects.filter(q_obj)
 
         search_string_split_list = search_string.split()
         for string in search_string.split():
@@ -2659,7 +2639,6 @@ def collection_search(request):
                 q
                 for q in query_term
                 if q not in query_all
-                and (q.answerchoice_set.count() > 0 or q.type == "RO")
             ]
 
             query_meta[term] = query_term
@@ -2679,11 +2658,12 @@ def collection_search(request):
         for term in list(query_meta.keys()):
             query_dict = {}
             query_dict["term"] = term
-            query_dict["questions"] = [
+            query_dict["collections"] = [
                 q for q in query_meta[term] if q in query_subset.object_list
             ]
-            query_dict["count"] = len(query_dict["questions"])
+            query_dict["count"] = len(query_dict["collections"])
             query.append(query_dict)
+
 
         return TemplateResponse(
             request,
@@ -2691,7 +2671,6 @@ def collection_search(request):
             context={
                 "paginator": query_subset,
                 "search_results": query,
-                "form_field_name": form_field_name,
                 "count": len(query_all),
                 "previous_search_string": search_terms,
                 "type": type,
@@ -2705,13 +2684,8 @@ def collection_search(request):
 
 def collection_search_function(search_string, pre_filtered_list=None):
 
-    if pre_filtered_list:
-        assert isinstance(pre_filtered_list, QuerySet)
 
-    search_list = (
-        pre_filtered_list if pre_filtered_list else Collection.objects.all()
-    )
-    query_result = search_list.filter(
+    query_result = pre_filtered_list.filter(
         Q(title__icontains=search_string)
         | Q(description__icontains=search_string)
     )
@@ -2766,28 +2740,23 @@ def question_search(request):
 
         # Establish pool of questions for search
         q_obj = Q()
-        print(authors, disciplines, subjects, categories)
-        if authors:
-            q_obj |= Q(user__in=User.objects.filter(username__in=authors))
-            print(User.objects.filter(username__in=authors))
-        if disciplines:
-            q_obj |= Q(
+        if authors[0]:
+            q_obj &= Q(user__in=User.objects.filter(username__in=authors))
+        if disciplines[0]:
+            q_obj &= Q(
                 discipline__in=Discipline.objects.filter(title__in=disciplines)
             )
-            print(Discipline.objects.filter(title__in=disciplines))
-        if subjects:
-            q_obj |= Q(
+        if subjects[0]:
+            q_obj &= Q(
                 category__in=Category.objects.filter(
                     subjects__in=Subject.objects.filter(title__in=subjects)
                 ).distinct()
             )
-        if categories:
-            q_obj |= Q(
+        if categories[0]:
+            q_obj &= Q(
                 category__in=Category.objects.filter(title__in=categories)
             )
-            print(Category.objects.filter(title__in=categories))
 
-        print(q_obj)
         search_list = Question.unflagged_objects.filter(q_obj)
 
         if limit_search == "true":

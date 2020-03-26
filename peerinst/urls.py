@@ -118,6 +118,9 @@ def old_patterns():
         path(
             "question-search/", views.question_search, name="question-search",
         ),
+        path(
+            "collection-search/", views.collection_search, name="collection-search",
+        ),
         # Standalone
         path(
             "live/access/<token>/<assignment_hash>",  # noqa
