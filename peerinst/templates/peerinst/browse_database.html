@@ -309,11 +309,9 @@
   }
 
   function setupAnalytics(){
-    console.log("called");
     bundle.addDialog();
     [].forEach.call(document.querySelectorAll('.analytics-tags'),
       function(el,i,list) {
-        console.log(el);
         el.addEventListener('click', function() {
           showAnalytics(el.getAttribute('ref_id'));
         }, false);
@@ -334,7 +332,6 @@
     );
 
     function showAnalytics(id){
-      console.log(id);
       bundle.selectAll("#first_choice-"+id).transition().duration(1000).attr("x",function(d){return bundle.select(this).attr("finalx");}).attr("width",function(d){return bundle.select(this).attr("finalwidth");});
       bundle.selectAll("#second_choice-"+id).transition().delay(1000).duration(1000).attr("width",function(d){return bundle.select(this).attr("finalwidth");});
       return;
