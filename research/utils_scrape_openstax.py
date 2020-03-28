@@ -1,5 +1,5 @@
 import os
-import json
+import codecs
 from requests import get
 from requests.exceptions import RequestException
 from contextlib import closing
@@ -95,8 +95,9 @@ def write_text_to_file(l, textbook_dir, base_url):
     if text:
         print("\t -" + l)
         fname = os.path.join(textbook_dir, l + ".txt")
-        with open(fname, "w") as f:
-            json.dump(text, f, indent=2)
+        with codecs.open(fname, "w", encoding="utf-8") as f:
+            for t in text:
+                f.write(t)
 
     return
 
