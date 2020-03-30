@@ -118,6 +118,11 @@ def old_patterns():
         path(
             "question-search/", views.question_search, name="question-search",
         ),
+        path(
+            "collection-search/",
+            views.collection_search,
+            name="collection-search",
+        ),
         # Standalone
         path(
             "live/access/<token>/<assignment_hash>",  # noqa
@@ -514,6 +519,15 @@ def search_patterns():
             "search/category",
             views.search_categories,
             name="search-categories",
+        ),
+        path(
+            "search/username", views.search_usernames, name="search-usernames",
+        ),
+        path("search/subject", views.search_subjects, name="search-subjects",),
+        path(
+            "search/discipline",
+            views.search_disciplines,
+            name="search-disciplines",
         ),
     ]
 

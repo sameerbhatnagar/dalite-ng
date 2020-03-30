@@ -86,6 +86,7 @@ from ..models import (
     StudentGroup,
     StudentGroupAssignment,
     StudentGroupCourse,
+    Subject,
     Teacher,
 )
 from ..util import (
@@ -2582,6 +2583,110 @@ def blink_waiting(request, username, assignment=""):
     )
 
 
+def collection_search(request):
+    if not Teacher.objects.filter(user=request.user).exists():
+        return HttpResponse(
+            _(
+                "You must be logged in as a teacher to search the database. "
+                "Log in again with a teacher account."
+            )
+        )
+
+    if request.method == "GET" and request.user.is_authenticated:
+        page = request.GET.get("page", default=1)
+        type = request.GET.get("type", default=None)
+        id = request.GET.get("id", default=None)
+        search_string = request.GET.get("search_string", default="")
+        limit_search = request.GET.get("limit_search", default="false")
+        authors = request.GET.getlist("author", default=None)
+        disciplines = request.GET.getlist("discipline", default=None)
+
+        q_obj = Q()
+        if authors[0]:
+            q_obj &= Q(
+                owner__in=Teacher.objects.filter(
+                    user__in=User.objects.filter(username__in=authors)
+                )
+            )
+        if disciplines[0]:
+            q_obj &= Q(
+                discipline__in=Discipline.objects.filter(title__in=disciplines)
+            )
+        is_english = get_language() == "en"
+        # All matching collections
+        search_list = Collection.objects.filter(q_obj)
+
+        search_string_split_list = search_string.split()
+        for string in search_string.split():
+            if is_english and string in en:
+                search_string_split_list.remove(string)
+            elif not is_english and string in fr:
+                search_string_split_list.remove(string)
+        search_terms = [search_string]
+        if len(search_string_split_list) > 1:
+            search_terms.extend(search_string_split_list)
+
+        query = []
+        query_all = []
+        # by searching first for full string, and then for constituent parts,
+        # and preserving order, the results should rank the items higher to the
+        # top that have the entire search_string included
+        query_meta = {}
+        for term in search_terms:
+            query_term = collection_search_function(term, search_list)
+
+            query_term = [q for q in query_term if q not in query_all]
+
+            query_meta[term] = query_term
+
+            query_all.extend(query_term)
+
+        paginator = Paginator(query_all, 50)
+        try:
+            query_subset = paginator.page(page)
+        except PageNotAnInteger:
+            query_subset = paginator.page(1)
+        except EmptyPage:
+            query_subset = paginator.page(paginator.num_pages)
+
+        query = []
+
+        for term in list(query_meta.keys()):
+            query_dict = {}
+            query_dict["term"] = term
+            query_dict["collections"] = [
+                q for q in query_meta[term] if q in query_subset.object_list
+            ]
+            query_dict["count"] = len(query_dict["collections"])
+            query.append(query_dict)
+
+        return TemplateResponse(
+            request,
+            "peerinst/collection/search_results.html",
+            context={
+                "paginator": query_subset,
+                "search_results": query,
+                "count": len(query_all),
+                "previous_search_string": search_terms,
+                "type": type,
+            },
+        )
+    else:
+        return HttpResponse(
+            _("An error occurred.  Retry search after logging in again.")
+        )
+
+
+def collection_search_function(search_string, pre_filtered_list=None):
+
+    query_result = pre_filtered_list.filter(
+        Q(title__icontains=search_string)
+        | Q(description__icontains=search_string)
+    )
+
+    return query_result
+
+
 # AJAX functions
 def question_search(request):
 
@@ -2599,6 +2704,10 @@ def question_search(request):
         id = request.GET.get("id", default=None)
         search_string = request.GET.get("search_string", default="")
         limit_search = request.GET.get("limit_search", default="false")
+        authors = request.GET.getlist("author", default=None)
+        disciplines = request.GET.getlist("discipline", default=None)
+        subjects = request.GET.getlist("subject", default=None)
+        categories = request.GET.getlist("category", default=None)
 
         # Exclusions based on type of search
         q_qs = []
@@ -2624,7 +2733,25 @@ def question_search(request):
             form_field_name = None
 
         # Establish pool of questions for search
-        search_list = Question.unflagged_objects.all()
+        q_obj = Q()
+        if authors[0]:
+            q_obj &= Q(user__in=User.objects.filter(username__in=authors))
+        if disciplines[0]:
+            q_obj &= Q(
+                discipline__in=Discipline.objects.filter(title__in=disciplines)
+            )
+        if subjects[0]:
+            q_obj &= Q(
+                category__in=Category.objects.filter(
+                    subjects__in=Subject.objects.filter(title__in=subjects)
+                ).distinct()
+            )
+        if categories[0]:
+            q_obj &= Q(
+                category__in=Category.objects.filter(title__in=categories)
+            )
+
+        search_list = Question.unflagged_objects.filter(q_obj)
 
         if limit_search == "true":
             search_list = search_list.filter(
@@ -2654,7 +2781,6 @@ def question_search(request):
         query_meta = {}
         for term in search_terms:
             query_term = question_search_function(term, search_list)
-
             query_term = query_term.exclude(id__in=q_qs).distinct()
 
             query_term = [
@@ -2668,7 +2794,7 @@ def question_search(request):
 
             query_all.extend(query_term)
 
-        paginator = Paginator(query_all, 100)
+        paginator = Paginator(query_all, 50)
         try:
             query_subset = paginator.page(page)
         except PageNotAnInteger:
