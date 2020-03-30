@@ -43,7 +43,7 @@ class CollectionForm(ModelForm):
     def __init__(self, *args, **kwargs):
         teacher = kwargs.pop("teacher")
         super(CollectionForm, self).__init__(*args, **kwargs)
-        self.fields["assignments"].queryset = teacher.assignments.all()
+        self.fields["private"].initial = True
         self.fields["discipline"].queryset = teacher.disciplines.all()
 
 
@@ -303,13 +303,22 @@ def collection_add_assignment(request, teacher):
         return args
     (group_pk,), _ = args
 
+    student_group = get_object_or_404(StudentGroup, pk=group_pk)
+
+    title = (student_group.title + "'s curriculum")[:40]
+    description = (
+        "This collection contains all assignments that have been assigned to "
+        + student_group.title
+        + "'s students."
+    )[:200]
+
     collection = Collection.objects.create(
         discipline=teacher.disciplines.first(),
         owner=teacher,
-        title="temporary text",
-        description="temporary text",
+        title=title,
+        description=description,
     )
-    student_group = get_object_or_404(StudentGroup, pk=group_pk)
+
     student_group_assignments = student_group.studentgroupassignment_set.all()
     for assignment in student_group_assignments:
         if assignment.assignment not in collection.assignments.all():
