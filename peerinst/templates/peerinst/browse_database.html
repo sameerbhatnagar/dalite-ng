@@ -18,20 +18,8 @@
   .hidden-mdc-component {
     display: none;
   }
-  #querytype_form {
-    background-color: #54c0db;
-    border-radius: 25px;
-    box-shadow: 1px 1px 1px black;
-    cursor: pointer;
-    height: 60%;
-    margin: 0px auto;
-    position: relative;
-    width: 160px;
-    top: 50%;
-    transform: translateY(-50%);
-  }
-  #querytype-text {
-    color: white;
+  .toggle-text {
+    color: #54c0db;
     cursor: pointer;
     font-weight: 400;
     left: 50%;
@@ -44,6 +32,35 @@
   #querytype-container {
     height: 80px;
   }
+  #question-toggle-button{
+    border-top-left-radius: 35px;
+    border-bottom-left-radius: 35px;
+  }
+  #collection-toggle-button{
+    border-top-right-radius: 35px;
+    border-bottom-right-radius: 35px;
+    float: right;
+  }
+  .mdc-chip__icon.mdc-chip__icon--trailing {
+    pointer-events: none;
+  }
+  .toggle-button{
+    box-shadow: inset 0px 0px 0px 1px #54c0db;
+    display: inline-block;
+    top: 50%;
+    transform: translateY(-50%);
+    position: relative;
+    cursor: pointer;
+    height: 60%;
+    width: 50%;
+  }
+  .selected.toggle-button{
+    background-color: #54c0db;
+  }
+  .selected.toggle-text{
+    color: white;
+  }
+
 </style>
 {% endblock %}
 
@@ -78,9 +95,14 @@
     </div>
 
     <div id="querytype-container" class='field'>
-      <div id="querytype_form">
-        <p id="querytype-text">
-          {% trans 'Search Collections' %}
+      <div id="question-toggle-button" class="toggle-button selected">
+        <p id="question-toggle-text" class="toggle-text selected">
+          {% trans 'Questions' %}
+        </p>
+      </div>
+      <div id="collection-toggle-button" class="toggle-button">
+        <p id="collection-toggle-text" class="toggle-text">
+          {% trans 'Collections' %}
         </p>
       </div>
     </div>
@@ -292,6 +314,10 @@
 
   function toggleCollectionQuery(){
     isCollectionsSearch = true;
+    document.getElementById("question-toggle-button").classList.remove("selected");
+    document.getElementById("question-toggle-text").classList.remove("selected");
+    document.getElementById("collection-toggle-button").classList.add("selected");
+    document.getElementById("collection-toggle-text").classList.add("selected");
     document.getElementById("category-box-container").hidden = true;
     document.getElementById("subject-box-container").hidden = true;
     document.getElementById("toggle-images-field").classList.add("hidden-mdc-component");
@@ -301,6 +327,10 @@
 
   function toggleQuestionQuery(){
     isCollectionsSearch = false;
+    document.getElementById("question-toggle-button").classList.add("selected");
+    document.getElementById("question-toggle-text").classList.add("selected");
+    document.getElementById("collection-toggle-button").classList.remove("selected");
+    document.getElementById("collection-toggle-text").classList.remove("selected");
     document.getElementById("category-box-container").hidden = false;
     document.getElementById("subject-box-container").hidden = false;
     document.getElementById("toggle-images-field").classList.remove("hidden-mdc-component");
@@ -464,17 +494,11 @@
   }
 
   window.addEventListener("load", function() {
-    document.getElementById("querytype_form").addEventListener("click", () => {
-      if (isCollectionsSearch) {
+    document.getElementById("question-toggle-button").addEventListener("click", () => {
         toggleQuestionQuery();
-        document.getElementById("querytype-text").innerHTML = "{% trans 'Search Collections' %}";
-      } else {
-        toggleCollectionQuery();
-        document.getElementById("querytype-text").innerHTML = "{% trans 'Search Questions' %}";
-      }
     });
-    document.getElementById("reset-filters").addEventListener("click", () => {
-      search.reset();
+    document.getElementById("collection-toggle-button").addEventListener("click", () => {
+        toggleCollectionQuery();
     });
   });
 </script>
