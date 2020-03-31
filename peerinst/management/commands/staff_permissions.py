@@ -19,4 +19,4 @@ class Command(BaseCommand):
         staff_permissions = Permission.objects.filter(content_type__in=content_types)
         for permission in staff_permissions:
             staff_group.permissions.add(permission)
-        self.stdout.write("Permissions hav been assigned.")
+        self.stdout.write("Permissions have been assigned.")
