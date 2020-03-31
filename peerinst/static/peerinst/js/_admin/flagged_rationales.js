@@ -20,11 +20,11 @@ function initModel(data) {
 /* update */
 /**********/
 
-async function getRationales() {
+async function getRationales(answerUrl) {
   const req = buildReq({}, "get");
   const resp = await fetch(model.urls.getRationales, req);
   model.state.rationales = (await resp.json()).rationales;
-  updateTableData();
+  updateTableData(answerUrl);
 }
 
 /********/
@@ -48,7 +48,7 @@ function initTables() {
   });
 }
 
-function updateTableData() {
+function updateTableData(answerUrl) {
   const table = $("#flagged-rationales__table").DataTable(); // eslint-disable-line
   table.rows().remove();
   table.rows
@@ -62,17 +62,23 @@ function updateTableData() {
           year: "numeric",
         }),
         d.note,
+        d.answer_pk,
       ]),
     )
     .draw();
+    [].forEach.call(document.querySelectorAll("tr"), el => {
+      el.addEventListener("click", () => {
+        window.location.href = answerUrl+"?q="+el.lastChild.innerHTML;
+      });
+    });
 }
 
 /********/
 /* init */
 /********/
 
-export async function init(data) {
+export async function init(data, answerUrl) {
   initModel(data);
   initView();
-  getRationales();
+  getRationales(answerUrl);
 }

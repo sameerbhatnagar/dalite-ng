@@ -116,9 +116,6 @@ class AnswerInline(admin.StackedInline):
 class CollectionAdmin(admin.ModelAdmin):
     pass
 
-class CollectionSaltiseAdmin(admin.ModelAdmin):
-    fields = ['featured']
-
 @admin.register(Question)
 class QuestionAdmin(admin.ModelAdmin):
     fieldsets = [
@@ -219,7 +216,7 @@ class DisciplineAdmin(admin.ModelAdmin):
 
 @admin.register(Subject)
 class SubjectAdmin(admin.ModelAdmin):
-    pass
+    filter_horizontal = ['categories']
 
 @admin.register(Institution)
 class InstitutionAdmin(admin.ModelAdmin):

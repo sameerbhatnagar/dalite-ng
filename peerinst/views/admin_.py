@@ -133,6 +133,7 @@ def get_flagged_rationales(req: HttpRequest) -> HttpResponse:
                 "annotator": a.annotator.username,
                 "timestamp": a.timestamp,
                 "note": a.note,
+                "answer_pk": a.answer.pk,
             }
             for a in AnswerAnnotation.objects.filter(score=0)
         ]
