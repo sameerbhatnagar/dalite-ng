@@ -32,6 +32,7 @@ from .models import (
     StudentGroupMembership,
     StudentNotification,
     StudentNotificationType,
+    Subject,
     Teacher,
     TeacherNotification,
 )
@@ -115,6 +116,8 @@ class AnswerInline(admin.StackedInline):
 class CollectionAdmin(admin.ModelAdmin):
     pass
 
+class CollectionSaltiseAdmin(admin.ModelAdmin):
+    fields = ['featured']
 
 @admin.register(Question)
 class QuestionAdmin(admin.ModelAdmin):
@@ -214,6 +217,9 @@ class CategoryAdmin(admin.ModelAdmin):
 class DisciplineAdmin(admin.ModelAdmin):
     pass
 
+@admin.register(Subject)
+class SubjectAdmin(admin.ModelAdmin):
+    pass
 
 @admin.register(Institution)
 class InstitutionAdmin(admin.ModelAdmin):
