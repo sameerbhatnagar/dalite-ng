@@ -122,24 +122,28 @@ export function processResponse() {
     const d = this.getAttribute("discipline"); // eslint-disable-line
     if (!disciplineList.includes(d) & (d.slice(1, -1) != "None")) {
       disciplineList.push(d);
-      $("#filter-on-discipline .mdc-chip-set").append(
-        "<div d=" +
-          d +
-          " class='mdc-chip' " +
-          "tabindex='0' data-mdc-auto-init='MDCChip'>" +
-          "<div class='mdc-chip__checkmark' >" +
-          "<svg class='mdc-chip__checkmark-svg' viewBox='-2 -3 30 30'>" +
-          "<path class='mdc-chip__checkmark-path' fill='none' stroke='black'" +
-          "d='M1.73,12.91 8.1,19.28 22.79,4.59'/>" +
-          "</svg>" +
-          "</div>" +
-          "<div class='mdc-chip__text'>" +
-          d.slice(1, -1) +
-          "</div>" +
-          "</div>",
-      );
     }
   });
+  disciplineList.sort();
+  for (let i=0; i<disciplineList.length; i++) {
+    $("#filter-on-discipline .mdc-chip-set").append(
+      "<div d=" +
+        disciplineList[i] +
+        " class='mdc-chip' " +
+        "tabindex='0' data-mdc-auto-init='MDCChip'>" +
+        "<div class='mdc-chip__checkmark' >" +
+        "<svg class='mdc-chip__checkmark-svg' viewBox='-2 -3 30 30'>" +
+        "<path class='mdc-chip__checkmark-path' fill='none' stroke='black'" +
+        "d='M1.73,12.91 8.1,19.28 22.79,4.59'/>" +
+        "</svg>" +
+        "</div>" +
+        "<div class='mdc-chip__text'>" +
+        disciplineList[i].slice(1, -1) +
+        "</div>" +
+        "</div>",
+    );
+  }
+
   $("#filter-on-discipline .mdc-chip").each(function(i, el) {
     el.addEventListener("click", function() {
       filter(el);
@@ -157,26 +161,29 @@ export function processResponse() {
     $(list).each(function(i) {
       if (!categoryList.includes(list[i].toLowerCase()) & (list[i] != "")) {
         categoryList.push(list[i].toLowerCase());
-        $("#filter-on-category .mdc-chip-set").append(
-          "<div c=" +
-            list[i] +
-            " class='mdc-chip' tabindex='0' " +
-            "data-mdc-auto-init='MDCChip'>" +
-            "<div class='mdc-chip__checkmark' >" +
-            "<svg class='mdc-chip__checkmark-svg' viewBox='-2 -3 30 30'>" +
-            "<path class='mdc-chip__checkmark-path' fill='none' " +
-            "stroke='black'" +
-            "d='M1.73,12.91 8.1,19.28 22.79,4.59'/>" +
-            "</svg>" +
-            "</div>" +
-            "<div class='mdc-chip__text'>" +
-            list[i] +
-            "</div>" +
-            "</div>",
-        );
       }
     });
   });
+  categoryList.sort();
+  for (let i=0; i<categoryList.length; i++) {
+    $("#filter-on-category .mdc-chip-set").append(
+      "<div c=" +
+        categoryList[i] +
+        " class='mdc-chip' tabindex='0' " +
+        "data-mdc-auto-init='MDCChip'>" +
+        "<div class='mdc-chip__checkmark' >" +
+        "<svg class='mdc-chip__checkmark-svg' viewBox='-2 -3 30 30'>" +
+        "<path class='mdc-chip__checkmark-path' fill='none' " +
+        "stroke='black'" +
+        "d='M1.73,12.91 8.1,19.28 22.79,4.59'/>" +
+        "</svg>" +
+        "</div>" +
+        "<div class='mdc-chip__text'>" +
+        categoryList[i] +
+        "</div>" +
+        "</div>",
+    );
+  }
   $("#filter-on-category .mdc-chip").each(function(i, el) {
     el.addEventListener("click", function() {
       filter(el);
