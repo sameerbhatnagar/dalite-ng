@@ -66,11 +66,9 @@ function updateTableData(answerUrl) {
       ]),
     )
     .draw();
-    [].forEach.call(document.querySelectorAll("tr"), el => {
-      el.addEventListener("click", () => {
-        window.location.href = answerUrl+"?q="+el.lastChild.innerHTML;
-      });
-    });
+  $("#flagged-rationales__table").on('click', 'tr', function () {
+      window.location.href = answerUrl+"?q="+this.lastChild.innerHTML;
+  });
 }
 
 /********/

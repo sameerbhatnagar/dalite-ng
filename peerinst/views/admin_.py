@@ -135,7 +135,7 @@ def get_flagged_rationales(req: HttpRequest) -> HttpResponse:
                 "note": a.note,
                 "answer_pk": a.answer.pk,
             }
-            for a in AnswerAnnotation.objects.filter(score=0)
+            for a in AnswerAnnotation.objects.filter(score=0, answer__show_to_others=True)
         ]
     }
     return JsonResponse(data)

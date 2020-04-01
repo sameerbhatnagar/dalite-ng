@@ -2,7 +2,7 @@ from django.contrib.auth.models import Group, Permission, User
 from django.contrib.contenttypes.models import ContentType
 from django.core.management.base import BaseCommand
 
-from peerinst.models import Collection, Discipline, Message, QuestionFlag, Subject, QuestionFlagReason
+from peerinst.models import Answer, Collection, Discipline, Message, QuestionFlag, Subject, QuestionFlagReason
 from quality.models import NegWordsCriterionRules
 
 class Command(BaseCommand):
@@ -13,7 +13,7 @@ class Command(BaseCommand):
         for staff_member in staff:
             staff_group.user_set.add(staff_member)
         content_types = []
-        model_list = [Collection, Discipline, Message, QuestionFlag, Subject, QuestionFlagReason, NegWordsCriterionRules]
+        model_list = [Answer, Collection, Discipline, Message, QuestionFlag, Subject, QuestionFlagReason, NegWordsCriterionRules]
         for model in model_list:
             content_types.append(ContentType.objects.get_for_model(model))
         staff_permissions = Permission.objects.filter(content_type__in=content_types)
