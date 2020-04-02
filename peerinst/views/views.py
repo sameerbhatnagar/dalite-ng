@@ -12,7 +12,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.contrib.auth.models import Group
+from django.contrib.auth.models import Group, User
 from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.core.mail import mail_admins, send_mail
@@ -2555,6 +2555,7 @@ def collection_search(request):
             q_obj &= Q(
                 discipline__in=Discipline.objects.filter(title__in=disciplines)
             )
+        q_obj &= Q(private=False)
         is_english = get_language() == "en"
         # All matching collections
         search_list = Collection.objects.filter(q_obj)
