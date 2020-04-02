@@ -48,7 +48,7 @@ dparse==0.4.1             # via safety
 entrypoints==0.3          # via flake8
 factory_boy==2.6          # via -r requirements/requirements-test.txt
 fake-factory==9999.9.9    # via -r requirements/requirements-test.txt, factory-boy
-faker==2.1.2             # via -r requirements/requirements-test.txt, mixer
+faker==4.0.2             # via -r requirements/requirements-test.txt, mixer
 filelock==3.0.12          # via virtualenv
 filetype==1.0.5           # via -r requirements/requirements-base.txt, -r requirements/requirements-test.txt, pinax-forums
 flake8==3.7.9             # via -r requirements/requirements-dev.in

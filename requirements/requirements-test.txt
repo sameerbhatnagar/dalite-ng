@@ -37,7 +37,7 @@ django==2.2.11            # via -r requirements/requirements-base.txt, django-an
 djangorestframework==3.11.0  # via -r requirements/requirements-base.txt
 factory_boy==2.6          # via -r requirements/requirements-test.in
 fake-factory==9999.9.9    # via factory-boy
-faker==2.1.2              # via -r requirements/requirements-test.in, mixer
+faker==4.0.2              # via -r requirements/requirements-test.in, mixer
 filetype==1.0.5           # via -r requirements/requirements-base.txt, pinax-forums
 html5lib==1.0.1           # via -r requirements/requirements-base.txt, django-htmlmin
 idna==2.9                 # via -r requirements/requirements-base.txt, requests
