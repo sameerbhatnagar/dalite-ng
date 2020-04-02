@@ -13,7 +13,7 @@
 amqp==2.5.2               # via kombu
 beautifulsoup4==4.8.2     # via django-htmlmin
 billiard==3.6.3.0         # via celery
-bleach==3.1.1             # via -r requirements/requirements-base.in
+bleach==3.1.4             # via -r requirements/requirements-base.in
 celery[redis]==4.4.0      # via -r requirements/requirements-base.in, django-celery-beat
 certifi==2019.11.28       # via requests
 chardet==3.0.4            # via requests
@@ -30,7 +30,7 @@ django-htmlmin==0.11.0    # via -r requirements/requirements-base.in
 django-security-headers==0.3.1  # via -r requirements/requirements-base.in
 django-sslserver==0.22    # via django-security-headers
 django-timezone-field==4.0  # via django-celery-beat
-django==2.2.10            # via -r requirements/requirements-base.in, django-analytical, django-appconf, django-celery-beat, django-classy-tags, django-cookie-law, django-csp, django-lti-tool-provider, django-security-headers, django-sslserver, django-timezone-field, djangorestframework, jsonfield, pinax-forums
+django==2.2.11            # via -r requirements/requirements-base.in, django-analytical, django-appconf, django-celery-beat, django-classy-tags, django-cookie-law, django-csp, django-lti-tool-provider, django-security-headers, django-sslserver, django-timezone-field, djangorestframework, jsonfield, pinax-forums
 djangorestframework==3.11.0  # via -r requirements/requirements-base.in
 filetype==1.0.5           # via pinax-forums
 html5lib==1.0.1           # via django-htmlmin
