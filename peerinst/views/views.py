@@ -1,11 +1,10 @@
-import base64
 import json
 import logging
 import random
 import re
-import urllib.request
-import urllib.parse
 import urllib.error
+import urllib.parse
+import urllib.request
 from datetime import datetime
 
 import pytz
@@ -14,12 +13,10 @@ from django.contrib import messages
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import Group, User
-from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.core.mail import mail_admins, send_mail
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
-from django.urls import reverse
 
 # reports
 from django.db.models import Count, Q
@@ -28,15 +25,11 @@ from django.forms import Textarea, inlineformset_factory
 
 # blink
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
-from django.shortcuts import (
-    get_object_or_404,
-    redirect,
-    render,
-)
+from django.shortcuts import get_object_or_404, redirect, render
 from django.template import loader
 from django.template.response import TemplateResponse
+from django.urls import reverse
 from django.utils import timezone
-from django.utils.encoding import force_bytes
 from django.utils.html import escape, format_html
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
@@ -79,6 +72,7 @@ from ..models import (
     Category,
     Collection,
     Discipline,
+    NewUserRequest,
     Question,
     RationaleOnlyQuestion,
     ShownRationale,
@@ -88,7 +82,10 @@ from ..models import (
     StudentGroupCourse,
     Subject,
     Teacher,
+    UserType,
+    UserUrl,
 )
+from ..tasks import mail_admins_async
 from ..util import (
     SessionStageData,
     get_object_or_none,
@@ -186,76 +183,6 @@ def landing_page(request):
     )
 
 
-def admin_check(user):
-    return user.is_superuser
-
-
-@login_required
-@user_passes_test(admin_check, login_url="/welcome/", redirect_field_name=None)
-def dashboard(request):
-
-    html_email_template_name = "registration/verification_email.html"
-
-    if request.method == "POST":
-        form = forms.ActivateForm(request.POST)
-        if form.is_valid():
-            user = form.cleaned_data["user"]
-            user.is_active = True
-            user.save()
-
-            if form.cleaned_data["is_teacher"]:
-                teacher = Teacher(user=user)
-                teacher.save()
-
-            if not settings.EMAIL_BACKEND.startswith(
-                "django.core.mail.backends"
-            ):
-                return HttpResponse(status=503)
-
-            link = "{}://{}{}".format(
-                request.scheme,
-                request.get_host(),
-                reverse(
-                    "password_reset_confirm",
-                    kwargs={
-                        "uidb64": base64.urlsafe_b64encode(
-                            force_bytes(user.pk)
-                        ),
-                        "token": default_token_generator.make_token(user),
-                    },
-                ),
-            )
-
-            # Notify user
-            send_mail(
-                _("Please verify your myDalite account"),
-                "Dear {},".format(user.username)
-                + "\n\nYour account has been recently activated. Please visit "
-                "the following link to verify your email address and "
-                "to set your password:\n\n"
-                + link
-                + "\n\nCheers,\nThe myDalite Team",
-                "noreply@myDALITE.org",
-                [user.email],
-                fail_silently=True,
-                html_message=loader.render_to_string(
-                    html_email_template_name,
-                    context={"username": user.username, "link": link},
-                    request=request,
-                ),
-            )
-
-    return TemplateResponse(
-        request,
-        "peerinst/dashboard.html",
-        context={
-            "new_users": User.objects.filter(is_active=False).order_by(
-                "-date_joined"
-            )
-        },
-    )
-
-
 def sign_up(request):
     template = "registration/sign_up.html"
     html_email_template_name = "registration/sign_up_admin_email_html.html"
@@ -268,10 +195,20 @@ def sign_up(request):
             form.instance.is_active = False
             form.save()
             # Notify administrators
+
+            #  print(settings.EMAIL_BACKEND)
             if not settings.EMAIL_BACKEND.startswith(
                 "django.core.mail.backends"
             ):
                 return HttpResponse(status=503)
+
+            # TODO Adapt to different types of user
+            NewUserRequest.objects.create(
+                user=form.instance, type=UserType.objects.get(type="teacher")
+            )
+            UserUrl.objects.create(
+                user=form.instance, url=form.cleaned_data["url"]
+            )
 
             email_context = dict(
                 user=form.cleaned_data["username"],
@@ -280,7 +217,7 @@ def sign_up(request):
                 url=form.cleaned_data["url"],
                 site_name="myDALITE",
             )
-            mail_admins(
+            mail_admins_async(
                 "New user request",
                 "Dear administrator,"
                 "\n\nA new user {} was created on {}.".format(
@@ -291,7 +228,9 @@ def sign_up(request):
                 + "\n\nAccess your administrator account to activate this "
                 "new user."
                 "\n\n{}://{}{}".format(
-                    request.scheme, request.get_host(), reverse("dashboard")
+                    request.scheme,
+                    request.get_host(),
+                    reverse("saltise-admin:new-user-approval"),
                 )
                 + "\n\nCheers,"
                 "\nThe myDalite Team",
@@ -310,6 +249,10 @@ def sign_up(request):
         context["form"] = forms.SignUpForm()
 
     return render(request, template, context)
+
+
+def admin_check(user):
+    return user.is_superuser
 
 
 def terms_teacher(request):
@@ -340,7 +283,7 @@ def welcome(request):
         return HttpResponseRedirect(reverse("student-page"))
 
     elif request.user.is_staff:
-        return HttpResponseRedirect(reverse("assignment-list"))
+        return HttpResponseRedirect(reverse("saltise-admin:index"))
     else:
         return logout_view(request)
 
@@ -2612,6 +2555,7 @@ def collection_search(request):
             q_obj &= Q(
                 discipline__in=Discipline.objects.filter(title__in=disciplines)
             )
+        q_obj &= Q(private=False)
         is_english = get_language() == "en"
         # All matching collections
         search_list = Collection.objects.filter(q_obj)

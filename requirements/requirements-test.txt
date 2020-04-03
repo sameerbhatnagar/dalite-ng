@@ -14,7 +14,7 @@ amqp==2.5.2               # via -r requirements/requirements-base.txt, kombu
 attrs==19.3.0             # via pytest
 beautifulsoup4==4.8.2     # via -r requirements/requirements-base.txt, django-htmlmin
 billiard==3.6.3.0         # via -r requirements/requirements-base.txt, celery
-bleach==3.1.1             # via -r requirements/requirements-base.txt
+bleach==3.1.4             # via -r requirements/requirements-base.txt
 celery[redis]==4.4.0      # via -r requirements/requirements-base.txt, django-celery-beat
 certifi==2019.11.28       # via -r requirements/requirements-base.txt, requests
 chardet==3.0.4            # via -r requirements/requirements-base.txt, requests
@@ -33,11 +33,11 @@ django-htmlmin==0.11.0    # via -r requirements/requirements-base.txt
 django-security-headers==0.3.1  # via -r requirements/requirements-base.txt
 django-sslserver==0.22    # via -r requirements/requirements-base.txt, django-security-headers
 django-timezone-field==4.0  # via -r requirements/requirements-base.txt, django-celery-beat
-django==2.2.10            # via -r requirements/requirements-base.txt, django-analytical, django-appconf, django-celery-beat, django-classy-tags, django-cookie-law, django-csp, django-lti-tool-provider, django-security-headers, django-sslserver, django-timezone-field, djangorestframework, jsonfield, pinax-forums
+django==2.2.11            # via -r requirements/requirements-base.txt, django-analytical, django-appconf, django-celery-beat, django-classy-tags, django-cookie-law, django-csp, django-lti-tool-provider, django-security-headers, django-sslserver, django-timezone-field, djangorestframework, jsonfield, pinax-forums
 djangorestframework==3.11.0  # via -r requirements/requirements-base.txt
 factory_boy==2.6          # via -r requirements/requirements-test.in
 fake-factory==9999.9.9    # via factory-boy
-faker==0.9.1              # via -r requirements/requirements-test.in, mixer
+faker==4.0.2              # via -r requirements/requirements-test.in, mixer
 filetype==1.0.5           # via -r requirements/requirements-base.txt, pinax-forums
 html5lib==1.0.1           # via -r requirements/requirements-base.txt, django-htmlmin
 idna==2.9                 # via -r requirements/requirements-base.txt, requests
@@ -69,7 +69,7 @@ python-crontab==2.4.0     # via -r requirements/requirements-base.txt, django-ce
 python-dateutil==2.8.1    # via -r requirements/requirements-base.txt, faker, pandas, python-crontab
 python-memcached==1.59    # via -r requirements/requirements-base.txt
 pytz==2019.3              # via -r requirements/requirements-base.txt, -r requirements/requirements-test.in, celery, django, django-timezone-field, pandas
-pyyaml==5.3               # via -r requirements/requirements-test.in
+pyyaml==5.3.1             # via -r requirements/requirements-test.in
 rcssmin==1.0.6            # via -r requirements/requirements-base.txt, django-compressor
 redis==3.4.1              # via -r requirements/requirements-base.txt, celery
 requests-oauthlib==1.3.0  # via -r requirements/requirements-base.txt, lti
@@ -80,7 +80,7 @@ six==1.14.0               # via -r requirements/requirements-base.txt, bleach, d
 soupsieve==2.0            # via -r requirements/requirements-base.txt, beautifulsoup4
 sqlparse==0.3.1           # via -r requirements/requirements-base.txt, django
 stevedore==1.32.0         # via -r requirements/requirements-base.txt, edx-opaque-keys
-text-unidecode==1.2       # via faker
+text-unidecode==1.3       # via faker
 urllib3==1.25.8           # via -r requirements/requirements-base.txt, requests
 vine==1.3.0               # via -r requirements/requirements-base.txt, amqp, celery
 wcwidth==0.1.8            # via pytest
