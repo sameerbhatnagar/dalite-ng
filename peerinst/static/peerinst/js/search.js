@@ -93,12 +93,6 @@ export function processResponse() {
     });
   });
 
-  $(".favourite-btn").each(function(i, el) {
-    el.addEventListener("click", function() {
-      toggleFavourite(el.getAttribute("data-id"));
-    });
-  });
-
   $(".update-questions-btn").each(function(i, el) {
     el.addEventListener("click", function() {
       updateAssignmentQuestionList(
@@ -125,7 +119,7 @@ export function processResponse() {
     }
   });
   disciplineList.sort();
-  for (let i=0; i<disciplineList.length; i++) {
+  for (let i = 0; i < disciplineList.length; i++) {
     $("#filter-on-discipline .mdc-chip-set").append(
       "<div d=" +
         disciplineList[i] +
@@ -165,7 +159,7 @@ export function processResponse() {
     });
   });
   categoryList.sort();
-  for (let i=0; i<categoryList.length; i++) {
+  for (let i = 0; i < categoryList.length; i++) {
     $("#filter-on-category .mdc-chip-set").append(
       "<div c=" +
         categoryList[i] +

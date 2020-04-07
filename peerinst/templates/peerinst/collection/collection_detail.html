@@ -119,256 +119,14 @@
         </div>
       </div>
     </div>
-    <ul>
-    {% for obj in object.assignments.all %}
-    <li class="dense-list searchable">
-        <div class="mdc-card" id="card-assign">
-          <div class="mdc-typography--title bold">
-            {{ obj.title|bleach_html|safe }}
-          </div>
-        <div class="mdc-typography--caption">
-          {% trans 'Created by' %} {% for c in obj.owner.all %}
-          {{ c }}{% if not forloop.last %}, {% endif %}
-          {% endfor %}
-        </div>
-        <div class="mdc-typography--body1">
-          <div class="mdc-card" id="desciption">
-            <div class="mdc-typography--body1">
-                <b>{% trans 'Assignment Statistics' %}</b>
-            </div>
-            <div class="mdc-card__actions">
-              <div class="mdc-card__action-buttons">
-                <div class="mdc-typography--caption caption">
-                  <div>
-                    {% trans 'Total Answers' %}:
-                    {{ assignment_data|get_value:obj.pk|get_value:"total_answers" }}
-                  </div>
-                  <div>
-                    {% trans 'Answers Switched' %}:
-                    {{ assignment_data|get_value:obj.pk|get_value:"switches" }}
-                  </div>
-                </div>
-              </div>
-              <div class="mdc-card__action-icons">
-                <div class="mdc-card__action-buttons">
-                  <div class="mdc-typography--caption caption">
-                    <div>
-                      {% trans 'Correct Answers on First Attempt' %}:
-                      {{ assignment_data|get_value:obj.pk|get_value:"correct_first_answers" }}
-                    </div>
-                    <div>
-                      {% trans 'Correct Answers on Second Attempt' %}:
-                      {{ assignment_data|get_value:obj.pk|get_value:"correct_second_answers" }}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="foldable">
-            <h1 class="foldable--title mdc-typography--display1 mdc-theme--secondary">
-              {{ obj.questions.count }} {% if obj.questions.count == 1 %}{% trans 'Question' %}{% else %}{% trans 'Questions' %}{% endif %}
-            </h1>
-            <div class="foldable--body">
-              <ul>
-                {% for question in obj.questions.all %}
-                <li class="dense-list searchable">
-                  <div class="mdc-card"
-                       id="{{ obj.id|safe }}"
-                       discipline="'{{ obj.discipline|safe }}'"
-                       category="{% for c in obj.category.all %}{{ c.title|safe }} {% endfor %}"
-                       matrix="{{ obj.get_matrix|safe }}">
-                    <div class="mdc-typography--title bold">
-                      {{ question.title|bleach_html|safe }}
-                    </div>
-                    <div class="mdc-typography--caption">
-                      #{{ question.id }} {% if question.user %}{% trans 'by' %}
-                      {{ question.user.username }}{% endif %}
-                    </div>
-                    <div class="mdc-typography--body1">
-                      {{ question.text|bleach_html|safe  }}
-                    </div>
-
-                    {% if question.image %}
-                      <img class="question-image"
-                           src="{{ question.image.url|safe }}"
-                           alt="question.image_alt_text">
-                    {% endif %}
-
-                    {% if question.video_url %}
-                    <div id="question-video">
-                      <object class="question-image"
-                              width="640"
-                              height="390"
-                              data="{{ question.video_url|safe }}">
-                      </object>
-                    </div>
-                    {% endif %}
-
-                    <div class="question-answers">
-                      <ul>
-                        {% for label, choice in question.get_choices %}
-                          <li class="dense-list">{{ label }}. {{ choice|bleach_html|safe }}
-                          {% for c in question.answerchoice_set.all %}
-                            {% if forloop.counter == forloop.parentloop.counter %}
-                              {% if c.correct %}
-                                <i class="check material-icons">check</i>
-                              {% endif %}
-                            {% endif %}
-                          {% endfor %}
-                          </li>
-                        {% endfor %}
-                      </ul>
-                    </div>
-
-                    <div class="mdc-card__actions">
-                      <div class="mdc-card__action-buttons">
-                        <div class="mdc-typography--caption">
-                          <div>
-                            {% trans 'Discipline' %}: {{ question.discipline|bleach_html|safe }}
-                          </div>
-                          <div>
-                            {% trans 'Categories' %}:
-                            {% for c in question.category.all %}
-                            {{ c.title|bleach_html|safe }}{% if not forloop.last %}, {% endif %}
-                            {% empty %}
-                            {% trans 'Uncategorized' %}
-                            {% endfor %}
-                          </div>
-                          <div>
-                            {% trans 'Student answers' %}: {{ question.answer_set.all.count }}
-                          </div>
-                        </div>
-                      </div>
-                      <div class="mdc-card__action-icons">
-                        <div id="stats-{{ question.id|safe }}" class="stats">
-                          <i id="activate-dialog-assignments-{{question.id}}" class="material-icons md-24 analytics-tags">description</i>{{ question.assignment_set.all.count }}
-                          <i id="activate-dialog-rationales-{{question.id}}" class="material-icons md-24 analytics-tags">chat</i>{{ question.answer_set.all.count }}
-                          <i id="activate-dialog-analytics-{{ question.id|safe }}"
-                             ref_id="{{ question.id|safe }}"
-                             class="material-icons md-24 analytics-tags">assessment</i>
-                          <span id="rating-{{ question.id|safe }}"></span>
-                        </div>
-                        <i class="mdc-icon-toggle material-icons mdc-theme--primary favourite-btn"
-                            role="button"
-                            aria-pressed="false"
-                            aria-label="Add to favorites" tabindex="0"
-                            {% if question in request.user.teacher.favourite_questions.all %}
-                            data-toggle-off='{"label": "Remove from favourites", "content": "favorite"}'
-                            data-toggle-on='{"label": "Add to favourites", "content": "favorite_border"}'
-                            {% else %}
-                            data-toggle-on='{"label": "Remove from favourites", "content": "favorite"}'
-                            data-toggle-off='{"label": "Add to favourites", "content": "favorite_border"}'
-                            {% endif %}
-                            pk="{{ question.pk|safe }}">
-                            favorite_border
-                        </i>
-                      </div>
-                    </div>
-                  </div>
-
-                     <aside id="dialog-assignments-{{question.id}}"
-                       class="mdc-dialog"
-                       role="alertdialog"
-                       aria-labelledby="label"
-                       aria-describedby="description">
-                       <div class="mdc-dialog__surface">
-                         <header class="mdc-dialog__header">
-                           <h2 id="label" class="mdc-dialog__header__title">
-                             {% trans 'Assignments' %}
-                           </h2>
-                         </header>
-                         <section id="description" class="mdc-dialog__body mdc-dialog__body--scrollable">
-
-                             {% for assignment in question.assignment_set.all %}
-                               <p id="{{ question.id }}" name="assignment" class="items-for-question"><a href="{% url 'question-list' assignment_id=assignment.pk %}">{{ assignment.title }}</a></p>
-                             {% endfor %}
-
-                         </section>
-                         <footer class="mdc-dialog__footer">
-                           <button type="button" class="mdc-button mdc-dialog__footer__button mdc-dialog__footer__button--accept">Ok</button>
-                         </footer>
-                       </div>
-                       <div class="mdc-dialog__backdrop"></div>
-                     </aside>
-
-                     <aside id="dialog-rationales-{{question.id}}"
-                       class="mdc-dialog"
-                       role="alertdialog"
-                       aria-labelledby="label"
-                       aria-describedby="description">
-                       <div class="mdc-dialog__surface">
-                         <header class="mdc-dialog__header">
-                           <h2 id="label" class="mdc-dialog__header__title">
-                             {% trans 'Student rationales' %}
-                           </h2>
-                         </header>
-                         <section id="description" class="mdc-dialog__body mdc-dialog__body--scrollable">
-
-                             {% for answer in question.answer_set.all %}
-                               <p id="{{ question.id }}" name="rationale" class="items-for-question">{{ answer.rationale|safe|striptags  }}</p>
-                             {% endfor %}
-
-                         </section>
-                         <footer class="mdc-dialog__footer">
-                           <button type="button" class="mdc-button mdc-dialog__footer__button mdc-dialog__footer__button--accept">Ok</button>
-                         </footer>
-                       </div>
-                       <div class="mdc-dialog__backdrop"></div>
-                     </aside>
-
-                     <aside id="dialog-analytics-{{question.id}}"
-                       class="mdc-dialog"
-                       role="alertdialog"
-                       aria-labelledby="label"
-                       aria-describedby="description">
-                       <div class="mdc-dialog__surface">
-                         <header class="mdc-dialog__header">
-                           <h2 id="label" class="mdc-dialog__header__title">
-                             {% trans 'Analytics' %}
-                           </h2>
-                         </header>
-                         <section id="description" class="mdc-dialog__body">
-                           <div id="{{ question.id }}" name="analytics" class="items-for-question">
-                             <svg id="first-frequency-{{ question.id }}" width="300" height="80" class="vertical-align"></svg>
-                             <svg id="matrix-{{ question.id }}" width="60" height="60" class="vertical-align"></svg>
-                             <svg id="second-frequency-{{ question.id }}" width="300" height="80" class="vertical-align"></svg>
-                           </div>
-                         </section>
-                         <footer class="mdc-dialog__footer">
-                           <button type="button" class="mdc-button mdc-dialog__footer__button mdc-dialog__footer__button--accept">Ok</button>
-                         </footer>
-                       </div>
-                       <div class="mdc-dialog__backdrop"></div>
-                     </aside>
-                  {% endfor %}
-                </li>
-              </ul>
-            </div>
-          </div>
-        </div>
-        <div class="mdc-card__actions">
-          <div class="mdc-card__action-buttons">
-            <div class="mdc-typography--caption">
-              <div class="admin-link">
-                <a id="assignment-view" href="{% url 'question-list' obj.pk %}">
-                  <b>{% trans 'See More' %}</b>
-                </a>
-              </div>
-            </div>
-          </div>
-      </div>
-        </div>
-    {% empty %}
-    {% trans 'No assignments available.' %}
-    {% endfor %}
-  </li>
-  </ul>
+    <div id="assignment-page"></div>
   </section>
 </main>
 {% endblock %}
 {% block scripts %}
 {{ block.super }}
+<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+<script src="https://unpkg.com/json5@2.1.1/dist/index.min.js" integrity="sha384-gRrJKgBpstjyexh9UmCoTPivgMMb7/EAtEdR5DLbVhiPYdl03QxdzMzbylHUSloD" crossorigin="anonymous"></script>
 <script nonce="{{ request.csp_nonce }}">
   bundle.addDialog();
 
@@ -391,12 +149,6 @@
       }, false);
     }
   );
-
-  function showAnalytics(id){
-    bundle.selectAll("#first_choice-"+id).transition().duration(1000).attr("x",function(d){return bundle.select(this).attr("finalx");}).attr("width",function(d){return bundle.select(this).attr("finalwidth");});
-    bundle.selectAll("#second_choice-"+id).transition().delay(1000).duration(1000).attr("width",function(d){return bundle.select(this).attr("finalwidth");});
-    return;
-  }
 
   [].forEach.call(document.querySelectorAll('.ripple-icon'),
     function(el) {
@@ -431,24 +183,114 @@
       console.info(data);
     })
   }
-  [].forEach.call(document.querySelectorAll(".favourite-btn"), el => {
-    el.addEventListener("click", () => {
-      toggleFavourite(el.getAttribute('pk'));
-    });
-  });
+
 
   [].forEach.call(document.querySelectorAll(".collection-distribute"), el => {
     el.addEventListener("click", () => {
       window.location.assign("{% url 'collection-distribute' object.pk %}");
     });
   });
+
+  function setupAnalytics(){
+    bundle.addDialog();
+    [].forEach.call(document.querySelectorAll('.analytics-tags'),
+      function(el,i,list) {
+        el.addEventListener('click', function() {
+          showAnalytics(el.getAttribute('ref_id'));
+        }, false);
+      }
+    );
+
+    [].forEach.call(document.querySelectorAll('.plot-dialog'),
+      function(el,i,list) {
+        console.log(el);
+        let show = false;
+        const getMatrixJson = JSON5.parse(el.getAttribute("data-get-matrix"));
+        Object.keys(getMatrixJson).forEach(function (property) {
+          if (getMatrixJson[property] != 0){
+            show = true;
+          }
+        });
+        if(show) {
+          bundle.plot(getMatrixJson, JSON5.parse(el.getAttribute("data-get-frequency")),+el.getAttribute("data-id"));
+        } else {
+          const desc = document.getElementById("description-"+el.getAttribute("data-id"));
+          console.log(desc);
+          $(desc).children().slice(0,4).remove();
+        }
+      }
+    );
+
+    [].forEach.call(document.querySelectorAll('.ripple-icon'),
+      function(el) {
+        const ripple = bundle.ripple.MDCRipple.attachTo(el);
+        ripple.unbounded = true;
+      }
+    );
+
+    function showAnalytics(id){
+      bundle.selectAll("#first_choice-"+id).transition().duration(1000).attr("x",function(d){return bundle.select(this).attr("finalx");}).attr("width",function(d){return bundle.select(this).attr("finalwidth");});
+      bundle.selectAll("#second_choice-"+id).transition().delay(1000).duration(1000).attr("width",function(d){return bundle.select(this).attr("finalwidth");});
+      return;
+    }
+  }
+
+  window.addEventListener("load", function() {
+    $('#assignment-page').load("{% url 'collection-paginate' %}", "collection_pk="+"{{ object.pk }}", function(response){
+      setupPaginate();
+      setupPaginateButtons();
+    });
+  });
+
+  function loadPage(page){
+    $('#assignment-page').load("{% url 'collection-paginate' %}"+"?page="+page, "collection_pk="+"{{ object.pk }}", function(response){
+      setupPaginate();
+      setupPaginateButtons();
+    });
+  }
+
+  function setupPaginateButtons(){
+    [].forEach.call(document.querySelectorAll(".search-nav--back"), el => {
+      el.addEventListener("click", () => {
+        loadPage(el.getAttribute("data-page"));
+      });
+    });
+    [].forEach.call(document.querySelectorAll(".search-nav--forward"), el => {
+      el.addEventListener("click", () => {
+        loadPage(el.getAttribute("data-page"));
+      });
+    });
+  }
+
+  function setupPaginate(){
+    bundle.autoInit();
+    [].forEach.call(document.querySelectorAll(".mdc-icon-toggle"), el => {
+      bundle.iconToggle.MDCIconToggle.attachTo(el);
+    });
+    [].forEach.call(document.querySelectorAll(".favourite-btn"), el => {
+      el.addEventListener("click", () => {
+        toggleFavourite(el.getAttribute('pk'));
+      });
+    });
+    Array.from(document.getElementsByClassName("foldable--title")).map(x =>
+      x.addEventListener("click", e => toggleFoldable(e)),
+    );
+    setupAnalytics();
+  }
+
+  function toggleFoldable(event) {
+    const foldable = event.currentTarget.parentNode;
+    if (foldable.classList.contains("foldable__unfolded")) {
+      foldable.classList.remove("foldable__unfolded");
+      foldable.querySelector(".foldable--body").style.overflow = "hidden";
+    } else {
+      foldable.classList.add("foldable__unfolded");
+      setTimeout(function() {
+        foldable.querySelector(".foldable--body").style.overflow = "auto";
+      }, 300);
+    }
+  }
+
 </script>
-<script nonce="{{ request.csp_nonce }}">
-{% for assignment in object.assignments.all %}
-    {% for obj in assignment.questions.all %}
-    console.log({{ obj.get_matrix|safe }});
-    bundle.plot({{ obj.get_matrix|safe }},{{ obj.get_frequency|safe|striptags }},{{ obj.id }});
-    {% endfor %}
-{% endfor %}
-</script>
+
 {% endblock %}

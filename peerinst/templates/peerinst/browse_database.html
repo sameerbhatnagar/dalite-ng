@@ -368,6 +368,13 @@
     }
   }
 
+  function toggleFavourite(pk) {
+    var posting = $.post("{% url 'teacher-toggle-favourite' %}", {pk: pk});
+    posting.done(function(data) {
+      console.info(data);
+    })
+  }
+
   const input = document.getElementById('search-bar');
   input.onchange = async function() {
     if (input.value != "") {
@@ -397,6 +404,11 @@
         $('#search_results').load("{% url 'question-search' %}?author="+authors.join("&author=")+"&discipline="+disciplines.join("&discipline=")+"&subject="+subjects.join("&subject=")+"&category="+categories.join("&category="), "search_string="+input.value, function(response){
           setupAnalytics();
           search.processResponse(response);
+          $(".favourite-btn").each(function(i, el) {
+            el.addEventListener("click", function() {
+              toggleFavourite(el.getAttribute("data-id"));
+            });
+          });
         });
       }
     }
@@ -430,13 +442,18 @@
     search.setupSearch();
     console.info("Searching: "+input.value);
     if (isCollectionsSearch) {
-      $('#search_results').load("{% url 'collection-search' %}?page="+page+"author="+authors.join("&author=")+"&discipline="+disciplines.join("&discipline=")+"&subject="+subjects.join("&subject=")+"&category="+categories.join("&category="), "search_string="+input.value, function(response){
+      $('#search_results').load("{% url 'collection-search' %}?page="+page+"&author="+authors.join("&author=")+"&discipline="+disciplines.join("&discipline=")+"&subject="+subjects.join("&subject=")+"&category="+categories.join("&category="), "search_string="+input.value, function(response){
         processCollectionResponse();
       });
     } else {
-      $('#search_results').load("{% url 'question-search' %}?page="+page+"author="+authors.join("&author=")+"&discipline="+disciplines.join("&discipline=")+"&subject="+subjects.join("&subject=")+"&category="+categories.join("&category="), "search_string="+input.value, function(response){
+      $('#search_results').load("{% url 'question-search' %}?page="+page+"&author="+authors.join("&author=")+"&discipline="+disciplines.join("&discipline=")+"&subject="+subjects.join("&subject=")+"&category="+categories.join("&category="), "search_string="+input.value, function(response){
         setupAnalytics();
         search.processResponse(response);
+        $(".favourite-btn").each(function(i, el) {
+          el.addEventListener("click", function() {
+            toggleFavourite(el.getAttribute("data-id"));
+          });
+        });
       });
     }
   }
