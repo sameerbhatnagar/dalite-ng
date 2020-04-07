@@ -544,6 +544,11 @@ def researcher_patterns():
 def collection_patterns():
     return [
         path(
+            "collection-paginate/",
+            views.collection_paginate,
+            name="collection-paginate",
+        ),
+        path(
             "collection/create/",
             views.CollectionCreateView.as_view(),
             name="collection-create",

@@ -93,12 +93,6 @@ export function processResponse() {
     });
   });
 
-  $(".favourite-btn").each(function(i, el) {
-    el.addEventListener("click", function() {
-      toggleFavourite(el.getAttribute("data-id"));
-    });
-  });
-
   $(".update-questions-btn").each(function(i, el) {
     el.addEventListener("click", function() {
       updateAssignmentQuestionList(
