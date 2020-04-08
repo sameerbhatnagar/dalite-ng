@@ -2684,18 +2684,33 @@ def question_search(request):
             q_obj &= Q(
                 discipline__in=Discipline.objects.filter(title__in=disciplines)
             )
-        if subjects[0]:
+        if categories[0]:
+            if subjects[0]:
+                q_obj &= Q(
+                    category__in=Category.objects.filter(
+                        Q(title__in=categories)
+                        | Q(
+                            subjects__in=Subject.objects.filter(
+                                title__in=subjects
+                            )
+                        )
+                    ).distinct()
+                )
+            else:
+                q_obj &= Q(
+                    category__in=Category.objects.filter(title__in=categories)
+                )
+        elif subjects[0]:
             q_obj &= Q(
                 category__in=Category.objects.filter(
-                    subjects__in=Subject.objects.filter(title__in=subjects)
+                    Q(subjects__in=Subject.objects.filter(title__in=subjects))
                 ).distinct()
             )
-        if categories[0]:
-            q_obj &= Q(
+        search_list = Question.unflagged_objects.filter(q_obj)
+        if categories[0] and subjects[0]:
+            search_list = search_list.filter(
                 category__in=Category.objects.filter(title__in=categories)
             )
-
-        search_list = Question.unflagged_objects.filter(q_obj)
 
         if limit_search == "true":
             search_list = search_list.filter(

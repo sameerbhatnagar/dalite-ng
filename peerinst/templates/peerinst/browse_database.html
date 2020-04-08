@@ -66,6 +66,32 @@
   .selected.toggle-text{
     color: white;
   }
+  #search-button-container{
+    height: 80px;
+  }
+  #search-button{
+    background-color: #54c0db;
+    border-radius: 25px;
+    display: inline-block;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%,-50%);
+    position: relative;
+    cursor: pointer;
+    height: 60%;
+    width: 25%;
+  }
+  #search-button-text{
+    color: white;
+    cursor: pointer;
+    font-weight: 400;
+    left: 50%;
+    margin: 0;
+    margin-right: -50%;
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+  }
 
 </style>
 {% endblock %}
@@ -240,6 +266,14 @@
       </p>
     </div>
 
+    <div id="search-button-container">
+      <div id="search-button">
+        <p id="search-button-text">
+          {% trans 'Search' %}
+        </p>
+      </div>
+    </div>
+
     <div class="mdc-form-field" id="toggle-images-field">
       <span class="mdc-theme--secondary">{% trans 'Show images' %}</span>
       <i class="mdc-icon-toggle material-icons toggle-images mdc-theme--secondary" role="button" aria-pressed="false"
@@ -278,7 +312,7 @@
       <div id="select-filters">
         <div id="discipline-filters" class="display-none"><div>{% trans 'Disciplines: ' %}</div><span id="filter-on-discipline"></span></div>
 
-        <div id="category-filters" class="display-none"><div>{% trans 'Keywords: ' %}</div><span id="filter-on-category"></span></div>
+        <div id="category-filters" class="display-none"><div>{% trans 'Categories: ' %}</div><span id="filter-on-category"></span></div>
 
         <button id="reset-filters" type="button" class='mdc-button mdc-button--raised padded-top' disabled=true'>{% trans 'Clear' %}</button>
       </div>
@@ -382,32 +416,35 @@
   }
 
   const input = document.getElementById('search-bar');
-  input.onchange = async function() {
-    if (input.value != "") {
+
+  let searchedValue = null;
+
+  function query() {
+      searchedValue = input.value;
       let authors = [];
       let disciplines = [];
       let subjects = [];
       let categories = [];
       Array.from(document.getElementsByClassName("category")).forEach((item, i) => {
-        categories.push(item.getAttribute("d").replace(" ","%20"));
+        categories.push(item.getAttribute("d").replace(/ /g,"%20"));
       });
       Array.from(document.getElementsByClassName("username")).forEach((item, i) => {
         authors.push(item.getAttribute("d"));
       });
       Array.from(document.getElementsByClassName("subject")).forEach((item, i) => {
-        subjects.push(item.getAttribute("d").replace(" ","%20"));
+        subjects.push(item.getAttribute("d").replace(/ /g,"%20"));
       });
       Array.from(document.getElementsByClassName("discipline")).forEach((item, i) => {
-        disciplines.push(item.getAttribute("d").replace(" ","%20"));
+        disciplines.push(item.getAttribute("d").replace(/ /g,"%20"));
       });
       search.setupSearch();
-      console.info("Searching: "+input.value);
+      console.info("Searching: "+searchedValue);
       if (isCollectionsSearch) {
-        $('#search_results').load("{% url 'collection-search' %}?author="+authors.join("&author=")+"&discipline="+disciplines.join("&discipline=")+"&subject="+subjects.join("&subject=")+"&category="+categories.join("&category="), "search_string="+input.value, function(response){
+        $('#search_results').load("{% url 'collection-search' %}?author="+authors.join("&author=")+"&discipline="+disciplines.join("&discipline=")+"&subject="+subjects.join("&subject=")+"&category="+categories.join("&category="), "search_string="+searchedValue, function(response){
           processCollectionResponse();
         });
       } else {
-        $('#search_results').load("{% url 'question-search' %}?author="+authors.join("&author=")+"&discipline="+disciplines.join("&discipline=")+"&subject="+subjects.join("&subject=")+"&category="+categories.join("&category="), "search_string="+input.value, function(response){
+        $('#search_results').load("{% url 'question-search' %}?author="+authors.join("&author=")+"&discipline="+disciplines.join("&discipline=")+"&subject="+subjects.join("&subject=")+"&category="+categories.join("&category="), "search_string="+searchedValue, function(response){
           setupAnalytics();
           search.processResponse(response);
           $(".favourite-btn").each(function(i, el) {
@@ -417,7 +454,6 @@
           });
         });
       }
-    }
   }
 
   $.ajaxSetup({
@@ -434,25 +470,25 @@
     let subjects = [];
     let categories = [];
     Array.from(document.getElementsByClassName("category")).forEach((item, i) => {
-      categories.push(item.getAttribute("d").replace(" ","%20"));
+      categories.push(item.getAttribute("d").replace(/ /g,"%20"));
     });
     Array.from(document.getElementsByClassName("username")).forEach((item, i) => {
       authors.push(item.getAttribute("d"));
     });
     Array.from(document.getElementsByClassName("subject")).forEach((item, i) => {
-      subjects.push(item.getAttribute("d").replace(" ","%20"));
+      subjects.push(item.getAttribute("d").replace(/ /g,"%20"));
     });
     Array.from(document.getElementsByClassName("discipline")).forEach((item, i) => {
-      disciplines.push(item.getAttribute("d").replace(" ","%20"));
+      disciplines.push(item.getAttribute("d").replace(/ /g,"%20"));
     });
     search.setupSearch();
-    console.info("Searching: "+input.value);
+    console.info("Searching: "+searchedValue);
     if (isCollectionsSearch) {
-      $('#search_results').load("{% url 'collection-search' %}?page="+page+"&author="+authors.join("&author=")+"&discipline="+disciplines.join("&discipline=")+"&subject="+subjects.join("&subject=")+"&category="+categories.join("&category="), "search_string="+input.value, function(response){
+      $('#search_results').load("{% url 'collection-search' %}?page="+page+"&author="+authors.join("&author=")+"&discipline="+disciplines.join("&discipline=")+"&subject="+subjects.join("&subject=")+"&category="+categories.join("&category="), "search_string="+searchedValue, function(response){
         processCollectionResponse();
       });
     } else {
-      $('#search_results').load("{% url 'question-search' %}?page="+page+"&author="+authors.join("&author=")+"&discipline="+disciplines.join("&discipline=")+"&subject="+subjects.join("&subject=")+"&category="+categories.join("&category="), "search_string="+input.value, function(response){
+      $('#search_results').load("{% url 'question-search' %}?page="+page+"&author="+authors.join("&author=")+"&discipline="+disciplines.join("&discipline=")+"&subject="+subjects.join("&subject=")+"&category="+categories.join("&category="), "search_string="+searchedValue, function(response){
         setupAnalytics();
         search.processResponse(response);
         $(".favourite-btn").each(function(i, el) {
@@ -522,6 +558,9 @@
     });
     document.getElementById("collection-toggle-button").addEventListener("click", () => {
         toggleCollectionQuery();
+    });
+    document.getElementById("search-button").addEventListener('click', () => {
+      query();
     });
   });
 </script>
