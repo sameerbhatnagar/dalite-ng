@@ -7,6 +7,9 @@
 {% compress css %}
 <link href="{% static 'peerinst/css/collection.min.css' %}" rel="stylesheet">
 {% endcompress %}
+{% compress css %}
+<link href="{% static 'peerinst/css/search.min.css' %}" rel="stylesheet">
+{% endcompress %}
 {% endblock %}
 {% block body %}
 <main>
@@ -38,7 +41,7 @@
           </small></p>
           <p><small>
           {% blocktrans %}
-          Your may assign the this collection to one of your student groups by
+          You may assign the this collection to one of your student groups by
           clicking on the assign button below.
           {% endblocktrans %}
         </small></p>
@@ -117,6 +120,16 @@
             </div>
           </div>
         </div>
+      </div>
+    </div>
+    <div id="progressbar" role="progressbar" class="mdc-linear-progress mdc-linear-progress--indeterminate mdc-linear-progress--closed">
+      <div class="mdc-linear-progress__buffering-dots"></div>
+      <div class="mdc-linear-progress__buffer"></div>
+      <div class="mdc-linear-progress__bar mdc-linear-progress__primary-bar">
+        <span class="mdc-linear-progress__bar-inner"></span>
+      </div>
+      <div class="mdc-linear-progress__bar mdc-linear-progress__secondary-bar">
+        <span class="mdc-linear-progress__bar-inner"></span>
       </div>
     </div>
     <div id="assignment-page"></div>
@@ -236,14 +249,18 @@
   }
 
   window.addEventListener("load", function() {
+    $("#progressbar").removeClass("mdc-linear-progress--closed");
     $('#assignment-page').load("{% url 'collection-paginate' %}", "collection_pk="+"{{ object.pk }}", function(response){
+      $("#progressbar").addClass("mdc-linear-progress--closed");
       setupPaginate();
       setupPaginateButtons();
     });
   });
 
   function loadPage(page){
+    $("#progressbar").removeClass("mdc-linear-progress--closed");
     $('#assignment-page').load("{% url 'collection-paginate' %}"+"?page="+page, "collection_pk="+"{{ object.pk }}", function(response){
+      $("#progressbar").addClass("mdc-linear-progress--closed");
       setupPaginate();
       setupPaginateButtons();
     });
