@@ -2679,7 +2679,7 @@ def question_search(request):
         # Establish pool of questions for search
         q_obj = Q()
         if authors[0]:
-            q_obj &= Q(user__in=User.objects.filter(username__in=authors))
+            q_obj &= Q(Q(user__in=User.objects.filter(username__in=authors))|Q(collaborators__in=User.objects.filter(username__in=authors)))
         if disciplines[0]:
             q_obj &= Q(
                 discipline__in=Discipline.objects.filter(title__in=disciplines)
@@ -2716,7 +2716,7 @@ def question_search(request):
             search_list = search_list.filter(
                 discipline__in=request.user.teacher.disciplines.all()
             )
-
+            
         # if meta_search:
         #    search_list = filter(meta_search, search_list)
         is_english = get_language() == "en"

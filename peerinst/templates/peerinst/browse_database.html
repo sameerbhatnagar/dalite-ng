@@ -155,7 +155,7 @@
           </div>
         </div>
         <p class="mdc-text-field-helper-text mdc-text-field-helper-text--persistent" aria-hidden="true">
-          {% trans 'Filter by Author.' %}
+          {% trans 'Filter by Author or Collaborator.' %}
         </p>
 
         <div id='current_usernames' class='mdc-chip-set mdc-chip-set--input' data-mdc-auto-init='MDCChipSet'>
@@ -323,11 +323,14 @@
   </section>
 </main>
 {% endblock %}
-
+"{% url 'question--flag--flag' %}"
 {% block scripts %}
 {{ block.super }}
 {% compress js %}
 <script src="{% static 'peerinst/js/search.min.js' %}"></script>
+{% endcompress %}
+{% compress js %}
+<script src="{% static 'peerinst/js/teacher.min.js' %}"></script>
 {% endcompress %}
 <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
 <script src="https://unpkg.com/json5@2.1.1/dist/index.min.js" integrity="sha384-gRrJKgBpstjyexh9UmCoTPivgMMb7/EAtEdR5DLbVhiPYdl03QxdzMzbylHUSloD" crossorigin="anonymous"></script>
@@ -447,6 +450,7 @@
         $('#search_results').load("{% url 'question-search' %}?author="+authors.join("&author=")+"&discipline="+disciplines.join("&discipline=")+"&subject="+subjects.join("&subject=")+"&category="+categories.join("&category="), "search_string="+searchedValue, function(response){
           setupAnalytics();
           search.processResponse(response);
+          teacher.initSearchFlag("{% url 'question--flag--reasons' %}", "{% url 'question--flag--flag' %}");
           $(".favourite-btn").each(function(i, el) {
             el.addEventListener("click", function() {
               toggleFavourite(el.getAttribute("data-id"));
@@ -491,6 +495,7 @@
       $('#search_results').load("{% url 'question-search' %}?page="+page+"&author="+authors.join("&author=")+"&discipline="+disciplines.join("&discipline=")+"&subject="+subjects.join("&subject=")+"&category="+categories.join("&category="), "search_string="+searchedValue, function(response){
         setupAnalytics();
         search.processResponse(response);
+        teacher.initSearchFlag("{% url 'question--flag--reasons' %}", "{% url 'question--flag--flag' %}");
         $(".favourite-btn").each(function(i, el) {
           el.addEventListener("click", function() {
             toggleFavourite(el.getAttribute("data-id"));

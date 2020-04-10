@@ -356,7 +356,11 @@ def question_search_function(search_string, pre_filtered_list=None):
     )
     if search_string.isdigit():
         query_result = (
-            search_list.filter(pk=int(search_string))
+            search_list.filter(
+                Q(text__icontains=search_string)
+                | Q(title__icontains=search_string)
+                | Q(pk=int(search_string))
+            )
             .annotate(answer_count=Count("answer", distinct=True))
             .order_by("-answer_count")
         )
