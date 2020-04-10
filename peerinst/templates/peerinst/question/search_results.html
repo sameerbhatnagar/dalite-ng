@@ -216,7 +216,7 @@
               <li id="{{ g.id }}" name="rationale" class="items-for-question">{{ answer_choice.Answer }}. {{ answer_choice.answer_text|safe|striptags }}</li>
               <ul>
                 {% for rationale in answer_choice.most_convincing %}
-                    <li id="{{ g.id }}" data-id="{{ rationale.id }}" name="rationale" class="items-for-question">({{ rationale.times_chosen }}/{{ rationale.times_shown }}) {{ rationale.rationale|safe|striptags }}</li>
+                    <li id="{{ g.id }}" data-id="{{ rationale.id }}" name="rationale" class="items-for-question"><span class="rationale-stats">({% trans 'Chosen by' %} {{ rationale.times_chosen }} {% trans 'of' %} {{ rationale.times_shown }})</span> {{ rationale.rationale|safe|striptags }}</li>
                 {% endfor %}
               </ul>
 
@@ -226,7 +226,7 @@
             {% trans 'Assignments using ' %}{{ g.title }}
           </h2>
           {% for assignment in g.assignment_set.all %}
-            <p id="{{ g.id }}" name="assignment" class="items-for-question"><a href="{% url 'question-list' assignment_id=assignment.pk %}">{{ assignment.title }}</a></p>
+            <p id="{{ g.id }}" name="assignment" class="items-for-question"><a class="assignment-link" href="{% url 'question-list' assignment_id=assignment.pk %}">{{ assignment.title }}</a></p>
           {% endfor %}
         </section>
         <footer class="mdc-dialog__footer">

@@ -12,6 +12,13 @@
 {% endcompress %}
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 <style nonce="{{ request.csp_nonce }}">
+  .assignment-link{
+    color: black;
+  }
+  .rationale-stats{
+    font-weight: 600;
+    color: #004266;
+  }
   #thumbnail{
     border-radius: 50%;
     height: 50px;
@@ -120,7 +127,7 @@
       <div class='field'>
         <p><small>
           {% blocktrans %}
-          Explore the myDalite database using a keyword search.  You will be able to refine your search results using filters on discipline and category.
+          Explore the myDalite database using a keyword search.  You will be able to refine your search results using filters.
           {% endblocktrans %}
         </small></p>
       </div>
@@ -183,7 +190,7 @@
           </div>
         </div>
         <p class="mdc-text-field-helper-text mdc-text-field-helper-text--persistent" aria-hidden="true">
-          {% trans 'Filter by Discipline.' %}
+          {% trans 'Filter by Discipline. (e.g. Physics)' %}
         </p>
 
         <div id='current_disciplines' class='mdc-chip-set mdc-chip-set--input' data-mdc-auto-init='MDCChipSet'>
@@ -211,7 +218,7 @@
           </div>
         </div>
         <p class="mdc-text-field-helper-text mdc-text-field-helper-text--persistent" aria-hidden="true">
-          {% trans 'Filter by Subject.' %}
+          {% trans 'Filter by Subject. (e.g. Mechanics)' %}
         </p>
 
         <div id='current_subjects' class='mdc-chip-set mdc-chip-set--input' data-mdc-auto-init='MDCChipSet'>
@@ -239,7 +246,7 @@
           </div>
         </div>
         <p class="mdc-text-field-helper-text mdc-text-field-helper-text--persistent" aria-hidden="true">
-          {% trans 'Filter by Category.' %}
+          {% trans 'Filter by Category. (e.g. Dynamics)' %}
         </p>
         <div id='current_categories' class='mdc-chip-set mdc-chip-set--input' data-mdc-auto-init='MDCChipSet'>
         </div>
@@ -262,7 +269,7 @@
         <div class="mdc-notched-outline__idle"></div>
       </div>
       <p class="mdc-text-field-helper-text mdc-text-field-helper-text--persistent" aria-hidden="true">
-        {% trans 'The search engine checks titles and descriptions for each keyword as well as the complete phrase.' %}
+        {% trans 'The search engine checks titles and descriptions for each term and for the complete search phrase.' %}
       </p>
     </div>
 
