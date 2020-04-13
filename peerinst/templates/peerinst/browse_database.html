@@ -11,96 +11,6 @@
 <link href="{% static 'peerinst/css/question.min.css' %}" rel="stylesheet">
 {% endcompress %}
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-<style nonce="{{ request.csp_nonce }}">
-  .assignment-link{
-    color: black;
-  }
-  .rationale-stats{
-    font-weight: 600;
-    color: #004266;
-  }
-  #thumbnail{
-    border-radius: 50%;
-    height: 50px;
-    margin-bottom: -9px;
-    width: 50px;
-  }
-  #category-filters {
-    margin-top: 10px;
-  }
-  .hidden-mdc-component {
-    display: none;
-  }
-  .toggle-text {
-    color: #54c0db;
-    cursor: pointer;
-    font-weight: 400;
-    left: 50%;
-    margin: 0;
-    margin-right: -50%;
-    position: absolute;
-    top: 50%;
-    transform: translate(-50%, -50%);
-  }
-  #querytype-container {
-    height: 80px;
-  }
-  #question-toggle-button{
-    border-top-left-radius: 35px;
-    border-bottom-left-radius: 35px;
-  }
-  #collection-toggle-button{
-    border-top-right-radius: 35px;
-    border-bottom-right-radius: 35px;
-    float: right;
-  }
-  .mdc-chip__icon.mdc-chip__icon--trailing {
-    pointer-events: none;
-  }
-  .toggle-button{
-    box-shadow: inset 0px 0px 0px 1px #54c0db;
-    display: inline-block;
-    top: 50%;
-    transform: translateY(-50%);
-    position: relative;
-    cursor: pointer;
-    height: 60%;
-    width: 50%;
-  }
-  .selected.toggle-button{
-    background-color: #54c0db;
-  }
-  .selected.toggle-text{
-    color: white;
-  }
-  #search-button-container{
-    height: 80px;
-  }
-  #search-button{
-    background-color: #54c0db;
-    border-radius: 25px;
-    display: inline-block;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%,-50%);
-    position: relative;
-    cursor: pointer;
-    height: 60%;
-    width: 25%;
-  }
-  #search-button-text{
-    color: white;
-    cursor: pointer;
-    font-weight: 400;
-    left: 50%;
-    margin: 0;
-    margin-right: -50%;
-    position: absolute;
-    top: 50%;
-    transform: translate(-50%, -50%);
-  }
-
-</style>
 {% endblock %}
 
 {% block body %}
@@ -330,7 +240,7 @@
   </section>
 </main>
 {% endblock %}
-"{% url 'question--flag--flag' %}"
+
 {% block scripts %}
 {{ block.super }}
 {% compress js %}

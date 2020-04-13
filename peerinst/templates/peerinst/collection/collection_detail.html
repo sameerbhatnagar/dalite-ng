@@ -138,6 +138,9 @@
 {% endblock %}
 {% block scripts %}
 {{ block.super }}
+{% compress js %}
+<script src="{% static 'peerinst/js/teacher.min.js' %}"></script>
+{% endcompress %}
 <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
 <script src="https://unpkg.com/json5@2.1.1/dist/index.min.js" integrity="sha384-gRrJKgBpstjyexh9UmCoTPivgMMb7/EAtEdR5DLbVhiPYdl03QxdzMzbylHUSloD" crossorigin="anonymous"></script>
 <script nonce="{{ request.csp_nonce }}">
@@ -216,7 +219,6 @@
 
     [].forEach.call(document.querySelectorAll('.plot-dialog'),
       function(el,i,list) {
-        console.log(el);
         let show = false;
         const getMatrixJson = JSON5.parse(el.getAttribute("data-get-matrix"));
         Object.keys(getMatrixJson).forEach(function (property) {
@@ -228,8 +230,7 @@
           bundle.plot(getMatrixJson, JSON5.parse(el.getAttribute("data-get-frequency")),+el.getAttribute("data-id"));
         } else {
           const desc = document.getElementById("description-"+el.getAttribute("data-id"));
-          console.log(desc);
-          $(desc).children().slice(0,4).remove();
+          $(desc).children().slice(0,5).remove();
         }
       }
     );
@@ -254,6 +255,7 @@
       $("#progressbar").addClass("mdc-linear-progress--closed");
       setupPaginate();
       setupPaginateButtons();
+      teacher.initSearchFlag("{% url 'question--flag--reasons' %}", "{% url 'question--flag--flag' %}");
     });
   });
 
@@ -263,6 +265,7 @@
       $("#progressbar").addClass("mdc-linear-progress--closed");
       setupPaginate();
       setupPaginateButtons();
+      teacher.initSearchFlag("{% url 'question--flag--reasons' %}", "{% url 'question--flag--flag' %}");
     });
   }
 

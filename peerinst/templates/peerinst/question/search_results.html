@@ -211,12 +211,22 @@
           <h2 id="label" class="mdc-dialog__header__title">
             {% trans 'Rationales' %}
           </h2>
+          <div class='field-container'>
+            <div class='number-box'><span class='number'>?</span></div>
+            <div class='field'>
+              <p class="dialog-help-text"><small>
+                {% blocktrans %}
+                The following rationales consist of the most popular, while the preceding fraction indicates, of those that have viewed the rationale, how many have chosen it.
+                {% endblocktrans %}
+              </small></p>
+            </div>
+          </div>
           <ul>
             {% for answer_choice in g.get_most_convincing_rationales %}
               <li id="{{ g.id }}" name="rationale" class="items-for-question">{{ answer_choice.Answer }}. {{ answer_choice.answer_text|safe|striptags }}</li>
               <ul>
                 {% for rationale in answer_choice.most_convincing %}
-                    <li id="{{ g.id }}" data-id="{{ rationale.id }}" name="rationale" class="items-for-question"><span class="rationale-stats">({% trans 'Chosen by' %} {{ rationale.times_chosen }} {% trans 'of' %} {{ rationale.times_shown }})</span> {{ rationale.rationale|safe|striptags }}</li>
+                    <li id="{{ g.id }}" data-id="{{ rationale.id }}" name="rationale" class="items-for-question"><span class="rationale-stats">({{ rationale.times_chosen }}/{{ rationale.times_shown }})</span> {{ rationale.rationale|safe|striptags }}</li>
                 {% endfor %}
               </ul>
 
