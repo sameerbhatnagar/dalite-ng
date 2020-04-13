@@ -159,7 +159,7 @@ def spacy_tokenizer(doc):
     return [token.lemma_ for token in tokens]
 
 
-def get_pipeline(corpus=None, vector_model="lda"):
+def get_pipeline(vector_model="lsa"):
     """
     Return sklearn pipeline object which has gone through grid search for
     best fit based on corpus
@@ -168,18 +168,18 @@ def get_pipeline(corpus=None, vector_model="lda"):
         [("count", CountVectorizer(tokenizer=spacy_tokenizer))]
     )
 
-    if vector_model == "lda":
-        param_grid = {"lda__n_components": [1, 2, 3, 4]}
-        pipeline.steps.append(("lda", LatentDirichletAllocation()))
-        search = GridSearchCV(pipeline, param_grid).fit(corpus)
-        return search.best_estimator_
+    # if vector_model == "lda":
+    #     param_grid = {"lda__n_components": [1, 2, 3, 4]}
+    #     pipeline.steps.append(("lda", LatentDirichletAllocation()))
+    #     search = GridSearchCV(pipeline, param_grid).fit(corpus)
+    #     return search.best_estimator_
 
     if vector_model == "lsa":
         pipeline.steps.extend(
             [
                 ("tfidf", TfidfTransformer()),
-                # ("svd", TruncatedSVD()),
-                ("select_k_best", SelectKBest(mutual_info_regression)),
+                ("svd", TruncatedSVD()),
+                # ("select_k_best", SelectKBest(mutual_info_regression)),
             ]
         )
 
