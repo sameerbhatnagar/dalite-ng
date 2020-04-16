@@ -132,7 +132,7 @@ def old_patterns():
             name="live",
         ),
         path(
-            "live/navigate/(?P<assignment_id>\w+)/(?P<question_id>\d+)/(?P<direction>(next|prev|goto))/(?P<index>[0-9x]+)",  # noqa
+            "live/navigate/<assignment_id>/<question_id>/<direction>/<index>",  # noqa
             views.navigate_assignment,
             name="navigate-assignment",
         ),
