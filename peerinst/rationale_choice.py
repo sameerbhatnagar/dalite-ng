@@ -107,6 +107,16 @@ def _base_selection_algorithm(
         other_rationales = all_rationales.exclude(
             first_answer_choice=first_choice
         )
+
+        most_popular_choice = (
+            other_rationales.values("first_answer_choice")
+            .annotate(answer_count=Count("first_answer_choice"))
+            .order_by("-answer_count")[0]["first_answer_choice"]
+        )
+        other_rationales = other_rationales.filter(
+            first_answer_choice=most_popular_choice
+        )
+
         # We don't use rng.choice() to avoid fetching all rationales
         # from the database.
         try:
