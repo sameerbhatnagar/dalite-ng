@@ -108,21 +108,27 @@ def _base_selection_algorithm(
             first_answer_choice=first_choice
         )
 
-        most_popular_choice = (
+        sorted_choices = (
             other_rationales.values("first_answer_choice")
             .annotate(answer_count=Count("first_answer_choice"))
-            .order_by("-answer_count")[0]["first_answer_choice"]
+            .order_by("-answer_count")
         )
-        other_rationales = other_rationales.filter(
-            first_answer_choice=most_popular_choice
-        )
+
+        if sorted_choices[0]:
+            most_pop_choice = sorted_choices[0]["first_answer_choice"]
+        else:
+            second_choice = None
+        if sorted_choices[1]:
+            third_choice = sorted_choices[1]["first_answer_choice"]
+        else:
+            third_choice = None
 
         # We don't use rng.choice() to avoid fetching all rationales
         # from the database.
         try:
-            random_rationale = other_rationales[
-                rng.randrange(other_rationales.count())
-            ]
+
+            sorted_choices[0]
+
         except ValueError:
             raise RationaleSelectionError(
                 ugettext(
@@ -130,29 +136,41 @@ def _base_selection_algorithm(
                     provide example answers."""
                 )
             )
-        second_choice = random_rationale.first_answer_choice
+
     else:
         # Select a random correct answer.  We assume that a correct
         # answer exists.
         second_choice = rng.choice(
             [i for i, choice in enumerate(answer_choices, 1) if choice.correct]
         )
-    chosen_choices = []
-    for choice in [first_choice, second_choice]:
-        label = question.get_choice_label(choice)
-        # Get all rationales for the current choice.
-        rationales = all_rationales.filter(first_answer_choice=choice)
-        # Select up to four rationales for each choice, if available.
-        if rationales:
-            rationales = selection_callback(rng, rationales)
-            rationales = [(r.id, r.rationale) for r in rationales]
+        if len(answer_choices) > 2:
+            third_choice = rng.choice(
+                [
+                    i
+                    for i, choice in enumerate(answer_choices, 1)
+                    if not choice == second_choice and not choice.correct
+                ]
+            )
         else:
-            rationales = []
-        chosen_choices.append((choice, label, rationales))
+            third_choice = None
+    chosen_choices = []
+    for choice in [first_choice, second_choice, third_choice]:
+        if choice:
+            label = question.get_choice_label(choice)
+            # Get all rationales for the current choice.
+            rationales = all_rationales.filter(first_answer_choice=choice)
+            # Select up to four rationales for each choice, if available.
+            if rationales:
+                rationales = selection_callback(rng, rationales)
+                rationales = [(r.id, r.rationale) for r in rationales]
+            else:
+                rationales = []
+            chosen_choices.append((choice, label, rationales))
     # Include the rationale the student entered in the choices.
-    chosen_choices[0][2].append(
-        (None, ugettext("I stick with my own rationale."))
-    )
+
+    # chosen_choices[0][2].append((None, ugettext("I stick with my own rationale."))
+    print(chosen_choices)
+
     return chosen_choices
 
 
