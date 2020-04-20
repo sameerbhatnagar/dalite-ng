@@ -41,7 +41,9 @@
           </div>
         </li>
       {% endfor %}
+      {% if rationale_choice.count > 2 %}
       <div class="expand-button" data-rationale-iterator="{{ forloop.counter }}"><b>See More</b></div>
+      {% endif %}
       </ul>
     </div>
   </div>
