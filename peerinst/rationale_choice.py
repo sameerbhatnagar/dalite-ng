@@ -115,7 +115,7 @@ def _base_selection_algorithm(
         )
 
         if sorted_choices[0]:
-            most_pop_choice = sorted_choices[0]["first_answer_choice"]
+            second_choice = sorted_choices[0]["first_answer_choice"]
         else:
             second_choice = None
         if sorted_choices[1]:
