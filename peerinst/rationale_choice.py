@@ -27,7 +27,7 @@ To make an algorithm available to users, make sure to add it to
 the "algorithms" dictionary at the end of this file.
 """
 
-
+import random
 from itertools import chain
 
 from django.conf import settings
@@ -144,17 +144,25 @@ def _base_selection_algorithm(
             [i for i, choice in enumerate(answer_choices, 1) if choice.correct]
         )
         if len(answer_choices) > 2:
-            third_choice = rng.choice(
-                [
-                    i
-                    for i, choice in enumerate(answer_choices, 1)
-                    if not choice == second_choice and not choice.correct
-                ]
+            other_rationales = all_rationales.exclude(
+                first_answer_choice__in=[first_choice, second_choice]
             )
+            sorted_choices = (
+                other_rationales.values("first_answer_choice")
+                .annotate(answer_count=Count("first_answer_choice"))
+                .order_by("-answer_count")
+            )
+            third_choice = sorted_choices[0]["first_answer_choice"]
         else:
             third_choice = None
     chosen_choices = []
-    for choice in [first_choice, second_choice, third_choice]:
+
+    if bool(random.getrandbits(1)):
+        answer_choices_list = [first_choice, second_choice, third_choice]
+    else:
+        answer_choices_list = [first_choice, third_choice, second_choice]
+
+    for choice in answer_choices_list:
         if choice:
             label = question.get_choice_label(choice)
             # Get all rationales for the current choice.
