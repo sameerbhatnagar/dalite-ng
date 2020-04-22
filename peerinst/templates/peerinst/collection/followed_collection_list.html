@@ -122,7 +122,11 @@
 {% endcompress %}
 <script nonce="{{ request.csp_nonce }}">
 window.addEventListener("load", function() {
-    collection.initCollectionList("{% url 'collection-detail' 0 %}", "{% url 'teacher-toggle-follower' %}" ,"{% trans 'Followers' %}: ");
+    collection.initCollectionList(
+      "{% url 'collection-detail' 0 %}",
+      "{% url 'teacher-toggle-follower' %}",
+      "{% trans 'Followers' %}: ",
+    );
 });
 </script>
 {% endblock %}

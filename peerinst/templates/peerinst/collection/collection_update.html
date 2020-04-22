@@ -316,47 +316,12 @@
 {% endblock %}
 {% block scripts %}
 {{ block.super }}
-  <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
-  <script nonce="{{ request.csp_nonce }}">
-
-    [].forEach.call(document.querySelectorAll(".mdc-icon-toggle"), el => {
-      bundle.iconToggle.MDCIconToggle.attachTo(el);
-    });
-
-    $.ajaxSetup({
-        beforeSend: function(xhr, settings) {
-            if (!bundle.csrfSafeMethod(settings.type) && !this.crossDomain) {
-                xhr.setRequestHeader("X-CSRFToken", bundle.getCsrfToken());
-            }
-        }
-    });
-
-
-    function toggleAssignment(pk, ppk) {
-      var posting = $.post("{% url 'collection-toggle-assignment' %}", {pk: pk, ppk: ppk});
-      posting.done(function(data) {
-        console.info(data);
-      })
-    }
-
-
-    [].forEach.call(document.querySelectorAll(".follower-btn"), el => {
-      el.addEventListener("click", () => {
-        toggleAssignment(el.getAttribute('pk'), el.getAttribute('ppk'));
-      });
-    });
-
-  function enumerate(){
-    var counter = 1;
-    $('.number-box:visible').each(function() {
-      var el = $(this).children('.number')[0];
-      if (el.innerHTML == "") {
-        el.innerHTML = counter;
-        counter++;
-      }
-      return;
-    });
-  }
-  enumerate();
+{% compress js %}
+<script src="{% static 'peerinst/js/collection.min.js' %}"></script>
+{% endcompress %}
+<script nonce="{{ request.csp_nonce }}">
+window.addEventListener("load", function() {
+    collection.initCollectionUpdate("{% url 'collection-toggle-assignment' %}");
+});
 </script>
 {% endblock %}
