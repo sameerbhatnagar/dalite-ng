@@ -516,8 +516,35 @@ class EventLogTest(QuestionViewTestCase):
         self.assertEqual(event["event"]["rationale"], "my rationale text")
         logger.reset_mock()
 
-        # Select our own rationale and verify the logged event
-        self.question_post(second_answer_choice=2, rationale_choice_0="None")
+        # Provide a first answer and a rationale.
+        first_answer_choice = 2
+        first_choice_label = self.question.get_choice_label(2)
+        rationale = "my rationale text"
+        response = self.question_post(
+            first_answer_choice=first_answer_choice, rationale=rationale
+        )
+        stage_data = SessionStageData(self.client.session, self.custom_key)
+        rationale_choices = stage_data.get("rationale_choices")
+        second_answer_choices = [
+            choice
+            for choice, unused_label, unused_rationales in rationale_choices
+        ]
+        # Select a different answer during review.
+        second_answer_choice = next(
+            choice
+            for choice in second_answer_choices
+            if choice != first_answer_choice
+        )
+        second_choice_label = self.question.get_choice_label(
+            second_answer_choice
+        )
+        chosen_rationale = int(rationale_choices[1][2][0][0])
+        self.question_post(
+            second_answer_choice=second_answer_choice,
+            rationale_choice_1=chosen_rationale,
+        )
+
+        # Select a rationale and verify the logged event
         event = self.verify_event(
             logger,
             scoring_disabled=scoring_disabled,
