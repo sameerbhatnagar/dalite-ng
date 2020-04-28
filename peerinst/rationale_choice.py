@@ -166,8 +166,13 @@ def _base_selection_algorithm(
         if choice:
             label = question.get_choice_label(choice)
             # Get all rationales for the current choice.
-            rationales = all_rationales.filter(
-                first_answer_choice=choice, expert=False
+            rationales = (
+                all_rationales.filter(first_answer_choice=choice, expert=False)
+                if all_rationales.filter(
+                    first_answer_choice=choice, expert=False
+                ).count()
+                > 1
+                else all_rationales.filter(first_answer_choice=choice)
             )
             # Select up to four rationales for each choice, if available.
             if rationales:
