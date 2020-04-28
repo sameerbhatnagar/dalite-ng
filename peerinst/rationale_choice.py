@@ -183,7 +183,7 @@ def _base_selection_algorithm(
             chosen_choices.append((choice, label, rationales))
     # Include the rationale the student entered in the choices.
 
-    # chosen_choices[0][2].append((None, ugettext("I stick with my own rationale."))
+    chosen_choices[0][2].append((None, ugettext("I stick with my own rationale."))
 
     return chosen_choices
 
