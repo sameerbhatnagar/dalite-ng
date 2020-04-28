@@ -78,10 +78,18 @@
       function(el,i,list) {
         el.addEventListener('click', function() {
           els = document.getElementsByClassName("hidden-"+el.getAttribute("data-rationale-iterator"));
+          let shownCounter = 0;
+          const isLastShowMore = false;
           for (let i=0; i<els.length; i++){
-            els[i].hidden = false;
+            if (els[i].hidden == true && shownCounter<2){
+              els[i].hidden = false;
+              shownCounter++;
+              if (i==els.length-1) {
+                el.hidden = true;
+                break;
+              }
+            }
           }
-          el.hidden = true;
         });
       }
     );

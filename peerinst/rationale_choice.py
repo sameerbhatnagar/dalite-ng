@@ -191,7 +191,7 @@ def _base_selection_algorithm(
 
 
 def simple(
-    rng, first_answer_choice, entered_rationale, question, max_rationales=4
+    rng, first_answer_choice, entered_rationale, question, max_rationales=10
 ):
     def callback(rng, rationales):
         return rng.sample(
