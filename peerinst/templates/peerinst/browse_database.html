@@ -484,6 +484,9 @@
     document.getElementById("search-button").addEventListener('click', () => {
       query();
     });
+    document.getElementById("reset-filters").addEventListener("click", () => {
+       search.reset();
+     });
   });
 </script>
 {% endblock %}
