@@ -22,7 +22,7 @@
 {% block inner_form %}
 {{ form.non_field_errors }}
 <div class="rationales mdc-typography--body1">
-  {% for second_answer_choice, rationale_choice in form.rationale_groups %}
+  {% for second_answer_choice, rationale_choice, show_more_counters, label, rationale_ids in form.rationale_groups %}
   <div class="rationale" id="rationales-{{ forloop.counter0 }}">
     <div class="rationale-choice">{{ second_answer_choice }}.</div>
     <div class="rationale-text-container">{{ rationale_choice.errors }}
@@ -41,6 +41,10 @@
           </div>
         </li>
         {% if forloop.counter > 2 and forloop.last %}
+        <input type="{{ show_more_counters.type }}"
+                name="{{ show_more_counters.name }}"
+                id="show-counter-{{ forloop.parentloop.counter }}"
+                value="2" hidden>
         <div class="expand-button" data-rationale-iterator="{{ forloop.parentloop.counter }}"><b>See More</b></div>
         {% endif %}
       {% endfor %}
@@ -77,7 +81,8 @@
     [].forEach.call(document.querySelectorAll('.expand-button'),
       function(el,i,list) {
         el.addEventListener('click', function() {
-          els = document.getElementsByClassName("hidden-"+el.getAttribute("data-rationale-iterator"));
+          const els = document.getElementsByClassName("hidden-"+el.getAttribute("data-rationale-iterator"));
+          const showCounter = document.getElementById("show-counter-"+el.getAttribute("data-rationale-iterator"))
           let shownCounter = 0;
           const isLastShowMore = false;
           for (let i=0; i<els.length; i++){
@@ -88,6 +93,7 @@
                 el.hidden = true;
                 break;
               }
+              showCounter.setAttribute("value",+showCounter.getAttribute("value")+1);
             }
           }
         });

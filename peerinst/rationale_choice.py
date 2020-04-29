@@ -268,7 +268,7 @@ def prefer_expert_and_highly_voted(
         # Fill up with random other rationales
         chosen.extend(
             rng.sample(
-                list(rationales), min(4 - len(chosen), rationales.count())
+                list(rationales), min(10 - len(chosen), rationales.count())
             )
         )
         rng.shuffle(chosen)
