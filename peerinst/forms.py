@@ -151,9 +151,10 @@ class ReviewAnswerForm(forms.Form):
             label,
             rationale_ids,
         ) in self.rationale_groups:
-            for i in range(cleaned_data[label]):
-                if rationale_ids[i] is not None:
-                    shown_rationales.append(rationale_ids[i])
+            if cleaned_data is not None:
+                for i in range(cleaned_data[label]):
+                    if rationale_ids[i] is not None:
+                        shown_rationales.append(rationale_ids[i])
         self.shown_rationales = shown_rationales
         rationale_choices = [
             value
