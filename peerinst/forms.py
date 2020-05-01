@@ -156,7 +156,7 @@ class ReviewAnswerForm(forms.Form):
                     for i in range(cleaned_data[label]):
                         if rationale_ids[i] is not None:
                             shown_rationales.append(rationale_ids[i])
-        self.shown_rationales = shown_rationales
+        self.shown_rationales = shown_rationales if shown_rationales else None
         rationale_choices = [
             value
             for key, value in cleaned_data.items()
