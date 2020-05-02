@@ -97,6 +97,17 @@ def _base_selection_algorithm(
     except Quality.DoesNotExist:
         pass
 
+    try:
+        t = all_rationales.values("first_answer_choice").annotate(
+            answer_count=Count("first_answer_choice")
+        )[answer_choices.count() - 1]
+    except IndexError:
+        raise RationaleSelectionError(
+            ugettext(
+                """Can't proceed since the course staff did not
+                provide example answers."""
+            )
+        )
     # Select a second answer to offer at random.
     # If the user's answer wasn't correct, the
     # second answer choice offered must be correct.
@@ -114,11 +125,11 @@ def _base_selection_algorithm(
             .order_by("-answer_count")
         )
 
-        if sorted_choices[0]:
+        if len(sorted_choices) > 0:
             second_choice = sorted_choices[0]["first_answer_choice"]
         else:
             second_choice = None
-        if sorted_choices[1]:
+        if len(sorted_choices) > 1:
             third_choice = sorted_choices[1]["first_answer_choice"]
         else:
             third_choice = None
@@ -126,10 +137,8 @@ def _base_selection_algorithm(
         # We don't use rng.choice() to avoid fetching all rationales
         # from the database.
         try:
-
-            sorted_choices[0]
-
-        except ValueError:
+            t = sorted_choices[0]
+        except IndexError:
             raise RationaleSelectionError(
                 ugettext(
                     """Can't proceed since the course staff did not
@@ -152,7 +161,10 @@ def _base_selection_algorithm(
                 .annotate(answer_count=Count("first_answer_choice"))
                 .order_by("-answer_count")
             )
-            third_choice = sorted_choices[0]["first_answer_choice"]
+            if len(sorted_choices) > 0:
+                third_choice = sorted_choices[0]["first_answer_choice"]
+            else:
+                third_choice = None
         else:
             third_choice = None
     chosen_choices = []
