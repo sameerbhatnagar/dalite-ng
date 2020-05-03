@@ -145,7 +145,6 @@ class ReviewAnswerForm(forms.Form):
         cleaned_data = forms.Form.clean(self)
         shown_rationales = []
         if cleaned_data is not None:
-            print("is cleaned data")
             for (
                 answer_choice,
                 rationale_choice_field,

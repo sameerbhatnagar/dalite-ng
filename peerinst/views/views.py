@@ -1390,7 +1390,7 @@ class QuestionReviewView(QuestionReviewBaseView):
             if shown_rationale_pks is None
             else list(Answer.objects.filter(id__in=shown_rationale_pks))
         )
-        if None in rationale_ids:
+        if shown_rationale_pks is None and None in rationale_ids:
             shown_answers += [None]
         for answer in shown_answers:
             ShownRationale.objects.create(

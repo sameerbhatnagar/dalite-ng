@@ -290,8 +290,11 @@ class QuestionViewTest(QuestionViewTestCase):
         ]
 
         for _rationale in unshown_rationales:
-            if ShownRationale.objects.filter(shown_for_answer=answer, shown_answer=_rationale).exists():
-                assert True
+            self.assertFalse(
+                ShownRationale.objects.filter(
+                    shown_for_answer=answer, shown_answer=_rationale
+                ).exists()
+            )
 
         response = self.get_results_view()
         self.assertTemplateUsed(
@@ -440,7 +443,6 @@ class QuestionViewTest(QuestionViewTestCase):
                 choices__rationales=6,
             )
         )
-
         self.mock_grade.return_value = Grade.INCORRECT
         self.run_standard_review_mode_extra_rationales()
         self.assert_grade_signal()
