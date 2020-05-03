@@ -283,6 +283,16 @@ class QuestionViewTest(QuestionViewTestCase):
             except ShownRationale.DoesNotExist:
                 assert False
 
+        unshown_rationales = [
+            Answer.objects.get(id=_rationale[0]) if _rationale[0] else None
+            for _, _, rationales in rationale_choices
+            for _rationale in rationales[2:]
+        ]
+
+        for _rationale in unshown_rationales:
+            if ShownRationale.objects.filter(shown_for_answer=answer, shown_answer=_rationale).exists():
+                assert True
+
         response = self.get_results_view()
         self.assertTemplateUsed(
             response, "peerinst/question/answers_summary.html"
@@ -420,7 +430,8 @@ class QuestionViewTest(QuestionViewTestCase):
         self.assertTrue(self.mock_grade.called)
 
     def test_standard_review_mode_extra_rationales(self):
-        """Test answering questions in default mode, with scoring enabled."""
+        """Test answering questions in default mode with extra rationales,
+        with scoring enabled. Also testing shown rationales with no see more press."""
         self.set_question(
             factories.QuestionFactory(
                 answer_style=Question.NUMERIC,
