@@ -100,7 +100,20 @@ def _base_selection_algorithm(
     try:
         t = all_rationales.values("first_answer_choice").annotate(
             answer_count=Count("first_answer_choice")
-        )[answer_choices.count() - 1]
+        )[1]
+        tt = (
+            all_rationales.filter(first_answer_choice=first_choice)
+            .values("first_answer_choice")
+            .annotate(answer_count=Count("first_answer_choice"))[0]
+        )
+        correct_choice = rng.choice(
+            [i for i, choice in enumerate(answer_choices, 1) if choice.correct]
+        )
+        ttt = (
+            all_rationales.filter(first_answer_choice=correct_choice)
+            .values("first_answer_choice")
+            .annotate(answer_count=Count("first_answer_choice"))[0]
+        )
     except IndexError:
         raise RationaleSelectionError(
             ugettext(
