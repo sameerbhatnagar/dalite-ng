@@ -106,14 +106,15 @@ def _base_selection_algorithm(
             .values("first_answer_choice")
             .annotate(answer_count=Count("first_answer_choice"))[0]
         )
-        correct_choice = rng.choice(
-            [i for i, choice in enumerate(answer_choices, 1) if choice.correct]
-        )
-        ttt = (
-            all_rationales.filter(first_answer_choice=correct_choice)
-            .values("first_answer_choice")
-            .annotate(answer_count=Count("first_answer_choice"))[0]
-        )
+        for i, answer_choice in enumerate(answer_choices, 1):
+            if answer_choice.correct:
+                ttt = (
+                    all_rationales.filter(first_answer_choice=i)
+                    .values("first_answer_choice")
+                    .annotate(answer_count=Count("first_answer_choice"))[0]
+                )
+                break
+
     except IndexError:
         raise RationaleSelectionError(
             ugettext(
