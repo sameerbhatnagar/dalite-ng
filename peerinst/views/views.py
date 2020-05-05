@@ -1379,6 +1379,7 @@ class QuestionReviewView(QuestionReviewBaseView):
         """
         Saves in the databse which rationales were shown to the student. These
         are linked to the answer.
+        Stick to my rationale is no longer saved as ShownRationale with an empty shown_answer
         """
         rationale_ids = [
             rationale[0]

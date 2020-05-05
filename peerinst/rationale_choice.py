@@ -98,6 +98,12 @@ def _base_selection_algorithm(
         pass
 
     try:
+        """
+        test
+        t = is there at least two answer choices with rationales
+        tt = does my choice have a sample rationale
+        ttt = does at least one correct choice have a sample rationale
+        """
         t = all_rationales.values("first_answer_choice").annotate(
             answer_count=Count("first_answer_choice")
         )[1]
@@ -183,6 +189,9 @@ def _base_selection_algorithm(
             third_choice = None
     chosen_choices = []
 
+    """
+    randomly sorts the answer choices after the answer choice chosen by the student
+    """
     if bool(random.getrandbits(1)):
         answer_choices_list = [first_choice, second_choice, third_choice]
     else:
@@ -192,6 +201,9 @@ def _base_selection_algorithm(
         if choice:
             label = question.get_choice_label(choice)
             # Get all rationales for the current choice.
+            """
+            only shows expert rationale if there aren't enough non-expert rationales
+            """
             rationales = (
                 all_rationales.filter(first_answer_choice=choice, expert=False)
                 if all_rationales.filter(
