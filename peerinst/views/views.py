@@ -1,11 +1,10 @@
-import base64
 import json
 import logging
 import random
 import re
-import urllib.request
-import urllib.parse
 import urllib.error
+import urllib.parse
+import urllib.request
 from datetime import datetime
 
 import pytz
@@ -14,12 +13,10 @@ from django.contrib import messages
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import Group, User
-from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.core.mail import mail_admins, send_mail
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
-from django.urls import reverse
 
 # reports
 from django.db.models import Count, Q
@@ -28,15 +25,11 @@ from django.forms import Textarea, inlineformset_factory
 
 # blink
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
-from django.shortcuts import (
-    get_object_or_404,
-    redirect,
-    render,
-)
+from django.shortcuts import get_object_or_404, redirect, render
 from django.template import loader
 from django.template.response import TemplateResponse
+from django.urls import reverse
 from django.utils import timezone
-from django.utils.encoding import force_bytes
 from django.utils.html import escape, format_html
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
@@ -79,6 +72,7 @@ from ..models import (
     Category,
     Collection,
     Discipline,
+    NewUserRequest,
     Question,
     RationaleOnlyQuestion,
     ShownRationale,
@@ -86,8 +80,12 @@ from ..models import (
     StudentGroup,
     StudentGroupAssignment,
     StudentGroupCourse,
+    Subject,
     Teacher,
+    UserType,
+    UserUrl,
 )
+from ..tasks import mail_admins_async
 from ..util import (
     SessionStageData,
     get_object_or_none,
@@ -185,76 +183,6 @@ def landing_page(request):
     )
 
 
-def admin_check(user):
-    return user.is_superuser
-
-
-@login_required
-@user_passes_test(admin_check, login_url="/welcome/", redirect_field_name=None)
-def dashboard(request):
-
-    html_email_template_name = "registration/verification_email.html"
-
-    if request.method == "POST":
-        form = forms.ActivateForm(request.POST)
-        if form.is_valid():
-            user = form.cleaned_data["user"]
-            user.is_active = True
-            user.save()
-
-            if form.cleaned_data["is_teacher"]:
-                teacher = Teacher(user=user)
-                teacher.save()
-
-            if not settings.EMAIL_BACKEND.startswith(
-                "django.core.mail.backends"
-            ):
-                return HttpResponse(status=503)
-
-            link = "{}://{}{}".format(
-                request.scheme,
-                request.get_host(),
-                reverse(
-                    "password_reset_confirm",
-                    kwargs={
-                        "uidb64": base64.urlsafe_b64encode(
-                            force_bytes(user.pk)
-                        ),
-                        "token": default_token_generator.make_token(user),
-                    },
-                ),
-            )
-
-            # Notify user
-            send_mail(
-                _("Please verify your myDalite account"),
-                "Dear {},".format(user.username)
-                + "\n\nYour account has been recently activated. Please visit "
-                "the following link to verify your email address and "
-                "to set your password:\n\n"
-                + link
-                + "\n\nCheers,\nThe myDalite Team",
-                "noreply@myDALITE.org",
-                [user.email],
-                fail_silently=True,
-                html_message=loader.render_to_string(
-                    html_email_template_name,
-                    context={"username": user.username, "link": link},
-                    request=request,
-                ),
-            )
-
-    return TemplateResponse(
-        request,
-        "peerinst/dashboard.html",
-        context={
-            "new_users": User.objects.filter(is_active=False).order_by(
-                "-date_joined"
-            )
-        },
-    )
-
-
 def sign_up(request):
     template = "registration/sign_up.html"
     html_email_template_name = "registration/sign_up_admin_email_html.html"
@@ -267,10 +195,20 @@ def sign_up(request):
             form.instance.is_active = False
             form.save()
             # Notify administrators
+
+            #  print(settings.EMAIL_BACKEND)
             if not settings.EMAIL_BACKEND.startswith(
                 "django.core.mail.backends"
             ):
                 return HttpResponse(status=503)
+
+            # TODO Adapt to different types of user
+            NewUserRequest.objects.create(
+                user=form.instance, type=UserType.objects.get(type="teacher")
+            )
+            UserUrl.objects.create(
+                user=form.instance, url=form.cleaned_data["url"]
+            )
 
             email_context = dict(
                 user=form.cleaned_data["username"],
@@ -279,7 +217,7 @@ def sign_up(request):
                 url=form.cleaned_data["url"],
                 site_name="myDALITE",
             )
-            mail_admins(
+            mail_admins_async(
                 "New user request",
                 "Dear administrator,"
                 "\n\nA new user {} was created on {}.".format(
@@ -290,7 +228,9 @@ def sign_up(request):
                 + "\n\nAccess your administrator account to activate this "
                 "new user."
                 "\n\n{}://{}{}".format(
-                    request.scheme, request.get_host(), reverse("dashboard")
+                    request.scheme,
+                    request.get_host(),
+                    reverse("saltise-admin:new-user-approval"),
                 )
                 + "\n\nCheers,"
                 "\nThe myDalite Team",
@@ -309,6 +249,10 @@ def sign_up(request):
         context["form"] = forms.SignUpForm()
 
     return render(request, template, context)
+
+
+def admin_check(user):
+    return user.is_superuser
 
 
 def terms_teacher(request):
@@ -339,7 +283,7 @@ def welcome(request):
         return HttpResponseRedirect(reverse("student-page"))
 
     elif request.user.is_staff:
-        return HttpResponseRedirect(reverse("assignment-list"))
+        return HttpResponseRedirect(reverse("saltise-admin:index"))
     else:
         return logout_view(request)
 
@@ -1317,7 +1261,7 @@ class QuestionReviewView(QuestionReviewBaseView):
         self.save_votes()
         self.stage_data.clear()
         self.send_grade()
-        self.save_shown_rationales()
+        self.save_shown_rationales(form.shown_rationales)
         return super(QuestionReviewView, self).form_valid(form)
 
     def emit_check_events(self):
@@ -1431,18 +1375,23 @@ class QuestionReviewView(QuestionReviewBaseView):
             vote_type=vote_type,
         ).save()
 
-    def save_shown_rationales(self):
+    def save_shown_rationales(self, shown_rationale_pks=None):
         """
         Saves in the databse which rationales were shown to the student. These
         are linked to the answer.
+        Stick to my rationale is no longer saved as ShownRationale with an empty shown_answer
         """
         rationale_ids = [
             rationale[0]
             for _, _, rationales in self.rationale_choices
             for rationale in rationales
         ]
-        shown_answers = list(Answer.objects.filter(id__in=rationale_ids))
-        if None in rationale_ids:
+        shown_answers = (
+            list(Answer.objects.filter(id__in=rationale_ids))
+            if shown_rationale_pks is None
+            else list(Answer.objects.filter(id__in=shown_rationale_pks))
+        )
+        if shown_rationale_pks is None and None in rationale_ids:
             shown_answers += [None]
         for answer in shown_answers:
             ShownRationale.objects.create(
@@ -2582,6 +2531,111 @@ def blink_waiting(request, username, assignment=""):
     )
 
 
+def collection_search(request):
+    if not Teacher.objects.filter(user=request.user).exists():
+        return HttpResponse(
+            _(
+                "You must be logged in as a teacher to search the database. "
+                "Log in again with a teacher account."
+            )
+        )
+
+    if request.method == "GET" and request.user.is_authenticated:
+        page = request.GET.get("page", default=1)
+        type = request.GET.get("type", default=None)
+        id = request.GET.get("id", default=None)
+        search_string = request.GET.get("search_string", default="")
+        limit_search = request.GET.get("limit_search", default="false")
+        authors = request.GET.getlist("author", default=None)
+        disciplines = request.GET.getlist("discipline", default=None)
+
+        q_obj = Q()
+        if authors[0]:
+            q_obj &= Q(
+                owner__in=Teacher.objects.filter(
+                    user__in=User.objects.filter(username__in=authors)
+                )
+            )
+        if disciplines[0]:
+            q_obj &= Q(
+                discipline__in=Discipline.objects.filter(title__in=disciplines)
+            )
+        q_obj &= Q(private=False)
+        is_english = get_language() == "en"
+        # All matching collections
+        search_list = Collection.objects.filter(q_obj)
+
+        search_string_split_list = search_string.split()
+        for string in search_string.split():
+            if is_english and string in en:
+                search_string_split_list.remove(string)
+            elif not is_english and string in fr:
+                search_string_split_list.remove(string)
+        search_terms = [search_string]
+        if len(search_string_split_list) > 1:
+            search_terms.extend(search_string_split_list)
+
+        query = []
+        query_all = []
+        # by searching first for full string, and then for constituent parts,
+        # and preserving order, the results should rank the items higher to the
+        # top that have the entire search_string included
+        query_meta = {}
+        for term in search_terms:
+            query_term = collection_search_function(term, search_list)
+
+            query_term = [q for q in query_term if q not in query_all]
+
+            query_meta[term] = query_term
+
+            query_all.extend(query_term)
+
+        paginator = Paginator(query_all, 50)
+        try:
+            query_subset = paginator.page(page)
+        except PageNotAnInteger:
+            query_subset = paginator.page(1)
+        except EmptyPage:
+            query_subset = paginator.page(paginator.num_pages)
+
+        query = []
+
+        for term in list(query_meta.keys()):
+            query_dict = {}
+            query_dict["term"] = term
+            query_dict["collections"] = [
+                q for q in query_meta[term] if q in query_subset.object_list
+            ]
+            query_dict["count"] = len(query_dict["collections"])
+            query.append(query_dict)
+
+        return TemplateResponse(
+            request,
+            "peerinst/collection/search_results.html",
+            context={
+                "paginator": query_subset,
+                "search_results": query,
+                "count": len(query_all),
+                "previous_search_string": search_terms,
+                "type": type,
+            },
+        )
+    else:
+        return HttpResponse(
+            _("An error occurred.  Retry search after logging in again.")
+        )
+
+
+def collection_search_function(search_string, pre_filtered_list=None):
+
+    query_result = pre_filtered_list.filter(
+        Q(title__icontains=search_string)
+        | Q(description__icontains=search_string)
+    )
+
+    return query_result
+
+
 # AJAX functions
 def question_search(request):
 
@@ -2599,6 +2653,10 @@ def question_search(request):
         id = request.GET.get("id", default=None)
         search_string = request.GET.get("search_string", default="")
         limit_search = request.GET.get("limit_search", default="false")
+        authors = request.GET.getlist("author", default=None)
+        disciplines = request.GET.getlist("discipline", default=None)
+        subjects = request.GET.getlist("subject", default=None)
+        categories = request.GET.getlist("category", default=None)
 
         # Exclusions based on type of search
         q_qs = []
@@ -2624,7 +2682,45 @@ def question_search(request):
             form_field_name = None
 
         # Establish pool of questions for search
-        search_list = Question.unflagged_objects.all()
+        q_obj = Q()
+        if authors and authors[0]:
+            q_obj &= Q(
+                Q(user__in=User.objects.filter(username__in=authors))
+                | Q(
+                    collaborators__in=User.objects.filter(username__in=authors)
+                )
+            )
+        if disciplines and disciplines[0]:
+            q_obj &= Q(
+                discipline__in=Discipline.objects.filter(title__in=disciplines)
+            )
+        if categories and categories[0]:
+            if subjects and subjects[0]:
+                q_obj &= Q(
+                    category__in=Category.objects.filter(
+                        Q(title__in=categories)
+                        | Q(
+                            subjects__in=Subject.objects.filter(
+                                title__in=subjects
+                            )
+                        )
+                    ).distinct()
+                )
+            else:
+                q_obj &= Q(
+                    category__in=Category.objects.filter(title__in=categories)
+                )
+        elif subjects and subjects[0]:
+            q_obj &= Q(
+                category__in=Category.objects.filter(
+                    Q(subjects__in=Subject.objects.filter(title__in=subjects))
+                ).distinct()
+            )
+        search_list = Question.unflagged_objects.filter(q_obj)
+        if categories and subjects and categories[0] and subjects[0]:
+            search_list = search_list.filter(
+                category__in=Category.objects.filter(title__in=categories)
+            )
 
         if limit_search == "true":
             search_list = search_list.filter(
@@ -2653,8 +2749,9 @@ def question_search(request):
         # top that have the entire search_string included
         query_meta = {}
         for term in search_terms:
-            query_term = question_search_function(term, search_list)
-
+            query_term = question_search_function(
+                term, search_list, (type == "assignment" or type == "blink")
+            )
             query_term = query_term.exclude(id__in=q_qs).distinct()
 
             query_term = [
@@ -2668,7 +2765,7 @@ def question_search(request):
 
             query_all.extend(query_term)
 
-        paginator = Paginator(query_all, 100)
+        paginator = Paginator(query_all, 50)
         try:
             query_subset = paginator.page(page)
         except PageNotAnInteger:

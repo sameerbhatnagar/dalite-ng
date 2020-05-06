@@ -56,6 +56,29 @@ class Category(models.Model):
         verbose_name_plural = _("categories")
 
 
+class Subject(models.Model):
+    title = models.CharField(
+        _("Subject name"),
+        unique=True,
+        max_length=100,
+        help_text=_("Enter the name of a new subject."),
+        validators=[no_hyphens],
+    )
+    discipline = models.ForeignKey(
+        "Discipline", blank=True, null=True, on_delete=models.SET_NULL
+    )
+    categories = models.ManyToManyField(
+        Category, related_name="subjects", blank=True
+    )
+
+    def __str__(self):
+        return self.title
+
+    class Meta:
+        verbose_name = _("subject")
+        verbose_name_plural = _("subjects")
+
+
 class Discipline(models.Model):
     title = models.CharField(
         _("Discipline name"),
@@ -556,7 +579,7 @@ class Question(models.Model):
             df_votes = df_chosen
             df_votes.loc[:, "times_shown"] = pd.Series(0)
 
-        df_votes["times_chosen"] = df_votes["times_chosen"].fillna(0)
+        df_votes = df_votes.fillna(0)
 
         df_votes = df_votes.astype(int)
 
@@ -590,14 +613,16 @@ class Question(models.Model):
             )
         }
 
-        if self.answer_set.all().count() > 0:
+        answer_qs = self.answer_set.filter(
+            first_answer_choice__lte=self.answerchoice_set.count()
+        )
+
+        if answer_qs.count() > 0:
 
             df_votes = self.get_vote_data()
 
             df_answers = pd.DataFrame(
-                self.answer_set.all().values(
-                    "id", "first_answer_choice", "rationale"
-                )
+                answer_qs.values("id", "first_answer_choice", "rationale")
             )
 
             df = pd.merge(df_answers, df_votes, left_on="id", right_index=True)
