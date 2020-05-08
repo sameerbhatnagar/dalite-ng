@@ -53,7 +53,7 @@
   <p>{% blocktrans %}You have no current student groups.{% endblocktrans %}</p>
   {% endif %}
 
-  <ul class="mdc-list mdc-list--two-line mdc-list--interactive">
+  <ul class="mdc-list mdc-list--two-line mdc-list--non-interactive">
     {% for g in teacher.current_groups.all %}
     <li role="separator" class="mdc-list-divider"></li>
     <li class="mdc-list-item pointer group-link">
