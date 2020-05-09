@@ -142,10 +142,9 @@ function toggleIcons(newIconsDiv, type, toEdit, className) {
       editIcon.textContent = "add";
       editIcon.title = "Add";
     }
-    editIcon.setAttribute(
-      "onclick",
-      "group.editField(event, '" + type + "', '" + className + "')",
-    );
+    editIcon.addEventListener("click", function(e) {
+      editField(e, type, className);
+    });
     newIconsDiv.append(editIcon);
   } else {
     const saveIcon = document.createElement("i");
@@ -157,10 +156,9 @@ function toggleIcons(newIconsDiv, type, toEdit, className) {
     );
     saveIcon.textContent = "check";
     saveIcon.title = "Save";
-    saveIcon.setAttribute(
-      "onclick",
-      "group.saveField(event, '" + type + "', true, '" + className + "')",
-    );
+    saveIcon.addEventListener("click", function(e) {
+      saveField(e, type, true, className);
+    });
     const cancelIcon = document.createElement("i");
     cancelIcon.classList.add(
       "material-icons",
@@ -170,10 +168,9 @@ function toggleIcons(newIconsDiv, type, toEdit, className) {
     );
     cancelIcon.textContent = "close";
     cancelIcon.title = "Cancel";
-    cancelIcon.setAttribute(
-      "onclick",
-      "group.saveField(event, '" + type + "', false, '" + className + "')",
-    );
+    cancelIcon.addEventListener("click", function(e) {
+      saveField(e, type, false, className);
+    });
     newIconsDiv.append(saveIcon);
     newIconsDiv.append(cancelIcon);
   }
