@@ -133,6 +133,7 @@ if (desktop) {
     <div id="player-2" class="small-embedded-video"></div>
     <div id="player-3" class="small-embedded-video"></div>
     <div id="player-4" class="small-embedded-video"></div>
+  </section>
   <section>
 
     <h1 class="mdc-typography--display3  mdc-theme--background">{% trans "Timeline" %}
@@ -229,7 +230,7 @@ if (desktop) {
 <footer>
   <div class="wrapper">
     <div class="footer_content">
-      &copy 2018 SALTISE/S4
+      &copy 2020 SALTISE/S4
     </div>
     <div class="footer_content align-right">
       <a href="mailto:info@saltise.ca"><i class="icon ion-ios-mail"></i></a>
@@ -1042,6 +1043,29 @@ function timeline() {
         "shortDesc" : "{% trans 'New feature development' %}",
         "offset" : 0,
         "note" : "{% trans 'Content authoring, better analytics, stand-alone functionality outside of an LTI environment, and more...' %}"},
+      { "year" : "2019.00",
+        "type" : "publication",
+        "shortDesc" : "ETOP 2019",
+        "offset" : 5,
+        "note" : "Adams, Rhys, Phoebe Jackson, Kevin Lenton, Michael Dugdale, Chris Whittaker, Nathaniel Lasry, and Elizabeth S. Charles. \'Error-detection tasks and peer feedback for engaging physics students.\' In Education and Training in Optics and Photonics, p. 11143_95. Optical Society of America, 2019.",
+        "link" : "https://www.osapublishing.org/abstract.cfm?uri=ETOP-2019-11143_95"},
+      { "year" : "2019.20",
+        "type" : "publication",
+        "shortDesc" : "ETOP 2019",
+        "offset" : 15,
+        "note" : "Charles, E.S., Lasry, N., Bhatnagar, S., Adams, R., Lenton, K., Brouillette, Y., Dugdale, M., Whittaker, C. and Jackson, P., 2019, May. \'Harnessing peer instruction in-and out-of class with myDALITE.\' In Education and Training in Optics and Photonics (p. 11143_89). Optical Society of America.",
+        "link" : "https://www.osapublishing.org/abstract.cfm?uri=ETOP-2019-11143_89"},
+      { "year" : "2020.10",
+        "type" : "event",
+        "shortDesc" : "{% trans 'New feature development' %}",
+        "offset" : 0,
+        "note" : "{% trans 'Release of web reputation framework for community contributions' %}"},
+      { "year" : "2020.50",
+        "type" : "event",
+        "shortDesc" : "{% trans 'Major Update' %}",
+        "offset" : 0,
+        "note" : "{% trans 'Update to Long Term Support for entire open source compute stack' %}"},
+
   ]
 };
 
@@ -1060,7 +1084,7 @@ function timeline() {
 
   var g = svg.append("g").attr("transform","translate("+(margin.left+0.175*innerWidth)+","+(margin.top+innerHeight/2)+")");
 
-  var y = bundle.scaleLinear().domain([2008,2019]).range([-innerHeight/2,innerHeight/2]);
+  var y = bundle.scaleLinear().domain([2008,2021]).range([-innerHeight/2,innerHeight/2]);
 
   var c = bundle.scaleOrdinal().domain(['milestone', 'software', 'use', 'publication']).range(['green','red','#54c0db','#004266']);
 
