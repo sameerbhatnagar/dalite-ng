@@ -46,7 +46,7 @@ section {
   padding-right: 20px;
 }
 .site-content {
-  margin: 20pt;
+  /* margin: 20pt; */
 }
 p {
   margin: 0.25em 0;
@@ -191,6 +191,9 @@ footer {
 footer a {
   color: white;
   padding-left: 10px;
+}
+.float-left {
+  float: left;
 }
 .align-right {
   text-align: right;
