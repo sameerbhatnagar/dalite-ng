@@ -3,6 +3,9 @@
 *.ipynb_checkpoints/
 *.log
 *.map
+*.min.css
+*.min.js
+!tinymce.min.js
 *.mypy_cache/
 *.py[cdo]
 *.rdb
