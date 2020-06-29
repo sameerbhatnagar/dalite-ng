@@ -769,6 +769,7 @@ def get_questions_df(path_to_data):
         [
             {
                 "id": q.pk,
+                "title": q.title,
                 "text": q.text,
                 "image": q.image.url if q.image else None,
                 "image_alt_text": q.image_alt_text if q.image else None,
