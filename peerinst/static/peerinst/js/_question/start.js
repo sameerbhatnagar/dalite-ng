@@ -30,8 +30,8 @@ function validateFormSubmit(event) {
 
     const req = buildReq(data, "post");
     fetch(model.urls.submitUrl, req)
-      .then(resp => resp.json())
-      .then(failed => {
+      .then((resp) => resp.json())
+      .then((failed) => {
         if (failed.failed.length) {
           toggleQualityError(failed.failed, failed.error_msg);
           document.querySelector("#answer-form").disabled = false;
@@ -41,7 +41,7 @@ function validateFormSubmit(event) {
           document.querySelector("#submit-answer-form").submit();
         }
       })
-      .catch(err => console.log(err));
+      .catch((err) => console.log(err));
   }
 }
 
@@ -64,7 +64,7 @@ function toggleQualityError(data, errorMsg) {
 
     const ul = document.createElement("ul");
     div.append(ul);
-    data.forEach(criterion => {
+    data.forEach((criterion) => {
       const li = document.createElement("li");
       li.textContent = criterion.name;
       li.title = criterion.description;
@@ -91,7 +91,7 @@ function initListeners() {
 function addSubmitListener() {
   const input = document.getElementById("answer-form");
   if (input) {
-    input.addEventListener("click", event => {
+    input.addEventListener("click", (event) => {
       validateFormSubmit(event);
     });
   }

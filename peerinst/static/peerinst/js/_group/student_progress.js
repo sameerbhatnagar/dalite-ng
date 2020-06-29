@@ -17,7 +17,7 @@ function initModel(data) {
     showing: document
       .querySelector("#student-progress")
       .parentNode.parentNode.classList.contains("foldable__unfolded"),
-    results: data.map(question => ({
+    results: data.map((question) => ({
       questionTitle: question.question_title,
       nStudents: question.n_students,
       nCompleted: question.n_completed,
@@ -68,7 +68,7 @@ function progressView() {
   const progress = document.querySelector("#student-progress");
   clear(progress);
   progress.appendChild(legendView());
-  model.results.map(function(question) {
+  model.results.map(function (question) {
     progress.append(questionView(question));
   });
 }
@@ -254,10 +254,10 @@ function toggleStudentProgressView() {
   const complete = progress.querySelectorAll(".student-progress-complete");
   const correct = progress.querySelectorAll(".student-progress-correct");
 
-  Array.from(complete).map(function(svg) {
+  Array.from(complete).map(function (svg) {
     animateComplete(svg, !model.showing);
   });
-  Array.from(correct).map(function(svg) {
+  Array.from(correct).map(function (svg) {
     animateCorrect(svg, !model.showing);
   });
 }
@@ -299,10 +299,10 @@ function animateComplete(svg, reverse = false) {
   const count = d3.select(count_);
 
   function animation(transition, newAngle) {
-    transition.attrTween("d", function(d) {
+    transition.attrTween("d", function (d) {
       const interpolate = d3.interpolate(d.endAngle, newAngle);
       const interpolateCount = d3.interpolate(start, end);
-      return function(t) {
+      return function (t) {
         d.endAngle = interpolate(t);
         count.text(Math.floor(interpolateCount(t)));
         return arcData(d);
@@ -364,10 +364,10 @@ function animateCorrect(svg, reverse = false) {
   const count = d3.select(count_);
 
   function animation(transition, newAngle) {
-    transition.attrTween("d", function(d) {
+    transition.attrTween("d", function (d) {
       const interpolate = d3.interpolate(d.endAngle, newAngle);
       const interpolateCount = d3.interpolate(start, end);
-      return function(t) {
+      return function (t) {
         d.endAngle = interpolate(t);
         const newCount = interpolateCount(t);
         path.style("fill", colourScale((newCount / total) | 0));
@@ -414,9 +414,9 @@ export function initStudentProgress(url) {
   initListeners();
   const req = buildReq(null, "get");
   fetch(url, req)
-    .then(resp => resp.json())
-    .then(function(data) {
+    .then((resp) => resp.json())
+    .then(function (data) {
       initModel(data.progress);
     })
-    .catch(err => console.log(err));
+    .catch((err) => console.log(err));
 }

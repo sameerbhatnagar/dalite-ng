@@ -24,7 +24,7 @@
 /sent_emails
 /src
 /static
-/venv/
+/venv*/
 celerybeat.pid
 locust*
 mysql_scripts/

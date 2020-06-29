@@ -25,7 +25,7 @@ function initModel(data) {
 function getDisciplines() {
   return [
     ...document.querySelectorAll("#discipline-activity__disciplines option"),
-  ].map(elem => elem.getAttribute("value"));
+  ].map((elem) => elem.getAttribute("value"));
 }
 
 function getDiscipline() {
@@ -68,7 +68,7 @@ function initSelectedDiscipline() {
 }
 
 function initTables() {
-  document.querySelectorAll("table.display").forEach(elem => {
+  document.querySelectorAll("table.display").forEach((elem) => {
     // prettier-ignore
     const table = $(elem).DataTable({ // eslint-disable-line
       pageLength: 10,
@@ -84,14 +84,14 @@ function updateTableData() {
   const table = $("#discipline-activity__groups").DataTable(); // eslint-disable-line
   table.rows().remove();
   table.rows
-    .add(model.state.activity.map(d => [d.name, d.teacher, d.n_students]))
+    .add(model.state.activity.map((d) => [d.name, d.teacher, d.n_students]))
     .draw();
 }
 
 function initDisciplinesListeners() {
   document
     .querySelector("#discipline-activity__disciplines")
-    .addEventListener("change", event =>
+    .addEventListener("change", (event) =>
       updateDiscipline(event.currentTarget.value),
     );
 }

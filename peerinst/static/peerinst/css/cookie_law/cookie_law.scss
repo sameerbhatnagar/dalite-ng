@@ -1,4 +1,4 @@
-@import "../../peerinst/css/variables";
+@import "../variables";
 
 #CookielawBanner {
   background-color: $mdc-theme-secondary;
@@ -16,12 +16,12 @@
     padding: 20px;
   }
 
-	& a {
+  & a {
     background-color: white;
     color: $mdc-theme-secondary !important  ;
-		display: block;
-		margin: auto;
+    display: block;
+    margin: auto;
     margin-bottom: 20px;
-		width: max-content;
-	}
+    width: max-content;
+  }
 }

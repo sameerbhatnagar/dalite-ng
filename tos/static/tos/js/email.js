@@ -35,11 +35,11 @@ function toggleButtonAll(event) {
   }
 }
 
-Array.from(document.getElementsByClassName("btn-toggle")).map(x =>
-  x.addEventListener("click", e => toggleButton(e)),
+Array.from(document.getElementsByClassName("btn-toggle")).map((x) =>
+  x.addEventListener("click", (e) => toggleButton(e)),
 );
 
 const toggleAll = document.getElementById("btn-toggle-all");
 if (toggleAll) {
-  toggleAll.addEventListener("click", e => toggleButtonAll(e));
+  toggleAll.addEventListener("click", (e) => toggleButtonAll(e));
 }

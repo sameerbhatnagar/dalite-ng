@@ -25,7 +25,7 @@ function initModel(data) {
 
 function toggleNotifications() {
   const header = document.querySelector(".notifications");
-  document.querySelectorAll(".header--togglable > *").forEach(header_ => {
+  document.querySelectorAll(".header--togglable > *").forEach((header_) => {
     if (header_ != header && header_.hasAttribute("open")) {
       if (header_.shadowRoot) {
         header_.shadowRoot
@@ -49,8 +49,8 @@ function markNotificationRead(notification) {
   };
   const req = buildReq(data, "post");
   fetch(url, req)
-    .then(resp => resp.text())
-    .then(groupName => {
+    .then((resp) => resp.text())
+    .then((groupName) => {
       if (groupName) {
         window.location =
           model.urls.studentPage + "?group-student-id-needed=" + groupName;
@@ -64,7 +64,7 @@ function markNotificationRead(notification) {
         notificationsView();
       }
     })
-    .catch(function(err) {
+    .catch(function (err) {
       console.log(err);
     });
 }
@@ -73,13 +73,13 @@ function markAllNotificationsRead() {
   const url = model.urls.removeNotifications;
   const req = buildReq({}, "post");
   fetch(url, req)
-    .then(function(resp) {
+    .then(function (resp) {
       if (resp.ok) {
         model.notifications = [];
         notificationsView();
       }
     })
-    .catch(function(err) {
+    .catch(function (err) {
       console.log(err);
     });
 }
@@ -109,7 +109,7 @@ function notificationsView() {
 
   clear(notificationsList);
   if (model.notifications.length) {
-    model.notifications.map(function(notification) {
+    model.notifications.map(function (notification) {
       notificationsList.appendChild(notificationView(notification));
     });
   } else {
@@ -152,15 +152,15 @@ function initListeners() {
 function addNotificationsOpenListener() {
   document
     .querySelector(".notifications")
-    ?.addEventListener("click", function(event) {
+    ?.addEventListener("click", function (event) {
       event.stopPropagation();
     });
   document
     .querySelector(".notifications__icon")
-    ?.addEventListener("click", function(event) {
+    ?.addEventListener("click", function (event) {
       toggleNotifications();
     });
-  document.body.addEventListener("click", function(event) {
+  document.body.addEventListener("click", function (event) {
     if (model.notificationsOpen) {
       toggleNotifications();
     }
@@ -181,12 +181,12 @@ export function init(url) {
   if (document.querySelector(".notifications")) {
     const req = buildReq(null, "get");
     fetch(url, req)
-      .then(resp => resp.json())
-      .then(function(data) {
+      .then((resp) => resp.json())
+      .then(function (data) {
         initModel(data);
         initListeners();
         view();
       })
-      .catch(err => console.log(err));
+      .catch((err) => console.log(err));
   }
 }

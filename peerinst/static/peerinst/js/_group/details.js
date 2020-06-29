@@ -40,10 +40,10 @@ function initModel(data: InitialData): void {
         .textContent == "FR"
         ? "en-ca"
         : "fr-ca",
-    assignments: data.assignments.map(a => ({
+    assignments: data.assignments.map((a) => ({
       url: a.url,
     })),
-    students: data.students.map(s => ({
+    students: data.students.map((s) => ({
       id: s,
       email: null,
       lastLogin: null,
@@ -61,7 +61,7 @@ function initModel(data: InitialData): void {
 /**********/
 
 async function update(): Promise<void> {
-  model.students.forEach(student => {
+  model.students.forEach((student) => {
     getStudentInformation(student);
   });
 }
@@ -74,7 +74,7 @@ function removeAssignment(event: MouseEvent, url: string): void {
   const req = buildReq({}, "post");
   url = url + "remove/";
 
-  fetch(url, req).then(function(resp) {
+  fetch(url, req).then(function (resp) {
     if (resp.ok) {
       container.removeChild(li.nextSibling);
       container.removeChild(li);
@@ -93,12 +93,12 @@ function toggleStudentIdNeeded(event: MouseEvent, url: string): void {
   };
   const req = buildReq(data, "post");
   fetch(url, req)
-    .then(function(resp) {
+    .then(function (resp) {
       if (!resp.ok) {
         console.log(resp);
       }
     })
-    .catch(function(err) {
+    .catch(function (err) {
       console.log(err);
     });
 }
@@ -140,7 +140,7 @@ function studentListTableView(student: Student): void {
     ...document.querySelectorAll("#student-reputation-table th"),
   ]
     .slice(2)
-    .map(header => header.getAttribute("name"));
+    .map((header) => header.getAttribute("name"));
   // $FlowFixMe
   const table = $("#student-reputation-table").DataTable(); // eslint-disable-line
   table.row
@@ -157,7 +157,7 @@ function studentListTableView(student: Student): void {
             }) // eslint-disable-line
           : "",
       ],
-      ...criteria.map(criterion => student.criteria[criterion]),
+      ...criteria.map((criterion) => student.criteria[criterion]),
     ])
     .draw();
 }
@@ -194,7 +194,7 @@ function addRemoveAssignmentListeners(): void {
 }
 
 function addEditListeners(): void {
-  [...document.getElementsByClassName("edit-btn")].forEach(btn => {
+  [...document.getElementsByClassName("edit-btn")].forEach((btn) => {
     btn.addEventListener("click", (event: MouseEvent) => {
       editField(event, "text", "mdc-list-item__secondary-text");
     });
