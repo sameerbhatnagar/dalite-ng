@@ -41,6 +41,9 @@ const styleBuilds = [
       "forums",
       "main",
       "cookie_law",
+      "error",
+      "search",
+      "landing_page",
     ],
   },
   {
@@ -76,6 +79,7 @@ const scriptBuilds = [
       "collection",
       "admin",
       "forums",
+      "ajax",
     ],
   },
   {
