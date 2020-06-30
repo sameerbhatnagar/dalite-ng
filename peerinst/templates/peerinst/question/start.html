@@ -1,6 +1,6 @@
 {% extends 'peerinst/question/base.html' %}
 
-{% load add_class compress i18n static %}
+{% load add_class bleach_html compress i18n static %}
 
 {% block body %}
 <main>
@@ -30,7 +30,7 @@
 
       {% block extra_title %}{% endblock %}
 
-      <h2 class="mdc-typography--display1 mdc-theme--secondary">{{question.title}}</h2>
+      <h2 class="mdc-typography--display1 mdc-theme--secondary">{{ question.title|bleach_html }}</h2>
 
       {% block messages %}
       {% if messages %}
@@ -43,7 +43,7 @@
       {% endblock %}
 
       <div class="mdc-typography--body1">
-        {{ question.text|safe }}
+        {{ question.text|bleach_html|safe }}
       </div>
 
       {% if question.image %}
@@ -64,7 +64,7 @@
           {{ form.errors.first_answer_choice }}
         {% endif %}
         {% for error in form.non_field_errors %}
-          {{ error|safe }}
+          {{ error }}
         {% endfor %}
       {% block form %}
       <form id="submit-answer-form" method="post">
@@ -142,7 +142,7 @@
     {% if assignment_last %}
     {% if not assignment_expired and second_choice_label or first_choice_label and question.type == "RO" %}
     <a class='next-question mdc-button mdc-button--unelevated' href="{% url 'finish-assignment' %}">
-      Finish
+      {% trans 'Finish' %}
     </a>
     {% endif %}
     {% else %}
@@ -162,9 +162,6 @@
 
 {% block scripts %}
 {{ block.super }}
-{% compress js %}
-<script src="{% static 'peerinst/js/question.min.js' %}"></script>
-{% endcompress %}
 <script nonce="{{ request.csp_nonce }}">
   window.addEventListener("load", function() {
     question.initStart(

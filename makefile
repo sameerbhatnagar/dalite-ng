@@ -6,3 +6,5 @@ rebuild:
 	./node_modules/gulp/bin/gulp.js build
 	./manage.py collectstatic --clear --noinput
 	./manage.py compress
+refresh: rebuild
+	./manage.py runserver

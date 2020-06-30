@@ -1,7 +1,7 @@
 @import "../variables";
 
 .errorlist ul {
-  list-style: square;
+  list-style: disc;
   margin: 5px 0;
 
   & li {
@@ -12,7 +12,7 @@
 
 .nav-question {
   border-color: $mdc-theme-primary;
-  border-top: solid;
+  border-top-style: solid;
   border-width: 1px;
 }
 
