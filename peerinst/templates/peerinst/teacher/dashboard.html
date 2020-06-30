@@ -5,27 +5,6 @@
 {% block stylesheets %}
 {{ block.super }}
 <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/smoothness/jquery-ui.css">
-<style nonce="{{request.csp_nonce}}">
-  .progress-chart {
-    margin-bottom: 40px;
-  }
-  .mdc-typography--display3 {
-    font-size: 2.5rem;
-  }
-  .mdc-button.delete {
-    background-color: #004266 !important;
-  }
-  @media (max-height: 650px) {
-    .mdc-card__action-buttons {
-      display: none;
-    }
-  }
-  @media (max-width: 450px) {
-    .mdc-typography--display3 {
-      font-size: 2.0rem;
-    }
-  }
-</style>
 {% endblock %}
 
 {% block body %}
