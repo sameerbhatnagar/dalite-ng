@@ -37,7 +37,9 @@
                 <div class="mdc-radio__inner-circle"></div>
               </div>
             </div>
-            <label class="mdc-typography--body1" for="{{ choice.id_for_label }}">{{ r.choice_label.strip|bleach_html|capfirst }}{% if r.choice_label.strip|bleach_html|last not in "?!." %}.{% endif %}</label>
+            {% with label=r.choice_label.strip|bleach_html|safe|capfirst %}
+              <label class="mdc-typography--body1" for="{{ choice.id_for_label }}">{{ label }}{% if last|last not in "?!." %}.{% endif %}</label>
+            {% endwith %}
           </div>
         </li>
         {% if forloop.counter > 2 and forloop.last %}
@@ -72,7 +74,7 @@
 
 {% block scripts %}
 {{ block.super }}
-{% compress js %}
+{% compress js file question__review %}
   <script src="{% static 'peerinst/js/question_review.js' %}"></script>
 {% endcompress %}
   <script nonce="{{ request.csp_nonce }}">

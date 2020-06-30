@@ -30,7 +30,7 @@
 
       {% block extra_title %}{% endblock %}
 
-      <h2 class="mdc-typography--display1 mdc-theme--secondary">{{ question.title|bleach_html }}</h2>
+      <h2 class="mdc-typography--display1 mdc-theme--secondary">{{ question.title|bleach_html|safe }}</h2>
 
       {% block messages %}
       {% if messages %}
@@ -85,7 +85,7 @@
                   <div class="mdc-radio__inner-circle"></div>
                 </div>
               </div>
-              <label class="mdc-typography--body1" for="{{ choice.id_for_label }}">{{ choice.choice_label }}</label>
+              <label class="mdc-typography--body1" for="{{ choice.id_for_label }}">{{ choice.choice_label.strip|bleach_html|safe }}</label>
             </div>
           </li>
         {% endfor %}
