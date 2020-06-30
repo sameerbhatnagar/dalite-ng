@@ -213,8 +213,9 @@ function buildScript(app, module) {
     file: "./" + app + "/static/" + app + "/js/" + module + ".min.js",
     format: "iife",
     globals: {
-      jquery: "jquery", // eslint-disable-line
-      flatpickr: "flatpickr", // eslint-disable-line
+      jquery: "jquery",
+      flatpickr: "flatpickr",
+      gettext: "gettext", // Is this needed???
       "@babel/runtime": "@babel/runtime",
       "@material/auto-init": "@material/auto-init",
       "@material/checkbox": "@material/checkbox",

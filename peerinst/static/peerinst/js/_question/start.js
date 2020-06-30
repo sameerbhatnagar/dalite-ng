@@ -57,9 +57,9 @@ function validateFormSubmit(event) {
     } else {
       let errorMsg;
       if (!choicesSet.has(true)) {
-        errorMsg = "An answer choice is required.";
+        errorMsg = gettext("An answer choice is required.");
       } else {
-        errorMsg = "A rationale is required.";
+        errorMsg = gettext("A rationale is required.");
       }
       addError(errorMsg);
     }

@@ -354,6 +354,13 @@ Requires Redis 5.0.0
 
  - Schedule tasks at: /admin/django_celery_beat/
 
+
+Translations
+------------
+`django-admin makemessages -d djangojs -l fr -i=node_modules/* -i=venv* -i=static/CACHE/* -i=static/admin/* -i=*.min.js`:
+  Javascript
+
+
 Tools
 -----
 `makefile`:
