@@ -37,7 +37,7 @@
                 <div class="mdc-radio__inner-circle"></div>
               </div>
             </div>
-            <label class="mdc-typography--body1" for="{{ choice.id_for_label }}">{{ r.choice_label }}</label>
+            <label class="mdc-typography--body1" for="{{ choice.id_for_label }}">{{ r.choice_label.strip|capfirst }}{% if r.choice_label.strip|last not in "?!." %}.{% endif %}</label>
           </div>
         </li>
         {% if forloop.counter > 2 and forloop.last %}
@@ -45,7 +45,7 @@
                 name="{{ show_more_counters.name }}"
                 id="show-counter-{{ forloop.parentloop.counter }}"
                 value="2" hidden>
-        <div class="expand-button" data-rationale-iterator="{{ forloop.parentloop.counter }}"><b>See More</b></div>
+        <div class="expand-button" data-rationale-iterator="{{ forloop.parentloop.counter }}"><b>{% trans 'Show more rationales' %}</b></div>
         {% endif %}
       {% endfor %}
       </ul>
