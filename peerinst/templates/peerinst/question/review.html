@@ -1,6 +1,6 @@
 {% extends 'peerinst/question/review_base.html' %}
 
-{% load add_class compress i18n static %}
+{% load add_class bleach_html compress i18n static %}
 
 {% block answers %}
 {{ block.super }}
@@ -37,7 +37,7 @@
                 <div class="mdc-radio__inner-circle"></div>
               </div>
             </div>
-            <label class="mdc-typography--body1" for="{{ choice.id_for_label }}">{{ r.choice_label.strip|capfirst }}{% if r.choice_label.strip|last not in "?!." %}.{% endif %}</label>
+            <label class="mdc-typography--body1" for="{{ choice.id_for_label }}">{{ r.choice_label.strip|bleach_html|capfirst }}{% if r.choice_label.strip|bleach_html|last not in "?!." %}.{% endif %}</label>
           </div>
         </li>
         {% if forloop.counter > 2 and forloop.last %}
@@ -57,7 +57,7 @@
   <div>
     <span>
       {% blocktrans %}
-      You should take a bit more time to evaluate other answers
+      Take a moment to evaluate the other answers.
       {% endblocktrans %}
     </span>
     <button class="mdc-button mdc-button--raised">
