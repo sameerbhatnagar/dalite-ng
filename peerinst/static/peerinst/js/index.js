@@ -1,3 +1,5 @@
+/* global deletedQuestionsHidden:writable */
+
 // MDC
 import autoInit from "@material/auto-init/index";
 import * as checkbox from "@material/checkbox/index";

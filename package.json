@@ -73,10 +73,22 @@
     "trailingComma": "all"
   },
   "eslintConfig": {
+    "env": {
+      "browser": true,
+      "es6": true
+    },
     "extends": [
+      "eslint:recommended",
       "google",
       "prettier"
     ],
+    "globals": {
+        "$": "readonly",
+        "bundle": "readonly",
+        "gettext": "readonly",
+        "require": "readonly",
+        "exports": "readonly"
+    },
     "parser": "babel-eslint",
     "plugins": ["prettier"],
     "rules": {

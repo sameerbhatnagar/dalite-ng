@@ -1,3 +1,5 @@
+/* global pageNav */
+
 import { updateAssignmentQuestionList } from "./ajax.js";
 
 /** Recount search results

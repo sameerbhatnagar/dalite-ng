@@ -131,7 +131,8 @@ function updateCriterionOption(event, option, criterion) {
     .then((resp) => (resp.ok ? resp.json() : resp.text()))
     .then((data) => {
       if (typeof data === "string") {
-        toggleCriterionOptionError(err);
+        // TODO: Figure out what the intent of this was
+        //toggleCriterionOptionError(err);
       } else {
         model.criterions = model.criterions.map((c) =>
           c.name === data.name ? data : c,

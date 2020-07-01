@@ -215,7 +215,6 @@ function buildScript(app, module) {
     globals: {
       jquery: "jquery",
       flatpickr: "flatpickr",
-      gettext: "gettext", // Is this needed???
       "@babel/runtime": "@babel/runtime",
       "@material/auto-init": "@material/auto-init",
       "@material/checkbox": "@material/checkbox",

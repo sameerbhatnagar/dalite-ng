@@ -103,12 +103,7 @@ async function getNewQuestion(question) {
       window.location.href = "#questions";
     });
   });
-  posting.fail(() => {
-    x.innerHTML = "error"; // Add snack bar?
-    window.setTimeout(() => {
-      x.innerHTML = "autorenew";
-    }, 5000);
-  });
+  // TODO: handle posting.fail()
 }
 
 /********/
