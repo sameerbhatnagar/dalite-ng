@@ -760,7 +760,8 @@ function addLinkListeners() {
   document
     .getElementById("edit-user-btn")
     .addEventListener("click", function () {
-      edit_user();
+      // TODO: Allow student info editing
+      //edit_user();
     });
   document
     .getElementById("modify-tos-btn")
