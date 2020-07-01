@@ -85,9 +85,7 @@
     "globals": {
         "$": "readonly",
         "bundle": "readonly",
-        "gettext": "readonly",
-        "require": "readonly",
-        "exports": "readonly"
+        "gettext": "readonly"
     },
     "parser": "babel-eslint",
     "plugins": ["prettier"],

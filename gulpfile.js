@@ -1,3 +1,5 @@
+/* globals require, exports */
+
 /* Build tools */
 const gulp = require("gulp");
 const concat = require("gulp-concat");
