@@ -1,5 +1,19 @@
+@import "@material/ripple/mdc-ripple";
+
 .expand-button {
   cursor: pointer;
+
+  & i {
+    @include mdc-ripple-surface;
+    @include mdc-ripple-radius-bounded(20px);
+    @include mdc-states;
+    font-size: 32px;
+    padding: 4px;
+  }
+  & span {
+    padding-left: 2px;
+    vertical-align: middle;
+  }
 }
 
 #review-alert {

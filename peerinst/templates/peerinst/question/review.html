@@ -46,8 +46,16 @@
         <input type="{{ show_more_counters.type }}"
                 name="{{ show_more_counters.name }}"
                 id="show-counter-{{ forloop.parentloop.counter }}"
-                value="2" hidden>
-        <div class="expand-button" data-rationale-iterator="{{ forloop.parentloop.counter }}"><b>{% trans 'Show more rationales' %}</b></div>
+                value="2" hidden >
+        <div class="expand-button" data-rationale-iterator="{{ forloop.parentloop.counter }}">
+          <i class="material-icons mdc-theme--secondary"
+             role="button"
+             aria-pressed="false"
+             aria-label="{% trans 'Show more rationales' %}"
+             title="{% trans 'Show more rationales' %}">
+             add
+          </i><span>{% trans 'Show more rationales' %}</span>
+        </div>
         {% endif %}
       {% endfor %}
       </ul>
