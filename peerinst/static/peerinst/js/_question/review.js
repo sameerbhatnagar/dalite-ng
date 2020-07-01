@@ -18,10 +18,6 @@ function initModel() {
 /* update */
 /**********/
 
-function startSubmitAllowedTimer(seconds: number) {
-  setInterval(allowSubmit, seconds * 1000);
-}
-
 function allowSubmit() {
   model.submitAllowed = true;
   submitButtonView();
@@ -33,6 +29,7 @@ function allowSubmit() {
 
 function view() {
   submitButtonView();
+  showMeMore();
 }
 
 function submitButtonView() {
@@ -76,6 +73,17 @@ function showMeMore() {
   });
 }
 
+/*************/
+/* listeners */
+/*************/
+
+function listeners() {
+  [].forEach.call(
+    document.querySelectorAll("#submit-answer-form input[type=radio]"),
+    (el) => el.addEventListener("click", allowSubmit),
+  );
+}
+
 /********/
 /* init */
 /********/
@@ -83,6 +91,5 @@ function showMeMore() {
 export function init() {
   initModel();
   view();
-  startSubmitAllowedTimer(5);
-  showMeMore();
+  listeners();
 }
