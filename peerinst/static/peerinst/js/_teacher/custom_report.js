@@ -80,7 +80,7 @@ async function evaluateRationale(star, score) {
 
   const resp = await fetch(model.urls.evaluateRationale, req);
   if (resp.ok) {
-    flag.setAttribute("data-flagged", "");
+    star.setAttribute("data-starred", "");
     rationale.setAttribute("data-score", `${score}`);
   }
   updateRationaleEvaluationAttributes(rationale);
