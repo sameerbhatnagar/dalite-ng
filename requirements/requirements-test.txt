@@ -21,7 +21,8 @@ chardet==3.0.4            # via -r requirements/requirements-base.txt, requests
 coverage==5.0.3           # via -r requirements/requirements-test.in, pytest-cov
 ddt==1.2.2                # via -r requirements/requirements-test.in
 django-analytical==2.5.0  # via -r requirements/requirements-base.txt
-django-appconf==1.0.3     # via -r requirements/requirements-base.txt, django-compressor, pinax-forums
+django-appconf==1.0.3     # via -r requirements/requirements-base.txt, django-axes, django-compressor, pinax-forums
+django-axes==5.3.4        # via -r requirements/requirements-base.txt
 django-celery-beat==2.0.0  # via -r requirements/requirements-base.txt
 django-classy-tags==1.0.0  # via -r requirements/requirements-base.txt, django-cookie-law
 django-compressor==2.4    # via -r requirements/requirements-base.txt
@@ -30,10 +31,11 @@ django-cookies-samesite-fork==0.2.1  # via -r requirements/requirements-base.txt
 django-csp==3.6           # via -r requirements/requirements-base.txt, django-security-headers
 django-grappelli==2.14.1  # via -r requirements/requirements-base.txt
 django-htmlmin==0.11.0    # via -r requirements/requirements-base.txt
+django-ipware==2.1.0      # via -r requirements/requirements-base.txt, django-axes
 django-security-headers==0.3.1  # via -r requirements/requirements-base.txt
 django-sslserver==0.22    # via -r requirements/requirements-base.txt, django-security-headers
 django-timezone-field==4.0  # via -r requirements/requirements-base.txt, django-celery-beat
-django==2.2.13            # via -r requirements/requirements-base.txt, django-analytical, django-appconf, django-celery-beat, django-classy-tags, django-cookie-law, django-csp, django-lti-tool-provider, django-security-headers, django-sslserver, django-timezone-field, djangorestframework, jsonfield, pinax-forums
+django==2.2.14            # via -r requirements/requirements-base.txt, django-analytical, django-appconf, django-axes, django-celery-beat, django-classy-tags, django-cookie-law, django-csp, django-lti-tool-provider, django-security-headers, django-sslserver, django-timezone-field, djangorestframework, jsonfield, pinax-forums
 djangorestframework==3.11.0  # via -r requirements/requirements-base.txt
 factory_boy==2.6          # via -r requirements/requirements-test.in
 fake-factory==9999.9.9    # via factory-boy

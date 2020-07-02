@@ -18,7 +18,8 @@ celery[redis]==4.4.0      # via -r requirements/requirements-base.in, django-cel
 certifi==2019.11.28       # via requests
 chardet==3.0.4            # via requests
 django-analytical==2.5.0  # via -r requirements/requirements-base.in
-django-appconf==1.0.3     # via django-compressor, pinax-forums
+django-appconf==1.0.3     # via django-axes, django-compressor, pinax-forums
+django-axes==5.3.4        # via -r requirements/requirements-base.in
 django-celery-beat==2.0.0  # via -r requirements/requirements-base.in
 django-classy-tags==1.0.0  # via django-cookie-law
 django-compressor==2.4    # via -r requirements/requirements-base.in
@@ -27,10 +28,11 @@ django-cookies-samesite-fork==0.2.1  # via django-security-headers
 django-csp==3.6           # via django-security-headers
 django-grappelli==2.14.1  # via -r requirements/requirements-base.in
 django-htmlmin==0.11.0    # via -r requirements/requirements-base.in
+django-ipware==2.1.0      # via -r requirements/requirements-base.in, django-axes
 django-security-headers==0.3.1  # via -r requirements/requirements-base.in
 django-sslserver==0.22    # via django-security-headers
 django-timezone-field==4.0  # via django-celery-beat
-django==2.2.13            # via -r requirements/requirements-base.in, django-analytical, django-appconf, django-celery-beat, django-classy-tags, django-cookie-law, django-csp, django-lti-tool-provider, django-security-headers, django-sslserver, django-timezone-field, djangorestframework, jsonfield, pinax-forums
+django==2.2.14            # via -r requirements/requirements-base.in, django-analytical, django-appconf, django-axes, django-celery-beat, django-classy-tags, django-cookie-law, django-csp, django-lti-tool-provider, django-security-headers, django-sslserver, django-timezone-field, djangorestframework, jsonfield, pinax-forums
 djangorestframework==3.11.0  # via -r requirements/requirements-base.in
 filetype==1.0.5           # via pinax-forums
 html5lib==1.0.1           # via django-htmlmin

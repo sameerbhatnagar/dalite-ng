@@ -31,7 +31,8 @@ ddt==1.2.2                # via -r requirements/requirements-test.txt
 decorator==4.4.2          # via ipython, traitlets
 distlib==0.3.0            # via virtualenv
 django-analytical==2.5.0  # via -r requirements/requirements-base.txt, -r requirements/requirements-test.txt
-django-appconf==1.0.3     # via -r requirements/requirements-base.txt, -r requirements/requirements-test.txt, django-compressor, pinax-forums
+django-appconf==1.0.3     # via -r requirements/requirements-base.txt, -r requirements/requirements-test.txt, django-axes, django-compressor, pinax-forums
+django-axes==5.3.4        # via -r requirements/requirements-base.txt, -r requirements/requirements-test.txt
 django-celery-beat==2.0.0  # via -r requirements/requirements-base.txt, -r requirements/requirements-test.txt
 django-classy-tags==1.0.0  # via -r requirements/requirements-base.txt, -r requirements/requirements-test.txt, django-cookie-law
 django-compressor==2.4    # via -r requirements/requirements-base.txt, -r requirements/requirements-test.txt
@@ -40,10 +41,11 @@ django-cookies-samesite-fork==0.2.1  # via -r requirements/requirements-base.txt
 django-csp==3.6           # via -r requirements/requirements-base.txt, -r requirements/requirements-test.txt, django-security-headers
 django-grappelli==2.14.1  # via -r requirements/requirements-base.txt, -r requirements/requirements-test.txt
 django-htmlmin==0.11.0    # via -r requirements/requirements-base.txt, -r requirements/requirements-test.txt
+django-ipware==2.1.0      # via -r requirements/requirements-base.txt, -r requirements/requirements-test.txt, django-axes
 django-security-headers==0.3.1  # via -r requirements/requirements-base.txt, -r requirements/requirements-test.txt
 django-sslserver==0.22    # via -r requirements/requirements-base.txt, -r requirements/requirements-dev.in, -r requirements/requirements-test.txt, django-security-headers
 django-timezone-field==4.0  # via -r requirements/requirements-base.txt, -r requirements/requirements-test.txt, django-celery-beat
-django==2.2.13            # via -r requirements/requirements-base.txt, -r requirements/requirements-test.txt, django-analytical, django-appconf, django-celery-beat, django-classy-tags, django-cookie-law, django-csp, django-lti-tool-provider, django-security-headers, django-sslserver, django-timezone-field, djangorestframework, jsonfield, pinax-forums
+django==2.2.14            # via -r requirements/requirements-base.txt, -r requirements/requirements-test.txt, django-analytical, django-appconf, django-axes, django-celery-beat, django-classy-tags, django-cookie-law, django-csp, django-lti-tool-provider, django-security-headers, django-sslserver, django-timezone-field, djangorestframework, jsonfield, pinax-forums
 djangorestframework==3.11.0  # via -r requirements/requirements-base.txt, -r requirements/requirements-test.txt
 dparse==0.4.1             # via safety
 entrypoints==0.3          # via flake8
