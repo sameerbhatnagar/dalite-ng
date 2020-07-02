@@ -117,7 +117,11 @@ class ApplicationHookManager(AbstractApplicationHookManager):
         user, __ = authenticate_student(email, user_id)
 
         if isinstance(user, User):
-            login(request, user)
+            login(
+                request,
+                user,
+                backend="peerinst.backends.CustomPermissionsBackend",
+            )
 
         # LTI sessions are created implicitly, and are not terminated when
         # user logs out of Studio/LMS, which may lead to granting access to
