@@ -103,24 +103,24 @@ const scriptBuilds = [
 ];
 
 const babelConfig = {
-  babelHelpers: "bundled",
+  babelHelpers: "runtime",
   presets: [
     "@babel/preset-flow",
     [
       "@babel/preset-env",
       {
-        modules: false,
-        exclude: ["@babel/plugin-transform-regenerator"],
+        useBuiltIns: "usage",
+        corejs: 3,
       },
     ],
   ],
   plugins: [
     "@babel/plugin-proposal-optional-chaining",
+    ["@babel/plugin-transform-react-jsx", { pragma: "h" }],
     [
       "@babel/plugin-transform-runtime",
       {
-        helpers: false,
-        regenerator: true,
+        corejs: 3,
       },
     ],
   ],
