@@ -114,7 +114,7 @@ class ApplicationHookManager(AbstractApplicationHookManager):
 
         email = email if email else user_id + "@localhost"
 
-        user, __ = authenticate_student(email, user_id)
+        user, __ = authenticate_student(request, email, user_id)
 
         if isinstance(user, User):
             login(

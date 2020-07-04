@@ -103,7 +103,7 @@ def authenticate_student(req, token):
                 False,
             )
         users_ = [
-            authenticate(username=username, password=p) for p in passwords
+            authenticate(req, username=username, password=p) for p in passwords
         ]
         try:
             user = [u for u in users_ if u is not None][0]
