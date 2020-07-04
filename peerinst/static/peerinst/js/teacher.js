@@ -12,4 +12,4 @@ export { init as initRationalesToScoreCards } from "./_teacher/dashboard/rationa
 
 export { init as initSearchFlag } from "./_teacher/questions.js";
 
-export { h, render, AuthoringApp } from "./_teacher/authoring.js";
+//export { h, render, AuthoringApp } from "./_teacher/authoring.js";
