@@ -3,6 +3,7 @@
 {% load compress i18n static %}
 
 {% block stylesheets %}
+  {{ block.super }}
   {% if user.student %}
   {% compress css %}
   <link href="{% static 'peerinst/css/student.min.css' %}" rel="stylesheet">
@@ -29,6 +30,8 @@
 {% endblock %}
 
 {% block scripts %}
+  {{ block.super }}
+
   {% if user.student %}
   {% compress js %}
   <script src="{% static 'peerinst/js/student.min.js' %}"></script>
