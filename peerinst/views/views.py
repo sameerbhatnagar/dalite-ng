@@ -15,7 +15,6 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import Group, User
 from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import PermissionDenied, ValidationError
-from django.core.mail import mail_admins, send_mail
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 
 # reports
@@ -1379,7 +1378,8 @@ class QuestionReviewView(QuestionReviewBaseView):
         """
         Saves in the databse which rationales were shown to the student. These
         are linked to the answer.
-        Stick to my rationale is no longer saved as ShownRationale with an empty shown_answer
+        Stick to my rationale is no longer saved as ShownRationale with an
+        empty shown_answer
         """
         rationale_ids = [
             rationale[0]
