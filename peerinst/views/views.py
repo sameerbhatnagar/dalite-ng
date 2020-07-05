@@ -84,7 +84,7 @@ from ..models import (
     UserType,
     UserUrl,
 )
-from ..tasks import mail_admins_async
+from ..tasks import mail_managers_async
 from ..util import (
     SessionStageData,
     get_object_or_none,
@@ -216,7 +216,7 @@ def sign_up(request):
                 url=form.cleaned_data["url"],
                 site_name="myDALITE",
             )
-            mail_admins_async(
+            mail_managers_async(
                 "New user request",
                 "Dear administrator,"
                 "\n\nA new user {} was created on {}.".format(
