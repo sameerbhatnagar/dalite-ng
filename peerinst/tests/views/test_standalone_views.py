@@ -1,15 +1,5 @@
-import json
-
 import pytest
-from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
-from django.test.client import Client
 
-from peerinst.models import Student
-from peerinst.students import (
-    create_student_token,
-    get_student_username_and_password,
-)
 from peerinst.tests.generators import (
     add_groups,
     add_students,

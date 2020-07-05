@@ -32,14 +32,14 @@ class QuestionTestCase(TestCase):
                     question=q,
                     user_token=u.username,
                     first_answer_choice=random.choice(
-                        range(1, self.N_choices + 1)
+                        list(range(1, self.N_choices + 1))
                     ),
                     second_answer_choice=random.choice(
-                        range(1, self.N_choices + 1)
+                        list(range(1, self.N_choices + 1))
                     ),
                     rationale=factory.Faker("sentence", nb_words=10),
                 )
-            print("{}%".format(float(i) / self.N_questions * 100))
+            print(("{}%".format(float(i) / self.N_questions * 100)))
 
             assert (
                 models.Answer.objects.filter(question=q).count()
@@ -72,9 +72,12 @@ class QuestionMethodTests(QuestionTestCase):
             matrices.append(q.get_matrix())
         end = timer()
 
-        print("Total time = " + str(end - start))
+        print(("Total time = " + str(end - start)))
         print(
-            "Avg time per question = " + str((end - start) / self.N_questions)
+            (
+                "Avg time per question = "
+                + str((end - start) / self.N_questions)
+            )
         )
 
         """
@@ -85,10 +88,10 @@ class QuestionMethodTests(QuestionTestCase):
         prob = float(self.N_correct) / self.N_choices
 
         for m in matrices:
-            print(m["easy"])
-            print(m["hard"])
-            print(m["tricky"])
-            print(m["peer"])
+            print((m["easy"]))
+            print((m["hard"]))
+            print((m["tricky"]))
+            print((m["peer"]))
             self.assertTrue(
                 abs(1 - m["easy"] - m["hard"] - m["tricky"] - m["peer"])
                 <= 0.01

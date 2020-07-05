@@ -1,4 +1,4 @@
-{% load csp staticfiles i18n compress cookielaw_tags admin_urls tz piwik %}
+{% load csp static i18n compress cookielaw_tags admin_urls tz piwik %}
 
 {% get_current_language as LANGUAGE_CODE %}
 
@@ -16,9 +16,6 @@
   <meta name="description" content="myDALITE">
   <meta name="theme-color" content="#004266">
 
-  <!-- Polyfills for non-awesome browsers-->
-  <script src="https://cdn.polyfill.io/v2/polyfill.min.js?features=default,fetch,Array.prototype.includes">
-  </script>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.3/jquery.min.js"></script>
   <script src="https://unpkg.com/@webcomponents/webcomponentsjs@^2/webcomponents-loader.js">
   </script>
@@ -36,9 +33,12 @@
   <script src="{% static 'cookielaw/js/cookielaw.js' %}" defer="true"></script>
   {% endcompress %}
   {% compress css file cookie_law %}
-  <link href="{% static 'cookie_law/css/cookie_law.min.css' %}" rel="stylesheet">
+  <link href="{% static 'peerinst/css/cookie_law.min.css' %}" rel="stylesheet">
   {% endcompress %}
   {% endif %}
+
+  <!-- Javascript translations -->
+  <script src="{% url 'javascript-catalog' %}"></script>
 
   <!-- External resources -->
   <link href="https://unpkg.com/ionicons@4.2.4/dist/css/ionicons.min.css" rel="stylesheet">

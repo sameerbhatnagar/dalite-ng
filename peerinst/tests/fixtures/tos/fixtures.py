@@ -1,5 +1,5 @@
 import pytest
-from .generators import add_tos, add_tos_consents, new_tos, new_tos_consents
+from .generators import add_tos, new_tos
 
 
 @pytest.fixture

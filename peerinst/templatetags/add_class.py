@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 from django.template import Library
 from django.template.defaultfilters import stringfilter
@@ -14,7 +14,7 @@ register = Library()
 def add_class(html, css_class, autoescape=True):
     """Appends given css class to first passed html tag"""
 
-    from HTMLParser import HTMLParser
+    from html.parser import HTMLParser
 
     if autoescape:
         html = conditional_escape(html)

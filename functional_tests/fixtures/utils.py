@@ -89,9 +89,9 @@ def browser(live_server):
         logs = driver.get_log("browser")
 
         if isinstance(result, WebElement):
-            print("Logs checked after: " + fct.func.__name__)
+            print(("Logs checked after: " + fct.func.__name__))
         else:
-            print("Logs checked after: " + fct.__name__)
+            print(("Logs checked after: " + fct.__name__))
 
         # Ignore network errors during testing
         filtered_logs = [

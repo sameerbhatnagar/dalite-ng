@@ -27,6 +27,8 @@ def bleach_html(text):
             "p",
             "strong",
             "ul",
+            "sub",
+            "sup",
         ],
         styles=[],
         strip=True,

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 from django.db import models
 
@@ -121,7 +121,7 @@ class QuestionLikedCriterion(Criterion):
                         evaluation[1][key]
                         for evaluation in question_evaluations
                     ]
-                    for key in question_evaluations[0][1].keys()
+                    for key in list(question_evaluations[0][1].keys())
                 },
             )
         else:

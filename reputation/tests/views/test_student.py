@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 import json
 
@@ -21,7 +21,7 @@ def test_student_reputation(rf, student_reputation, student):
     reputation, details = student_reputation.evaluate()
 
     assert resp.status_code == 200
-    assert json.loads(resp.content) == {
+    assert json.loads(resp.content.decode()) == {
         "reputation": reputation,
         "reputations": details,
     }
@@ -38,7 +38,7 @@ def test_student_reputation__new_reputation(rf, student):
     reputation, details = student.reputation.evaluate()
 
     assert resp.status_code == 200
-    assert json.loads(resp.content) == {
+    assert json.loads(resp.content.decode()) == {
         "reputation": reputation,
         "reputations": details,
     }

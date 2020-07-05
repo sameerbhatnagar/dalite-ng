@@ -109,7 +109,7 @@ def update_forum_notifications(sender, user, thread, **kwarsg):
 
 @receiver(user_logged_out)
 def update_last_logout(sender, request, user, **kwargs):
-    if user and user.is_authenticated():
+    if user and user.is_authenticated:
         try:
             last_logout = LastLogout.objects.get(user=user)
             last_logout.save()
@@ -135,7 +135,10 @@ def init_message_types(sender, **kwargs):
 
 @receiver(post_migrate)
 def init_user_types(sender, **kwargs):
-    types = [{"type": "teacher"}, {"type": "student"}]
+    types = [
+        {"type": "teacher"},
+        {"type": "researcher"},
+    ]
     for type_ in types:
         if not UserType.objects.filter(type=type_["type"]).exists():
             UserType.objects.create(**type_)

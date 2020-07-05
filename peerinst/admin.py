@@ -1,11 +1,8 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 from django import forms
 from django.contrib import admin
 from django.contrib.admin.models import DELETION, LogEntry
 from django.core import exceptions
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.utils.html import escape, format_html
 from django.utils.translation import ugettext_lazy as _
 
@@ -35,6 +32,7 @@ from .models import (
     StudentGroupMembership,
     StudentNotification,
     StudentNotificationType,
+    Subject,
     Teacher,
     TeacherNotification,
 )
@@ -117,7 +115,6 @@ class AnswerInline(admin.StackedInline):
 @admin.register(Collection)
 class CollectionAdmin(admin.ModelAdmin):
     pass
-
 
 @admin.register(Question)
 class QuestionAdmin(admin.ModelAdmin):
@@ -217,6 +214,9 @@ class CategoryAdmin(admin.ModelAdmin):
 class DisciplineAdmin(admin.ModelAdmin):
     pass
 
+@admin.register(Subject)
+class SubjectAdmin(admin.ModelAdmin):
+    filter_horizontal = ['categories']
 
 @admin.register(Institution)
 class InstitutionAdmin(admin.ModelAdmin):

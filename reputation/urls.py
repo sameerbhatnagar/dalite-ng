@@ -1,14 +1,13 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
-from django.conf.urls import url
+from django.urls import path
 
 from . import views
+
+app_name = "reputation"
 
 
 def reputation_patterns():
     return [
-        url(r"^reputation/$", views.reputation.reputation, name="reputation")
+        path("reputation/", views.reputation.reputation, name="reputation")
     ]
 
 

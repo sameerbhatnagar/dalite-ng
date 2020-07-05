@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 import logging
 
@@ -16,7 +16,7 @@ from .students import (
 logger = logging.getLogger("peerinst-auth")
 
 
-def authenticate_student(email, user_id=None):
+def authenticate_student(request, email, user_id=None):
     """
     Authenticates the student either with the username, password created from
     the email and SECRET_KEY or with the old lti way using the user_id and
@@ -43,7 +43,7 @@ def authenticate_student(email, user_id=None):
         .filter(username__contains=username)
         .exists()
     ):
-        user = authenticate(username=username, password=password)
+        user = authenticate(request, username=username, password=password)
         if (
             user
             and not Teacher.objects.filter(user__email=email).exists()
@@ -66,7 +66,9 @@ def authenticate_student(email, user_id=None):
             .filter(username__contains=old_username)
             .exists()
         ):
-            user = authenticate(username=old_username, password=old_password)
+            user = authenticate(
+                request, username=old_username, password=old_password
+            )
             if (
                 user
                 and not Teacher.objects.filter(user__email=email).exists()
@@ -81,7 +83,9 @@ def authenticate_student(email, user_id=None):
                 User.objects.create_user(
                     username=username, email=email, password=password
                 )
-                user = authenticate(username=username, password=password)
+                user = authenticate(
+                    request, username=username, password=password
+                )
                 if (
                     user
                     and not Teacher.objects.filter(user__email=email).exists()

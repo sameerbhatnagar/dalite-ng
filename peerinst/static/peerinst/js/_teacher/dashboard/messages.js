@@ -30,7 +30,7 @@ async function getMessages() {
 
   const resp = await fetch(model.urls.daliteMessages, req);
   const data = await resp.json();
-  model.messages = data.messages.map(message => ({
+  model.messages = data.messages.map((message) => ({
     id: message.id,
     title: message.title,
     text: message.text,
@@ -38,7 +38,7 @@ async function getMessages() {
     removable: message.removable,
     date: message.date,
     link: message.link,
-    authors: message.authors.map(author => ({
+    authors: message.authors.map((author) => ({
       name: author.name,
       picture: author.picture,
     })),
@@ -69,7 +69,7 @@ function messagesView() {
   const messages = document.querySelector("#dalite-messages");
   if (model.messages.length) {
     messages.classList.remove("hidden");
-    model.messages.forEach(message => {
+    model.messages.forEach((message) => {
       messages.appendChild(messageView(message));
     });
   } else {
@@ -115,7 +115,7 @@ function messageView(message) {
   if (message.authors.length) {
     const authorsContainer = document.createElement("div");
     authorsContainer.classList.add("dalite-message__authors");
-    message.authors.forEach(author => {
+    message.authors.forEach((author) => {
       const img = document.createElement("img");
       img.classList.add("dalite-message__authors_author");
       img.title = author.name;

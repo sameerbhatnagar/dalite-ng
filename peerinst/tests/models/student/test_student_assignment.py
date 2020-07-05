@@ -142,7 +142,10 @@ def test_get_current_question__no_answers(student_assignment):
 
     for _ in range(5):
         new_order = ",".join(
-            map(str, random.sample(range(len(questions)), k=len(questions)))
+            map(
+                str,
+                random.sample(list(range(len(questions))), k=len(questions)),
+            )
         )
         student_assignment.group_assignment._modify_order(new_order)
         questions = student_assignment.group_assignment.questions

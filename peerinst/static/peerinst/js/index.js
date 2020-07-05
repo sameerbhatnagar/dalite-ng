@@ -1,3 +1,5 @@
+/* global deletedQuestionsHidden:writable */
+
 // MDC
 import autoInit from "@material/auto-init/index";
 import * as checkbox from "@material/checkbox/index";
@@ -110,7 +112,7 @@ export function bindAjaxTextInputForm(
 ) {
   const d = document.getElementById(idToBind);
   if (d) {
-    d.onclick = function() {
+    d.onclick = function () {
       /** The callback
        * @function
        * @this Callback
@@ -156,7 +158,7 @@ export function categoryForm(
   // Define ENTER key
   const form = $("#category_form").find("#id_title");
   if (form.length) {
-    $(form).keypress(function(event) {
+    $(form).keypress(function (event) {
       if (event.which == 13) {
         $("#submit_category_form").click();
       }
@@ -164,8 +166,8 @@ export function categoryForm(
   }
 
   // Handle clear
-  $("#clear_category_form").click(function() {
-    $("#category_form").load(formUrl, function() {
+  $("#clear_category_form").click(function () {
+    $("#category_form").load(formUrl, function () {
       bundle.bindAjaxTextInputForm(
         idToBind,
         formToReplace,
@@ -185,26 +187,22 @@ export function categoryForm(
 
   // Setup ajax call and attach a submit handler to the form
   $.ajaxSetup({
-    beforeSend: function(xhr, settings) {
+    beforeSend: function (xhr, settings) {
       if (!bundle.csrfSafeMethod(settings.type) && !this.crossDomain) {
         xhr.setRequestHeader("X-CSRFToken", bundle.getCsrfToken());
       }
     },
   });
 
-  $("#submit_category_form").click(function() {
-    const title = $("#category_form")
-      .find("input[name='title']")
-      .val();
+  $("#submit_category_form").click(function () {
+    const title = $("#category_form").find("input[name='title']").val();
 
     // Send the data using post
     const posting = $.post(createUrl, { title: title });
 
     // Put the results in a div
-    posting.success(function(data, status) {
-      $("#category_form")
-        .empty()
-        .append(data);
+    posting.success(function (data, status) {
+      $("#category_form").empty().append(data);
 
       const formType = $("#create_new_category");
       if (formType.length) {
@@ -218,9 +216,7 @@ export function categoryForm(
           completionHook,
         );
         bundle.autoInit();
-        $("#category_form")
-          .find("input[name='title']")[0]
-          .focus();
+        $("#category_form").find("input[name='title']")[0].focus();
       } else {
         bundle.bindAjaxTextInputForm(
           idToBind,
@@ -233,10 +229,7 @@ export function categoryForm(
         );
         bundle.bindCategoryAutofill(searchUrl);
         bundle.autoInit();
-        $("#autofill_categories")
-          .val(title)
-          .focus()
-          .autocomplete("search");
+        $("#autofill_categories").val(title).focus().autocomplete("search");
         if (completionHook) {
           completionHook();
         }
@@ -258,14 +251,14 @@ export function bindCategoryAutofill(source) {
   }
 
   // Generators for autocomplete
-  const response = function(searchClass, spinnerId) {
-    return function(event, ui) {
+  const response = function (searchClass, spinnerId) {
+    return function (event, ui) {
       // NB: Pass by reference.  ui can be modified, but not recreated.
-      const currentList = $.map($(searchClass), function(obj, i) {
+      const currentList = $.map($(searchClass), function (obj, i) {
         return $(obj).attr("d");
       });
 
-      const tmp = ui.content.filter(function(el) {
+      const tmp = ui.content.filter(function (el) {
         return !currentList.includes(el.label);
       });
 
@@ -288,19 +281,19 @@ export function bindCategoryAutofill(source) {
     };
   };
 
-  const search = function(spinnerId) {
-    return function(event, ui) {
+  const search = function (spinnerId) {
+    return function (event, ui) {
       $(spinnerId).css("opacity", 1);
     };
   };
 
-  const focus = function(event, ui) {
+  const focus = function (event, ui) {
     event.preventDefault();
     $(this).val(ui.item.label); // eslint-disable-line no-invalid-this
   };
 
-  const select = function(currentIds, className, formId) {
-    return function(event, ui) {
+  const select = function (currentIds, className, formId) {
+    return function (event, ui) {
       event.preventDefault();
       $(this).val(""); // eslint-disable-line no-invalid-this
 
@@ -310,7 +303,7 @@ export function bindCategoryAutofill(source) {
       newDiv.setAttribute("tabindex", "0");
       newDiv.setAttribute("data-mdc-auto-init", "MDCChip");
       newDiv.classList.add("mdc-chip", "mdc-typography--caption", className);
-      newDiv.addEventListener("click", function() {
+      newDiv.addEventListener("click", function () {
         updateSelect(this, formId); // eslint-disable-line no-invalid-this
       });
       const text = document.createElement("div");
@@ -354,6 +347,320 @@ export function bindCategoryAutofill(source) {
   });
 }
 
+export function bindUsernameAutofill(source) {
+  function updateSelect(el, formId) {
+    el.remove();
+    $(formId)
+      .find("[value=" + $(el).attr("v") + "]")
+      .remove();
+  }
+
+  // Generators for autocomplete
+  const response = function (searchClass, spinnerId) {
+    return function (event, ui) {
+      // NB: Pass by reference.  ui can be modified, but not recreated.
+      const currentList = $.map($(searchClass), function (obj, i) {
+        return $(obj).attr("d");
+      });
+
+      const tmp = ui.content.filter(function (el) {
+        return !currentList.includes(el.label);
+      });
+
+      let l = ui.content.length;
+      while (l > 0) {
+        ui.content.pop();
+        l = ui.content.length;
+      }
+
+      for (let i = 0; i < tmp.length; i++) {
+        ui.content.push(tmp[i]);
+      }
+
+      if (ui.content.length == 0) {
+        // Could add hint that there are no results
+      }
+
+      $(spinnerId).css("opacity", 0);
+      return;
+    };
+  };
+
+  const search = function (spinnerId) {
+    return function (event, ui) {
+      $(spinnerId).css("opacity", 1);
+    };
+  };
+
+  const focus = function (event, ui) {
+    event.preventDefault();
+    $(this).val(ui.item.label); // eslint-disable-line no-invalid-this
+  };
+
+  const select = function (currentIds, className, formId) {
+    return function (event, ui) {
+      event.preventDefault();
+      $(this).val(""); // eslint-disable-line no-invalid-this
+
+      const newDiv = document.createElement("div");
+      newDiv.setAttribute("d", ui.item.label);
+      newDiv.setAttribute("v", ui.item.value);
+      newDiv.setAttribute("tabindex", "0");
+      newDiv.setAttribute("data-mdc-auto-init", "MDCChip");
+      newDiv.classList.add("mdc-chip", "mdc-typography--caption", className);
+      newDiv.addEventListener("click", function () {
+        updateSelect(this, formId); // eslint-disable-line no-invalid-this
+      });
+      const text = document.createElement("div");
+      text.classList.add("mdc-chip__text");
+      text.textContent = ui.item.label;
+      newDiv.appendChild(text);
+      const icon = document.createElement("i");
+      icon.classList.add(
+        "material-icons",
+        "mdc-chip__icon",
+        "mdc-chip__icon--trailing",
+      );
+      icon.setAttribute("tabindex", "0");
+      icon.setAttribute("role", "button");
+      icon.textContent = "cancel";
+      newDiv.appendChild(icon);
+      document.getElementById(currentIds).appendChild(newDiv);
+
+      $(formId).append(
+        "<option selected='selected' value=" +
+          ui.item.value +
+          ">" +
+          ui.item.label +
+          "</option>",
+      );
+    };
+  };
+
+  $("#autofill_usernames").autocomplete({
+    delay: 700,
+    minLength: 3,
+    classes: {
+      "ui-autocomplete": "mdc-typography--body1",
+    },
+    source: source,
+    response: response(".username", "#search_usernames"),
+    search: search("#search_usernames"),
+    focus: focus,
+    select: select("current_usernames", "username", "#id_username"),
+    autoFocus: true,
+  });
+}
+
+export function bindSubjectAutofill(source) {
+  function updateSelect(el, formId) {
+    el.remove();
+    $(formId)
+      .find("[value=" + $(el).attr("v") + "]")
+      .remove();
+  }
+
+  // Generators for autocomplete
+  const response = function (searchClass, spinnerId) {
+    return function (event, ui) {
+      // NB: Pass by reference.  ui can be modified, but not recreated.
+      const currentList = $.map($(searchClass), function (obj, i) {
+        return $(obj).attr("d");
+      });
+
+      const tmp = ui.content.filter(function (el) {
+        return !currentList.includes(el.label);
+      });
+
+      let l = ui.content.length;
+      while (l > 0) {
+        ui.content.pop();
+        l = ui.content.length;
+      }
+
+      for (let i = 0; i < tmp.length; i++) {
+        ui.content.push(tmp[i]);
+      }
+
+      if (ui.content.length == 0) {
+        // Could add hint that there are no results
+      }
+
+      $(spinnerId).css("opacity", 0);
+      return;
+    };
+  };
+
+  const search = function (spinnerId) {
+    return function (event, ui) {
+      $(spinnerId).css("opacity", 1);
+    };
+  };
+
+  const focus = function (event, ui) {
+    event.preventDefault();
+    $(this).val(ui.item.label); // eslint-disable-line no-invalid-this
+  };
+
+  const select = function (currentIds, className, formId) {
+    return function (event, ui) {
+      event.preventDefault();
+      $(this).val(""); // eslint-disable-line no-invalid-this
+
+      const newDiv = document.createElement("div");
+      newDiv.setAttribute("d", ui.item.label);
+      newDiv.setAttribute("v", ui.item.value);
+      newDiv.setAttribute("tabindex", "0");
+      newDiv.setAttribute("data-mdc-auto-init", "MDCChip");
+      newDiv.classList.add("mdc-chip", "mdc-typography--caption", className);
+      newDiv.addEventListener("click", function () {
+        updateSelect(this, formId); // eslint-disable-line no-invalid-this
+      });
+      const text = document.createElement("div");
+      text.classList.add("mdc-chip__text");
+      text.textContent = ui.item.label;
+      newDiv.appendChild(text);
+      const icon = document.createElement("i");
+      icon.classList.add(
+        "material-icons",
+        "mdc-chip__icon",
+        "mdc-chip__icon--trailing",
+      );
+      icon.setAttribute("tabindex", "0");
+      icon.setAttribute("role", "button");
+      icon.textContent = "cancel";
+      newDiv.appendChild(icon);
+      document.getElementById(currentIds).appendChild(newDiv);
+
+      $(formId).append(
+        "<option selected='selected' value=" +
+          ui.item.value +
+          ">" +
+          ui.item.label +
+          "</option>",
+      );
+    };
+  };
+
+  $("#autofill_subjects").autocomplete({
+    delay: 700,
+    minLength: 3,
+    classes: {
+      "ui-autocomplete": "mdc-typography--body1",
+    },
+    source: source,
+    response: response(".subject", "#search_subjects"),
+    search: search("#search_subjects"),
+    focus: focus,
+    select: select("current_subjects", "subject", "#id_subject"),
+    autoFocus: true,
+  });
+}
+
+export function bindDisciplineAutofill(source) {
+  function updateSelect(el, formId) {
+    el.remove();
+    $(formId)
+      .find("[value=" + $(el).attr("v") + "]")
+      .remove();
+  }
+
+  // Generators for autocomplete
+  const response = function (searchClass, spinnerId) {
+    return function (event, ui) {
+      // NB: Pass by reference.  ui can be modified, but not recreated.
+      const currentList = $.map($(searchClass), function (obj, i) {
+        return $(obj).attr("d");
+      });
+
+      const tmp = ui.content.filter(function (el) {
+        return !currentList.includes(el.label);
+      });
+
+      let l = ui.content.length;
+      while (l > 0) {
+        ui.content.pop();
+        l = ui.content.length;
+      }
+
+      for (let i = 0; i < tmp.length; i++) {
+        ui.content.push(tmp[i]);
+      }
+
+      if (ui.content.length == 0) {
+        // Could add hint that there are no results
+      }
+
+      $(spinnerId).css("opacity", 0);
+      return;
+    };
+  };
+
+  const search = function (spinnerId) {
+    return function (event, ui) {
+      $(spinnerId).css("opacity", 1);
+    };
+  };
+
+  const focus = function (event, ui) {
+    event.preventDefault();
+    $(this).val(ui.item.label); // eslint-disable-line no-invalid-this
+  };
+
+  const select = function (currentIds, className, formId) {
+    return function (event, ui) {
+      event.preventDefault();
+      $(this).val(""); // eslint-disable-line no-invalid-this
+
+      const newDiv = document.createElement("div");
+      newDiv.setAttribute("d", ui.item.label);
+      newDiv.setAttribute("v", ui.item.value);
+      newDiv.setAttribute("tabindex", "0");
+      newDiv.setAttribute("data-mdc-auto-init", "MDCChip");
+      newDiv.classList.add("mdc-chip", "mdc-typography--caption", className);
+      newDiv.addEventListener("click", function () {
+        updateSelect(this, formId); // eslint-disable-line no-invalid-this
+      });
+      const text = document.createElement("div");
+      text.classList.add("mdc-chip__text");
+      text.textContent = ui.item.label;
+      newDiv.appendChild(text);
+      const icon = document.createElement("i");
+      icon.classList.add(
+        "material-icons",
+        "mdc-chip__icon",
+        "mdc-chip__icon--trailing",
+      );
+      icon.setAttribute("tabindex", "0");
+      icon.setAttribute("role", "button");
+      icon.textContent = "cancel";
+      newDiv.appendChild(icon);
+      document.getElementById(currentIds).appendChild(newDiv);
+
+      $(formId).append(
+        "<option selected='selected' value=" +
+          ui.item.value +
+          ">" +
+          ui.item.label +
+          "</option>",
+      );
+    };
+  };
+
+  $("#autofill_disciplines").autocomplete({
+    delay: 700,
+    minLength: 3,
+    classes: {
+      "ui-autocomplete": "mdc-typography--body1",
+    },
+    source: source,
+    response: response(".discipline", "#search_disciplines"),
+    search: search("#search_disciplines"),
+    focus: focus,
+    select: select("current_disciplines", "discipline", "#id_discipline"),
+    autoFocus: true,
+  });
+}
 // Create disciplines
 /** Callback for discipline creation
  * @function
@@ -375,13 +682,13 @@ export function disciplineForm(
   completionHook,
 ) {
   // Bind form submit to icon
-  $("#submit_discipline_form").click(function() {
+  $("#submit_discipline_form").click(function () {
     $("#discipline_create_form").submit();
   });
 
   // Handle clear
-  $("#clear_discipline_form").click(function() {
-    $("#discipline_form").load(formUrl, function() {
+  $("#clear_discipline_form").click(function () {
+    $("#discipline_form").load(formUrl, function () {
       bundle.bindAjaxTextInputForm(
         idToBind,
         formToReplace,
@@ -399,26 +706,22 @@ export function disciplineForm(
 
   // Setup ajax call and attach a submit handler to the form
   $.ajaxSetup({
-    beforeSend: function(xhr, settings) {
+    beforeSend: function (xhr, settings) {
       if (!bundle.csrfSafeMethod(settings.type) && !this.crossDomain) {
         xhr.setRequestHeader("X-CSRFToken", bundle.getCsrfToken());
       }
     },
   });
 
-  $("#submit_discipline_form").click(function() {
-    const title = $("#discipline_form")
-      .find("input[name='title']")
-      .val();
+  $("#submit_discipline_form").click(function () {
+    const title = $("#discipline_form").find("input[name='title']").val();
 
     // Send the data using post
     const posting = $.post(createUrl, { title: title });
 
     // Put the results in a div
-    posting.success(function(data, status) {
-      $("#discipline_form")
-        .empty()
-        .append(data);
+    posting.success(function (data, status) {
+      $("#discipline_form").empty().append(data);
 
       const formType = $("#discipline_create_form");
       if (formType.length) {
@@ -498,12 +801,9 @@ export function cornerGraphic(svgSelector, formID, lang, className) {
  */
 export function wrap(text, width) {
   text.each(
-    /* @this */ function() {
+    /* @this */ function () {
       const text = bundle.select(this);
-      const words = text
-        .text()
-        .split(/\s+/)
-        .reverse();
+      const words = text.text().split(/\s+/).reverse();
       let word;
       let line = [];
       let lineNumber = 0;
@@ -558,10 +858,7 @@ function underlines() {
     .attr("y1", 0)
     .attr("y2", 0);
 
-  gradientX
-    .append("stop")
-    .attr("offset", "0%")
-    .attr("stop-color", "#54c0db");
+  gradientX.append("stop").attr("offset", "0%").attr("stop-color", "#54c0db");
 
   gradientX
     .append("stop")
@@ -576,10 +873,7 @@ function underlines() {
     .attr("y1", 0)
     .attr("y2", 1);
 
-  gradientY
-    .append("stop")
-    .attr("offset", "0%")
-    .attr("stop-color", "#004266");
+  gradientY.append("stop").attr("offset", "0%").attr("stop-color", "#004266");
 
   gradientY
     .append("stop")
@@ -687,9 +981,8 @@ export function plot(matrix, freq, id) {
 
   const matrixSvg = bundle.select("#matrix-" + id);
   matrixSvg.style("overflow", "visible");
-  let size = matrixSvg.attr("width");
+  let size = +matrixSvg.attr("width");
   const g = matrixSvg.append("g");
-
   g.append("text")
     .attr("class", "legend")
     .attr("x", size / 2)
@@ -715,10 +1008,7 @@ export function plot(matrix, freq, id) {
       .text("Right > Right");
   });
   easy.on("mouseout", () => {
-    g.select(".legend")
-      .transition()
-      .duration(100)
-      .style("opacity", 0);
+    g.select(".legend").transition().duration(100).style("opacity", 0);
   });
 
   g.append("text")
@@ -728,6 +1018,7 @@ export function plot(matrix, freq, id) {
     .style("font-size", "8pt")
     .style("fill", "white")
     .style("text-anchor", "middle")
+    .attr("pointer-events", "none")
     .text(parseInt(100 * matrix["easy"]) + "%");
 
   const hard = g
@@ -746,10 +1037,7 @@ export function plot(matrix, freq, id) {
       .text("Wrong > Wrong");
   });
   hard.on("mouseout", () => {
-    g.select(".legend")
-      .transition()
-      .duration(100)
-      .style("opacity", 0);
+    g.select(".legend").transition().duration(100).style("opacity", 0);
   });
 
   g.append("text")
@@ -759,6 +1047,7 @@ export function plot(matrix, freq, id) {
     .style("font-size", "8pt")
     .style("fill", "white")
     .style("text-anchor", "middle")
+    .attr("pointer-events", "none")
     .text(parseInt(100 * matrix["hard"]) + "%");
 
   const peer = g
@@ -777,10 +1066,7 @@ export function plot(matrix, freq, id) {
       .text("Wrong > Right");
   });
   peer.on("mouseout", () => {
-    g.select(".legend")
-      .transition()
-      .duration(100)
-      .style("opacity", 0);
+    g.select(".legend").transition().duration(100).style("opacity", 0);
   });
 
   g.append("text")
@@ -790,6 +1076,7 @@ export function plot(matrix, freq, id) {
     .style("font-size", "8pt")
     .style("fill", "white")
     .style("text-anchor", "middle")
+    .attr("pointer-events", "none")
     .text(parseInt(100 * matrix["peer"]) + "%");
 
   const tricky = g
@@ -808,10 +1095,7 @@ export function plot(matrix, freq, id) {
       .text("Right > Wrong");
   });
   tricky.on("mouseout", () => {
-    g.select(".legend")
-      .transition()
-      .duration(100)
-      .style("opacity", 0);
+    g.select(".legend").transition().duration(100).style("opacity", 0);
   });
 
   g.append("text")
@@ -821,6 +1105,7 @@ export function plot(matrix, freq, id) {
     .style("font-size", "8pt")
     .style("fill", "white")
     .style("text-anchor", "middle")
+    .attr("pointer-events", "none")
     .text(parseInt(100 * matrix["tricky"]) + "%");
 
   const firstFreqSvg = bundle.select("#first-frequency-" + id);
@@ -840,12 +1125,9 @@ export function plot(matrix, freq, id) {
     }
   }
 
-  size = secondFreqSvg.attr("width") - margin.left;
+  size = +secondFreqSvg.attr("width") - margin.left;
 
-  const x = bundle
-    .scaleLinear()
-    .domain([0, 1])
-    .rangeRound([0, size]);
+  const x = bundle.scaleLinear().domain([0, 1]).rangeRound([0, size]);
   const y = bundle
     .scaleBand()
     .domain(bundle.keys(freq["first_choice"]).sort())
@@ -879,11 +1161,11 @@ export function plot(matrix, freq, id) {
     .enter()
     .append("rect")
     .attr("id", "second_choice-" + id)
-    .attr("finalwidth", function(d) {
+    .attr("finalwidth", function (d) {
       return x(d.value);
     })
     .attr("x", x(0))
-    .attr("y", function(d) {
+    .attr("y", function (d) {
       return y(d.key);
     })
     .attr("width", 0)
@@ -903,14 +1185,14 @@ export function plot(matrix, freq, id) {
     .enter()
     .append("rect")
     .attr("id", "first_choice-" + id)
-    .attr("finalwidth", function(d) {
+    .attr("finalwidth", function (d) {
       return x(d.value);
     })
-    .attr("finalx", function(d) {
+    .attr("finalx", function (d) {
       return x(1 - d.value);
     })
     .attr("x", x(1))
-    .attr("y", function(d) {
+    .attr("y", function (d) {
       return y(d.key);
     })
     .attr("width", 0)
@@ -929,13 +1211,13 @@ export function plot(matrix, freq, id) {
     .append("text")
     .attr("x", x(0))
     .attr("dx", -2)
-    .attr("y", function(d) {
+    .attr("y", function (d) {
       return y(d.key);
     })
     .attr("dy", y.bandwidth() / 2 + 4)
     .style("font-size", "8pt")
     .style("text-anchor", "end")
-    .text(function(d) {
+    .text(function (d) {
       return parseInt(100 * d.value) + "%";
     });
 
@@ -947,13 +1229,13 @@ export function plot(matrix, freq, id) {
     .append("text")
     .attr("x", x(1))
     .attr("dx", 2)
-    .attr("y", function(d) {
+    .attr("y", function (d) {
       return y(d.key);
     })
     .attr("dy", y.bandwidth() / 2 + 4)
     .style("font-size", "8pt")
     .style("text-anchor", "start")
-    .text(function(d) {
+    .text(function (d) {
       return parseInt(100 * d.value) + "%";
     });
 
@@ -964,12 +1246,12 @@ export function plot(matrix, freq, id) {
     .append("text")
     .attr("x", x(0))
     .attr("dx", 2)
-    .attr("y", function(d) {
+    .attr("y", function (d) {
       return y(d.key);
     })
     .attr("dy", y.bandwidth() / 2 + 4)
     .style("font-size", "8pt")
-    .text(function(d) {
+    .text(function (d) {
       return d.key;
     });
 
@@ -1000,7 +1282,7 @@ export function search(className, searchBar) {
  *  @function
  */
 export function addDialog() {
-  [].forEach.call(document.querySelectorAll("[id^=dialog]"), el => {
+  [].forEach.call(document.querySelectorAll("[id^=dialog]"), (el) => {
     const dialog = bundle.dialog.MDCDialog.attachTo(el);
     document.querySelector("#activate-" + el.id).onclick = () => {
       dialog.show();
@@ -1022,11 +1304,11 @@ export function handleQuestionDelete(url) {
   });
 
   // Delete/undelete
-  $("[class*=delete-question]").click(event => {
+  $("[class*=delete-question]").click((event) => {
     const el = event.target;
     const pk = $(el).attr("question");
     const posting = $.post(url, { pk: pk });
-    posting.done(data => {
+    posting.done((data) => {
       if (data["action"] == "restore") {
         $(".list-item-question-" + pk).removeClass("deleted");
       } else {
@@ -1045,7 +1327,7 @@ export function handleQuestionDelete(url) {
  *  @function
  */
 export function toggleImages() {
-  [].forEach.call(document.querySelectorAll(".toggle-images"), el => {
+  [].forEach.call(document.querySelectorAll(".toggle-images"), (el) => {
     const toggle = bundle.iconToggle.MDCIconToggle.attachTo(el);
     if (sessionStorage.images !== undefined) {
       if (sessionStorage.images == "block") {
@@ -1053,7 +1335,7 @@ export function toggleImages() {
       } else {
         toggle.on = false;
       }
-      [].forEach.call(document.querySelectorAll(".question-image"), el => {
+      [].forEach.call(document.querySelectorAll(".question-image"), (el) => {
         if (sessionStorage.images == "block") {
           el.style.display = "block";
         } else {
@@ -1062,7 +1344,7 @@ export function toggleImages() {
       });
     }
     el.addEventListener("MDCIconToggle:change", ({ detail }) => {
-      [].forEach.call(document.querySelectorAll(".question-image"), el => {
+      [].forEach.call(document.querySelectorAll(".question-image"), (el) => {
         if (detail.isOn) {
           el.style.display = "block";
         } else {
@@ -1078,7 +1360,7 @@ export function toggleImages() {
  *  @function
  */
 export function toggleAnswers() {
-  [].forEach.call(document.querySelectorAll(".toggle-answers"), el => {
+  [].forEach.call(document.querySelectorAll(".toggle-answers"), (el) => {
     const toggle = bundle.iconToggle.MDCIconToggle.attachTo(el);
     if (sessionStorage.answers) {
       if (sessionStorage.answers == "block") {
@@ -1086,12 +1368,12 @@ export function toggleAnswers() {
       } else {
         toggle.on = false;
       }
-      [].forEach.call(document.querySelectorAll(".question-answers"), el => {
+      [].forEach.call(document.querySelectorAll(".question-answers"), (el) => {
         el.style.display = sessionStorage.answers;
       });
     }
     el.addEventListener("MDCIconToggle:change", ({ detail }) => {
-      [].forEach.call(document.querySelectorAll(".question-answers"), el => {
+      [].forEach.call(document.querySelectorAll(".question-answers"), (el) => {
         if (detail.isOn) {
           el.style.display = "block";
         } else {
@@ -1107,7 +1389,7 @@ export function toggleAnswers() {
  *  @function
  */
 export function bindCheckbox() {
-  [].forEach.call(document.querySelectorAll(".mdc-checkbox"), el => {
+  [].forEach.call(document.querySelectorAll(".mdc-checkbox"), (el) => {
     bundle.checkbox.MDCCheckbox.attachTo(el);
   });
 }
@@ -1133,10 +1415,7 @@ export function plotTimeSeries(el, d) {
       new Date(d3.timeParse(d.due_date)),
     ])
     .range([0, width]);
-  const y = d3
-    .scaleLinear()
-    .domain([0, d.total])
-    .range([height, 0]);
+  const y = d3.scaleLinear().domain([0, d.total]).range([height, 0]);
 
   const xAxis = d3.axisBottom(x);
   const xAxisTop = d3.axisTop(x).ticks("");
@@ -1159,10 +1438,10 @@ export function plotTimeSeries(el, d) {
 
   const f = d3
     .line()
-    .x(function(d) {
+    .x(function (d) {
       return x(new Date(d3.timeParse(d)));
     })
-    .y(function(d, i) {
+    .y(function (d, i) {
       return y(i + 1);
     })
     .curve(d3.curveStepAfter);
@@ -1188,13 +1467,13 @@ export function plotTimeSeries(el, d) {
       .attr("stroke-width", "1px")
       .attr("fill", "gray")
       .style("opacity", 0.2)
-      .attr("x", function() {
+      .attr("x", function () {
         return x(new Date(d3.timeParse(d.last_login)));
       })
-      .attr("y", function() {
+      .attr("y", function () {
         return 0;
       })
-      .attr("width", function() {
+      .attr("width", function () {
         return x(endDate) - x(new Date(d3.timeParse(d.last_login)));
       })
       .attr("height", height);
@@ -1204,7 +1483,7 @@ export function plotTimeSeries(el, d) {
     .attr("class", "slider")
     .attr("stroke", "gray")
     .attr("stroke-width", "0.5px")
-    .attr("d", function() {
+    .attr("d", function () {
       const path = d3.path();
       path.moveTo(0, height + 30);
       path.lineTo(0, -6);
@@ -1234,7 +1513,7 @@ export function plotTimeSeries(el, d) {
     .attr("stroke", "gray")
     .attr("stroke-dasharray", 4)
     .attr("stroke-width", "0.5px")
-    .attr("d", function() {
+    .attr("d", function () {
       const path = d3.path();
       path.moveTo(0, height);
       path.lineTo(0, -30);
@@ -1246,7 +1525,7 @@ export function plotTimeSeries(el, d) {
     .attr("stroke", "gray")
     .attr("stroke-dasharray", 4)
     .attr("stroke-width", "0.5px")
-    .attr("d", function() {
+    .attr("d", function () {
       const path = d3.path();
       path.moveTo(width, height);
       path.lineTo(width, -30);
@@ -1284,13 +1563,13 @@ export function plotTimeSeries(el, d) {
 
   svg.on(
     "mousemove",
-    /* @this */ function() {
+    /* @this */ function () {
       const xValue = Math.min(
         d3.mouse(this)[0],
-        1 + x(d3.max(d.answers.map(x => new Date(d3.timeParse(x))))),
+        1 + x(d3.max(d.answers.map((x) => new Date(d3.timeParse(x))))),
       );
 
-      g.select(".slider").attr("d", function() {
+      g.select(".slider").attr("d", function () {
         const path = d3.path();
         path.moveTo(xValue, height + 30);
         path.lineTo(xValue, -6);
@@ -1298,14 +1577,14 @@ export function plotTimeSeries(el, d) {
       });
 
       g.select(".slider-label-bottom")
-        .attr("text-anchor", function() {
+        .attr("text-anchor", function () {
           if (xValue < width / 2) {
             return "start";
           } else {
             return "end";
           }
         })
-        .attr("dx", function() {
+        .attr("dx", function () {
           if (xValue < width / 2) {
             return 5;
           } else {
@@ -1321,14 +1600,14 @@ export function plotTimeSeries(el, d) {
           parseInt(
             (100 *
               d3.bisectLeft(
-                d.answers.map(x => new Date(d3.timeParse(x))),
+                d.answers.map((x) => new Date(d3.timeParse(x))),
                 x.invert(xValue),
               )) /
               d.total,
           ) + "%",
         );
 
-      let data = d.answers.map(x => new Date(d3.timeParse(x)));
+      let data = d.answers.map((x) => new Date(d3.timeParse(x)));
       const index = d3.bisectLeft(data, x.invert(xValue));
 
       data = data.slice(0, index);
@@ -1338,10 +1617,7 @@ export function plotTimeSeries(el, d) {
       }
 
       g.select(".area").remove();
-      g.append("path")
-        .datum(data)
-        .attr("class", "area")
-        .attr("d", area);
+      g.append("path").datum(data).attr("class", "area").attr("d", area);
     },
   );
 }

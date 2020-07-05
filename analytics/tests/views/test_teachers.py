@@ -1,6 +1,6 @@
 import json
 
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 from peerinst.tests.fixtures import *  # noqa
 from reputation.models import ReputationType, UsesCriterion
@@ -31,7 +31,7 @@ def test_get_reputation_criteria_list(
     resp = client.get(reverse("analytics:teachers--criteria"))
 
     assert resp.status_code == 200
-    data = json.loads(resp.content)["criteria"]
+    data = json.loads(resp.content.decode())["criteria"]
     assert len(data) == 2
     for criterion in data:
         assert criterion["name"] in [c.name for c in criteria]
@@ -44,7 +44,7 @@ def test_get_reputation_criteria_list__no_criteria(client, staff):
     resp = client.get(reverse("analytics:teachers--criteria"))
 
     assert resp.status_code == 200
-    data = json.loads(resp.content)["criteria"]
+    data = json.loads(resp.content.decode())["criteria"]
     assert not data
 
 
@@ -53,7 +53,7 @@ def test_get_teacher_list(client, staff, teachers):
     resp = client.get(reverse("analytics:teachers--teachers"))
 
     assert resp.status_code == 200
-    data = json.loads(resp.content)["teachers"]
+    data = json.loads(resp.content.decode())["teachers"]
     assert len(data) == len(teachers)
     for teacher in teachers:
         assert teacher.pk in data
@@ -64,7 +64,7 @@ def test_get_teacher_list__no_teachers(client, staff):
     resp = client.get(reverse("analytics:teachers--teachers"))
 
     assert resp.status_code == 200
-    data = json.loads(resp.content)["teachers"]
+    data = json.loads(resp.content.decode())["teachers"]
     assert not data
 
 
@@ -86,10 +86,10 @@ def test_get_teacher_information(
     )
 
     assert resp.status_code == 200
-    data = json.loads(resp.content)
+    data = json.loads(resp.content.decode())
     assert len(data) == 3
     assert data["username"] == teacher.user.username
-    assert isinstance(data["last_login"], basestring)
+    assert isinstance(data["last_login"], str)
     for criterion in data["reputations"]:
         assert criterion["name"] in [c.name for c in criteria]
         assert "reputation" in criterion
@@ -112,7 +112,7 @@ def test_get_teacher_information__no_login(
     )
 
     assert resp.status_code == 200
-    data = json.loads(resp.content)
+    data = json.loads(resp.content.decode())
     assert len(data) == 3
     assert data["username"] == teacher.user.username
     assert data["last_login"] is None

@@ -22,9 +22,11 @@ function update() {
 }
 
 function updateRationalesEvaluationAttributes() {
-  document.querySelectorAll(".custom-report__rationale").forEach(rationale => {
-    updateRationaleEvaluationAttributes(rationale);
-  });
+  document
+    .querySelectorAll(".custom-report__rationale")
+    .forEach((rationale) => {
+      updateRationaleEvaluationAttributes(rationale);
+    });
 }
 
 function updateRationaleEvaluationAttributes(rationale) {
@@ -78,7 +80,7 @@ async function evaluateRationale(star, score) {
 
   const resp = await fetch(model.urls.evaluateRationale, req);
   if (resp.ok) {
-    flag.setAttribute("data-flagged", "");
+    star.setAttribute("data-starred", "");
     rationale.setAttribute("data-score", `${score}`);
   }
   updateRationaleEvaluationAttributes(rationale);
@@ -96,11 +98,11 @@ function view() {
 function rationaleEvaluationView() {
   document
     .querySelectorAll(".custom-report__rationale__evaluation")
-    .forEach(rationale => {
+    .forEach((rationale) => {
       toggleFlagHover(rationale.querySelector(".flag"));
       rationale
         .querySelectorAll(".star")
-        .forEach(star => toggleStarHover(star));
+        .forEach((star) => toggleStarHover(star));
     });
 }
 
@@ -136,7 +138,7 @@ function initListeners() {
 function addFlagListeners() {
   document
     .querySelectorAll(".custom-report__rationale__evaluation .flag")
-    .forEach(flag => {
+    .forEach((flag) => {
       flag.addEventListener("mouseenter", () => toggleFlagHover(flag, true));
       flag.addEventListener("mouseleave", () => toggleFlagHover(flag, false));
       flag.addEventListener("click", () => flagRationale(flag));
@@ -146,7 +148,7 @@ function addFlagListeners() {
 function addEvaluateListeners() {
   document
     .querySelectorAll(".custom-report__rationale__evaluation")
-    .forEach(rationale => {
+    .forEach((rationale) => {
       rationale.querySelectorAll(".star").forEach((star, i) => {
         star.addEventListener("mouseenter", () => toggleStarHover(star, true));
         star.addEventListener("mouseleave", () =>
