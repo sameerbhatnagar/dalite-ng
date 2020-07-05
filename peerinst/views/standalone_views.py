@@ -1,11 +1,8 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 import logging
 
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.template.response import TemplateResponse
@@ -100,7 +97,7 @@ def live(request, token, assignment_hash):
     user, __ = authenticate_student(request, token)
     if isinstance(user, HttpResponse):
         return user
-    login(request, user)
+    login(request, user, backend="peerinst.backends.CustomPermissionsBackend")
 
     # Register access type
     request.session["LTI"] = False

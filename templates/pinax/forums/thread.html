@@ -147,22 +147,37 @@
 
 {% block scripts %}
 {{ block.super }}
-{% compress js file forums__thread %}
-<script src="{% static 'pinax/forums/js/thread.min.js' %}"></script>
+{% compress js file forums %}
+<script src="{% static 'peerinst/js/forums.min.js' %}"></script>
 {% endcompress %}
 
 <script nonce="{{ request.csp_nonce }}">
   window.addEventListener("load", function() {
+    // Setup ajax call and attach a submit handler to the form
+    $.ajaxSetup({
+      beforeSend: function(xhr, settings) {
+        if (!bundle.csrfSafeMethod(settings.type) && !this.crossDomain) {
+          xhr.setRequestHeader("X-CSRFToken", bundle.getCsrfToken());
+        }
+      },
+    });
+
     document.getElementsByClassName("follow")[0].addEventListener("click", function() {
-      thread.toggleFollow(this, "{% url 'pinax_forums:subscribe' thread.id %}", "{% url 'pinax_forums:unsubscribe' thread.id %}");
+      forums.toggleFollow(this, "{% url 'pinax_forums:subscribe' thread.id %}", "{% url 'pinax_forums:unsubscribe' thread.id %}");
     })
 
     const replyButtons = document.getElementsByClassName("reply-btn");
     [].forEach.call(replyButtons, function(el) {
       el.addEventListener("click", function() {
-        thread.showReplyForm('reply-'+el.getAttribute('data-post'));
+        forums.showReplyForm('reply-'+el.getAttribute('data-post'));
       });
     });
+
+    forums.initFollows();
+
+    forums.sizeEmbeddedContent();
+
+    window.addEventListener("resize", forums.sizeEmbeddedContent);
   })
 </script>
 {% endblock %}

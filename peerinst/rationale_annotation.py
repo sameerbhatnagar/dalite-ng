@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 from operator import itemgetter
 
@@ -66,18 +66,17 @@ def choose_rationales(teacher, n=5):
     if Quality.objects.filter(
         quality_type__type="global", quality_use_type__type="validation"
     ).exists():
-        qualities = map(
-            itemgetter(0),
-            Quality.objects.get(
-                quality_type__type="global",
-                quality_use_type__type="validation",
-            ).batch_evaluate(answers),
+        qualities = list(
+            map(
+                itemgetter(0),
+                Quality.objects.get(
+                    quality_type__type="global",
+                    quality_use_type__type="validation",
+                ).batch_evaluate(answers),
+            )
         )
         answers = [
-            a
-            for a, q in sorted(
-                zip(answers, qualities), key=itemgetter(1), reverse=True
-            )
+            a for a, q in sorted(zip(answers, qualities), key=itemgetter(1))
         ]
 
     return answers[:n]

@@ -1,5 +1,11 @@
 "use strict";
 import flatpickr from "flatpickr";
+import { MDCSnackbar } from "@material/snackbar";
+
+export function getSnack() {
+  const snackbar = new MDCSnackbar(document.querySelector(".mdc-snackbar"));
+  return snackbar;
+}
 
 function editField(event, type, className) {
   const iconContainer = event.currentTarget.parentNode.parentNode;
@@ -41,15 +47,15 @@ function saveField(event, type, save, className) {
     "data-update-url",
   );
   if (type == "text") {
-    saveTextField(field, save, className, url).then(function(newField) {
+    saveTextField(field, save, className, url).then(function (newField) {
       container.replaceChild(newField, field);
     });
   } else if (type == "textList") {
-    saveTextListField(field, save, className, url).then(function(newField) {
+    saveTextListField(field, save, className, url).then(function (newField) {
       container.replaceChild(newField, field);
     });
   } else if (type == "datetime") {
-    saveDateTimeField(field, save, className, url).then(function(newField) {
+    saveDateTimeField(field, save, className, url).then(function (newField) {
       container.replaceChild(newField, field);
     });
   } else {
@@ -107,7 +113,7 @@ function editDateTimeField(field) {
   const datetime = field.textContent
     .match(/(\d{4})-(\d{2})-(\d{2})\s+(\d{2}):(\d{2})/)
     .slice(1)
-    .map(x => parseInt(x));
+    .map((x) => parseInt(x));
   datetime[1] -= 1;
   flatpickr(input, {
     enableTime: true,
@@ -136,10 +142,9 @@ function toggleIcons(newIconsDiv, type, toEdit, className) {
       editIcon.textContent = "add";
       editIcon.title = "Add";
     }
-    editIcon.setAttribute(
-      "onclick",
-      "group.editField(event, '" + type + "', '" + className + "')",
-    );
+    editIcon.addEventListener("click", function (e) {
+      editField(e, type, className);
+    });
     newIconsDiv.append(editIcon);
   } else {
     const saveIcon = document.createElement("i");
@@ -151,10 +156,9 @@ function toggleIcons(newIconsDiv, type, toEdit, className) {
     );
     saveIcon.textContent = "check";
     saveIcon.title = "Save";
-    saveIcon.setAttribute(
-      "onclick",
-      "group.saveField(event, '" + type + "', true, '" + className + "')",
-    );
+    saveIcon.addEventListener("click", function (e) {
+      saveField(e, type, true, className);
+    });
     const cancelIcon = document.createElement("i");
     cancelIcon.classList.add(
       "material-icons",
@@ -164,10 +168,9 @@ function toggleIcons(newIconsDiv, type, toEdit, className) {
     );
     cancelIcon.textContent = "close";
     cancelIcon.title = "Cancel";
-    cancelIcon.setAttribute(
-      "onclick",
-      "group.saveField(event, '" + type + "', false, '" + className + "')",
-    );
+    cancelIcon.addEventListener("click", function (e) {
+      saveField(e, type, false, className);
+    });
     newIconsDiv.append(saveIcon);
     newIconsDiv.append(cancelIcon);
   }

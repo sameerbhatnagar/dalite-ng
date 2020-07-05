@@ -75,10 +75,14 @@ class TestApplicationHookManager(TestCase):
             )
 
             authenticate_mock.assert_called_once_with(
-                username=expected_uname, password=expected_password
+                request, username=expected_uname, password=expected_password
             )
             if auth_result:
-                login_mock.assert_called_once_with(request, auth_result)
+                login_mock.assert_called_once_with(
+                    request,
+                    auth_result,
+                    backend="peerinst.backends.CustomPermissionsBackend",
+                )
 
     # @ddt.unpack
     # @ddt.data(
@@ -276,12 +280,12 @@ class TestUpdateStaffUser(TestCase):
 
     def test_update_staff_user(self):
         expected_perms = {
-            u"add_assignment",
-            u"change_assignment",
-            u"add_question",
-            u"change_question",
-            u"add_category",
-            u"change_category",
+            "add_assignment",
+            "change_assignment",
+            "add_question",
+            "change_question",
+            "add_category",
+            "change_category",
         }
         user = User.objects.create(username="test")
         self.manager.update_staff_user(user)
@@ -292,14 +296,17 @@ class TestUpdateStaffUser(TestCase):
 class TestViews(TestCase):
     def test_admin_index_wrapper_authenticated(self):
         request = mock.Mock()
-        request.user.is_authenticated.return_value = True
+        request.user.is_authenticated = True
         response = admin_index_wrapper(request)
-        self.assertEquals(response.status_code, 302)
-        self.assertEquals(response["Location"], "/en/admin/")
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response["Location"], "/en/admin/")
 
     def test_admin_index_wrapper_not_authenticated(self):
         request = mock.Mock()
         request.user.is_authenticated = False
+        request.user.teacher.pk = 1
+        request.get_host.return_value = "localhost"
+        request.META = {}
         response = admin_index_wrapper(request)
         self.assertEqual(response.status_code, 200)
         self.assertContains(

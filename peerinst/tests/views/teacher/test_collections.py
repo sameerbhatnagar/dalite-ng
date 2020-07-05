@@ -1,7 +1,7 @@
 import json
 
 import mock
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.http import HttpResponse
 
 from peerinst.tests.fixtures import *  # noqa
@@ -26,7 +26,7 @@ def test_collections(client, collections, teachers, discipline):
     )
 
     assert resp.status_code == 200
-    data = json.loads(resp.content)
+    data = json.loads(resp.content.decode())
     assert len(data["collections"]) == len(collections)
 
     for collection, collection_ in zip(
@@ -57,7 +57,7 @@ def test_collections__with_params(client, collections, teachers, discipline):
     )
 
     assert resp.status_code == 200
-    data = json.loads(resp.content)
+    data = json.loads(resp.content.decode())
     assert len(data["collections"]) == 1
 
     for collection, collection_ in zip(

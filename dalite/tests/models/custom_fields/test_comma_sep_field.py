@@ -62,7 +62,7 @@ def test_formfield():
 def test_format_value():
     widget = AdminCommaSepFieldWidget()
 
-    val = u"['a', 'b', 'c']"
+    val = "['a', 'b', 'c']"
     assert widget.format_value(val) == "a, b, c"
 
     val = None

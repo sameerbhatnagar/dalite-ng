@@ -2,7 +2,7 @@ import json
 
 import mock
 from celery.result import AsyncResult
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.http import HttpResponse
 
 from peerinst.models import RunningTask
@@ -35,7 +35,7 @@ def test_request_gradebook__group(client, teacher, group):
         compute_gradebook_async.assert_called_with(group.pk, None)
 
     assert resp.status_code == 201
-    data = json.loads(resp.content)
+    data = json.loads(resp.content.decode())
     assert data["id"] == 1
     assert data[
         "description"
@@ -80,7 +80,7 @@ def test_request_gradebook__assignment(
         )
 
     assert resp.status_code == 201
-    data = json.loads(resp.content)
+    data = json.loads(resp.content.decode())
     assert data["id"] == 1
     assert data[
         "description"

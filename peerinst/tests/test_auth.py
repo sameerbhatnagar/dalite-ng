@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from django.http import HttpRequest
 from django.test import TestCase, override_settings
 
 from peerinst.auth import authenticate_student
@@ -14,7 +15,7 @@ class TestAuthenticateStudent(TestCase):
     def test_user_doesnt_exist(self):
         test = {"email": "test@localhost"}
 
-        user, is_lti = authenticate_student(**test)
+        user, is_lti = authenticate_student(HttpRequest(), **test)
         self.assertIsInstance(user, User)
         self.assertFalse(is_lti)
         self.assertTrue(User.objects.filter(email=test["email"]).exists())
@@ -32,7 +33,7 @@ class TestAuthenticateStudent(TestCase):
             )
         )
 
-        user, is_lti = authenticate_student(**test)
+        user, is_lti = authenticate_student(HttpRequest(), **test)
         self.assertIsInstance(user, User)
 
     @override_settings(PASSWORD_GENERATOR_NONCE="key")
@@ -43,7 +44,7 @@ class TestAuthenticateStudent(TestCase):
             username=username, email=test["email"], password=password
         )
 
-        user, is_lti = authenticate_student(**test)
+        user, is_lti = authenticate_student(HttpRequest(), **test)
         self.assertIsInstance(user, User)
         self.assertFalse(is_lti)
         self.assertTrue(
@@ -62,7 +63,7 @@ class TestAuthenticateStudent(TestCase):
         )
         new_username, _ = get_student_username_and_password(test["email"])
 
-        user, is_lti = authenticate_student(**test)
+        user, is_lti = authenticate_student(HttpRequest(), **test)
         self.assertIsInstance(user, User)
         self.assertTrue(is_lti)
         self.assertEqual(len(User.objects.filter(email=test["email"])), 1)
@@ -84,7 +85,7 @@ class TestAuthenticateStudent(TestCase):
         )
         new_username, _ = get_student_username_and_password(test["email"])
 
-        user, is_lti = authenticate_student(**test)
+        user, is_lti = authenticate_student(HttpRequest(), **test)
         self.assertIsInstance(user, User)
         self.assertTrue(is_lti)
         self.assertEqual(len(User.objects.filter(email=test["email"])), 1)
@@ -109,7 +110,7 @@ class TestAuthenticateStudent(TestCase):
             )
         )
 
-        user, is_lti = authenticate_student(**test)
+        user, is_lti = authenticate_student(HttpRequest(), **test)
         self.assertIsInstance(user, User)
         self.assertFalse(is_lti)
         self.assertFalse(
@@ -127,7 +128,7 @@ class TestAuthenticateStudent(TestCase):
             )
         )
 
-        user, is_lti = authenticate_student(**test)
+        user, is_lti = authenticate_student(HttpRequest(), **test)
         self.assertIsInstance(user, User)
         self.assertTrue(is_lti)
         self.assertFalse(

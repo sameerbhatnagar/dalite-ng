@@ -22,7 +22,10 @@ def test_get_or_create__create():
     criterion = LikelihoodCriterionRules.get_or_create(
         languages=languages, max_gram=max_gram
     )
-    assert map(attrgetter("language"), criterion.languages.all()) == languages
+    assert (
+        list(map(attrgetter("language"), criterion.languages.all()))
+        == languages
+    )
     assert criterion.max_gram == max_gram
 
 

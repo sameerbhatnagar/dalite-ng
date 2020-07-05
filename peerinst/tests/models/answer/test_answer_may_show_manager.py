@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 from peerinst.models import Answer, AnswerAnnotation
 from peerinst.tests.fixtures import *  # noqa

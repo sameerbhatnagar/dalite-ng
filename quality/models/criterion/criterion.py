@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 from itertools import chain
 
@@ -44,18 +44,20 @@ class Criterion(models.Model):
         to combine them.
         """
         return chain(
-            self.__class__.info().iteritems(),
-            {
-                "version": self.version,
-                "versions": [
-                    {
-                        "version": version.version,
-                        "is_beta": version.is_beta,
-                        "binary_threshold": version.binary_threshold,
-                    }
-                    for version in self.__class__.objects.all()
-                ],
-            }.iteritems(),
+            iter(self.__class__.info().items()),
+            iter(
+                {
+                    "version": self.version,
+                    "versions": [
+                        {
+                            "version": version.version,
+                            "is_beta": version.is_beta,
+                            "binary_threshold": version.binary_threshold,
+                        }
+                        for version in self.__class__.objects.all()
+                    ],
+                }.items()
+            ),
         )
 
     def evaluate(self, answer, rules_pk):
@@ -99,23 +101,26 @@ class CriterionRules(models.Model):
         raise NotImplementedError("This method has to be implemented.")
 
     def __iter__(self):
-        return {
-            field.name: {
-                "name": field.name,
-                "full_name": field.verbose_name,
-                "description": field.help_text,
-                "value": [
-                    instance.pk for instance in getattr(self, field.name).all()
-                ]
-                if field.__class__.__name__ == "ManyToManyField"
-                else getattr(self, field.name),
-                "type": field.__class__.__name__,
-                "allowed": getattr(self, field.name).model.available()
-                if field.__class__.__name__ == "ManyToManyField"
-                else getattr(field, "allowed", None),
-            }
-            for field in self.__class__._meta.get_fields()
-            if field.name != "id"
-            and not field.name.endswith("ptr")
-            and not field.__class__.__name__ == "ManyToOneRel"
-        }.iteritems()
+        return iter(
+            {
+                field.name: {
+                    "name": field.name,
+                    "full_name": field.verbose_name,
+                    "description": field.help_text,
+                    "value": [
+                        instance.pk
+                        for instance in getattr(self, field.name).all()
+                    ]
+                    if field.__class__.__name__ == "ManyToManyField"
+                    else getattr(self, field.name),
+                    "type": field.__class__.__name__,
+                    "allowed": getattr(self, field.name).model.available()
+                    if field.__class__.__name__ == "ManyToManyField"
+                    else getattr(field, "allowed", None),
+                }
+                for field in self.__class__._meta.get_fields()
+                if field.name != "id"
+                and not field.name.endswith("ptr")
+                and not field.__class__.__name__ == "ManyToOneRel"
+            }.items()
+        )
