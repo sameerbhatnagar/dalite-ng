@@ -5,12 +5,11 @@
 #    pip-compile requirements/requirements-dev.in
 #
 -e git+https://github.com/SALTISES4/CourseFlow#egg=CourseFlow  # via -r requirements/requirements-base.txt, -r requirements/requirements-test.txt
--e git+https://github.com/aahilgert/UserFeedback@master#egg=user_feedback  # via -r requirements/requirements-base.txt, -r requirements/requirements-test.txt
--e git+https://github.com/SALTISES4/django-cookies-samesite#egg=django_cookies_samesite  # via -r requirements/requirements-base.txt, -r requirements/requirements-test.txt
 -e git+https://github.com/SALTISES4/django-lti-tool-provider@dev#egg=django_lti_tool_provider  # via -r requirements/requirements-base.txt, -r requirements/requirements-test.txt
 -e git+https://github.com/edx/opaque-keys#egg=opaque-keys  # via -r requirements/requirements-base.txt, -r requirements/requirements-test.txt
 -e git+https://github.com/jsumnerPhD/http-observatory#egg=httpobs  # via -r requirements/requirements-dev.in
 -e git+https://github.com/SALTISES4/pinax-forums@dev#egg=pinax_forums  # via -r requirements/requirements-base.txt, -r requirements/requirements-test.txt
+-e git+https://github.com/SALTISES4/UserFeedback@master#egg=user_feedback  # via -r requirements/requirements-base.txt, -r requirements/requirements-test.txt
 amqp==2.5.2               # via -r requirements/requirements-base.txt, -r requirements/requirements-test.txt, kombu
 appdirs==1.4.3            # via black, virtualenv
 appnope==0.1.0            # via ipython

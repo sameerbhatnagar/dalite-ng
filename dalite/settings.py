@@ -18,8 +18,8 @@ DEV_PORT = 8000  # port used during development
 # Application definition
 
 INSTALLED_APPS = (
-    "user_feedback.apps.UserFeedbackConfig",
-    "course_flow.apps.CourseFlowConfig",
+    "user_feedback",
+    "course_flow",
     "rest_framework",
     "analytics",
     "reputation",

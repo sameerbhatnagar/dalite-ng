@@ -5,11 +5,10 @@
 #    pip-compile requirements/requirements-base.in
 #
 -e git+https://github.com/SALTISES4/CourseFlow#egg=CourseFlow  # via -r requirements/requirements-base.in
--e git+https://github.com/aahilgert/UserFeedback@master#egg=user_feedback  # via -r requirements/requirements-base.in
--e git+https://github.com/SALTISES4/django-cookies-samesite#egg=django_cookies_samesite  # via -r requirements/requirements-base.in
 -e git+https://github.com/SALTISES4/django-lti-tool-provider@dev#egg=django_lti_tool_provider  # via -r requirements/requirements-base.in
 -e git+https://github.com/edx/opaque-keys#egg=opaque-keys  # via -r requirements/requirements-base.in
 -e git+https://github.com/SALTISES4/pinax-forums@dev#egg=pinax_forums  # via -r requirements/requirements-base.in
+-e git+https://github.com/SALTISES4/UserFeedback@master#egg=user_feedback  # via -r requirements/requirements-base.in
 amqp==2.5.2               # via kombu
 beautifulsoup4==4.8.2     # via django-htmlmin
 billiard==3.6.3.0         # via celery
