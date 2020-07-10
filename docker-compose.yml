@@ -1,10 +1,24 @@
 version: "3.7"
+
 services:
   app:
     build: .
-    command: python manage.py runserver 0.0.0.0:8000
-    ports:
-      - "8000:8000"
+    command: gunicorn dalite.wsgi:application --bind 0.0.0.0:8000
+    expose:
+      - 8000
     environment:
       DALITE_DB_HOST: host.docker.internal
-    
+    volumes:
+      - static:/code/static
+
+  nginx:
+    build: ./nginx
+    ports:
+      - 1337:8080
+    depends_on:
+      - app
+    volumes:
+      - static:/static
+
+volumes:
+  static:
