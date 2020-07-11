@@ -36,7 +36,7 @@ export function init(url) {
         // Submit score
         $(star).one("click", () => {
           const posting = $.post(url, { id: id, score: score });
-          posting.done(data => {
+          posting.done((data) => {
             processResponse(data);
           });
         });
@@ -58,7 +58,7 @@ export function init(url) {
         });
         $(flag).one("click", () => {
           const posting = $.post(url, { id: id, score: 0 });
-          posting.done(data => {
+          posting.done((data) => {
             processResponse(data);
           });
         });
@@ -68,9 +68,7 @@ export function init(url) {
       $(el).toggle("fade", () => {
         $(el).remove();
         $("#rationales").append(data);
-        $("#rationales .mdc-card")
-          .hide()
-          .toggle("slide", transition);
+        $("#rationales .mdc-card").hide().toggle("slide", transition);
         init(url);
         // Refresh reputation score
         document

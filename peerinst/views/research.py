@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
 
-import string
 
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -57,7 +55,7 @@ def get_question_annotation_counts(discipline_title, annotator, assignment_id):
         ).questions.all()
 
     # FIXME:
-    translation_table = string.maketrans("ABCDEFG", "1234567")
+    translation_table = str.maketrans("ABCDEFG", "1234567")
 
     question_annotation_counts = []
     for q in questions_qs:
@@ -93,7 +91,7 @@ def get_question_annotation_counts(discipline_title, annotator, assignment_id):
 
         answer_frequencies = q.get_frequency_json("first_choice")
         for d2 in answer_frequencies:
-            a_choice = d2["answer_label"][0].translate(translation_table)
+            a_choice = str(d2["answer_label"][0]).translate(translation_table)
             d2.update(
                 {
                     "annotation_count": AnswerAnnotation.objects.filter(

@@ -1,7 +1,7 @@
 import json
 import pytest
 
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 from peerinst.models import GradingScheme
 from peerinst.tests.fixtures import *  # noqa
@@ -27,7 +27,7 @@ def test_student_activity__no_questions_done(
         json.dumps({}),
         content_type="application/json",
     )
-    data = json.loads(resp.content)["groups"][0]
+    data = json.loads(resp.content.decode())["groups"][0]
     assert data["title"] == group.title
     assert data["n_students"] == len(students)
     assert data["new"] is True
@@ -75,7 +75,7 @@ def test_student_activity__all_questions_done_correct_first_and_second(
         json.dumps({}),
         content_type="application/json",
     )
-    data = json.loads(resp.content)["groups"][0]
+    data = json.loads(resp.content.decode())["groups"][0]
     assert data["title"] == group.title
     assert data["n_students"] == len(students)
     assert data["new"] is True
@@ -123,7 +123,7 @@ def test_student_activity__all_questions_done_correct_first_wrong_second(
         json.dumps({}),
         content_type="application/json",
     )
-    data = json.loads(resp.content)["groups"][0]
+    data = json.loads(resp.content.decode())["groups"][0]
     assert data["title"] == group.title
     assert data["n_students"] == len(students)
     assert data["new"] is True
@@ -173,7 +173,7 @@ def test_student_activity__all_questions_done_wrong_first_and_second(
         json.dumps({}),
         content_type="application/json",
     )
-    data = json.loads(resp.content)["groups"][0]
+    data = json.loads(resp.content.decode())["groups"][0]
     assert data["title"] == group.title
     assert data["n_students"] == len(students)
     assert data["new"] is True
@@ -221,7 +221,7 @@ def test_student_activity__some_questions_done_correct_first_and_second(
         json.dumps({}),
         content_type="application/json",
     )
-    data = json.loads(resp.content)["groups"][0]
+    data = json.loads(resp.content.decode())["groups"][0]
     assert data["title"] == group.title
     assert data["n_students"] == len(students)
     assert data["new"] is True
@@ -269,7 +269,7 @@ def test_student_activity__some_questions_done_correct_first_wrong_second(
         json.dumps({}),
         content_type="application/json",
     )
-    data = json.loads(resp.content)["groups"][0]
+    data = json.loads(resp.content.decode())["groups"][0]
     assert data["title"] == group.title
     assert data["n_students"] == len(students)
     assert data["new"] is True
@@ -323,7 +323,7 @@ def test_student_activity__some_questions_done_wrong_first_and_second(
         json.dumps({}),
         content_type="application/json",
     )
-    data = json.loads(resp.content)["groups"][0]
+    data = json.loads(resp.content.decode())["groups"][0]
     assert data["title"] == group.title
     assert data["n_students"] == len(students)
     assert data["new"] is True
@@ -356,13 +356,13 @@ def test_student_activity__protocol(
     teacher.current_groups.add(group)
 
     resp = client.post(reverse("teacher-dashboard--student-activity"))
-    data = json.loads(resp.content)["groups"][0]
+    data = json.loads(resp.content.decode())["groups"][0]
     for assignment in data["assignments"]:
         assert assignment["link"].startswith("http")
 
     settings.ALLOWED_HOSTS = ["testserver"]
 
     resp = client.post(reverse("teacher-dashboard--student-activity"))
-    data = json.loads(resp.content)["groups"][0]
+    data = json.loads(resp.content.decode())["groups"][0]
     for assignment in data["assignments"]:
         assert assignment["link"].startswith("https")

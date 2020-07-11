@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 import base64
 import logging
 from datetime import datetime, timedelta
@@ -8,7 +5,7 @@ from datetime import datetime, timedelta
 import pytz
 from django.contrib.auth.models import User
 from django.core import validators
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db import models
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
@@ -47,7 +44,7 @@ class Assignment(models.Model):
         Reputation, blank=True, null=True, on_delete=models.SET_NULL
     )
 
-    def __unicode__(self):
+    def __str__(self):
         return self.identifier
 
     def get_absolute_url(self):
@@ -108,7 +105,7 @@ class StudentGroupAssignment(models.Model):
 
         return assignment
 
-    def __unicode__(self):
+    def __str__(self):
         return "{} for {}".format(self.assignment, self.group)
 
     def _verify_order(self, order):
@@ -327,7 +324,7 @@ class StudentGroupAssignment(models.Model):
     def save(self, *args, **kwargs):
         if not self.order:
             self.order = ",".join(
-                map(str, range(len(self.assignment.questions.all())))
+                map(str, list(range(len(self.assignment.questions.all()))))
             )
         super(StudentGroupAssignment, self).save(*args, **kwargs)
 
@@ -391,7 +388,7 @@ class StudentGroupAssignment(models.Model):
     def questions(self):
         questions_ = self.assignment.questions.all()
         if not self.order:
-            self.order = ",".join(map(str, range(len(questions_))))
+            self.order = ",".join(map(str, list(range(len(questions_)))))
             self.save()
         if questions_:
             questions_ = [

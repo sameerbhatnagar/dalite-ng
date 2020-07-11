@@ -3,7 +3,7 @@ from tos.models import Role, Tos
 
 
 def new_tos(n_of_each, roles):
-    if not hasattr(roles, "__iter__"):
+    if isinstance(roles, str):
         roles = [roles]
     tos = []
     for role in roles:

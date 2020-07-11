@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 from django.core.serializers.json import DjangoJSONEncoder
 from django.utils.functional import Promise

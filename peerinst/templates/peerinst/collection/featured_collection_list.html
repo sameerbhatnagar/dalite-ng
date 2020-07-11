@@ -1,6 +1,6 @@
 {% extends 'peerinst/base.html' %}
 
-{% load bleach_html staticfiles compress i18n %}
+{% load bleach_html static compress i18n %}
 
 {% block stylesheets %}
 {{ block.super }}
@@ -115,50 +115,16 @@
 
 {% block scripts %}
 {{ block.super }}
-
+{% compress js %}
+<script src="{% static 'peerinst/js/collection.min.js' %}"></script>
+{% endcompress %}
 <script nonce="{{ request.csp_nonce }}">
-
-  [].forEach.call(document.querySelectorAll(".mdc-icon-toggle"), el => {
-    bundle.iconToggle.MDCIconToggle.attachTo(el);
-  });
-
-  $.ajaxSetup({
-      beforeSend: function(xhr, settings) {
-          if (!bundle.csrfSafeMethod(settings.type) && !this.crossDomain) {
-              xhr.setRequestHeader("X-CSRFToken", bundle.getCsrfToken());
-          }
-      }
-  });
-
-  function toggleFollower(pk) {
-    var posting = $.post("{% url 'teacher-toggle-follower' %}", {pk: pk});
-    posting.done(function(data) {
-      console.info(data);
-      let followerValue = document.getElementById("follower-count-"+pk).innerHTML;
-      followerValue = followerValue.substring(11);
-      followerValue = parseInt(followerValue);
-      if (data.action == "added") {
-        document.getElementById("follower-count-"+pk).innerHTML = ("{% trans 'Followers' %}: " + (followerValue+1));
-      } else if (data.action == "removed") {
-        document.getElementById("follower-count-"+pk).innerHTML = ("{% trans 'Followers' %}: " + (followerValue-1));
-      }
-    })
-  }
-
-  [].forEach.call(document.querySelectorAll(".follower-btn"), el => {
-    el.addEventListener("click", () => {
-      toggleFollower(el.getAttribute('pk'));
-    });
-  });
-
-  [].forEach.call(document.querySelectorAll(".detail-view"), el => {
-    el.addEventListener("click", () => {
-      const pk=el.getAttribute('id');
-      const collectionUrl = "{% url 'collection-detail' 0 %}"
-      window.location.href = collectionUrl.replace("0", pk );
-    });
-  });
+window.addEventListener("load", function() {
+    collection.initCollectionList(
+      "{% url 'collection-detail' 0 %}",
+      "{% url 'teacher-toggle-follower' %}",
+      "{% trans 'Followers' %}: ",
+    );
+});
 </script>
-
-
 {% endblock %}

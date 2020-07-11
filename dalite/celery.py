@@ -1,8 +1,7 @@
-from __future__ import absolute_import, unicode_literals
-
 import os
 from functools import wraps
 
+import celery
 from celery import Celery
 from celery.schedules import crontab
 from celery.utils.log import get_logger
@@ -26,7 +25,7 @@ app.autodiscover_tasks()
 
 @app.task(bind=True)
 def debug_task(self):
-    print("Request: {0!r}".format(self.request))
+    print(("Request: {0!r}".format(self.request)))
 
 
 @app.task
@@ -55,19 +54,17 @@ def try_async(func):
 
         else:
             logger.info("Checking for available workers...")
-            # FIXME - This method of checking does not work across servers
-            available_workers = app.control.ping(timeout=0.4)
+            available_workers = celery.current_app.control.inspect().active()
 
-            # FIXME
-            if True:
+            if available_workers:
                 info = "Celery workers available ({}).  Executing {} asynchronously.".format(  # noqa
-                    available_workers, func.__name__
+                    list(available_workers.keys()), func.__name__
                 )
                 logger.info(info)
                 return func.delay(*args, **kwargs)
             else:
-                info = "No celery workers available ({}).  Executing {} synchronously.".format(  # noqa
-                    available_workers, func.__name__
+                info = "No celery workers available.  Executing {} synchronously.".format(  # noqa
+                    func.__name__
                 )
                 logger.info(info)
                 return func(*args, **kwargs)

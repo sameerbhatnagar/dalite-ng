@@ -1,12 +1,4 @@
-"""
-Django settings for dalite project.
-
-For more information on this file, see
-https://docs.djangoproject.com/en/1.8/topics/settings/
-
-For the full list of settings and their values, see
-https://docs.djangoproject.com/en/1.8/ref/settings/
-"""
+import datetime
 import os
 
 from security_headers.defaults import *  # noqa
@@ -26,13 +18,15 @@ DEV_PORT = 8000  # port used during development
 # Application definition
 
 INSTALLED_APPS = (
+    "user_feedback.apps.UserFeedbackConfig",
+    "course_flow.apps.CourseFlowConfig",
+    "rest_framework",
     "analytics",
     "reputation",
     "quality",
     "tos",
     "peerinst",
     "grappelli",
-    "password_validation",
     "cookielaw",
     "csp",
     "security_headers",
@@ -47,19 +41,18 @@ INSTALLED_APPS = (
     "compressor",
     "analytical",
     "pinax.forums",
+    "axes",
 )
 
 MIDDLEWARE = (
     "django.middleware.security.SecurityMiddleware",
     "csp.middleware.CSPMiddleware",
     "security_headers.middleware.extra_security_headers_middleware",
-    "django_cookies_samesite.middleware.CookiesSameSite",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.locale.LocaleMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
-    "django.contrib.auth.middleware.SessionAuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "peerinst.middleware.NotificationMiddleware",
@@ -68,6 +61,7 @@ MIDDLEWARE = (
     # Minify html
     "htmlmin.middleware.HtmlMinifyMiddleware",
     "htmlmin.middleware.MarkRequestMiddleware",
+    "axes.middleware.AxesMiddleware",
 )
 
 ROOT_URLCONF = "dalite.urls"
@@ -121,17 +115,26 @@ CACHES = {
 }
 
 # Custom authentication for object-level permissions
-AUTHENTICATION_BACKENDS = ("peerinst.backends.CustomPermissionsBackend",)
+AUTHENTICATION_BACKENDS = (
+    "axes.backends.AxesBackend",
+    "peerinst.backends.CustomPermissionsBackend",
+)
 
 # Password validators through django-password-validation (backport from 1.9)
 AUTH_PASSWORD_VALIDATORS = [
-    {"NAME": "password_validation.UserAttributeSimilarityValidator"},
     {
-        "NAME": "password_validation.MinimumLengthValidator",
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"  # noqa
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",  # noqa
         "OPTIONS": {"min_length": 8},
     },
-    {"NAME": "password_validation.CommonPasswordValidator"},
-    {"NAME": "password_validation.NumericPasswordValidator"},
+    {
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"  # noqa
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"  # noqa
+    },
 ]
 
 # Internationalization
@@ -182,6 +185,12 @@ COMPRESS_ROOT = STATIC_ROOT
 LOGIN_URL = "login"
 
 LOGIN_REDIRECT_URL = "welcome"
+
+
+# Axes
+AXES_FAILURE_LIMIT = 5
+AXES_COOLOFF_TIME = datetime.timedelta(minutes=5)
+AXES_LOCKOUT_TEMPLATE = "registration/lockout.html"
 
 GRAPPELLI_ADMIN_TITLE = "Dalite NG administration"
 
@@ -405,6 +414,7 @@ CSP_DEFAULT_SRC = ["'self'", "*.mydalite.org"]
 CSP_SCRIPT_SRC = [
     "'self'",
     "*.mydalite.org",
+    "d3js.org",
     "ajax.googleapis.com",
     "cdn.polyfill.io",
     "www.youtube.com",

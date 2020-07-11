@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 from quality.models.criterion.criterions.likelihood.data import read_data
 

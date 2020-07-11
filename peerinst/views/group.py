@@ -1,12 +1,9 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 import json
 import re
 import logging
 
 from django.contrib.auth.decorators import login_required
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.utils.translation import ugettext
@@ -21,10 +18,13 @@ from peerinst.models import (
     StudentGroup,
     StudentGroupAssignment,
     Teacher,
+    StudentGroupCourse,
 )
 
 from .decorators import group_access_required
 from reputation.models import ReputationType
+
+from course_flow.views import get_owned_courses
 
 logger = logging.getLogger("peerinst-views")
 
@@ -102,8 +102,19 @@ def group_details_page(req, group_hash, teacher, group):
             }
             for c in student_reputation_criteria
         ],
+        "owned_courses": get_owned_courses(teacher.user),
+        "connected_course": StudentGroupCourse.objects.filter(
+            student_group=group
+        ).first(),
     }
-
+    context["is_connected_to_course"] = False
+    if StudentGroupCourse.objects.filter(student_group=group).first():
+        context["is_connected_to_course"] = True
+        context["connected_course"] = (
+            StudentGroupCourse.objects.filter(student_group=group)
+            .first()
+            .course
+        )
     return render(req, "peerinst/group/details.html", context)
 
 

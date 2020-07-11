@@ -10,18 +10,20 @@ def test_dict(assignment_validation_quality):
     ) as get_criterion, mock.patch("quality.models.quality.models.Model.save"):
         rules = mock.MagicMock()
         del rules.keys
-        rules.__iter__.return_value = {"a": 1, "b": 2, "c": 3}.items()
+        rules.__iter__.return_value = list({"a": 1, "b": 2, "c": 3}.items())
 
         criterion_ = mock.MagicMock()
         del criterion_.keys
-        criterion_.__iter__.return_value = {
-            "version": 0,
-            "versions": 1,
-            "is_beta": False,
-            "name": "a",
-            "full_name": "a",
-            "description": "a",
-        }.items()
+        criterion_.__iter__.return_value = list(
+            {
+                "version": 0,
+                "versions": 1,
+                "is_beta": False,
+                "name": "a",
+                "full_name": "a",
+                "description": "a",
+            }.items()
+        )
         criterion_.rules = ["a", "b", "c"]
 
         criterion_class = mock.Mock()
@@ -63,18 +65,20 @@ def test_dict__subset_of_rules(assignment_validation_quality):
     ) as get_criterion, mock.patch("quality.models.quality.models.Model.save"):
         rules = mock.MagicMock()
         del rules.keys
-        rules.__iter__.return_value = {"a": 1, "b": 2, "c": 3}.items()
+        rules.__iter__.return_value = list({"a": 1, "b": 2, "c": 3}.items())
 
         criterion_ = mock.MagicMock()
         del criterion_.keys
-        criterion_.__iter__.return_value = {
-            "version": 0,
-            "versions": 1,
-            "is_beta": False,
-            "name": "a",
-            "full_name": "a",
-            "description": "a",
-        }.items()
+        criterion_.__iter__.return_value = list(
+            {
+                "version": 0,
+                "versions": 1,
+                "is_beta": False,
+                "name": "a",
+                "full_name": "a",
+                "description": "a",
+            }.items()
+        )
         criterion_.rules = ["a", "c"]
 
         criterion_class = mock.Mock()

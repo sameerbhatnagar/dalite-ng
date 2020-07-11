@@ -1,6 +1,6 @@
 {% extends user.student|yesno:'peerinst/student/base.html,peerinst/base.html' %}
 
-{% load compress staticfiles add_class i18n %}
+{% load compress static add_class i18n %}
 
 {% block stylesheets %}
 {{ block.super }}
@@ -187,6 +187,15 @@
           </div>
 
           <h3>{% trans 'Indexing' %}</h3>
+
+          <!--
+          <div class='field-container'>
+            <div class='number-box'><span class='number'></span></div>
+            <div class='field'>
+              <div id='subject_form'></div>
+            </div>
+          </div>
+          -->
 
           <div class='field-container'>
             <div class='number-box'><span class='number'></span></div>
@@ -649,6 +658,10 @@
         window.location.href=this.getAttribute('href');
       });
     }
+
+    // TODO: build our preact version
+    //const authoringApp = teacher.h(teacher.AuthoringApp, {});
+    //teacher.render(authoringApp, document.getElementById("subject_form"));
   });
 </script>
 {% endblock %}

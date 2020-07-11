@@ -1,0 +1,16 @@
+-r requirements-base.txt
+-r requirements-test.txt
+
+bandit
+black
+django-sslserver
+flake8
+ipython
+pre-commit
+pytest
+pytest-cov
+pytest-django
+pytest-mock
+pytest-rerunfailures
+safety
+-e git+https://github.com/jsumnerPhD/http-observatory#egg=httpobs

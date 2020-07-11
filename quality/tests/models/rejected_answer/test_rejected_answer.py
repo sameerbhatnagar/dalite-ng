@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 from quality.models import RejectedAnswer
 from quality.tests.fixtures import *  # noqa

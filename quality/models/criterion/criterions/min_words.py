@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
@@ -39,7 +39,7 @@ class MinWordsCriterion(Criterion):
         return criterion
 
     def evaluate(self, answer, rules_pk):
-        if not isinstance(answer, basestring):
+        if not isinstance(answer, str):
             answer = answer.rationale
         rules = MinWordsCriterionRules.objects.get(pk=rules_pk)
         evaluation = {
@@ -61,7 +61,7 @@ class MinWordsCriterion(Criterion):
                     len(
                         (
                             answer
-                            if isinstance(answer, basestring)
+                            if isinstance(answer, str)
                             else answer.rationale
                         ).split()
                     )

@@ -13,7 +13,7 @@ export function init(
   const snackbar = new MDCSnackbar(document.querySelector(".mdc-snackbar"));
 
   $.ajaxSetup({
-    beforeSend: function(xhr, settings) {
+    beforeSend: function (xhr, settings) {
       if (!bundle.csrfSafeMethod(settings.type) && !this.crossDomain) {
         xhr.setRequestHeader("X-CSRFToken", bundle.getCsrfToken());
       }
@@ -25,7 +25,7 @@ export function init(
       pk: el.getAttribute("id_pk"),
       ppk: el.getAttribute("id_ppk"),
     });
-    posting.done(function(data) {
+    posting.done(function (data) {
       console.info(data);
       document.getElementById(
         el.getAttribute("id_pk"),
@@ -39,7 +39,7 @@ export function init(
       };
       snackbar.show(dataObjAssigned);
     });
-    posting.fail(function(data) {
+    posting.fail(function (data) {
       console.info(data);
       const err = {
         message: error,
@@ -53,7 +53,7 @@ export function init(
       pk: el.getAttribute("id_pk"),
       ppk: el.getAttribute("id_ppk"),
     });
-    posting.done(function(data) {
+    posting.done(function (data) {
       console.info(data);
       document.getElementById(
         el.getAttribute("id_pk"),
@@ -69,7 +69,7 @@ export function init(
       };
       snackbar.show(dataObjUnassigned);
     });
-    posting.fail(function(data) {
+    posting.fail(function (data) {
       console.info(data);
       const err = {
         message: error,
@@ -80,7 +80,7 @@ export function init(
 
   [].forEach.call(
     document.querySelectorAll(".collection-toggle-assign"),
-    el => {
+    (el) => {
       el.addEventListener("click", () => {
         if (el.classList.contains("removed")) {
           clickAssign(el);
@@ -91,7 +91,7 @@ export function init(
     },
   );
 
-  [].forEach.call(document.querySelectorAll(".md-48"), el => {
+  [].forEach.call(document.querySelectorAll(".md-48"), (el) => {
     el.addEventListener("click", () => {
       const hash = el.getAttribute("id");
       window.location.assign(groupUrl.replace("0", hash));

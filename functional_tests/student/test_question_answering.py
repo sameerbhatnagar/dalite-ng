@@ -1,7 +1,7 @@
 import re
 import time
 
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.common.exceptions import TimeoutException

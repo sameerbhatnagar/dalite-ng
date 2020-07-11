@@ -7,8 +7,9 @@
     & .dalite-message__authors_author {
       border-radius: 50%;
       height: 50px;
-      margin-right: -10px;
+      margin-right: 10px;
       max-height: 7vh;
+      max-width: unset;
       width: auto;
     }
   }

@@ -6,7 +6,7 @@ import operator
 import smtplib
 
 from celery import shared_task
-from django.core.mail import send_mail
+from django.core.mail import send_mail, mail_managers
 
 from dalite.celery import app, try_async
 
@@ -50,6 +50,12 @@ def send_mail_async(*args, **kwargs):
     except smtplib.SMTPException:
         err = "There was an error sending the email."
         logger.error(err)
+
+
+@try_async
+@shared_task
+def mail_managers_async(*args, **kwargs):
+    mail_managers(*args, **kwargs)
 
 
 @try_async

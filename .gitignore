@@ -1,7 +1,11 @@
+*.bak
 *.ipynb
 *.ipynb_checkpoints/
 *.log
 *.map
+*.min.css
+*.min.js
+!tinymce.min.js
 *.mypy_cache/
 *.py[cdo]
 *.rdb
@@ -23,7 +27,7 @@
 /sent_emails
 /src
 /static
-/venv/
+/venv*/
 celerybeat.pid
 locust*
 mysql_scripts/

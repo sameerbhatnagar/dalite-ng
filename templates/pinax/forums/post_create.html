@@ -57,7 +57,13 @@
 
 {% block scripts %}
 {{ block.super }}
-{% compress js file forums__upload_limit %}
-<script src="{% static 'pinax/forums/js/limit.min.js' %}"></script>
+{% compress js file forums %}
+<script src="{% static 'peerinst/js/forums.min.js' %}"></script>
 {% endcompress %}
+
+<script nonce="{{ request.csp_nonce }}">
+  window.addEventListener("load", function() {
+    forums.limitFileSize();
+  })
+</script>
 {% endblock %}

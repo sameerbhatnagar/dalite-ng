@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 import hashlib
 import json
@@ -231,14 +231,14 @@ class LikelihoodCriterionRules(CriterionRules):
 
 class LikelihoodCache(models.Model):
     answer = models.PositiveIntegerField(null=True, blank=True)
-    language = models.ForeignKey(LikelihoodLanguage)
+    language = models.ForeignKey(LikelihoodLanguage, on_delete=models.CASCADE)
     hash = models.CharField(max_length=32, unique=True, db_index=True)
     likelihood = ProbabilityField()
     likelihood_random = ProbabilityField()
 
     @classmethod
     def get(cls, answer, language, max_gram):
-        if isinstance(answer, basestring):
+        if isinstance(answer, str):
             answer_pk = None
             rationale = answer
         else:
@@ -287,11 +287,11 @@ class LikelihoodCache(models.Model):
     def batch(cls, answers, language, max_gram):
         answers = list(answers)
         pks = [
-            None if isinstance(answer, basestring) else answer.pk
+            None if isinstance(answer, str) else answer.pk
             for answer in answers
         ]
         rationales = [
-            answer if isinstance(answer, basestring) else answer.rationale
+            answer if isinstance(answer, str) else answer.rationale
             for answer in answers
         ]
         hashes = [

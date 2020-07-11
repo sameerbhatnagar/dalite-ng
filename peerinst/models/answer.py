@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 from django.contrib.auth.models import User
 from django.db import models
 from django.utils import timezone
@@ -30,11 +27,11 @@ class AnswerMayShowManager(models.Manager):
 
 
 class AnswerChoice(models.Model):
-    question = models.ForeignKey(Question)
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
     text = models.CharField(_("Text"), max_length=500)
     correct = models.BooleanField(_("Correct?"))
 
-    def __unicode__(self):
+    def __str__(self):
         return self.text
 
     class Meta:
@@ -47,8 +44,10 @@ class Answer(models.Model):
     objects = models.Manager()
     may_show = AnswerMayShowManager()
 
-    question = models.ForeignKey(Question)
-    assignment = models.ForeignKey(Assignment, blank=True, null=True)
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    assignment = models.ForeignKey(
+        Assignment, blank=True, null=True, on_delete=models.CASCADE
+    )
     first_answer_choice = models.PositiveSmallIntegerField(
         _("First answer choice")
     )
@@ -63,7 +62,9 @@ class Answer(models.Model):
         symmetrical=False,
         related_name="shown_rationales_all",
     )
-    chosen_rationale = models.ForeignKey("self", blank=True, null=True)
+    chosen_rationale = models.ForeignKey(
+        "self", blank=True, null=True, on_delete=models.CASCADE
+    )
     user_token = models.CharField(
         max_length=100,
         blank=True,
@@ -87,6 +88,7 @@ class Answer(models.Model):
         null=True,
         help_text="Which quality was used to check if rationale is accepted",
         related_name="checking_quality",
+        on_delete=models.CASCADE,
     )
     filtered_with_quality = models.ForeignKey(
         Quality,
@@ -94,6 +96,7 @@ class Answer(models.Model):
         null=True,
         help_text="Which quality was used to filter shown rationales.",
         related_name="filtering_quality",
+        on_delete=models.CASCADE,
     )
 
     def first_answer_choice_label(self):
@@ -108,8 +111,8 @@ class Answer(models.Model):
     second_answer_choice_label.short_description = _("Second answer choice")
     second_answer_choice_label.admin_order_field = "second_answer_choice"
 
-    def __unicode__(self):
-        return unicode(
+    def __str__(self):
+        return str(
             _("{} for question {}").format(self.id, self.question.title)
         )
 
@@ -220,8 +223,8 @@ class Answer(models.Model):
 class AnswerVote(models.Model):
     """Vote on a rationale with attached fake attribution."""
 
-    answer = models.ForeignKey(Answer)
-    assignment = models.ForeignKey(Assignment)
+    answer = models.ForeignKey(Answer, on_delete=models.CASCADE)
+    assignment = models.ForeignKey(Assignment, on_delete=models.CASCADE)
     user_token = models.CharField(max_length=100)
     fake_username = models.CharField(max_length=100)
     fake_country = models.CharField(max_length=100)
@@ -297,10 +300,13 @@ class RationaleOnlyQuestion(Question):
 
 class ShownRationale(models.Model):
     shown_for_answer = models.ForeignKey(
-        Answer, related_name="shown_for_answer"
+        Answer, related_name="shown_for_answer", on_delete=models.CASCADE
     )
     shown_answer = models.ForeignKey(
-        Answer, related_name="shown_answer", null=True
+        Answer,
+        related_name="shown_answer",
+        null=True,
+        on_delete=models.CASCADE,
     )
 
 
@@ -311,13 +317,13 @@ class AnswerAnnotation(models.Model):
         (2, _("2-Somewhat Convincing")),
         (3, _("3-Very Convincing")),
     )
-    answer = models.ForeignKey(Answer)
-    annotator = models.ForeignKey(User)
+    answer = models.ForeignKey(Answer, on_delete=models.CASCADE)
+    annotator = models.ForeignKey(User, on_delete=models.CASCADE)
     timestamp = models.DateTimeField(auto_now=True)
     score = models.PositiveIntegerField(
         null=True, default=None, blank=True, choices=SCORE_CHOICES
     )
     note = models.CharField(max_length=500, null=True, blank=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return "{}: {} by {}".format(self.answer, self.score, self.annotator)

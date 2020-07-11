@@ -35,7 +35,7 @@ def test_get_or_create__wrong_args():
         criterion = NegWordsCriterionRules.get_or_create(neg_words=neg_words)
 
     threshold = "a"
-    with pytest.raises(ValueError):
+    with pytest.raises(TypeError):
         criterion = NegWordsCriterionRules.get_or_create(threshold=threshold)
 
 

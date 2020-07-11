@@ -33,7 +33,7 @@ async function getCriteria() {
 
   const resp = await fetch(model.urls.getCriteria, req);
   const data = await resp.json();
-  model.criteria = data.criteria.map(criterion => ({
+  model.criteria = data.criteria.map((criterion) => ({
     name: criterion.name,
     full_name: criterion.full_name,
     description: criterion.description,
@@ -46,7 +46,7 @@ async function getTeachers() {
 
   const resp = await fetch(model.urls.getTeachers, req);
   const data = await resp.json();
-  model.teachers = data.teachers.map(teacher => ({
+  model.teachers = data.teachers.map((teacher) => ({
     id: teacher,
     username: null,
     lastLogin: null,
@@ -55,7 +55,7 @@ async function getTeachers() {
 }
 
 function getTeachersInformation() {
-  model.teachers.forEach(teacher => {
+  model.teachers.forEach((teacher) => {
     getTeacherInformation(teacher);
   });
 }
@@ -68,7 +68,7 @@ async function getTeacherInformation(teacher) {
   const data = await resp.json();
   teacher.username = data.username;
   teacher.lastLogin = data.last_login ? new Date(data.last_login) : null;
-  teacher.reputations = data.reputations.map(reputation => ({
+  teacher.reputations = data.reputations.map((reputation) => ({
     name: reputation.name,
     reputation: reputation.reputation,
   }));
@@ -113,7 +113,7 @@ function tableView() {
 
 function tableHeadersView() {
   const headers = document.querySelector("#teacher-list thead tr");
-  model.criteria.forEach(criterion => {
+  model.criteria.forEach((criterion) => {
     const header = document.createElement("th");
     header.title = criterion.description;
     header.textContent = criterion.full_name;
@@ -130,9 +130,9 @@ function tableRowView(teacher) {
         teacher.lastLogin ? formatDatetime(teacher.lastLogin) : "",
       ],
       ...model.criteria.map(
-        criterion =>
+        (criterion) =>
           teacher.reputations.find(
-            reputation => reputation.name == criterion.name,
+            (reputation) => reputation.name == criterion.name,
           ).reputation,
       ),
     ])

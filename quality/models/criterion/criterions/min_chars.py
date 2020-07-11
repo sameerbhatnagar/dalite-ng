@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 from django.db import models
 
@@ -37,7 +37,7 @@ class MinCharsCriterion(Criterion):
         return criterion
 
     def evaluate(self, answer, rules_pk):
-        if not isinstance(answer, basestring):
+        if not isinstance(answer, str):
             answer = answer.rationale
         rules = MinCharsCriterionRules.objects.get(pk=rules_pk)
         evaluation = {
@@ -59,7 +59,7 @@ class MinCharsCriterion(Criterion):
                     len(
                         (
                             answer
-                            if isinstance(answer, basestring)
+                            if isinstance(answer, str)
                             else answer.rationale
                         ).replace(" ", "")
                     )

@@ -46,7 +46,7 @@ function update(): void {
 
 function toggleMessages(): void {
   const header = document.querySelector(".messages");
-  document.querySelectorAll(".header--togglable > *").forEach(header_ => {
+  document.querySelectorAll(".header--togglable > *").forEach((header_) => {
     if (header_ != header && header_.hasAttribute("open")) {
       if (header_.shadowRoot) {
         header_.shadowRoot
@@ -68,9 +68,9 @@ function getMessages(): void {
   const req = buildReq({}, "get");
 
   fetch(url, req)
-    .then(resp => resp.json())
-    .then(data => {
-      model.messages = data.threads.map(message => ({
+    .then((resp) => resp.json())
+    .then((data) => {
+      model.messages = data.threads.map((message) => ({
         id: message.id,
         title: message.title,
         lastReply: {
@@ -89,7 +89,7 @@ async function markAllRead(): Promise<void> {
   const req = buildReq({}, "post");
   const resp = await fetch(model.urls.markReadUrl, req);
   if (resp.ok) {
-    model.messages.forEach(message => {
+    model.messages.forEach((message) => {
       message.nNew = 0;
     });
   }
@@ -134,7 +134,7 @@ function messagesView(): void {
 
   document.querySelector(".messages__read-all-btn").classList.add("hidden");
 
-  const nNew = model.messages.filter(message => message.nNew > 0).length;
+  const nNew = model.messages.filter((message) => message.nNew > 0).length;
   if (nNew) {
     document
       .querySelector(".messages__read-all-btn")
@@ -142,7 +142,7 @@ function messagesView(): void {
   }
 
   if (model.messages.length) {
-    model.messages.map(function(message) {
+    model.messages.map(function (message) {
       messagesList.appendChild(messageView(message));
     });
   } else {
@@ -161,7 +161,7 @@ function messagesView(): void {
 function badgeView(): void {
   const badge = document.querySelector(".messages__icon__badge");
 
-  const nNew = model.messages.filter(message => message.nNew > 0).length;
+  const nNew = model.messages.filter((message) => message.nNew > 0).length;
   if (nNew) {
     badge.textContent = nNew.toString();
     badge.style.display = "flex";
@@ -253,15 +253,15 @@ function initEventListeners(): void {
 function addMessagesOpenListener(): void {
   document
     .querySelector(".messages")
-    ?.addEventListener("click", function(event: MouseEvent) {
+    ?.addEventListener("click", function (event: MouseEvent) {
       event.stopPropagation();
     });
   document
     .querySelector(".messages__icon")
-    ?.addEventListener("click", function(event: MouseEvent) {
+    ?.addEventListener("click", function (event: MouseEvent) {
       toggleMessages();
     });
-  document.body?.addEventListener("click", function(event: MouseEvent) {
+  document.body?.addEventListener("click", function (event: MouseEvent) {
     if (model.open) {
       event.stopPropagation();
       toggleMessages();

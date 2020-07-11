@@ -1,0 +1,14 @@
+-r requirements-base.txt
+
+coverage
+ddt
+factory_boy==2.6
+Faker
+mixer
+mock
+pytest
+pytest-cov
+pytest-django
+pytz
+pyyaml
+selenium==3.13.0

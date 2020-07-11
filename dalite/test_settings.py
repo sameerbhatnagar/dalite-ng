@@ -1,5 +1,7 @@
 from .settings import *  # noqa
 
+AXES_ENABLED = False
+
 SSL_CONTEXT = False
 SECURE_HSTS_SECONDS = 0
 CSRF_COOKIE_NAME = "csrftoken"

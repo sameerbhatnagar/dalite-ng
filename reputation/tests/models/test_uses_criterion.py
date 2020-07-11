@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 import mock
 
@@ -16,12 +16,14 @@ def test_dict(question_reputation):
     ):
         criterion_ = mock.MagicMock()
         del criterion_.keys
-        criterion_.__iter__.return_value = {
-            "version": 0,
-            "name": "a",
-            "full_name": "a",
-            "description": "a",
-        }.items()
+        criterion_.__iter__.return_value = list(
+            {
+                "version": 0,
+                "name": "a",
+                "full_name": "a",
+                "description": "a",
+            }.items()
+        )
 
         criterion_class = mock.Mock()
         criterion_class.objects.get.return_value = criterion_

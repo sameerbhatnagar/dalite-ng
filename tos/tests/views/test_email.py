@@ -1,8 +1,6 @@
-from __future__ import unicode_literals
-
 import random
 
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.test import TestCase
 from django.test.client import Client
 
@@ -59,7 +57,7 @@ class TestEmailConsentModifyView(TestCase):
             self.assertEqual(resp.status_code, 400)
             self.assertIn(
                 "The role {} doesn't seem to exist.".format(test["role"]),
-                resp.content,
+                resp.content.decode(),
             )
 
 
@@ -83,15 +81,19 @@ class TestEmailConsentUpdateView(TestCase):
 
     def test_consent_update(self):
         data = [
-            {"email_type": email_type.type, "accepted": random.random() > 0.5}
+            {
+                "email_type": email_type.type,
+                "accepted": random.random() > 0.5,
+                "role": role,
+            }
             for role in self.roles
             for email_type in self.email_types
             if email_type.role == role
         ]
         tests = [
             (
-                {"role": email_type.role.role},
-                {"{}-consent".format(email_type.type): True},
+                {"role": d["role"].role},
+                {"{}-consent".format(d["email_type"]): True},
             )
             for d in data
             if d["accepted"]
@@ -119,5 +121,5 @@ class TestEmailConsentUpdateView(TestCase):
             self.assertEqual(resp.status_code, 400)
             self.assertIn(
                 "The role {} doesn't seem to exist.".format(test["role"]),
-                resp.content,
+                resp.content.decode(),
             )

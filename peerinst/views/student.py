@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 import json
 import logging
 import re
@@ -8,7 +5,7 @@ import re
 from django.conf import settings
 from django.contrib.auth import login, logout
 from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.utils.translation import ugettext
@@ -25,6 +22,7 @@ from ..models import (
     StudentGroupAssignment,
     StudentGroupMembership,
     StudentNotification,
+    StudentGroupCourse,
 )
 from ..students import (
     authenticate_student,
@@ -222,7 +220,7 @@ def login_student(req, token=None):
         new_student = True
 
     logout(req)
-    login(req, user)
+    login(req, user, backend="peerinst.backends.CustomPermissionsBackend")
 
     return student, new_student
 
@@ -293,7 +291,7 @@ def index_page(req):
             }
             for assignment in assignments
         ]
-        for group, assignments in assignments.items()
+        for group, assignments in list(assignments.items())
     }
 
     if not Consent.objects.filter(
@@ -327,6 +325,18 @@ def index_page(req):
         },
         "groups": [
             {
+                "connected_course_url": None
+                if not StudentGroupCourse.objects.filter(
+                    student_group=group.group
+                )
+                else reverse(
+                    "course_flow:student-course-detail-view",
+                    kwargs={
+                        "pk": StudentGroupCourse.objects.get(
+                            student_group=group.group
+                        ).course.pk
+                    },
+                ),
                 "name": group.group.name,
                 "title": group.group.title,
                 "notifications": group.send_emails,
@@ -374,6 +384,7 @@ def index_page(req):
             ),
             "assignment_expired": ugettext("Past due date"),
             "cancel": ugettext("Cancel"),
+            "course_flow_button": ugettext("Visit this group's CourseFlow"),
             "completed": ugettext("Completed"),
             "day": ugettext("day"),
             "days": ugettext("days"),
