@@ -14,7 +14,6 @@ from django.core import exceptions
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Q
-from django.utils.encoding import smart_bytes
 from django.utils.html import escape, strip_tags
 from django.utils.translation import ugettext_lazy as _
 
@@ -31,7 +30,7 @@ def no_hyphens(value):
 
 def images(instance, filename):
     hash = hashlib.sha256(
-        "{}-{}".format(datetime.now(), smart_bytes(filename))
+        "{}-{}".format(datetime.now(), filename).encode("utf-8")
     ).hexdigest()[:8]
     path = "images/{0}/{1}/{2}_{3}".format(
         instance.user.username, datetime.now().month, hash, filename
