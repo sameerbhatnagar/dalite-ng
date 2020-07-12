@@ -25,6 +25,7 @@
 /node_modules
 /redis*
 /sent_emails
+/snapshots
 /src
 /static
 /venv*/

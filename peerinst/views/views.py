@@ -340,7 +340,7 @@ class AssignmentCopyView(LoginRequiredMixin, NoStudentsMixin, CreateView):
             models.Assignment, pk=self.kwargs["assignment_id"]
         )
         form.instance.save()
-        form.instance.questions = assignment.questions.all()
+        form.instance.questions.add(*assignment.questions.all())
         form.instance.owner.add(self.request.user)
         teacher = get_object_or_404(models.Teacher, user=self.request.user)
         teacher.assignments.add(form.instance)
