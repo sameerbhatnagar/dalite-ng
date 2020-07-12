@@ -83,7 +83,7 @@ services:
     build:
       context: .
       dockerfile: ./functional_tests/Dockerfile
-    command: pytest functional_tests --create-db --ignore=node_modules/ -vvv -s --full-trace --exitfirst
+    command: pytest functional_tests --create-db --ignore=node_modules/ -vvv -s
     depends_on:
       - selenium-hub
       - chrome
@@ -93,6 +93,8 @@ services:
       STAGING_SERVER: nginx:8080
       SELENIUM_HUB: selenium-hub:4444
       DJANGO_SETTINGS_MODULE: dalite.test_settings
+    volumes:
+      - ./snapshots:/code/snapshots
 
 volumes:
   static:

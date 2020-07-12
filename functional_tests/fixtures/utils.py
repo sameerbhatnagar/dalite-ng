@@ -1,8 +1,8 @@
 import os
-import time
-from functools import partial
-
 import pytest
+import time
+
+from functools import partial
 from django.conf import settings
 from selenium import webdriver
 from selenium.common.exceptions import WebDriverException
@@ -99,7 +99,7 @@ def browser(live_server):
     driver.implicitly_wait(MAX_WAIT)
 
     # Add assertion that web console logs are null after any get() or click()
-    # Log function for get
+    # Log and screenshot function
     def add_log(fct, driver, *args, **kwargs):
         if WATCH:
             time.sleep(1)
@@ -113,6 +113,8 @@ def browser(live_server):
         else:
             print(("Logs checked after: " + fct.__name__))
 
+        take_screenshot(driver)
+
         # Ignore network errors during testing
         filtered_logs = [
             d
@@ -121,9 +123,14 @@ def browser(live_server):
             and "tinymce" not in d["message"]
             and "mdc-auto-init" not in d["message"]
         ]
-        # assert len(filtered_logs) == 0, logs
+        assert len(filtered_logs) == 0, logs
 
         return result
+
+    # Add screenshot
+    def take_screenshot(driver):
+        file_path = os.path.join(settings.BASE_DIR, "snapshots/test.png")
+        driver.save_screenshot(file_path)
 
     # Log function for finders
     def click_with_log(finder, driver, *args, **kwargs):

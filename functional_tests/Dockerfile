@@ -3,6 +3,7 @@ ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 WORKDIR /code
 RUN mkdir log
+RUN mkdir snapshots
 RUN mkdir static
 COPY requirements/requirements-dev.txt requirements.txt
 RUN pip3 install -r requirements.txt
