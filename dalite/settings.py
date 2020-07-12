@@ -13,6 +13,9 @@ DEBUG = False
 
 ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
 
+if os.environ.get("ALLOWED_HOST"):
+    ALLOWED_HOSTS.append(os.environ.get("ALLOWED_HOST"))
+
 DEV_PORT = 8000  # port used during development
 
 # Application definition

@@ -1,13 +1,33 @@
+# To run in background with build:
+#   docker-compose up -d --build
+# To tear down:
+#   docker-compose down
+# To watch Chrome tests:
+#   Open a VNC client (Safari works)
+#   Go to vnc://127.0.0.1:41960 and enter password "secret"
+
+# TODO:
+#   - Currently, --create-db ensures tests do not start until other services are ready, but a wait function should be added.
+
 version: "3.7"
 
 services:
-  app:
+  live_app:
     build: .
     command: gunicorn dalite.wsgi:application --bind 0.0.0.0:8000
-    expose:
-      - 8000
     environment:
       DALITE_DB_HOST: host.docker.internal
+      DALITE_DB_NAME: dalite_ng
+    volumes:
+      - static:/code/static
+
+  test_app:
+    build: .
+    command: gunicorn dalite.wsgi:application --bind 0.0.0.0:8000
+    environment:
+      ALLOWED_HOST: nginx
+      DALITE_DB_HOST: host.docker.internal
+      DALITE_DB_NAME: test_dalite_ng
     volumes:
       - static:/code/static
 
@@ -15,10 +35,64 @@ services:
     build: ./nginx
     ports:
       - 1337:8080
+      - 1338:8081
     depends_on:
-      - app
+      - live_app
+      - test_app
     volumes:
       - static:/static
+
+  # https://github.com/SeleniumHQ/docker-selenium
+  selenium-hub:
+    image: selenium/hub:3.141.59-20200525
+    container_name: selenium-hub
+    ports:
+      - 4444:4444
+    depends_on:
+      - test_app
+    environment:
+      - GRID_DEBUG=true
+
+  chrome:
+    image: selenium/node-chrome-debug
+    volumes:
+      - /dev/shm:/dev/shm
+    depends_on:
+      - selenium-hub
+    environment:
+      - HUB_HOST=selenium-hub
+      - HUB_PORT=4444
+      - NODE_MAX_INSTANCES=4
+      - NODE_MAX_SESSION=2
+    ports:
+      - 41960:5900
+
+  firefox:
+    image: selenium/node-firefox-debug
+    volumes:
+      - /dev/shm:/dev/shm
+    depends_on:
+      - selenium-hub
+    environment:
+      - HUB_HOST=selenium-hub
+      - HUB_PORT=4444
+      - NODE_MAX_INSTANCES=4
+      - NODE_MAX_SESSION=2
+
+  test:
+    build:
+      context: .
+      dockerfile: ./functional_tests/Dockerfile
+    command: pytest functional_tests --create-db --ignore=node_modules/ -vvv -s --full-trace --exitfirst
+    depends_on:
+      - selenium-hub
+      - chrome
+      - firefox
+    environment:
+      DALITE_DB_HOST: host.docker.internal
+      STAGING_SERVER: nginx:8080
+      SELENIUM_HUB: selenium-hub:4444
+      DJANGO_SETTINGS_MODULE: dalite.test_settings
 
 volumes:
   static:
