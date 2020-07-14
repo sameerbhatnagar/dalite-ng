@@ -220,7 +220,7 @@ def login_student(req, token=None):
         new_student = True
 
     logout(req)
-    login(req, user)
+    login(req, user, backend="peerinst.backends.CustomPermissionsBackend")
 
     return student, new_student
 

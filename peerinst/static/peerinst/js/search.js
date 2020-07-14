@@ -1,10 +1,12 @@
+/* global pageNav */
+
 import { updateAssignmentQuestionList } from "./ajax.js";
 
 /** Recount search results
  *  @function
  */
 export function recountResults() {
-  $(".search-set").each(function() {
+  $(".search-set").each(function () {
     $(this) // eslint-disable-line
       .find(".filter-count")
       .empty()
@@ -29,11 +31,11 @@ export function filter(el) {
 
   $("#search_results .mdc-card").css("display", "block");
 
-  $("#search_results .mdc-card").each(function() {
+  $("#search_results .mdc-card").each(function () {
     const card = this; // eslint-disable-line
     $("#filter-on-category")
       .find(".mdc-chip--selected")
-      .each(function() {
+      .each(function () {
         if (
           card
             .getAttribute("category")
@@ -47,12 +49,10 @@ export function filter(el) {
 
     $("#filter-on-discipline")
       .find(".mdc-chip--selected")
-      .each(function() {
+      .each(function () {
         if (
-          card
-            .getAttribute("discipline")
-            .slice(1, -1)
-            .toLowerCase() != this.getAttribute("d").toLowerCase() // eslint-disable-line
+          card.getAttribute("discipline").slice(1, -1).toLowerCase() !=
+          this.getAttribute("d").toLowerCase() // eslint-disable-line
         ) {
           $(card).css("display", "none");
           $("#reset-filters").attr("disabled", false);
@@ -67,7 +67,7 @@ export function filter(el) {
  *  @function
  */
 export function reset() {
-  $("#search_results .mdc-card").each(function() {
+  $("#search_results .mdc-card").each(function () {
     $(this).css("display", "block"); // eslint-disable-line
     $(".mdc-chip").removeClass("mdc-chip--selected");
     $("#reset-filters").attr("disabled", true);
@@ -87,14 +87,14 @@ export function processResponse() {
   $("#progressbar").addClass("mdc-linear-progress--closed");
 
   // Update template response
-  $(".search-nav").each(function(i, el) {
-    el.addEventListener("click", function() {
+  $(".search-nav").each(function (i, el) {
+    el.addEventListener("click", function () {
       pageNav(el.getAttribute("data-page"));
     });
   });
 
-  $(".update-questions-btn").each(function(i, el) {
-    el.addEventListener("click", function() {
+  $(".update-questions-btn").each(function (i, el) {
+    el.addEventListener("click", function () {
       updateAssignmentQuestionList(
         el.getAttribute("data-url"),
         el.getAttribute("data-id"),
@@ -112,7 +112,7 @@ export function processResponse() {
     "<div class='mdc-chip-set mdc-chip-set--filter' " +
       "data-mdc-auto-init='MDCChipSet'></div>",
   );
-  $("#search_results .mdc-card").each(function(index) {
+  $("#search_results .mdc-card").each(function (index) {
     const d = this.getAttribute("discipline"); // eslint-disable-line
     if (!disciplineList.includes(d) & (d.slice(1, -1) != "None")) {
       disciplineList.push(d);
@@ -138,8 +138,8 @@ export function processResponse() {
     );
   }
 
-  $("#filter-on-discipline .mdc-chip").each(function(i, el) {
-    el.addEventListener("click", function() {
+  $("#filter-on-discipline .mdc-chip").each(function (i, el) {
+    el.addEventListener("click", function () {
       filter(el);
     });
   });
@@ -149,10 +149,10 @@ export function processResponse() {
     "<div class='mdc-chip-set mdc-chip-set--filter' " +
       "data-mdc-auto-init='MDCChipSet'></div>",
   );
-  $("#search_results .mdc-card").each(function() {
+  $("#search_results .mdc-card").each(function () {
     const c = this.getAttribute("category"); // eslint-disable-line
     const list = c.split(",");
-    $(list).each(function(i) {
+    $(list).each(function (i) {
       if (!categoryList.includes(list[i].toLowerCase()) & (list[i] != "")) {
         categoryList.push(list[i].toLowerCase());
       }
@@ -178,8 +178,8 @@ export function processResponse() {
         "</div>",
     );
   }
-  $("#filter-on-category .mdc-chip").each(function(i, el) {
-    el.addEventListener("click", function() {
+  $("#filter-on-category .mdc-chip").each(function (i, el) {
+    el.addEventListener("click", function () {
       filter(el);
     });
   });
@@ -200,21 +200,21 @@ export function processResponse() {
     $("#category-filters").css("display", "block");
   }
 
-  [].forEach.call(document.querySelectorAll(".mdc-chip"), el => {
+  [].forEach.call(document.querySelectorAll(".mdc-chip"), (el) => {
     bundle.chips.MDCChip.attachTo(el);
   });
 
-  [].forEach.call(document.querySelectorAll(".mdc-chip-set"), el => {
+  [].forEach.call(document.querySelectorAll(".mdc-chip-set"), (el) => {
     bundle.chips.MDCChipSet.attachTo(el);
   });
 
-  [].forEach.call(document.querySelectorAll(".mdc-icon-toggle"), el => {
+  [].forEach.call(document.querySelectorAll(".mdc-icon-toggle"), (el) => {
     bundle.iconToggle.MDCIconToggle.attachTo(el);
   });
 
   [].forEach.call(
     document.querySelectorAll("#search_results .mdc-card"),
-    el => {
+    (el) => {
       bundle.difficulty(el.getAttribute("matrix").replace(/'/g, '"'), el.id); // eslint-disable-line
     },
   );
@@ -237,7 +237,7 @@ export function setupSearch() {
  *  @function
  */
 export function initFavourites() {
-  [].forEach.call(document.querySelectorAll(".mdc-icon-toggle"), el => {
+  [].forEach.call(document.querySelectorAll(".mdc-icon-toggle"), (el) => {
     bundle.iconToggle.MDCIconToggle.attachTo(el);
   });
 }

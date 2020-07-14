@@ -8,10 +8,7 @@ import { clear } from "../utils.js";
 
 let model;
 
-function initModel(
-  flagQuestionUrl,
-  getFlagQuestionReasonsUrl,
-) {
+function initModel(flagQuestionUrl, getFlagQuestionReasonsUrl) {
   model = {
     flagQuestionReasons: [],
     urls: {
@@ -75,10 +72,10 @@ async function flagQuestion(question) {
 }
 
 function flagQuestionView() {
-  [...document.getElementsByClassName("flag-question")].forEach(question => {
+  [...document.getElementsByClassName("flag-question")].forEach((question) => {
     const select = question.querySelector(".flag-question__form select");
     clear(select);
-    model.flagQuestionReasons.forEach(reason => {
+    model.flagQuestionReasons.forEach((reason) => {
       const option = document.createElement("option");
       option.classList.add("flag-question__form__option");
       option.value = reason;
@@ -89,27 +86,27 @@ function flagQuestionView() {
 }
 
 function addFlagQuestionListeners() {
-  [...document.getElementsByClassName("flag-question")].forEach(question => {
+  [...document.getElementsByClassName("flag-question")].forEach((question) => {
     question
       .querySelector(".flag-question__close")
-      .addEventListener("click", event => {
+      .addEventListener("click", (event) => {
         event.stopPropagation();
         toggleFlagQuestion(question);
       });
     question
       .querySelector(".flag-question__btn")
-      .addEventListener("click", event => {
+      .addEventListener("click", (event) => {
         event.stopPropagation();
         toggleFlagQuestion(question);
       });
     question
       .querySelector(".flag-question__form")
-      .addEventListener("click", event => {
+      .addEventListener("click", (event) => {
         event.stopPropagation();
       });
     question
       .querySelector(".flag-question__form")
-      .addEventListener("submit", event => {
+      .addEventListener("submit", (event) => {
         event.preventDefault();
         flagQuestion(question);
       });
@@ -121,10 +118,7 @@ function addFlagQuestionListeners() {
   });
 }
 
-export async function init(
-  getFlagQuestionReasonsUrl,
-  flagQuestionUrl,
-) {
+export async function init(getFlagQuestionReasonsUrl, flagQuestionUrl) {
   await initModel(flagQuestionUrl, getFlagQuestionReasonsUrl);
   addFlagQuestionListeners();
 }

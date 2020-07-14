@@ -75,10 +75,14 @@ class TestApplicationHookManager(TestCase):
             )
 
             authenticate_mock.assert_called_once_with(
-                username=expected_uname, password=expected_password
+                request, username=expected_uname, password=expected_password
             )
             if auth_result:
-                login_mock.assert_called_once_with(request, auth_result)
+                login_mock.assert_called_once_with(
+                    request,
+                    auth_result,
+                    backend="peerinst.backends.CustomPermissionsBackend",
+                )
 
     # @ddt.unpack
     # @ddt.data(

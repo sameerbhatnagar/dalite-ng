@@ -1,21 +1,31 @@
-const autoprefixer = require("autoprefixer");
-const babel = require("rollup-plugin-babel");
-const browserSync = require("browser-sync").create();
-const buffer = require("vinyl-buffer");
-const commonjs = require("rollup-plugin-commonjs");
-const concat = require("gulp-concat");
+/* globals require, exports */
+
+/* Build tools */
 const gulp = require("gulp");
-const merge = require("merge-stream");
-const postcss = require("gulp-postcss");
+const concat = require("gulp-concat");
 const rename = require("gulp-rename");
-const resolve = require("rollup-plugin-node-resolve");
-const rollup = require("rollup-stream");
-const sass = require("gulp-sass");
-const source = require("vinyl-source-stream");
-const sourcemaps = require("gulp-sourcemaps");
+
+/* Build modules for scripts */
+const commonjs = require("@rollup/plugin-commonjs"); // loader
+const { eslint } = require("rollup-plugin-eslint"); // linter
+const { babel } = require("@rollup/plugin-babel"); // transpiler + polyfills
+const resolve = require("@rollup/plugin-node-resolve"); // loader
+const rollup = require("rollup"); // bundler
+const { terser } = require("rollup-plugin-terser"); // minifier
+const nodeResolve = resolve.default;
+
+/* Build modules for styles */
+const scssLint = require("stylelint"); // linter
+const cssMinify = require("cssnano"); // minifier
+const cssPolyfills = require("postcss-preset-env"); // autoprefixer + polyfills
+const postcss = require("gulp-postcss"); // css
+//const failOnWarn = require("postcss-fail-on-warn"); // fail on warnings
+const scss = require("postcss-scss"); // understand scss syntax
+const sourcemaps = require("gulp-sourcemaps"); // sourcemaps
+const sass = require("@csstools/postcss-sass"); // sass compiler
+
+/* Build for icons */
 const svgSprite = require("gulp-svg-sprite");
-const { eslint } = require("rollup-plugin-eslint");
-const { uglify } = require("rollup-plugin-uglify");
 
 const templateModules = ["peerinst", "quality", "reputation", "tos"];
 
@@ -30,6 +40,12 @@ const styleBuilds = [
       "teacher",
       "layout",
       "admin",
+      "forums",
+      "main",
+      "cookie_law",
+      "error",
+      "search",
+      "landing_page",
     ],
   },
   {
@@ -64,6 +80,8 @@ const scriptBuilds = [
       "teacher",
       "collection",
       "admin",
+      "forums",
+      "ajax",
     ],
   },
   {
@@ -85,31 +103,41 @@ const scriptBuilds = [
 ];
 
 const babelConfig = {
+  babelHelpers: "bundled",
   presets: [
     "@babel/preset-flow",
     [
       "@babel/preset-env",
       {
-        modules: false,
-        exclude: ["@babel/plugin-transform-regenerator"],
+        useBuiltIns: "usage",
+        corejs: 3,
       },
     ],
   ],
   plugins: [
     "@babel/plugin-proposal-optional-chaining",
-    [
-      "@babel/plugin-transform-runtime",
-      {
-        helpers: false,
-        regenerator: true,
-      },
-    ],
+    ["@babel/plugin-transform-react-jsx", { pragma: "h" }],
   ],
   exclude: "node_modules/**",
   babelrc: false,
 };
 
 function buildStyle(app, module) {
+  const cb = (file) => {
+    // https://github.com/postcss/gulp-postcss#advanced-usage
+    return {
+      plugins: [
+        scssLint(),
+        sass({ includePaths: ["./node_modules"] }),
+        cssPolyfills(),
+        cssMinify(),
+        //failOnWarn(),
+      ],
+      options: {
+        parser: scss,
+      },
+    };
+  };
   const build = gulp
     .src(
       [
@@ -119,17 +147,10 @@ function buildStyle(app, module) {
       { allowEmpty: true },
     )
     .pipe(sourcemaps.init())
-    .pipe(
-      sass({
-        outputStyle: "compressed",
-        includePaths: "./node_modules",
-      }),
-    )
-    .pipe(postcss([autoprefixer()]))
+    .pipe(postcss(cb))
     .pipe(concat(module + ".min.css"))
     .pipe(sourcemaps.write("."))
-    .pipe(gulp.dest("./" + app + "/static/" + app + "/css"))
-    .pipe(browserSync.stream());
+    .pipe(gulp.dest("./" + app + "/static/" + app + "/css"));
 
   return build;
 }
@@ -146,29 +167,8 @@ function watchStyle(app, module) {
 
 function buildScript(app, module) {
   const name = module === "index" ? "bundle" : module;
-  const build = rollup({
+  const inputOptions = {
     input: "./" + app + "/static/" + app + "/js/" + module + ".js",
-    sourcemap: true,
-    extend: true,
-    format: "iife",
-    name: name,
-    globals: {
-      jquery: "jquery", // eslint-disable-line
-      flatpickr: "flatpickr", // eslint-disable-line
-      "@babel/runtime": "@babel/runtime",
-      "@material/auto-init": "@material/auto-init",
-      "@material/checkbox": "@material/checkbox",
-      "@material/chips": "@material/chips",
-      "@material/dialog": "@material/dialog",
-      "@material/drawer": "@material/drawer",
-      "@material/icon-toggle": "@material/icon-toggle",
-      "@material/radio": "@material/radio",
-      "@material/ripple": "@material/ripple",
-      "@material/select": "@material/select",
-      "@material/textfield": "@material/textfield",
-      "@material/toolbar": "@material/toolbar",
-      "material/snackbar": "material/snackbar",
-    },
     external: [
       "jquery",
       "flatpickr",
@@ -186,26 +186,53 @@ function buildScript(app, module) {
       "@material/toolbar",
       "material/snackbar",
     ],
+    onwarn(warning, warn) {
+      if (warning.code == "CIRCULAR_DEPENDENCY") {
+        return;
+      }
+      warn(warning);
+    },
     plugins: [
       eslint({
-        exclude: ["**.css"],
+        fix: true,
       }),
       babel(babelConfig),
-      resolve({
+      // https://github.com/rollup/plugins/tree/master/packages/commonjs#using-with-rollupplugin-node-resolve
+      nodeResolve({
         mainFields: ["module", "main", "browser"],
       }),
       commonjs(),
-      uglify(),
     ],
-  })
-    .pipe(source(module + ".min.js"))
-    .pipe(buffer())
-    .pipe(sourcemaps.init({ loadMaps: true }))
-    .pipe(sourcemaps.write("."))
-    .pipe(gulp.dest("./" + app + "/static/" + app + "/js"))
-    .pipe(browserSync.stream());
+  };
+  const outputOptions = {
+    extend: true,
+    file: "./" + app + "/static/" + app + "/js/" + module + ".min.js",
+    format: "iife",
+    globals: {
+      jquery: "jquery",
+      flatpickr: "flatpickr",
+      "@babel/runtime": "@babel/runtime",
+      "@material/auto-init": "@material/auto-init",
+      "@material/checkbox": "@material/checkbox",
+      "@material/chips": "@material/chips",
+      "@material/dialog": "@material/dialog",
+      "@material/drawer": "@material/drawer",
+      "@material/icon-toggle": "@material/icon-toggle",
+      "@material/radio": "@material/radio",
+      "@material/ripple": "@material/ripple",
+      "@material/select": "@material/select",
+      "@material/textfield": "@material/textfield",
+      "@material/toolbar": "@material/toolbar",
+      "material/snackbar": "material/snackbar",
+    },
+    name: name,
+    plugins: [terser()],
+    sourcemap: true,
+  };
 
-  return build;
+  return rollup
+    .rollup(inputOptions)
+    .then((bundle) => bundle.write(outputOptions));
 }
 
 function watchScript(app, module) {
@@ -216,123 +243,6 @@ function watchScript(app, module) {
     ],
     () => buildScript(app, module),
   );
-}
-
-function stylesPeerinstMain() {
-  const build = gulp
-    .src("./peerinst/static/peerinst/css/*.scss")
-    .pipe(sourcemaps.init())
-    .pipe(
-      sass({
-        outputStyle: "compressed",
-        includePaths: "./node_modules",
-      }),
-    )
-    .pipe(postcss([autoprefixer()]))
-    .pipe(
-      rename(path => {
-        path.extname = ".min.css";
-      }),
-    )
-    .pipe(sourcemaps.write("."))
-    .pipe(gulp.dest("./peerinst/static/peerinst/css/"));
-
-  return build;
-}
-
-function stylesPeerinstCookieLaw() {
-  const build = gulp
-    .src("./peerinst/static/cookie_law/css/*.scss")
-    .pipe(sourcemaps.init())
-    .pipe(
-      sass({
-        outputStyle: "compressed",
-        includePaths: "./node_modules/",
-      }),
-    )
-    .pipe(
-      rename(path => {
-        path.extname = ".min.css";
-      }),
-    )
-    .pipe(sourcemaps.write("."))
-    .pipe(gulp.dest("./peerinst/static/cookie_law/css/"));
-
-  return build;
-}
-
-function stylesPeerinstPinax() {
-  const build = gulp
-    .src("./peerinst/static/pinax/forums/css/*.scss")
-    .pipe(sourcemaps.init())
-    .pipe(
-      sass({
-        outputStyle: "compressed",
-        includePaths: "./node_modules/",
-      }),
-    )
-    .pipe(
-      rename(path => {
-        path.extname = ".min.css";
-      }),
-    )
-    .pipe(sourcemaps.write("."))
-    .pipe(gulp.dest("./peerinst/static/pinax/forums/css/"));
-
-  return build;
-}
-
-function scriptsPeerinstPinax() {
-  const build = merge([
-    rollup({
-      input: "./peerinst/static/pinax/forums/js/thread.js",
-      sourcemap: true,
-      format: "iife",
-      name: "thread",
-      globals: {
-        flatpickr: "flatpickr",
-        d3: "d3",
-      },
-      plugins: [
-        eslint({
-          exclude: ["**.css"],
-        }),
-        babel(babelConfig),
-        uglify(),
-      ],
-      external: ["flatpickr", "d3"],
-    })
-      .pipe(source("thread.min.js"))
-      .pipe(buffer())
-      .pipe(sourcemaps.init({ loadMaps: true }))
-      .pipe(sourcemaps.write("."))
-      .pipe(gulp.dest("./peerinst/static/pinax/forums/js")),
-    rollup({
-      input: "./peerinst/static/pinax/forums/js/limit.js",
-      sourcemap: true,
-      format: "iife",
-      name: "limit",
-      globals: {
-        flatpickr: "flatpickr",
-        d3: "d3",
-      },
-      plugins: [
-        eslint({
-          exclude: ["**.css"],
-        }),
-        babel(babelConfig),
-        uglify(),
-      ],
-      external: ["flatpickr", "d3"],
-    })
-      .pipe(source("limit.min.js"))
-      .pipe(buffer())
-      .pipe(sourcemaps.init({ loadMaps: true }))
-      .pipe(sourcemaps.write("."))
-      .pipe(gulp.dest("./peerinst/static/pinax/forums/js")),
-  ]);
-
-  return build;
 }
 
 function icons() {
@@ -350,7 +260,7 @@ function icons() {
           rootAttributes: {
             class: "svg-sprite",
           },
-          transform: [svg => svg.replace(/style="[^"]*"/g, "")],
+          transform: [(svg) => svg.replace(/style="[^"]*"/g, "")],
         },
       }),
     )
@@ -360,20 +270,8 @@ function icons() {
 }
 
 function watch() {
-  browserSync.init({
-    port: 3000,
-    proxy: "http://127.0.0.1:8000",
-    notify: false,
-    open: false,
-  });
-  gulp.watch("./peerinst/static/peerinst/css/*.scss", stylesPeerinstMain);
-  gulp.watch(
-    "./peerinst/static/pinax/forums/css/*.scss",
-    stylesPeerinstCookieLaw,
-  );
-  gulp.watch("./peerinst/static/pinax/forums/css/*.scss", stylesPeerinstPinax);
-  styleBuilds.forEach(s => s.modules.forEach(m => watchStyle(s.app, m)));
-  scriptBuilds.forEach(s => s.modules.forEach(m => watchScript(s.app, m)));
+  styleBuilds.forEach((s) => s.modules.forEach((m) => watchStyle(s.app, m)));
+  scriptBuilds.forEach((s) => s.modules.forEach((m) => watchScript(s.app, m)));
   gulp.watch(
     [
       "./peerinst/static/peerinst/js/*.js",
@@ -381,34 +279,42 @@ function watch() {
       "!./peerinst/static/peerinst/js/utils.js",
     ].concat(
       scriptBuilds
-        .filter(s => s.app === "peerinst")
-        .map(s => s.modules)
-        .filter(m => m !== "index")
-        .map(m => "./peerinst/static/peerinst/js/" + m + ".js"),
+        .filter((s) => s.app === "peerinst")
+        .map((s) => s.modules)
+        .filter((m) => m !== "index")
+        .map((m) => "./peerinst/static/peerinst/js/" + m + ".js"),
     ),
     () => buildScript("peerinst", "index"),
   );
   gulp.watch("./peerinst/static/peerinst/icons/*.svg", icons);
-  templateModules.forEach(app =>
-    gulp
-      .watch(`./${app}/templates/**/*.html`)
-      .on("change", browserSync.reload),
-  );
+  templateModules.forEach((app) => gulp.watch(`./${app}/templates/**/*.html`));
 }
 
 const styles = gulp.parallel(
-  stylesPeerinstMain,
-  stylesPeerinstCookieLaw,
-  stylesPeerinstPinax,
   ...[].concat(
-    ...styleBuilds.map(s => s.modules.map(m => () => buildStyle(s.app, m))),
+    ...styleBuilds.map((s) =>
+      s.modules.map((m) => {
+        function task() {
+          return buildStyle(s.app, m);
+        }
+        task.displayName = `${s.app} > ${m}`;
+        return task;
+      }),
+    ),
   ),
 );
 
 const scripts = gulp.parallel(
-  scriptsPeerinstPinax,
   ...[].concat(
-    ...scriptBuilds.map(s => s.modules.map(m => () => buildScript(s.app, m))),
+    ...scriptBuilds.map((s) =>
+      s.modules.map((m) => {
+        function task() {
+          return buildScript(s.app, m);
+        }
+        task.displayName = `${s.app} > ${m}`;
+        return task;
+      }),
+    ),
   ),
 );
 

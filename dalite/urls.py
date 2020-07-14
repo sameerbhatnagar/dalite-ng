@@ -1,16 +1,18 @@
 from django.conf import settings
 from django.conf.urls import include
-from django.urls import path
 from django.conf.urls.i18n import i18n_patterns
 from django.conf.urls.static import static
 from django.contrib import admin
+from django.urls import path
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.clickjacking import xframe_options_sameorigin
+from django.views.i18n import JavaScriptCatalog
 
 from . import views
 from peerinst import views as peerinst_views
 
 admin.site.site_header = admin.site.site_title = _("Dalite NG administration")
+
 
 # LTI
 urlpatterns = [path("lti/", include("django_lti_tool_provider.urls"))]
@@ -74,6 +76,11 @@ urlpatterns += i18n_patterns(
 
 # Set language view
 urlpatterns += [path("i18n/", include("django.conf.urls.i18n"))]
+
+# Javascript translations
+urlpatterns += i18n_patterns(
+    path("jsi18n/", JavaScriptCatalog.as_view(), name="javascript-catalog"),
+)
 
 # Media
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

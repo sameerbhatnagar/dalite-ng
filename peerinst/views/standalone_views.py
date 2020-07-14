@@ -97,7 +97,7 @@ def live(request, token, assignment_hash):
     user, __ = authenticate_student(request, token)
     if isinstance(user, HttpResponse):
         return user
-    login(request, user)
+    login(request, user, backend="peerinst.backends.CustomPermissionsBackend")
 
     # Register access type
     request.session["LTI"] = False

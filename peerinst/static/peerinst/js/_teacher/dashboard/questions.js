@@ -94,23 +94,16 @@ async function flagQuestion(question) {
 
 async function getNewQuestion(question) {
   const posting = $.get(model.urls.getNewQuestion);
-  posting.done(data => {
+  posting.done((data) => {
     $(question).toggle("fade", () => {
       $(question).remove();
       $("#questions").append(data);
-      $("#questions .mdc-card")
-        .hide()
-        .toggle("slide", transition);
+      $("#questions .mdc-card").hide().toggle("slide", transition);
       initNewCard(model.urls.toggleFavourite, model.urls.getNewQuestion);
       window.location.href = "#questions";
     });
   });
-  posting.fail(() => {
-    x.innerHTML = "error"; // Add snack bar?
-    window.setTimeout(() => {
-      x.innerHTML = "autorenew";
-    }, 5000);
-  });
+  // TODO: handle posting.fail()
 }
 
 /********/
@@ -122,10 +115,10 @@ function view() {
 }
 
 function flagQuestionView() {
-  [...document.getElementsByClassName("flag-question")].forEach(question => {
+  [...document.getElementsByClassName("flag-question")].forEach((question) => {
     const select = question.querySelector(".flag-question__form select");
     clear(select);
-    model.flagQuestionReasons.forEach(reason => {
+    model.flagQuestionReasons.forEach((reason) => {
       const option = document.createElement("option");
       option.classList.add("flag-question__form__option");
       option.value = reason;
@@ -140,27 +133,27 @@ function flagQuestionView() {
 /*************/
 
 function addFlagQuestionListeners() {
-  [...document.getElementsByClassName("flag-question")].forEach(question => {
+  [...document.getElementsByClassName("flag-question")].forEach((question) => {
     question
       .querySelector(".flag-question__close")
-      .addEventListener("click", event => {
+      .addEventListener("click", (event) => {
         event.stopPropagation();
         toggleFlagQuestion(question);
       });
     question
       .querySelector(".flag-question__btn")
-      .addEventListener("click", event => {
+      .addEventListener("click", (event) => {
         event.stopPropagation();
         toggleFlagQuestion(question);
       });
     question
       .querySelector(".flag-question__form")
-      .addEventListener("click", event => {
+      .addEventListener("click", (event) => {
         event.stopPropagation();
       });
     question
       .querySelector(".flag-question__form")
-      .addEventListener("submit", event => {
+      .addEventListener("submit", (event) => {
         event.preventDefault();
         flagQuestion(question);
       });
@@ -189,7 +182,7 @@ function initNewCard(favUrl, refreshUrl) {
             const posting = $.post(favUrl, {
               pk: heart.getAttribute("data-id"),
             });
-            posting.done(data => {
+            posting.done((data) => {
               console.log(data);
             });
           });
@@ -200,13 +193,11 @@ function initNewCard(favUrl, refreshUrl) {
         .each((i, x) => {
           x.addEventListener("click", () => {
             const posting = $.get(refreshUrl);
-            posting.done(data => {
+            posting.done((data) => {
               $(el).toggle("fade", () => {
                 $(el).remove();
                 $("#questions").append(data);
-                $("#questions .mdc-card")
-                  .hide()
-                  .toggle("slide", transition);
+                $("#questions .mdc-card").hide().toggle("slide", transition);
                 initNewCard(favUrl, refreshUrl);
                 window.location.href = "#questions";
               });

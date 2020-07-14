@@ -58,7 +58,7 @@ class TeacherReputationHeader extends ReputationHeader {
       const resp = await fetch(model.reputationUrl, req);
       const data = await resp.json();
       model.reputation = data.reputation;
-      model.reputations = data.reputations.map(reputation => ({
+      model.reputations = data.reputations.map((reputation) => ({
         name: reputation.full_name,
         description: reputation.description,
         reputation: reputation.reputation,
@@ -69,19 +69,21 @@ class TeacherReputationHeader extends ReputationHeader {
 
     function toggleReputationList() {
       const header = model.element;
-      document.querySelectorAll(".header--togglable > *").forEach(header_ => {
-        if (header_ != header && header_.hasAttribute("open")) {
-          if (header_.shadowRoot) {
-            header_.shadowRoot
-              .querySelector(".header__icon")
-              .dispatchEvent(new Event("click"));
-          } else {
-            header_
-              .querySelector(".header__icon")
-              .dispatchEvent(new Event("click"));
+      document
+        .querySelectorAll(".header--togglable > *")
+        .forEach((header_) => {
+          if (header_ != header && header_.hasAttribute("open")) {
+            if (header_.shadowRoot) {
+              header_.shadowRoot
+                .querySelector(".header__icon")
+                .dispatchEvent(new Event("click"));
+            } else {
+              header_
+                .querySelector(".header__icon")
+                .dispatchEvent(new Event("click"));
+            }
           }
-        }
-      });
+        });
       model.element.open = !model.element.open;
       iconView();
       listView();
@@ -161,7 +163,7 @@ class TeacherReputationHeader extends ReputationHeader {
 
       headerView(list);
 
-      model.reputations.forEach(reputation => {
+      model.reputations.forEach((reputation) => {
         reputationView(list, reputation);
       });
 

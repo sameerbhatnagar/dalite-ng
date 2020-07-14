@@ -12,17 +12,16 @@ repos:
       - id: flake8
         exclude: "^.*/migrations/.*.py$"
   - repo: https://github.com/pre-commit/mirrors-eslint
-    rev: v6.8.0
+    rev: v7.3.1
     hooks:
       - id: eslint
         additional_dependencies:
-          - eslint
-          - babel-eslint
-          - eslint-config-google
-          - rollup-plugin-eslint
+          - eslint@7.3.1
+          - babel-eslint@10.0.3
+          - eslint-config-google@0.14.0
         exclude: "^.*\\.min\\..*$"
   - repo: https://github.com/prettier/prettier
-    rev: 1.19.1
+    rev: 2.0.5
     hooks:
       - id: prettier
         files: \.js$
@@ -33,7 +32,12 @@ repos:
       - id: stylelint
         args: [--fix]
         exclude: "^.*\\.min\\..*$"
-        additional_dependencies: ['stylelint@9.9.0', 'stylelint-config-recommended-scss@3.2.0', 'stylelint-config-recommended@2.1.0']
+        additional_dependencies:
+          - stylelint@13.6.1
+          - stylelint-config-recommended-scss@4.2.0
+          - stylelint-config-recommended@3.0.0
+          - stylelint-order@4.1.0
+          - stylelint-scss@3.18.0
   - repo: local
     hooks:
       - id: safety
@@ -45,6 +49,6 @@ repos:
       - id: npm-audit
         name: npm-audit
         language: system
-        entry: npm audit
+        entry: npm audit --audit-level=moderate
         always_run: true
         exclude: ".*"

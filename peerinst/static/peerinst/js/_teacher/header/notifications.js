@@ -32,7 +32,7 @@ function initModel(): void {
 
 function toggleNotifications(): void {
   const header = document.querySelector(".notifications");
-  document.querySelectorAll(".header--togglable > *").forEach(header_ => {
+  document.querySelectorAll(".header--togglable > *").forEach((header_) => {
     if (header_ != header && header_.hasAttribute("open")) {
       if (header_.shadowRoot) {
         header_.shadowRoot
@@ -55,7 +55,7 @@ export function updateNotifications(notifications: Array<Notification>): void {
 }
 
 function clearAll(): void {
-  model.notifications.forEach(notification => {
+  model.notifications.forEach((notification) => {
     notification.onCloseClick();
   });
 }
@@ -80,7 +80,7 @@ function notificationsView(): void {
   }
 
   const completedNotifications = model.notifications.filter(
-    notification => !notification.inProgress,
+    (notification) => !notification.inProgress,
   );
   if (completedNotifications.length > 0) {
     badge.textContent = completedNotifications.length.toString();
@@ -93,7 +93,7 @@ function notificationsView(): void {
   clear(notificationsList);
 
   if (model.notifications.length) {
-    model.notifications.map(function(notification) {
+    model.notifications.map(function (notification) {
       notificationsList.appendChild(notificationView(notification));
     });
     document
@@ -106,7 +106,7 @@ function notificationsView(): void {
       .setAttribute("hidden", "");
   }
 
-  if (model.notifications.some(notification => notification.inProgress)) {
+  if (model.notifications.some((notification) => notification.inProgress)) {
     document
       .querySelector(".notifications__spinner")
       ?.classList.add("notifications__spinner--loading");
@@ -177,15 +177,15 @@ function initEventListeners(): void {
 function addNotificationsOpenListener(): void {
   document
     .querySelector(".notifications")
-    ?.addEventListener("click", function(event: MouseEvent) {
+    ?.addEventListener("click", function (event: MouseEvent) {
       event.stopPropagation();
     });
   document
     .querySelector(".notifications__icon")
-    ?.addEventListener("click", function(event: MouseEvent) {
+    ?.addEventListener("click", function (event: MouseEvent) {
       toggleNotifications();
     });
-  document.body?.addEventListener("click", function(event: MouseEvent) {
+  document.body?.addEventListener("click", function (event: MouseEvent) {
     if (model.notificationsOpen) {
       event.stopPropagation();
       toggleNotifications();

@@ -1,11 +1,13 @@
 bleach
 celery[redis]
+django-axes
 django-celery-beat
 django-analytical
 django-compressor>=2.3
 django-cookie-law
 django-grappelli
 django-htmlmin
+django-ipware==2.1.0  # Temporary pin awaiting django-axes fix
 django<3.0.0
 mysqlclient
 pillow

@@ -43,7 +43,7 @@ async function verifyUser(elem, username, approve) {
 }
 
 function initListeners() {
-  document.querySelectorAll("#new-user-approval li").forEach(elem => {
+  document.querySelectorAll("#new-user-approval li").forEach((elem) => {
     const username = elem.querySelector(".user__username").textContent;
     elem
       .querySelector(".user__approve")

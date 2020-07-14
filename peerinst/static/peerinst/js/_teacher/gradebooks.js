@@ -60,8 +60,8 @@ function getTasks(): void {
   const req = buildReq({}, "get");
 
   fetch(url, req)
-    .then(resp => resp.json())
-    .then(data => {
+    .then((resp) => resp.json())
+    .then((data) => {
       initTasks(data.tasks);
     });
 }
@@ -75,7 +75,7 @@ async function initTasks(
   }>,
 ): Promise<void> {
   model.tasks = data
-    .map(task => ({
+    .map((task) => ({
       id: task.id,
       description: task.description,
       completed: task.completed,
@@ -88,8 +88,8 @@ async function initTasks(
   updateNotifications(getNotifications());
   Promise.all(
     model.tasks
-      .filter(task => !task.completed)
-      .map(task => getGradebookResult(task)),
+      .filter((task) => !task.completed)
+      .map((task) => getGradebookResult(task)),
   );
 }
 
@@ -111,10 +111,7 @@ async function requestGradebook(event: MouseEvent): Promise<void> {
   if (resp.status === 200) {
     const data = await resp.text();
     const title = data.split("\n")[0];
-    const csv = data
-      .split("\n")
-      .slice(1)
-      .join("\n");
+    const csv = data.split("\n").slice(1).join("\n");
     _downloadGradebook(title, csv);
   } else if (resp.status === 201) {
     const data = await resp.json();
@@ -143,7 +140,7 @@ async function getGradebookResult(task: Task): Promise<void> {
     task.completed = true;
     updateNotifications(getNotifications());
   } else if (resp.status == 202) {
-    await new Promise(resolve =>
+    await new Promise((resolve) =>
       setTimeout(() => getGradebookResult(task), CHECK_EVERY * 1000),
     );
   } else {
@@ -159,7 +156,7 @@ async function removeGradebookError(task: Task): Promise<void> {
 
   const resp = await fetch(url, req);
   if (resp.ok) {
-    model.tasks = model.tasks.filter(t => t.id !== task.id);
+    model.tasks = model.tasks.filter((t) => t.id !== task.id);
   }
   updateNotifications(getNotifications());
 }
@@ -175,12 +172,9 @@ async function downloadGradebook(task: Task): Promise<void> {
   if (resp.ok) {
     const data = await resp.text();
     const title = data.split("\n")[0];
-    const csv = data
-      .split("\n")
-      .slice(1)
-      .join("\n");
+    const csv = data.split("\n").slice(1).join("\n");
     _downloadGradebook(title, csv);
-    model.tasks = model.tasks.filter(t => t.id != task.id);
+    model.tasks = model.tasks.filter((t) => t.id != task.id);
     updateNotifications(getNotifications());
   } else {
     console.log(resp);
@@ -198,7 +192,7 @@ function _downloadGradebook(title: string, csv: string): void {
 }
 
 function getNotifications(): Array<Notification> {
-  return model.tasks.map(task => ({
+  return model.tasks.map((task) => ({
     text: task.completed
       ? task.error
         ? `There was an error creating the gradebook for ${task.description}.`
@@ -227,12 +221,14 @@ function initListeners(): void {
 }
 
 function addGradebookListeners(): void {
-  [...document.getElementsByClassName("gradebook-button")].forEach(button => {
-    button.addEventListener(
-      "click",
-      async (event: MouseEvent) => await requestGradebook(event),
-    );
-  });
+  [...document.getElementsByClassName("gradebook-button")].forEach(
+    (button) => {
+      button.addEventListener(
+        "click",
+        async (event: MouseEvent) => await requestGradebook(event),
+      );
+    },
+  );
 }
 
 /********/

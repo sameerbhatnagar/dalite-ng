@@ -188,6 +188,15 @@
 
           <h3>{% trans 'Indexing' %}</h3>
 
+          <!--
+          <div class='field-container'>
+            <div class='number-box'><span class='number'></span></div>
+            <div class='field'>
+              <div id='subject_form'></div>
+            </div>
+          </div>
+          -->
+
           <div class='field-container'>
             <div class='number-box'><span class='number'></span></div>
             <div class='field'>
@@ -649,6 +658,10 @@
         window.location.href=this.getAttribute('href');
       });
     }
+
+    // TODO: build our preact version
+    //const authoringApp = teacher.h(teacher.AuthoringApp, {});
+    //teacher.render(authoringApp, document.getElementById("subject_form"));
   });
 </script>
 {% endblock %}

@@ -1,5 +1,6 @@
 {% extends 'peerinst/question/review_base.html' %}
-{% load compress i18n static %}
+
+{% load bleach_html compress i18n static %}
 
 {% block answers %}
 {{ block.super }}
@@ -15,12 +16,14 @@
 <form action="" method="post">
   {% csrf_token %}
 
-    <div class="votable-rationale">
-      <blockquote>
-        <p>{% trans "Answer " %}<strong>{{ current_rationale.1 }}:</strong></p>
-        <p>{{ current_rationale.2 }}</p>
-      </blockquote>
-    </div>
+  <div class="votable-rationale">
+    {% with label=current_rationale.2.strip|bleach_html|safe|capfirst %}
+    <blockquote>
+      <p>{% trans "Answer " %}<strong>{{ current_rationale.1 }}:</strong></p>
+      <p>{{ label }}{% if label|last not in "?!." %}.{% endif %}</p>
+    </blockquote>
+    {% endwith %}
+  </div>
 
   <div>
     <div class="review-voting-btns">
@@ -39,7 +42,8 @@
 
 
 {% block scripts %}
-{% compress js %}
-<script src="{% static 'peerinst/js/question_review.js' %}"></script>
+{{ block.super }}
+{% compress js file question__review %}
+  <script src="{% static 'peerinst/js/question_review.js' %}"></script>
 {% endcompress %}
 {% endblock %}

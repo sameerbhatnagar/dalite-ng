@@ -57,7 +57,7 @@ class StudentReputationHeader extends ReputationHeader {
       const req = buildReq(postData, "post");
       const resp = await fetch(model.reputationUrl, req);
       const data = await resp.json();
-      model.reputations = data.reputations.map(reputation => ({
+      model.reputations = data.reputations.map((reputation) => ({
         name: reputation.full_name,
         description: reputation.description,
         reputation: reputation.reputation,
@@ -70,21 +70,23 @@ class StudentReputationHeader extends ReputationHeader {
 
     function toggleReputationList() {
       const header = model.element;
-      document.querySelectorAll(".header--togglable > *").forEach(header_ => {
-        console.log(header_);
-        if (header_ != header && header_.hasAttribute("open")) {
-          if (header_.shadowRoot) {
-            header_.shadowRoot
-              .querySelector(".header__icon")
-              .dispatchEvent(new Event("click"));
-          } else {
-            console.log(header_.querySelector("header__icon"));
-            header_
-              .querySelector(".header__icon")
-              .dispatchEvent(new Event("click"));
+      document
+        .querySelectorAll(".header--togglable > *")
+        .forEach((header_) => {
+          console.log(header_);
+          if (header_ != header && header_.hasAttribute("open")) {
+            if (header_.shadowRoot) {
+              header_.shadowRoot
+                .querySelector(".header__icon")
+                .dispatchEvent(new Event("click"));
+            } else {
+              console.log(header_.querySelector("header__icon"));
+              header_
+                .querySelector(".header__icon")
+                .dispatchEvent(new Event("click"));
+            }
           }
-        }
-      });
+        });
       model.element.open = !model.element.open;
       iconView();
       listView();
@@ -147,7 +149,7 @@ class StudentReputationHeader extends ReputationHeader {
 
       clear(list);
 
-      model.reputations.forEach(reputation => {
+      model.reputations.forEach((reputation) => {
         // $FlowFixMe
         reputationView(list, reputation);
       });
@@ -232,7 +234,7 @@ class StudentReputationHeader extends ReputationHeader {
         .attr("stroke-width", 1)
         .attr("fill", "var(--reputation-colour)");
 
-      reputation.badgeThresholds.forEach(threshold => {
+      reputation.badgeThresholds.forEach((threshold) => {
         const badge = svg.append("g");
         badge
           .append("path")
@@ -468,12 +470,12 @@ class StudentReputationHeader extends ReputationHeader {
             .transition()
             .duration(duration)
             .ease(d3.easeCubicInOut)
-            .tween("text", function() {
+            .tween("text", function () {
               const interpolate = d3.interpolate(
                 this.textContent, // eslint-disable-line
                 reputation.reputation,
               );
-              return function(t) {
+              return function (t) {
                 this.textContent = Math.round(interpolate(t)); // eslint-disable-line
               };
             });
@@ -490,9 +492,9 @@ class StudentReputationHeader extends ReputationHeader {
             .transition()
             .duration(duration)
             .ease(d3.easeCubicInOut)
-            .tween("text", function() {
+            .tween("text", function () {
               const interpolate = d3.interpolate(this.textContent, 0); // eslint-disable-line
-              return function(t) {
+              return function (t) {
                 this.textContent = Math.round(interpolate(t)); // eslint-disable-line
               };
             });
@@ -535,12 +537,12 @@ class StudentReputationHeader extends ReputationHeader {
             .transition()
             .duration(duration)
             .ease(d3.easeCubicInOut)
-            .tween("text", function() {
+            .tween("text", function () {
               const interpolate = d3.interpolate(
                 this.textContent, // eslint-disable-line
                 reputation.reputation,
               );
-              return function(t) {
+              return function (t) {
                 this.textContent = Math.round(interpolate(t)); // eslint-disable-line
               };
             });
@@ -566,9 +568,9 @@ class StudentReputationHeader extends ReputationHeader {
             .transition()
             .duration(duration)
             .ease(d3.easeCubicInOut)
-            .tween("text", function() {
+            .tween("text", function () {
               const interpolate = d3.interpolate(this.textContent, 0); // eslint-disable-line
-              return function(t) {
+              return function (t) {
                 this.textContent = Math.round(interpolate(t)); // eslint-disable-line
               };
             });

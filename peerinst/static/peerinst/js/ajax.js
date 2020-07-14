@@ -50,7 +50,7 @@ export function updateAssignmentQuestionList(
     },
   };
   fetch(url, req)
-    .then(function(resp) {
+    .then(function (resp) {
       if (!resp.ok) {
         console.log(resp);
       } else {
@@ -66,13 +66,13 @@ export function updateAssignmentQuestionList(
           const q = $("#" + questionId).detach();
           q.appendTo($("#question-list"));
           $("#empty-assignment-list").remove();
-          $(".search-set").each(function() {
+          $(".search-set").each(function () {
             $(this) // eslint-disable-line no-invalid-this
               .find(".filter-count")
               .empty()
               .append($(this).find(".mdc-card:visible").length); // eslint-disable-line no-invalid-this,max-len
           });
-          $(".search-set").each(function() {
+          $(".search-set").each(function () {
             $(this) // eslint-disable-line no-invalid-this
               .find(".filter-count-total")
               .empty()
@@ -81,7 +81,7 @@ export function updateAssignmentQuestionList(
         }
       }
     })
-    .catch(function(err) {
+    .catch(function (err) {
       console.log(err);
     });
 }

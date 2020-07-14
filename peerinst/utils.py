@@ -5,6 +5,7 @@ import base64
 from datetime import datetime, timedelta
 from itertools import chain, islice
 
+import math
 import jwt
 import pytz
 from django.conf import settings
@@ -66,11 +67,11 @@ def format_time(seconds):
     if seconds is None:
         return None
 
-    days = seconds / 60 / 60 / 24
+    days = math.trunc(seconds / 60 / 60 / 24)
     seconds = seconds - days * 60 * 60 * 24
-    hours = seconds / 60 / 60
+    hours = math.trunc(seconds / 60 / 60)
     seconds = seconds - hours * 60 * 60
-    minutes = seconds / 60
+    minutes = math.trunc(seconds / 60)
     seconds = seconds - minutes * 60
 
     text = ""

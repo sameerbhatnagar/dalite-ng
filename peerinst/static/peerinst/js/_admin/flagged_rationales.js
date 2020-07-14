@@ -36,7 +36,7 @@ function initView() {
 }
 
 function initTables() {
-  document.querySelectorAll("table.display").forEach(elem => {
+  document.querySelectorAll("table.display").forEach((elem) => {
     // prettier-ignore
     const table = $(elem).DataTable({ // eslint-disable-line
       pageLength: 10,
@@ -53,7 +53,7 @@ function updateTableData(answerUrl) {
   table.rows().remove();
   table.rows
     .add(
-      model.state.rationales.map(d => [
+      model.state.rationales.map((d) => [
         d.rationale,
         d.annotator,
         new Date(d.timestamp).toLocaleDateString({
@@ -66,8 +66,8 @@ function updateTableData(answerUrl) {
       ]),
     )
     .draw();
-  $("#flagged-rationales__table").on('click', 'tr', function () {
-      window.location.href = answerUrl+"?q="+this.lastChild.innerHTML;
+  $("#flagged-rationales__table").on("click", "tr", function () {
+    window.location.href = answerUrl + "?q=" + this.lastChild.innerHTML; // eslint-disable-line
   });
 }
 

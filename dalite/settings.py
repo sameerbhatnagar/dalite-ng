@@ -1,12 +1,4 @@
-"""
-Django settings for dalite project.
-
-For more information on this file, see
-https://docs.djangoproject.com/en/1.8/topics/settings/
-
-For the full list of settings and their values, see
-https://docs.djangoproject.com/en/1.8/ref/settings/
-"""
+import datetime
 import os
 
 from security_headers.defaults import *  # noqa
@@ -49,6 +41,7 @@ INSTALLED_APPS = (
     "compressor",
     "analytical",
     "pinax.forums",
+    "axes",
 )
 
 MIDDLEWARE = (
@@ -68,6 +61,7 @@ MIDDLEWARE = (
     # Minify html
     "htmlmin.middleware.HtmlMinifyMiddleware",
     "htmlmin.middleware.MarkRequestMiddleware",
+    "axes.middleware.AxesMiddleware",
 )
 
 ROOT_URLCONF = "dalite.urls"
@@ -121,7 +115,10 @@ CACHES = {
 }
 
 # Custom authentication for object-level permissions
-AUTHENTICATION_BACKENDS = ("peerinst.backends.CustomPermissionsBackend",)
+AUTHENTICATION_BACKENDS = (
+    "axes.backends.AxesBackend",
+    "peerinst.backends.CustomPermissionsBackend",
+)
 
 # Password validators through django-password-validation (backport from 1.9)
 AUTH_PASSWORD_VALIDATORS = [
@@ -188,6 +185,12 @@ COMPRESS_ROOT = STATIC_ROOT
 LOGIN_URL = "login"
 
 LOGIN_REDIRECT_URL = "welcome"
+
+
+# Axes
+AXES_FAILURE_LIMIT = 5
+AXES_COOLOFF_TIME = datetime.timedelta(minutes=5)
+AXES_LOCKOUT_TEMPLATE = "registration/lockout.html"
 
 GRAPPELLI_ADMIN_TITLE = "Dalite NG administration"
 

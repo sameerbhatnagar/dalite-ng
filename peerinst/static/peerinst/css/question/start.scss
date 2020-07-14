@@ -1,5 +1,7 @@
+@import "../variables";
+
 .errorlist ul {
-  list-style: square;
+  list-style: disc;
   margin: 5px 0;
 
   & li {
@@ -9,8 +11,8 @@
 }
 
 .nav-question {
-  border-color: LightGray;
-  border-top: solid;
+  border-color: $mdc-theme-primary;
+  border-top-style: solid;
   border-width: 1px;
 }
 

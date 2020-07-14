@@ -243,11 +243,8 @@
 
 {% block scripts %}
 {{ block.super }}
-{% compress js %}
+{% compress js file search %}
 <script src="{% static 'peerinst/js/search.min.js' %}"></script>
-{% endcompress %}
-{% compress js %}
-<script src="{% static 'peerinst/js/teacher.min.js' %}"></script>
 {% endcompress %}
 <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
 <script src="https://unpkg.com/json5@2.1.1/dist/index.min.js" integrity="sha384-gRrJKgBpstjyexh9UmCoTPivgMMb7/EAtEdR5DLbVhiPYdl03QxdzMzbylHUSloD" crossorigin="anonymous"></script>

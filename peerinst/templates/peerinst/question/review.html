@@ -1,6 +1,6 @@
 {% extends 'peerinst/question/review_base.html' %}
 
-{% load add_class compress i18n static %}
+{% load add_class bleach_html compress i18n static %}
 
 {% block answers %}
 {{ block.super }}
@@ -37,33 +37,31 @@
                 <div class="mdc-radio__inner-circle"></div>
               </div>
             </div>
-            <label class="mdc-typography--body1" for="{{ choice.id_for_label }}">{{ r.choice_label }}</label>
+            {% with label=r.choice_label.strip|bleach_html|safe|capfirst %}
+              <label class="mdc-typography--body1" for="{{ choice.id_for_label }}">{{ label }}{% if label|last not in "?!." %}.{% endif %}</label>
+            {% endwith %}
           </div>
         </li>
         {% if forloop.counter > 2 and forloop.last %}
         <input type="{{ show_more_counters.type }}"
                 name="{{ show_more_counters.name }}"
                 id="show-counter-{{ forloop.parentloop.counter }}"
-                value="2" hidden>
-        <div class="expand-button" data-rationale-iterator="{{ forloop.parentloop.counter }}"><b>See More</b></div>
+                value="2" hidden >
+        <div class="expand-button" data-rationale-iterator="{{ forloop.parentloop.counter }}">
+          <i class="material-icons mdc-theme--secondary"
+             role="button"
+             aria-pressed="false"
+             aria-label="{% trans 'Show more rationales' %}"
+             title="{% trans 'Show more rationales' %}">
+             add
+          </i><span>{% trans 'Show more rationales' %}</span>
+        </div>
         {% endif %}
       {% endfor %}
       </ul>
     </div>
   </div>
   {% endfor %}
-</div>
-<div id="review-alert">
-  <div>
-    <span>
-      {% blocktrans %}
-      You should take a bit more time to evaluate other answers
-      {% endblocktrans %}
-    </span>
-    <button class="mdc-button mdc-button--raised">
-      Ok
-    </button>
-  </div>
 </div>
 {% endblock %}
 
@@ -72,33 +70,12 @@
 
 {% block scripts %}
 {{ block.super }}
-{% compress js %}
+{% compress js file question__review %}
   <script src="{% static 'peerinst/js/question_review.js' %}"></script>
 {% endcompress %}
   <script nonce="{{ request.csp_nonce }}">
   window.addEventListener("load", function() {
     question.initReview();
-    [].forEach.call(document.querySelectorAll('.expand-button'),
-      function(el,i,list) {
-        el.addEventListener('click', function() {
-          const els = document.getElementsByClassName("hidden-"+el.getAttribute("data-rationale-iterator"));
-          const showCounter = document.getElementById("show-counter-"+el.getAttribute("data-rationale-iterator"))
-          let shownCounter = 0;
-          const isLastShowMore = false;
-          for (let i=0; i<els.length; i++){
-            if (els[i].hidden == true && shownCounter<2){
-              els[i].hidden = false;
-              shownCounter++;
-              if (i==els.length-1) {
-                el.hidden = true;
-                break;
-              }
-              showCounter.setAttribute("value",+showCounter.getAttribute("value")+1);
-            }
-          }
-        });
-      }
-    );
   });
   </script>
 {% endblock %}
