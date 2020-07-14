@@ -3,10 +3,11 @@ from django.conf.urls import include
 from django.conf.urls.i18n import i18n_patterns
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, re_path
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.clickjacking import xframe_options_sameorigin
 from django.views.i18n import JavaScriptCatalog
+from security_headers.views import scan_url
 
 from . import views
 from peerinst import views as peerinst_views
@@ -84,6 +85,12 @@ urlpatterns += i18n_patterns(
 
 # Media
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+# Security check in development
+if settings.DEBUG:
+    urlpatterns += i18n_patterns(
+        re_path(r"^security/(?P<url_name>[\w-]+)/", scan_url, name="scan")
+    )
 
 # Errors
 #  handler400 = views.errors.response_400

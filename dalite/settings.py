@@ -429,7 +429,7 @@ CSP_FONT_SRC = [
     "fonts.gstatic.com",
     "unpkg.com",
 ]
-CSP_OBJECT_SRC = ["*"]
+CSP_OBJECT_SRC = ["'self'", "mediastream"]
 
 FEATURE_POLICY = [
     "autoplay 'none'",
