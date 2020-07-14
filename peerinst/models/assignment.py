@@ -73,6 +73,7 @@ class Assignment(models.Model):
 class AssignmentQuestions(models.Model):
     assignment = models.ForeignKey(Assignment, models.DO_NOTHING)
     question = models.ForeignKey(Question, models.DO_NOTHING)
+    rank = models.PositiveIntegerField(default=0)
 
     class Meta:
         db_table = "peerinst_assignment_questions"
