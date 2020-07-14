@@ -77,6 +77,9 @@ class AssignmentQuestions(models.Model):
 
     class Meta:
         db_table = "peerinst_assignment_questions"
+        ordering = [
+            "rank",
+        ]
         unique_together = (("assignment", "question"),)
 
 
