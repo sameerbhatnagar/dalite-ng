@@ -38,7 +38,9 @@ class Assignment(models.Model):
         validators=[validators.validate_slug],
     )
     title = models.CharField(_("Title"), max_length=200)
-    questions = models.ManyToManyField(Question, verbose_name=_("Questions"))
+    questions = models.ManyToManyField(
+        Question, verbose_name=_("Questions"), through="AssignmentQuestions"
+    )
     owner = models.ManyToManyField(User, blank=True)
     reputation = models.OneToOneField(
         Reputation, blank=True, null=True, on_delete=models.SET_NULL
@@ -66,6 +68,15 @@ class Assignment(models.Model):
                 assignment=self
             ).exists()
         )
+
+
+class AssignmentQuestions(models.Model):
+    assignment = models.ForeignKey(Assignment, models.DO_NOTHING)
+    question = models.ForeignKey(Question, models.DO_NOTHING)
+
+    class Meta:
+        db_table = "peerinst_assignment_questions"
+        unique_together = (("assignment", "question"),)
 
 
 class StudentGroupAssignment(models.Model):
