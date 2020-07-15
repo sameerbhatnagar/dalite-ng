@@ -66,17 +66,10 @@ MIDDLEWARE = (
 
 ROOT_URLCONF = "dalite.urls"
 
-CUSTOM_SETTINGS = os.environ.get("CUSTOM_SETTINGS", "SALTISES4")
-
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [
-            os.path.join(
-                BASE_DIR, "custom-settings/" + CUSTOM_SETTINGS + "/templates"
-            ),
-            os.path.join(BASE_DIR, "templates"),
-        ],
+        "DIRS": [os.path.join(BASE_DIR, "templates")],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -162,10 +155,6 @@ MEDIA_URL = "/media/"
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
-STATICFILES_DIRS = (
-    os.path.join(BASE_DIR, "custom-settings/" + CUSTOM_SETTINGS + "/static"),
-)
-
 STATICFILES_FINDERS = (
     "django.contrib.staticfiles.finders.FileSystemFinder",
     "django.contrib.staticfiles.finders.AppDirectoriesFinder",
@@ -188,6 +177,7 @@ LOGIN_REDIRECT_URL = "welcome"
 
 
 # Axes
+AXES_ONLY_USER_FAILURES = True
 AXES_FAILURE_LIMIT = 5
 AXES_COOLOFF_TIME = datetime.timedelta(minutes=5)
 AXES_LOCKOUT_TEMPLATE = "registration/lockout.html"
@@ -436,11 +426,12 @@ CSP_STYLE_SRC = [
 ]
 CSP_FONT_SRC = [
     "'self'",
+    "*.mydalite.org",
     "fonts.googleapis.com",
     "fonts.gstatic.com",
     "unpkg.com",
 ]
-CSP_OBJECT_SRC = ["*"]
+CSP_OBJECT_SRC = ["phet.colorado.edu", "*.youtube.com"]
 
 FEATURE_POLICY = [
     "autoplay 'none'",
@@ -457,6 +448,7 @@ FEATURE_POLICY = [
 REFERRER_POLICY = "no-referrer, strict-origin-when-cross-origin"
 
 # External framing
+CSP_FRAME_ANCESTORS = ["*"]
 FRAMING_ALLOWED_FROM = ["*"]
 
 # Functional tests that scrape web console logs currently require chromedriver
