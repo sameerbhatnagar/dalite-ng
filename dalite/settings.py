@@ -177,6 +177,7 @@ LOGIN_REDIRECT_URL = "welcome"
 
 
 # Axes
+AXES_ONLY_USER_FAILURES = True
 AXES_FAILURE_LIMIT = 5
 AXES_COOLOFF_TIME = datetime.timedelta(minutes=5)
 AXES_LOCKOUT_TEMPLATE = "registration/lockout.html"
@@ -430,7 +431,7 @@ CSP_FONT_SRC = [
     "fonts.gstatic.com",
     "unpkg.com",
 ]
-CSP_OBJECT_SRC = ["*"]
+CSP_OBJECT_SRC = ["phet.colorado.edu", "*.youtube.com"]
 
 FEATURE_POLICY = [
     "autoplay 'none'",
@@ -447,6 +448,7 @@ FEATURE_POLICY = [
 REFERRER_POLICY = "no-referrer, strict-origin-when-cross-origin"
 
 # External framing
+CSP_FRAME_ANCESTORS = ["*"]
 FRAMING_ALLOWED_FROM = ["*"]
 
 # Functional tests that scrape web console logs currently require chromedriver
