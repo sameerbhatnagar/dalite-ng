@@ -49,10 +49,10 @@ function showMeMore() {
   ) {
     el.addEventListener("click", function () {
       const els = document.getElementsByClassName(
-        "hidden-" + el.getAttribute("data-rationale-iterator"),
+        `hidden-${el.getAttribute("data-rationale-iterator")}`,
       );
       const showCounter = document.getElementById(
-        "show-counter-" + el.getAttribute("data-rationale-iterator"),
+        `show-counter-${el.getAttribute("data-rationale-iterator")}`,
       );
       let shownCounter = 0;
       for (let i = 0; i < els.length; i++) {

@@ -1,7 +1,7 @@
 import { enumerate, ajaxJQSetup } from "./collection_functions.js";
 
 function toggleAssignment(pk, ppk, toggleUrl) {
-  const posting = $.post(toggleUrl, { pk: pk, ppk: ppk });
+  const posting = $.post(toggleUrl, { pk, ppk });
   posting.done(function (data) {
     console.info(data);
   });

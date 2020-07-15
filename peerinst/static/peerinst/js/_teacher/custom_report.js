@@ -73,7 +73,7 @@ async function evaluateRationale(star, score) {
   const rationale = star.parentNode.parentNode;
   const data = {
     id: star.parentNode.parentNode.getAttribute("data-id"),
-    score: score,
+    score,
     redirect: false,
   };
   const req = buildReq(data, "post");

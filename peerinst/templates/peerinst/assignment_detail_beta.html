@@ -16,6 +16,9 @@
 {% compress js file assignment %}
 <script src="{% static 'peerinst/js/assignment.min.js' %}" defer="true"></script>
 {% endcompress %}
+{% compress css file assignment %}
+<link href="{% static 'peerinst/js/assignment.min.css' %}" rel="stylesheet">
+{% endcompress %}
 {% endblock %}
 
 {% block body %}

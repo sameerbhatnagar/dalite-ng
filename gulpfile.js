@@ -1,5 +1,3 @@
-/* globals require, exports */
-
 /* Build tools */
 const gulp = require("gulp");
 const concat = require("gulp-concat");
@@ -13,6 +11,7 @@ const resolve = require("@rollup/plugin-node-resolve"); // loader
 const rollup = require("rollup"); // bundler
 const { terser } = require("rollup-plugin-terser"); // minifier
 const nodeResolve = resolve.default;
+const embedCSS = require("rollup-plugin-postcss");
 
 /* Build modules for styles */
 const scssLint = require("stylelint"); // linter
@@ -181,7 +180,6 @@ function buildScript(app, module) {
       "@material/drawer",
       "@material/icon-toggle",
       "@material/radio",
-      "@material/ripple",
       "@material/select",
       "@material/textfield",
       "@material/toolbar",
@@ -203,6 +201,7 @@ function buildScript(app, module) {
         mainFields: ["module", "main", "browser"],
       }),
       commonjs(),
+      embedCSS({ extract: true }),
     ],
   };
   const outputOptions = {
@@ -220,7 +219,6 @@ function buildScript(app, module) {
       "@material/drawer": "@material/drawer",
       "@material/icon-toggle": "@material/icon-toggle",
       "@material/radio": "@material/radio",
-      "@material/ripple": "@material/ripple",
       "@material/select": "@material/select",
       "@material/textfield": "@material/textfield",
       "@material/toolbar": "@material/toolbar",

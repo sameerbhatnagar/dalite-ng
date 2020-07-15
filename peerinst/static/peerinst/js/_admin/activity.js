@@ -44,8 +44,7 @@ function updateDiscipline(discipline) {
 
 async function updateGroupsActivity() {
   const req = buildReq({}, "get");
-  const url =
-    model.urls.getGroupsActivity + `?discipline=${model.state.discipline}`;
+  const url = `${model.urls.getGroupsActivity}?discipline=${model.state.discipline}`;
   const resp = await fetch(url, req);
   model.state.activity = (await resp.json()).activity;
   updateTableData();

@@ -131,7 +131,7 @@ export function bindAjaxTextInputForm(
           completionHook,
         );
       }
-      $("#" + formToReplace).load(createUrl, callback);
+      $(`#${formToReplace}`).load(createUrl, callback);
     };
   }
 }
@@ -187,7 +187,7 @@ export function categoryForm(
 
   // Setup ajax call and attach a submit handler to the form
   $.ajaxSetup({
-    beforeSend: function (xhr, settings) {
+    beforeSend(xhr, settings) {
       if (!bundle.csrfSafeMethod(settings.type) && !this.crossDomain) {
         xhr.setRequestHeader("X-CSRFToken", bundle.getCsrfToken());
       }
@@ -198,7 +198,7 @@ export function categoryForm(
     const title = $("#category_form").find("input[name='title']").val();
 
     // Send the data using post
-    const posting = $.post(createUrl, { title: title });
+    const posting = $.post(createUrl, { title });
 
     // Put the results in a div
     posting.success(function (data, status) {
@@ -246,7 +246,7 @@ export function bindCategoryAutofill(source) {
   function updateSelect(el, formId) {
     el.remove();
     $(formId)
-      .find("[value=" + $(el).attr("v") + "]")
+      .find(`[value=${$(el).attr("v")}]`)
       .remove();
   }
 
@@ -323,11 +323,7 @@ export function bindCategoryAutofill(source) {
       document.getElementById(currentIds).appendChild(newDiv);
 
       $(formId).append(
-        "<option selected='selected' value=" +
-          ui.item.value +
-          ">" +
-          ui.item.label +
-          "</option>",
+        `<option selected='selected' value=${ui.item.value}>${ui.item.label}</option>`,
       );
     };
   };
@@ -338,10 +334,10 @@ export function bindCategoryAutofill(source) {
     classes: {
       "ui-autocomplete": "mdc-typography--body1",
     },
-    source: source,
+    source,
     response: response(".category", "#search_categories"),
     search: search("#search_categories"),
-    focus: focus,
+    focus,
     select: select("current_categories", "category", "#id_category"),
     autoFocus: true,
   });
@@ -351,7 +347,7 @@ export function bindUsernameAutofill(source) {
   function updateSelect(el, formId) {
     el.remove();
     $(formId)
-      .find("[value=" + $(el).attr("v") + "]")
+      .find(`[value=${$(el).attr("v")}]`)
       .remove();
   }
 
@@ -428,11 +424,7 @@ export function bindUsernameAutofill(source) {
       document.getElementById(currentIds).appendChild(newDiv);
 
       $(formId).append(
-        "<option selected='selected' value=" +
-          ui.item.value +
-          ">" +
-          ui.item.label +
-          "</option>",
+        `<option selected='selected' value=${ui.item.value}>${ui.item.label}</option>`,
       );
     };
   };
@@ -443,10 +435,10 @@ export function bindUsernameAutofill(source) {
     classes: {
       "ui-autocomplete": "mdc-typography--body1",
     },
-    source: source,
+    source,
     response: response(".username", "#search_usernames"),
     search: search("#search_usernames"),
-    focus: focus,
+    focus,
     select: select("current_usernames", "username", "#id_username"),
     autoFocus: true,
   });
@@ -456,7 +448,7 @@ export function bindSubjectAutofill(source) {
   function updateSelect(el, formId) {
     el.remove();
     $(formId)
-      .find("[value=" + $(el).attr("v") + "]")
+      .find(`[value=${$(el).attr("v")}]`)
       .remove();
   }
 
@@ -533,11 +525,7 @@ export function bindSubjectAutofill(source) {
       document.getElementById(currentIds).appendChild(newDiv);
 
       $(formId).append(
-        "<option selected='selected' value=" +
-          ui.item.value +
-          ">" +
-          ui.item.label +
-          "</option>",
+        `<option selected='selected' value=${ui.item.value}>${ui.item.label}</option>`,
       );
     };
   };
@@ -548,10 +536,10 @@ export function bindSubjectAutofill(source) {
     classes: {
       "ui-autocomplete": "mdc-typography--body1",
     },
-    source: source,
+    source,
     response: response(".subject", "#search_subjects"),
     search: search("#search_subjects"),
-    focus: focus,
+    focus,
     select: select("current_subjects", "subject", "#id_subject"),
     autoFocus: true,
   });
@@ -561,7 +549,7 @@ export function bindDisciplineAutofill(source) {
   function updateSelect(el, formId) {
     el.remove();
     $(formId)
-      .find("[value=" + $(el).attr("v") + "]")
+      .find(`[value=${$(el).attr("v")}]`)
       .remove();
   }
 
@@ -638,11 +626,7 @@ export function bindDisciplineAutofill(source) {
       document.getElementById(currentIds).appendChild(newDiv);
 
       $(formId).append(
-        "<option selected='selected' value=" +
-          ui.item.value +
-          ">" +
-          ui.item.label +
-          "</option>",
+        `<option selected='selected' value=${ui.item.value}>${ui.item.label}</option>`,
       );
     };
   };
@@ -653,10 +637,10 @@ export function bindDisciplineAutofill(source) {
     classes: {
       "ui-autocomplete": "mdc-typography--body1",
     },
-    source: source,
+    source,
     response: response(".discipline", "#search_disciplines"),
     search: search("#search_disciplines"),
-    focus: focus,
+    focus,
     select: select("current_disciplines", "discipline", "#id_discipline"),
     autoFocus: true,
   });
@@ -706,7 +690,7 @@ export function disciplineForm(
 
   // Setup ajax call and attach a submit handler to the form
   $.ajaxSetup({
-    beforeSend: function (xhr, settings) {
+    beforeSend(xhr, settings) {
       if (!bundle.csrfSafeMethod(settings.type) && !this.crossDomain) {
         xhr.setRequestHeader("X-CSRFToken", bundle.getCsrfToken());
       }
@@ -717,7 +701,7 @@ export function disciplineForm(
     const title = $("#discipline_form").find("input[name='title']").val();
 
     // Send the data using post
-    const posting = $.post(createUrl, { title: title });
+    const posting = $.post(createUrl, { title });
 
     // Put the results in a div
     posting.success(function (data, status) {
@@ -783,7 +767,7 @@ export function cornerGraphic(svgSelector, formID, lang, className) {
     .attr("y", h - h / 3 + h / 6)
     .attr("text-anchor", "middle")
     .style("fill", "white")
-    .style("font-size", h / 3 + "px")
+    .style("font-size", `${h / 3}px`)
     .text(lang);
 
   g.on("click", () => {
@@ -818,7 +802,7 @@ export function wrap(text, width) {
         .attr("x", x)
         .attr("y", y)
         .attr("dx", dx)
-        .attr("dy", dy + "px");
+        .attr("dy", `${dy}px`);
       while ((word = words.pop())) {
         line.push(word);
         tspan.text(line.join(" "));
@@ -831,7 +815,7 @@ export function wrap(text, width) {
             .attr("x", x)
             .attr("y", y)
             .attr("dx", dx)
-            .attr("dy", ++lineNumber * lineHeight + dy + "px")
+            .attr("dy", `${++lineNumber * lineHeight + dy}px`)
             .text(word);
         }
       }
@@ -920,9 +904,9 @@ export function difficulty(matrix, id) {
       }
     }
   }
-  const stats = document.getElementById("stats-" + id);
+  const stats = document.getElementById(`stats-${id}`);
   if (max > 0) {
-    const rating = document.getElementById("rating-" + id);
+    const rating = document.getElementById(`rating-${id}`);
     rating.innerHTML =
       label.substring(0, 1).toUpperCase() + label.substring(1);
     stats.style.color = colour[label];
@@ -968,18 +952,18 @@ export function plot(matrix, freq, id) {
     }
   }
   if (max > 0) {
-    const rating = document.getElementById("rating-" + id);
+    const rating = document.getElementById(`rating-${id}`);
     if (rating) {
       rating.innerHTML =
         label.substring(0, 1).toUpperCase() + label.substring(1);
     }
-    const stats = document.getElementById("stats-" + id);
+    const stats = document.getElementById(`stats-${id}`);
     if (stats) {
       stats.style.color = colour[label];
     }
   }
 
-  const matrixSvg = bundle.select("#matrix-" + id);
+  const matrixSvg = bundle.select(`#matrix-${id}`);
   matrixSvg.style("overflow", "visible");
   let size = +matrixSvg.attr("width");
   const g = matrixSvg.append("g");
@@ -1019,7 +1003,7 @@ export function plot(matrix, freq, id) {
     .style("fill", "white")
     .style("text-anchor", "middle")
     .attr("pointer-events", "none")
-    .text(parseInt(100 * matrix["easy"]) + "%");
+    .text(`${parseInt(100 * matrix["easy"])}%`);
 
   const hard = g
     .append("rect")
@@ -1048,7 +1032,7 @@ export function plot(matrix, freq, id) {
     .style("fill", "white")
     .style("text-anchor", "middle")
     .attr("pointer-events", "none")
-    .text(parseInt(100 * matrix["hard"]) + "%");
+    .text(`${parseInt(100 * matrix["hard"])}%`);
 
   const peer = g
     .append("rect")
@@ -1077,7 +1061,7 @@ export function plot(matrix, freq, id) {
     .style("fill", "white")
     .style("text-anchor", "middle")
     .attr("pointer-events", "none")
-    .text(parseInt(100 * matrix["peer"]) + "%");
+    .text(`${parseInt(100 * matrix["peer"])}%`);
 
   const tricky = g
     .append("rect")
@@ -1106,10 +1090,10 @@ export function plot(matrix, freq, id) {
     .style("fill", "white")
     .style("text-anchor", "middle")
     .attr("pointer-events", "none")
-    .text(parseInt(100 * matrix["tricky"]) + "%");
+    .text(`${parseInt(100 * matrix["tricky"])}%`);
 
-  const firstFreqSvg = bundle.select("#first-frequency-" + id);
-  const secondFreqSvg = bundle.select("#second-frequency-" + id);
+  const firstFreqSvg = bundle.select(`#first-frequency-${id}`);
+  const secondFreqSvg = bundle.select(`#second-frequency-${id}`);
   const margin = { left: 30, right: 30 };
 
   let sum = 0;
@@ -1135,7 +1119,7 @@ export function plot(matrix, freq, id) {
 
   const gg = secondFreqSvg
     .append("g")
-    .attr("transform", "translate(" + margin.left + ",0)");
+    .attr("transform", `translate(${margin.left},0)`);
 
   const ggg = firstFreqSvg.append("g");
 
@@ -1160,7 +1144,7 @@ export function plot(matrix, freq, id) {
     .data(bundle.entries(freq["second_choice"]))
     .enter()
     .append("rect")
-    .attr("id", "second_choice-" + id)
+    .attr("id", `second_choice-${id}`)
     .attr("finalwidth", function (d) {
       return x(d.value);
     })
@@ -1184,7 +1168,7 @@ export function plot(matrix, freq, id) {
     .data(bundle.entries(freq["first_choice"]))
     .enter()
     .append("rect")
-    .attr("id", "first_choice-" + id)
+    .attr("id", `first_choice-${id}`)
     .attr("finalwidth", function (d) {
       return x(d.value);
     })
@@ -1218,7 +1202,7 @@ export function plot(matrix, freq, id) {
     .style("font-size", "8pt")
     .style("text-anchor", "end")
     .text(function (d) {
-      return parseInt(100 * d.value) + "%";
+      return `${parseInt(100 * d.value)}%`;
     });
 
   ggg
@@ -1236,7 +1220,7 @@ export function plot(matrix, freq, id) {
     .style("font-size", "8pt")
     .style("text-anchor", "start")
     .text(function (d) {
-      return parseInt(100 * d.value) + "%";
+      return `${parseInt(100 * d.value)}%`;
     });
 
   gg.append("g")
@@ -1284,7 +1268,7 @@ export function search(className, searchBar) {
 export function addDialog() {
   [].forEach.call(document.querySelectorAll("[id^=dialog]"), (el) => {
     const dialog = bundle.dialog.MDCDialog.attachTo(el);
-    document.querySelector("#activate-" + el.id).onclick = () => {
+    document.querySelector(`#activate-${el.id}`).onclick = () => {
       dialog.show();
     };
   });
@@ -1307,17 +1291,17 @@ export function handleQuestionDelete(url) {
   $("[class*=delete-question]").click((event) => {
     const el = event.target;
     const pk = $(el).attr("question");
-    const posting = $.post(url, { pk: pk });
+    const posting = $.post(url, { pk });
     posting.done((data) => {
       if (data["action"] == "restore") {
-        $(".list-item-question-" + pk).removeClass("deleted");
+        $(`.list-item-question-${pk}`).removeClass("deleted");
       } else {
-        $(".list-item-question-" + pk).addClass("deleted");
+        $(`.list-item-question-${pk}`).addClass("deleted");
       }
-      $(".undelete-question-" + pk).toggle();
-      $(".delete-question-" + pk).toggle();
+      $(`.undelete-question-${pk}`).toggle();
+      $(`.delete-question-${pk}`).toggle();
       if (deletedQuestionsHidden == true) {
-        $(".list-item-question-" + pk).slideToggle("deleted");
+        $(`.list-item-question-${pk}`).slideToggle("deleted");
       }
     });
   });
@@ -1429,9 +1413,7 @@ export function plotTimeSeries(el, d) {
     .attr("width", width)
     .attr("height", height);
 
-  g.append("g")
-    .attr("transform", "translate(0," + height + ")")
-    .call(xAxis);
+  g.append("g").attr("transform", `translate(0,${height})`).call(xAxis);
   g.append("g").call(xAxisTop);
 
   const format = d3.timeFormat("%c");
@@ -1580,16 +1562,14 @@ export function plotTimeSeries(el, d) {
         .attr("text-anchor", function () {
           if (xValue < width / 2) {
             return "start";
-          } else {
-            return "end";
           }
+          return "end";
         })
         .attr("dx", function () {
           if (xValue < width / 2) {
             return 5;
-          } else {
-            return -5;
           }
+          return -5;
         })
         .attr("x", xValue)
         .text(format(x.invert(xValue)));
@@ -1597,14 +1577,14 @@ export function plotTimeSeries(el, d) {
       g.select(".slider-label-top")
         .attr("x", xValue)
         .text(
-          parseInt(
+          `${parseInt(
             (100 *
               d3.bisectLeft(
                 d.answers.map((x) => new Date(d3.timeParse(x))),
                 x.invert(xValue),
               )) /
               d.total,
-          ) + "%",
+          )}%`,
         );
 
       let data = d.answers.map((x) => new Date(d3.timeParse(x)));
