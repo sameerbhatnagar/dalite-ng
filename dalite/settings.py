@@ -177,6 +177,7 @@ LOGIN_REDIRECT_URL = "welcome"
 
 
 # Axes
+AXES_ONLY_USER_FAILURES = True
 AXES_FAILURE_LIMIT = 5
 AXES_COOLOFF_TIME = datetime.timedelta(minutes=5)
 AXES_LOCKOUT_TEMPLATE = "registration/lockout.html"
