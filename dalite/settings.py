@@ -425,6 +425,7 @@ CSP_STYLE_SRC = [
 ]
 CSP_FONT_SRC = [
     "'self'",
+    "*.mydalite.org",
     "fonts.googleapis.com",
     "fonts.gstatic.com",
     "unpkg.com",
