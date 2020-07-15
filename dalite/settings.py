@@ -430,7 +430,7 @@ CSP_FONT_SRC = [
     "fonts.gstatic.com",
     "unpkg.com",
 ]
-CSP_OBJECT_SRC = ["*"]
+CSP_OBJECT_SRC = ["phet.colorado.edu", "*.youtube.com"]
 
 FEATURE_POLICY = [
     "autoplay 'none'",
@@ -447,6 +447,7 @@ FEATURE_POLICY = [
 REFERRER_POLICY = "no-referrer, strict-origin-when-cross-origin"
 
 # External framing
+CSP_FRAME_ANCESTORS = ["*"]
 FRAMING_ALLOWED_FROM = ["*"]
 
 # Functional tests that scrape web console logs currently require chromedriver
