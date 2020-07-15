@@ -230,9 +230,11 @@ class Question(models.Model):
         _("Question video URL"),
         blank=True,
         help_text=_(
-            "Optional. A video to include after the question text. All "
-            "videos should include transcripts.  Format: "
-            "https://www.youtube.com/embed/..."
+            "Optional. A video or simulation to include after the question "
+            "text. All videos should include transcripts.  Only videos from "
+            "youtube (i.e. https://www.youtube.com/embed/...) and simulations "
+            "from phet (i.e. https://phet.colorado.edu/sims/html/...) are "
+            "currently supported."
         ),
     )
     ALPHA = 0
