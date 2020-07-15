@@ -82,6 +82,7 @@ const scriptBuilds = [
       "admin",
       "forums",
       "ajax",
+      "assignment",
     ],
   },
   {

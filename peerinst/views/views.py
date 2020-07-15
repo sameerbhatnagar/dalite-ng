@@ -381,6 +381,7 @@ class AssignmentUpdateView(LoginRequiredMixin, NoStudentsMixin, DetailView):
     """View for updating assignment."""
 
     model = Assignment
+    template_name_suffix = "_detail_beta"
 
     def dispatch(self, *args, **kwargs):
         # Check object permissions (to be refactored using mixin)
