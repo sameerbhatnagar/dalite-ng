@@ -75,7 +75,12 @@ class QuestionCard extends Component {
                   {this.props.gettext("Discipline")}:{" "}
                   {this.props.question.discipline.title}
                 </div>
-
+                <div>
+                  {this.props.gettext("Categories")}:{" "}
+                  {this.props.question.category.map((el, index) =>
+                    index > 0 ? `, ${el.title}` : el.title,
+                  )}
+                </div>
                 <div>
                   {this.props.gettext("Student answers")}:{" "}
                   {this.props.question.answer_count}
@@ -83,7 +88,11 @@ class QuestionCard extends Component {
               </div>
             </Card.ActionButtons>
             <Card.ActionIcons>
-              <IconToggle>share</IconToggle>
+              <IconToggle className="mdc-theme--primary">
+                assessment
+              </IconToggle>
+              <IconToggle className="mdc-theme--primary">file_copy</IconToggle>
+              <IconToggle className="mdc-theme--primary">delete</IconToggle>
             </Card.ActionIcons>
           </Card.Actions>
         </Card>
