@@ -6,8 +6,6 @@ from django.contrib.auth import views as auth_views
 from django.contrib.auth.decorators import user_passes_test
 from django.urls import URLPattern, path
 from django.views.decorators.cache import cache_page
-
-# testing
 from django.views.decorators.clickjacking import xframe_options_sameorigin
 
 from . import admin_views, views

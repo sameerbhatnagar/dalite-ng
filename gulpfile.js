@@ -115,6 +115,7 @@ const babelConfig = {
     ],
   ],
   plugins: [
+    "@babel/plugin-proposal-class-properties",
     "@babel/plugin-proposal-optional-chaining",
     ["@babel/plugin-transform-react-jsx", { pragma: "h" }],
   ],
@@ -141,16 +142,16 @@ function buildStyle(app, module) {
   const build = gulp
     .src(
       [
-        "./" + app + "/static/" + app + "/css/" + module + "/**/*.scss",
-        "./" + app + "/static/" + app + "/css/" + module + ".scss",
+        `./${app}/static/${app}/css/${module}/**/*.scss`,
+        `./${app}/static/${app}/css/${module}.scss`,
       ],
       { allowEmpty: true },
     )
     .pipe(sourcemaps.init())
     .pipe(postcss(cb))
-    .pipe(concat(module + ".min.css"))
+    .pipe(concat(`${module}.min.css`))
     .pipe(sourcemaps.write("."))
-    .pipe(gulp.dest("./" + app + "/static/" + app + "/css"));
+    .pipe(gulp.dest(`./${app}/static/${app}/css`));
 
   return build;
 }
@@ -158,8 +159,8 @@ function buildStyle(app, module) {
 function watchStyle(app, module) {
   gulp.watch(
     [
-      "./" + app + "/static/" + app + "/css/" + module + "/**/*.scss",
-      "./" + app + "/static/" + app + "/css/" + module + ".scss",
+      `./${app}/static/${app}/css/${module}/**/*.scss`,
+      `./${app}/static/${app}/css/${module}.scss`,
     ],
     () => buildStyle(app, module),
   );
@@ -168,7 +169,7 @@ function watchStyle(app, module) {
 function buildScript(app, module) {
   const name = module === "index" ? "bundle" : module;
   const inputOptions = {
-    input: "./" + app + "/static/" + app + "/js/" + module + ".js",
+    input: `./${app}/static/${app}/js/${module}.js`,
     external: [
       "jquery",
       "flatpickr",
@@ -206,7 +207,7 @@ function buildScript(app, module) {
   };
   const outputOptions = {
     extend: true,
-    file: "./" + app + "/static/" + app + "/js/" + module + ".min.js",
+    file: `./${app}/static/${app}/js/${module}.min.js`,
     format: "iife",
     globals: {
       jquery: "jquery",
@@ -224,7 +225,7 @@ function buildScript(app, module) {
       "@material/toolbar": "@material/toolbar",
       "material/snackbar": "material/snackbar",
     },
-    name: name,
+    name,
     plugins: [terser()],
     sourcemap: true,
   };
@@ -237,8 +238,8 @@ function buildScript(app, module) {
 function watchScript(app, module) {
   gulp.watch(
     [
-      "./" + app + "/static/" + app + "/js/_" + module + "/**/*.js",
-      "./" + app + "/static/" + app + "/js/" + module + ".js",
+      `./${app}/static/${app}/js/_${module}/**/*.js`,
+      `./${app}/static/${app}/js/${module}.js`,
     ],
     () => buildScript(app, module),
   );
@@ -281,7 +282,7 @@ function watch() {
         .filter((s) => s.app === "peerinst")
         .map((s) => s.modules)
         .filter((m) => m !== "index")
-        .map((m) => "./peerinst/static/peerinst/js/" + m + ".js"),
+        .map((m) => `./peerinst/static/peerinst/js/${m}.js`),
     ),
     () => buildScript("peerinst", "index"),
   );

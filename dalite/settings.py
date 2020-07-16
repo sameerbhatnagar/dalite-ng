@@ -26,6 +26,7 @@ INSTALLED_APPS = (
     "quality",
     "tos",
     "peerinst",
+    "REST",
     "grappelli",
     "cookielaw",
     "csp",
@@ -174,6 +175,13 @@ COMPRESS_ROOT = STATIC_ROOT
 LOGIN_URL = "login"
 
 LOGIN_REDIRECT_URL = "welcome"
+
+
+REST_FRAMEWORK = {
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAuthenticated",
+    ]
+}
 
 
 # Axes

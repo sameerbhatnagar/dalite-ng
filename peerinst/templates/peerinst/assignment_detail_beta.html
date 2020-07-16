@@ -36,12 +36,12 @@
 
     <h2 id="assignment" class="mdc-typography--display1 mdc-theme--secondary">{{object.title}}</h2>
 
-    <div id="assignment-update-app"></div>
-
     <div class="admin-link">
       <a href="{% url 'assignment-edit' object.pk %}">{% trans 'Edit title' %}</a>
       <span class="links-divider">|</span><a href="{% url 'question-list' object.pk %}">{% trans 'Preview' %}</a>
     </div>
+
+    <div id="assignment-update-app"></div>
 
     <div class="mdc-form-field">
       <span class="mdc-theme--secondary">{% trans 'Show images' %}</span>
@@ -319,7 +319,12 @@
 <script src="https://unpkg.com/json5@2.1.1/dist/index.min.js" integrity="sha384-gRrJKgBpstjyexh9UmCoTPivgMMb7/EAtEdR5DLbVhiPYdl03QxdzMzbylHUSloD" crossorigin="anonymous"></script>
 <script nonce="{{ request.csp_nonce }}">
   window.addEventListener("load", function() {
-    const assignmentUpdateApp = assignment.h(assignment.AssignmentUpdateApp, {});
+    const assignmentUpdateApp = assignment.h(
+      assignment.AssignmentUpdateApp, {
+        assignmentURL: "{% url 'REST:assignment-detail' object.pk %}?format=json",
+        gettext: gettext
+      }
+    );
     assignment.render(assignmentUpdateApp, document.getElementById("assignment-update-app"));
   })
 
