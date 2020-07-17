@@ -53,11 +53,15 @@ class UserSerializer(serializers.ModelSerializer):
 class QuestionSerializer(serializers.ModelSerializer):
     answer_count = serializers.SerializerMethodField()
     category = CategorySerializer(many=True, read_only=True)
+    choices = serializers.SerializerMethodField()
     discipline = DisciplineSerializer(read_only=True)
     user = UserSerializer(read_only=True)
 
     def get_answer_count(self, obj):
         return obj.answer_set.count()
+
+    def get_choices(self, obj):
+        return obj.get_choices()
 
     class Meta:
         model = Question
@@ -69,6 +73,9 @@ class QuestionSerializer(serializers.ModelSerializer):
             "discipline",
             "answer_count",
             "category",
+            "image",
+            "image_alt_text",
+            "choices",
         ]
 
     def to_representation(self, instance):
@@ -80,6 +87,16 @@ class QuestionSerializer(serializers.ModelSerializer):
         ret["text"] = bleach.clean(
             ret["text"], tags=ALLOWED_TAGS, styles=[], strip=True
         )
+        ret["choices"] = [
+            (
+                choice[0],
+                bleach.clean(
+                    choice[1], tags=ALLOWED_TAGS, styles=[], strip=True
+                ),
+                instance.is_correct(i),
+            )
+            for (i, choice) in enumerate(ret["choices"], 1)
+        ]
         return ret
 
 
