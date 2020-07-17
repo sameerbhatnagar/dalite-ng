@@ -80,12 +80,13 @@ class ToggleVisibleItems extends Component {
 
 class Image extends Component {
   render() {
-    if (this.props.show && this.props.url) {
+    if (this.props.url) {
       return (
         <img
           class="mdc-typography--caption question-image"
           src={this.props.url}
           alt={this.props.altText}
+          style={{ display: this.props.show ? "block" : "none" }}
         />
       );
     }
