@@ -105,7 +105,7 @@ class Choices extends Component {
       return (
         <li class="dense-list">
           {/* eslint-disable-next-line */}
-          {choice[0]}. <span dangerouslySetInnerHTML={{ __html: choice[1] }} />
+          {choice[0]}. <span dangerouslySetInnerHTML={{ __html: choice[1] }} />{" "}
           <Checkmark correct={choice[2]} />
         </li>
       );
