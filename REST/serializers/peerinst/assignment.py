@@ -7,10 +7,26 @@ from rest_framework import serializers
 from peerinst.models import (
     Assignment,
     AssignmentQuestions,
+    Category,
     Discipline,
     Question,
 )
 from peerinst.templatetags.bleach_html import ALLOWED_TAGS
+
+
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ["title"]
+
+    def to_representation(self, instance):
+        """Bleach and ensure title case"""
+        ret = super().to_representation(instance)
+        ret["title"] = bleach.clean(
+            ret["title"], tags=[], styles=[], strip=True
+        )
+        ret["title"] = title(ret["title"])
+        return ret
 
 
 class DisciplineSerializer(serializers.ModelSerializer):
@@ -19,7 +35,7 @@ class DisciplineSerializer(serializers.ModelSerializer):
         fields = ["title"]
 
     def to_representation(self, instance):
-        """Bleach HTML-supported fields"""
+        """Bleach and ensure title case"""
         ret = super().to_representation(instance)
         ret["title"] = bleach.clean(
             ret["title"], tags=[], styles=[], strip=True
@@ -36,15 +52,31 @@ class UserSerializer(serializers.ModelSerializer):
 
 class QuestionSerializer(serializers.ModelSerializer):
     answer_count = serializers.SerializerMethodField()
+    category = CategorySerializer(many=True, read_only=True)
+    choices = serializers.SerializerMethodField()
     discipline = DisciplineSerializer(read_only=True)
     user = UserSerializer(read_only=True)
 
     def get_answer_count(self, obj):
         return obj.answer_set.count()
 
+    def get_choices(self, obj):
+        return obj.get_choices()
+
     class Meta:
         model = Question
-        fields = ["pk", "title", "text", "user", "discipline", "answer_count"]
+        fields = [
+            "pk",
+            "title",
+            "text",
+            "user",
+            "discipline",
+            "answer_count",
+            "category",
+            "image",
+            "image_alt_text",
+            "choices",
+        ]
 
     def to_representation(self, instance):
         """Bleach HTML-supported fields"""
@@ -55,6 +87,16 @@ class QuestionSerializer(serializers.ModelSerializer):
         ret["text"] = bleach.clean(
             ret["text"], tags=ALLOWED_TAGS, styles=[], strip=True
         )
+        ret["choices"] = [
+            (
+                choice[0],
+                bleach.clean(
+                    choice[1], tags=ALLOWED_TAGS, styles=[], strip=True
+                ),
+                instance.is_correct(i),
+            )
+            for (i, choice) in enumerate(ret["choices"], 1)
+        ]
         return ret
 
 

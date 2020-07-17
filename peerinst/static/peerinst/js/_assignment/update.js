@@ -3,6 +3,9 @@ import Card from "preact-material-components/Card";
 import "preact-material-components/Card/style.css";
 import "preact-material-components/Button/style.css";
 import IconToggle from "preact-material-components/IconToggle";
+import Checkbox from "preact-material-components/Checkbox";
+import Formfield from "preact-material-components/FormField";
+import "preact-material-components/Checkbox/style.css";
 
 export { h, render };
 
@@ -46,7 +49,86 @@ async function get(url) {
   return await handleResponse(response);
 }
 
+class ToggleVisibleItems extends Component {
+  render() {
+    return (
+      <div>
+        <Formfield className="mdc-theme--secondary">
+          <label for="toggle-images">
+            {this.props.gettext("Show images")}
+          </label>
+          <Checkbox
+            id="toggle-images"
+            checked={this.props.showImages}
+            onclick={this.props.handleImageToggleClick}
+          />
+        </Formfield>
+        <Formfield className="mdc-theme--secondary">
+          <label for="toggle-answers">
+            {this.props.gettext("Show choices")}
+          </label>
+          <Checkbox
+            id="toggle-answers"
+            checked={this.props.showChoices}
+            onclick={this.props.handleAnswerToggleClick}
+          />
+        </Formfield>
+      </div>
+    );
+  }
+}
+
+class Image extends Component {
+  render() {
+    if (this.props.url) {
+      return (
+        <img
+          class="mdc-typography--caption question-image"
+          src={this.props.url}
+          alt={this.props.altText}
+          style={{ display: this.props.show ? "block" : "none" }}
+        />
+      );
+    }
+  }
+}
+
+const Checkmark = (props) => {
+  if (props.correct) {
+    return <i class="check material-icons">check</i>;
+  }
+};
+
+class Choices extends Component {
+  choiceList = () => {
+    return this.props.choices.map((choice) => {
+      return (
+        <li class="dense-list">
+          {/* eslint-disable-next-line */}
+          {choice[0]}. <span dangerouslySetInnerHTML={{ __html: choice[1] }} />
+          <Checkmark correct={choice[2]} />
+        </li>
+      );
+    });
+  };
+
+  render() {
+    if (this.props.show) {
+      return <ul>{this.choiceList()}</ul>;
+    }
+  }
+}
+
 class QuestionCard extends Component {
+  renderCategory = () => {
+    if (this.props.question.category) {
+      return this.props.question.category.map((el, index) =>
+        index > 0 ? `, ${el.title}` : el.title,
+      );
+    }
+    return this.props.gettext("Uncategorized");
+  };
+
   render() {
     return (
       <div>
@@ -67,6 +149,15 @@ class QuestionCard extends Component {
               dangerouslySetInnerHTML={{ __html: this.props.question.text }}
             />
           </div>
+          <Image
+            show={this.props.showImages}
+            url={this.props.question.image}
+            altText={this.props.question.image_alt_text}
+          />
+          <Choices
+            show={this.props.showChoices}
+            choices={this.props.question.choices}
+          />
           <Card.Media className="card-media" />
           <Card.Actions>
             <Card.ActionButtons className="mdc-card__action-buttons grey">
@@ -75,7 +166,9 @@ class QuestionCard extends Component {
                   {this.props.gettext("Discipline")}:{" "}
                   {this.props.question.discipline.title}
                 </div>
-
+                <div>
+                  {this.props.gettext("Categories")}: {this.renderCategory()}
+                </div>
                 <div>
                   {this.props.gettext("Student answers")}:{" "}
                   {this.props.question.answer_count}
@@ -83,7 +176,11 @@ class QuestionCard extends Component {
               </div>
             </Card.ActionButtons>
             <Card.ActionIcons>
-              <IconToggle>share</IconToggle>
+              <IconToggle className="mdc-theme--primary">
+                assessment
+              </IconToggle>
+              <IconToggle className="mdc-theme--primary">file_copy</IconToggle>
+              <IconToggle className="mdc-theme--primary">delete</IconToggle>
             </Card.ActionIcons>
           </Card.Actions>
         </Card>
@@ -94,7 +191,21 @@ class QuestionCard extends Component {
 
 export class AssignmentUpdateApp extends Component {
   state = {
+    showChoices: sessionStorage.answers == "block",
+    showImages: sessionStorage.images == "block",
     questions: [],
+  };
+
+  handleImageToggleClick = () => {
+    this.setState({ showImages: !this.state.showImages }, () => {
+      sessionStorage.images = this.state.showImages ? "block" : "none";
+    });
+  };
+
+  handleAnswerToggleClick = () => {
+    this.setState({ showChoices: !this.state.showChoices }, () => {
+      sessionStorage.answers = this.state.showChoices ? "block" : "none";
+    });
   };
 
   refreshFromDB = () => {
@@ -113,7 +224,12 @@ export class AssignmentUpdateApp extends Component {
   questionList = () => {
     return this.state.questions.map((q) => {
       return (
-        <QuestionCard question={q.question} gettext={this.props.gettext} />
+        <QuestionCard
+          question={q.question}
+          gettext={this.props.gettext}
+          showChoices={this.state.showChoices}
+          showImages={this.state.showImages}
+        />
       );
     });
   };
@@ -123,6 +239,17 @@ export class AssignmentUpdateApp extends Component {
   }
 
   render() {
-    return <div>{this.questionList()}</div>;
+    return (
+      <div>
+        <ToggleVisibleItems
+          gettext={this.props.gettext}
+          showChoices={this.state.showChoices}
+          showImages={this.state.showImages}
+          handleAnswerToggleClick={this.handleAnswerToggleClick}
+          handleImageToggleClick={this.handleImageToggleClick}
+        />
+        <div>{this.questionList()}</div>
+      </div>
+    );
   }
 }
