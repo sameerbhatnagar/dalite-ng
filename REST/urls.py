@@ -11,4 +11,12 @@ peerinst_api.register(
     r"assignments", views.AssignmentViewSet, basename="assignment"
 )
 
-urlpatterns = [path("peerinst/", include(peerinst_api.urls))]
+
+urlpatterns = [
+    path("peerinst/", include(peerinst_api.urls)),
+    path(
+        "peerinst/answers",
+        views.StudentAnswerListView.as_view(),
+        name="answer",
+    ),
+]
