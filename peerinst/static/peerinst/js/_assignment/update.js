@@ -2,11 +2,11 @@ import { Component, h, render } from "preact";
 import Card from "preact-material-components/Card";
 import "preact-material-components/Card/style.css";
 import "preact-material-components/Button/style.css";
-//import IconToggle from "preact-material-components/IconToggle";
 import Checkbox from "preact-material-components/Checkbox";
 import Formfield from "preact-material-components/FormField";
 import "preact-material-components/Checkbox/style.css";
 import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
+//import IconToggle from "preact-material-components/IconToggle";
 
 export { h, render };
 
@@ -163,7 +163,9 @@ class QuestionCard extends Component {
               <div class="mdc-typography--caption">
                 <div>
                   {this.props.gettext("Discipline")}:{" "}
-                  {this.props.question.discipline.title}
+                  {this.props.question.discipline
+                    ? this.props.question.discipline.title
+                    : this.props.gettext("None")}
                 </div>
                 <div>
                   {this.props.gettext("Categories")}: {this.renderCategory()}
@@ -176,9 +178,11 @@ class QuestionCard extends Component {
             </Card.ActionButtons>
             <Card.ActionIcons>
               {/*
-              <IconToggle>assessment</IconToggle>
-              <IconToggle>file_copy</IconToggle>
-              <IconToggle>delete</IconToggle>
+              <IconToggle className="mdc-theme--primary">
+                assessment
+              </IconToggle>
+              <IconToggle className="mdc-theme--primary">file_copy</IconToggle>
+              <IconToggle className="mdc-theme--primary">delete</IconToggle>
               */}
             </Card.ActionIcons>
           </Card.Actions>
@@ -198,8 +202,10 @@ class QuestionCard extends Component {
               dangerouslySetInnerHTML={{ __html: this.props.question.title }}
             />
             <div className="mdc-typography--caption">
-              #{this.props.question.pk} {this.props.gettext("by")}{" "}
-              {this.props.question.user.username}
+              #{this.props.question.pk}
+              {this.props.question.user
+                ? this.props.question.user.username
+                : ""}
             </div>
           </div>
           {this.cardBody()}
@@ -221,7 +227,7 @@ const getListStyle = (isDraggingOver) => ({
 
 export class AssignmentUpdateApp extends Component {
   state = {
-    minimizeCards: true,
+    minimizeCards: false,
     showChoices: sessionStorage.answers == "block",
     showImages: sessionStorage.images == "block",
     questions: [],
@@ -240,11 +246,7 @@ export class AssignmentUpdateApp extends Component {
   };
 
   handleMinimizeToggleClick = () => {
-    this.setState({ minimizeCards: !this.state.minimizeCards }, () => {
-      sessionStorage.minimizeCards = this.state.minimizeCards
-        ? "true"
-        : "false";
-    });
+    this.setState({ minimizeCards: !this.state.minimizeCards });
   };
 
   refreshFromDB = () => {
@@ -252,6 +254,7 @@ export class AssignmentUpdateApp extends Component {
     const _questions = get(this.props.assignmentURL);
     _questions
       .then((data) => {
+        console.info(data);
         _this.setState({
           questions: data["questions"],
         });
@@ -263,9 +266,19 @@ export class AssignmentUpdateApp extends Component {
     this.refreshFromDB();
   }
 
-  onDragEnd = () => {
-    console.log("Drag end");
-    // the only one that is required
+  onDragEnd = (result) => {
+    console.info(result);
+    const _questions = Array.from(this.state.questions);
+    const [dragged] = _questions.splice(result.source.index, 1);
+    _questions.splice(result.destination.index, 0, dragged);
+    _questions.forEach((el, i) => {
+      el.rank = i;
+    });
+    console.info(_questions);
+    this.setState({
+      questions: _questions,
+    });
+    // Save
   };
 
   render() {
