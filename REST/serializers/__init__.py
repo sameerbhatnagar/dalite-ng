@@ -1,3 +1,11 @@
-__all__ = ["AssignmentSerializer", "AnswerSerializer"]
+__all__ = [
+    "AssignmentSerializer",
+    "AnswerSerializer",
+    "AnswerAnnotationSerialzer",
+]
 
-from .peerinst import AssignmentSerializer, AnswerSerializer  # noqa
+from .peerinst import (
+    AssignmentSerializer,
+    AnswerSerializer,
+    AnswerAnnotationSerialzer,
+)  # noqa
