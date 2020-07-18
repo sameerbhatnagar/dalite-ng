@@ -1,3 +1,3 @@
-__all__ = ["AssignmentSerializer"]
+__all__ = ["AssignmentSerializer", "AnswerSerializer"]
 
-from .peerinst import AssignmentSerializer  # noqa
+from .peerinst import AssignmentSerializer, AnswerSerializer  # noqa
