@@ -109,9 +109,13 @@ class RankSerializer(serializers.ModelSerializer):
 
 
 class AssignmentSerializer(serializers.ModelSerializer):
-    questions = RankSerializer(
-        source="assignmentquestions_set", many=True, read_only=True
-    )
+    questions = RankSerializer(source="assignmentquestions_set", many=True)
+
+    def update(self, instance, validated_data):
+        for i, aq in enumerate(instance.assignmentquestions_set.all()):
+            aq.rank = validated_data["assignmentquestions_set"][i]["rank"]
+            aq.save()
+        return instance
 
     class Meta:
         model = Assignment

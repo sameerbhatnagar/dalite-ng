@@ -10,20 +10,17 @@ import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
 
 export { h, render };
 
-/*
 function getCsrfToken() {
   return document.querySelectorAll("input[name=csrfmiddlewaretoken]")[0].value;
 }
-*/
 
 async function handleResponse(response) {
-  const data = await response.json();
-
   if (response.status == 200 || response.status == 201) {
-    return data;
+    return await response.json();
   }
 
   if (response.status == 401) {
+    const data = await response.json();
     const base = new URL(window.location.protocol + window.location.host);
     const url = new URL(data["login_url"], base);
     url.search = `?next=${window.location.pathname}`;
@@ -31,10 +28,31 @@ async function handleResponse(response) {
     window.location.href = url;
   }
 
-  if (response.status == 403) {
+  if (response.status == 403 || response.status == 405) {
     // Could raise an alert??
-    return data;
+    console.info(response);
+    return response;
   }
+}
+
+async function submitData(url, data, method) {
+  console.info(data);
+  console.info(JSON.stringify(data));
+  const response = await fetch(url, {
+    method,
+    mode: "same-origin",
+    cache: "no-cache",
+    credentials: "same-origin",
+    redirect: "follow",
+    referrer: "client",
+    headers: new Headers({
+      "Content-Type": "application/json",
+      "X-CSRFToken": getCsrfToken(),
+    }),
+    body: JSON.stringify(data),
+  });
+
+  return await handleResponse(response);
 }
 
 async function get(url) {
@@ -231,6 +249,7 @@ export class AssignmentUpdateApp extends Component {
     showChoices: sessionStorage.answers == "block",
     showImages: sessionStorage.images == "block",
     questions: [],
+    title: "",
   };
 
   handleChoiceToggleClick = () => {
@@ -257,6 +276,7 @@ export class AssignmentUpdateApp extends Component {
         console.info(data);
         _this.setState({
           questions: data["questions"],
+          title: data["title"],
         });
       })
       .catch((error) => console.error(error));
@@ -266,19 +286,33 @@ export class AssignmentUpdateApp extends Component {
     this.refreshFromDB();
   }
 
+  save = async () => {
+    try {
+      await submitData(
+        this.props.assignmentURL,
+        {
+          title: this.state.title,
+          questions: this.state.questions,
+        },
+        "PATCH",
+      );
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   onDragEnd = (result) => {
-    console.info(result);
     const _questions = Array.from(this.state.questions);
     const [dragged] = _questions.splice(result.source.index, 1);
     _questions.splice(result.destination.index, 0, dragged);
     _questions.forEach((el, i) => {
       el.rank = i;
     });
-    console.info(_questions);
     this.setState({
       questions: _questions,
     });
     // Save
+    this.save();
   };
 
   render() {
