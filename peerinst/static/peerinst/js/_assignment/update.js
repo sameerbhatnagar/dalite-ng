@@ -2,10 +2,11 @@ import { Component, h, render } from "preact";
 import Card from "preact-material-components/Card";
 import "preact-material-components/Card/style.css";
 import "preact-material-components/Button/style.css";
-import IconToggle from "preact-material-components/IconToggle";
+//import IconToggle from "preact-material-components/IconToggle";
 import Checkbox from "preact-material-components/Checkbox";
 import Formfield from "preact-material-components/FormField";
 import "preact-material-components/Checkbox/style.css";
+import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
 
 export { h, render };
 
@@ -54,6 +55,16 @@ class ToggleVisibleItems extends Component {
     return (
       <div>
         <Formfield className="mdc-theme--secondary">
+          <label for="toggle-minimize">
+            {this.props.gettext("Reorder questions?")}
+          </label>
+          <Checkbox
+            id="toggle-minimize"
+            checked={this.props.minimizeCards}
+            onclick={this.props.handleMinimizeToggleClick}
+          />
+        </Formfield>
+        <Formfield className="mdc-theme--secondary">
           <label for="toggle-images">
             {this.props.gettext("Show images")}
           </label>
@@ -70,7 +81,7 @@ class ToggleVisibleItems extends Component {
           <Checkbox
             id="toggle-answers"
             checked={this.props.showChoices}
-            onclick={this.props.handleAnswerToggleClick}
+            onclick={this.props.handleChoiceToggleClick}
           />
         </Formfield>
       </div>
@@ -129,26 +140,15 @@ class QuestionCard extends Component {
     return this.props.gettext("Uncategorized");
   };
 
-  render() {
-    return (
-      <div>
-        <Card>
-          <div className="card-header">
-            <div
-              className="mdc-typography--title bold"
-              // eslint-disable-next-line
-              dangerouslySetInnerHTML={{ __html: this.props.question.title }}
-            />
-            <div class="mdc-typography--caption">
-              #{this.props.question.pk} {this.props.gettext("by")}{" "}
-              {this.props.question.user.username}
-            </div>
-            <div
-              className="mdc-typography--body1 m-top-5"
-              // eslint-disable-next-line
-              dangerouslySetInnerHTML={{ __html: this.props.question.text }}
-            />
-          </div>
+  cardBody = () => {
+    if (!this.props.minimizeCards) {
+      return (
+        <div>
+          <div
+            className="mdc-typography--body1 m-top-5"
+            // eslint-disable-next-line
+            dangerouslySetInnerHTML={{ __html: this.props.question.text }}
+          />
           <Image
             show={this.props.showImages}
             url={this.props.question.image}
@@ -158,7 +158,6 @@ class QuestionCard extends Component {
             show={this.props.showChoices}
             choices={this.props.question.choices}
           />
-          <Card.Media className="card-media" />
           <Card.Actions>
             <Card.ActionButtons className="mdc-card__action-buttons grey">
               <div class="mdc-typography--caption">
@@ -176,24 +175,62 @@ class QuestionCard extends Component {
               </div>
             </Card.ActionButtons>
             <Card.ActionIcons>
-              <IconToggle className="mdc-theme--primary">
-                assessment
-              </IconToggle>
-              <IconToggle className="mdc-theme--primary">file_copy</IconToggle>
-              <IconToggle className="mdc-theme--primary">delete</IconToggle>
+              {/*
+              <IconToggle>assessment</IconToggle>
+              <IconToggle>file_copy</IconToggle>
+              <IconToggle>delete</IconToggle>
+              */}
             </Card.ActionIcons>
           </Card.Actions>
+        </div>
+      );
+    }
+  };
+
+  render() {
+    return (
+      <div>
+        <Card>
+          <div className="card-header">
+            <div
+              className="mdc-typography--title bold"
+              // eslint-disable-next-line
+              dangerouslySetInnerHTML={{ __html: this.props.question.title }}
+            />
+            <div className="mdc-typography--caption">
+              #{this.props.question.pk} {this.props.gettext("by")}{" "}
+              {this.props.question.user.username}
+            </div>
+          </div>
+          {this.cardBody()}
         </Card>
       </div>
     );
   }
 }
 
+const getItemStyle = (isDragging, draggableStyle) => ({
+  userSelect: "none",
+  ...draggableStyle,
+});
+
+const getListStyle = (isDraggingOver) => ({
+  background: isDraggingOver ? "var(--mdc-theme-primary)" : "lightgrey",
+  padding: "10px 10px 1px",
+});
+
 export class AssignmentUpdateApp extends Component {
   state = {
+    minimizeCards: true,
     showChoices: sessionStorage.answers == "block",
     showImages: sessionStorage.images == "block",
     questions: [],
+  };
+
+  handleChoiceToggleClick = () => {
+    this.setState({ showChoices: !this.state.showChoices }, () => {
+      sessionStorage.answers = this.state.showChoices ? "block" : "none";
+    });
   };
 
   handleImageToggleClick = () => {
@@ -202,9 +239,11 @@ export class AssignmentUpdateApp extends Component {
     });
   };
 
-  handleAnswerToggleClick = () => {
-    this.setState({ showChoices: !this.state.showChoices }, () => {
-      sessionStorage.answers = this.state.showChoices ? "block" : "none";
+  handleMinimizeToggleClick = () => {
+    this.setState({ minimizeCards: !this.state.minimizeCards }, () => {
+      sessionStorage.minimizeCards = this.state.minimizeCards
+        ? "true"
+        : "false";
     });
   };
 
@@ -213,7 +252,6 @@ export class AssignmentUpdateApp extends Component {
     const _questions = get(this.props.assignmentURL);
     _questions
       .then((data) => {
-        console.debug(data);
         _this.setState({
           questions: data["questions"],
         });
@@ -221,34 +259,91 @@ export class AssignmentUpdateApp extends Component {
       .catch((error) => console.error(error));
   };
 
-  questionList = () => {
-    return this.state.questions.map((q) => {
-      return (
-        <QuestionCard
-          question={q.question}
-          gettext={this.props.gettext}
-          showChoices={this.state.showChoices}
-          showImages={this.state.showImages}
-        />
-      );
-    });
-  };
-
   componentDidMount() {
     this.refreshFromDB();
   }
 
+  onDragEnd = () => {
+    console.log("Drag end");
+    // the only one that is required
+  };
+
   render() {
+    if (this.state.minimizeCards) {
+      return (
+        <div>
+          <ToggleVisibleItems
+            gettext={this.props.gettext}
+            showChoices={this.state.showChoices}
+            showImages={this.state.showImages}
+            minimizeCards={this.state.minimizeCards}
+            handleChoiceToggleClick={this.handleChoiceToggleClick}
+            handleImageToggleClick={this.handleImageToggleClick}
+            handleMinimizeToggleClick={this.handleMinimizeToggleClick}
+          />
+          <DragDropContext nonce={this.props.nonce} onDragEnd={this.onDragEnd}>
+            <Droppable droppableId="questions">
+              {(provided, snapshot) => (
+                <div
+                  {...provided.droppableProps}
+                  ref={provided.innerRef}
+                  style={getListStyle(snapshot.isDraggingOver)}
+                >
+                  {this.state.questions.map((q, index) => (
+                    <Draggable
+                      key={`key-${q.question.pk}`}
+                      draggableId={`id-${q.question.pk}`}
+                      index={index}
+                    >
+                      {(provided, snapshot) => (
+                        <div
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          {...provided.dragHandleProps}
+                          style={getItemStyle(
+                            snapshot.isDragging,
+                            provided.draggableProps.style,
+                          )}
+                        >
+                          <QuestionCard
+                            question={q.question}
+                            gettext={this.props.gettext}
+                            showChoices={this.state.showChoices}
+                            showImages={this.state.showImages}
+                            minimizeCards={this.state.minimizeCards}
+                          />
+                        </div>
+                      )}
+                    </Draggable>
+                  ))}
+                  {provided.placeholder}
+                </div>
+              )}
+            </Droppable>
+          </DragDropContext>
+        </div>
+      );
+    }
     return (
       <div>
         <ToggleVisibleItems
           gettext={this.props.gettext}
           showChoices={this.state.showChoices}
           showImages={this.state.showImages}
-          handleAnswerToggleClick={this.handleAnswerToggleClick}
+          minimizeCards={this.state.minimizeCards}
+          handleChoiceToggleClick={this.handleChoiceToggleClick}
           handleImageToggleClick={this.handleImageToggleClick}
+          handleMinimizeToggleClick={this.handleMinimizeToggleClick}
         />
-        <div>{this.questionList()}</div>
+        {this.state.questions.map((q) => (
+          <QuestionCard
+            question={q.question}
+            gettext={this.props.gettext}
+            showChoices={this.state.showChoices}
+            showImages={this.state.showImages}
+            minimizeCards={this.state.minimizeCards}
+          />
+        ))}
       </div>
     );
   }

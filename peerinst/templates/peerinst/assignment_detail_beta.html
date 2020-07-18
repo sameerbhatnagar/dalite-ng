@@ -89,7 +89,7 @@
             {% for c in g.answerchoice_set.all %}
               {% if forloop.counter == forloop.parentloop.counter %}
                 {% if c.correct %}
-                  <i class="check material-icons">check</i>
+                    <i class="check material-icons">check</i>
                 {% endif %}
               {% endif %}
             {% endfor %}
@@ -322,6 +322,7 @@
     const assignmentUpdateApp = assignment.h(
       assignment.AssignmentUpdateApp, {
         assignmentURL: "{% url 'REST:assignment-detail' object.pk %}?format=json",
+        nonce: "{{ request.csp_nonce }}",
         gettext: gettext
       }
     );

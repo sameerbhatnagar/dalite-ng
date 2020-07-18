@@ -12,6 +12,8 @@ const rollup = require("rollup"); // bundler
 const { terser } = require("rollup-plugin-terser"); // minifier
 const nodeResolve = resolve.default;
 const embedCSS = require("rollup-plugin-postcss");
+const alias = require("@rollup/plugin-alias");
+const replace = require("@rollup/plugin-replace");
 
 /* Build modules for styles */
 const scssLint = require("stylelint"); // linter
@@ -193,6 +195,15 @@ function buildScript(app, module) {
       warn(warning);
     },
     plugins: [
+      alias({
+        entries: [
+          { find: "react", replacement: "preact/compat" },
+          { find: "react-dom", replacement: "preact/compat" },
+        ],
+      }),
+      replace({
+        "process.env.NODE_ENV": JSON.stringify("production"),
+      }),
       eslint({
         fix: true,
       }),
