@@ -15,8 +15,13 @@ peerinst_api.register(
 urlpatterns = [
     path("peerinst/", include(peerinst_api.urls)),
     path(
-        "peerinst/answers",
-        views.StudentAnswerListView.as_view(),
+        "review/answers/",
+        views.ReviewAnswersListView.as_view(),
         name="answer",
+    ),
+    path(
+        "feedback/answers/",
+        views.FeedbackAnswersListView.as_view(),
+        name="answer-feedback",
     ),
 ]

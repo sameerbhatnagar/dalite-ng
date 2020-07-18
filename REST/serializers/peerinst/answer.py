@@ -9,7 +9,7 @@ from peerinst.models import (
     ShownRationale,
 )
 
-from .assignment import QuestionSerializer
+from .assignment import QuestionSerializer, UserSerializer
 
 from peerinst.templatetags.bleach_html import ALLOWED_TAGS
 
@@ -58,3 +58,12 @@ class AnswerSerializer(serializers.ModelSerializer):
             "question",
         ]
         ordering = ["-vote_count"]
+
+
+class AnswerAnnotationSerialzer(serializers.ModelSerializer):
+    annotator = UserSerializer()
+    answer = AnswerSerializer()
+
+    class Meta:
+        model = AnswerAnnotation
+        fields = ["answer", "score", "annotator", "note", "timestamp"]

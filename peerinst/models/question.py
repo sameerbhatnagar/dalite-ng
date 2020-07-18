@@ -614,6 +614,10 @@ class Question(models.Model):
             )
         }
 
+        # there are some places in db where
+        # first_answer_choice value is greater than
+        # possible number of answer_choices.
+        # Remove those answers
         answer_qs = self.answer_set.filter(
             first_answer_choice__lte=self.answerchoice_set.count()
         )
