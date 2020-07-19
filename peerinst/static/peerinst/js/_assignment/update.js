@@ -1,14 +1,16 @@
 //import "preact/debug";
-import { Component, h, render } from "preact";
+import { Component, Fragment, h, render } from "preact";
+import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
 import Card from "preact-material-components/Card";
-import "preact-material-components/Card/style.css";
 import Checkbox from "preact-material-components/Checkbox";
 import Formfield from "preact-material-components/FormField";
-import "preact-material-components/Checkbox/style.css";
-import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
 import Snackbar from "preact-material-components/Snackbar";
+import IconButton from "preact-material-components/IconButton";
+
+import "preact-material-components/Card/style.css";
+import "preact-material-components/Checkbox/style.css";
 import "preact-material-components/Snackbar/style.css";
-//import IconToggle from "preact-material-components/IconToggle";
+import "preact-material-components/IconButton/style.css";
 
 export { h, render };
 
@@ -156,6 +158,29 @@ class QuestionCard extends Component {
     return this.props.gettext("Uncategorized");
   };
 
+  insertActions = () => (
+    <Fragment>
+      <IconButton
+        className="mdc-theme--primary"
+        style={{ fontFamily: "Material Icons" }}
+      >
+        assessment
+      </IconButton>
+      <IconButton
+        className="mdc-theme--primary"
+        style={{ fontFamily: "Material Icons" }}
+      >
+        file_copy
+      </IconButton>
+      <IconButton
+        className="mdc-theme--primary"
+        style={{ fontFamily: "Material Icons" }}
+      >
+        delete
+      </IconButton>
+    </Fragment>
+  );
+
   cardBody = () => {
     if (!this.props.minimizeCards) {
       return (
@@ -192,15 +217,7 @@ class QuestionCard extends Component {
                 </div>
               </div>
             </Card.ActionButtons>
-            <Card.ActionIcons>
-              {/*
-              <IconToggle className="mdc-theme--primary">
-                assessment
-              </IconToggle>
-              <IconToggle className="mdc-theme--primary">file_copy</IconToggle>
-              <IconToggle className="mdc-theme--primary">delete</IconToggle>
-              */}
-            </Card.ActionIcons>
+            <Card.ActionIcons>{this.insertActions()}</Card.ActionIcons>
           </Card.Actions>
         </div>
       );
