@@ -75,6 +75,11 @@ class AssignmentQuestions(models.Model):
     question = models.ForeignKey(Question, models.DO_NOTHING)
     rank = models.PositiveIntegerField(default=0)
 
+    def __str__(self):
+        return "{}-{}-{}".format(
+            self.assignment.pk, self.question.pk, self.rank
+        )
+
     class Meta:
         db_table = "peerinst_assignment_questions"
         ordering = ("rank",)

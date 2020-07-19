@@ -407,6 +407,7 @@ class AssignmentUpdateView(LoginRequiredMixin, NoStudentsMixin, DetailView):
             teacher.user.question_set.all() | teacher.user.collaborators.all()
         )
         context["all_questions"] = all_qs.distinct()
+        print(self.object.questions.all())
         return context
 
     def get_object(self):
