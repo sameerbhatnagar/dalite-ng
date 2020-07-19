@@ -33,7 +33,7 @@ jobs:
             . .venv/bin/activate
             pip install -r requirements/requirements-dev.txt
             npm install
-            npm run gulp build
+            ./node_modules/gulp/bin/gulp.js build build
       - run:
           name: Safety
           command: |
