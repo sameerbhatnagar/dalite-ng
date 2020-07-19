@@ -174,6 +174,7 @@ class QuestionCard extends Component {
       </IconButton>
       <IconButton
         className="mdc-theme--primary"
+        onClick={() => this.props.handleQuestionDelete(this.props.rank)}
         style={{ fontFamily: "Material Icons" }}
       >
         delete
@@ -284,11 +285,16 @@ export class AssignmentUpdateApp extends Component {
     this.setState({ minimizeCards: !this.state.minimizeCards });
   };
 
+  handleQuestionDelete = (pk) => {
+    this.delete(pk);
+  };
+
   refreshFromDB = () => {
     const _this = this;
     const _questions = get(this.props.assignmentURL);
     _questions
       .then((data) => {
+        console.debug(data);
         _this.setState({
           current: data["questions"],
           questions: data["questions"],
@@ -308,6 +314,21 @@ export class AssignmentUpdateApp extends Component {
   componentDidMount() {
     this.refreshFromDB();
   }
+
+  delete = async (pk) => {
+    try {
+      await submitData(this.props.assignmentQuestionURL + pk, {}, "DELETE");
+      this.bar.MDComponent.show({
+        message: this.props.gettext("Item removed."),
+      });
+      this.refreshFromDB();
+    } catch (error) {
+      console.error(error);
+      this.bar.MDComponent.show({
+        message: this.props.gettext("An error occurred."),
+      });
+    }
+  };
 
   save = async () => {
     try {
@@ -423,13 +444,20 @@ export class AssignmentUpdateApp extends Component {
         />
         {this.state.questions.map((q) => (
           <QuestionCard
+            handleQuestionDelete={this.handleQuestionDelete}
             question={q.question}
+            rank={q.pk}
             gettext={this.props.gettext}
             showChoices={this.state.showChoices}
             showImages={this.state.showImages}
             minimizeCards={this.state.minimizeCards}
           />
         ))}
+        <Snackbar
+          ref={(bar) => {
+            this.bar = bar;
+          }}
+        />
       </div>
     );
   }

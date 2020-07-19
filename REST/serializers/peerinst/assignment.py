@@ -110,7 +110,7 @@ class RankSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = AssignmentQuestions
-        fields = ["question", "rank"]
+        fields = ["question", "rank", "pk"]
 
 
 class AssignmentSerializer(serializers.ModelSerializer):

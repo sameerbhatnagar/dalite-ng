@@ -2,21 +2,36 @@ from rest_framework import viewsets, generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
-from peerinst.models import Assignment, Answer, AnswerAnnotation
+from peerinst.models import (
+    Assignment,
+    AssignmentQuestions,
+    Answer,
+    AnswerAnnotation,
+)
 from REST.serializers import (
     AssignmentSerializer,
     AnswerSerializer,
     AnswerAnnotationSerialzer,
+    RankSerializer,
 )
 
 
 class AssignmentViewSet(viewsets.ModelViewSet):
     """
-    A simple ViewSet for viewing and editing accounts.
+    A simple ViewSet for viewing and editing assignments.
     """
 
     queryset = Assignment.objects.all()
     serializer_class = AssignmentSerializer
+
+
+class QuestionListViewSet(viewsets.ModelViewSet):
+    """
+    A simple ViewSet for editing assignment question.
+    """
+
+    queryset = AssignmentQuestions.objects.all()
+    serializer_class = RankSerializer
 
 
 class ReviewAnswersListView(generics.ListAPIView):

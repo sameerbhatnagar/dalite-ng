@@ -10,6 +10,11 @@ peerinst_api = DefaultRouter()
 peerinst_api.register(
     r"assignments", views.AssignmentViewSet, basename="assignment"
 )
+peerinst_api.register(
+    r"assignment-questions",
+    views.QuestionListViewSet,
+    basename="assignment_question",
+)
 
 
 urlpatterns = [
