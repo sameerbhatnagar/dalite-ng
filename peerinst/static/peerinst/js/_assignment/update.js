@@ -1,11 +1,12 @@
 import { Component, h, render } from "preact";
 import Card from "preact-material-components/Card";
 import "preact-material-components/Card/style.css";
-import "preact-material-components/Button/style.css";
 import Checkbox from "preact-material-components/Checkbox";
 import Formfield from "preact-material-components/FormField";
 import "preact-material-components/Checkbox/style.css";
 import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
+import Snackbar from "preact-material-components/Snackbar";
+import "preact-material-components/Snackbar/style.css";
 //import IconToggle from "preact-material-components/IconToggle";
 
 export { h, render };
@@ -28,16 +29,13 @@ async function handleResponse(response) {
     window.location.href = url;
   }
 
-  if (response.status == 403 || response.status == 405) {
-    // Could raise an alert??
+  if ([400, 403, 404, 405].includes(response.status)) {
     console.info(response);
-    return response;
+    throw new Error(response);
   }
 }
 
 async function submitData(url, data, method) {
-  console.info(data);
-  console.info(JSON.stringify(data));
   const response = await fetch(url, {
     method,
     mode: "same-origin",
@@ -51,7 +49,6 @@ async function submitData(url, data, method) {
     }),
     body: JSON.stringify(data),
   });
-
   return await handleResponse(response);
 }
 
@@ -250,6 +247,7 @@ export class AssignmentUpdateApp extends Component {
     showImages: sessionStorage.images == "block",
     questions: [],
     title: "",
+    current: [],
   };
 
   handleChoiceToggleClick = () => {
@@ -273,13 +271,20 @@ export class AssignmentUpdateApp extends Component {
     const _questions = get(this.props.assignmentURL);
     _questions
       .then((data) => {
-        console.info(data);
         _this.setState({
+          current: data["questions"],
           questions: data["questions"],
           title: data["title"],
         });
       })
-      .catch((error) => console.error(error));
+      .catch((error) => {
+        console.error(error);
+        this.bar.MDComponent.show({
+          message: this.props.gettext(
+            "An error occurred.  Try refreshing this page.",
+          ),
+        });
+      });
   };
 
   componentDidMount() {
@@ -296,8 +301,20 @@ export class AssignmentUpdateApp extends Component {
         },
         "PATCH",
       );
+      this.bar.MDComponent.show({
+        message: this.props.gettext("Changes saved."),
+      });
+      this.setState({
+        current: this.state.questions,
+      });
     } catch (error) {
       console.error(error);
+      this.bar.MDComponent.show({
+        message: this.props.gettext("An error occurred."),
+      });
+      this.setState({
+        questions: this.state.current,
+      });
     }
   };
 
@@ -311,7 +328,6 @@ export class AssignmentUpdateApp extends Component {
     this.setState({
       questions: _questions,
     });
-    // Save
     this.save();
   };
 
@@ -368,6 +384,11 @@ export class AssignmentUpdateApp extends Component {
               )}
             </Droppable>
           </DragDropContext>
+          <Snackbar
+            ref={(bar) => {
+              this.bar = bar;
+            }}
+          />
         </div>
       );
     }
