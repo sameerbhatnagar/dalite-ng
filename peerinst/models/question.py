@@ -6,6 +6,7 @@ import itertools
 import string
 from datetime import datetime
 import pandas as pd
+import bleach
 
 import pytz
 from django.contrib.auth.models import User
@@ -20,6 +21,7 @@ from django.utils.translation import ugettext_lazy as _
 from reputation.models import Reputation
 
 from .. import rationale_choice
+from ..templatetags.bleach_html import ALLOWED_TAGS
 from .search import MetaSearch
 
 
@@ -647,11 +649,24 @@ class Question(models.Model):
             ):
                 d = {}
                 d["Answer"] = q_answerchoices[first_answer_choice][0]
-                d["answer_text"] = q_answerchoices[first_answer_choice][2]
+                d["answer_text"] = bleach.clean(
+                    q_answerchoices[first_answer_choice][2],
+                    tags=ALLOWED_TAGS,
+                    styles=[],
+                    strip=True,
+                )
                 d["correct"] = q_answerchoices[first_answer_choice][1]
-                d["most_convincing"] = best_answers.loc[
+                most_convincing = best_answers.loc[
                     :, ["id", "times_chosen", "times_shown", "rationale"]
-                ].to_dict(orient="records")
+                ]
+                most_convincing["rationale"] = most_convincing[
+                    "rationale"
+                ].apply(
+                    lambda x: bleach.clean(x, tags=[], styles=[], strip=True)
+                )
+                d["most_convincing"] = most_convincing.to_dict(
+                    orient="records"
+                )
                 r.append(d)
 
         else:
