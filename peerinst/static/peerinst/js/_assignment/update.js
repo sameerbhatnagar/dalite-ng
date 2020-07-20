@@ -166,6 +166,7 @@ class QuestionCard extends Component {
         {(user) => {
           let mode;
           let title;
+          let onclick;
           if (
             this.props.question.user
               ? this.props.question.user.username == user
@@ -173,13 +174,18 @@ class QuestionCard extends Component {
           ) {
             mode = "edit";
             title = this.props.gettext("Edit");
+            onclick = () =>
+              (window.location = this.props.editURL + this.props.question.pk);
           } else {
             mode = "file_copy";
             title = this.props.gettext("Copy and edit");
+            onclick = () =>
+              (window.location = this.props.cloneURL + this.props.question.pk);
           }
           return (
             <IconButton
               className="mdc-theme--primary"
+              onclick={onclick}
               style={{ fontFamily: "Material Icons" }}
               title={title}
             >
@@ -512,6 +518,8 @@ export class AssignmentUpdateApp extends Component {
         />
         {this.state.questions.map((q) => (
           <QuestionCard
+            cloneURL={this.props.questionCloneBaseURL}
+            editURL={this.props.questionEditBaseURL}
             handleQuestionDelete={this.handleQuestionDelete}
             question={q.question}
             rank={q.pk}

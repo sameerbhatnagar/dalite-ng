@@ -325,6 +325,8 @@
         assignmentQuestionURL: "{% url 'REST:assignment_question-list' %}",
         gettext: gettext,
         nonce: "{{ request.csp_nonce }}",
+        questionCloneBaseURL: "/question/clone/",
+        questionEditBaseURL: "/question/update/",
         user: "{{ request.user }}"
       }
     );
