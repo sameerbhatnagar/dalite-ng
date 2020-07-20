@@ -293,25 +293,26 @@ class QuestionCard extends Component {
   };
 
   render() {
+    let byline = "";
+    if (this.props.question.user) {
+      byline = `${this.props.gettext("by")} ${
+        this.props.question.user.username
+      }`;
+    }
     return (
-      <div>
-        <Card>
-          <div className="card-header">
-            <div
-              className="mdc-typography--title bold"
-              // eslint-disable-next-line
-              dangerouslySetInnerHTML={{ __html: this.props.question.title }}
-            />
-            <div className="mdc-typography--caption">
-              #{this.props.question.pk}
-              {this.props.question.user
-                ? this.props.question.user.username
-                : ""}
-            </div>
+      <Card>
+        <div className="card-header">
+          <div
+            className="mdc-typography--title bold"
+            // eslint-disable-next-line
+            dangerouslySetInnerHTML={{ __html: this.props.question.title }}
+          />
+          <div className="mdc-typography--caption">
+            #{this.props.question.pk} {byline}
           </div>
-          {this.cardBody()}
-        </Card>
-      </div>
+        </div>
+        {this.cardBody()}
+      </Card>
     );
   }
 }
