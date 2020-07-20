@@ -58,6 +58,7 @@ class QuestionSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
     most_convincing_rationales = serializers.SerializerMethodField()
     matrix = serializers.SerializerMethodField()
+    collaborators = UserSerializer(many=True, read_only=True)
 
     def get_answer_count(self, obj):
         return obj.answer_set.count()
@@ -86,6 +87,7 @@ class QuestionSerializer(serializers.ModelSerializer):
             "choices",
             "most_convincing_rationales",
             "matrix",
+            "collaborators",
         ]
 
     def to_representation(self, instance):

@@ -16,6 +16,7 @@ export { h, render };
 
 const User = createContext();
 
+/* To be refactored away */
 function getCsrfToken() {
   return document.querySelectorAll("input[name=csrfmiddlewaretoken]")[0].value;
 }
@@ -69,29 +70,47 @@ async function get(url) {
 
   return await handleResponse(response);
 }
+/* End refactor */
 
 class ToggleVisibleItems extends Component {
+  toggleOrdering = () => {
+    if (this.props.allowReordering) {
+      return (
+        <Fragment>
+          <Formfield className="mdc-theme--secondary">
+            <label for="toggle-minimize">
+              {this.props.gettext("Reorder questions?")}
+            </label>
+            <Checkbox
+              aria-label={this.props.gettext(
+                "Click to enable question reordering",
+              )}
+              checked={this.props.minimizeCards}
+              id="toggle-minimize"
+              onclick={this.props.handleMinimizeToggleClick}
+              tabindex="0"
+              title={this.props.gettext("Click to enable question reordering")}
+            />
+          </Formfield>
+        </Fragment>
+      );
+    }
+  };
+
   render() {
     return (
       <div>
-        <Formfield className="mdc-theme--secondary">
-          <label for="toggle-minimize">
-            {this.props.gettext("Reorder questions?")}
-          </label>
-          <Checkbox
-            id="toggle-minimize"
-            checked={this.props.minimizeCards}
-            onclick={this.props.handleMinimizeToggleClick}
-          />
-        </Formfield>
+        {this.toggleOrdering()}
         <Formfield className="mdc-theme--secondary">
           <label for="toggle-images">
             {this.props.gettext("Show images")}
           </label>
           <Checkbox
-            id="toggle-images"
+            aria-label={this.props.gettext("Click to show question images")}
             checked={this.props.showImages}
+            id="toggle-images"
             onclick={this.props.handleImageToggleClick}
+            title={this.props.gettext("Click to show question images")}
           />
         </Formfield>
         <Formfield className="mdc-theme--secondary">
@@ -99,9 +118,11 @@ class ToggleVisibleItems extends Component {
             {this.props.gettext("Show choices")}
           </label>
           <Checkbox
-            id="toggle-answers"
+            aria-label={this.props.gettext("Click to show answer choices")}
             checked={this.props.showChoices}
+            id="toggle-answers"
             onclick={this.props.handleChoiceToggleClick}
+            title={this.props.gettext("Click to show answer choices")}
           />
         </Formfield>
       </div>
@@ -114,9 +135,9 @@ class Image extends Component {
     if (this.props.url) {
       return (
         <img
+          alt={this.props.altText}
           class="mdc-typography--caption question-image"
           src={this.props.url}
-          alt={this.props.altText}
           style={{ display: this.props.show ? "block" : "none" }}
         />
       );
@@ -169,7 +190,8 @@ class QuestionCard extends Component {
           let onclick;
           if (
             this.props.question.user
-              ? this.props.question.user.username == user
+              ? this.props.question.user.username == user ||
+                this.props.question.collaborators.includes(user)
               : false
           ) {
             mode = "edit";
@@ -444,19 +466,35 @@ export class AssignmentUpdateApp extends Component {
     this.save();
   };
 
+  toggles = () => {
+    return (
+      <ToggleVisibleItems
+        allowReordering={this.state.questions.length > 1}
+        gettext={this.props.gettext}
+        showChoices={this.state.showChoices}
+        showImages={this.state.showImages}
+        minimizeCards={this.state.minimizeCards}
+        handleChoiceToggleClick={this.handleChoiceToggleClick}
+        handleImageToggleClick={this.handleImageToggleClick}
+        handleMinimizeToggleClick={this.handleMinimizeToggleClick}
+      />
+    );
+  };
+
   render() {
+    if (this.state.questions.length == 0) {
+      return (
+        <div>
+          {this.props.gettext(
+            "There are currently no questions in this assignment.  You can search for questions to add below.",
+          )}
+        </div>
+      );
+    }
     if (this.state.minimizeCards) {
       return (
         <div>
-          <ToggleVisibleItems
-            gettext={this.props.gettext}
-            showChoices={this.state.showChoices}
-            showImages={this.state.showImages}
-            minimizeCards={this.state.minimizeCards}
-            handleChoiceToggleClick={this.handleChoiceToggleClick}
-            handleImageToggleClick={this.handleImageToggleClick}
-            handleMinimizeToggleClick={this.handleMinimizeToggleClick}
-          />
+          {this.toggles()}
           <DragDropContext nonce={this.props.nonce} onDragEnd={this.onDragEnd}>
             <Droppable droppableId="questions">
               {(provided, snapshot) => (
@@ -506,35 +544,29 @@ export class AssignmentUpdateApp extends Component {
       );
     }
     return (
-      <User.Provider value={this.props.user}>
-        <ToggleVisibleItems
-          gettext={this.props.gettext}
-          showChoices={this.state.showChoices}
-          showImages={this.state.showImages}
-          minimizeCards={this.state.minimizeCards}
-          handleChoiceToggleClick={this.handleChoiceToggleClick}
-          handleImageToggleClick={this.handleImageToggleClick}
-          handleMinimizeToggleClick={this.handleMinimizeToggleClick}
-        />
-        {this.state.questions.map((q) => (
-          <QuestionCard
-            cloneURL={this.props.questionCloneBaseURL}
-            editURL={this.props.questionEditBaseURL}
-            handleQuestionDelete={this.handleQuestionDelete}
-            question={q.question}
-            rank={q.pk}
-            gettext={this.props.gettext}
-            showChoices={this.state.showChoices}
-            showImages={this.state.showImages}
-            minimizeCards={this.state.minimizeCards}
-          />
-        ))}
+      <div>
+        <User.Provider value={this.props.user}>
+          {this.toggles()}
+          {this.state.questions.map((q) => (
+            <QuestionCard
+              cloneURL={this.props.questionCloneBaseURL}
+              editURL={this.props.questionEditBaseURL}
+              handleQuestionDelete={this.handleQuestionDelete}
+              question={q.question}
+              rank={q.pk}
+              gettext={this.props.gettext}
+              showChoices={this.state.showChoices}
+              showImages={this.state.showImages}
+              minimizeCards={this.state.minimizeCards}
+            />
+          ))}
+        </User.Provider>
         <Snackbar
           ref={(bar) => {
             this.bar = bar;
           }}
         />
-      </User.Provider>
+      </div>
     );
   }
 }
