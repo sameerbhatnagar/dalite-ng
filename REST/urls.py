@@ -20,13 +20,23 @@ peerinst_api.register(
 urlpatterns = [
     path("peerinst/", include(peerinst_api.urls)),
     path(
-        "review/answers/",
-        views.ReviewAnswersListView.as_view(),
-        name="answer",
+        "student/review/",
+        views.StudentReviewList.as_view(),
+        name="student-review",
     ),
     path(
-        "feedback/answers/",
-        views.FeedbackAnswersListView.as_view(),
-        name="answer-feedback",
+        "student/feedback/",
+        views.StudentFeedbackList.as_view(),
+        name="student-feedback",
+    ),
+    path(
+        "teacher/feedback/",
+        views.TeacherFeedbackList.as_view(),
+        name="teacher-feedback-list",
+    ),
+    path(
+        "teacher/feedback/<int:pk>/",
+        views.TeacherFeedbackDetail.as_view(),
+        name="teacher-feedback-detail",
     ),
 ]

@@ -1,6 +1,4 @@
 from rest_framework import viewsets, generics
-from rest_framework.views import APIView
-from rest_framework.response import Response
 
 from peerinst.models import (
     Assignment,
@@ -34,7 +32,7 @@ class QuestionListViewSet(viewsets.ModelViewSet):
     serializer_class = RankSerializer
 
 
-class ReviewAnswersListView(generics.ListAPIView):
+class StudentReviewList(generics.ListAPIView):
     """
     List all answers submitted by authenticated student, with associated
     question and most convincing rationales
@@ -51,15 +49,46 @@ class ReviewAnswersListView(generics.ListAPIView):
         return Answer.objects.filter(user_token=student.username)
 
 
-class FeedbackAnswersListView(APIView):
+class StudentFeedbackList(generics.ListAPIView):
     """
     List all Feedback (AnswerAnnotation objects) for
     authenticated student's answers
     """
 
-    def get(self, request, format=None):
-        feedback = AnswerAnnotation.objects.filter(
-            answer__user_token=request.user.username, score__isnull=False
+    serializer_class = AnswerAnnotationSerialzer
+
+    def get_queryset(self):
+        return AnswerAnnotation.objects.filter(
+            answer__user_token=self.request.user.username, score__isnull=False
         )
-        serializer = AnswerAnnotationSerialzer(feedback, many=True)
-        return Response(serializer.data)
+
+
+class TeacherFeedbackList(generics.ListCreateAPIView):
+    """
+    endpoint to list authenticated user's feedback given
+    (AnswerAnnotation objects where they are annotator),
+    or create new one
+    """
+
+    serializer_class = AnswerAnnotationSerialzer
+
+    def get_queryset(self):
+        return AnswerAnnotation.objects.filter(
+            annotator=self.request.user, score__isnull=False
+        )
+
+    def perform_create(self, serializer):
+        serializer.save(annotator=self.request.user)
+
+
+class TeacherFeedbackDetail(generics.RetrieveUpdateDestroyAPIView):
+    """
+    View for RUD operations on AnswerAnnotation model
+    """
+
+    serializer_class = AnswerAnnotationSerialzer
+
+    def get_queryset(self):
+        return AnswerAnnotation.objects.filter(
+            annotator=self.request.user, score__isnull=False
+        )
