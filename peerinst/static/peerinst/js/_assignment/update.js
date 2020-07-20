@@ -1,5 +1,5 @@
 //import "preact/debug";
-import { Component, Fragment, h, render } from "preact";
+import { Component, createContext, Fragment, h, render } from "preact";
 import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
 import Card from "preact-material-components/Card";
 import Checkbox from "preact-material-components/Checkbox";
@@ -13,6 +13,8 @@ import "preact-material-components/Snackbar/style.css";
 import "preact-material-components/IconButton/style.css";
 
 export { h, render };
+
+const User = createContext();
 
 function getCsrfToken() {
   return document.querySelectorAll("input[name=csrfmiddlewaretoken]")[0].value;
@@ -150,12 +152,43 @@ class Choices extends Component {
 
 class QuestionCard extends Component {
   renderCategory = () => {
-    if (this.props.question.category) {
+    if (this.props.question.category.length > 0) {
       return this.props.question.category.map((el, index) =>
         index > 0 ? `, ${el.title}` : el.title,
       );
     }
     return this.props.gettext("Uncategorized");
+  };
+
+  editOrCopy = () => {
+    return (
+      <User.Consumer>
+        {(user) => {
+          let mode;
+          let title;
+          if (
+            this.props.question.user
+              ? this.props.question.user.username == user
+              : false
+          ) {
+            mode = "edit";
+            title = this.props.gettext("Edit");
+          } else {
+            mode = "file_copy";
+            title = this.props.gettext("Copy and edit");
+          }
+          return (
+            <IconButton
+              className="mdc-theme--primary"
+              style={{ fontFamily: "Material Icons" }}
+              title={title}
+            >
+              {mode}
+            </IconButton>
+          );
+        }}
+      </User.Consumer>
+    );
   };
 
   colours = {
@@ -165,7 +198,7 @@ class QuestionCard extends Component {
     peer: "rgb(25, 118, 188)",
   };
 
-  getLabel = () => {
+  getDifficultyLabel = () => {
     return Object.entries(this.props.question.matrix).sort(
       (a, b) => b[1] - a[1],
     )[0][0];
@@ -175,7 +208,7 @@ class QuestionCard extends Component {
     <Fragment>
       <div
         style={{
-          color: this.colours[this.getLabel()],
+          color: this.colours[this.getDifficultyLabel()],
           position: "relative",
         }}
       >
@@ -199,17 +232,12 @@ class QuestionCard extends Component {
             marginTop: "-14px",
           }}
         >
-          {Array.from(this.getLabel()).map((letter, i) =>
+          {Array.from(this.getDifficultyLabel()).map((letter, i) =>
             i == 0 ? letter.toUpperCase() : letter.toLowerCase(),
           )}
         </div>
       </div>
-      <IconButton
-        className="mdc-theme--primary"
-        style={{ fontFamily: "Material Icons" }}
-      >
-        file_copy
-      </IconButton>
+      {this.editOrCopy()}
       <IconButton
         className="mdc-theme--primary"
         onClick={() => this.props.handleQuestionDelete(this.props.rank)}
@@ -471,7 +499,7 @@ export class AssignmentUpdateApp extends Component {
       );
     }
     return (
-      <div>
+      <User.Provider value={this.props.user}>
         <ToggleVisibleItems
           gettext={this.props.gettext}
           showChoices={this.state.showChoices}
@@ -497,7 +525,7 @@ export class AssignmentUpdateApp extends Component {
             this.bar = bar;
           }}
         />
-      </div>
+      </User.Provider>
     );
   }
 }
