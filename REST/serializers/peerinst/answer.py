@@ -9,7 +9,7 @@ from peerinst.models import (
     ShownRationale,
 )
 
-from .assignment import QuestionSerializer, UserSerializer
+from .assignment import QuestionSerializer
 
 from peerinst.templatetags.bleach_html import ALLOWED_TAGS
 
@@ -18,7 +18,6 @@ class AnswerSerializer(serializers.ModelSerializer):
     answer_choice = serializers.SerializerMethodField()
     vote_count = serializers.SerializerMethodField()
     shown_count = serializers.SerializerMethodField()
-    teacher_feedback = serializers.SerializerMethodField()
     question = QuestionSerializer(read_only=True)
 
     def get_vote_count(self, obj):
@@ -35,11 +34,6 @@ class AnswerSerializer(serializers.ModelSerializer):
                 "text", "correct"
             )[obj.first_answer_choice - 1]
 
-    def get_teacher_feedback(self, obj):
-        return AnswerAnnotation.objects.filter(
-            answer=obj, score__isnull=False
-        ).values("score", "annotator__username", "note")
-
     def to_representation(self, instance):
         ret = super().to_representation(instance)
         ret["rationale"] = bleach.clean(
@@ -50,20 +44,24 @@ class AnswerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Answer
         fields = [
+            "id",
             "answer_choice",
             "rationale",
             "vote_count",
             "shown_count",
-            "teacher_feedback",
             "question",
         ]
+        read_only_fields = fields
         ordering = ["-vote_count"]
 
 
 class AnswerAnnotationSerialzer(serializers.ModelSerializer):
-    annotator = UserSerializer()
+    annotator = serializers.ReadOnlyField(source="annotator.username")
     answer = AnswerSerializer()
 
     class Meta:
         model = AnswerAnnotation
-        fields = ["answer", "score", "annotator", "note", "timestamp"]
+        fields = ["pk", "score", "annotator", "note", "timestamp", "answer"]
+
+    def create(self, validated_data):
+        return AnswerAnnotation.objects.create(**validated_data)
