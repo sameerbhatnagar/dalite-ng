@@ -323,8 +323,8 @@
       assignment.AssignmentUpdateApp, {
         assignmentURL: "{% url 'REST:assignment-detail' object.pk %}?format=json",
         assignmentQuestionURL: "{% url 'REST:assignment_question-list' %}",
-        nonce: "{{ request.csp_nonce }}",
-        gettext: gettext
+        gettext: gettext,
+        nonce: "{{ request.csp_nonce }}"
       }
     );
     assignment.render(assignmentUpdateApp, document.getElementById("assignment-update-app"));

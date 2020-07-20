@@ -158,14 +158,52 @@ class QuestionCard extends Component {
     return this.props.gettext("Uncategorized");
   };
 
+  colours = {
+    easy: "rgb(30, 142, 62)",
+    hard: "rgb(237, 69, 40)",
+    tricky: "rgb(237, 170, 30)",
+    peer: "rgb(25, 118, 188)",
+  };
+
+  getLabel = () => {
+    return Object.entries(this.props.question.matrix).sort(
+      (a, b) => b[1] - a[1],
+    )[0][0];
+  };
+
   insertActions = () => (
     <Fragment>
-      <IconButton
-        className="mdc-theme--primary"
-        style={{ fontFamily: "Material Icons" }}
+      <div
+        style={{
+          color: this.colours[this.getLabel()],
+          position: "relative",
+        }}
       >
-        assessment
-      </IconButton>
+        <IconButton
+          style={{
+            fontFamily: "Material Icons",
+          }}
+          title={this.props.gettext(
+            "Difficulty level based on past student answers",
+          )}
+        >
+          info
+        </IconButton>
+        <div
+          style={{
+            position: "absolute",
+            left: "50%",
+            width: "inherit",
+            transform: "translateX(-50%)",
+            fontSize: "x-small",
+            marginTop: "-14px",
+          }}
+        >
+          {Array.from(this.getLabel()).map((letter, i) =>
+            i == 0 ? letter.toUpperCase() : letter.toLowerCase(),
+          )}
+        </div>
+      </div>
       <IconButton
         className="mdc-theme--primary"
         style={{ fontFamily: "Material Icons" }}
@@ -176,6 +214,7 @@ class QuestionCard extends Component {
         className="mdc-theme--primary"
         onClick={() => this.props.handleQuestionDelete(this.props.rank)}
         style={{ fontFamily: "Material Icons" }}
+        title={this.props.gettext("Remove question from assignment")}
       >
         delete
       </IconButton>

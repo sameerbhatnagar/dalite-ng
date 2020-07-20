@@ -57,6 +57,7 @@ class QuestionSerializer(serializers.ModelSerializer):
     discipline = DisciplineSerializer(read_only=True)
     user = UserSerializer(read_only=True)
     most_convincing_rationales = serializers.SerializerMethodField()
+    matrix = serializers.SerializerMethodField()
 
     def get_answer_count(self, obj):
         return obj.answer_set.count()
@@ -66,6 +67,9 @@ class QuestionSerializer(serializers.ModelSerializer):
 
     def get_most_convincing_rationales(self, obj):
         return obj.get_most_convincing_rationales()
+
+    def get_matrix(self, obj):
+        return obj.get_matrix()
 
     class Meta:
         model = Question
@@ -81,6 +85,7 @@ class QuestionSerializer(serializers.ModelSerializer):
             "image_alt_text",
             "choices",
             "most_convincing_rationales",
+            "matrix",
         ]
 
     def to_representation(self, instance):
