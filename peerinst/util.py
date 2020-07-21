@@ -565,7 +565,7 @@ def report_data_by_assignment(assignment_list, student_groups, teacher):
         student_gradebook_transitions = {}
         question_list = []
         d3_data = []
-        for q in a.questions.all():
+        for q in a.questions.order_by("assignmentquestions__rank"):
 
             answer_qs_question = answer_qs.filter(question_id=q.id)
 
@@ -1422,7 +1422,7 @@ def get_student_activity_data(teacher):
                     )
 
             # Keyed on assignment
-            for l in lti_assignments:
+            for l in lti_assignments:  # noqa
                 answers = [
                     a
                     for a in lti_answers
