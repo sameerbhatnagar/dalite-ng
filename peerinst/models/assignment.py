@@ -293,7 +293,12 @@ class StudentGroupAssignment(models.Model):
             self._modify_due_date(value)
 
         elif name == "question_list":
-            questions = [q.title for q in self.assignment.questions.all()]
+            questions = [
+                q.title
+                for q in self.assignment.questions.order_by(
+                    "assignmentquestions__rank"
+                )
+            ]
             order = ",".join(str(questions.index(v)) for v in value)
             err = self._modify_order(order)
             if err is not None:
@@ -342,7 +347,18 @@ class StudentGroupAssignment(models.Model):
     def save(self, *args, **kwargs):
         if not self.order:
             self.order = ",".join(
-                map(str, list(range(len(self.assignment.questions.all()))))
+                map(
+                    str,
+                    list(
+                        range(
+                            len(
+                                self.assignment.questions.order_by(
+                                    "assignmentquestions__rank"
+                                )
+                            )
+                        )
+                    ),
+                )
             )
         super(StudentGroupAssignment, self).save(*args, **kwargs)
 
@@ -404,7 +420,9 @@ class StudentGroupAssignment(models.Model):
 
     @property
     def questions(self):
-        questions_ = self.assignment.questions.all()
+        questions_ = self.assignment.questions.order_by(
+            "assignmentquestions__rank"
+        )
         if not self.order:
             self.order = ",".join(map(str, list(range(len(questions_)))))
             self.save()
