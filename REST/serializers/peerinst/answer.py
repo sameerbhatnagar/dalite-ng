@@ -10,11 +10,11 @@ from peerinst.models import (
 )
 
 from .assignment import QuestionSerializer
-
+from .dynamic_serializer import DynamicFieldsModelSerializer
 from peerinst.templatetags.bleach_html import ALLOWED_TAGS
 
 
-class AnswerSerializer(serializers.ModelSerializer):
+class AnswerSerializer(DynamicFieldsModelSerializer):
     answer_choice = serializers.SerializerMethodField()
     vote_count = serializers.SerializerMethodField()
     shown_count = serializers.SerializerMethodField()
@@ -57,7 +57,7 @@ class AnswerSerializer(serializers.ModelSerializer):
 
 class AnswerAnnotationSerialzer(serializers.ModelSerializer):
     annotator = serializers.ReadOnlyField(source="annotator.username")
-    answer = AnswerSerializer()
+    answer = AnswerSerializer(fields=("id", "rationale"))
 
     class Meta:
         model = AnswerAnnotation
