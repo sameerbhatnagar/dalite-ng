@@ -193,7 +193,9 @@ def navigate_assignment(request, assignment_id, question_id, direction, index):
             )
 
         assignment = get_object_or_404(Assignment, pk=assignment_id)
-        questions = list(assignment.questions.all())
+        questions = list(
+            assignment.questions.order_by("assignmentquestions__rank")
+        )
         current_question = get_object_or_404(Question, pk=question_id)
         idx = questions.index(current_question)
         if direction == "next":
