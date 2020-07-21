@@ -340,7 +340,10 @@ class AssignmentCopyView(LoginRequiredMixin, NoStudentsMixin, CreateView):
             models.Assignment, pk=self.kwargs["assignment_id"]
         )
         form.instance.save()
-        form.instance.questions.add(*assignment.questions.all())
+        for aq in assignment.assignmentquestions_set.all():
+            form.instance.questions.add(
+                aq.question, through_defaults={"rank": aq.rank}
+            )
         form.instance.owner.add(self.request.user)
         teacher = get_object_or_404(models.Teacher, user=self.request.user)
         teacher.assignments.add(form.instance)
@@ -3200,7 +3203,7 @@ def report_assignment_aggregates(request):
         d_a = {}
         d_a["assignment"] = a.identifier
         d_a["questions"] = []
-        for q in a.questions.all():
+        for q in a.questions.order_by("assignmentquestions__rank"):
             d_q = {}
             d_q["question"] = q.text
             try:

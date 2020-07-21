@@ -765,13 +765,36 @@ class TeacherTest(TestCase):
             Assignment.objects.get(pk="Assignment4").questions.count() - 1,
         )
 
+        # Check that ranks are copied
+        assignment = Assignment.objects.get(pk="Assignment4")
+        ranks = assignment.assignmentquestions_set.all()
+        count = len(ranks)
+        for i, rank in enumerate(ranks):
+            rank.rank = count - i
+            rank.save()
+        response = self.client.post(
+            reverse(
+                "assignment-copy", kwargs={"assignment_id": "Assignment4"}
+            ),
+            {"title": "Copy of Assignment4", "identifier": "unique"},
+        )
+
+        copied_assignment = Assignment.objects.get(pk="unique")
+
+        self.assertTrue(copied_assignment)
+        self.assertEqual(copied_assignment.title, "Copy of Assignment4")
+        self.assertQuerysetEqual(
+            copied_assignment.questions.order_by("assignmentquestions__rank"),
+            list(assignment.questions.order_by("assignmentquestions__rank")),
+            transform=lambda qs: qs,
+        )
+
         # As teacher, post valid form to add question with student answers ->
         # 403
         response = self.client.post(
             reverse(
                 "assignment-update", kwargs={"assignment_id": "Assignment1"}
             ),
-            {"q": 31},
             follow=True,
         )
         self.assertEqual(response.status_code, 403)
