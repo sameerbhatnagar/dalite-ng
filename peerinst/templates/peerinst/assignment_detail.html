@@ -13,6 +13,12 @@
 {% compress js file search %}
 <script src="{% static 'peerinst/js/search.min.js' %}"></script>
 {% endcompress %}
+{% compress js file assignment %}
+<script src="{% static 'peerinst/js/assignment.min.js' %}" defer="true"></script>
+{% endcompress %}
+{% compress css file assignment %}
+<link href="{% static 'peerinst/js/assignment.min.css' %}" rel="stylesheet">
+{% endcompress %}
 {% endblock %}
 
 {% block body %}
@@ -28,11 +34,14 @@
       <span class="links-divider">|</span><a href="{% url 'question-create' %}">{% trans 'Create new question' %}</a>
     </div>
 
-    <h2 id="assignment" class="mdc-typography--display1 mdc-theme--secondary">{{object.title}}</h2>
+    <h2 id="assignment" class="mdc-typography--display1 mdc-theme--secondary">{{ object.title }}</h2>
+
     <div class="admin-link">
       <a href="{% url 'assignment-edit' object.pk %}">{% trans 'Edit title' %}</a>
       <span class="links-divider">|</span><a href="{% url 'question-list' object.pk %}">{% trans 'Preview' %}</a>
     </div>
+
+    <div id="assignment-update-app"></div>
 
     <div class="mdc-form-field">
       <span class="mdc-theme--secondary">{% trans 'Show images' %}</span>
@@ -70,7 +79,7 @@
       </div>
 
       {% if g.image %}
-      <img class="question-image hidden" src="{{ g.image.url }}" alt="g.image_alt_text">
+      <img class="question-image hidden" src="{{ g.image.url }}" alt="{{ g.image_alt_text }}">
       {% endif %}
 
       <div class="question-answers hidden">
@@ -80,7 +89,7 @@
             {% for c in g.answerchoice_set.all %}
               {% if forloop.counter == forloop.parentloop.counter %}
                 {% if c.correct %}
-                  <i class="check material-icons">check</i>
+                    <i class="check material-icons">check</i>
                 {% endif %}
               {% endif %}
             {% endfor %}
@@ -309,6 +318,21 @@
 {{ block.super }}
 <script src="https://unpkg.com/json5@2.1.1/dist/index.min.js" integrity="sha384-gRrJKgBpstjyexh9UmCoTPivgMMb7/EAtEdR5DLbVhiPYdl03QxdzMzbylHUSloD" crossorigin="anonymous"></script>
 <script nonce="{{ request.csp_nonce }}">
+  window.addEventListener("load", function() {
+    const assignmentUpdateApp = assignment.h(
+      assignment.AssignmentUpdateApp, {
+        assignmentURL: "{% url 'REST:assignment-detail' object.pk %}?format=json",
+        assignmentQuestionURL: "{% url 'REST:assignment_question-list' %}",
+        gettext: gettext,
+        nonce: "{{ request.csp_nonce }}",
+        questionCloneBaseURL: "/question/clone/",
+        questionEditBaseURL: "/question/update/",
+        user: "{{ request.user }}"
+      }
+    );
+    assignment.render(assignmentUpdateApp, document.getElementById("assignment-update-app"));
+  })
+
   // Remember state of unfolded elements
   // All h2 require ids
   $(".foldable").each(function() {

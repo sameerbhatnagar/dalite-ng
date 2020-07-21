@@ -6,7 +6,13 @@ from django.contrib.auth.models import Group, Permission, User
 from django.test import TestCase, TransactionTestCase
 from django.urls import reverse
 
-from peerinst.models import Assignment, Collection, Discipline, Question
+from peerinst.models import (
+    Assignment,
+    AssignmentQuestions,
+    Collection,
+    Discipline,
+    Question,
+)
 from quality.models import UsesCriterion
 from tos.models import Consent, Role, Tos
 
@@ -736,6 +742,16 @@ class TeacherTest(TestCase):
         self.assertIn(
             Question.objects.get(pk=31),
             Assignment.objects.get(pk="Assignment4").questions.all(),
+        )
+        last_question = (
+            AssignmentQuestions.objects.filter(assignment__pk="Assignment4")
+            .order_by("rank")
+            .last()
+        )
+        self.assertEqual(Question.objects.get(pk=31), last_question.question)
+        self.assertEqual(
+            last_question.rank,
+            Assignment.objects.get(pk="Assignment4").questions.count() - 1,
         )
 
         # As teacher, post valid form to add question with student answers ->

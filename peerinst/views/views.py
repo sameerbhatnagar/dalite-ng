@@ -381,7 +381,7 @@ class AssignmentUpdateView(LoginRequiredMixin, NoStudentsMixin, DetailView):
     """View for updating assignment."""
 
     model = Assignment
-    template_name_suffix = "_detail_beta"
+    template_name_suffix = "_detail"
 
     def dispatch(self, *args, **kwargs):
         # Check object permissions (to be refactored using mixin)
@@ -407,7 +407,6 @@ class AssignmentUpdateView(LoginRequiredMixin, NoStudentsMixin, DetailView):
             teacher.user.question_set.all() | teacher.user.collaborators.all()
         )
         context["all_questions"] = all_qs.distinct()
-        print(self.object.questions.all())
         return context
 
     def get_object(self):
@@ -421,7 +420,17 @@ class AssignmentUpdateView(LoginRequiredMixin, NoStudentsMixin, DetailView):
         if form.is_valid():
             question = form.cleaned_data["q"]
             if question not in self.object.questions.all():
-                self.object.questions.add(question)
+                # Reset ranks
+                last_rank = 0
+                for i, q in enumerate(
+                    self.object.assignmentquestions_set.all()
+                ):
+                    q.rank = i
+                    last_rank = i
+                    q.save()
+                self.object.questions.add(
+                    question, through_defaults={"rank": last_rank + 1}
+                )
             else:
                 self.object.questions.remove(question)
             self.object.save()
