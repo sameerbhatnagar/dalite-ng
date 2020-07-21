@@ -454,7 +454,10 @@ class QuestionListView(LoginRequiredMixin, NoStudentsMixin, ListView):
         self.assignment = get_object_or_404(
             models.Assignment, pk=self.kwargs["assignment_id"]
         )
-        return self.assignment.questions.all()
+        return [
+            rank.question
+            for rank in self.assignment.assignmentquestions_set.all()
+        ]
 
     def get_context_data(self, **kwargs):
         context = ListView.get_context_data(self, **kwargs)

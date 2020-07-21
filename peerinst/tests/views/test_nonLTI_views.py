@@ -211,14 +211,25 @@ class TeacherTest(TestCase):
         self.assertTrue(logged_in)
 
         # List matches assignment object
+        assignment = Assignment.objects.get(pk="Assignment1")
+        ranks = assignment.assignmentquestions_set.all()
+        count = len(ranks)
+        for i, rank in enumerate(ranks):
+            rank.rank = count - i
+            rank.save()
+
         response = self.client.get(
             reverse("question-list", kwargs={"assignment_id": "Assignment1"})
         )
         self.assertEqual(response.status_code, 200)
         self.assertCountEqual(
-            response.context["object_list"],
-            Assignment.objects.get(pk="Assignment1").questions.all(),
+            response.context["object_list"], assignment.questions.all(),
         )
+        questions = [
+            rank.question for rank in assignment.assignmentquestions_set.all()
+        ]
+        for i, q in enumerate(response.context["object_list"]):
+            self.assertEqual(q, questions[i])
 
         # Assignment pk invalid -> 404
         response = self.client.get(
