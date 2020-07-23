@@ -12,6 +12,7 @@ from REST.serializers import (
     AnswerAnnotationSerialzer,
     RankSerializer,
 )
+from REST.permissions import InAssignmentOwnerList, InOwnerList
 
 
 class AssignmentViewSet(viewsets.ModelViewSet):
@@ -19,8 +20,11 @@ class AssignmentViewSet(viewsets.ModelViewSet):
     A simple ViewSet for viewing and editing assignments.
     """
 
-    queryset = Assignment.objects.all()
     serializer_class = AssignmentSerializer
+    permission_classes = [InOwnerList]
+
+    def get_queryset(self):
+        return Assignment.objects.filter(owner=self.request.user)
 
 
 class QuestionListViewSet(viewsets.ModelViewSet):
@@ -28,8 +32,13 @@ class QuestionListViewSet(viewsets.ModelViewSet):
     A simple ViewSet for adding/removing assignment questions.
     """
 
-    queryset = AssignmentQuestions.objects.all()
     serializer_class = RankSerializer
+    permission_classes = [InAssignmentOwnerList]
+
+    def get_queryset(self):
+        return AssignmentQuestions.objects.filter(
+            assignment__owner=self.request.user
+        )
 
 
 class StudentReviewList(generics.ListAPIView):
