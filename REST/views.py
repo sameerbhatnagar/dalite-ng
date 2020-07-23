@@ -9,7 +9,8 @@ from peerinst.models import (
 from REST.serializers import (
     AssignmentSerializer,
     AnswerSerializer,
-    AnswerAnnotationSerialzer,
+    FeedbackWriteSerialzer,
+    FeedbackReadSerialzer,
     RankSerializer,
 )
 from REST.permissions import InAssignmentOwnerList, InOwnerList
@@ -64,7 +65,7 @@ class StudentFeedbackList(generics.ListAPIView):
     authenticated student's answers
     """
 
-    serializer_class = AnswerAnnotationSerialzer
+    serializer_class = FeedbackReadSerialzer
 
     def get_queryset(self):
         return AnswerAnnotation.objects.filter(
@@ -79,7 +80,7 @@ class TeacherFeedbackList(generics.ListCreateAPIView):
     or create new one
     """
 
-    serializer_class = AnswerAnnotationSerialzer
+    serializer_class = FeedbackWriteSerialzer
 
     def get_queryset(self):
         return AnswerAnnotation.objects.filter(
@@ -95,7 +96,7 @@ class TeacherFeedbackDetail(generics.RetrieveUpdateDestroyAPIView):
     View for RUD operations on AnswerAnnotation model
     """
 
-    serializer_class = AnswerAnnotationSerialzer
+    serializer_class = FeedbackWriteSerialzer
 
     def get_queryset(self):
         return AnswerAnnotation.objects.filter(

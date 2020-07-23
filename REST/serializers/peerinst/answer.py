@@ -18,7 +18,9 @@ class AnswerSerializer(DynamicFieldsModelSerializer):
     answer_choice = serializers.SerializerMethodField()
     vote_count = serializers.SerializerMethodField()
     shown_count = serializers.SerializerMethodField()
-    question = QuestionSerializer(read_only=True)
+    question = QuestionSerializer(
+        fields=("title", "text", "image", "choices",), read_only=True
+    )
 
     def get_vote_count(self, obj):
         return Answer.objects.filter(chosen_rationale_id=obj.id).count()
@@ -55,13 +57,21 @@ class AnswerSerializer(DynamicFieldsModelSerializer):
         ordering = ["-vote_count"]
 
 
-class AnswerAnnotationSerialzer(serializers.ModelSerializer):
+class FeedbackWriteSerialzer(serializers.ModelSerializer):
     annotator = serializers.ReadOnlyField(source="annotator.username")
-    answer = AnswerSerializer(fields=("id", "rationale"))
+    answer = serializers.PrimaryKeyRelatedField(queryset=Answer.objects.all())
 
     class Meta:
         model = AnswerAnnotation
         fields = ["pk", "score", "annotator", "note", "timestamp", "answer"]
 
-    def create(self, validated_data):
-        return AnswerAnnotation.objects.create(**validated_data)
+
+class FeedbackReadSerialzer(serializers.ModelSerializer):
+    annotator = serializers.ReadOnlyField(source="annotator.username")
+    answer = AnswerSerializer(
+        fields=("answer_choice", "rationale", "question")
+    )
+
+    class Meta:
+        model = AnswerAnnotation
+        fields = ["score", "annotator", "note", "timestamp", "answer"]
