@@ -84,6 +84,7 @@ const scriptBuilds = [
       "forums",
       "ajax",
       "assignment",
+      "preact",
     ],
   },
   {
@@ -184,7 +185,6 @@ function buildScript(app, module) {
       "@material/icon-toggle",
       "@material/radio",
       "@material/select",
-      "@material/textfield",
       "@material/toolbar",
       "material/snackbar",
     ],
@@ -232,7 +232,6 @@ function buildScript(app, module) {
       "@material/icon-toggle": "@material/icon-toggle",
       "@material/radio": "@material/radio",
       "@material/select": "@material/select",
-      "@material/textfield": "@material/textfield",
       "@material/toolbar": "@material/toolbar",
       "material/snackbar": "material/snackbar",
     },

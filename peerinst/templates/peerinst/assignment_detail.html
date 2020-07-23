@@ -13,6 +13,9 @@
 {% compress js file search %}
 <script src="{% static 'peerinst/js/search.min.js' %}"></script>
 {% endcompress %}
+{% compress js file preact %}
+<script src="{% static 'peerinst/js/preact.min.js' %}" defer="true"></script>
+{% endcompress %}
 {% compress js file assignment %}
 <script src="{% static 'peerinst/js/assignment.min.js' %}" defer="true"></script>
 {% endcompress %}
@@ -43,104 +46,9 @@
 
     <div id="assignment-update-app"></div>
 
-    <div id="favourite-questions" class="foldable">
-      <h2 id="favourite-question-section" class="foldable--title mdc-typography--display1 mdc-theme--secondary">{% trans 'My favourite questions' %}</h2>
-      <br>
-      <div class="foldable--body" class="m-top-20">
-      {% for g in teacher.favourite_questions.all %}
-      {% if g not in object.questions.all %}
-      {% if g not in teacher.deleted_questions.all %}
-      <div class="all-my-questions mdc-card" id="{{g.id|slugify}}"  matrix="{{ g.get_matrix|safe }}">
-        <div class="mdc-typography--title bold">
-          {{g.title|safe}}
-        </div>
-
-        <div class="mdc-typography--caption">
-          #{{g.id}} {% if g.user %}{% trans 'by' %} {{ g.user.username }}{% endif %}
-        </div>
-
-        <div class="mdc-typography--body1 m-top-5">
-          {{g.text|safe}}
-        </div>
-
-        {% if g.image %}
-        <img class="question-image hidden" src="{{ g.image.url }}" alt="g.image_alt_text">
-        {% endif %}
-
-        <div class="question-answers hidden">
-          <ul>
-            {% for label, choice in g.get_choices %}
-              <li class="dense-list">{{ label }}. {{ choice|bleach_html|safe }}
-              {% for c in g.answerchoice_set.all %}
-                {% if forloop.counter == forloop.parentloop.counter %}
-                  {% if c.correct %}
-                    <i class="check material-icons">check</i>
-                  {% endif %}
-                {% endif %}
-              {% endfor %}
-              </li>
-            {% endfor %}
-          </ul>
-        </div>
-
-        <div class="mdc-card__actions">
-          <div class="mdc-card__action-buttons grey">
-            <div class="mdc-typography--caption">
-              <div>
-                {% trans 'Discipline' %}: {{g.discipline}}
-              </div>
-              <div>
-                {% trans 'Categories' %}:
-                {% for c in g.category.all %}
-                {{ c.title|safe }}{% if not forloop.last %}, {% endif %}
-                {% empty %}
-                {% trans 'Uncategorized' %}
-                {% endfor %}
-              </div>
-              <div>
-                {% trans 'Student answers' %}: {{g.answer_set.all.count}}
-              </div>
-            </div>
-          </div>
-
-          <div class="mdc-card__action-icons">
-
-            <div id="stats-{{ g.id|safe }}" class="stats">
-              <i id="activate-dialog-analytics-{{ g.id|safe }}"
-              ref_id="{{ g.id|safe }}" class="material-icons md-24 analytics-tags">assessment</i>
-              <span id="rating-{{ g.id|safe }}"></span>
-            </div>
-
-            {% if request.user.teacher %}
-            <i class="mdc-icon-toggle material-icons mdc-theme--primary favourite-btn"
-                role="button"
-                data-id="{{ g.pk|safe }}"
-                aria-pressed="false"
-                aria-label="Add to favorites" tabindex="0"
-                data-toggle-off='{"label": "Remove from favourites", "content": "favorite"}'
-                data-toggle-on='{"label": "Add to favourites", "content": "favorite_border"}'>
-                favorite_border
-            </i>
-            {% endif %}
-            <form id="question-add-{{g.pk}}" class="inline" method="post" action="#{{g.id|slugify}}">
-              {% csrf_token %}
-              <input type="hidden" name="q" value="{{g.pk}}" />
-              <i form="question-add-{{g.pk}}" class="material-icons mdc-theme--primary md-24 mdc-ripple-surface icon-list submit-question-add">add</i>
-            </form>
-          </div>
-        </div>
-      </div>
-      {% endif %}
-      {% endif %}
-      {% endfor %}
-    </div>
-  </div>
-
     <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Search database' %}</h2>
 
-    <div class="admin-link">
-      <a href="#assignment">{% trans 'Return to top' %}</a>
-    </div>
+    <div id="search-db-app"></div>
 
     <div class="mdc-form-field">
       <div class="mdc-checkbox">
@@ -212,36 +120,35 @@
 <script src="https://unpkg.com/json5@2.1.1/dist/index.min.js" integrity="sha384-gRrJKgBpstjyexh9UmCoTPivgMMb7/EAtEdR5DLbVhiPYdl03QxdzMzbylHUSloD" crossorigin="anonymous"></script>
 <script nonce="{{ request.csp_nonce }}">
   window.addEventListener("load", function() {
-    const assignmentUpdateApp = assignment.h(
-      assignment.AssignmentUpdateApp, {
-        assignmentURL: "{% url 'REST:assignment-detail' object.pk %}?format=json",
-        assignmentQuestionURL: "{% url 'REST:assignment_question-list' %}",
-        gettext: gettext,
-        nonce: "{{ request.csp_nonce }}",
-        questionCloneBaseURL: "/question/clone/",
-        questionEditBaseURL: "/question/update/",
-        user: "{{ request.user }}"
-      }
-    );
-    assignment.render(assignmentUpdateApp, document.getElementById("assignment-update-app"));
-  })
-
-  // Remember state of unfolded elements
-  // All h2 require ids
-  $(".foldable").each(function() {
-    const container = $(this);
-    if (localStorage.getItem('collapse-'+container.find("h2").attr('id')) === 'false') {
-      $(this).addClass('foldable__unfolded');
+    function render() {
+      console.debug("Callback");
+      preact.render(assignmentUpdateApp(), document.getElementById("assignment-update-app"));
     }
-    container.find("h2").click(function() {
-      const state = localStorage.getItem('collapse-'+$(this).attr('id'));
-      localStorage.setItem('collapse-'+$(this).attr('id'), state === 'false' ? 'true' : 'false');
-    })
-  });
 
-  bundle.toggleImages();
-  bundle.toggleAnswers();
-  search.initFavourites();
+    const assignmentUpdateApp = () => {
+      return preact.h(
+        assignment.AssignmentUpdateApp, {
+          assignmentURL: "{% url 'REST:assignment-detail' object.pk %}?format=json",
+          assignmentQuestionURL: "{% url 'REST:assignment_question-list' %}",
+          gettext: gettext,
+          nonce: "{{ request.csp_nonce }}",
+          questionCloneBaseURL: "/question/clone/",
+          questionEditBaseURL: "/question/update/",
+          user: "{{ request.user }}",
+        });
+    }
+
+    render();
+
+    const searchDbApp = preact.h(assignment.SearchDbApp, {
+      assignment: "{{ object.pk|urlencode }}",
+      type: "assignment",
+      callback: render,
+      gettext: gettext,
+      searchURL: "{% url 'question-search' %}",
+    });
+    preact.render(searchDbApp, document.getElementById("search-db-app"))
+  })
 
   const limitSearch = document.querySelector('#limit-search');
   bundle.iconToggle.MDCIconToggle.attachTo(limitSearch);
@@ -258,13 +165,7 @@
     }
   }
 
-  $.ajaxSetup({
-      beforeSend: function(xhr, settings) {
-          if (!bundle.csrfSafeMethod(settings.type) && !this.crossDomain) {
-              xhr.setRequestHeader("X-CSRFToken", bundle.getCsrfToken());
-          }
-      }
-  });
+
 
   function pageNav(page) {
     search.setupSearch();
@@ -304,7 +205,7 @@
        return;
      }
   }
-
+  setupAnalytics();
   function toggleFavourite(pk) {
     var posting = $.post("{% url 'teacher-toggle-favourite' %}", {pk: pk});
     posting.done(function(data) {
@@ -314,16 +215,11 @@
   }
 
   window.addEventListener("load", function() {
+
     $(".mdc-card").each(function(i, el) {
       bundle.difficulty(el.getAttribute("matrix").replace(/'/g, '"'), el.id);
     });
     $(".analytics-tags").css("cursor", "default");
-
-    $(".submit-question-remove").each(function(i, el) {
-      el.addEventListener("click", function() {
-        $('#'+el.getAttribute("form")).submit();
-      });
-    });
 
     $(".submit-question-add").each(function(i, el) {
       el.addEventListener("click", function() {

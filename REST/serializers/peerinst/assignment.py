@@ -150,6 +150,15 @@ class AssignmentSerializer(serializers.ModelSerializer):
             aq.save()
         return instance
 
+    def to_representation(self, instance):
+        """Bleach HTML-supported fields"""
+        ret = super().to_representation(instance)
+        if "title" in ret:
+            ret["title"] = bleach.clean(
+                ret["title"], tags=ALLOWED_TAGS, styles=[], strip=True
+            )
+        return ret
+
     class Meta:
         model = Assignment
         fields = ["title", "questions"]
