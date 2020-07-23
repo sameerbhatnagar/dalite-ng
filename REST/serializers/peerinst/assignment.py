@@ -13,6 +13,8 @@ from peerinst.models import (
 )
 from peerinst.templatetags.bleach_html import ALLOWED_TAGS
 
+from .dynamic_serializer import DynamicFieldsModelSerializer
+
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
@@ -50,7 +52,7 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ["username"]
 
 
-class QuestionSerializer(serializers.ModelSerializer):
+class QuestionSerializer(DynamicFieldsModelSerializer):
     answer_count = serializers.SerializerMethodField()
     category = CategorySerializer(many=True, read_only=True)
     choices = serializers.SerializerMethodField()
@@ -93,27 +95,46 @@ class QuestionSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         """Bleach HTML-supported fields"""
         ret = super().to_representation(instance)
-        ret["title"] = bleach.clean(
-            ret["title"], tags=ALLOWED_TAGS, styles=[], strip=True
-        )
-        ret["text"] = bleach.clean(
-            ret["text"], tags=ALLOWED_TAGS, styles=[], strip=True
-        )
-        ret["choices"] = [
-            (
-                choice[0],
-                bleach.clean(
-                    choice[1], tags=ALLOWED_TAGS, styles=[], strip=True
-                ),
-                instance.is_correct(i),
+        if "title" in ret:
+            ret["title"] = bleach.clean(
+                ret["title"], tags=ALLOWED_TAGS, styles=[], strip=True
             )
-            for (i, choice) in enumerate(ret["choices"], 1)
-        ]
+        if "text" in ret:
+            ret["text"] = bleach.clean(
+                ret["text"], tags=ALLOWED_TAGS, styles=[], strip=True
+            )
+        if "choices" in ret:
+            ret["choices"] = [
+                (
+                    choice[0],
+                    bleach.clean(
+                        choice[1], tags=ALLOWED_TAGS, styles=[], strip=True
+                    ),
+                    instance.is_correct(i),
+                )
+                for (i, choice) in enumerate(ret["choices"], 1)
+            ]
         return ret
 
 
 class RankSerializer(serializers.ModelSerializer):
-    question = QuestionSerializer(read_only=True)
+    question = QuestionSerializer(
+        read_only=True,
+        fields=(
+            "pk",
+            "title",
+            "text",
+            "user",
+            "discipline",
+            "answer_count",
+            "category",
+            "image",
+            "image_alt_text",
+            "choices",
+            "matrix",
+            "collaborators",
+        ),
+    )
 
     class Meta:
         model = AssignmentQuestions

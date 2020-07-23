@@ -25,7 +25,7 @@ class AssignmentViewSet(viewsets.ModelViewSet):
 
 class QuestionListViewSet(viewsets.ModelViewSet):
     """
-    A simple ViewSet for editing assignment question.
+    A simple ViewSet for adding/removing assignment questions.
     """
 
     queryset = AssignmentQuestions.objects.all()

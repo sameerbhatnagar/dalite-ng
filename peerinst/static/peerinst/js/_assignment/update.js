@@ -1,16 +1,22 @@
 //import "preact/debug";
 import { Component, createContext, Fragment, h, render } from "preact";
+
 import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
+
 import Card from "preact-material-components/Card";
 import Checkbox from "preact-material-components/Checkbox";
+import Dialog from "preact-material-components/Dialog";
 import Formfield from "preact-material-components/FormField";
 import Snackbar from "preact-material-components/Snackbar";
 import IconButton from "preact-material-components/IconButton";
+import LinearProgress from "preact-material-components/LinearProgress";
 
 import "preact-material-components/Card/style.css";
 import "preact-material-components/Checkbox/style.css";
+import "preact-material-components/Dialog/style.css";
 import "preact-material-components/Snackbar/style.css";
 import "preact-material-components/IconButton/style.css";
+import "preact-material-components/LinearProgress/style.css";
 
 export { h, render };
 
@@ -244,6 +250,9 @@ class QuestionCard extends Component {
           style={{
             fontFamily: "Material Icons",
           }}
+          onClick={() => {
+            this.dialog.MDComponent.show();
+          }}
           title={this.props.gettext(
             "Difficulty level based on past student answers",
           )}
@@ -328,19 +337,35 @@ class QuestionCard extends Component {
       }`;
     }
     return (
-      <Card>
-        <div className="card-header">
-          <div
-            className="mdc-typography--title bold"
-            // eslint-disable-next-line
-            dangerouslySetInnerHTML={{ __html: this.props.question.title }}
-          />
-          <div className="mdc-typography--caption">
-            #{this.props.question.pk} {byline}
+      <div>
+        <Card>
+          <div className="card-header">
+            <div
+              className="mdc-typography--title bold"
+              // eslint-disable-next-line
+              dangerouslySetInnerHTML={{ __html: this.props.question.title }}
+            />
+            <div className="mdc-typography--caption">
+              #{this.props.question.pk} {byline}
+            </div>
           </div>
-        </div>
-        {this.cardBody()}
-      </Card>
+          {this.cardBody()}
+        </Card>
+        <Dialog
+          ref={(dialog) => {
+            this.dialog = dialog;
+          }}
+        >
+          <Dialog.Header>{this.props.question.title}</Dialog.Header>
+          <Dialog.Body>Test</Dialog.Body>
+          <Dialog.Footer>
+            {/*
+            <Dialog.FooterButton cancel={true}>Decline</Dialog.FooterButton>
+            <Dialog.FooterButton accept={true}>Accept</Dialog.FooterButton>
+            */}
+          </Dialog.Footer>
+        </Dialog>
+      </div>
     );
   }
 }
@@ -363,6 +388,7 @@ export class AssignmentUpdateApp extends Component {
     questions: [],
     title: "",
     current: [],
+    loaded: false,
   };
 
   handleChoiceToggleClick = () => {
@@ -395,6 +421,7 @@ export class AssignmentUpdateApp extends Component {
           current: data["questions"],
           questions: data["questions"],
           title: data["title"],
+          loaded: true,
         });
       })
       .catch((error) => {
@@ -482,6 +509,9 @@ export class AssignmentUpdateApp extends Component {
   };
 
   render() {
+    if (!this.state.loaded) {
+      return <LinearProgress indeterminate />;
+    }
     if (this.state.questions.length == 0) {
       return (
         <div>
