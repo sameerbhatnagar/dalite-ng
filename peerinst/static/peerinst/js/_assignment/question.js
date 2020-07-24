@@ -98,6 +98,31 @@ export class QuestionCard extends Component {
     );
   };
 
+  addOrDelete = () => {
+    if (this.props.handleQuestionDelete) {
+      return (
+        <IconButton
+          className="mdc-theme--primary"
+          onClick={() => this.props.handleQuestionDelete(this.props.rank)}
+          style={{ fontFamily: "Material Icons" }}
+          title={this.props.gettext("Remove question from this assignment")}
+        >
+          delete
+        </IconButton>
+      );
+    }
+    return (
+      <IconButton
+        className="mdc-theme--primary"
+        onClick={() => this.props.handleQuestionAdd(this.props.question.pk)}
+        style={{ fontFamily: "Material Icons" }}
+        title={this.props.gettext("Add question to this assignment")}
+      >
+        add
+      </IconButton>
+    );
+  };
+
   colours = {
     easy: "rgb(30, 142, 62)",
     hard: "rgb(237, 69, 40)",
@@ -148,14 +173,7 @@ export class QuestionCard extends Component {
         </div>
       </div>
       {this.editOrCopy()}
-      <IconButton
-        className="mdc-theme--primary"
-        onClick={() => this.props.handleQuestionDelete(this.props.rank)}
-        style={{ fontFamily: "Material Icons" }}
-        title={this.props.gettext("Remove question from assignment")}
-      >
-        delete
-      </IconButton>
+      {this.addOrDelete()}
     </Fragment>
   );
 

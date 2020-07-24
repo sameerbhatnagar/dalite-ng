@@ -1,16 +1,19 @@
 from rest_framework import viewsets, generics
+from rest_framework.renderers import JSONRenderer
 
 from peerinst.models import (
     Assignment,
     AssignmentQuestions,
     Answer,
     AnswerAnnotation,
+    Question,
 )
 from REST.serializers import (
     AssignmentSerializer,
     AnswerSerializer,
     FeedbackWriteSerialzer,
     FeedbackReadSerialzer,
+    QuestionSerializer,
     RankSerializer,
 )
 from REST.permissions import InAssignmentOwnerList, InOwnerList
@@ -39,6 +42,37 @@ class QuestionListViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return AssignmentQuestions.objects.filter(
             assignment__owner=self.request.user
+        )
+
+
+class QuestionSearchList(generics.ListAPIView):
+    """ A simple ListView to return search results in JSON format"""
+
+    renderer_classes = [JSONRenderer]
+
+    def get_queryset(self):
+        return Question.objects.all()[:10]
+
+    def get_serializer(self, *args, **kwargs):
+        kwargs["context"] = self.get_serializer_context()
+        return QuestionSerializer(
+            read_only=True,
+            fields=(
+                "pk",
+                "title",
+                "text",
+                "user",
+                "discipline",
+                "answer_count",
+                "category",
+                "image",
+                "image_alt_text",
+                "choices",
+                "matrix",
+                "collaborators",
+            ),
+            *args,
+            **kwargs
         )
 
 

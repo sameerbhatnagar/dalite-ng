@@ -109,10 +109,6 @@ export class AssignmentUpdateApp extends Component {
     this.setState({ minimizeCards: !this.state.minimizeCards });
   };
 
-  handleQuestionDelete = (pk) => {
-    this.delete(pk);
-  };
-
   refreshFromDB = () => {
     const _this = this;
     const _questions = get(this.props.assignmentURL);
@@ -297,7 +293,7 @@ export class AssignmentUpdateApp extends Component {
             <QuestionCard
               cloneURL={this.props.questionCloneBaseURL}
               editURL={this.props.questionEditBaseURL}
-              handleQuestionDelete={this.handleQuestionDelete}
+              handleQuestionDelete={this.delete}
               question={q.question}
               rank={q.pk}
               gettext={this.props.gettext}

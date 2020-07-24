@@ -3,10 +3,15 @@ __all__ = [
     "AnswerSerializer",
     "FeedbackReadSerialzer",
     "FeedbackWriteSerialzer",
+    "QuestionSerializer",
     "RankSerializer",
 ]
 
-from .assignment import AssignmentSerializer, RankSerializer
+from .assignment import (
+    AssignmentSerializer,
+    QuestionSerializer,
+    RankSerializer,
+)
 from .answer import (
     AnswerSerializer,
     FeedbackReadSerialzer,

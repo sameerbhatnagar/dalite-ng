@@ -50,53 +50,6 @@
 
     <div id="search-db-app"></div>
 
-    <div class="mdc-form-field">
-      <div class="mdc-checkbox">
-        <input type="checkbox"
-        class="mdc-checkbox__native-control"
-        id="limit-search"
-        checked />
-        <div class="mdc-checkbox__background">
-          <svg class="mdc-checkbox__checkmark"
-          viewBox="0 0 24 24">
-          <path class="mdc-checkbox__checkmark-path"
-          fill="none"
-          stroke="white"
-          d="M1.73,12.91 8.1,19.28 22.79,4.59"/>
-          </svg>
-          <div class="mdc-checkbox__mixedmark"></div>
-        </div>
-      </div>
-      <label class="mdc-theme--secondary" for="limit-search">{% trans 'Limit search to questions in your discipline(s) (recommended)' %}</label>
-    </div>
-    <br>
-    <div class="search">
-      <div class="mdc-text-field mdc-text-field--outlined mdc-text-field--dense" data-mdc-auto-init="MDCTextField">
-        <label class="mdc-floating-label" for="search-bar">{% trans 'Search' %}</label>
-        <input class="mdc-text-field__input" id="search-bar">
-        <div class="mdc-notched-outline">
-          <svg>
-            <path class="mdc-notched-outline__path"/>
-          </svg>
-        </div>
-        <div class="mdc-notched-outline__idle"></div>
-      </div>
-      <p class="mdc-text-field-helper-text mdc-text-field-helper-text--persistent" aria-hidden="true">
-        {% trans 'The search engine checks question texts for each keyword as well as the complete phrase.  You can also search on username to find all content from a certain contributor.  Search results are filtered to remove questions in your list of favourites and questions already part of this assignment.' %}
-      </p>
-    </div>
-
-    <div id="progressbar" role="progressbar" class="mdc-linear-progress mdc-linear-progress--indeterminate mdc-linear-progress--closed">
-      <div class="mdc-linear-progress__buffering-dots"></div>
-      <div class="mdc-linear-progress__buffer"></div>
-      <div class="mdc-linear-progress__bar mdc-linear-progress__primary-bar">
-        <span class="mdc-linear-progress__bar-inner"></span>
-      </div>
-      <div class="mdc-linear-progress__bar mdc-linear-progress__secondary-bar">
-        <span class="mdc-linear-progress__bar-inner"></span>
-      </div>
-    </div>
-
     <div id="filters" class="hidden">
       <h2 class='mdc-typography--display1  mdc-theme--secondary'>{% trans 'Filters' %}</h2>
 
@@ -141,11 +94,15 @@
     render();
 
     const searchDbApp = preact.h(assignment.SearchDbApp, {
-      assignment: "{{ object.pk|urlencode }}",
-      type: "assignment",
+      assignment: "{{ object.pk }}",
+      assignmentQuestionURL: "{% url 'REST:assignment_question-list' %}",
       callback: render,
       gettext: gettext,
-      searchURL: "{% url 'question-search' %}",
+      questionCloneBaseURL: "/question/clone/",
+      questionEditBaseURL: "/question/update/",
+      searchURL: "{% url 'REST:question-search' %}",
+      type: "assignment",
+      user: "{{ request.user }}",
     });
     preact.render(searchDbApp, document.getElementById("search-db-app"))
   })

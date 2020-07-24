@@ -11,12 +11,13 @@ import "preact-material-components/LinearProgress/style.css";
 import "preact-material-components/Snackbar/style.css";
 import "preact-material-components/TextField/style.css";
 
-import { get } from "./ajax.js";
+import { get, submitData } from "./ajax.js";
+import { QuestionCard, User } from "./question.js";
 
 export class SearchDbApp extends Component {
   state = {
     limitSearch: true,
-    results: [],
+    questions: [],
     searching: false,
     searchTerms: "",
   };
@@ -42,7 +43,12 @@ export class SearchDbApp extends Component {
           .then((data) => {
             console.debug(data);
             _this.setState({
-              questions: data["questions"],
+              questions: data.map((d, i) => {
+                return {
+                  question: d,
+                  rank: i,
+                };
+              }),
               searching: false,
             });
           })
@@ -54,7 +60,26 @@ export class SearchDbApp extends Component {
               ),
             });
           });
-        this.props.callback();
+      });
+    }
+  };
+
+  add = async (pk) => {
+    console.info({ assignment: this.props.assignment, question_pk: pk });
+    try {
+      await submitData(
+        this.props.assignmentQuestionURL,
+        { assignment: this.props.assignment, question_pk: pk },
+        "POST",
+      );
+      this.bar.MDComponent.show({
+        message: this.props.gettext("Item added."),
+      });
+      this.props.callback();
+    } catch (error) {
+      console.error(error);
+      this.bar.MDComponent.show({
+        message: this.props.gettext("An error occurred."),
       });
     }
   };
@@ -87,8 +112,10 @@ export class SearchDbApp extends Component {
         </Formfield>
         <div>
           <TextField
-            label="Type search terms"
-            helperText="The search engine checks question texts for each keyword as well as the complete phrase.  You can also search on username to find all content from a certain contributor.  Search results are filtered to remove questions in your list of favourites and questions already part of this assignment."
+            label={this.props.gettext("Type search terms")}
+            helperText={this.props.gettext(
+              "The search engine checks question texts for each keyword as well as the complete phrase.  You can also search on username to find all content from a certain contributor.  Search results are filtered to remove questions in your list of favourites and questions already part of this assignment.",
+            )}
             helperTextPersistent
             value={this.state.searchTerms}
             onChange={this.handleOnChange}
@@ -102,7 +129,23 @@ export class SearchDbApp extends Component {
   render() {
     return (
       <div>
-        {this.searchBar()}
+        <User.Provider value={this.props.user}>
+          {this.searchBar()}
+          {this.state.questions.map((q) => (
+            <QuestionCard
+              cloneURL={this.props.questionCloneBaseURL}
+              editURL={this.props.questionEditBaseURL}
+              handleQuestionDelete={null}
+              handleQuestionAdd={this.add}
+              question={q.question}
+              rank={null}
+              gettext={this.props.gettext}
+              showChoices={true}
+              showImages={true}
+              minimizeCards={false}
+            />
+          ))}
+        </User.Provider>
         <Snackbar
           ref={(bar) => {
             this.bar = bar;

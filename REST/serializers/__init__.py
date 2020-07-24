@@ -3,6 +3,7 @@ __all__ = [
     "AnswerSerializer",
     "FeedbackWriteSerialzer",
     "FeedbackReadSerialzer",
+    "QuestionSerializer",
     "RankSerializer",
 ]
 
@@ -11,5 +12,6 @@ from .peerinst import (
     AnswerSerializer,
     FeedbackWriteSerialzer,
     FeedbackReadSerialzer,
+    QuestionSerializer,
     RankSerializer,
 )  # noqa
