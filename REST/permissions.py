@@ -19,3 +19,12 @@ class InAssignmentOwnerList(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
         # Instance must have an attribute named `owner`.
         return request.user in obj.assignment.owner.all()
+
+
+class IsAdminUserOrReadOnly(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return bool(
+            request.method in permissions.SAFE_METHODS
+            or request.user
+            and request.user.is_staff
+        )

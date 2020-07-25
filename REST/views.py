@@ -6,17 +6,24 @@ from peerinst.models import (
     AssignmentQuestions,
     Answer,
     AnswerAnnotation,
-    Question,
+    Discipline,
 )
+from peerinst.util import question_search_function
+from REST.pagination import SearchPagination
 from REST.serializers import (
     AssignmentSerializer,
     AnswerSerializer,
+    DisciplineSerializer,
     FeedbackWriteSerialzer,
     FeedbackReadSerialzer,
     QuestionSerializer,
     RankSerializer,
 )
-from REST.permissions import InAssignmentOwnerList, InOwnerList
+from REST.permissions import (
+    InAssignmentOwnerList,
+    InOwnerList,
+    IsAdminUserOrReadOnly,
+)
 
 
 class AssignmentViewSet(viewsets.ModelViewSet):
@@ -29,6 +36,12 @@ class AssignmentViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return Assignment.objects.filter(owner=self.request.user)
+
+
+class DisciplineViewSet(viewsets.ModelViewSet):
+    serializer_class = DisciplineSerializer
+    permission_classes = [IsAdminUserOrReadOnly]
+    queryset = Discipline.objects.all()
 
 
 class QuestionListViewSet(viewsets.ModelViewSet):
@@ -48,10 +61,14 @@ class QuestionListViewSet(viewsets.ModelViewSet):
 class QuestionSearchList(generics.ListAPIView):
     """ A simple ListView to return search results in JSON format"""
 
+    pagination_class = SearchPagination
     renderer_classes = [JSONRenderer]
 
     def get_queryset(self):
-        return Question.objects.all()[:10]
+        search_string = self.request.GET.get("search_string")
+        print(search_string)
+        queryset = question_search_function(search_string, is_old_query=True)
+        return queryset
 
     def get_serializer(self, *args, **kwargs):
         kwargs["context"] = self.get_serializer_context()

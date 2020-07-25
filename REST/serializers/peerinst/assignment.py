@@ -35,7 +35,7 @@ class CategorySerializer(serializers.ModelSerializer):
 class DisciplineSerializer(serializers.ModelSerializer):
     class Meta:
         model = Discipline
-        fields = ["title"]
+        fields = ["title", "pk"]
 
     def to_representation(self, instance):
         """Bleach and ensure title case"""

@@ -11,6 +11,9 @@ peerinst_api.register(
     r"assignments", views.AssignmentViewSet, basename="assignment"
 )
 peerinst_api.register(
+    r"disciplines", views.DisciplineViewSet, basename="discipline",
+)
+peerinst_api.register(
     r"assignment-questions",
     views.QuestionListViewSet,
     basename="assignment_question",

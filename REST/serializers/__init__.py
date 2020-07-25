@@ -1,6 +1,7 @@
 __all__ = [
     "AssignmentSerializer",
     "AnswerSerializer",
+    "DisciplineSerializer",
     "FeedbackWriteSerialzer",
     "FeedbackReadSerialzer",
     "QuestionSerializer",
@@ -10,6 +11,7 @@ __all__ = [
 from .peerinst import (
     AssignmentSerializer,
     AnswerSerializer,
+    DisciplineSerializer,
     FeedbackWriteSerialzer,
     FeedbackReadSerialzer,
     QuestionSerializer,
