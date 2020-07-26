@@ -1,11 +1,29 @@
 import { Component, createContext, Fragment, h } from "preact";
 
-import Card from "preact-material-components/Card";
-import Dialog from "preact-material-components/Dialog";
-import IconButton from "preact-material-components/IconButton";
+import {
+  Card,
+  CardAction,
+  CardActions,
+  CardActionButtons,
+  CardActionIcons,
+} from "@rmwc/card";
+import {
+  Dialog,
+  DialogActions,
+  DialogButton,
+  DialogContent,
+  DialogTitle,
+} from "@rmwc/dialog";
+import { Icon } from "@rmwc/icon";
+import { Typography } from "@rmwc/typography";
 
-import "preact-material-components/Card/style.css";
-import "preact-material-components/IconButton/style.css";
+import "@rmwc/card/node_modules/@material/card/dist/mdc.card.min.css";
+import "@rmwc/typography/node_modules/@material/typography/dist/mdc.typography.css";
+import "@rmwc/dialog/node_modules/@material/dialog/dist/mdc.dialog.min.css";
+import "@rmwc/button/node_modules/@material/button/dist/mdc.button.min.css";
+import "@rmwc/icon-button/node_modules/@material/icon-button/dist/mdc.icon-button.css";
+import "@rmwc/theme/node_modules/@material/theme/dist/mdc.theme.css";
+import "@rmwc/icon/icon.css";
 
 export const User = createContext();
 
@@ -26,7 +44,14 @@ class Image extends Component {
 
 const Checkmark = (props) => {
   if (props.correct) {
-    return <i className="check material-icons">check</i>;
+    return (
+      <Icon
+        icon="check"
+        iconOptions={{ strategy: "ligature", size: "xsmall" }}
+        style={{ transform: "translateY(4px)" }}
+        theme="primary"
+      />
+    );
   }
 };
 
@@ -45,12 +70,16 @@ class Choices extends Component {
 
   render() {
     if (this.props.show) {
-      return <ul>{this.choiceList()}</ul>;
+      return <ul style={{ marginBottom: "0px" }}>{this.choiceList()}</ul>;
     }
   }
 }
 
 export class QuestionCard extends Component {
+  state = {
+    dialogOpen: false,
+  };
+
   renderCategory = () => {
     if (this.props.question.category.length > 0) {
       return this.props.question.category.map((el, index) =>
@@ -84,14 +113,12 @@ export class QuestionCard extends Component {
               (window.location = this.props.cloneURL + this.props.question.pk);
           }
           return (
-            <IconButton
-              className="mdc-theme--primary"
+            <CardAction
+              icon={mode}
               onclick={onclick}
-              style={{ fontFamily: "Material Icons" }}
               title={title}
-            >
-              {mode}
-            </IconButton>
+              theme="primary"
+            />
           );
         }}
       </User.Consumer>
@@ -101,25 +128,21 @@ export class QuestionCard extends Component {
   addOrDelete = () => {
     if (this.props.handleQuestionDelete) {
       return (
-        <IconButton
-          className="mdc-theme--primary"
+        <CardAction
+          icon="delete"
           onClick={() => this.props.handleQuestionDelete(this.props.rank)}
-          style={{ fontFamily: "Material Icons" }}
           title={this.props.gettext("Remove question from this assignment")}
-        >
-          delete
-        </IconButton>
+          theme="primary"
+        />
       );
     }
     return (
-      <IconButton
-        className="mdc-theme--primary"
+      <CardAction
+        icon="add"
         onClick={() => this.props.handleQuestionAdd(this.props.question.pk)}
-        style={{ fontFamily: "Material Icons" }}
         title={this.props.gettext("Add question to this assignment")}
-      >
-        add
-      </IconButton>
+        theme="primary"
+      />
     );
   };
 
@@ -140,31 +163,28 @@ export class QuestionCard extends Component {
     <Fragment>
       <div
         style={{
-          color: this.colours[this.getDifficultyLabel()],
           position: "relative",
         }}
       >
-        <IconButton
-          style={{
-            fontFamily: "Material Icons",
-          }}
+        <CardAction
+          icon="info"
           onClick={() => {
-            this.dialog.MDComponent.show();
+            this.setState({ dialogOpen: true });
           }}
+          style={{ color: this.colours[this.getDifficultyLabel()] }}
           title={this.props.gettext(
             "Difficulty level based on past student answers",
           )}
-        >
-          info
-        </IconButton>
+        />
         <div
           style={{
+            color: this.colours[this.getDifficultyLabel()],
             position: "absolute",
             left: "50%",
             width: "inherit",
             transform: "translateX(-50%)",
             fontSize: "x-small",
-            marginTop: "-14px",
+            marginTop: "-8px",
           }}
         >
           {Array.from(this.getDifficultyLabel()).map((letter, i) =>
@@ -177,15 +197,38 @@ export class QuestionCard extends Component {
     </Fragment>
   );
 
+  cardHeader = () => {
+    let byline = "";
+    if (this.props.question.user) {
+      byline = `${this.props.gettext("by")} ${
+        this.props.question.user.username
+      }`;
+    }
+    return (
+      <div className="card-header">
+        <Typography use="headline5">
+          <div
+            // eslint-disable-next-line
+            dangerouslySetInnerHTML={{ __html: this.props.question.title }}
+          />
+        </Typography>
+        <Typography use="caption">
+          #{this.props.question.pk} {byline}
+        </Typography>
+      </div>
+    );
+  };
+
   cardBody = () => {
     if (!this.props.minimizeCards) {
       return (
-        <div>
-          <div
-            className="mdc-typography--body1 m-top-5"
-            // eslint-disable-next-line
-            dangerouslySetInnerHTML={{ __html: this.props.question.text }}
-          />
+        <div style={{ marginTop: "12px", marginBottom: "4px" }}>
+          <Typography use="body1">
+            <div
+              // eslint-disable-next-line
+              dangerouslySetInnerHTML={{ __html: this.props.question.text }}
+            />
+          </Typography>
           <Image
             show={this.props.showImages}
             url={this.props.question.image}
@@ -195,66 +238,59 @@ export class QuestionCard extends Component {
             show={this.props.showChoices}
             choices={this.props.question.choices}
           />
-          <Card.Actions>
-            <Card.ActionButtons className="mdc-card__action-buttons grey">
-              <div className="mdc-typography--caption">
-                <div>
-                  {this.props.gettext("Discipline")}:{" "}
-                  {this.props.question.discipline
-                    ? this.props.question.discipline.title
-                    : this.props.gettext("None")}
-                </div>
-                <div>
-                  {this.props.gettext("Categories")}: {this.renderCategory()}
-                </div>
-                <div>
-                  {this.props.gettext("Student answers")}:{" "}
-                  {this.props.question.answer_count}
-                </div>
-              </div>
-            </Card.ActionButtons>
-            <Card.ActionIcons>{this.insertActions()}</Card.ActionIcons>
-          </Card.Actions>
         </div>
       );
     }
   };
 
-  render() {
-    let byline = "";
-    if (this.props.question.user) {
-      byline = `${this.props.gettext("by")} ${
-        this.props.question.user.username
-      }`;
+  cardActions = () => {
+    if (!this.props.minimizeCards) {
+      return (
+        <CardActions>
+          <CardActionButtons>
+            <Typography use="caption">
+              <div class="hint">
+                {this.props.gettext("Discipline")}:{" "}
+                {this.props.question.discipline
+                  ? this.props.question.discipline.title
+                  : this.props.gettext("None")}
+              </div>
+              <div class="hint">
+                {this.props.gettext("Categories")}: {this.renderCategory()}
+              </div>
+              <div class="hint">
+                {this.props.gettext("Student answers")}:{" "}
+                {this.props.question.answer_count}
+              </div>
+            </Typography>
+          </CardActionButtons>
+          <CardActionIcons>{this.insertActions()}</CardActionIcons>
+        </CardActions>
+      );
     }
+  };
+
+  render() {
     return (
       <div>
-        <Card>
-          <div className="card-header">
-            <div
-              className="mdc-typography--title bold"
-              // eslint-disable-next-line
-              dangerouslySetInnerHTML={{ __html: this.props.question.title }}
-            />
-            <div className="mdc-typography--caption">
-              #{this.props.question.pk} {byline}
-            </div>
-          </div>
+        <Card style={{ marginBottom: "10px", padding: "20px 20px 12px" }}>
+          {this.cardHeader()}
           {this.cardBody()}
+          {this.cardActions()}
         </Card>
         <Dialog
-          ref={(dialog) => {
-            this.dialog = dialog;
+          open={this.state.dialogOpen}
+          onClose={(evt) => {
+            this.setState({ dialogOpen: false });
           }}
         >
-          <Dialog.Header>{this.props.question.title}</Dialog.Header>
-          <Dialog.Body>Test</Dialog.Body>
-          <Dialog.Footer>
-            {/*
-            <Dialog.FooterButton cancel={true}>Decline</Dialog.FooterButton>
-            <Dialog.FooterButton accept={true}>Accept</Dialog.FooterButton>
-            */}
-          </Dialog.Footer>
+          <DialogTitle>{this.props.question.title}</DialogTitle>
+          <DialogContent>Test</DialogContent>
+          <DialogActions>
+            <DialogButton ripple action="accept" isDefaultAction>
+              {this.props.gettext("Done")}
+            </DialogButton>
+          </DialogActions>
         </Dialog>
       </div>
     );

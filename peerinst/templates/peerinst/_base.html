@@ -34,6 +34,11 @@
   <link href="{% static 'peerinst/img/SALTISE-logo-icon.gif' %}" rel="icon">
   <link href="{% static 'peerinst/img/SALTISE-logo-icon.gif' %}" rel="apple-touch-icon">
   <!-- * Styles -->
+  {% block mdc %}
+  {% compress css file mdc %}
+  <link href="{% static 'peerinst/css/mdc.min.css' %}" rel="stylesheet">
+  {% endcompress %}
+  {% endblock %}
   {% compress css file main %}
   <link href="{% static 'peerinst/css/main.min.css' %}" rel="stylesheet">
   {% endcompress %}

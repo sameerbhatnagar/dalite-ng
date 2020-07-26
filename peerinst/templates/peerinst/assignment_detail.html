@@ -2,17 +2,10 @@
 
 {% load bleach_html static compress i18n %}
 
+{% block mdc %}{% endblock %}
+
 {% block stylesheets %}
 {{ block.super }}
-{% compress css %}
-<link href="{% static 'peerinst/css/search.min.css' %}" rel="stylesheet">
-{% endcompress %}
-{% compress js file ajax %}
-<script src="{% static 'peerinst/js/ajax.min.js' %}"></script>
-{% endcompress %}
-{% compress js file search %}
-<script src="{% static 'peerinst/js/search.min.js' %}"></script>
-{% endcompress %}
 {% compress js file preact %}
 <script src="{% static 'peerinst/js/preact.min.js' %}" defer="true"></script>
 {% endcompress %}
@@ -21,6 +14,9 @@
 {% endcompress %}
 {% compress css file assignment %}
 <link href="{% static 'peerinst/js/assignment.min.css' %}" rel="stylesheet">
+{% endcompress %}
+{% compress css file rmwc %}
+<link href="{% static 'peerinst/css/rmwc.min.css' %}" rel="stylesheet">
 {% endcompress %}
 {% endblock %}
 
@@ -50,18 +46,6 @@
 
     <div id="search-db-app"></div>
 
-    <div id="filters" class="hidden">
-      <h2 class='mdc-typography--display1  mdc-theme--secondary'>{% trans 'Filters' %}</h2>
-
-      <div id="select-filters">
-        <div id="discipline-filters" class="hidden"><div class="m-bot-5">{% trans 'Disciplines: ' %}</div><span id="filter-on-discipline"></span></div>
-
-        <div id="category-filters m-top-10 hidden"><div class="m-bot-5p">{% trans 'Keywords: ' %}</div><span id="filter-on-category"></span></div>
-
-        <button id="reset-filters" type="button" class='mdc-button mdc-button--raised padded-top' disabled=true>{% trans 'Clear' %}</button>
-      </div>
-    </div>
-
     <div id="search_results"></div>
 
   </section>
@@ -70,7 +54,6 @@
 
 {% block scripts %}
 {{ block.super }}
-<script src="https://unpkg.com/json5@2.1.1/dist/index.min.js" integrity="sha384-gRrJKgBpstjyexh9UmCoTPivgMMb7/EAtEdR5DLbVhiPYdl03QxdzMzbylHUSloD" crossorigin="anonymous"></script>
 <script nonce="{{ request.csp_nonce }}">
   window.addEventListener("load", function() {
     function render() {
@@ -91,13 +74,12 @@
         });
     }
 
-    render();
-
     const searchDbApp = preact.h(assignment.SearchDbApp, {
       assignment: "{{ object.pk }}",
       assignmentQuestionURL: "{% url 'REST:assignment_question-list' %}",
       callback: render,
       disciplineURL: "{% url 'REST:discipline-list' %}",
+      defaultDiscipline: "{{ request.user.teacher.disciplines.first.pk }}",
       gettext: gettext,
       questionCloneBaseURL: "/question/clone/",
       questionEditBaseURL: "/question/update/",
@@ -106,95 +88,9 @@
       user: "{{ request.user }}",
     });
     preact.render(searchDbApp, document.getElementById("search-db-app"))
+
+    render();
   })
-
-  const limitSearch = document.querySelector('#limit-search');
-  bundle.iconToggle.MDCIconToggle.attachTo(limitSearch);
-
-  const input = document.getElementById('search-bar');
-  input.onchange = function() {
-    if (input.value != "") {
-      search.setupSearch();
-      console.info("Searching: "+input.value);
-      $('#search_results').load("{% url 'question-search' %}", "search_string="+input.value+"&type=assignment&id={{object.pk|urlencode}}&limit_search="+limitSearch.checked+"&assignment_identifier={{object.identifier|urlencode}}", function(){
-         search.processResponse();
-         setupAnalytics();
-       });
-    }
-  }
-
-
-
-  function pageNav(page) {
-    search.setupSearch();
-    console.info("Searching: "+input.value);
-    $('#search_results').load("{% url 'question-search' %}?page="+page, "search_string="+input.value+"&type=assignment&id={{object.pk|urlencode}}&limit_search="+limitSearch.checked+"&assignment_identifier={{object.identifier|urlencode}}", function(){
-         search.processResponse();
-         setupAnalytics();
-       });
-   }
-
-   function setupAnalytics(){
-     bundle.addDialog();
-     [].forEach.call(document.querySelectorAll('.analytics-tags'),
-       function(el,i,list) {
-         el.addEventListener('click', function() {
-           showAnalytics(el.getAttribute('ref_id'));
-         }, false);
-       }
-     );
-
-     [].forEach.call(document.querySelectorAll('.plot-dialog'),
-       function(el,i,list) {
-         bundle.plot(JSON5.parse(el.getAttribute("data-get-matrix")),JSON5.parse(el.getAttribute("data-get-frequency")),+el.getAttribute("data-id"));
-       }
-     );
-
-     [].forEach.call(document.querySelectorAll('.ripple-icon'),
-       function(el) {
-         const ripple = bundle.ripple.MDCRipple.attachTo(el);
-         ripple.unbounded = true;
-       }
-     );
-
-     function showAnalytics(id){
-       bundle.selectAll("#first_choice-"+id).transition().duration(1000).attr("x",function(d){return bundle.select(this).attr("finalx");}).attr("width",function(d){return bundle.select(this).attr("finalwidth");});
-       bundle.selectAll("#second_choice-"+id).transition().delay(1000).duration(1000).attr("width",function(d){return bundle.select(this).attr("finalwidth");});
-       return;
-     }
-  }
-  setupAnalytics();
-  function toggleFavourite(pk) {
-    var posting = $.post("{% url 'teacher-toggle-favourite' %}", {pk: pk});
-    posting.done(function(data) {
-      console.info(data);
-    });
-    $('#favourite-questions').find($('#'+pk).remove());
-  }
-
-  window.addEventListener("load", function() {
-
-    $(".mdc-card").each(function(i, el) {
-      bundle.difficulty(el.getAttribute("matrix").replace(/'/g, '"'), el.id);
-    });
-    $(".analytics-tags").css("cursor", "default");
-
-    $(".submit-question-add").each(function(i, el) {
-      el.addEventListener("click", function() {
-        $('#'+el.getAttribute("form")).submit();
-      });
-    });
-
-    $(".favourite-btn").each(function(i, el) {
-      el.addEventListener("click", function() {
-        toggleFavourite(el.getAttribute("data-id"));
-      });
-    });
-
-    document.getElementById("reset-filters").addEventListener("click", () => {
-      search.reset();
-    });
-  });
 </script>
 
 {% endblock %}

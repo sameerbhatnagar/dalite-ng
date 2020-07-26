@@ -1,0 +1,24 @@
+@import "variables";
+
+:root {
+  --mdc-theme-primary: #{$mdc-theme-primary};
+  --mdc-theme-secondary: #{$mdc-theme-secondary};
+}
+
+.hint {
+  color: var(--mdc-theme-text-icon-on-background);
+}
+
+[class^="mdc-"] {
+  font-family: $mdc-typography-font-family;
+}
+
+.mdc-typography--body1 {
+  letter-spacing: normal;
+  line-height: normal;
+}
+
+.mdc-typography--headline5 {
+  font-weight: bold;
+  line-height: 1.5rem;
+}

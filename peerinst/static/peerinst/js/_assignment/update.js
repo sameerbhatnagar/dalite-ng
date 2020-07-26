@@ -2,14 +2,15 @@ import { Component, Fragment, h } from "preact";
 
 import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
 
-import Checkbox from "preact-material-components/Checkbox";
-import Formfield from "preact-material-components/FormField";
-import Snackbar from "preact-material-components/Snackbar";
-import LinearProgress from "preact-material-components/LinearProgress";
+import { Checkbox } from "@rmwc/checkbox";
+import { FormField } from "@rmwc/formfield";
+import { LinearProgress } from "@rmwc/linear-progress";
+import { Snackbar } from "@rmwc/snackbar";
 
-import "preact-material-components/Checkbox/style.css";
-import "preact-material-components/Snackbar/style.css";
-import "preact-material-components/LinearProgress/style.css";
+import "@rmwc/checkbox/node_modules/@material/checkbox/dist/mdc.checkbox.min.css";
+import "@rmwc/formfield/node_modules/@material/form-field/dist/mdc.form-field.min.css";
+import "@rmwc/linear-progress/node_modules/@material/linear-progress/dist/mdc.linear-progress.min.css";
+import "@rmwc/snackbar/node_modules/@material/snackbar/dist/mdc.snackbar.min.css";
 
 import { get, submitData } from "./ajax.js";
 import { QuestionCard, User } from "./question.js";
@@ -19,7 +20,7 @@ class ToggleVisibleItems extends Component {
     if (this.props.allowReordering) {
       return (
         <Fragment>
-          <Formfield className="mdc-theme--secondary">
+          <FormField theme="secondary">
             <label for="toggle-minimize">
               {this.props.gettext("Reorder questions?")}
             </label>
@@ -29,11 +30,11 @@ class ToggleVisibleItems extends Component {
               )}
               checked={this.props.minimizeCards}
               id="toggle-minimize"
-              onclick={this.props.handleMinimizeToggleClick}
+              onChange={this.props.handleMinimizeToggleClick}
               tabindex="0"
               title={this.props.gettext("Click to enable question reordering")}
             />
-          </Formfield>
+          </FormField>
         </Fragment>
       );
     }
@@ -43,7 +44,7 @@ class ToggleVisibleItems extends Component {
     return (
       <div>
         {this.toggleOrdering()}
-        <Formfield className="mdc-theme--secondary">
+        <FormField theme="secondary">
           <label for="toggle-images">
             {this.props.gettext("Show images")}
           </label>
@@ -51,11 +52,11 @@ class ToggleVisibleItems extends Component {
             aria-label={this.props.gettext("Click to show question images")}
             checked={this.props.showImages}
             id="toggle-images"
-            onclick={this.props.handleImageToggleClick}
+            onChange={this.props.handleImageToggleClick}
             title={this.props.gettext("Click to show question images")}
           />
-        </Formfield>
-        <Formfield className="mdc-theme--secondary">
+        </FormField>
+        <FormField theme="secondary">
           <label for="toggle-answers">
             {this.props.gettext("Show choices")}
           </label>
@@ -63,10 +64,10 @@ class ToggleVisibleItems extends Component {
             aria-label={this.props.gettext("Click to show answer choices")}
             checked={this.props.showChoices}
             id="toggle-answers"
-            onclick={this.props.handleChoiceToggleClick}
+            onChange={this.props.handleChoiceToggleClick}
             title={this.props.gettext("Click to show answer choices")}
           />
-        </Formfield>
+        </FormField>
       </div>
     );
   }
@@ -91,6 +92,8 @@ export class AssignmentUpdateApp extends Component {
     title: "",
     current: [],
     loaded: false,
+    snackbarIsOpen: false,
+    snackbarMessage: "",
   };
 
   handleChoiceToggleClick = () => {
@@ -124,8 +127,9 @@ export class AssignmentUpdateApp extends Component {
       })
       .catch((error) => {
         console.error(error);
-        this.bar.MDComponent.show({
-          message: this.props.gettext(
+        this.setState({
+          snackbarIsOpen: true,
+          snackbarMessage: this.props.gettext(
             "An error occurred.  Try refreshing this page.",
           ),
         });
@@ -153,14 +157,16 @@ export class AssignmentUpdateApp extends Component {
   delete = async (pk) => {
     try {
       await submitData(this.props.assignmentQuestionURL + pk, {}, "DELETE");
-      this.bar.MDComponent.show({
-        message: this.props.gettext("Item removed."),
+      this.setState({
+        snackbarIsOpen: true,
+        snackbarMessage: this.props.gettext("Item removed."),
       });
       this.refreshFromDB();
     } catch (error) {
       console.error(error);
-      this.bar.MDComponent.show({
-        message: this.props.gettext("An error occurred."),
+      this.setState({
+        snackbarIsOpen: true,
+        snackbarMessage: this.props.gettext("An error occurred."),
       });
     }
   };
@@ -175,19 +181,17 @@ export class AssignmentUpdateApp extends Component {
         },
         "PATCH",
       );
-      this.bar.MDComponent.show({
-        message: this.props.gettext("Changes saved."),
-      });
       this.setState({
         current: this.state.questions,
+        snackbarIsOpen: true,
+        snackbarMessage: this.props.gettext("Changes saved."),
       });
     } catch (error) {
       console.error(error);
-      this.bar.MDComponent.show({
-        message: this.props.gettext("An error occurred."),
-      });
       this.setState({
         questions: this.state.current,
+        snackbarIsOpen: true,
+        snackbarMessage: this.props.gettext("An error occurred."),
       });
     }
   };
@@ -222,7 +226,7 @@ export class AssignmentUpdateApp extends Component {
 
   render() {
     if (!this.state.loaded) {
-      return <LinearProgress indeterminate />;
+      return <LinearProgress determinate={false} />;
     }
     if (this.state.questions.length == 0) {
       return (
@@ -278,9 +282,13 @@ export class AssignmentUpdateApp extends Component {
             </Droppable>
           </DragDropContext>
           <Snackbar
-            ref={(bar) => {
-              this.bar = bar;
-            }}
+            show={this.state.snackbarIsOpen}
+            onHide={(evt) => this.setState({ snackbarIsOpen: false })}
+            message={this.state.snackbarMessage}
+            timeout={5000}
+            actionHandler={() => {}}
+            actionText="OK"
+            dismissesOnAction={true}
           />
         </div>
       );
@@ -304,9 +312,13 @@ export class AssignmentUpdateApp extends Component {
           ))}
         </User.Provider>
         <Snackbar
-          ref={(bar) => {
-            this.bar = bar;
-          }}
+          show={this.state.snackbarIsOpen}
+          onHide={(evt) => this.setState({ snackbarIsOpen: false })}
+          message={this.state.snackbarMessage}
+          timeout={5000}
+          actionHandler={() => {}}
+          actionText="OK"
+          dismissesOnAction={true}
         />
       </div>
     );
