@@ -1,19 +1,29 @@
 from rest_framework import viewsets, generics
+from rest_framework.renderers import JSONRenderer
 
 from peerinst.models import (
     Assignment,
     AssignmentQuestions,
     Answer,
     AnswerAnnotation,
+    Discipline,
 )
+from peerinst.util import question_search_function
+from REST.pagination import SearchPagination
 from REST.serializers import (
     AssignmentSerializer,
     AnswerSerializer,
+    DisciplineSerializer,
     FeedbackWriteSerialzer,
     FeedbackReadSerialzer,
+    QuestionSerializer,
     RankSerializer,
 )
-from REST.permissions import InAssignmentOwnerList, InOwnerList
+from REST.permissions import (
+    InAssignmentOwnerList,
+    InOwnerList,
+    IsAdminUserOrReadOnly,
+)
 
 
 class AssignmentViewSet(viewsets.ModelViewSet):
@@ -28,6 +38,12 @@ class AssignmentViewSet(viewsets.ModelViewSet):
         return Assignment.objects.filter(owner=self.request.user)
 
 
+class DisciplineViewSet(viewsets.ModelViewSet):
+    serializer_class = DisciplineSerializer
+    permission_classes = [IsAdminUserOrReadOnly]
+    queryset = Discipline.objects.all()
+
+
 class QuestionListViewSet(viewsets.ModelViewSet):
     """
     A simple ViewSet for adding/removing assignment questions.
@@ -39,6 +55,41 @@ class QuestionListViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return AssignmentQuestions.objects.filter(
             assignment__owner=self.request.user
+        )
+
+
+class QuestionSearchList(generics.ListAPIView):
+    """ A simple ListView to return search results in JSON format"""
+
+    pagination_class = SearchPagination
+    renderer_classes = [JSONRenderer]
+
+    def get_queryset(self):
+        search_string = self.request.GET.get("search_string")
+        print(search_string)
+        queryset = question_search_function(search_string, is_old_query=True)
+        return queryset
+
+    def get_serializer(self, *args, **kwargs):
+        kwargs["context"] = self.get_serializer_context()
+        return QuestionSerializer(
+            read_only=True,
+            fields=(
+                "pk",
+                "title",
+                "text",
+                "user",
+                "discipline",
+                "answer_count",
+                "category",
+                "image",
+                "image_alt_text",
+                "choices",
+                "matrix",
+                "collaborators",
+            ),
+            *args,
+            **kwargs
         )
 
 

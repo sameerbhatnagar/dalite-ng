@@ -3,6 +3,7 @@ import bleach
 from django.contrib.auth.models import User
 from django.template.defaultfilters import title
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 
 from peerinst.models import (
     Assignment,
@@ -34,7 +35,7 @@ class CategorySerializer(serializers.ModelSerializer):
 class DisciplineSerializer(serializers.ModelSerializer):
     class Meta:
         model = Discipline
-        fields = ["title"]
+        fields = ["title", "pk"]
 
     def to_representation(self, instance):
         """Bleach and ensure title case"""
@@ -136,9 +137,33 @@ class RankSerializer(serializers.ModelSerializer):
         ),
     )
 
+    def create(self, validated_data):
+        """ Custom create method to add questions to an assignment based on pk
+            Required POST data:
+                - assignment (validated normally)
+                - question_pk (validated here)
+        """
+
+        if "question_pk" in self.context["request"].data:
+            try:
+                question_pk = self.context["request"].data["question_pk"]
+                added_question = AssignmentQuestions.objects.create(
+                    assignment=validated_data["assignment"],
+                    question=Question.objects.get(pk=question_pk),
+                    rank=validated_data["assignment"].questions.count(),
+                )
+                if added_question:
+                    return added_question
+                else:
+                    raise Exception
+            except Exception as e:
+                raise ValidationError(e)
+        else:
+            raise ValidationError("Missing question_pk")
+
     class Meta:
         model = AssignmentQuestions
-        fields = ["question", "rank", "pk"]
+        fields = ["assignment", "question", "rank", "pk"]
 
 
 class AssignmentSerializer(serializers.ModelSerializer):
@@ -149,6 +174,15 @@ class AssignmentSerializer(serializers.ModelSerializer):
             aq.rank = validated_data["assignmentquestions_set"][i]["rank"]
             aq.save()
         return instance
+
+    def to_representation(self, instance):
+        """Bleach HTML-supported fields"""
+        ret = super().to_representation(instance)
+        if "title" in ret:
+            ret["title"] = bleach.clean(
+                ret["title"], tags=ALLOWED_TAGS, styles=[], strip=True
+            )
+        return ret
 
     class Meta:
         model = Assignment
