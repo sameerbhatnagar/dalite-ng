@@ -749,11 +749,13 @@ def report_data_by_assignment(assignment_list, student_groups, teacher):
                 d_q_a = {}
                 d_q_a["id"] = student_response.pk
                 d_q_a["score"] = (
-                    student_response.answerannotation_set.get(
-                        annotator=teacher.user
-                    ).score
+                    student_response.answerannotation_set.filter(
+                        annotator=teacher.user, answer=student_response,
+                    )
+                    .last()
+                    .score
                     if student_response.answerannotation_set.filter(
-                        annotator=teacher.user
+                        annotator=teacher.user, answer=student_response
                     ).exists()
                     else ""
                 )
