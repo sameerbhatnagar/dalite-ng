@@ -66,7 +66,6 @@ class QuestionSearchList(generics.ListAPIView):
 
     def get_queryset(self):
         search_string = self.request.GET.get("search_string")
-        print(search_string)
         queryset = question_search_function(search_string, is_old_query=True)
         return queryset
 

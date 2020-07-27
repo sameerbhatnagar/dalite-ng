@@ -40,34 +40,44 @@ class ToggleVisibleItems extends Component {
     }
   };
 
+  showOptions = () => {
+    if (!this.props.minimizeCards) {
+      return (
+        <Fragment>
+          <FormField theme="secondary">
+            <label for="toggle-images">
+              {this.props.gettext("Show images")}
+            </label>
+            <Checkbox
+              aria-label={this.props.gettext("Click to show question images")}
+              checked={this.props.showImages}
+              id="toggle-images"
+              onChange={this.props.handleImageToggleClick}
+              title={this.props.gettext("Click to show question images")}
+            />
+          </FormField>
+          <FormField theme="secondary">
+            <label for="toggle-answers">
+              {this.props.gettext("Show choices")}
+            </label>
+            <Checkbox
+              aria-label={this.props.gettext("Click to show answer choices")}
+              checked={this.props.showChoices}
+              id="toggle-answers"
+              onChange={this.props.handleChoiceToggleClick}
+              title={this.props.gettext("Click to show answer choices")}
+            />
+          </FormField>
+        </Fragment>
+      );
+    }
+  };
+
   render() {
     return (
       <div>
         {this.toggleOrdering()}
-        <FormField theme="secondary">
-          <label for="toggle-images">
-            {this.props.gettext("Show images")}
-          </label>
-          <Checkbox
-            aria-label={this.props.gettext("Click to show question images")}
-            checked={this.props.showImages}
-            id="toggle-images"
-            onChange={this.props.handleImageToggleClick}
-            title={this.props.gettext("Click to show question images")}
-          />
-        </FormField>
-        <FormField theme="secondary">
-          <label for="toggle-answers">
-            {this.props.gettext("Show choices")}
-          </label>
-          <Checkbox
-            aria-label={this.props.gettext("Click to show answer choices")}
-            checked={this.props.showChoices}
-            id="toggle-answers"
-            onChange={this.props.handleChoiceToggleClick}
-            title={this.props.gettext("Click to show answer choices")}
-          />
-        </FormField>
+        {this.showOptions()}
       </div>
     );
   }
