@@ -336,8 +336,7 @@ bundle.selectAll("#second_choice-group-"+id).transition().delay(1000).duration(1
   window.addEventListener("load", function() {
   teacher.initCustomReport(
     {
-      evaluateRationale: "{% url 'teacher-dashboard--evaluate-rationale' %}"
-
+      evaluateRationale: "{% url 'REST:teacher-feedback-list' %}",
     }
   )
 });
