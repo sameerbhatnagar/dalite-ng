@@ -6,7 +6,7 @@
 }
 
 .hint {
-  color: var(--mdc-theme-text-icon-on-background);
+  color: var(--mdc-theme-text-secondary-on-background);
 }
 
 [class^="mdc-"] {
@@ -21,4 +21,16 @@
 .mdc-typography--headline5 {
   font-weight: bold;
   line-height: 1.5rem;
+}
+
+.mdc-text-field--focused:not(.mdc-text-field--disabled) .mdc-floating-label {
+  color: var(--mdc-theme-secondary);
+}
+
+.mdc-select__dropdown-icon {
+  filter: grayscale(1);
+}
+
+.mdc-button {
+  font-weight: 700;
 }

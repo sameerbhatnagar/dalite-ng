@@ -126,12 +126,18 @@ export class SearchDbApp extends Component {
       <div>
         <div style={{ marginBottom: "20px" }}>
           <TextField
-            withLeadingIcon="search"
+            withLeadingIcon={<TextFieldIcon icon="search" theme="secondary" />}
             withTrailingIcon={
               <TextFieldIcon
                 tabIndex="0"
                 icon="close"
                 onClick={() => this.setState({ searchTerms: "" })}
+                theme="primary"
+                style={
+                  this.state.searchTerms.length > 0
+                    ? {}
+                    : { opacity: "0", pointerEvents: "none" }
+                }
               />
             }
             label={this.props.gettext("Type search terms")}
@@ -140,6 +146,7 @@ export class SearchDbApp extends Component {
               this.setState({ searchTerms: evt.target.value });
             }}
             onKeyPress={this.handleSubmit}
+            theme="secondary"
           />
           <TextFieldHelperText persistent>
             {this.props.gettext(
