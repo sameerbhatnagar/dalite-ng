@@ -139,7 +139,9 @@ export class QuestionCard extends Component {
     return (
       <CardAction
         icon="add"
-        onClick={() => this.props.handleQuestionAdd(this.props.question.pk)}
+        onClick={() =>
+          this.props.handleQuestionAdd(this.props.question.pk, this.props.rank)
+        }
         title={this.props.gettext("Add question to this assignment")}
         theme="primary"
       />

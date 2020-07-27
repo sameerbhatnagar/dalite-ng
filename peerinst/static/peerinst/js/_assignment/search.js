@@ -97,14 +97,17 @@ export class SearchDbApp extends Component {
     }
   };
 
-  add = async (pk) => {
+  add = async (pk, i) => {
     try {
       await submitData(
         this.props.assignmentQuestionURL,
         { assignment: this.props.assignment, question_pk: pk },
         "POST",
       );
+      const _questions = this.state.questions;
+      _questions.splice(i, 1);
       this.setState({
+        questions: _questions,
         snackbarIsOpen: true,
         snackbarMessage: this.props.gettext("Item added."),
       });
@@ -185,14 +188,14 @@ export class SearchDbApp extends Component {
       <div>
         <User.Provider value={this.props.user}>
           {this.searchBar()}
-          {this.state.questions.map((q) => (
+          {this.state.questions.map((q, i) => (
             <QuestionCard
               cloneURL={this.props.questionCloneBaseURL}
               editURL={this.props.questionEditBaseURL}
               handleQuestionDelete={null}
               handleQuestionAdd={this.add}
               question={q.question}
-              rank={null}
+              rank={i}
               gettext={this.props.gettext}
               showChoices={true}
               showImages={true}
