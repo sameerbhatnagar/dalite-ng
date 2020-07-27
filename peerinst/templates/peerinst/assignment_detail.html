@@ -79,7 +79,7 @@
       assignmentQuestionURL: "{% url 'REST:assignment_question-list' %}",
       callback: render,
       disciplineURL: "{% url 'REST:discipline-list' %}",
-      defaultDiscipline: "{{ request.user.teacher.disciplines.first.pk }}",
+      defaultDiscipline: "{{ teacher.disciplines.first.pk }}",
       gettext: gettext,
       questionCloneBaseURL: "/question/clone/",
       questionEditBaseURL: "/question/update/",

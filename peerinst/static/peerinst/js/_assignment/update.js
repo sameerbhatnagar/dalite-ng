@@ -153,6 +153,7 @@ export class AssignmentUpdateApp extends Component {
 
   componentWillReceiveProps() {
     console.debug("Receiving props...");
+    this.setState({ minimizeCards: false });
     this.refreshFromDB();
   }
 

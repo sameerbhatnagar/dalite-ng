@@ -381,7 +381,9 @@ class AssignmentEditView(LoginRequiredMixin, NoStudentsMixin, UpdateView):
 
 
 class AssignmentUpdateView(LoginRequiredMixin, NoStudentsMixin, DetailView):
-    """View for updating assignment."""
+    """ View for updating assignment.
+        POST operations are now handled through REST api.
+    """
 
     model = Assignment
     template_name_suffix = "_detail"
@@ -406,45 +408,12 @@ class AssignmentUpdateView(LoginRequiredMixin, NoStudentsMixin, DetailView):
         context = super(AssignmentUpdateView, self).get_context_data(**kwargs)
         teacher = get_object_or_404(models.Teacher, user=self.request.user)
         context["teacher"] = teacher
-        all_qs = (
-            teacher.user.question_set.all() | teacher.user.collaborators.all()
-        )
-        context["all_questions"] = all_qs.distinct()
         return context
 
     def get_object(self):
         return get_object_or_404(
             models.Assignment, pk=self.kwargs["assignment_id"]
         )
-
-    def post(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        form = forms.AddRemoveQuestionForm(request.POST)
-        if form.is_valid():
-            question = form.cleaned_data["q"]
-            if question not in self.object.questions.all():
-                # Reset ranks
-                last_rank = 0
-                for i, q in enumerate(
-                    self.object.assignmentquestions_set.all()
-                ):
-                    q.rank = i
-                    last_rank = i
-                    q.save()
-                self.object.questions.add(
-                    question, through_defaults={"rank": last_rank + 1}
-                )
-            else:
-                self.object.questions.remove(question)
-            self.object.save()
-            return HttpResponseRedirect(
-                reverse(
-                    "assignment-update",
-                    kwargs={"assignment_id": self.object.pk},
-                )
-            )
-        else:
-            return response_400(request)
 
 
 class QuestionListView(LoginRequiredMixin, NoStudentsMixin, ListView):
