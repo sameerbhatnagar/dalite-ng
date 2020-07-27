@@ -67,6 +67,13 @@ class QuestionSearchList(generics.ListAPIView):
     def get_queryset(self):
         search_string = self.request.GET.get("search_string")
         queryset = question_search_function(search_string, is_old_query=True)
+        try:
+            assignment = Assignment.objects.get(
+                pk=self.request.GET.get("assignment_id")
+            )
+            queryset = queryset.exclude(pk__in=assignment.questions.all())
+        except Exception as e:
+            print(e)
         return queryset
 
     def get_serializer(self, *args, **kwargs):

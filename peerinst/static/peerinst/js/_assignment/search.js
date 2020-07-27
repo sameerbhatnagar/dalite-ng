@@ -63,7 +63,7 @@ export class SearchDbApp extends Component {
       this.setState({ searching: true, questions: [] }, () => {
         console.debug("Searching...");
         const queryString = new URLSearchParams({
-          id: this.props.assignment,
+          assignment_id: this.props.assignment,
           limit_search: false,
           type: this.props.type,
           search_string: this.state.searchTerms,
@@ -74,15 +74,25 @@ export class SearchDbApp extends Component {
         _questions
           .then((data) => {
             console.debug(data);
-            _this.setState({
-              questions: data["results"].map((d, i) => {
-                return {
-                  question: d,
-                  rank: i,
-                };
-              }),
-              searching: false,
-            });
+            if (data["count"] > 0) {
+              _this.setState({
+                questions: data["results"].map((d, i) => {
+                  return {
+                    question: d,
+                    rank: i,
+                  };
+                }),
+                searching: false,
+              });
+            } else {
+              this.setState({
+                searching: false,
+                snackbarIsOpen: true,
+                snackbarMessage: this.props.gettext(
+                  "No questions match query.",
+                ),
+              });
+            }
           })
           .catch((error) => {
             console.error(error);
