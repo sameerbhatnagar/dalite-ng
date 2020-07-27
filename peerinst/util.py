@@ -748,12 +748,10 @@ def report_data_by_assignment(assignment_list, student_groups, teacher):
             for student_response in answer_qs_question:
                 d_q_a = {}
                 d_q_a["id"] = student_response.pk
-                d_q_a["score"] = (
+                d_q_a["feedback"] = (
                     student_response.answerannotation_set.filter(
                         annotator=teacher.user, answer=student_response,
-                    )
-                    .last()
-                    .score
+                    ).last()
                     if student_response.answerannotation_set.filter(
                         annotator=teacher.user, answer=student_response
                     ).exists()
