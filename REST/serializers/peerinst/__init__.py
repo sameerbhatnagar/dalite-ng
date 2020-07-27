@@ -6,6 +6,7 @@ __all__ = [
     "FeedbackWriteSerialzer",
     "QuestionSerializer",
     "RankSerializer",
+    "TeacherSerializer",
 ]
 
 from .assignment import (
@@ -19,3 +20,4 @@ from .answer import (
     FeedbackReadSerialzer,
     FeedbackWriteSerialzer,
 )  # noqa
+from .teacher import TeacherSerializer

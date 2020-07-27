@@ -66,6 +66,7 @@
         assignment.AssignmentUpdateApp, {
           assignmentURL: "{% url 'REST:assignment-detail' object.pk %}?format=json",
           assignmentQuestionURL: "{% url 'REST:assignment_question-list' %}",
+          teacherURL: "{% url 'REST:teacher' teacher.pk %}",
           gettext: gettext,
           nonce: "{{ request.csp_nonce }}",
           questionCloneBaseURL: "/question/clone/",
@@ -80,6 +81,7 @@
       callback: render,
       disciplineURL: "{% url 'REST:discipline-list' %}",
       defaultDiscipline: "{{ teacher.disciplines.first.pk }}",
+      teacherURL: "{% url 'REST:teacher' teacher.pk %}",
       gettext: gettext,
       questionCloneBaseURL: "/question/clone/",
       questionEditBaseURL: "/question/update/",

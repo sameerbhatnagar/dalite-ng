@@ -37,6 +37,7 @@ urlpatterns = [
         views.StudentFeedbackList.as_view(),
         name="student-feedback",
     ),
+    path("teacher/<int:pk>/", views.TeacherView.as_view(), name="teacher",),
     path(
         "teacher/feedback/",
         views.TeacherFeedbackList.as_view(),

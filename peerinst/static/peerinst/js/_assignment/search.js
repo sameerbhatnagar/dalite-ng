@@ -18,12 +18,13 @@ import "@rmwc/textfield/node_modules/@material/line-ripple/dist/mdc.line-ripple.
 import "@rmwc/select/node_modules/@material/select/dist/mdc.select.min.css";
 
 import { get, submitData } from "./ajax.js";
-import { QuestionCard, User } from "./question.js";
+import { QuestionCard, Favourites, User } from "./question.js";
 
 export class SearchDbApp extends Component {
   /* Expects a paginated response from server */
   state = {
     disciplines: [],
+    favourites: [],
     questions: [],
     searching: false,
     searchTerms: "",
@@ -55,6 +56,17 @@ export class SearchDbApp extends Component {
             "An error occurred.  Try refreshing this page.",
           ),
         });
+      });
+    const _favourites = get(this.props.teacherURL);
+    _favourites
+      .then((data) => {
+        console.debug(data);
+        this.setState({
+          favourites: data["favourite_questions"],
+        });
+      })
+      .catch((error) => {
+        console.error(error);
       });
   };
 
@@ -196,23 +208,25 @@ export class SearchDbApp extends Component {
   render() {
     return (
       <div>
-        <User.Provider value={this.props.user}>
-          {this.searchBar()}
-          {this.state.questions.map((q, i) => (
-            <QuestionCard
-              cloneURL={this.props.questionCloneBaseURL}
-              editURL={this.props.questionEditBaseURL}
-              handleQuestionDelete={null}
-              handleQuestionAdd={this.add}
-              question={q.question}
-              rank={i}
-              gettext={this.props.gettext}
-              showChoices={true}
-              showImages={true}
-              minimizeCards={false}
-            />
-          ))}
-        </User.Provider>
+        <Favourites.Provider value={this.state.favourites}>
+          <User.Provider value={this.props.user}>
+            {this.searchBar()}
+            {this.state.questions.map((q, i) => (
+              <QuestionCard
+                cloneURL={this.props.questionCloneBaseURL}
+                editURL={this.props.questionEditBaseURL}
+                handleQuestionDelete={null}
+                handleQuestionAdd={this.add}
+                question={q.question}
+                rank={i}
+                gettext={this.props.gettext}
+                showChoices={true}
+                showImages={true}
+                minimizeCards={false}
+              />
+            ))}
+          </User.Provider>
+        </Favourites.Provider>
         <Snackbar
           show={this.state.snackbarIsOpen}
           onHide={(evt) => this.setState({ snackbarIsOpen: false })}

@@ -7,6 +7,7 @@ from peerinst.models import (
     Answer,
     AnswerAnnotation,
     Discipline,
+    Teacher,
 )
 from peerinst.util import question_search_function
 from REST.pagination import SearchPagination
@@ -18,6 +19,7 @@ from REST.serializers import (
     FeedbackReadSerialzer,
     QuestionSerializer,
     RankSerializer,
+    TeacherSerializer,
 )
 from REST.permissions import (
     InAssignmentOwnerList,
@@ -128,6 +130,12 @@ class StudentFeedbackList(generics.ListAPIView):
         return AnswerAnnotation.objects.filter(
             answer__user_token=self.request.user.username, score__isnull=False
         )
+
+
+class TeacherView(generics.RetrieveUpdateAPIView):
+    serializer_class = TeacherSerializer
+    queryset = Teacher.objects.all()
+    renderer_classes = [JSONRenderer]
 
 
 class TeacherFeedbackList(generics.ListCreateAPIView):

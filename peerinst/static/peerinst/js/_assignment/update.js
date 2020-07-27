@@ -13,7 +13,7 @@ import "@rmwc/linear-progress/node_modules/@material/linear-progress/dist/mdc.li
 import "@rmwc/snackbar/node_modules/@material/snackbar/dist/mdc.snackbar.min.css";
 
 import { get, submitData } from "./ajax.js";
-import { QuestionCard, User } from "./question.js";
+import { QuestionCard, Favourites, User } from "./question.js";
 
 class ToggleVisibleItems extends Component {
   toggleOrdering = () => {
@@ -96,6 +96,7 @@ const getListStyle = (isDraggingOver) => ({
 export class AssignmentUpdateApp extends Component {
   state = {
     minimizeCards: false,
+    favourites: [],
     showChoices: sessionStorage.answers == "block",
     showImages: sessionStorage.images == "block",
     questions: [],
@@ -143,6 +144,17 @@ export class AssignmentUpdateApp extends Component {
             "An error occurred.  Try refreshing this page.",
           ),
         });
+      });
+    const _favourites = get(this.props.teacherURL);
+    _favourites
+      .then((data) => {
+        console.debug(data);
+        this.setState({
+          favourites: data["favourite_questions"],
+        });
+      })
+      .catch((error) => {
+        console.error(error);
       });
   };
 
@@ -306,22 +318,25 @@ export class AssignmentUpdateApp extends Component {
     }
     return (
       <div>
-        <User.Provider value={this.props.user}>
-          {this.toggles()}
-          {this.state.questions.map((q) => (
-            <QuestionCard
-              cloneURL={this.props.questionCloneBaseURL}
-              editURL={this.props.questionEditBaseURL}
-              handleQuestionDelete={this.delete}
-              question={q.question}
-              rank={q.pk}
-              gettext={this.props.gettext}
-              showChoices={this.state.showChoices}
-              showImages={this.state.showImages}
-              minimizeCards={this.state.minimizeCards}
-            />
-          ))}
-        </User.Provider>
+        <Favourites.Provider value={this.state.favourites}>
+          <User.Provider value={this.props.user}>
+            {this.toggles()}
+            {this.state.questions.map((q) => (
+              <QuestionCard
+                cloneURL={this.props.questionCloneBaseURL}
+                editURL={this.props.questionEditBaseURL}
+                handleQuestionDelete={this.delete}
+                question={q.question}
+                rank={q.pk}
+                gettext={this.props.gettext}
+                showChoices={this.state.showChoices}
+                showImages={this.state.showImages}
+                minimizeCards={this.state.minimizeCards}
+                teacherURL={this.props.teacherURL}
+              />
+            ))}
+          </User.Provider>
+        </Favourites.Provider>
         <Snackbar
           show={this.state.snackbarIsOpen}
           onHide={(evt) => this.setState({ snackbarIsOpen: false })}

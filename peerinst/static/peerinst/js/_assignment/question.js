@@ -26,6 +26,7 @@ import "@rmwc/theme/node_modules/@material/theme/dist/mdc.theme.css";
 import "@rmwc/icon/icon.css";
 
 export const User = createContext();
+export const Favourites = createContext();
 
 class Image extends Component {
   render() {
@@ -194,6 +195,21 @@ export class QuestionCard extends Component {
           )}
         </div>
       </div>
+      <Favourites.Consumer>
+        {(favourites) => {
+          return (
+            <CardAction
+              checked={favourites.includes(this.props.question.pk)}
+              onIcon="favorite"
+              icon="favorite_border"
+              theme="primary"
+              title={this.props.gettext(
+                "Click to toggle question as one of your favourites",
+              )}
+            />
+          );
+        }}
+      </Favourites.Consumer>
       {this.editOrCopy()}
       {this.addOrDelete()}
     </Fragment>
