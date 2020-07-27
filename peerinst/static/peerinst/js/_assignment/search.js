@@ -119,6 +119,10 @@ export class SearchDbApp extends Component {
     }
   };
 
+  handleToggleFavourite = (pk) => {
+    console.debug(pk);
+  };
+
   add = async (pk, i) => {
     try {
       await submitData(
@@ -217,6 +221,7 @@ export class SearchDbApp extends Component {
                 editURL={this.props.questionEditBaseURL}
                 handleQuestionDelete={null}
                 handleQuestionAdd={this.add}
+                handleToggleFavourite={this.handleToggleFavourite}
                 question={q.question}
                 rank={i}
                 gettext={this.props.gettext}

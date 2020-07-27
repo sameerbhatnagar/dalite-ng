@@ -200,6 +200,9 @@ export class QuestionCard extends Component {
           return (
             <CardAction
               checked={favourites.includes(this.props.question.pk)}
+              onClick={() => {
+                this.props.handleToggleFavourite(this.props.question.pk);
+              }}
               onIcon="favorite"
               icon="favorite_border"
               theme="primary"
