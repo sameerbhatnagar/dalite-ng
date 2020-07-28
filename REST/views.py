@@ -36,7 +36,7 @@ class AssignmentViewSet(viewsets.ModelViewSet):
     """
 
     serializer_class = AssignmentSerializer
-    permission_classes = [InOwnerList]
+    permission_classes = [IsAuthenticated, InOwnerList]
 
     def get_queryset(self):
         return Assignment.objects.filter(owner=self.request.user)
@@ -44,7 +44,7 @@ class AssignmentViewSet(viewsets.ModelViewSet):
 
 class DisciplineViewSet(viewsets.ModelViewSet):
     serializer_class = DisciplineSerializer
-    permission_classes = [IsAdminUserOrReadOnly]
+    permission_classes = [IsAuthenticated, IsAdminUserOrReadOnly]
     queryset = Discipline.objects.all()
 
 
