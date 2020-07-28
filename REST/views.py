@@ -7,6 +7,7 @@ from peerinst.models import (
     Answer,
     AnswerAnnotation,
     Discipline,
+    Question,
     Teacher,
 )
 from peerinst.util import question_search_function
@@ -140,6 +141,28 @@ class TeacherView(generics.RetrieveUpdateAPIView):
     serializer_class = TeacherSerializer
     queryset = Teacher.objects.all()
     renderer_classes = [JSONRenderer]
+
+    def update(self, request, *args, **kwargs):
+        current_favorites = (
+            Teacher.objects.get(user=request.user)
+            .favourite_questions.all()
+            .values_list("pk", flat=True)
+        )
+        new_favorites = request.data["favourite_questions"]
+
+        if len(current_favorites) - len(new_favorites) > 0:
+            q_pk = list(set(current_favorites) - set(new_favorites))[0]
+            message = "{} removed from favourites".format(
+                Question.objects.get(id=q_pk).title
+            )
+        else:
+            q_pk = list(set(new_favorites) - set(current_favorites))[0]
+            message = "{} added from favourites".format(
+                Question.objects.get(id=q_pk).title
+            )
+
+        snackbar_message = {"snackbar_message": message}
+        return super(TeacherView, self).update(request, *args, **kwargs)
 
 
 class TeacherFeedbackList(generics.ListCreateAPIView):

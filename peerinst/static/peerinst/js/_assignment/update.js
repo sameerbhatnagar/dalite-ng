@@ -141,6 +141,11 @@ export class AssignmentUpdateApp extends Component {
         this.setState({
           favourites: _favourites,
         });
+        console.log(data);
+        this.setState({
+          snackbarIsOpen: true,
+          snackbarMessage: this.props.gettext("Favourite questions changed"),
+        });
       })
       .catch((error) => {
         console.error(error);
