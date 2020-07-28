@@ -743,6 +743,11 @@ class TeacherTest(TestCase):
         )
         self.assertTrue(logged_in)
 
+        self.assertNotIn(
+            Question.objects.get(pk=31),
+            Assignment.objects.get(pk="Assignment4").questions.all(),
+        )
+
         # As teacher, post valid form to add question -> 200
         response = self.client.post(
             reverse("REST:assignment_question-list"),
@@ -751,9 +756,8 @@ class TeacherTest(TestCase):
             follow=True,
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
-        # self.assertTemplateUsed(response, "peerinst/assignment_detail.html")
-        # FIX ME: response is from rest url, and so no template used
+        self.assertEqual(response["content-type"], "application/json")
+        # TODO: Add assertJSONEqual to check content
 
         self.assertIn(
             Question.objects.get(pk=31),
@@ -809,23 +813,23 @@ class TeacherTest(TestCase):
         )
 
         # As teacher, post valid form to remove question -> 200
-        response = self.client.post(
-            reverse("REST:assignment_question-list"),
-            {"assignment": "Assignment4", "question_pk": 31},
+        rank = AssignmentQuestions.objects.get(
+            assignment="Assignment4", question=31
+        )
+        response = self.client.delete(
+            reverse("REST:assignment_question-detail", args=[rank.pk]),
+            {},
             format="json",
             follow=True,
         )
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
-        # self.assertTemplateUsed(response, "peerinst/assignment_detail.html")
-        # FIX ME: response is from rest url, and so no template used
         self.assertNotIn(
             Question.objects.get(pk=31),
             Assignment.objects.get(pk="Assignment4").questions.all(),
         )
 
-        # As teacher, post invalid form to add question -> 400
-
+        # As teacher, post invalid form to add question -> 404
         response = self.client.post(
             reverse("REST:assignment_question-list"),
             {"assignment": "Assignment4", "question_pk": 3111231},
@@ -842,8 +846,10 @@ class TeacherTest(TestCase):
             format="json",
             follow=True,
         )
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "registration/login.html")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        # TODO: redirect to login from ajax
+        # self.assertEqual(response.status_code, status.HTTP_200_OK)
+        # self.assertTemplateUsed(response, "registration/login.html")
         self.assertNotIn(
             Question.objects.get(pk=31),
             Assignment.objects.get(pk="Assignment4").questions.all(),

@@ -1,9 +1,10 @@
 import bleach
 
 from django.contrib.auth.models import User
+from django.shortcuts import get_object_or_404
 from django.template.defaultfilters import title
 from rest_framework import serializers
-from rest_framework.exceptions import ValidationError
+from rest_framework.exceptions import bad_request
 
 from peerinst.models import (
     Assignment,
@@ -145,21 +146,18 @@ class RankSerializer(serializers.ModelSerializer):
         """
 
         if "question_pk" in self.context["request"].data:
-            try:
-                question_pk = self.context["request"].data["question_pk"]
-                added_question = AssignmentQuestions.objects.create(
-                    assignment=validated_data["assignment"],
-                    question=Question.objects.get(pk=question_pk),
-                    rank=validated_data["assignment"].questions.count(),
-                )
-                if added_question:
-                    return added_question
-                else:
-                    raise Exception
-            except Exception as e:
-                raise ValidationError(e)
+            question_pk = self.context["request"].data["question_pk"]
+            added_question = AssignmentQuestions.objects.create(
+                assignment=validated_data["assignment"],
+                question=get_object_or_404(Question, pk=question_pk),
+                rank=validated_data["assignment"].questions.count(),
+            )
+            if added_question:
+                return added_question
+            else:
+                raise bad_request
         else:
-            raise ValidationError("Missing question_pk")
+            raise bad_request
 
     class Meta:
         model = AssignmentQuestions

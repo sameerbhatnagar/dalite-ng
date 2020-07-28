@@ -1,4 +1,5 @@
 from rest_framework import viewsets, generics
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import JSONRenderer
 
 from peerinst.models import (
@@ -50,10 +51,11 @@ class DisciplineViewSet(viewsets.ModelViewSet):
 class QuestionListViewSet(viewsets.ModelViewSet):
     """
     A simple ViewSet for adding/removing assignment questions.
+    TODO: Don't allow changes to assignment if student answers exist.
     """
 
     serializer_class = RankSerializer
-    permission_classes = [InAssignmentOwnerList]
+    permission_classes = [IsAuthenticated, InAssignmentOwnerList]
 
     def get_queryset(self):
         return AssignmentQuestions.objects.filter(

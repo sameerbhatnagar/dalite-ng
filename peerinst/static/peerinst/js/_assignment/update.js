@@ -138,6 +138,7 @@ export class AssignmentUpdateApp extends Component {
     response
       .then((data) => {
         // TODO: This should not run if error is returned
+        // TODO: Refactor this and same function in search.js
         this.setState({
           favourites: _favourites,
         });
