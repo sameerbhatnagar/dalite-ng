@@ -133,6 +133,10 @@ class StudentFeedbackList(generics.ListAPIView):
 
 
 class TeacherView(generics.RetrieveUpdateAPIView):
+    """
+    TODO: add permission_classes
+    """
+
     serializer_class = TeacherSerializer
     queryset = Teacher.objects.all()
     renderer_classes = [JSONRenderer]

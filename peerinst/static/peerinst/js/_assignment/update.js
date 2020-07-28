@@ -123,8 +123,32 @@ export class AssignmentUpdateApp extends Component {
     this.setState({ minimizeCards: !this.state.minimizeCards });
   };
 
-  handleToggleFavourite = (pk) => {
-    console.debug(pk);
+  handleToggleFavourite = async (questionPK) => {
+    const _favourites = this.state.favourites;
+    if (_favourites.includes(questionPK)) {
+      _favourites.splice(_favourites.indexOf(questionPK), 1);
+    } else {
+      _favourites.push(questionPK);
+    }
+    const response = submitData(
+      this.props.teacherURL,
+      { favourite_questions: _favourites },
+      "PUT",
+    );
+    response
+      .then((data) => {
+        // TODO: This should not run if error is returned
+        this.setState({
+          favourites: _favourites,
+        });
+      })
+      .catch((error) => {
+        console.error(error);
+        this.setState({
+          snackbarIsOpen: true,
+          snackbarMessage: this.props.gettext("An error occurred."),
+        });
+      });
   };
 
   refreshFromDB = () => {

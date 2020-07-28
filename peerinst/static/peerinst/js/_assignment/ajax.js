@@ -5,6 +5,7 @@ function getCsrfToken() {
 }
 
 async function handleResponse(response) {
+  console.debug(response);
   if (response.status == 200 || response.status == 201) {
     return await response.json();
   }
@@ -19,7 +20,7 @@ async function handleResponse(response) {
   }
 
   if ([400, 403, 404, 405].includes(response.status)) {
-    console.info(response);
+    console.debug(response);
     throw new Error(response);
   }
 }
