@@ -16,6 +16,8 @@ from peerinst.models import (
 from quality.models import UsesCriterion
 from tos.models import Consent, Role, Tos
 
+from rest_framework import status
+
 
 def ready_user(pk):
     user = User.objects.get(pk=pk)
@@ -734,6 +736,7 @@ class TeacherTest(TestCase):
         self.assertTemplateUsed(response, "peerinst/assignment_detail.html")
 
     def test_assignment_update_post(self):
+
         logged_in = self.client.login(
             username=self.validated_teacher.username,
             password=self.validated_teacher.text_pwd,
@@ -742,14 +745,16 @@ class TeacherTest(TestCase):
 
         # As teacher, post valid form to add question -> 200
         response = self.client.post(
-            reverse(
-                "assignment-update", kwargs={"assignment_id": "Assignment4"}
-            ),
-            {"q": 31},
+            reverse("REST:assignment_question-list"),
+            {"assignment": "Assignment4", "question_pk": 31},
+            format="json",
             follow=True,
         )
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "peerinst/assignment_detail.html")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        # self.assertTemplateUsed(response, "peerinst/assignment_detail.html")
+        # FIX ME: response is from rest url, and so no template used
+
         self.assertIn(
             Question.objects.get(pk=31),
             Assignment.objects.get(pk="Assignment4").questions.all(),
@@ -805,36 +810,36 @@ class TeacherTest(TestCase):
 
         # As teacher, post valid form to remove question -> 200
         response = self.client.post(
-            reverse(
-                "assignment-update", kwargs={"assignment_id": "Assignment4"}
-            ),
-            {"q": 31},
+            reverse("REST:assignment_question-list"),
+            {"assignment": "Assignment4", "question_pk": 31},
+            format="json",
             follow=True,
         )
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "peerinst/assignment_detail.html")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        # self.assertTemplateUsed(response, "peerinst/assignment_detail.html")
+        # FIX ME: response is from rest url, and so no template used
         self.assertNotIn(
             Question.objects.get(pk=31),
             Assignment.objects.get(pk="Assignment4").questions.all(),
         )
 
         # As teacher, post invalid form to add question -> 400
+
         response = self.client.post(
-            reverse(
-                "assignment-update", kwargs={"assignment_id": "Assignment4"}
-            ),
-            {"q": 3111231},
+            reverse("REST:assignment_question-list"),
+            {"assignment": "Assignment4", "question_pk": 3111231},
+            format="json",
             follow=True,
         )
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
         # As non-logged in user, post valid form to add question -> Login
         self.client.logout()
         response = self.client.post(
-            reverse(
-                "assignment-update", kwargs={"assignment_id": "Assignment4"}
-            ),
-            {"q": 31},
+            reverse("REST:assignment_question-list"),
+            {"assignment": "Assignment4", "question_pk": 31},
+            format="json",
             follow=True,
         )
         self.assertEqual(response.status_code, 200)
