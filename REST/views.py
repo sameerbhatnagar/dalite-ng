@@ -157,12 +157,16 @@ class TeacherView(generics.RetrieveUpdateAPIView):
             )
         else:
             q_pk = list(set(new_favorites) - set(current_favorites))[0]
-            message = "{} added from favourites".format(
+            message = "{} added to favourites".format(
                 Question.objects.get(id=q_pk).title
             )
 
         snackbar_message = {"snackbar_message": message}
-        return super(TeacherView, self).update(request, *args, **kwargs)
+
+        response = super(TeacherView, self).update(request, *args, **kwargs)
+        response.data.update(snackbar_message)
+
+        return response
 
 
 class TeacherFeedbackList(generics.ListCreateAPIView):
