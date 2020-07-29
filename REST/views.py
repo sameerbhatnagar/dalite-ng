@@ -36,8 +36,10 @@ class AssignmentViewSet(viewsets.ModelViewSet):
     A simple ViewSet for viewing and editing assignments.
     """
 
-    serializer_class = AssignmentSerializer
+    http_method_names = ["get", "patch"]
     permission_classes = [IsAuthenticated, InOwnerList]
+    renderer_classes = [JSONRenderer]
+    serializer_class = AssignmentSerializer
 
     def get_queryset(self):
         return Assignment.objects.filter(owner=self.request.user)

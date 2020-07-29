@@ -162,15 +162,31 @@ class RankSerializer(serializers.ModelSerializer):
     class Meta:
         model = AssignmentQuestions
         fields = ["assignment", "question", "rank", "pk"]
+        read_only_fields = ["pk"]
 
 
 class AssignmentSerializer(serializers.ModelSerializer):
     questions = RankSerializer(source="assignmentquestions_set", many=True)
 
+    def validate_questions(self, data):
+        assignment_questions = list(
+            self.instance.assignmentquestions_set.all()
+        )
+        if len(data) == len(assignment_questions):
+            return data
+        else:
+            raise serializers.ValidationError(
+                "Question list must contain all questions from this assignment"
+            )
+
     def update(self, instance, validated_data):
+        """ Only used to reorder questions.
+        Adding/deleting questions is handled by serializer for through table.
+        """
         for i, aq in enumerate(instance.assignmentquestions_set.all()):
             aq.rank = validated_data["assignmentquestions_set"][i]["rank"]
             aq.save()
+
         return instance
 
     def to_representation(self, instance):
