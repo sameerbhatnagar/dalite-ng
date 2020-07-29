@@ -42,11 +42,13 @@
 
     <div id="assignment-update-app"></div>
 
-    <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Search database' %}</h2>
+    <div id="favourites-app"></div>
+
+    <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Quick add' %}</h2>
+
+    <p>{% blocktrans %}Your favourite questions are listed below.  You can add them to this assignment using the plus sign.  Or, you can enter search terms to find new questions from the selected discipline.{% endblocktrans %}</p>
 
     <div id="search-db-app"></div>
-
-    <div id="search_results"></div>
 
   </section>
 </main>
@@ -86,7 +88,6 @@
       questionCloneBaseURL: "/question/clone/",
       questionEditBaseURL: "/question/update/",
       searchURL: "{% url 'REST:question-search' %}",
-      type: "assignment",
       user: "{{ request.user }}",
     });
     preact.render(searchDbApp, document.getElementById("search-db-app"))

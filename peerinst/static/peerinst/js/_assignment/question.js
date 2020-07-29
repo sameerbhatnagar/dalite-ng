@@ -130,7 +130,7 @@ export class QuestionCard extends Component {
     if (this.props.handleQuestionDelete) {
       return (
         <CardAction
-          icon="delete"
+          icon="remove_circle"
           onClick={() => this.props.handleQuestionDelete(this.props.rank)}
           title={this.props.gettext(
             "Remove this question from this assignment",
@@ -141,7 +141,7 @@ export class QuestionCard extends Component {
     }
     return (
       <CardAction
-        icon="add"
+        icon="add_circle"
         onClick={() =>
           this.props.handleQuestionAdd(this.props.question.pk, this.props.rank)
         }

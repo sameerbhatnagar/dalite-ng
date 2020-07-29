@@ -68,16 +68,21 @@ export class SearchDbApp extends Component {
       .catch((error) => {
         console.error(error);
       });
+    this.handleSubmit(new Event("init", { type: "init" }));
   };
 
   handleSubmit = (evt) => {
-    if (evt.key === "Enter" && this.state.searchTerms != "") {
+    console.info(evt);
+    if (
+      (this.state.searchTerms != "" && evt.type === "change") |
+      (evt.type === "init") |
+      (evt.key === "Enter")
+    ) {
       this.setState({ searching: true, questions: [] }, () => {
         console.debug("Searching...");
         const queryString = new URLSearchParams({
           assignment_id: this.props.assignment,
-          limit_search: false,
-          type: this.props.type,
+          discipline: this.state.selectedDiscipline,
           search_string: this.state.searchTerms,
         });
         const url = `${this.props.searchURL}?${queryString.toString()}`;
@@ -173,18 +178,25 @@ export class SearchDbApp extends Component {
 
   searchBar = () => {
     if (this.state.searching) {
-      return <LinearProgress determinate={false} />;
+      return (
+        <LinearProgress determinate={false} style={{ marginTop: "40px" }} />
+      );
     }
     return (
       <div>
-        <div style={{ marginBottom: "20px" }}>
+        <div style={{ marginBottom: "20px", marginTop: "20px" }}>
           <TextField
             withLeadingIcon={<TextFieldIcon icon="search" theme="secondary" />}
             withTrailingIcon={
               <TextFieldIcon
                 tabIndex="0"
                 icon="close"
-                onClick={() => this.setState({ searchTerms: "" })}
+                onClick={() =>
+                  this.setState(
+                    { searchTerms: "" },
+                    this.handleSubmit(new Event("init", { type: "init" })),
+                  )
+                }
                 theme="primary"
                 style={
                   this.state.searchTerms.length > 0
@@ -203,7 +215,7 @@ export class SearchDbApp extends Component {
           />
           <TextFieldHelperText persistent>
             {this.props.gettext(
-              "The search engine checks question texts for each keyword as well as the complete phrase.  You can also search on username to find all content from a certain contributor.  Search results are filtered to remove questions in your list of favourites and questions already part of this assignment.",
+              "The quick add search engine checks question meta data for the complete phrase only.  You can also search on username to find all content from a certain contributor.  Search results are filtered to remove questions already part of this assignment.",
             )}
           </TextFieldHelperText>
         </div>
@@ -211,11 +223,12 @@ export class SearchDbApp extends Component {
           <Select
             value={this.state.selectedDiscipline}
             onChange={(e) => {
-              console.info(this.state.selectedDiscipline);
-              console.info(e.target);
-              this.setState({
-                selectedDiscipline: e.target.value,
-              });
+              this.setState(
+                {
+                  selectedDiscipline: e.target.value,
+                },
+                this.handleSubmit(e),
+              );
             }}
             outlined
             options={this.state.disciplines.map((d) => {

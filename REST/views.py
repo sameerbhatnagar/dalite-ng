@@ -1,3 +1,4 @@
+from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import viewsets, generics
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import JSONRenderer
@@ -70,15 +71,36 @@ class QuestionSearchList(generics.ListAPIView):
     renderer_classes = [JSONRenderer]
 
     def get_queryset(self):
+        assignment_id = self.request.GET.get("assignment_id")
+        discipline = self.request.GET.get("discipline")
         search_string = self.request.GET.get("search_string")
-        queryset = question_search_function(search_string, is_old_query=True)
-        try:
-            assignment = Assignment.objects.get(
-                pk=self.request.GET.get("assignment_id")
+        favourites_only = search_string == ""
+
+        queryset = Question.objects.all()
+
+        # Remove questions from this assignment
+        if assignment_id:
+            try:
+                assignment = Assignment.objects.get(pk=assignment_id)
+                queryset = queryset.exclude(pk__in=assignment.questions.all())
+            except ObjectDoesNotExist:
+                pass
+
+        # Favourites only
+        if favourites_only:
+            queryset = queryset.filter(
+                pk__in=self.request.user.teacher.favourite_questions.all()
             )
-            queryset = queryset.exclude(pk__in=assignment.questions.all())
-        except Exception as e:
-            print(e)
+            return queryset
+
+        # Call search function
+        queryset = question_search_function(
+            search_string, pre_filtered_list=queryset, is_old_query=True
+        )
+
+        if discipline:
+            queryset = queryset.filter(discipline=discipline)
+
         return queryset
 
     def get_serializer(self, *args, **kwargs):
