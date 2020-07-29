@@ -130,7 +130,7 @@ export class QuestionCard extends Component {
     if (this.props.handleQuestionDelete) {
       return (
         <CardAction
-          icon="remove_circle"
+          icon="cancel"
           onClick={() => this.props.handleQuestionDelete(this.props.rank)}
           title={this.props.gettext(
             "Remove this question from this assignment",

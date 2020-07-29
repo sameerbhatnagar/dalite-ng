@@ -212,6 +212,7 @@ export class SearchDbApp extends Component {
             }}
             onKeyPress={this.handleSubmit}
             theme="secondary"
+            outlined
           />
           <TextFieldHelperText persistent>
             {this.props.gettext(
