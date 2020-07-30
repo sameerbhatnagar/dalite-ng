@@ -321,7 +321,10 @@ class AssignmentCopyView(LoginRequiredMixin, NoStudentsMixin, CreateView):
         assignment = get_object_or_404(
             models.Assignment, pk=self.kwargs["assignment_id"]
         )
-        initial = {"title": _("Copy of ") + assignment.title}
+        initial = {
+            "title": _("Copy of ") + assignment.title,
+            "description": assignment.description,
+        }
         return initial
 
     def get_object(self, queryset=None):
@@ -345,6 +348,8 @@ class AssignmentCopyView(LoginRequiredMixin, NoStudentsMixin, CreateView):
                 aq.question, through_defaults={"rank": aq.rank}
             )
         form.instance.owner.add(self.request.user)
+        form.instance.parent = assignment
+
         teacher = get_object_or_404(models.Teacher, user=self.request.user)
         teacher.assignments.add(form.instance)
         teacher.save()
@@ -361,7 +366,7 @@ class AssignmentEditView(LoginRequiredMixin, NoStudentsMixin, UpdateView):
 
     model = Assignment
     template_name_suffix = "_edit"
-    fields = ["title"]
+    fields = ["title", "description"]
 
     def get_object(self):
         return get_object_or_404(
