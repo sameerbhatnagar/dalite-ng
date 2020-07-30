@@ -33,3 +33,8 @@ class IsAdminUserOrReadOnly(permissions.BasePermission):
 class IsNotStudent(permissions.BasePermission):
     def has_permission(self, request, view):
         return not hasattr(request.user, "student")
+
+
+class IsTeacher(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return hasattr(request.user, "teacher")

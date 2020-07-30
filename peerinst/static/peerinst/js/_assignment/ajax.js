@@ -23,7 +23,6 @@ async function handleResponse(response) {
   }
 
   if ([400, 404, 405].includes(response.status)) {
-    console.debug(response);
     throw new Error(response);
   }
 }

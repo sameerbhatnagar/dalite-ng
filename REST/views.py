@@ -29,6 +29,7 @@ from REST.permissions import (
     InOwnerList,
     IsAdminUserOrReadOnly,
     IsNotStudent,
+    IsTeacher,
 )
 
 
@@ -167,12 +168,16 @@ class StudentFeedbackList(generics.ListAPIView):
 
 class TeacherView(generics.RetrieveUpdateAPIView):
     """
-    TODO: add permission_classes
+    RU operations for teacher favourites
     """
 
+    http_method_names = ["get", "put"]
     serializer_class = TeacherSerializer
-    queryset = Teacher.objects.all()
+    permission_classes = [IsAuthenticated, IsTeacher]
     renderer_classes = [JSONRenderer]
+
+    def get_queryset(self):
+        return Teacher.objects.filter(user=self.request.user)
 
     def update(self, request, *args, **kwargs):
         current_favorites = (
