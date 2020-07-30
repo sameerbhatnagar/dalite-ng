@@ -10,16 +10,19 @@ async function handleResponse(response) {
     return await response.json();
   }
 
-  if (response.status == 401) {
+  if (response.status == 403) {
     const data = await response.json();
-    const base = new URL(window.location.protocol + window.location.host);
-    const url = new URL(data["login_url"], base);
-    url.search = `?next=${window.location.pathname}`;
-    console.debug(url);
-    window.location.href = url;
+    if (data["detail"] == "Authentication credentials were not provided.") {
+      const base = new URL(window.location.protocol + window.location.host);
+      const url = new URL("login/", base);
+      url.search = `?next=${window.location.pathname}`;
+      window.location.href = url;
+    } else {
+      throw new Error(response);
+    }
   }
 
-  if ([400, 403, 404, 405].includes(response.status)) {
+  if ([400, 404, 405].includes(response.status)) {
     console.debug(response);
     throw new Error(response);
   }

@@ -1,6 +1,7 @@
+import json
+import pytz
 from datetime import datetime
 
-import pytz
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import Group, Permission, User
 from django.test import TestCase, TransactionTestCase
@@ -748,7 +749,7 @@ class TeacherTest(TestCase):
             Assignment.objects.get(pk="Assignment4").questions.all(),
         )
 
-        # As teacher, post valid form to add question -> 200
+        # As teacher, post valid form to add question through REST -> 201
         response = self.client.post(
             reverse("REST:assignment_question-list"),
             {"assignment": "Assignment4", "question_pk": 31},
@@ -798,8 +799,7 @@ class TeacherTest(TestCase):
             transform=lambda qs: qs,
         )
 
-        # As teacher, post valid form to add question with student answers ->
-        # 403
+        # As teacher, POST to cbv -> 403
         response = self.client.post(
             reverse(
                 "assignment-update", kwargs={"assignment_id": "Assignment1"}
@@ -807,12 +807,8 @@ class TeacherTest(TestCase):
             follow=True,
         )
         self.assertEqual(response.status_code, 403)
-        self.assertNotIn(
-            Question.objects.get(pk=31),
-            Assignment.objects.get(pk="Assignment1").questions.all(),
-        )
 
-        # As teacher, post valid form to remove question -> 200
+        # As teacher, post valid form to remove question through REST -> 204
         rank = AssignmentQuestions.objects.get(
             assignment="Assignment4", question=31
         )
@@ -829,7 +825,7 @@ class TeacherTest(TestCase):
             Assignment.objects.get(pk="Assignment4").questions.all(),
         )
 
-        # As teacher, post invalid form to add question -> 404
+        # As teacher, post invalid form to add question through REST -> 404
         response = self.client.post(
             reverse("REST:assignment_question-list"),
             {"assignment": "Assignment4", "question_pk": 3111231},
@@ -838,7 +834,7 @@ class TeacherTest(TestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-        # As non-logged in user, post valid form to add question -> Login
+        # As non-logged in user, post valid form to add question -> Login reqd
         self.client.logout()
         response = self.client.post(
             reverse("REST:assignment_question-list"),
@@ -847,9 +843,10 @@ class TeacherTest(TestCase):
             follow=True,
         )
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-        # TODO: redirect to login from ajax
-        # self.assertEqual(response.status_code, status.HTTP_200_OK)
-        # self.assertTemplateUsed(response, "registration/login.html")
+        self.assertEqual(
+            "Authentication credentials were not provided.",
+            json.loads(response.content)["detail"],
+        )
         self.assertNotIn(
             Question.objects.get(pk=31),
             Assignment.objects.get(pk="Assignment4").questions.all(),

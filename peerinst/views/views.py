@@ -381,10 +381,12 @@ class AssignmentEditView(LoginRequiredMixin, NoStudentsMixin, UpdateView):
 
 
 class AssignmentUpdateView(LoginRequiredMixin, NoStudentsMixin, DetailView):
-    """ View for updating assignment.
-        POST operations are now handled through REST api.
+    """
+    View for updating assignment.
+    Provides template only: POST operations are handled through REST api.
     """
 
+    http_method_names = ["get"]
     model = Assignment
     template_name_suffix = "_detail"
 
