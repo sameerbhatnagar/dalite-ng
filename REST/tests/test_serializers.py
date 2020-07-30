@@ -1,4 +1,5 @@
 import json
+import mock
 import pytest
 
 from django.urls import reverse
@@ -55,7 +56,7 @@ def test_assignment_detail(client, assignments, questions, teacher):
     2. Must be owner to GET
     3. Must be owner to PATCH
     4. No one can DELETE
-    5. Must be no student answers to edit
+    5. Cannot edit is assignment.editable is false
     """
 
     # Setup
@@ -125,4 +126,17 @@ def test_assignment_detail(client, assignments, questions, teacher):
     response = client.delete(url)
     assert response.status_code == status.HTTP_405_METHOD_NOT_ALLOWED
 
-    # 5.
+    # 5. Cannot edit is assignment.editable is false
+    with mock.patch(
+        "peerinst.models.Assignment.editable", new_callable=mock.PropertyMock
+    ) as mock_editable:
+        mock_editable.return_value = False
+        response = client.patch(
+            url,
+            {
+                "title": assignments[0].title,
+                "questions": retrieved_assignment["questions"],
+            },
+            content_type="application/json",
+        )
+        assert response.status_code == status.HTTP_403_FORBIDDEN

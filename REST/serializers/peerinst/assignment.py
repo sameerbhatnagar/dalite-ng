@@ -1,6 +1,7 @@
 import bleach
 
 from django.contrib.auth.models import User
+from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404
 from django.template.defaultfilters import title
 from rest_framework import serializers
@@ -145,24 +146,26 @@ class RankSerializer(serializers.ModelSerializer):
                 - question_pk (validated here)
         """
 
-        if "question_pk" in self.context["request"].data:
-            question_pk = self.context["request"].data["question_pk"]
-            added_question = AssignmentQuestions.objects.create(
-                assignment=validated_data["assignment"],
-                question=get_object_or_404(Question, pk=question_pk),
-                rank=validated_data["assignment"].questions.count(),
-            )
-            if added_question:
-                return added_question
+        assignment = validated_data["assignment"]
+        if assignment.editable:
+            if "question_pk" in self.context["request"].data:
+                question_pk = self.context["request"].data["question_pk"]
+                added_question = AssignmentQuestions.objects.create(
+                    assignment=assignment,
+                    question=get_object_or_404(Question, pk=question_pk),
+                    rank=validated_data["assignment"].questions.count(),
+                )
+                if added_question:
+                    return added_question
+                else:
+                    raise bad_request
             else:
                 raise bad_request
-        else:
-            raise bad_request
+        raise PermissionDenied
 
     class Meta:
         model = AssignmentQuestions
         fields = ["assignment", "question", "rank", "pk"]
-        read_only_fields = ["pk"]
 
 
 class AssignmentSerializer(serializers.ModelSerializer):
@@ -180,14 +183,17 @@ class AssignmentSerializer(serializers.ModelSerializer):
             )
 
     def update(self, instance, validated_data):
-        """ Only used to reorder questions.
+        """
+        Only used to reorder questions.
         Adding/deleting questions is handled by serializer for through table.
         """
-        for i, aq in enumerate(instance.assignmentquestions_set.all()):
-            aq.rank = validated_data["assignmentquestions_set"][i]["rank"]
-            aq.save()
+        if instance.editable:
+            for i, aq in enumerate(instance.assignmentquestions_set.all()):
+                aq.rank = validated_data["assignmentquestions_set"][i]["rank"]
+                aq.save()
 
-        return instance
+            return instance
+        raise PermissionDenied
 
     def to_representation(self, instance):
         """Bleach HTML-supported fields"""
