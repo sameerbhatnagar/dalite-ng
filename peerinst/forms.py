@@ -201,7 +201,7 @@ class AssignmentCreateForm(forms.ModelForm):
 
     class Meta:
         model = Assignment
-        fields = ["identifier", "title"]
+        fields = ["identifier", "title", "description"]
 
 
 class AssignmentMultiselectForm(forms.Form):

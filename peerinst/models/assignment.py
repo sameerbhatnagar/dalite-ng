@@ -38,13 +38,24 @@ class Assignment(models.Model):
         validators=[validators.validate_slug],
     )
     title = models.CharField(_("Title"), max_length=200)
+    description = models.CharField(
+        _("Description"), blank=True, null=True, max_length=500
+    )
+
     questions = models.ManyToManyField(
         Question, verbose_name=_("Questions"), through="AssignmentQuestions"
     )
     owner = models.ManyToManyField(User, blank=True)
+    parent = models.ForeignKey(
+        "Assignment", null=True, on_delete=models.SET_NULL
+    )
+
     reputation = models.OneToOneField(
         Reputation, blank=True, null=True, on_delete=models.SET_NULL
     )
+
+    created_on = models.DateTimeField(auto_now_add=True, null=True)
+    last_modified = models.DateTimeField(auto_now=True, null=True)
 
     def __str__(self):
         return self.identifier
