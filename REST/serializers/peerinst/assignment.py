@@ -147,7 +147,10 @@ class RankSerializer(serializers.ModelSerializer):
         """
 
         assignment = validated_data["assignment"]
-        if assignment.editable:
+        if (
+            assignment.editable
+            and self.context["request"].user in assignment.owner.all()
+        ):
             if "question_pk" in self.context["request"].data:
                 question_pk = self.context["request"].data["question_pk"]
                 added_question = AssignmentQuestions.objects.create(

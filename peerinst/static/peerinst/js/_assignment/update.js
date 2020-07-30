@@ -215,11 +215,23 @@ export class AssignmentUpdateApp extends Component {
   delete = async (pk) => {
     try {
       await submitData(this.props.assignmentQuestionURL + pk, {}, "DELETE");
+      this.refreshFromDB(); // this needs to be waited on...
+      if (
+        !this.state.questions
+          .map((q) => {
+            q.question.pk;
+          })
+          .includes(pk)
+      ) {
+        this.setState({
+          snackbarIsOpen: true,
+          snackbarMessage: this.props.gettext("Item removed."),
+        });
+      }
       this.setState({
         snackbarIsOpen: true,
-        snackbarMessage: this.props.gettext("Item removed."),
+        snackbarMessage: this.props.gettext("An error occurred."),
       });
-      this.refreshFromDB();
     } catch (error) {
       console.error(error);
       this.setState({

@@ -5,6 +5,7 @@ import pytest
 from django.urls import reverse
 from rest_framework import status
 
+from peerinst.models import AssignmentQuestions, Question
 from peerinst.tests.fixtures import *  # noqa
 from peerinst.tests.fixtures.teacher import login_teacher
 from peerinst.tests.fixtures.student import login_student
@@ -196,6 +197,7 @@ def test_teacher_favourites(client, questions, teachers):
     4. No other http methods
     """
 
+    # Setup
     teachers[0].favourite_questions.add(questions[0], questions[1])
 
     # 1. Must be authenticated
@@ -243,3 +245,128 @@ def test_teacher_favourites(client, questions, teachers):
     for method in disallowed:
         response = getattr(client, method)(url)
         assert response.status_code == status.HTTP_405_METHOD_NOT_ALLOWED
+
+
+@pytest.mark.django_db
+def test_question_list(client, assignments, student, teachers):
+    """
+    Requirements:
+    1. Must be authenticated
+    2. Students cannot GET
+    3. Only return owned assignments
+    4. Must be owner of related assignment to create or delete
+    5. Cannot create or delete if assignment.editable is false
+    """
+
+    # Setup
+    assignments[0].owner.add(teachers[0].user)
+    assignments[1].owner.add(teachers[1].user)
+
+    # 1. Must be authenticated
+    url = reverse("REST:assignment_question-list")
+
+    response = client.get(url)
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+
+    # 2. Students cannot GET
+    assert login_student(client, student)
+
+    response = client.get(url)
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+
+    # 3. Only return owned assignments
+    assert login_teacher(client, teachers[0])
+
+    response = client.get(url)
+    assert response.status_code == status.HTTP_200_OK
+    for aq in json.loads(response.content):
+        assert aq["pk"] in AssignmentQuestions.objects.filter(
+            assignment=assignments[0]
+        ).values_list("pk", flat=True)
+        assert aq["pk"] not in AssignmentQuestions.objects.exclude(
+            pk__in=assignments[0].questions.all()
+        )
+
+    # 4. Must be owner of related assignment to create or delete
+    question_to_remove = AssignmentQuestions.objects.filter(
+        assignment=assignments[0]
+    ).first()
+    question_to_add = question_to_remove.question
+    url = reverse(
+        "REST:assignment_question-detail", args=[question_to_remove.pk]
+    )
+
+    response = client.delete(url)
+    assert response.status_code == status.HTTP_204_NO_CONTENT
+
+    assignments[0].refresh_from_db()
+    assert question_to_remove.question not in assignments[0].questions.all()
+
+    url = reverse("REST:assignment_question-list")
+
+    response = client.post(
+        url,
+        {"assignment": assignments[0].pk, "question_pk": question_to_add.pk},
+        content_type="application/json",
+    )
+    assert response.status_code == status.HTTP_201_CREATED
+
+    assignments[0].refresh_from_db()
+    assert question_to_add in assignments[0].questions.all()
+
+    assert login_teacher(client, teachers[1])
+    question_to_remove = AssignmentQuestions.objects.filter(
+        assignment=assignments[0]
+    ).first()
+    url = reverse(
+        "REST:assignment_question-detail", args=[question_to_remove.pk]
+    )
+
+    response = client.delete(url)
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+
+    assignments[0].refresh_from_db()
+    assert question_to_remove.question in assignments[0].questions.all()
+
+    url = reverse("REST:assignment_question-list")
+
+    question_to_add = Question.objects.create(
+        title="question_to_add", text="text"
+    )
+    response = client.post(
+        url,
+        {"assignment": assignments[0].pk, "question_pk": question_to_add.pk},
+        content_type="application/json",
+    )
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+
+    assignments[0].refresh_from_db()
+    assert question_to_add not in assignments[0].questions.all()
+
+    # 5. Cannot create or delete if assignment.editable is false
+    assert login_teacher(client, teachers[0])
+    with mock.patch(
+        "peerinst.models.Assignment.editable", new_callable=mock.PropertyMock
+    ) as mock_editable:
+        mock_editable.return_value = False
+
+        question_to_remove = AssignmentQuestions.objects.filter(
+            assignment=assignments[0]
+        ).first()
+        url = reverse(
+            "REST:assignment_question-detail", args=[question_to_remove.pk]
+        )
+
+        response = client.delete(url)
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+
+        url = reverse("REST:assignment_question-list")
+        response = client.post(
+            url,
+            {
+                "assignment": assignments[0].pk,
+                "question_pk": Question.objects.last().pk,
+            },
+            content_type="application/json",
+        )
+        assert response.status_code == status.HTTP_403_FORBIDDEN
