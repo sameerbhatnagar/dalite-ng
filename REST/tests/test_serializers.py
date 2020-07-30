@@ -145,111 +145,11 @@ def test_assignment_detail(client, assignments, questions, teacher):
 
 
 @pytest.mark.skip
-def test_assignmentquestions_detail(client, assignments, questions, teacher):
+def test_assignmentquestions_detail(client, assignments, student, teachers):
     """
-    See peerinst/tests/views/test_nonLTI_views.py test_assignment_update_post
-    """
-    pass
+    See also:
+    - peerinst/tests/views/test_nonLTI_views.py test_assignment_update_post
 
-
-@pytest.mark.django_db
-def test_discipline_list(client, disciplines, student, teacher):
-    """
-    Requirements:
-    1. Must be authenticated
-    2. Must not be a student to GET
-    3. Must be admin for anything else
-    """
-
-    # 1. Must be authenticated
-    url = reverse("REST:discipline-list")
-
-    response = client.get(url)
-    assert response.status_code == status.HTTP_403_FORBIDDEN
-
-    # 2. Must not be a student to GET
-    assert login_student(client, student)
-
-    response = client.get(url)
-    assert response.status_code == status.HTTP_403_FORBIDDEN
-
-    assert login_teacher(client, teacher)
-
-    response = client.get(url)
-    assert response.status_code == status.HTTP_200_OK
-    retrieved_disciplines = json.loads(response.content)
-    for d in disciplines:
-        assert d.pk in [d["pk"] for d in retrieved_disciplines]
-
-    # 3. Must be admin for anything else
-    response = client.post(url, {"title": "New discipline"})
-
-    assert response.status_code == status.HTTP_403_FORBIDDEN
-
-
-@pytest.mark.django_db
-def test_teacher_favourites(client, questions, teachers):
-    """
-    Requirements:
-    1. Must be authenticated
-    2. Only current teacher endpoint is accessible via GET
-    3. Can update favourites through PUT
-    4. No other http methods
-    """
-
-    # Setup
-    teachers[0].favourite_questions.add(questions[0], questions[1])
-
-    # 1. Must be authenticated
-    url = reverse("REST:teacher", args=[teachers[0].pk])
-
-    response = client.get(url)
-    assert response.status_code == status.HTTP_403_FORBIDDEN
-
-    # 2. Only current teacher endpoint is accessible via GET
-    assert login_teacher(client, teachers[0])
-
-    response = client.get(url)
-    assert response.status_code == status.HTTP_200_OK
-    favourites = json.loads(response.content)["favourite_questions"]
-    for f in favourites:
-        assert f in [fq.pk for fq in teachers[0].favourite_questions.all()]
-
-    url = reverse("REST:teacher", args=[teachers[1].pk])
-
-    response = client.get(url)
-    assert response.status_code == status.HTTP_404_NOT_FOUND
-
-    # 3. Can update favourites through PUT
-    url = reverse("REST:teacher", args=[teachers[0].pk])
-
-    new_favourites = [questions[0].pk, questions[2].pk]
-    response = client.put(
-        url,
-        {"favourite_questions": new_favourites},
-        content_type="application/json",
-    )
-    retrieved_favourites = json.loads(response.content)["favourite_questions"]
-
-    for q in retrieved_favourites:
-        assert q in new_favourites
-        assert q in teachers[0].favourite_questions.values_list(
-            "pk", flat=True
-        )
-    assert questions[1].pk not in retrieved_favourites
-    assert questions[1] not in teachers[0].favourite_questions.all()
-
-    # 4. No other http methods
-    disallowed = ["post", "patch", "delete", "head", "options", "trace"]
-
-    for method in disallowed:
-        response = getattr(client, method)(url)
-        assert response.status_code == status.HTTP_405_METHOD_NOT_ALLOWED
-
-
-@pytest.mark.django_db
-def test_question_list(client, assignments, student, teachers):
-    """
     Requirements:
     1. Must be authenticated
     2. Students cannot GET
@@ -370,3 +270,98 @@ def test_question_list(client, assignments, student, teachers):
             content_type="application/json",
         )
         assert response.status_code == status.HTTP_403_FORBIDDEN
+
+
+@pytest.mark.django_db
+def test_discipline_list(client, disciplines, student, teacher):
+    """
+    Requirements:
+    1. Must be authenticated
+    2. Must not be a student to GET
+    3. Must be admin for anything else
+    """
+
+    # 1. Must be authenticated
+    url = reverse("REST:discipline-list")
+
+    response = client.get(url)
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+
+    # 2. Must not be a student to GET
+    assert login_student(client, student)
+
+    response = client.get(url)
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+
+    assert login_teacher(client, teacher)
+
+    response = client.get(url)
+    assert response.status_code == status.HTTP_200_OK
+    retrieved_disciplines = json.loads(response.content)
+    for d in disciplines:
+        assert d.pk in [d["pk"] for d in retrieved_disciplines]
+
+    # 3. Must be admin for anything else
+    response = client.post(url, {"title": "New discipline"})
+
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+
+
+@pytest.mark.django_db
+def test_teacher_favourites(client, questions, teachers):
+    """
+    Requirements:
+    1. Must be authenticated
+    2. Only current teacher endpoint is accessible via GET
+    3. Can update favourites through PUT
+    4. No other http methods
+    """
+
+    # Setup
+    teachers[0].favourite_questions.add(questions[0], questions[1])
+
+    # 1. Must be authenticated
+    url = reverse("REST:teacher", args=[teachers[0].pk])
+
+    response = client.get(url)
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+
+    # 2. Only current teacher endpoint is accessible via GET
+    assert login_teacher(client, teachers[0])
+
+    response = client.get(url)
+    assert response.status_code == status.HTTP_200_OK
+    favourites = json.loads(response.content)["favourite_questions"]
+    for f in favourites:
+        assert f in [fq.pk for fq in teachers[0].favourite_questions.all()]
+
+    url = reverse("REST:teacher", args=[teachers[1].pk])
+
+    response = client.get(url)
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+
+    # 3. Can update favourites through PUT
+    url = reverse("REST:teacher", args=[teachers[0].pk])
+
+    new_favourites = [questions[0].pk, questions[2].pk]
+    response = client.put(
+        url,
+        {"favourite_questions": new_favourites},
+        content_type="application/json",
+    )
+    retrieved_favourites = json.loads(response.content)["favourite_questions"]
+
+    for q in retrieved_favourites:
+        assert q in new_favourites
+        assert q in teachers[0].favourite_questions.values_list(
+            "pk", flat=True
+        )
+    assert questions[1].pk not in retrieved_favourites
+    assert questions[1] not in teachers[0].favourite_questions.all()
+
+    # 4. No other http methods
+    disallowed = ["post", "patch", "delete", "head", "options", "trace"]
+
+    for method in disallowed:
+        response = getattr(client, method)(url)
+        assert response.status_code == status.HTTP_405_METHOD_NOT_ALLOWED
