@@ -7,6 +7,7 @@ from rest_framework import status
 
 from peerinst.tests.fixtures import *  # noqa
 from peerinst.tests.fixtures.teacher import login_teacher
+from peerinst.tests.fixtures.student import login_student
 
 
 @pytest.mark.django_db
@@ -63,7 +64,7 @@ def test_assignment_detail(client, assignments, questions, teacher):
     assert teacher.user.assignment_set.exists() is False
     assignments[0].owner.add(teacher.user)
 
-    # 1. Authentication required
+    # 1. Must be authenticated
     url = (
         reverse("REST:assignment-detail", args=[assignments[0].pk])
         + "?format=json"
@@ -126,7 +127,7 @@ def test_assignment_detail(client, assignments, questions, teacher):
     response = client.delete(url)
     assert response.status_code == status.HTTP_405_METHOD_NOT_ALLOWED
 
-    # 5. Cannot edit is assignment.editable is false
+    # 5. Cannot edit if assignment.editable is false
     with mock.patch(
         "peerinst.models.Assignment.editable", new_callable=mock.PropertyMock
     ) as mock_editable:
@@ -140,3 +141,48 @@ def test_assignment_detail(client, assignments, questions, teacher):
             content_type="application/json",
         )
         assert response.status_code == status.HTTP_403_FORBIDDEN
+
+
+@pytest.mark.skip
+def test_assignmentquestions_detail(client, assignments, questions, teacher):
+    """
+    See peerinst/tests/views/test_nonLTI_views.py test_assignment_update_post
+    """
+    pass
+
+
+@pytest.mark.django_db
+def test_discipline_list(client, admin, disciplines, student, teacher):
+    """
+    Requirements:
+    1. Must be authenticated
+    2. Must not be a student to GET
+    3. Must be admin for anything else
+    """
+
+    # 1. Must be authenticated
+    url = reverse("REST:discipline-list")
+
+    response = client.get(url)
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+
+    # 2. Must not be a student to GET
+    assert login_student(client, student)
+
+    url = reverse("REST:discipline-list")
+
+    response = client.get(url)
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+
+    assert login_teacher(client, teacher)
+
+    response = client.get(url)
+    assert response.status_code == status.HTTP_200_OK
+    retrieved_disciplines = json.loads(response.content)
+    for d in disciplines:
+        assert d.pk in [d["pk"] for d in retrieved_disciplines]
+
+    # 3. Must be admin for anything else
+    response = client.post(url, {"title": "New discipline"}, format="json")
+
+    assert response.status_code == status.HTTP_403_FORBIDDEN

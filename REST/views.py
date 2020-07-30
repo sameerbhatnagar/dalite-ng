@@ -28,6 +28,7 @@ from REST.permissions import (
     InAssignmentOwnerList,
     InOwnerList,
     IsAdminUserOrReadOnly,
+    IsNotStudent,
 )
 
 
@@ -46,9 +47,14 @@ class AssignmentViewSet(viewsets.ModelViewSet):
 
 
 class DisciplineViewSet(viewsets.ModelViewSet):
-    serializer_class = DisciplineSerializer
-    permission_classes = [IsAuthenticated, IsAdminUserOrReadOnly]
+    """
+    A simple ViewSet to serve list of current disciplines.
+    """
+
+    permission_classes = [IsAuthenticated, IsNotStudent, IsAdminUserOrReadOnly]
     queryset = Discipline.objects.all()
+    renderer_classes = [JSONRenderer]
+    serializer_class = DisciplineSerializer
 
 
 class QuestionListViewSet(viewsets.ModelViewSet):
