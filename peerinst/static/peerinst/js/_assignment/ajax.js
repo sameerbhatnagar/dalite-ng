@@ -33,6 +33,7 @@ async function handleResponse(response) {
     throw new Error(response);
   }
 
+  // Default to error?
   throw new Error(response);
 }
 

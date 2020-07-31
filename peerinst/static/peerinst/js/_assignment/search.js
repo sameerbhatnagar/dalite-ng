@@ -125,31 +125,31 @@ export class SearchDbApp extends Component {
   };
 
   handleToggleFavourite = async (questionPK) => {
-    const _favourites = this.state.favourites;
+    const currentFavourites = Array.from(this.state.favourites);
+    const _favourites = Array.from(this.state.favourites);
+
     if (_favourites.includes(questionPK)) {
       _favourites.splice(_favourites.indexOf(questionPK), 1);
     } else {
       _favourites.push(questionPK);
     }
-    const response = submitData(
-      this.props.teacherURL,
-      { favourite_questions: _favourites },
-      "PUT",
-    );
-    response
-      .then((data) => {
-        // TODO: This should not run if error is returned
-        this.setState({
-          favourites: _favourites,
-        });
-      })
-      .catch((error) => {
-        console.error(error);
-        this.setState({
-          snackbarIsOpen: true,
-          snackbarMessage: this.props.gettext("An error occurred."),
-        });
+
+    try {
+      const data = await submitData(
+        this.props.teacherURL,
+        { favourite_questions: _favourites },
+        "PUT",
+      );
+      this.setState({
+        favourites: data["favourite_questions"],
       });
+    } catch (error) {
+      this.setState({
+        favourites: currentFavourites,
+        snackbarIsOpen: true,
+        snackbarMessage: this.props.gettext("An error occurred."),
+      });
+    }
   };
 
   add = async (pk, i) => {
