@@ -17,6 +17,8 @@ import {
 import { Icon } from "@rmwc/icon";
 import { Typography } from "@rmwc/typography";
 
+import { colours, PlotConfusionMatrix } from "./analytics.js";
+
 import "@rmwc/card/node_modules/@material/card/dist/mdc.card.min.css";
 import "@rmwc/typography/node_modules/@material/typography/dist/mdc.typography.css";
 import "@rmwc/dialog/node_modules/@material/dialog/dist/mdc.dialog.min.css";
@@ -151,13 +153,6 @@ export class QuestionCard extends Component {
     );
   };
 
-  colours = {
-    easy: "rgb(30, 142, 62)",
-    hard: "rgb(237, 69, 40)",
-    tricky: "rgb(237, 170, 30)",
-    peer: "rgb(25, 118, 188)",
-  };
-
   getDifficultyLabel = () => {
     return Object.entries(this.props.question.matrix).sort(
       (a, b) => b[1] - a[1],
@@ -176,14 +171,14 @@ export class QuestionCard extends Component {
           onClick={() => {
             this.setState({ dialogOpen: true });
           }}
-          style={{ color: this.colours[this.getDifficultyLabel()] }}
+          style={{ color: colours[this.getDifficultyLabel()] }}
           title={this.props.gettext(
             "Difficulty level based on past student answers",
           )}
         />
         <div
           style={{
-            color: this.colours[this.getDifficultyLabel()],
+            color: colours[this.getDifficultyLabel()],
             position: "absolute",
             left: "50%",
             width: "inherit",
@@ -308,7 +303,12 @@ export class QuestionCard extends Component {
           }}
         >
           <DialogTitle>{this.props.question.title}</DialogTitle>
-          <DialogContent>Test</DialogContent>
+          <DialogContent>
+            <PlotConfusionMatrix
+              _matrix={this.props.question.matrix}
+              freq={this.props.question.freq}
+            />
+          </DialogContent>
           <DialogActions>
             <DialogButton ripple action="accept" isDefaultAction>
               {this.props.gettext("Done")}

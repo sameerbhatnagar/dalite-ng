@@ -64,6 +64,7 @@ class QuestionSerializer(DynamicFieldsModelSerializer):
     user = UserSerializer(read_only=True)
     most_convincing_rationales = serializers.SerializerMethodField()
     matrix = serializers.SerializerMethodField()
+    freq = serializers.SerializerMethodField()
     collaborators = UserSerializer(many=True, read_only=True)
 
     def get_answer_count(self, obj):
@@ -77,6 +78,9 @@ class QuestionSerializer(DynamicFieldsModelSerializer):
 
     def get_matrix(self, obj):
         return obj.get_matrix()
+
+    def get_freq(self, obj):
+        return obj.get_frequency()
 
     class Meta:
         model = Question
@@ -93,6 +97,7 @@ class QuestionSerializer(DynamicFieldsModelSerializer):
             "choices",
             "most_convincing_rationales",
             "matrix",
+            "freq",
             "collaborators",
         ]
 
@@ -136,6 +141,7 @@ class RankSerializer(serializers.ModelSerializer):
             "image_alt_text",
             "choices",
             "matrix",
+            "freq",
             "collaborators",
         ),
     )

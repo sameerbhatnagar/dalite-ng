@@ -136,6 +136,7 @@ class QuestionSearchList(generics.ListAPIView):
                 "image_alt_text",
                 "choices",
                 "matrix",
+                "freq",
                 "collaborators",
             ),
             *args,
