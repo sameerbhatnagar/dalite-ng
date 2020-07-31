@@ -8,6 +8,7 @@ const commonjs = require("@rollup/plugin-commonjs"); // loader
 const { eslint } = require("rollup-plugin-eslint"); // linter
 const { babel } = require("@rollup/plugin-babel"); // transpiler + polyfills
 const resolve = require("@rollup/plugin-node-resolve"); // loader
+const strip = require("@rollup/plugin-strip"); // remove console.log statements
 const rollup = require("rollup"); // bundler
 const { terser } = require("rollup-plugin-terser"); // minifier
 const nodeResolve = resolve.default;
@@ -216,6 +217,9 @@ function buildScript(app, module) {
       }),
       commonjs(),
       embedCSS({ extract: true }),
+      strip({
+        functions: ["console.debug"],
+      }),
     ],
   };
   const outputOptions = {
