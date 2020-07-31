@@ -37,48 +37,50 @@ export class SearchDbApp extends Component {
     this.refreshFromDB();
   }
 
-  refreshFromDB = () => {
-    const _this = this;
-    const _disciplines = get(this.props.disciplineURL);
-    _disciplines
-      .then((data) => {
-        console.debug(data);
-        _this.setState({
-          disciplines: data,
-          selectedDiscipline: this.props.defaultDiscipline,
-        });
-      })
-      .catch((error) => {
-        console.error(error);
-        this.setState({
-          snackbarIsOpen: true,
-          snackbarMessage: this.props.gettext(
-            "An error occurred.  Try refreshing this page.",
-          ),
-        });
+  refreshFromDB = async () => {
+    // Load disicplines
+    try {
+      const data = await get(this.props.disciplineURL);
+      console.debug(data);
+      this.setState({
+        disciplines: data,
+        selectedDiscipline: this.props.defaultDiscipline,
       });
-    const _favourites = get(this.props.teacherURL);
-    _favourites
-      .then((data) => {
-        console.debug(data);
-        this.setState({
-          favourites: data["favourite_questions"],
-        });
-      })
-      .catch((error) => {
-        console.error(error);
+    } catch (error) {
+      console.error(error);
+      this.setState({
+        snackbarIsOpen: true,
+        snackbarMessage: this.props.gettext(
+          "An error occurred.  Try refreshing this page.",
+        ),
       });
+    }
+    // Load favourites
+    try {
+      const data = await get(this.props.teacherURL);
+      console.debug(data);
+      this.setState({
+        favourites: data["favourite_questions"],
+      });
+    } catch (error) {
+      console.error(error);
+      this.setState({
+        snackbarIsOpen: true,
+        snackbarMessage: this.props.gettext(
+          "Could not load favourites.  Try refreshing this page.",
+        ),
+      });
+    }
     this.handleSubmit(new Event("init", { type: "init" }));
   };
 
   handleSubmit = (evt) => {
-    console.info(evt);
     if (
       (this.state.searchTerms != "" && evt.type === "change") |
       (evt.type === "init") |
       (evt.key === "Enter")
     ) {
-      this.setState({ searching: true, questions: [] }, () => {
+      this.setState({ searching: true, questions: [] }, async () => {
         console.debug("Searching...");
         const queryString = new URLSearchParams({
           assignment_id: this.props.assignment,
@@ -86,40 +88,36 @@ export class SearchDbApp extends Component {
           search_string: this.state.searchTerms,
         });
         const url = `${this.props.searchURL}?${queryString.toString()}`;
-        const _this = this;
-        const _questions = get(url);
-        _questions
-          .then((data) => {
-            console.debug(data);
-            if (data["count"] > 0) {
-              _this.setState({
-                questions: data["results"].map((d, i) => {
-                  return {
-                    question: d,
-                    rank: i,
-                  };
-                }),
-                searching: false,
-              });
-            } else {
-              this.setState({
-                searching: false,
-                snackbarIsOpen: true,
-                snackbarMessage: this.props.gettext(
-                  "No questions match query.",
-                ),
-              });
-            }
-          })
-          .catch((error) => {
-            console.error(error);
+
+        try {
+          const data = await get(url);
+          console.debug(data);
+          if (data["count"] > 0) {
             this.setState({
-              snackbarIsOpen: true,
-              snackbarMessage: this.props.gettext(
-                "An error occurred.  Try refreshing this page.",
-              ),
+              questions: data["results"].map((d, i) => {
+                return {
+                  question: d,
+                  rank: i,
+                };
+              }),
+              searching: false,
             });
+          } else {
+            this.setState({
+              searching: false,
+              snackbarIsOpen: evt.type !== "init",
+              snackbarMessage: this.props.gettext("No questions match query."),
+            });
+          }
+        } catch (error) {
+          console.error(error);
+          this.setState({
+            snackbarIsOpen: true,
+            snackbarMessage: this.props.gettext(
+              "An error occurred.  Try refreshing this page.",
+            ),
           });
+        }
       });
     }
   };
