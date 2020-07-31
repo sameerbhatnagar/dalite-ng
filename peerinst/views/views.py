@@ -324,6 +324,8 @@ class AssignmentCopyView(LoginRequiredMixin, NoStudentsMixin, CreateView):
         initial = {
             "title": _("Copy of ") + assignment.title,
             "description": assignment.description,
+            "intro_page": assignment.intro_page,
+            "conclusion_page": assignment.conclusion_page,
         }
         return initial
 
@@ -366,7 +368,7 @@ class AssignmentEditView(LoginRequiredMixin, NoStudentsMixin, UpdateView):
 
     model = Assignment
     template_name_suffix = "_edit"
-    fields = ["title", "description"]
+    fields = ["title", "description", "intro_page", "conclusion_page"]
 
     def get_object(self):
         return get_object_or_404(

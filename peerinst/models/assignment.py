@@ -38,8 +38,38 @@ class Assignment(models.Model):
         validators=[validators.validate_slug],
     )
     title = models.CharField(_("Title"), max_length=200)
-    description = models.CharField(
-        _("Description"), blank=True, null=True, max_length=500
+    description = models.TextField(
+        _("Description"),
+        blank=True,
+        null=True,
+        help_text=_(
+            """Notes you would like keep for yourself
+            (or other teachers) regarding this assignment
+            """
+        ),
+    )
+
+    intro_page = models.TextField(
+        _("Assignment Cover Page"),
+        blank=True,
+        null=True,
+        help_text=_(
+            """Any special instructions you would like
+            students to read before they start the assignment.
+            """
+        ),
+    )
+
+    conclusion_page = models.TextField(
+        _("Post Assignment Notes"),
+        blank=True,
+        null=True,
+        help_text=_(
+            """Any notes you would like to leave for students
+            to read that will be shown after the last
+            question of the assignment.
+            """
+        ),
     )
 
     questions = models.ManyToManyField(
