@@ -5,9 +5,16 @@ function getCsrfToken() {
 }
 
 async function handleResponse(response) {
-  console.debug(response);
-  if (response.status == 200 || response.status == 201) {
+  if (
+    response.status == 200 || // OK
+    response.status == 201 // CREATED
+  ) {
     return await response.json();
+  }
+
+  if (response.status == 204) {
+    // DELETED
+    return;
   }
 
   if (response.status == 403) {
@@ -25,34 +32,41 @@ async function handleResponse(response) {
   if ([400, 404, 405].includes(response.status)) {
     throw new Error(response);
   }
+
+  throw new Error(response);
 }
+
+const defaultSettings = {
+  mode: "same-origin",
+  cache: "no-cache",
+  credentials: "same-origin",
+  redirect: "follow",
+  referrerPolicy: "same-origin",
+};
 
 export async function submitData(url, data, method) {
-  const response = await fetch(url, {
-    method,
-    mode: "same-origin",
-    cache: "no-cache",
-    credentials: "same-origin",
-    redirect: "follow",
-    referrer: "client",
-    headers: new Headers({
-      "Content-Type": "application/json",
-      "X-CSRFToken": getCsrfToken(),
-    }),
-    body: JSON.stringify(data),
-  });
-  return await handleResponse(response);
+  // Only attach csrf token to unsafe methods
+  if (["POST", "PATCH", "PUT", "DELETE"].includes(method.toUpperCase())) {
+    const settings = {
+      method,
+      headers: new Headers({
+        "Content-Type": "application/json",
+        "X-CSRFToken": getCsrfToken(),
+      }),
+      body: JSON.stringify(data),
+    };
+    Object.assign(settings, defaultSettings);
+    const response = await fetch(url, settings);
+    return await handleResponse(response);
+  }
+  return await get(url, method);
 }
 
-export async function get(url) {
-  const response = await fetch(url, {
-    method: "GET",
-    mode: "same-origin",
-    cache: "no-cache",
-    credentials: "same-origin",
-    redirect: "follow",
-    referrer: "client",
-  });
-
+export async function get(url, method = "GET") {
+  const settings = {
+    method,
+  };
+  Object.assign(settings, defaultSettings);
+  const response = await fetch(url, settings);
   return await handleResponse(response);
 }

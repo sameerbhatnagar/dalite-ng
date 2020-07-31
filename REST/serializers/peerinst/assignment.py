@@ -2,6 +2,7 @@ import bleach
 
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
+from django.db.models import Max
 from django.shortcuts import get_object_or_404
 from django.template.defaultfilters import title
 from rest_framework import serializers
@@ -156,7 +157,10 @@ class RankSerializer(serializers.ModelSerializer):
                 added_question = AssignmentQuestions.objects.create(
                     assignment=assignment,
                     question=get_object_or_404(Question, pk=question_pk),
-                    rank=validated_data["assignment"].questions.count(),
+                    rank=assignment.questions.aggregate(
+                        Max("assignmentquestions__rank")
+                    )["assignmentquestions__rank__max"]
+                    + 1,
                 )
                 if added_question:
                     return added_question

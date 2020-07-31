@@ -124,113 +124,91 @@ export class AssignmentUpdateApp extends Component {
   };
 
   handleToggleFavourite = async (questionPK) => {
-    const _favourites = this.state.favourites;
+    const currentFavourites = Array.from(this.state.favourites);
+    const _favourites = Array.from(this.state.favourites);
+
     if (_favourites.includes(questionPK)) {
       _favourites.splice(_favourites.indexOf(questionPK), 1);
     } else {
       _favourites.push(questionPK);
     }
-    const response = submitData(
-      this.props.teacherURL,
-      { favourite_questions: _favourites },
-      "PUT",
-    );
-    response
-      .then((data) => {
-        // TODO: This should not run if error is returned
-        // TODO: Refactor this and same function in search.js
-        this.setState({
-          favourites: _favourites,
-        });
-        /*
-        this.setState({
-          snackbarIsOpen: true,
-          snackbarMessage: this.props.gettext(data.snackbar_message),
-        });
-        */
-      })
-      .catch((error) => {
-        console.error(error);
-        this.setState({
-          snackbarIsOpen: true,
-          snackbarMessage: this.props.gettext("An error occurred."),
-        });
+
+    try {
+      const data = await submitData(
+        this.props.teacherURL,
+        { favourite_questions: _favourites },
+        "PUT",
+      );
+      this.setState({
+        favourites: data["favourite_questions"],
       });
+    } catch (error) {
+      this.setState({
+        favourites: currentFavourites,
+        snackbarIsOpen: true,
+        snackbarMessage: this.props.gettext("An error occurred."),
+      });
+    }
   };
 
-  refreshFromDB = () => {
-    const _this = this;
-    const _questions = get(this.props.assignmentURL);
-    _questions
-      .then((data) => {
-        console.debug(data);
-        _this.setState({
-          current: data["questions"],
-          questions: data["questions"],
-          title: data["title"],
-          loaded: true,
-        });
-      })
-      .catch((error) => {
-        console.error(error);
-        this.setState({
-          snackbarIsOpen: true,
-          snackbarMessage: this.props.gettext(
-            "An error occurred.  Try refreshing this page.",
-          ),
-        });
+  refreshFromDB = async () => {
+    // Load assignment data
+    try {
+      const data = await get(this.props.assignmentURL);
+      console.debug(data);
+      this.setState({
+        current: data["questions"],
+        questions: data["questions"],
+        title: data["title"],
+        loaded: true,
       });
-    const _favourites = get(this.props.teacherURL);
-    _favourites
-      .then((data) => {
-        console.debug(data);
-        this.setState({
-          favourites: data["favourite_questions"],
-        });
-      })
-      .catch((error) => {
-        console.error(error);
+    } catch (error) {
+      console.error(error);
+      this.setState({
+        snackbarIsOpen: true,
+        snackbarMessage: this.props.gettext(
+          "An error occurred.  Try refreshing this page.",
+        ),
       });
+    }
+    // Load favourites
+    try {
+      const data = await get(this.props.teacherURL);
+      console.debug(data);
+      this.setState({
+        favourites: data["favourite_questions"],
+      });
+    } catch (error) {
+      console.error(error);
+      this.setState({
+        snackbarIsOpen: true,
+        snackbarMessage: this.props.gettext(
+          "Could not load favourites.  Try refreshing this page.",
+        ),
+      });
+    }
   };
 
   componentDidMount() {
-    console.debug("Mounted...");
     this.refreshFromDB();
   }
 
   componentWillReceiveProps() {
-    console.debug("Receiving props...");
     this.setState({ minimizeCards: false });
     this.refreshFromDB();
   }
 
-  shouldComponentUpdate() {
-    console.debug("Should update...");
-  }
-
-  componentWillUpdate() {
-    console.debug("Updating...");
-  }
-
   delete = async (pk) => {
+    // Note that this is pk of through table object
     try {
       await submitData(this.props.assignmentQuestionURL + pk, {}, "DELETE");
-      this.refreshFromDB(); // this needs to be waited on...
-      if (
-        !this.state.questions
-          .map((q) => {
-            q.question.pk;
-          })
-          .includes(pk)
-      ) {
-        this.setState({
-          snackbarIsOpen: true,
-          snackbarMessage: this.props.gettext("Item removed."),
-        });
-      }
+      await this.refreshFromDB();
+
       this.setState({
         snackbarIsOpen: true,
-        snackbarMessage: this.props.gettext("An error occurred."),
+        snackbarMessage: this.state.questions.map((q) => q.pk).includes(pk)
+          ? this.props.gettext("An error occurred.")
+          : this.props.gettext("Item removed."),
       });
     } catch (error) {
       console.error(error);
