@@ -744,6 +744,18 @@ class TeacherTest(TestCase):
         )
         self.assertTrue(logged_in)
 
+        # add question to empty assignment through REST -> 201
+        new_assignment = Assignment.objects.create(pk="brand_new_assignment")
+        new_assignment.owner.add(self.validated_teacher)
+
+        response = self.client.post(
+            reverse("REST:assignment_question-list"),
+            {"assignment": "brand_new_assignment", "question_pk": 31},
+            format="json",
+            follow=True,
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
         self.assertNotIn(
             Question.objects.get(pk=31),
             Assignment.objects.get(pk="Assignment4").questions.all(),

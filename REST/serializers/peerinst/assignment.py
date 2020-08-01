@@ -160,14 +160,21 @@ class RankSerializer(serializers.ModelSerializer):
         ):
             if "question_pk" in self.context["request"].data:
                 question_pk = self.context["request"].data["question_pk"]
-                added_question = AssignmentQuestions.objects.create(
-                    assignment=assignment,
-                    question=get_object_or_404(Question, pk=question_pk),
-                    rank=assignment.questions.aggregate(
-                        Max("assignmentquestions__rank")
-                    )["assignmentquestions__rank__max"]
-                    + 1,
-                )
+                if assignment.questions.all():
+                    added_question = AssignmentQuestions.objects.create(
+                        assignment=assignment,
+                        question=get_object_or_404(Question, pk=question_pk),
+                        rank=assignment.questions.aggregate(
+                            Max("assignmentquestions__rank")
+                        )["assignmentquestions__rank__max"]
+                        + 1,
+                    )
+                else:
+                    added_question = AssignmentQuestions.objects.create(
+                        assignment=assignment,
+                        question=get_object_or_404(Question, pk=question_pk),
+                        rank=1,
+                    )
                 if added_question:
                     return added_question
                 else:
