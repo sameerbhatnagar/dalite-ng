@@ -68,6 +68,8 @@ jobs:
             . .venv/bin/activate
             ./manage.py collectstatic -c
             ./manage.py compress
+      - store_artifacts:
+          path: /static
       - run:
           name: Tests
           command: |
