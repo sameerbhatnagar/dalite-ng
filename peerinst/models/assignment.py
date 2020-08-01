@@ -38,11 +38,54 @@ class Assignment(models.Model):
         validators=[validators.validate_slug],
     )
     title = models.CharField(_("Title"), max_length=200)
-    questions = models.ManyToManyField(Question, verbose_name=_("Questions"))
+    description = models.TextField(
+        _("Description"),
+        blank=True,
+        null=True,
+        help_text=_(
+            """Notes you would like keep for yourself
+            (or other teachers) regarding this assignment
+            """
+        ),
+    )
+
+    intro_page = models.TextField(
+        _("Assignment Cover Page"),
+        blank=True,
+        null=True,
+        help_text=_(
+            """Any special instructions you would like
+            students to read before they start the assignment.
+            """
+        ),
+    )
+
+    conclusion_page = models.TextField(
+        _("Post Assignment Notes"),
+        blank=True,
+        null=True,
+        help_text=_(
+            """Any notes you would like to leave for students
+            to read that will be shown after the last
+            question of the assignment.
+            """
+        ),
+    )
+
+    questions = models.ManyToManyField(
+        Question, verbose_name=_("Questions"), through="AssignmentQuestions"
+    )
     owner = models.ManyToManyField(User, blank=True)
+    parent = models.ForeignKey(
+        "Assignment", null=True, on_delete=models.SET_NULL
+    )
+
     reputation = models.OneToOneField(
         Reputation, blank=True, null=True, on_delete=models.SET_NULL
     )
+
+    created_on = models.DateTimeField(auto_now_add=True, null=True)
+    last_modified = models.DateTimeField(auto_now=True, null=True)
 
     def __str__(self):
         return self.identifier
@@ -66,6 +109,22 @@ class Assignment(models.Model):
                 assignment=self
             ).exists()
         )
+
+
+class AssignmentQuestions(models.Model):
+    assignment = models.ForeignKey(Assignment, models.DO_NOTHING)
+    question = models.ForeignKey(Question, models.DO_NOTHING)
+    rank = models.PositiveIntegerField(default=0)
+
+    def __str__(self):
+        return "{}-{}-{}".format(
+            self.assignment.pk, self.question.pk, self.rank
+        )
+
+    class Meta:
+        db_table = "peerinst_assignment_questions"
+        ordering = ("rank",)
+        unique_together = (("assignment", "question"),)
 
 
 class StudentGroupAssignment(models.Model):
@@ -275,7 +334,12 @@ class StudentGroupAssignment(models.Model):
             self._modify_due_date(value)
 
         elif name == "question_list":
-            questions = [q.title for q in self.assignment.questions.all()]
+            questions = [
+                q.title
+                for q in self.assignment.questions.order_by(
+                    "assignmentquestions__rank"
+                )
+            ]
             order = ",".join(str(questions.index(v)) for v in value)
             err = self._modify_order(order)
             if err is not None:
@@ -324,7 +388,18 @@ class StudentGroupAssignment(models.Model):
     def save(self, *args, **kwargs):
         if not self.order:
             self.order = ",".join(
-                map(str, list(range(len(self.assignment.questions.all()))))
+                map(
+                    str,
+                    list(
+                        range(
+                            len(
+                                self.assignment.questions.order_by(
+                                    "assignmentquestions__rank"
+                                )
+                            )
+                        )
+                    ),
+                )
             )
         super(StudentGroupAssignment, self).save(*args, **kwargs)
 
@@ -386,7 +461,9 @@ class StudentGroupAssignment(models.Model):
 
     @property
     def questions(self):
-        questions_ = self.assignment.questions.all()
+        questions_ = self.assignment.questions.order_by(
+            "assignmentquestions__rank"
+        )
         if not self.order:
             self.order = ",".join(map(str, list(range(len(questions_)))))
             self.save()

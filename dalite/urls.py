@@ -26,6 +26,7 @@ urlpatterns += i18n_patterns(
     path("reputation/", include("reputation.urls", namespace="reputation")),
     path("quality/", include("quality.urls", namespace="quality")),
     path("tos/", include("tos.urls")),
+    path("rest-api/", include("REST.urls", namespace="REST")),
     path(r"", include("peerinst.urls")),
     path("forums/", include("pinax.forums.urls", namespace="pinax_forums")),
     path(

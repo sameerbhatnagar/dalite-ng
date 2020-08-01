@@ -24,8 +24,8 @@ async function verifyUser(elem, username, approve) {
     model.canClick = false;
     const req = buildReq(
       {
-        username: username,
-        approve: approve,
+        username,
+        approve,
       },
       "post",
     );

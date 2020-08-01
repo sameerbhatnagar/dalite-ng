@@ -52,8 +52,7 @@ function markNotificationRead(notification) {
     .then((resp) => resp.text())
     .then((groupName) => {
       if (groupName) {
-        window.location =
-          model.urls.studentPage + "?group-student-id-needed=" + groupName;
+        window.location = `${model.urls.studentPage}?group-student-id-needed=${groupName}`;
       } else if (notification.link) {
         window.location = notification.link;
       } else {

@@ -94,7 +94,7 @@ function updateCriterionOption(event, option, criterion) {
         value = 0;
         option.value = value;
       } else if (value > 1) {
-        value = parseFloat("0." + value);
+        value = parseFloat(`0.${value}`);
         option.value = value;
       } else if (value.toString().length > 4) {
         option.value = model.criterions.filter(
@@ -123,7 +123,7 @@ function updateCriterionOption(event, option, criterion) {
     quality: model.quality.pk,
     criterion: criterion.name,
     field: name,
-    value: value,
+    value,
   };
 
   const req = buildReq(data, "post");
@@ -431,10 +431,8 @@ function toggleShowAddCriterion() {
   const div = document.querySelector(".add-criterion");
   if (div.classList.contains("add-criterion__showing")) {
     div.classList.remove("add-criterion__showing");
-  } else {
-    if (model.available.length) {
-      div.classList.add("add-criterion__showing");
-    }
+  } else if (model.available.length) {
+    div.classList.add("add-criterion__showing");
   }
 }
 

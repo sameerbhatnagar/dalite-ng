@@ -10,9 +10,9 @@ let model;
 function initModel(submitUrl, quality) {
   model = {
     urls: {
-      submitUrl: submitUrl,
+      submitUrl,
     },
-    quality: quality,
+    quality,
   };
 }
 

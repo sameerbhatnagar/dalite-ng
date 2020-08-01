@@ -80,8 +80,8 @@ async function flagQuestion(question) {
   const reason = select.options[select.selectedIndex].value;
 
   const data = {
-    id: id,
-    reason: reason,
+    id,
+    reason,
   };
   const req = buildReq(data, "post");
   const resp = await fetch(model.urls.flagQuestion, req);

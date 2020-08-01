@@ -121,9 +121,7 @@ export function processResponse() {
   disciplineList.sort();
   for (let i = 0; i < disciplineList.length; i++) {
     $("#filter-on-discipline .mdc-chip-set").append(
-      "<div d=" +
-        disciplineList[i] +
-        " class='mdc-chip' " +
+      `<div d=${disciplineList[i]} class='mdc-chip' ` +
         "tabindex='0' data-mdc-auto-init='MDCChip'>" +
         "<div class='mdc-chip__checkmark' >" +
         "<svg class='mdc-chip__checkmark-svg' viewBox='-2 -3 30 30'>" +
@@ -131,9 +129,7 @@ export function processResponse() {
         "d='M1.73,12.91 8.1,19.28 22.79,4.59'/>" +
         "</svg>" +
         "</div>" +
-        "<div class='mdc-chip__text'>" +
-        disciplineList[i].slice(1, -1) +
-        "</div>" +
+        `<div class='mdc-chip__text'>${disciplineList[i].slice(1, -1)}</div>` +
         "</div>",
     );
   }
@@ -161,9 +157,7 @@ export function processResponse() {
   categoryList.sort();
   for (let i = 0; i < categoryList.length; i++) {
     $("#filter-on-category .mdc-chip-set").append(
-      "<div c=" +
-        categoryList[i] +
-        " class='mdc-chip' tabindex='0' " +
+      `<div c=${categoryList[i]} class='mdc-chip' tabindex='0' ` +
         "data-mdc-auto-init='MDCChip'>" +
         "<div class='mdc-chip__checkmark' >" +
         "<svg class='mdc-chip__checkmark-svg' viewBox='-2 -3 30 30'>" +
@@ -172,9 +166,7 @@ export function processResponse() {
         "d='M1.73,12.91 8.1,19.28 22.79,4.59'/>" +
         "</svg>" +
         "</div>" +
-        "<div class='mdc-chip__text'>" +
-        categoryList[i] +
-        "</div>" +
+        `<div class='mdc-chip__text'>${categoryList[i]}</div>` +
         "</div>",
     );
   }
