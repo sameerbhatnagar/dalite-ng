@@ -69,7 +69,7 @@ jobs:
             ./manage.py collectstatic -c
             ./manage.py compress
       - store_artifacts:
-          path: /static
+          path: /home/circleci/repo/static
       - run:
           name: Tests
           command: |
