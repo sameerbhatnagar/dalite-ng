@@ -66,7 +66,7 @@ class AnswerChoiceFactory(factory.DjangoModelFactory):
             AnswerFactory(
                 question=question,
                 first_answer_choice=choice_index,
-                expert=True,
+                expert=False,
             )
 
 
