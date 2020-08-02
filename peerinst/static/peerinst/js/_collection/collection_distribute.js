@@ -13,7 +13,7 @@ export function init(
   const snackbar = new MDCSnackbar(document.querySelector(".mdc-snackbar"));
 
   $.ajaxSetup({
-    beforeSend: function (xhr, settings) {
+    beforeSend(xhr, settings) {
       if (!bundle.csrfSafeMethod(settings.type) && !this.crossDomain) {
         xhr.setRequestHeader("X-CSRFToken", bundle.getCsrfToken());
       }

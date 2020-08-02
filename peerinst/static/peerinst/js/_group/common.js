@@ -23,7 +23,7 @@ function editField(event, type, className) {
     newField = editDateTimeField(field);
   } else {
     console.log(
-      "The `editField` function isn 't implemented for type " + type + ".",
+      `The \`editField\` function isn 't implemented for type ${type}.`,
     );
     return;
   }
@@ -60,7 +60,7 @@ function saveField(event, type, save, className) {
     });
   } else {
     console.log(
-      "The `saveField` function isn't implemented for type " + type + ".",
+      `The \`saveField\` function isn't implemented for type ${type}.`,
     );
     return;
   }
@@ -239,7 +239,7 @@ async function saveDateTimeField(field, save, className, url) {
 }
 
 async function updateDetails(name, value, url) {
-  const data = { name: name, value: value };
+  const data = { name, value };
   const token = document.getElementsByName("csrfmiddlewaretoken")[0].value;
   const req = {
     method: "POST",

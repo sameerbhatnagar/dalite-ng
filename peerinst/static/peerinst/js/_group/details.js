@@ -72,7 +72,7 @@ function removeAssignment(event: MouseEvent, url: string): void {
   const container = li.parentNode;
 
   const req = buildReq({}, "post");
-  url = url + "remove/";
+  url = `${url}remove/`;
 
   fetch(url, req).then(function (resp) {
     if (resp.ok) {

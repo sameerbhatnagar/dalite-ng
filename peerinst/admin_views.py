@@ -111,7 +111,7 @@ def get_assignment_aggregates(assignment, student_groups=None):
     sums = collections.Counter()
     students = set()
     question_data = []
-    for question in assignment.questions.all():
+    for question in assignment.questions.order_by("assignmentquestions__rank"):
         q_sums, q_students = get_question_aggregates(
             assignment, question, student_groups
         )

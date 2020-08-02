@@ -13,7 +13,7 @@ export function enumerate() {
 
 export function ajaxJQSetup() {
   $.ajaxSetup({
-    beforeSend: function (xhr, settings) {
+    beforeSend(xhr, settings) {
       if (!bundle.csrfSafeMethod(settings.type) && !this.crossDomain) {
         xhr.setRequestHeader("X-CSRFToken", bundle.getCsrfToken());
       }

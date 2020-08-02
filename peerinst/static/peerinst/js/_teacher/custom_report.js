@@ -54,9 +54,8 @@ function updateRationaleEvaluationAttributes(rationale) {
 async function flagRationale(flag) {
   const rationale = flag.parentNode.parentNode;
   const data = {
-    id: flag.parentNode.parentNode.getAttribute("data-id"),
+    answer: flag.parentNode.parentNode.getAttribute("data-id"),
     score: 0,
-    redirect: false,
   };
   const req = buildReq(data, "post");
 
@@ -72,9 +71,8 @@ async function flagRationale(flag) {
 async function evaluateRationale(star, score) {
   const rationale = star.parentNode.parentNode;
   const data = {
-    id: star.parentNode.parentNode.getAttribute("data-id"),
-    score: score,
-    redirect: false,
+    answer: star.parentNode.parentNode.getAttribute("data-id"),
+    score,
   };
   const req = buildReq(data, "post");
 
@@ -85,6 +83,36 @@ async function evaluateRationale(star, score) {
   }
   updateRationaleEvaluationAttributes(rationale);
   rationaleEvaluationView();
+}
+
+function handleFeedbackKeyDown(key, rationale, node) {
+  if (key === "Enter") {
+    saveFeedback(rationale, node);
+  } else if (key === "Escape") {
+    stopEditFeedback(rationale, node);
+  }
+}
+
+function saveFeedback(rationale, node) {
+  const url = model.urls.evaluateRationale;
+  const input = node.querySelector("input");
+
+  const data = {
+    note: input.value,
+    id: rationale.id,
+  };
+
+  const req = buildReq(data, "post");
+  fetch(url, req)
+    .then((resp) => resp.json())
+    .then(function (data) {
+      rationale.feedback = data.note;
+      stopEditFeedback(rationale, node);
+    })
+    .catch(function (err) {
+      stopEditFeedback(rationale, node);
+      console.log(err);
+    });
 }
 
 /********/
@@ -103,6 +131,12 @@ function rationaleEvaluationView() {
       rationale
         .querySelectorAll(".star")
         .forEach((star) => toggleStarHover(star));
+    });
+
+  document
+    .querySelectorAll(".custom-report__rationale__feedback")
+    .forEach((rationale) => {
+      rationaleFeedbackView(rationale);
     });
 }
 
@@ -124,6 +158,98 @@ function toggleStarHover(star, hovering = false) {
       star.textContent = "star_border";
     }
   });
+}
+
+function rationaleFeedbackView(rationale) {
+  const div = document.createElement("div");
+  div.classList.add("student-group--id");
+
+  const rationaleFeedback = document.createElement("span");
+  rationaleFeedback.classList.add("student-group--id__id");
+  rationaleFeedback.style.display = "inline-block";
+  rationaleFeedback.textContent = rationale.feedback;
+  rationaleFeedback.addEventListener("click", () =>
+    editFeedback(rationale, div),
+  );
+  div.appendChild(rationaleFeedback);
+
+  const input = document.createElement("input");
+  input.classList.add("student-group--id__input");
+  input.value = rationale.feedback;
+  input.style.display = "none";
+  input.addEventListener("keydown", (event) =>
+    handleFeedbackKeyDown(event.key, rationale, div),
+  );
+  div.appendChild(input);
+
+  const editIcon = document.createElement("i");
+  editIcon.classList.add("material-icons", "md-28", "student-group--id__edit");
+  editIcon.style.display = "flex";
+  editIcon.textContent = "edit";
+  editIcon.addEventListener("click", () => editFeedback(rationale, div));
+  div.appendChild(editIcon);
+
+  const confirmIcon = document.createElement("i");
+  confirmIcon.classList.add(
+    "material-icons",
+    "md-28",
+    "student-group--id__confirm",
+  );
+  confirmIcon.style.display = "none";
+  confirmIcon.textContent = "check";
+  confirmIcon.addEventListener("click", () => saveFeedback(rationale, div));
+  div.appendChild(confirmIcon);
+
+  const cancelIcon = document.createElement("i");
+  cancelIcon.classList.add(
+    "material-icons",
+    "md-28",
+    "student-group--id__cancel",
+  );
+  cancelIcon.style.display = "none";
+  cancelIcon.textContent = "close";
+  cancelIcon.addEventListener("click", () => stopEditFeedback(rationale, div));
+  div.appendChild(cancelIcon);
+
+  return div;
+}
+
+function editFeedback(rationale, node) {
+  const span = node.querySelector(".student-group--id__id");
+  const input = node.querySelector(".student-group--id__input");
+  const copyBtn = node.querySelector(".student-group--id__copy");
+  const editBtn = node.querySelector(".student-group--id__edit");
+  const confirmBtn = node.querySelector(".student-group--id__confirm");
+  const cancelBtn = node.querySelector(".student-group--id__cancel");
+
+  input.value = rationale.feedback;
+
+  span.style.display = "none";
+  copyBtn.style.display = "none";
+  editBtn.style.display = "none";
+  input.style.display = "inline-block";
+  confirmBtn.style.display = "flex";
+  cancelBtn.style.display = "flex";
+
+  input.focus();
+}
+
+function stopEditFeedback(rationale, node) {
+  const span = node.querySelector("span");
+  // const input = node.querySelector("input");
+  const copyBtn = node.querySelector(".student-group--id__copy");
+  const editBtn = node.querySelector(".student-group--id__edit");
+  const confirmBtn = node.querySelector(".student-group--id__confirm");
+  const cancelBtn = node.querySelector(".student-group--id__cancel");
+
+  span.textContent = rationale.feedback;
+
+  span.style.display = "inline-block";
+  copyBtn.style.display = "flex";
+  editBtn.style.display = "flex";
+  // input.style.display = "none";
+  confirmBtn.style.display = "none";
+  cancelBtn.style.display = "none";
 }
 
 /*************/

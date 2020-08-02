@@ -165,12 +165,33 @@ class Migration(migrations.Migration):
                 "verbose_name_plural": "questions",
             },
         ),
+        migrations.CreateModel(
+            name='AssignmentQuestions',
+            fields=[
+                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+            ],
+            options={
+                'db_table': 'peerinst_assignment_questions',
+            },
+        ),
         migrations.AddField(
-            model_name="assignment",
-            name="questions",
-            field=models.ManyToManyField(
-                to="peerinst.Question", verbose_name="Questions"
-            ),
+            model_name='assignment',
+            name='questions',
+            field=models.ManyToManyField(through='peerinst.AssignmentQuestions', to='peerinst.Question', verbose_name='Questions'),
+        ),
+        migrations.AddField(
+            model_name='assignmentquestions',
+            name='assignment',
+            field=models.ForeignKey(on_delete=django.db.models.deletion.DO_NOTHING, to='peerinst.Assignment'),
+        ),
+        migrations.AddField(
+            model_name='assignmentquestions',
+            name='question',
+            field=models.ForeignKey(on_delete=django.db.models.deletion.DO_NOTHING, to='peerinst.Question'),
+        ),
+        migrations.AlterUniqueTogether(
+            name='assignmentquestions',
+            unique_together={('assignment', 'question')},
         ),
         migrations.AddField(
             model_name="answerchoice",

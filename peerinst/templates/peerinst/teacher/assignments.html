@@ -2,6 +2,12 @@
 
 {% load i18n add_class compress static %}
 
+{% block stylesheets %}
+{{ block.super }}
+<!-- Self-hosted tinyMCE -->
+<script src="{% static 'peerinst/js/tinymce/js/tinymce/tinymce.min.js' %}"></script>
+{% endblock %}
+
 {% block body %}
 <main>
   <section>
@@ -28,23 +34,87 @@
 
     <form method="post">
       {% csrf_token %}
-      {% for field in form %}
-        {{ field.errors }}
-        <div class="mdc-text-field mdc-text-field--outlined mdc-text-field--dense" data-mdc-auto-init="MDCTextField">
-          {{ field|add_class:"mdc-text-field__input" }}
-          {{ field.label_tag|add_class:"mdc-floating-label"|cut:":" }}
-          <div class="mdc-notched-outline">
-            <svg>
-              <path class="mdc-notched-outline__path"/>
-            </svg>
-          </div>
-          <div class="mdc-notched-outline__idle"></div>
+
+      {{ form.identifier.errors }}
+      <div class="mdc-text-field mdc-text-field--outlined mdc-text-field--dense" data-mdc-auto-init="MDCTextField">
+        {{ form.identifier|add_class:"mdc-text-field__input" }}
+        {{ form.identifier.label_tag|add_class:"mdc-floating-label"|cut:":" }}
+        <div class="mdc-notched-outline">
+          <svg>
+            <path class="mdc-notched-outline__path"/>
+          </svg>
         </div>
-        <p class="mdc-text-field-helper-text mdc-text-field-helper-text--persistent" aria-hidden="true">
-          {{ field.help_text|safe }}
-        </p>
-      {% endfor %}
-      <input class="mdc-button mdc-button--raised padded-top" type="submit" value="{% trans 'Create' %}" />
+        <div class="mdc-notched-outline__idle"></div>
+      </div>
+      <p class="mdc-text-field-helper-text mdc-text-field-helper-text--persistent" aria-hidden="true">
+        {{ form.identifier.help_text|safe }}
+      </p>
+
+      {{ form.title.errors }}
+      <div class="mdc-text-field mdc-text-field--outlined mdc-text-field--dense" data-mdc-auto-init="MDCTextField">
+        {{ form.title|add_class:"mdc-text-field__input" }}
+        {{ form.title.label_tag|add_class:"mdc-floating-label"|cut:":" }}
+        <div class="mdc-notched-outline">
+          <svg>
+            <path class="mdc-notched-outline__path"/>
+          </svg>
+        </div>
+        <div class="mdc-notched-outline__idle"></div>
+      </div>
+      <p class="mdc-text-field-helper-text mdc-text-field-helper-text--persistent" aria-hidden="true">
+        {{ form.title.help_text|safe }}
+      </p>
+
+        <div class='field-container'>
+
+          <div class='field'>
+            <div class='mdc-form-field id-text-field'>
+              <label for="id_text" class='p-bottom-10'> {{ form.description.label }}</label>
+            </div>
+            <div class="mdc-text-field mdc-text-field--textarea">
+              {{ form.description }}
+            </div>
+            <p class="mdc-text-field-helper-text mdc-text-field-helper-text--persistent id-text-field-helper" aria-hidden="true">
+              {{ form.description.help_text|safe }}
+            </p>
+            {{ form.description.errors }}
+          </div>
+        </div>
+
+
+        <div class='field-container'>
+
+          <div class='field'>
+            <div class='mdc-form-field id-text-field'>
+              <label for="id_text" class='p-bottom-10'> {{ form.intro_page.label }}</label>
+            </div>
+            <div class="mdc-text-field mdc-text-field--textarea">
+              {{ form.intro_page }}
+            </div>
+            <p class="mdc-text-field-helper-text mdc-text-field-helper-text--persistent id-text-field-helper" aria-hidden="true">
+              {{ form.intro_page.help_text|safe }}
+            </p>
+            {{ form.intro_page.errors }}
+          </div>
+        </div>
+
+
+        <div class='field-container'>
+
+          <div class='field'>
+            <div class='mdc-form-field id-text-field'>
+              <label for="id_text" class='p-bottom-10'> {{ form.conclusion_page.label }}</label>
+            </div>
+            <div class="mdc-text-field mdc-text-field--textarea">
+              {{ form.conclusion_page }}
+            </div>
+            <p class="mdc-text-field-helper-text mdc-text-field-helper-text--persistent id-text-field-helper" aria-hidden="true">
+              {{ form.conclusion_page.help_text|safe }}
+            </p>
+            {{ form.conclusion_page.errors }}
+          </div>
+        </div>
+      <input class="mdc-button mdc-button--raised padded-top" type="submit" value="Create" />
     </form>
 
 
@@ -163,4 +233,26 @@
 
   </section>
 </main>
+{% endblock %}
+
+{% block scripts %}
+{{ block.super }}
+<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+<script nonce="{{ request.csp_nonce }}">
+  'use strict';
+
+// TinyMCE bind to textarea
+$('#id_text').removeAttr('required');
+tinymce.init({
+  selector: 'textArea',
+  elementpath: false,
+  branding: false,
+  plugins: ['autolink', 'autosave', 'charmap', 'code', 'link', 'paste'],
+  menubar: false,
+  toolbar: 'undo redo | bold italic underline superscript subscript | link | charmap | code',
+  content_css: "{% static 'peerinst/css/tiny.min.css' %}",
+  link_assume_external_targets: true,
+  default_link_target: '_blank',
+});
+</script>
 {% endblock %}

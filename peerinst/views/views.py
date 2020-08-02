@@ -321,7 +321,12 @@ class AssignmentCopyView(LoginRequiredMixin, NoStudentsMixin, CreateView):
         assignment = get_object_or_404(
             models.Assignment, pk=self.kwargs["assignment_id"]
         )
-        initial = {"title": _("Copy of ") + assignment.title}
+        initial = {
+            "title": _("Copy of ") + assignment.title,
+            "description": assignment.description,
+            "intro_page": assignment.intro_page,
+            "conclusion_page": assignment.conclusion_page,
+        }
         return initial
 
     def get_object(self, queryset=None):
@@ -340,8 +345,13 @@ class AssignmentCopyView(LoginRequiredMixin, NoStudentsMixin, CreateView):
             models.Assignment, pk=self.kwargs["assignment_id"]
         )
         form.instance.save()
-        form.instance.questions = assignment.questions.all()
+        for aq in assignment.assignmentquestions_set.all():
+            form.instance.questions.add(
+                aq.question, through_defaults={"rank": aq.rank}
+            )
         form.instance.owner.add(self.request.user)
+        form.instance.parent = assignment
+
         teacher = get_object_or_404(models.Teacher, user=self.request.user)
         teacher.assignments.add(form.instance)
         teacher.save()
@@ -358,7 +368,7 @@ class AssignmentEditView(LoginRequiredMixin, NoStudentsMixin, UpdateView):
 
     model = Assignment
     template_name_suffix = "_edit"
-    fields = ["title"]
+    fields = ["title", "description", "intro_page", "conclusion_page"]
 
     def get_object(self):
         return get_object_or_404(
@@ -378,9 +388,14 @@ class AssignmentEditView(LoginRequiredMixin, NoStudentsMixin, UpdateView):
 
 
 class AssignmentUpdateView(LoginRequiredMixin, NoStudentsMixin, DetailView):
-    """View for updating assignment."""
+    """
+    View for updating assignment.
+    Provides template only: POST operations are handled through REST api.
+    """
 
+    http_method_names = ["get"]
     model = Assignment
+    template_name_suffix = "_detail"
 
     def dispatch(self, *args, **kwargs):
         # Check object permissions (to be refactored using mixin)
@@ -402,35 +417,12 @@ class AssignmentUpdateView(LoginRequiredMixin, NoStudentsMixin, DetailView):
         context = super(AssignmentUpdateView, self).get_context_data(**kwargs)
         teacher = get_object_or_404(models.Teacher, user=self.request.user)
         context["teacher"] = teacher
-        all_qs = (
-            teacher.user.question_set.all() | teacher.user.collaborators.all()
-        )
-        context["all_questions"] = all_qs.distinct()
         return context
 
     def get_object(self):
         return get_object_or_404(
             models.Assignment, pk=self.kwargs["assignment_id"]
         )
-
-    def post(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        form = forms.AddRemoveQuestionForm(request.POST)
-        if form.is_valid():
-            question = form.cleaned_data["q"]
-            if question not in self.object.questions.all():
-                self.object.questions.add(question)
-            else:
-                self.object.questions.remove(question)
-            self.object.save()
-            return HttpResponseRedirect(
-                reverse(
-                    "assignment-update",
-                    kwargs={"assignment_id": self.object.pk},
-                )
-            )
-        else:
-            return response_400(request)
 
 
 class QuestionListView(LoginRequiredMixin, NoStudentsMixin, ListView):
@@ -443,7 +435,7 @@ class QuestionListView(LoginRequiredMixin, NoStudentsMixin, ListView):
         self.assignment = get_object_or_404(
             models.Assignment, pk=self.kwargs["assignment_id"]
         )
-        return self.assignment.questions.all()
+        return self.assignment.questions.order_by("assignmentquestions__rank")
 
     def get_context_data(self, **kwargs):
         context = ListView.get_context_data(self, **kwargs)
@@ -3189,7 +3181,7 @@ def report_assignment_aggregates(request):
         d_a = {}
         d_a["assignment"] = a.identifier
         d_a["questions"] = []
-        for q in a.questions.all():
+        for q in a.questions.order_by("assignmentquestions__rank"):
             d_q = {}
             d_q["question"] = q.text
             try:
