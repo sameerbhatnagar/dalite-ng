@@ -1,6 +1,6 @@
 {% extends 'peerinst/student/base.html' %}
 
-{% load i18n %}
+{% load bleach_html i18n %}
 
 {% block body %}
 
@@ -40,6 +40,13 @@
     <a href="{% url 'question' assignment_id question_id %}" class="mdc-button mdc-button--raised">
       Go back to assignment
     </a>
+
+    {% if conclusion_page %}
+    <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Post-Assignment Notes' %}</h2>
+    <div class="mdc-typography--body1">
+      {{ conclusion_page|bleach_html|safe }}
+    </div>
+    {% endif %}
 
   </section>
 </main>

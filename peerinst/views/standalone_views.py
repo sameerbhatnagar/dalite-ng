@@ -285,6 +285,7 @@ def finish_assignment(req):
         "assignment_id": assignment.assignment.pk,
         "question_id": assignment.questions[0].id,
         "has_expired": has_expired,
+        "conclusion_page": assignment.assignment.conclusion_page,
     }
     return render(req, "peerinst/student/assignment_complete.html", context)
 
