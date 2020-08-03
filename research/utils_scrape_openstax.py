@@ -76,8 +76,8 @@ def write_text_to_file(l, textbook_dir, base_url):
                 ).find_all("dd"),
             )
         }
-        with open(fname,"w") as f:
-            json.dump(text,f,indent=2)
+        with open(fname, "w") as f:
+            json.dump(text, f, indent=2)
         return
 
     elif l[2:] == "summary":
@@ -121,16 +121,24 @@ def write_text_to_file(l, textbook_dir, base_url):
 
 def scrape_textbooks():
 
-    for discipline,textbook_names in OPENSTAX_TEXTBOOK_DISCIPLINES.items():
+    for discipline, textbook_names in OPENSTAX_TEXTBOOK_DISCIPLINES.items():
         print(discipline)
         for textbook_name in textbook_names:
-            textbook_dir = os.path.join(settings.BASE_DIR, os.pardir,"textbooks",discipline, textbook_name)
+            textbook_dir = os.path.join(
+                settings.BASE_DIR,
+                os.pardir,
+                "textbooks",
+                discipline,
+                textbook_name,
+            )
             if not os.path.exists(textbook_dir):
                 os.makedirs(textbook_dir)
             print(textbook_name)
 
             intro_url = (
-                "https://openstax.org/books/" + textbook_name + "/pages/1-introduction"
+                "https://openstax.org/books/"
+                + textbook_name
+                + "/pages/1-introduction"
             )
             base_url = intro_url[:-14]
             raw_html = simple_get(url=intro_url)

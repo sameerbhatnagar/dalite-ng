@@ -10,6 +10,7 @@ import pandas as pd
 from .utils_load_data import get_answers_df
 from .utils_scrape_openstax import OPENSTAX_TEXTBOOK_DISCIPLINES
 
+
 def on_match(matcher, doc, id, matches):
     """
     call back function to be executed everytime a phrase is matched
@@ -32,7 +33,7 @@ def get_matcher(subject, nlp, on_match=None):
     for book in books:
         # print(book)
         book_dir = os.path.join(
-            settings.BASE_DIR, os.pardir, "textbooks", subject ,book
+            settings.BASE_DIR, os.pardir, "textbooks", subject, book
         )
         files = os.listdir(book_dir)
         keyword_files = [f for f in files if "key-terms" in f]
@@ -62,28 +63,32 @@ def extract_lexical_features(rationales, subject, nlp):
     lexical_features = {}
     matcher = get_matcher(subject=subject, nlp=nlp)
     try:
-        lexical_features["num_keywords"] =list(zip(
-        rationales["id"],
-        [
-            len(
-                set(
-                    [
-                        str(doc[start:end])
-                        for match_id, start, end in matcher(doc)
-                    ]
-                )
+        lexical_features["num_keywords"] = list(
+            zip(
+                rationales["id"],
+                [
+                    len(
+                        set(
+                            [
+                                str(doc[start:end])
+                                for match_id, start, end in matcher(doc)
+                            ]
+                        )
+                    )
+                    for doc in nlp.pipe(rationales["rationale"], batch_size=50)
+                ],
             )
-            for doc in nlp.pipe(rationales["rationale"], batch_size=50)
-        ]
-        ))
+        )
     except TypeError:
         pass
 
     eqn_re = re.compile(r"([\w\/^\*\.+-]+\s?=\s?[\w\/^\*\.+-]+)")
-    lexical_features["num_equations"] = list(zip(
-        rationales["id"],
-        pd.Series(rationales["rationale"]).str.count(eqn_re).to_list()
-    ))
+    lexical_features["num_equations"] = list(
+        zip(
+            rationales["id"],
+            pd.Series(rationales["rationale"]).str.count(eqn_re).to_list(),
+        )
+    )
 
     return lexical_features
 
@@ -99,34 +104,41 @@ def extract_syntactic_features(rationales, nlp):
 
     syntactic_features = {}
 
-    syntactic_features["num_sents"] = list(zip(
-    rationales["id"],
-    [
-        len(list(doc.sents)) for doc in nlp.pipe(rationales["rationale"], batch_size=50)
-    ]
-    ))
-
-    syntactic_features["num_verbs"] = list(zip(
-    rationales["id"],
-    [
-        len([token.text for token in doc if token.pos_ == "VERB"])
-        for doc in nlp.pipe(rationales["rationale"], batch_size=50)
-    ]
-    ))
-
-    syntactic_features["num_conj"] = list(zip(
-    rationales["id"],
-    [
-        len(
+    syntactic_features["num_sents"] = list(
+        zip(
+            rationales["id"],
             [
-                token.text
-                for token in doc
-                if token.pos_ == "CCONJ" or token.pos_ == "SCONJ"
-            ]
+                len(list(doc.sents))
+                for doc in nlp.pipe(rationales["rationale"], batch_size=50)
+            ],
         )
-        for doc in nlp.pipe(rationales["rationale"], batch_size=50)
-    ]
-    ))
+    )
+
+    syntactic_features["num_verbs"] = list(
+        zip(
+            rationales["id"],
+            [
+                len([token.text for token in doc if token.pos_ == "VERB"])
+                for doc in nlp.pipe(rationales["rationale"], batch_size=50)
+            ],
+        )
+    )
+
+    syntactic_features["num_conj"] = list(
+        zip(
+            rationales["id"],
+            [
+                len(
+                    [
+                        token.text
+                        for token in doc
+                        if token.pos_ == "CCONJ" or token.pos_ == "SCONJ"
+                    ]
+                )
+                for doc in nlp.pipe(rationales["rationale"], batch_size=50)
+            ],
+        )
+    )
     return syntactic_features
 
 
@@ -152,13 +164,15 @@ def extract_readability_features(rationales, nlp):
     readability_features = {}
 
     for f in readability_features_list:
-        readability_features[f] = list(zip(
-        rationales["id"],
-        [
-            round(getattr(doc._, f), 3)
-            for doc in nlp.pipe(rationales["rationale"], batch_size=50)
-        ]
-        ))
+        readability_features[f] = list(
+            zip(
+                rationales["id"],
+                [
+                    round(getattr(doc._, f), 3)
+                    for doc in nlp.pipe(rationales["rationale"], batch_size=50)
+                ],
+            )
+        )
     return readability_features
 
 
@@ -182,15 +196,15 @@ def extract_features_and_save(
         print("\t\t\tcalculating features " + feature_type)
         if feature_type == "syntax":
             features = extract_syntactic_features(
-                df_answers[["id","rationale"]], nlp=nlp
+                df_answers[["id", "rationale"]], nlp=nlp
             )
         elif feature_type == "readability":
             features = extract_readability_features(
-                df_answers[["id","rationale"]], nlp=nlp
+                df_answers[["id", "rationale"]], nlp=nlp
             )
         elif feature_type == "lexical":
             features = extract_lexical_features(
-                df_answers[["id","rationale"]], nlp=nlp, subject=subject,
+                df_answers[["id", "rationale"]], nlp=nlp, subject=subject,
             )
         with open(feature_type_fpath, "w") as f:
             json.dump(features, f, indent=2)
@@ -234,11 +248,11 @@ def get_features(
             subject=subject,
         )
         for f in features:
-            df_answers=pd.merge(
-            df_answers,
-            pd.DataFrame(features[f],columns=["id",f]),
-            on="id",
-            how="left"
+            df_answers = pd.merge(
+                df_answers,
+                pd.DataFrame(features[f], columns=["id", f]),
+                on="id",
+                how="left",
             )
 
     return df_answers

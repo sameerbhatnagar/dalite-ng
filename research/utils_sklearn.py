@@ -83,7 +83,9 @@ def get_features_and_save(path_to_data):
             for group_name in group_names:
                 print("\t\t{}".format(group_name))
                 print(
-                    "\t\t{} - calculating features".format(datetime.datetime.now())
+                    "\t\t{} - calculating features".format(
+                        datetime.datetime.now()
+                    )
                 )
                 df_group = get_features(
                     group_name=group_name,
