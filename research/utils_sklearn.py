@@ -38,7 +38,7 @@ def get_features_and_save(path_to_data):
     calculate and save lexical,syntax and readability features
     """
     fpath_data_inventory = os.path.join(
-        path_to_data, "data_inventory_research_consent_True_clean.csv",
+        path_to_data, "data_inventory_research_consent_True.csv",
     )
 
     with open(fpath_data_inventory, "r") as f:
@@ -64,10 +64,11 @@ def get_features_and_save(path_to_data):
 
     df = pd.DataFrame()
     for discipline in disciplines:
+        print(discipline)
         df_discipline = pd.DataFrame()
 
         for semester in semesters:
-
+            print("\t{}".format(semester))
             df_semester = pd.DataFrame()
 
             # need to calculate features for all
@@ -80,10 +81,10 @@ def get_features_and_save(path_to_data):
             ]
 
             for group_name in group_names:
-                # print(group_name)
-                # print(
-                #     "{} - calculating features".format(datetime.datetime.now())
-                # )
+                print("\t\t{}".format(group_name))
+                print(
+                    "\t\t{} - calculating features".format(datetime.datetime.now())
+                )
                 df_group = get_features(
                     group_name=group_name,
                     path_to_data=path_to_data,
