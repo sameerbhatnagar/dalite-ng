@@ -11,7 +11,7 @@
 {% block body %}
 <main>
   <section>
-    <h1 class="mdc-typography--display3">{{assignment.title}}
+    <h1 class="mdc-typography--display3">{% trans "Preview Assignment" %}
       <svg class="underline" width=150 height=4></svg>
     </h1>
 
@@ -21,165 +21,182 @@
       <span class="admin-link--padded">|</span>{% endif %}<a href="{% url 'research-assignment-question-index-by-assignment' assignment_id=assignment.identifier%}">{% trans 'Score Rationales / Flag Questions / Update Expert Answers' %}</a>
     </div>
 
-    <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Questions' %}</h2>
+    <h2 class="mdc-typography--display1 mdc-theme--secondary">{{ assignment.title }}</h2>
 
-    {% for question in object_list %}
-    <div class="mdc-card">
-      <div class="mdc-typography--title bold m-bot-5">
-        {{question.title|bleach_html|safe}}
-      </div>
+    {% if assignment.intro_page %}
+    <div id="assignment-preamble">
+      <p class="mdc-typography--body1">{{ assignment.intro_page|bleach_html|safe }}</p>
+    </div>
+    <hr>
+    {% endif %}
 
-      <div class="mdc-typography--body1">
-        {{question.text|bleach_html|safe}}
-      </div>
-
-      {% if question.image %}
-      <img class="question-image" src="{{ question.image.url }}" alt="{{ question.image_alt_text }}">
-      {% endif %}
-
-      {% if question.video_url %}
-      <div id="question-video">
-        <object class="question-image" width="640" height="390" data="{{ question.video_url }}"></object>
-      </div>
-      {% endif %}
-
-      <div class="mdc-card__actions">
-        <div class="mdc-card__action-buttons grey">
-          <div class="mdc-typography--caption">
-            <div>
-              {% trans 'Discipline' %}: {{question.discipline}}
-            </div>
-            <div>
-              {% trans 'Categories' %}:
-              {% for c in question.category.all %}
-              {{ c.title|safe }}{% if not forloop.last %}, {% endif %}
-              {% empty %}
-              {% trans 'Uncategorized' %}
-              {% endfor %}
-            </div>
-            <div>
-              {% trans 'Student answers' %}: {{question.answer_set.count}}
-            </div>
-          </div>
+    <div class="question-list-padding">
+      {% for question in object_list %}
+      <div class="mdc-card">
+        <div class="mdc-typography--title bold m-bot-5">
+          {{question.title|bleach_html|safe}}
         </div>
 
-        <div class="mdc-card__action-icons">
-          <div id="stats-{{ question.id|safe }}" class="stats">
-            <i id="activate-dialog-analytics-{{ question.id|safe }}"
-            ref_id="{{ question.id|safe }}" class="material-icons md-24{% if not question.answer_set.all.count == 0 %} analytics-tags{% endif %}">info</i>
-            <span id="rating-{{ question.id|safe }}"></span>
+        <div class="mdc-typography--body1">
+          {{question.text|bleach_html|safe}}
+        </div>
+
+        {% if question.image %}
+        <img class="question-image" src="{{ question.image.url }}" alt="{{ question.image_alt_text }}">
+        {% endif %}
+
+        {% if question.video_url %}
+        <div id="question-video">
+          <object class="question-image" width="640" height="390" data="{{ question.video_url }}"></object>
+        </div>
+        {% endif %}
+
+        <div class="mdc-card__actions">
+          <div class="mdc-card__action-buttons grey">
+            <div class="mdc-typography--caption">
+              <div>
+                {% trans 'Discipline' %}: {{question.discipline}}
+              </div>
+              <div>
+                {% trans 'Categories' %}:
+                {% for c in question.category.all %}
+                {{ c.title|safe }}{% if not forloop.last %}, {% endif %}
+                {% empty %}
+                {% trans 'Uncategorized' %}
+                {% endfor %}
+              </div>
+              <div>
+                {% trans 'Student answers' %}: {{question.answer_set.count}}
+              </div>
+            </div>
           </div>
-          <div class="flag-question" data-id="{{ question.pk }}">
-            <i class="mdc-icon-toggle material-icons mdc-theme--primary flag-question__btn"
-               role="button"
-               aria-pressed="false"
-               aria-label="{% trans 'Flag question' %}"
-               tabindex="0"
-               title="{% trans 'Flag question' %}">
-               outlined_flag
+
+          <div class="mdc-card__action-icons">
+            <div id="stats-{{ question.id|safe }}" class="stats">
+              <i id="activate-dialog-analytics-{{ question.id|safe }}"
+              ref_id="{{ question.id|safe }}" class="material-icons md-24{% if not question.answer_set.all.count == 0 %} analytics-tags{% endif %}">info</i>
+              <span id="rating-{{ question.id|safe }}"></span>
+            </div>
+            <div class="flag-question" data-id="{{ question.pk }}">
+              <i class="mdc-icon-toggle material-icons mdc-theme--primary flag-question__btn"
+                 role="button"
+                 aria-pressed="false"
+                 aria-label="{% trans 'Flag question' %}"
+                 tabindex="0"
+                 title="{% trans 'Flag question' %}">
+                 outlined_flag
+              </i>
+              <div class="flag-question__form" hidden>
+                <h3>{% trans 'Flag question' %}</h3>
+                <form>
+                  <select class="flag-question__form__select"
+                          title="{% trans 'Possible reasons' %}"
+                          aria-label="{% trans 'Possible reasons' %}">
+                  </select>
+                  <input type="submit"
+                         class="mdc-button mdc-button--raised"
+                         value="{% trans 'Flag' %}">
+                </form>
+                <svg class="icon flag-question__close">
+                  <use xlink:href="#close"></use>
+                </svg>
+              </div>
+            </div>
+            <i class="mdc-icon-toggle material-icons mdc-theme--primary favourite-btn"
+                role="button"
+                aria-pressed="false"
+                aria-label="Add to favorites" tabindex="0"
+                {% if question in request.user.teacher.favourite_questions.all %}
+                data-toggle-off='{"label": "Remove from favourites", "content": "favorite"}'
+                data-toggle-on='{"label": "Add to favourites", "content": "favorite_border"}'
+                {% else %}
+                data-toggle-on='{"label": "Remove from favourites", "content": "favorite"}'
+                data-toggle-off='{"label": "Add to favourites", "content": "favorite_border"}'
+                {% endif %}
+                pk="{{ question.pk|safe }}">
+                favorite_border
             </i>
-            <div class="flag-question__form" hidden>
-              <h3>{% trans 'Flag question' %}</h3>
-              <form>
-                <select class="flag-question__form__select"
-                        title="{% trans 'Possible reasons' %}"
-                        aria-label="{% trans 'Possible reasons' %}">
-                </select>
-                <input type="submit"
-                       class="mdc-button mdc-button--raised"
-                       value="{% trans 'Flag' %}">
-              </form>
-              <svg class="icon flag-question__close">
-                <use xlink:href="#close"></use>
-              </svg>
-            </div>
+            <a class="link-question-button" href="{% url 'question' assignment_id=assignment.pk question_id=question.pk %}">
+              <i class="material-icons md-36 analytics-tags ripple-icon mdc-theme--primary mdc-ripple-surface--primary md-32 overflow">play_arrow</i>
+            </a>
           </div>
-          <i class="mdc-icon-toggle material-icons mdc-theme--primary favourite-btn"
-              role="button"
-              aria-pressed="false"
-              aria-label="Add to favorites" tabindex="0"
-              {% if question in request.user.teacher.favourite_questions.all %}
-              data-toggle-off='{"label": "Remove from favourites", "content": "favorite"}'
-              data-toggle-on='{"label": "Add to favourites", "content": "favorite_border"}'
-              {% else %}
-              data-toggle-on='{"label": "Remove from favourites", "content": "favorite"}'
-              data-toggle-off='{"label": "Add to favourites", "content": "favorite_border"}'
-              {% endif %}
-              pk="{{ question.pk|safe }}">
-              favorite_border
-          </i>
-          <a class="link-question-button" href="{% url 'question' assignment_id=assignment.pk question_id=question.pk %}">
-            <i class="material-icons md-36 analytics-tags ripple-icon mdc-theme--primary mdc-ripple-surface--primary md-32 overflow">play_arrow</i>
-          </a>
         </div>
       </div>
+
+      <aside id="dialog-analytics-{{question.id}}"
+        class="mdc-dialog plot-dialog"
+        role="alertdialog"
+        aria-labelledby="label"
+        aria-describedby="description"
+        data-get-matrix="{{ question.get_matrix|safe }}"
+        data-get-frequency="{{ question.get_frequency|striptags }}"
+        data-id="{{ question.id }}">
+        <div class="mdc-dialog__surface">
+          <header class="mdc-dialog__header">
+            <h2 id="label" class="mdc-dialog__header__title">
+              {{ question.title }}
+            </h2>
+          </header>
+          <section id="description-{{ question.id }}" class="mdc-dialog__body mdc-dialog__body--scrollable">
+            <h2 id="label" class="mdc-dialog__header__title">
+              {% trans 'Analytics' %}
+            </h2>
+            <div id="{{ question.id }}" name="analytics" class="items-for-question">
+              <svg id="first-frequency-{{ question.id }}" width="300" height="80" class="vertical-align"></svg>
+              <svg id="matrix-{{ question.id }}" width="60" height="60" class="vertical-align"></svg>
+              <svg id="second-frequency-{{ question.id }}" width="300" height="80" class="vertical-align"></svg>
+            </div>
+            <h2 id="label" class="mdc-dialog__header__title">
+              {% trans 'Rationales' %}
+            </h2>
+            <div class='field-container'>
+              <div class='number-box'><span class='number'>?</span></div>
+              <div class='field'>
+                <p class="dialog-help-text"><small>
+                  {% blocktrans %}
+                  The following rationales consist of the most popular, while the preceding fraction indicates, of those that have viewed the rationale, how many have chosen it.
+                  {% endblocktrans %}
+                </small></p>
+              </div>
+            </div>
+            <ul>
+              {% for answer_choice in question.get_most_convincing_rationales %}
+                <li id="{{ question.id }}" name="rationale" class="items-for-question">{{ answer_choice.Answer }}. {{ answer_choice.answer_text|safe|striptags }}</li>
+                <ul>
+                  {% for rationale in answer_choice.most_convincing %}
+                      <li id="{{ question.id }}" data-id="{{ rationale.id }}" name="rationale" class="items-for-question"><span class="rationale-stats">({{ rationale.times_chosen }}/{{ rationale.times_shown }})</span> {{ rationale.rationale|safe|striptags }}</li>
+                  {% endfor %}
+                </ul>
+
+              {% endfor %}
+            </ul>
+            <h2 id="label" class="mdc-dialog__header__title">
+              {% trans 'Assignments using ' %}{{ question.title }}
+            </h2>
+            {% for assignment in question.assignment_set.all %}
+              <p id="{{ question.id }}" name="assignment" class="items-for-question"><a class="assignment-link" href="{% url 'question-list' assignment_id=assignment.pk %}">{{ assignment.title }}</a></p>
+            {% endfor %}
+          </section>
+          <footer class="mdc-dialog__footer">
+            <button type="button" class="mdc-button mdc-dialog__footer__button mdc-dialog__footer__button--accept">Ok</button>
+          </footer>
+        </div>
+        <div class="mdc-dialog__backdrop"></div>
+      </aside>
+      {% empty %}
+      <ul>
+        <li><strong>Note: </strong>{% trans 'There are currently no questions in this assignment' %}.</li>
+      </ul>
+      {% endfor %}
     </div>
 
-    <aside id="dialog-analytics-{{question.id}}"
-      class="mdc-dialog plot-dialog"
-      role="alertdialog"
-      aria-labelledby="label"
-      aria-describedby="description"
-      data-get-matrix="{{ question.get_matrix|safe }}"
-      data-get-frequency="{{ question.get_frequency|striptags }}"
-      data-id="{{ question.id }}">
-      <div class="mdc-dialog__surface">
-        <header class="mdc-dialog__header">
-          <h2 id="label" class="mdc-dialog__header__title">
-            {{ question.title }}
-          </h2>
-        </header>
-        <section id="description-{{ question.id }}" class="mdc-dialog__body mdc-dialog__body--scrollable">
-          <h2 id="label" class="mdc-dialog__header__title">
-            {% trans 'Analytics' %}
-          </h2>
-          <div id="{{ question.id }}" name="analytics" class="items-for-question">
-            <svg id="first-frequency-{{ question.id }}" width="300" height="80" class="vertical-align"></svg>
-            <svg id="matrix-{{ question.id }}" width="60" height="60" class="vertical-align"></svg>
-            <svg id="second-frequency-{{ question.id }}" width="300" height="80" class="vertical-align"></svg>
-          </div>
-          <h2 id="label" class="mdc-dialog__header__title">
-            {% trans 'Rationales' %}
-          </h2>
-          <div class='field-container'>
-            <div class='number-box'><span class='number'>?</span></div>
-            <div class='field'>
-              <p class="dialog-help-text"><small>
-                {% blocktrans %}
-                The following rationales consist of the most popular, while the preceding fraction indicates, of those that have viewed the rationale, how many have chosen it.
-                {% endblocktrans %}
-              </small></p>
-            </div>
-          </div>
-          <ul>
-            {% for answer_choice in question.get_most_convincing_rationales %}
-              <li id="{{ question.id }}" name="rationale" class="items-for-question">{{ answer_choice.Answer }}. {{ answer_choice.answer_text|safe|striptags }}</li>
-              <ul>
-                {% for rationale in answer_choice.most_convincing %}
-                    <li id="{{ question.id }}" data-id="{{ rationale.id }}" name="rationale" class="items-for-question"><span class="rationale-stats">({{ rationale.times_chosen }}/{{ rationale.times_shown }})</span> {{ rationale.rationale|safe|striptags }}</li>
-                {% endfor %}
-              </ul>
+    {% if assignment.conclusion_page %}
+    <hr>
+    <div id="assignment-preamble">
+      <p class="mdc-typography--body1">{{ assignment.conclusion_page|bleach_html|safe }}</p>
+    </div>
+    {% endif %}
 
-            {% endfor %}
-          </ul>
-          <h2 id="label" class="mdc-dialog__header__title">
-            {% trans 'Assignments using ' %}{{ question.title }}
-          </h2>
-          {% for assignment in question.assignment_set.all %}
-            <p id="{{ question.id }}" name="assignment" class="items-for-question"><a class="assignment-link" href="{% url 'question-list' assignment_id=assignment.pk %}">{{ assignment.title }}</a></p>
-          {% endfor %}
-        </section>
-        <footer class="mdc-dialog__footer">
-          <button type="button" class="mdc-button mdc-dialog__footer__button mdc-dialog__footer__button--accept">Ok</button>
-        </footer>
-      </div>
-      <div class="mdc-dialog__backdrop"></div>
-    </aside>
-    {% empty %}
-    <ul>
-      <li><strong>Note:</strong>{% trans 'There are currently no questions in this assignment' %}.</li>
-    </ul>
-    {% endfor %}
   </section>
 </main>
 {% endblock %}
