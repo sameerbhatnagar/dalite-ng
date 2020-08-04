@@ -15,7 +15,6 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import Group, User
 from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import PermissionDenied, ValidationError
-from django.core.mail import mail_admins, send_mail
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 
 # reports
@@ -85,7 +84,7 @@ from ..models import (
     UserType,
     UserUrl,
 )
-from ..tasks import mail_admins_async
+from ..tasks import mail_managers_async
 from ..util import (
     SessionStageData,
     get_object_or_none,
@@ -217,7 +216,7 @@ def sign_up(request):
                 url=form.cleaned_data["url"],
                 site_name="myDALITE",
             )
-            mail_admins_async(
+            mail_managers_async(
                 "New user request",
                 "Dear administrator,"
                 "\n\nA new user {} was created on {}.".format(
@@ -322,7 +321,12 @@ class AssignmentCopyView(LoginRequiredMixin, NoStudentsMixin, CreateView):
         assignment = get_object_or_404(
             models.Assignment, pk=self.kwargs["assignment_id"]
         )
-        initial = {"title": _("Copy of ") + assignment.title}
+        initial = {
+            "title": _("Copy of ") + assignment.title,
+            "description": assignment.description,
+            "intro_page": assignment.intro_page,
+            "conclusion_page": assignment.conclusion_page,
+        }
         return initial
 
     def get_object(self, queryset=None):
@@ -341,8 +345,13 @@ class AssignmentCopyView(LoginRequiredMixin, NoStudentsMixin, CreateView):
             models.Assignment, pk=self.kwargs["assignment_id"]
         )
         form.instance.save()
-        form.instance.questions = assignment.questions.all()
+        for aq in assignment.assignmentquestions_set.all():
+            form.instance.questions.add(
+                aq.question, through_defaults={"rank": aq.rank}
+            )
         form.instance.owner.add(self.request.user)
+        form.instance.parent = assignment
+
         teacher = get_object_or_404(models.Teacher, user=self.request.user)
         teacher.assignments.add(form.instance)
         teacher.save()
@@ -355,11 +364,11 @@ class AssignmentCopyView(LoginRequiredMixin, NoStudentsMixin, CreateView):
 
 
 class AssignmentEditView(LoginRequiredMixin, NoStudentsMixin, UpdateView):
-    """View for editing assignment title and identifier."""
+    """View for editing assignment title and meta-data."""
 
     model = Assignment
     template_name_suffix = "_edit"
-    fields = ["title"]
+    fields = ["title", "description", "intro_page", "conclusion_page"]
 
     def get_object(self):
         return get_object_or_404(
@@ -379,9 +388,14 @@ class AssignmentEditView(LoginRequiredMixin, NoStudentsMixin, UpdateView):
 
 
 class AssignmentUpdateView(LoginRequiredMixin, NoStudentsMixin, DetailView):
-    """View for updating assignment."""
+    """
+    View for updating assignment question list.
+    Provides template only: POST operations are handled through REST api.
+    """
 
+    http_method_names = ["get"]
     model = Assignment
+    template_name_suffix = "_detail"
 
     def dispatch(self, *args, **kwargs):
         # Check object permissions (to be refactored using mixin)
@@ -403,35 +417,12 @@ class AssignmentUpdateView(LoginRequiredMixin, NoStudentsMixin, DetailView):
         context = super(AssignmentUpdateView, self).get_context_data(**kwargs)
         teacher = get_object_or_404(models.Teacher, user=self.request.user)
         context["teacher"] = teacher
-        all_qs = (
-            teacher.user.question_set.all() | teacher.user.collaborators.all()
-        )
-        context["all_questions"] = all_qs.distinct()
         return context
 
     def get_object(self):
         return get_object_or_404(
             models.Assignment, pk=self.kwargs["assignment_id"]
         )
-
-    def post(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        form = forms.AddRemoveQuestionForm(request.POST)
-        if form.is_valid():
-            question = form.cleaned_data["q"]
-            if question not in self.object.questions.all():
-                self.object.questions.add(question)
-            else:
-                self.object.questions.remove(question)
-            self.object.save()
-            return HttpResponseRedirect(
-                reverse(
-                    "assignment-update",
-                    kwargs={"assignment_id": self.object.pk},
-                )
-            )
-        else:
-            return response_400(request)
 
 
 class QuestionListView(LoginRequiredMixin, NoStudentsMixin, ListView):
@@ -444,7 +435,7 @@ class QuestionListView(LoginRequiredMixin, NoStudentsMixin, ListView):
         self.assignment = get_object_or_404(
             models.Assignment, pk=self.kwargs["assignment_id"]
         )
-        return self.assignment.questions.all()
+        return self.assignment.questions.order_by("assignmentquestions__rank")
 
     def get_context_data(self, **kwargs):
         context = ListView.get_context_data(self, **kwargs)
@@ -1379,7 +1370,8 @@ class QuestionReviewView(QuestionReviewBaseView):
         """
         Saves in the databse which rationales were shown to the student. These
         are linked to the answer.
-        Stick to my rationale is no longer saved as ShownRationale with an empty shown_answer
+        Stick to my rationale is no longer saved as ShownRationale with an
+        empty shown_answer
         """
         rationale_ids = [
             rationale[0]
@@ -1821,50 +1813,36 @@ class TeacherAssignments(TeacherBase, ListView):
         context = super(TeacherAssignments, self).get_context_data(**kwargs)
         context["teacher"] = self.teacher
         context["form"] = forms.AssignmentCreateForm()
-        context["owned_assignments"] = Assignment.objects.filter(
-            owner=self.teacher.user
-        )
 
         return context
 
     def post(self, request, *args, **kwargs):
         self.teacher = get_object_or_404(Teacher, user=self.request.user)
-        form = forms.TeacherAssignmentsForm(request.POST)
+        form = forms.AssignmentCreateForm(request.POST)
         if form.is_valid():
-            assignment = form.cleaned_data["assignment"]
-            if assignment in self.teacher.assignments.all():
-                self.teacher.assignments.remove(assignment)
-            else:
-                self.teacher.assignments.add(assignment)
-            self.teacher.save()
+            assignment = Assignment(
+                identifier=form.cleaned_data["identifier"],
+                title=form.cleaned_data["title"],
+                description=form.cleaned_data["description"],
+                intro_page=form.cleaned_data["intro_page"],
+                conclusion_page=form.cleaned_data["conclusion_page"],
+            )
+            assignment.save()
+            assignment.owner.add(self.teacher.user)
+            self.teacher.assignments.add(assignment)
+
+            return HttpResponseRedirect(
+                reverse(
+                    "assignment-update",
+                    kwargs={"assignment_id": assignment.pk},
+                )
+            )
         else:
-            form = forms.AssignmentCreateForm(request.POST)
-            if form.is_valid():
-                assignment = Assignment(
-                    identifier=form.cleaned_data["identifier"],
-                    title=form.cleaned_data["title"],
-                )
-                assignment.save()
-                assignment.owner.add(self.teacher.user)
-                assignment.save()
-                self.teacher.assignments.add(assignment)
-                self.teacher.save()
-                return HttpResponseRedirect(
-                    reverse(
-                        "assignment-update",
-                        kwargs={"assignment_id": assignment.pk},
-                    )
-                )
-            else:
-                return render(
-                    request,
-                    self.template_name,
-                    {
-                        "teacher": self.teacher,
-                        "form": form,
-                        "object_list": Assignment.objects.all(),
-                    },
-                )
+            return render(
+                request,
+                self.template_name,
+                {"teacher": self.teacher, "form": form},
+            )
 
         return HttpResponseRedirect(
             reverse("teacher-assignments", kwargs={"pk": self.teacher.pk})
@@ -3189,7 +3167,7 @@ def report_assignment_aggregates(request):
         d_a = {}
         d_a["assignment"] = a.identifier
         d_a["questions"] = []
-        for q in a.questions.all():
+        for q in a.questions.order_by("assignmentquestions__rank"):
             d_q = {}
             d_q["question"] = q.text
             try:

@@ -26,6 +26,7 @@ urlpatterns += i18n_patterns(
     path("reputation/", include("reputation.urls", namespace="reputation")),
     path("quality/", include("quality.urls", namespace="quality")),
     path("tos/", include("tos.urls")),
+    path("rest-api/", include("REST.urls", namespace="REST")),
     path(r"", include("peerinst.urls")),
     path("forums/", include("pinax.forums.urls", namespace="pinax_forums")),
     path(
@@ -84,6 +85,13 @@ urlpatterns += i18n_patterns(
 
 # Media
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+# Security check in development
+# if settings.DEBUG:
+#     from security_headers.views import scan_url
+#     urlpatterns += i18n_patterns(
+#         re_path(r"^security/(?P<url_name>[\w-]+)/", scan_url, name="scan")
+#     )
 
 # Errors
 #  handler400 = views.errors.response_400

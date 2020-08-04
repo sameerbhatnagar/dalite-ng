@@ -35,7 +35,7 @@ class StudentReputationHeader extends ReputationHeader {
       reputationType: "student",
       reputationUrl: this.reputationUrl,
       reputations: [],
-      shadow: shadow,
+      shadow,
     };
 
     /**********/
@@ -170,9 +170,8 @@ class StudentReputationHeader extends ReputationHeader {
     function progressView(reputation: Reputation): HTMLElement {
       if (window.innerWidth <= 500) {
         return mobileProgressView(reputation);
-      } else {
-        return desktopProgressView(reputation);
       }
+      return desktopProgressView(reputation);
     }
 
     function desktopProgressView(reputation: Reputation): HTMLElement {
@@ -449,9 +448,8 @@ class StudentReputationHeader extends ReputationHeader {
     function toggleReputationView() {
       if (window.innerWidth <= 500) {
         return toggleMobileReputationView();
-      } else {
-        return toggleDesktopReputationView();
       }
+      return toggleDesktopReputationView();
     }
 
     function toggleDesktopReputationView() {

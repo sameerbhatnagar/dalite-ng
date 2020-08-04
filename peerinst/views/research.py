@@ -52,7 +52,7 @@ def get_question_annotation_counts(discipline_title, annotator, assignment_id):
     elif assignment_id:
         questions_qs = Assignment.objects.get(
             identifier=assignment_id
-        ).questions.all()
+        ).questions.order_by("assignmentquestions__rank")
 
     # FIXME:
     translation_table = str.maketrans("ABCDEFG", "1234567")

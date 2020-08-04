@@ -1,5 +1,3 @@
-/* globals require, exports */
-
 /* Build tools */
 const gulp = require("gulp");
 const concat = require("gulp-concat");
@@ -10,9 +8,13 @@ const commonjs = require("@rollup/plugin-commonjs"); // loader
 const { eslint } = require("rollup-plugin-eslint"); // linter
 const { babel } = require("@rollup/plugin-babel"); // transpiler + polyfills
 const resolve = require("@rollup/plugin-node-resolve"); // loader
+const strip = require("@rollup/plugin-strip"); // remove console.log statements
 const rollup = require("rollup"); // bundler
 const { terser } = require("rollup-plugin-terser"); // minifier
 const nodeResolve = resolve.default;
+const embedCSS = require("rollup-plugin-postcss");
+const alias = require("@rollup/plugin-alias");
+const replace = require("@rollup/plugin-replace");
 
 /* Build modules for styles */
 const scssLint = require("stylelint"); // linter
@@ -42,10 +44,13 @@ const styleBuilds = [
       "admin",
       "forums",
       "main",
+      "mdc",
+      "rmwc",
       "cookie_law",
       "error",
       "search",
       "landing_page",
+      "tiny",
     ],
   },
   {
@@ -82,6 +87,8 @@ const scriptBuilds = [
       "admin",
       "forums",
       "ajax",
+      "assignment",
+      "preact",
     ],
   },
   {
@@ -115,6 +122,7 @@ const babelConfig = {
     ],
   ],
   plugins: [
+    "@babel/plugin-proposal-class-properties",
     "@babel/plugin-proposal-optional-chaining",
     ["@babel/plugin-transform-react-jsx", { pragma: "h" }],
   ],
@@ -141,16 +149,16 @@ function buildStyle(app, module) {
   const build = gulp
     .src(
       [
-        "./" + app + "/static/" + app + "/css/" + module + "/**/*.scss",
-        "./" + app + "/static/" + app + "/css/" + module + ".scss",
+        `./${app}/static/${app}/css/${module}/**/*.scss`,
+        `./${app}/static/${app}/css/${module}.scss`,
       ],
       { allowEmpty: true },
     )
     .pipe(sourcemaps.init())
     .pipe(postcss(cb))
-    .pipe(concat(module + ".min.css"))
+    .pipe(concat(`${module}.min.css`))
     .pipe(sourcemaps.write("."))
-    .pipe(gulp.dest("./" + app + "/static/" + app + "/css"));
+    .pipe(gulp.dest(`./${app}/static/${app}/css`));
 
   return build;
 }
@@ -158,8 +166,8 @@ function buildStyle(app, module) {
 function watchStyle(app, module) {
   gulp.watch(
     [
-      "./" + app + "/static/" + app + "/css/" + module + "/**/*.scss",
-      "./" + app + "/static/" + app + "/css/" + module + ".scss",
+      `./${app}/static/${app}/css/${module}/**/*.scss`,
+      `./${app}/static/${app}/css/${module}.scss`,
     ],
     () => buildStyle(app, module),
   );
@@ -168,21 +176,19 @@ function watchStyle(app, module) {
 function buildScript(app, module) {
   const name = module === "index" ? "bundle" : module;
   const inputOptions = {
-    input: "./" + app + "/static/" + app + "/js/" + module + ".js",
+    input: `./${app}/static/${app}/js/${module}.js`,
     external: [
       "jquery",
       "flatpickr",
       "@babel/runtime",
       "@material/auto-init",
-      "@material/checkbox",
+      "material/checkbox",
       "@material/chips",
-      "@material/dialog",
+      "material/dialog",
       "@material/drawer",
       "@material/icon-toggle",
       "@material/radio",
-      "@material/ripple",
-      "@material/select",
-      "@material/textfield",
+      "material/select",
       "@material/toolbar",
       "material/snackbar",
     ],
@@ -193,6 +199,15 @@ function buildScript(app, module) {
       warn(warning);
     },
     plugins: [
+      alias({
+        entries: [
+          { find: "react", replacement: "preact/compat" },
+          { find: "react-dom", replacement: "preact/compat" },
+        ],
+      }),
+      replace({
+        "process.env.NODE_ENV": JSON.stringify("production"),
+      }),
       eslint({
         fix: true,
       }),
@@ -202,11 +217,15 @@ function buildScript(app, module) {
         mainFields: ["module", "main", "browser"],
       }),
       commonjs(),
+      embedCSS({ extract: true }),
+      strip({
+        functions: ["console.debug"],
+      }),
     ],
   };
   const outputOptions = {
     extend: true,
-    file: "./" + app + "/static/" + app + "/js/" + module + ".min.js",
+    file: `./${app}/static/${app}/js/${module}.min.js`,
     format: "iife",
     globals: {
       jquery: "jquery",
@@ -215,17 +234,15 @@ function buildScript(app, module) {
       "@material/auto-init": "@material/auto-init",
       "@material/checkbox": "@material/checkbox",
       "@material/chips": "@material/chips",
-      "@material/dialog": "@material/dialog",
+      "@material/dialog": "material/dialog",
       "@material/drawer": "@material/drawer",
       "@material/icon-toggle": "@material/icon-toggle",
       "@material/radio": "@material/radio",
-      "@material/ripple": "@material/ripple",
-      "@material/select": "@material/select",
-      "@material/textfield": "@material/textfield",
+      "@material/select": "material/select",
       "@material/toolbar": "@material/toolbar",
       "material/snackbar": "material/snackbar",
     },
-    name: name,
+    name,
     plugins: [terser()],
     sourcemap: true,
   };
@@ -238,8 +255,8 @@ function buildScript(app, module) {
 function watchScript(app, module) {
   gulp.watch(
     [
-      "./" + app + "/static/" + app + "/js/_" + module + "/**/*.js",
-      "./" + app + "/static/" + app + "/js/" + module + ".js",
+      `./${app}/static/${app}/js/_${module}/**/*.js`,
+      `./${app}/static/${app}/js/${module}.js`,
     ],
     () => buildScript(app, module),
   );
@@ -282,7 +299,7 @@ function watch() {
         .filter((s) => s.app === "peerinst")
         .map((s) => s.modules)
         .filter((m) => m !== "index")
-        .map((m) => "./peerinst/static/peerinst/js/" + m + ".js"),
+        .map((m) => `./peerinst/static/peerinst/js/${m}.js`),
     ),
     () => buildScript("peerinst", "index"),
   );

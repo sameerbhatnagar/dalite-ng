@@ -1,10 +1,9 @@
 import json
 import logging
+import pytz
+
 from datetime import datetime
 from itertools import chain
-from operator import attrgetter
-
-import pytz
 from celery.result import AsyncResult
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
@@ -403,13 +402,12 @@ def messages(req, teacher):
                 }]
             }
     """
-    threads = list(
-        sorted(
-            (s.thread for s in teacher.user.forum_subscriptions.iterator()),
-            key=attrgetter("last_reply"),
-            reverse=True,
+    threads = [
+        s.thread
+        for s in teacher.user.forum_subscriptions.order_by(
+            "-thread__last_reply"
         )
-    )
+    ]
     notification_type = ContentType.objects.get(
         app_label="pinax_forums", model="ThreadSubscription"
     )

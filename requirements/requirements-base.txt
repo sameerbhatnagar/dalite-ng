@@ -32,7 +32,7 @@ django-security-headers==0.3.1  # via -r requirements/requirements-base.in
 django-sslserver==0.22    # via django-security-headers
 django-timezone-field==4.0  # via django-celery-beat
 django==2.2.14            # via -r requirements/requirements-base.in, django-analytical, django-appconf, django-axes, django-celery-beat, django-classy-tags, django-cookie-law, django-csp, django-lti-tool-provider, django-security-headers, django-sslserver, django-timezone-field, djangorestframework, jsonfield, pinax-forums
-djangorestframework==3.11.0  # via -r requirements/requirements-base.in
+djangorestframework==3.11.0  # via -r requirements/../REST/requirements.txt, -r requirements/requirements-base.in
 filetype==1.0.5           # via pinax-forums
 html5lib==1.0.1           # via django-htmlmin
 idna==2.9                 # via requests

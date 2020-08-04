@@ -23,6 +23,7 @@ class AnswerMayShowManager(models.Manager):
             super(AnswerMayShowManager, self)
             .get_queryset()
             .exclude(pk__in=never_show)
+            .exclude(expert=True)
         )
 
 

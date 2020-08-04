@@ -86,7 +86,7 @@ function sendAssignmentEmail(event) {
   const email = icon.parentNode.parentNode
     .querySelector(".student-list--email")
     .getAttribute("data-email");
-  const data = { email: email };
+  const data = { email };
   const req = buildReq(data, "post");
   fetch(model.urls.sendStudentAssignment, req)
     .then(function (resp) {

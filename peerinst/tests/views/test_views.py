@@ -434,7 +434,8 @@ class QuestionViewTest(QuestionViewTestCase):
 
     def test_standard_review_mode_extra_rationales(self):
         """Test answering questions in default mode with extra rationales,
-        with scoring enabled. Also testing shown rationales with no see more press."""
+        with scoring enabled. Also testing shown rationales with no see more
+        press."""
         self.set_question(
             factories.QuestionFactory(
                 answer_style=Question.NUMERIC,
@@ -712,7 +713,7 @@ def test_signup__get(client):
 
 def test_signup__post(client, mocker):
     data = {"username": "test", "email": "test@test.com", "url": "test.com"}
-    mail_admins = mocker.patch("peerinst.views.views.mail_admins_async")
+    mail_managers = mocker.patch("peerinst.views.views.mail_managers_async")
     resp = client.post(reverse("sign_up"), data)
     assert "registration/sign_up_done.html" in [t.name for t in resp.templates]
     assert User.objects.filter(
@@ -725,13 +726,13 @@ def test_signup__post(client, mocker):
     assert NewUserRequest.objects.filter(
         user__username=data["username"]
     ).exists()
-    mail_admins.assert_called_once()
+    mail_managers.assert_called_once()
 
 
 def test_signup__backend_missing(client, mocker):
     data = {"username": "test", "email": "test@test.com", "url": "test.com"}
     settings = mocker.patch("peerinst.views.views.settings")
     settings.EMAIL_BACKEND = ""
-    mail_admins = mocker.patch("peerinst.views.views.mail_admins_async")
+    mail_managers = mocker.patch("peerinst.views.views.mail_managers_async")
     resp = client.post(reverse("sign_up"), data)
     assert resp.status_code == 503

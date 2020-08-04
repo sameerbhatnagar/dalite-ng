@@ -35,7 +35,7 @@ export function init(url) {
 
         // Submit score
         $(star).one("click", () => {
-          const posting = $.post(url, { id: id, score: score });
+          const posting = $.post(url, { id, score });
           posting.done((data) => {
             processResponse(data);
           });
@@ -57,7 +57,7 @@ export function init(url) {
           });
         });
         $(flag).one("click", () => {
-          const posting = $.post(url, { id: id, score: 0 });
+          const posting = $.post(url, { id, score: 0 });
           posting.done((data) => {
             processResponse(data);
           });

@@ -1,14 +1,23 @@
+import json
+import pytz
 from datetime import datetime
 
-import pytz
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import Group, Permission, User
 from django.test import TestCase, TransactionTestCase
 from django.urls import reverse
 
-from peerinst.models import Assignment, Collection, Discipline, Question
+from peerinst.models import (
+    Assignment,
+    AssignmentQuestions,
+    Collection,
+    Discipline,
+    Question,
+)
 from quality.models import UsesCriterion
 from tos.models import Consent, Role, Tos
+
+from rest_framework import status
 
 
 def ready_user(pk):
@@ -205,14 +214,25 @@ class TeacherTest(TestCase):
         self.assertTrue(logged_in)
 
         # List matches assignment object
+        assignment = Assignment.objects.get(pk="Assignment1")
+        ranks = assignment.assignmentquestions_set.all()
+        count = len(ranks)
+        for i, rank in enumerate(ranks):
+            rank.rank = count - i
+            rank.save()
+
         response = self.client.get(
             reverse("question-list", kwargs={"assignment_id": "Assignment1"})
         )
         self.assertEqual(response.status_code, 200)
         self.assertCountEqual(
-            response.context["object_list"],
-            Assignment.objects.get(pk="Assignment1").questions.all(),
+            response.context["object_list"], assignment.questions.all(),
         )
+        questions = [
+            rank.question for rank in assignment.assignmentquestions_set.all()
+        ]
+        for i, q in enumerate(response.context["object_list"]):
+            self.assertEqual(q, questions[i])
 
         # Assignment pk invalid -> 404
         response = self.client.get(
@@ -717,78 +737,128 @@ class TeacherTest(TestCase):
         self.assertTemplateUsed(response, "peerinst/assignment_detail.html")
 
     def test_assignment_update_post(self):
+
         logged_in = self.client.login(
             username=self.validated_teacher.username,
             password=self.validated_teacher.text_pwd,
         )
         self.assertTrue(logged_in)
 
-        # As teacher, post valid form to add question -> 200
+        # add question to empty assignment through REST -> 201
+        new_assignment = Assignment.objects.create(pk="brand_new_assignment")
+        new_assignment.owner.add(self.validated_teacher)
+
         response = self.client.post(
-            reverse(
-                "assignment-update", kwargs={"assignment_id": "Assignment4"}
-            ),
-            {"q": 31},
+            reverse("REST:assignment_question-list"),
+            {"assignment": "brand_new_assignment", "question_pk": 31},
+            format="json",
             follow=True,
         )
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "peerinst/assignment_detail.html")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        self.assertNotIn(
+            Question.objects.get(pk=31),
+            Assignment.objects.get(pk="Assignment4").questions.all(),
+        )
+
+        # As teacher, post valid form to add question through REST -> 201
+        response = self.client.post(
+            reverse("REST:assignment_question-list"),
+            {"assignment": "Assignment4", "question_pk": 31},
+            format="json",
+            follow=True,
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response["content-type"], "application/json")
+        # TODO: Add assertJSONEqual to check content
+
         self.assertIn(
             Question.objects.get(pk=31),
             Assignment.objects.get(pk="Assignment4").questions.all(),
         )
+        last_question = (
+            AssignmentQuestions.objects.filter(assignment__pk="Assignment4")
+            .order_by("rank")
+            .last()
+        )
+        self.assertEqual(Question.objects.get(pk=31), last_question.question)
+        self.assertEqual(
+            last_question.rank,
+            Assignment.objects.get(pk="Assignment4").questions.count() - 1,
+        )
 
-        # As teacher, post valid form to add question with student answers ->
-        # 403
+        # Check that ranks are copied
+        assignment = Assignment.objects.get(pk="Assignment4")
+        ranks = assignment.assignmentquestions_set.all()
+        count = len(ranks)
+        for i, rank in enumerate(ranks):
+            rank.rank = count - i
+            rank.save()
+        response = self.client.post(
+            reverse(
+                "assignment-copy", kwargs={"assignment_id": "Assignment4"}
+            ),
+            {"title": "Copy of Assignment4", "identifier": "unique"},
+        )
+
+        copied_assignment = Assignment.objects.get(pk="unique")
+
+        self.assertTrue(copied_assignment)
+        self.assertEqual(copied_assignment.title, "Copy of Assignment4")
+        self.assertQuerysetEqual(
+            copied_assignment.questions.order_by("assignmentquestions__rank"),
+            list(assignment.questions.order_by("assignmentquestions__rank")),
+            transform=lambda qs: qs,
+        )
+
+        # As teacher, POST to cbv -> 403
         response = self.client.post(
             reverse(
                 "assignment-update", kwargs={"assignment_id": "Assignment1"}
             ),
-            {"q": 31},
             follow=True,
         )
         self.assertEqual(response.status_code, 403)
-        self.assertNotIn(
-            Question.objects.get(pk=31),
-            Assignment.objects.get(pk="Assignment1").questions.all(),
-        )
 
-        # As teacher, post valid form to remove question -> 200
-        response = self.client.post(
-            reverse(
-                "assignment-update", kwargs={"assignment_id": "Assignment4"}
-            ),
-            {"q": 31},
+        # As teacher, post valid form to remove question through REST -> 204
+        rank = AssignmentQuestions.objects.get(
+            assignment="Assignment4", question=31
+        )
+        response = self.client.delete(
+            reverse("REST:assignment_question-detail", args=[rank.pk]),
+            {},
+            format="json",
             follow=True,
         )
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "peerinst/assignment_detail.html")
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
         self.assertNotIn(
             Question.objects.get(pk=31),
             Assignment.objects.get(pk="Assignment4").questions.all(),
         )
 
-        # As teacher, post invalid form to add question -> 400
+        # As teacher, post invalid form to add question through REST -> 404
         response = self.client.post(
-            reverse(
-                "assignment-update", kwargs={"assignment_id": "Assignment4"}
-            ),
-            {"q": 3111231},
+            reverse("REST:assignment_question-list"),
+            {"assignment": "Assignment4", "question_pk": 3111231},
+            format="json",
             follow=True,
         )
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-        # As non-logged in user, post valid form to add question -> Login
+        # As non-logged in user, post valid form to add question -> Login reqd
         self.client.logout()
         response = self.client.post(
-            reverse(
-                "assignment-update", kwargs={"assignment_id": "Assignment4"}
-            ),
-            {"q": 31},
+            reverse("REST:assignment_question-list"),
+            {"assignment": "Assignment4", "question_pk": 31},
+            format="json",
             follow=True,
         )
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "registration/login.html")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(
+            "Authentication credentials were not provided.",
+            json.loads(response.content)["detail"],
+        )
         self.assertNotIn(
             Question.objects.get(pk=31),
             Assignment.objects.get(pk="Assignment4").questions.all(),
