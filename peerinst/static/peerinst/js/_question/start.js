@@ -33,9 +33,6 @@ function validateFormSubmit(event) {
     const choicesSet = new Set(
       Array.from(choices).map((choice) => choice.checked),
     );
-    console.log(rationale.validity);
-    console.log(choicesSet);
-    console.log(model.questionType);
     if (
       rationale.validity.valid &&
       (choicesSet.has(true) || model.questionType == "RO")
