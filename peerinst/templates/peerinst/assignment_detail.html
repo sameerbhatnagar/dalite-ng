@@ -40,7 +40,21 @@
       <span class="links-divider">|</span><a href="{% url 'question-list' object.pk %}">{% trans 'Preview' %}</a>
     </div>
 
+    {% if assignment.intro_page %}
+    <div id="assignment-preamble">
+      <p class="mdc-typography--body1">{{ assignment.intro_page|bleach_html|safe }}</p>
+    </div>
+    <hr>
+    {% endif %}
+
     <div id="assignment-update-app"></div>
+
+    {% if assignment.conclusion_page %}
+    <hr>
+    <div id="assignment-preamble">
+      <p class="mdc-typography--body1">{{ assignment.conclusion_page|bleach_html|safe }}</p>
+    </div>
+    {% endif %}
 
     <div id="favourites-app"></div>
 
