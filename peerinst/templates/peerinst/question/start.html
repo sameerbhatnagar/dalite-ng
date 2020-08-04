@@ -167,7 +167,7 @@
     question.initStart(
       '{% url 'quality:validate' %}',
       {{ quality|default_if_none:'null' }},
-      {{ question.type }},
+      '{{ question.type }}',
     )
   });
 </script>
