@@ -289,46 +289,51 @@ export class AssignmentUpdateApp extends Component {
       return (
         <div>
           {this.toggles()}
-          <DragDropContext nonce={this.props.nonce} onDragEnd={this.onDragEnd}>
-            <Droppable droppableId="questions">
-              {(provided, snapshot) => (
-                <div
-                  {...provided.droppableProps}
-                  ref={provided.innerRef}
-                  style={getListStyle(snapshot.isDraggingOver)}
-                >
-                  {this.state.questions.map((q, index) => (
-                    <Draggable
-                      key={`key-${q.question.pk}`}
-                      draggableId={`id-${q.question.pk}`}
-                      index={index}
-                    >
-                      {(provided, snapshot) => (
-                        <div
-                          ref={provided.innerRef}
-                          {...provided.draggableProps}
-                          {...provided.dragHandleProps}
-                          style={getItemStyle(
-                            snapshot.isDragging,
-                            provided.draggableProps.style,
-                          )}
-                        >
-                          <QuestionCard
-                            question={q.question}
-                            gettext={this.props.gettext}
-                            showChoices={this.state.showChoices}
-                            showImages={this.state.showImages}
-                            minimizeCards={this.state.minimizeCards}
-                          />
-                        </div>
-                      )}
-                    </Draggable>
-                  ))}
-                  {provided.placeholder}
-                </div>
-              )}
-            </Droppable>
-          </DragDropContext>
+          <div style={{ marginBottom: "28px" }}>
+            <DragDropContext
+              nonce={this.props.nonce}
+              onDragEnd={this.onDragEnd}
+            >
+              <Droppable droppableId="questions">
+                {(provided, snapshot) => (
+                  <div
+                    {...provided.droppableProps}
+                    ref={provided.innerRef}
+                    style={getListStyle(snapshot.isDraggingOver)}
+                  >
+                    {this.state.questions.map((q, index) => (
+                      <Draggable
+                        key={`key-${q.question.pk}`}
+                        draggableId={`id-${q.question.pk}`}
+                        index={index}
+                      >
+                        {(provided, snapshot) => (
+                          <div
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            {...provided.dragHandleProps}
+                            style={getItemStyle(
+                              snapshot.isDragging,
+                              provided.draggableProps.style,
+                            )}
+                          >
+                            <QuestionCard
+                              question={q.question}
+                              gettext={this.props.gettext}
+                              showChoices={this.state.showChoices}
+                              showImages={this.state.showImages}
+                              minimizeCards={this.state.minimizeCards}
+                            />
+                          </div>
+                        )}
+                      </Draggable>
+                    ))}
+                    {provided.placeholder}
+                  </div>
+                )}
+              </Droppable>
+            </DragDropContext>
+          </div>
           <Snackbar
             show={this.state.snackbarIsOpen}
             onHide={(evt) => this.setState({ snackbarIsOpen: false })}
@@ -346,21 +351,23 @@ export class AssignmentUpdateApp extends Component {
         <Favourites.Provider value={this.state.favourites}>
           <User.Provider value={this.props.user}>
             {this.toggles()}
-            {this.state.questions.map((q) => (
-              <QuestionCard
-                cloneURL={this.props.questionCloneBaseURL}
-                editURL={this.props.questionEditBaseURL}
-                handleQuestionDelete={this.delete}
-                handleToggleFavourite={this.handleToggleFavourite}
-                question={q.question}
-                rank={q.pk}
-                gettext={this.props.gettext}
-                showChoices={this.state.showChoices}
-                showImages={this.state.showImages}
-                minimizeCards={this.state.minimizeCards}
-                teacherURL={this.props.teacherURL}
-              />
-            ))}
+            <div style={{ marginBottom: "28px" }}>
+              {this.state.questions.map((q) => (
+                <QuestionCard
+                  cloneURL={this.props.questionCloneBaseURL}
+                  editURL={this.props.questionEditBaseURL}
+                  handleQuestionDelete={this.delete}
+                  handleToggleFavourite={this.handleToggleFavourite}
+                  question={q.question}
+                  rank={q.pk}
+                  gettext={this.props.gettext}
+                  showChoices={this.state.showChoices}
+                  showImages={this.state.showImages}
+                  minimizeCards={this.state.minimizeCards}
+                  teacherURL={this.props.teacherURL}
+                />
+              ))}
+            </div>
           </User.Provider>
         </Favourites.Provider>
         <Snackbar
