@@ -364,7 +364,7 @@ class AssignmentCopyView(LoginRequiredMixin, NoStudentsMixin, CreateView):
 
 
 class AssignmentEditView(LoginRequiredMixin, NoStudentsMixin, UpdateView):
-    """View for editing assignment title and identifier."""
+    """View for editing assignment title and meta-data."""
 
     model = Assignment
     template_name_suffix = "_edit"
@@ -389,7 +389,7 @@ class AssignmentEditView(LoginRequiredMixin, NoStudentsMixin, UpdateView):
 
 class AssignmentUpdateView(LoginRequiredMixin, NoStudentsMixin, DetailView):
     """
-    View for updating assignment.
+    View for updating assignment question list.
     Provides template only: POST operations are handled through REST api.
     """
 
@@ -1813,50 +1813,36 @@ class TeacherAssignments(TeacherBase, ListView):
         context = super(TeacherAssignments, self).get_context_data(**kwargs)
         context["teacher"] = self.teacher
         context["form"] = forms.AssignmentCreateForm()
-        context["owned_assignments"] = Assignment.objects.filter(
-            owner=self.teacher.user
-        )
 
         return context
 
     def post(self, request, *args, **kwargs):
         self.teacher = get_object_or_404(Teacher, user=self.request.user)
-        form = forms.TeacherAssignmentsForm(request.POST)
+        form = forms.AssignmentCreateForm(request.POST)
         if form.is_valid():
-            assignment = form.cleaned_data["assignment"]
-            if assignment in self.teacher.assignments.all():
-                self.teacher.assignments.remove(assignment)
-            else:
-                self.teacher.assignments.add(assignment)
-            self.teacher.save()
+            assignment = Assignment(
+                identifier=form.cleaned_data["identifier"],
+                title=form.cleaned_data["title"],
+                description=form.cleaned_data["description"],
+                intro_page=form.cleaned_data["intro_page"],
+                conclusion_page=form.cleaned_data["conclusion_page"],
+            )
+            assignment.save()
+            assignment.owner.add(self.teacher.user)
+            self.teacher.assignments.add(assignment)
+
+            return HttpResponseRedirect(
+                reverse(
+                    "assignment-update",
+                    kwargs={"assignment_id": assignment.pk},
+                )
+            )
         else:
-            form = forms.AssignmentCreateForm(request.POST)
-            if form.is_valid():
-                assignment = Assignment(
-                    identifier=form.cleaned_data["identifier"],
-                    title=form.cleaned_data["title"],
-                )
-                assignment.save()
-                assignment.owner.add(self.teacher.user)
-                assignment.save()
-                self.teacher.assignments.add(assignment)
-                self.teacher.save()
-                return HttpResponseRedirect(
-                    reverse(
-                        "assignment-update",
-                        kwargs={"assignment_id": assignment.pk},
-                    )
-                )
-            else:
-                return render(
-                    request,
-                    self.template_name,
-                    {
-                        "teacher": self.teacher,
-                        "form": form,
-                        "object_list": Assignment.objects.all(),
-                    },
-                )
+            return render(
+                request,
+                self.template_name,
+                {"teacher": self.teacher, "form": form},
+            )
 
         return HttpResponseRedirect(
             reverse("teacher-assignments", kwargs={"pk": self.teacher.pk})

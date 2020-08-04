@@ -50,6 +50,7 @@ const styleBuilds = [
       "error",
       "search",
       "landing_page",
+      "tiny",
     ],
   },
   {
