@@ -166,8 +166,9 @@
   window.addEventListener("load", function() {
     question.initStart(
       '{% url 'quality:validate' %}',
-      {{ quality|default_if_none:'null' }}
+      {{ quality|default_if_none:'null' }},
+      {{ question.type }},
     )
-  })
+  });
 </script>
 {% endblock %}

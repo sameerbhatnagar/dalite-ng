@@ -7,12 +7,13 @@ import { clear } from "../utils.js";
 
 let model;
 
-function initModel(submitUrl, quality) {
+function initModel(submitUrl, quality, questionType) {
   model = {
     urls: {
       submitUrl,
     },
     quality,
+    questionType,
   };
 }
 
@@ -32,8 +33,13 @@ function validateFormSubmit(event) {
     const choicesSet = new Set(
       Array.from(choices).map((choice) => choice.checked),
     );
-
-    if (rationale.validity.valid && choicesSet.has(true)) {
+    console.log(rationale.validity);
+    console.log(choicesSet);
+    console.log(model.questionType);
+    if (
+      rationale.validity.valid &&
+      (choicesSet.has(true) || model.questionType == "RO")
+    ) {
       // If form is valid, check quality
       const data = {
         quality: model.quality,
@@ -127,7 +133,7 @@ function addSubmitListener() {
 /* init */
 /********/
 
-export function init(submitUrl, quality) {
-  initModel(submitUrl, quality);
+export function init(submitUrl, quality, questionType) {
+  initModel(submitUrl, quality, questionType);
   initListeners();
 }
