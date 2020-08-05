@@ -161,6 +161,7 @@ def browser(live_server):
 
     yield driver
     driver.close()
+    driver.quit()
     if os.path.exists("geckodriver.log"):
         os.remove("geckodriver.log")
 
