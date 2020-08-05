@@ -8,13 +8,13 @@ RUN mkdir static
 COPY requirements/requirements-dev.txt requirements.txt
 RUN pip3 install -r requirements.txt
 COPY ./analytics analytics
-COPY ./custom-settings custom-settings
 COPY ./dalite dalite
 COPY ./functional_tests functional_tests
 COPY ./locale locale
 COPY ./peerinst peerinst
 COPY ./quality quality
 COPY ./reputation reputation
+COPY ./REST REST
 COPY ./templates templates
 COPY ./tos tos
 COPY ./manage.py .

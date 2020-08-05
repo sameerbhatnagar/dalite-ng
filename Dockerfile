@@ -18,13 +18,14 @@ RUN mkdir log
 RUN mkdir static
 COPY requirements/requirements-prod-aws.txt requirements.txt
 RUN pip3 install -r requirements.txt
+COPY --from=static /code/package-lock.json .
 COPY --from=static /code/analytics ./analytics
-COPY --from=static /code/custom-settings ./custom-settings
 COPY --from=static /code/dalite ./dalite
 COPY --from=static /code/locale ./locale
 COPY --from=static /code/peerinst ./peerinst
 COPY --from=static /code/quality ./quality
 COPY --from=static /code/reputation ./reputation
+COPY --from=static /code/REST ./REST
 COPY --from=static /code/templates ./templates
 COPY --from=static /code/tos ./tos
 COPY --from=static /code/manage.py .

@@ -41,72 +41,63 @@
         <form method="post">
           {% csrf_token %}
 
-            <div class="mdc-text-field mdc-text-field--outlined mdc-text-field--dense" data-mdc-auto-init="MDCTextField">
-              {{ form.title|add_class:"mdc-text-field__input" }}
-              {{ form.title.label_tag|add_class:"mdc-floating-label"|cut:":" }}
-              <div class="mdc-notched-outline">
-                <svg>
-                  <path class="mdc-notched-outline__path"/>
-                </svg>
-              </div>
-              <div class="mdc-notched-outline__idle"></div>
+          <div class="mdc-text-field mdc-text-field--outlined mdc-text-field--dense" data-mdc-auto-init="MDCTextField">
+            {{ form.title|add_class:"mdc-text-field__input" }}
+            {{ form.title.label_tag|add_class:"mdc-floating-label"|cut:":" }}
+            <div class="mdc-notched-outline">
+              <svg>
+                <path class="mdc-notched-outline__path"/>
+              </svg>
             </div>
+            <div class="mdc-notched-outline__idle"></div>
+          </div>
 
-            <p class="mdc-text-field-helper-text mdc-text-field-helper-text--persistent" aria-hidden="true">
-              {{ form.title.help_text|safe }}
+          <p class="mdc-text-field-helper-text mdc-text-field-helper-text--persistent" aria-hidden="true">
+            {{ form.title.help_text|safe }}
+          </p>
+          {{ form.title.errors }}
+
+
+          <div class='field-container'>
+            <div class='mdc-form-field id-text-field'>
+              <label for="id_text" class='p-bottom-10'> {{ form.description.label }}</label>
+            </div>
+            <div class="mdc-text-field mdc-text-field--textarea">
+              {{ form.description }}
+            </div>
+            <p class="mdc-text-field-helper-text mdc-text-field-helper-text--persistent id-text-field-helper" aria-hidden="true">
+              {{ form.description.help_text|safe }}
             </p>
-            {{ form.title.errors }}
+            {{ form.description.errors }}
+          </div>
 
 
-            <div class='field-container'>
-
-              <div class='field'>
-                <div class='mdc-form-field id-text-field'>
-                  <label for="id_text" class='p-bottom-10'> {{ form.description.label }}</label>
-                </div>
-                <div class="mdc-text-field mdc-text-field--textarea">
-                  {{ form.description }}
-                </div>
-                <p class="mdc-text-field-helper-text mdc-text-field-helper-text--persistent id-text-field-helper" aria-hidden="true">
-                  {{ form.description.help_text|safe }}
-                </p>
-                {{ form.description.errors }}
-              </div>
+          <div class='field-container'>
+            <div class='mdc-form-field id-text-field'>
+              <label for="id_text" class='p-bottom-10'> {{ form.intro_page.label }}</label>
             </div>
-
-
-            <div class='field-container'>
-
-              <div class='field'>
-                <div class='mdc-form-field id-text-field'>
-                  <label for="id_text" class='p-bottom-10'> {{ form.intro_page.label }}</label>
-                </div>
-                <div class="mdc-text-field mdc-text-field--textarea">
-                  {{ form.intro_page }}
-                </div>
-                <p class="mdc-text-field-helper-text mdc-text-field-helper-text--persistent id-text-field-helper" aria-hidden="true">
-                  {{ form.intro_page.help_text|safe }}
-                </p>
-                {{ form.intro_page.errors }}
-              </div>
+            <div class="mdc-text-field mdc-text-field--textarea">
+              {{ form.intro_page }}
             </div>
+            <p class="mdc-text-field-helper-text mdc-text-field-helper-text--persistent id-text-field-helper" aria-hidden="true">
+              {{ form.intro_page.help_text|safe }}
+            </p>
+            {{ form.intro_page.errors }}
+          </div>
 
 
-            <div class='field-container'>
-
-              <div class='field'>
-                <div class='mdc-form-field id-text-field'>
-                  <label for="id_text" class='p-bottom-10'> {{ form.conclusion_page.label }}</label>
-                </div>
-                <div class="mdc-text-field mdc-text-field--textarea">
-                  {{ form.conclusion_page }}
-                </div>
-                <p class="mdc-text-field-helper-text mdc-text-field-helper-text--persistent id-text-field-helper" aria-hidden="true">
-                  {{ form.conclusion_page.help_text|safe }}
-                </p>
-                {{ form.conclusion_page.errors }}
-              </div>
+          <div class='field-container'>
+            <div class='mdc-form-field id-text-field'>
+              <label for="id_text" class='p-bottom-10'> {{ form.conclusion_page.label }}</label>
             </div>
+            <div class="mdc-text-field mdc-text-field--textarea">
+              {{ form.conclusion_page }}
+            </div>
+            <p class="mdc-text-field-helper-text mdc-text-field-helper-text--persistent id-text-field-helper" aria-hidden="true">
+              {{ form.conclusion_page.help_text|safe }}
+            </p>
+            {{ form.conclusion_page.errors }}
+          </div>
 
           <input class="mdc-button mdc-button--raised padded-top" type="submit" value="Update" />
         </form>
