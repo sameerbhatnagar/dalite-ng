@@ -2,10 +2,10 @@
 # https://testdriven.io/blog/dockerizing-django-with-postgres-gunicorn-and-nginx/
 # https://mherman.org/presentations/dockercon-2018
 
-FROM node:12 AS static
+FROM node:12.18.2 AS static
 RUN mkdir /code
 WORKDIR /code
-COPY package.json package.json
+COPY package*.json ./
 RUN npm i
 COPY . /code/
 RUN node_modules/gulp/bin/gulp.js build
@@ -18,7 +18,6 @@ RUN mkdir log
 RUN mkdir static
 COPY requirements/requirements-prod-aws.txt requirements.txt
 RUN pip3 install -r requirements.txt
-COPY --from=static /code/package-lock.json .
 COPY --from=static /code/analytics ./analytics
 COPY --from=static /code/dalite ./dalite
 COPY --from=static /code/locale ./locale
