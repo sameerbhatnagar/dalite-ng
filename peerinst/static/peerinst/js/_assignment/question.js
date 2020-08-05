@@ -19,12 +19,12 @@ import { Typography } from "@rmwc/typography";
 
 import { colours, PlotConfusionMatrix } from "./analytics.js";
 
+import "@rmwc/icon-button/node_modules/@material/icon-button/dist/mdc.icon-button.min.css";
 import "@rmwc/card/node_modules/@material/card/dist/mdc.card.min.css";
-import "@rmwc/typography/node_modules/@material/typography/dist/mdc.typography.css";
+import "@rmwc/typography/node_modules/@material/typography/dist/mdc.typography.min.css";
 import "@rmwc/dialog/node_modules/@material/dialog/dist/mdc.dialog.min.css";
 import "@rmwc/button/node_modules/@material/button/dist/mdc.button.min.css";
-import "@rmwc/icon-button/node_modules/@material/icon-button/dist/mdc.icon-button.css";
-import "@rmwc/theme/node_modules/@material/theme/dist/mdc.theme.css";
+import "@rmwc/theme/node_modules/@material/theme/dist/mdc.theme.min.css";
 import "@rmwc/icon/icon.css";
 
 export const User = createContext();
