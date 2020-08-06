@@ -21,6 +21,16 @@ class InAssignmentOwnerList(permissions.BasePermission):
         return request.user in obj.assignment.owner.all()
 
 
+class InTeacherList(permissions.BasePermission):
+    """
+    Object-level permission to only allow teachers to access a StudentGroup.
+    """
+
+    def has_object_permission(self, request, view, obj):
+        # Instance must have an attribute named `owner`.
+        return request.user.teacher in obj.group.teacher.all()
+
+
 class IsAdminUserOrReadOnly(permissions.BasePermission):
     def has_permission(self, request, view):
         return bool(

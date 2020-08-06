@@ -1,9 +1,15 @@
 {% extends 'peerinst/base.html' %}
 
-{% load i18n get_value %}
+{% load compress i18n get_value static %}
 
 {% block stylesheets %}
 {{ block.super }}
+{% compress js file preact %}
+<script src="{% static 'peerinst/js/preact.min.js' %}" defer="true"></script>
+{% endcompress %}
+{% compress css file rationale_table %}
+<link href="{% static 'peerinst/js/teacher.min.css' %}" rel="stylesheet">
+{% endcompress %}
 <!--
 DataTables
 https://datatables.net/extensions/buttons/examples/styling/jqueryui.html
@@ -291,10 +297,13 @@ https://datatables.net/extensions/buttons/examples/styling/jqueryui.html
                   {% endfor %}
                   </tbody>
               </table>
+
+              <div id="rationale-table-app"></div>
         {% endfor %}
     {% endfor %}
   </section>
 </main>
+
 {% endblock %}
 
 {% block scripts %}
@@ -343,6 +352,15 @@ bundle.selectAll("#second_choice-group-"+id).transition().delay(1000).duration(1
       evaluateRationale: "{% url 'REST:teacher-feedback-list' %}",
     }
   )
+
+  const rationaleTableApp = () => {
+    return preact.h(
+      teacher.RationaleTableApp, {
+        readURL: "{% url 'REST:student-group-assigment-answers' pk=49 question_pk=1094 %}",
+      });
+  }
+
+  preact.render(rationaleTableApp(), document.getElementById("rationale-table-app"));
 });
 </script>
 

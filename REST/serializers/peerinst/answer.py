@@ -7,6 +7,7 @@ from peerinst.models import (
     AnswerAnnotation,
     AnswerChoice,
     ShownRationale,
+    StudentGroupAssignment,
 )
 
 from .assignment import QuestionSerializer
@@ -52,6 +53,7 @@ class AnswerSerializer(DynamicFieldsModelSerializer):
             "vote_count",
             "shown_count",
             "question",
+            "user_token",
         ]
         read_only_fields = fields
         ordering = ["-vote_count"]
@@ -75,3 +77,37 @@ class FeedbackReadSerialzer(serializers.ModelSerializer):
     class Meta:
         model = AnswerAnnotation
         fields = ["score", "annotator", "note", "timestamp", "answer"]
+
+
+class StudentGroupAssignmentAnswerSerializer(serializers.ModelSerializer):
+    """
+    A serializer to retrieve answers from a StudentGroupAssignment
+    """
+
+    answers = serializers.SerializerMethodField()
+
+    def get_answers(self, obj):
+        """
+        Field will be a list of all answers for this StudentGroupAssignment for
+        a single question
+        """
+
+        answers = (
+            Answer.objects.filter(
+                user_token__in=[
+                    student.student.username for student in obj.group.students
+                ]
+            )
+            .filter(assignment=obj.assignment)
+            .filter(question__id=self.context["question_pk"])
+        )
+        return list(
+            AnswerSerializer(
+                a, fields=("user_token", "answer_choice", "rationale")
+            ).data
+            for a in answers
+        )
+
+    class Meta:
+        model = StudentGroupAssignment
+        fields = ["pk", "answers"]

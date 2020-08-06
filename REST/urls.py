@@ -37,6 +37,16 @@ urlpatterns = [
         views.StudentFeedbackList.as_view(),
         name="student-feedback",
     ),
+    path(
+        "studentgroupassignment/",
+        views.StudentGroupAssignmentAnswers.as_view({"get": "list"}),
+        name="student-group-assigment-answers",
+    ),
+    path(
+        "studentgroupassignment/<int:pk>/<int:question_pk>/",
+        views.StudentGroupAssignmentAnswers.as_view({"get": "retrieve"}),
+        name="student-group-assigment-answers",
+    ),
     path("teacher/<int:pk>/", views.TeacherView.as_view(), name="teacher",),
     path(
         "teacher/feedback/",

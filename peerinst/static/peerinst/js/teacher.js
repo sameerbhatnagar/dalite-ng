@@ -11,3 +11,5 @@ export { init as initStudentActivityCards } from "./_teacher/dashboard/studentAc
 export { init as initRationalesToScoreCards } from "./_teacher/dashboard/rationales.js";
 
 export { init as initSearchFlag } from "./_teacher/questions.js";
+
+export { RationaleTableApp } from "./_teacher/rationale_table.js";
