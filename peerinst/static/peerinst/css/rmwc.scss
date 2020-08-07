@@ -48,3 +48,7 @@
 .mdc-icon-button__icon {
   pointer-events: none;
 }
+
+.mdc-snackbar__action-button {
+  color: var(--mdc-theme-primary);
+}

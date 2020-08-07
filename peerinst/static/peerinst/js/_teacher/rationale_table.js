@@ -29,6 +29,7 @@ import { get, submitData } from "../_assignment/ajax.js";
 
 class AnswerFeedback extends Component {
   state = {
+    changed: false,
     create: true,
     loaded: false,
     note: "",
@@ -88,6 +89,7 @@ class AnswerFeedback extends Component {
         console.info(data);
       }
       this.setState({
+        changed: false,
         create: false,
         saving: false,
         score,
@@ -136,10 +138,14 @@ class AnswerFeedback extends Component {
           label="Comments"
           dense
           value={this.state.note}
-          onChange={(evt) => {
-            this.setState({ note: evt.target.value });
+          onInput={(evt) => {
+            this.setState({ changed: true, note: evt.target.value });
           }}
-          onBlur={() => this.save(this.state.score)}
+          onBlur={() => {
+            if (this.state.changed) {
+              this.save(this.state.score);
+            }
+          }}
         />
 
         <IconButton
@@ -316,7 +322,7 @@ export class RationaleTableApp extends Component {
           show={this.state.snackbarIsOpen}
           onHide={(evt) => this.setState({ snackbarIsOpen: false })}
           message={this.state.snackbarMessage}
-          timeout={5000}
+          timeout={1000}
           actionHandler={() => {}}
           actionText="OK"
           dismissesOnAction={true}
