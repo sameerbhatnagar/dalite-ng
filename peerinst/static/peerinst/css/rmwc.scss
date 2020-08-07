@@ -34,3 +34,12 @@
 .mdc-button {
   font-weight: 700;
 }
+
+.mdc-text-field--textarea .mdc-floating-label {
+  background-color: inherit;
+}
+
+.mdc-text-field__input {
+  font-size: 14px;
+  line-height: normal;
+}

@@ -58,4 +58,9 @@ urlpatterns = [
         views.TeacherFeedbackDetail.as_view(),
         name="teacher-feedback-detail",
     ),
+    path(
+        "teacher/feedback/through_answer/<int:pk>/",
+        views.TeacherFeedbackThroughAnswerDetail.as_view(),
+        name="teacher-feedback-through-answer-detail",
+    ),
 ]

@@ -328,3 +328,6 @@ class AnswerAnnotation(models.Model):
 
     def __str__(self):
         return "{}: {} by {}".format(self.answer, self.score, self.annotator)
+
+    class Meta:
+        unique_together = ["answer", "annotator"]

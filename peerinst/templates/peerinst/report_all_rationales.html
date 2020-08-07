@@ -2,6 +2,8 @@
 
 {% load compress i18n get_value static %}
 
+{% block mdc %}{% endblock %}
+
 {% block stylesheets %}
 {{ block.super }}
 {% compress js file preact %}
@@ -9,6 +11,9 @@
 {% endcompress %}
 {% compress css file rationale_table %}
 <link href="{% static 'peerinst/js/teacher.min.css' %}" rel="stylesheet">
+{% endcompress %}
+{% compress css file rmwc %}
+<link href="{% static 'peerinst/css/rmwc.min.css' %}" rel="stylesheet">
 {% endcompress %}
 <!--
 DataTables
@@ -356,7 +361,9 @@ bundle.selectAll("#second_choice-group-"+id).transition().delay(1000).duration(1
   const rationaleTableApp = () => {
     return preact.h(
       teacher.RationaleTableApp, {
-        readURL: "{% url 'REST:student-group-assigment-answers' pk=49 question_pk=1094 %}",
+        gettext: gettext,
+        readURL: "{% url 'REST:student-group-assigment-answers' pk=student_group_assignment.pk question_pk=student_group_assignment.assignment.questions.first.pk %}",
+        feedbackURL: "{% url 'REST:teacher-feedback-list' %}"
       });
   }
 

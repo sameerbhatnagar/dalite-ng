@@ -1,5 +1,6 @@
 import { Component, Fragment, h } from "preact";
 
+import { CircularProgress } from "@rmwc/circular-progress";
 import {
   DataTable,
   DataTableContent,
@@ -9,14 +10,131 @@ import {
   DataTableRow,
   DataTableCell,
 } from "@rmwc/data-table";
+import { IconButton } from "@rmwc/icon-button";
+import { LinearProgress } from "@rmwc/linear-progress";
 import { Snackbar } from "@rmwc/snackbar";
 import { TextField } from "@rmwc/textfield";
+import { Typography } from "@rmwc/typography";
 
+import "@rmwc/circular-progress/circular-progress.css";
 import "@rmwc/data-table/data-table.css";
+import "@rmwc/icon-button/node_modules/@material/icon-button/dist/mdc.icon-button.min.css";
+import "@rmwc/linear-progress/node_modules/@material/linear-progress/dist/mdc.linear-progress.min.css";
 import "@rmwc/snackbar/node_modules/@material/snackbar/dist/mdc.snackbar.min.css";
 import "@rmwc/textfield/node_modules/@material/textfield/dist/mdc.textfield.css";
+import "@rmwc/theme/node_modules/@material/theme/dist/mdc.theme.min.css";
+import "@rmwc/typography/node_modules/@material/typography/dist/mdc.typography.min.css";
 
-import { get } from "../_assignment/ajax.js";
+import { get, submitData } from "../_assignment/ajax.js";
+
+class AnswerFeedback extends Component {
+  state = {
+    create: true,
+    loaded: false,
+    note: "",
+    score: null,
+  };
+
+  scores = Array.from([1, 2, 3]);
+
+  refreshFromDB = async () => {
+    // Load answer annotation instance
+    try {
+      const data = await get(
+        `${this.props.feedbackURL}through_answer/${this.props.pk}/`,
+      );
+      console.debug(data);
+      this.setState({
+        create: false,
+        loaded: true,
+        note: data["note"] ? data["note"] : "",
+        score: data["score"],
+      });
+    } catch (error) {
+      // Ignore 404s
+      this.setState({
+        loaded: true,
+      });
+    }
+  };
+
+  save = async (score) => {
+    console.info("Saving");
+    try {
+      if (!this.state.create) {
+        // Object exists, so PATCH
+        await submitData(
+          `${this.props.feedbackURL}through_answer/${this.props.pk}/`,
+          { note: this.state.note, score },
+          "PATCH",
+        );
+      } else {
+        // Object doesn't exist, so POST
+        await submitData(
+          this.props.feedbackURL,
+          {
+            answer: this.props.pk,
+            note: this.state.note,
+            score,
+          },
+          "POST",
+        );
+      }
+      this.setState({
+        create: false,
+        score,
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  componentDidMount() {
+    this.refreshFromDB();
+  }
+
+  render() {
+    if (!this.state.loaded) {
+      return <CircularProgress size="xlarge" />;
+    }
+    return (
+      <Fragment>
+        <TextField
+          textarea
+          fullwidth
+          rows="3"
+          label="Comments"
+          dense
+          value={this.state.note}
+          onChange={(evt) => {
+            this.setState({ note: evt.target.value });
+          }}
+          onBlur={() => this.save(this.state.score)}
+        />
+
+        <IconButton
+          icon="outlined_flag"
+          checked={this.state.score == 0}
+          onClick={() => this.save(0)}
+          onIcon="flag"
+          theme="primary"
+        />
+
+        {this.scores.map((score) => {
+          return (
+            <IconButton
+              icon="star_border"
+              checked={this.state.score >= score}
+              onClick={() => this.save(score)}
+              onIcon="star"
+              theme="primary"
+            />
+          );
+        })}
+      </Fragment>
+    );
+  }
+}
 
 export class RationaleTableApp extends Component {
   state = {
@@ -53,9 +171,12 @@ export class RationaleTableApp extends Component {
   }
 
   render() {
+    if (!this.state.loaded) {
+      return <LinearProgress determinate={false} />;
+    }
     return (
       <div>
-        <DataTable stickyRows="1" style={{ width: "775px" }}>
+        <DataTable stickyRows="1" style={{ width: "850px" }}>
           <DataTableContent>
             <DataTableHead>
               <DataTableRow>
@@ -84,6 +205,8 @@ export class RationaleTableApp extends Component {
                 </DataTableHeadCell>
                 <DataTableHeadCell>1st</DataTableHeadCell>
                 <DataTableHeadCell alignStart>Rationale</DataTableHeadCell>
+                <DataTableHeadCell>2nd</DataTableHeadCell>
+                <DataTableHeadCell>Chosen rationale</DataTableHeadCell>
                 <DataTableHeadCell alignStart>Feedback</DataTableHeadCell>
               </DataTableRow>
             </DataTableHead>
@@ -94,24 +217,28 @@ export class RationaleTableApp extends Component {
                     <DataTableCell alignStart>
                       {answer.user_token.substring(0, 10)}
                     </DataTableCell>
-                    <DataTableCell
-                      alignStart
-                      style={{ minWidth: "130px", whiteSpace: "normal" }}
-                    >
-                      {/* eslint-disable-next-line */}
-                      <span
-                        dangerouslySetInnerHTML={{
-                          __html: answer.answer_choice.text,
-                        }}
-                      />
+                    <DataTableCell alignMiddle>
+                      {answer.first_answer_choice}
                     </DataTableCell>
                     <DataTableCell alignStart style={{ whiteSpace: "normal" }}>
-                      {answer.rationale}
+                      <Typography use="body2">{answer.rationale}</Typography>
+                    </DataTableCell>
+                    <DataTableCell alignMiddlet>
+                      {answer.second_answer_choice}
+                    </DataTableCell>
+                    <DataTableCell alignStart style={{ whiteSpace: "normal" }}>
+                      <Typography use="body2">
+                        {answer.chosen_rationale}
+                      </Typography>
                     </DataTableCell>
                     <DataTableCell
-                      style={{ minWidth: "200px", whiteSpace: "normal" }}
+                      style={{ minWidth: "250px", whiteSpace: "normal" }}
                     >
-                      <TextField />
+                      <AnswerFeedback
+                        feedbackURL={this.props.feedbackURL}
+                        gettext={this.props.gettext}
+                        pk={answer.id}
+                      />
                     </DataTableCell>
                   </DataTableRow>
                 </Fragment>

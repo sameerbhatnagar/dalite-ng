@@ -1,4 +1,5 @@
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
+from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, generics
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import JSONRenderer
@@ -226,6 +227,7 @@ class TeacherFeedbackList(generics.ListCreateAPIView):
     or create new one
     """
 
+    permission_classes = [IsAuthenticated, IsNotStudent]
     serializer_class = FeedbackWriteSerialzer
 
     def get_queryset(self):
@@ -234,20 +236,39 @@ class TeacherFeedbackList(generics.ListCreateAPIView):
         )
 
     def perform_create(self, serializer):
+        print(self.request.data)
         serializer.save(annotator=self.request.user)
 
 
-class TeacherFeedbackDetail(generics.RetrieveUpdateDestroyAPIView):
+class TeacherFeedbackDetail(generics.RetrieveUpdateAPIView):
     """
     View for RUD operations on AnswerAnnotation model
     """
 
+    permission_classes = [IsAuthenticated, IsNotStudent]
     serializer_class = FeedbackWriteSerialzer
 
     def get_queryset(self):
         return AnswerAnnotation.objects.filter(
             annotator=self.request.user, score__isnull=False
         )
+
+
+class TeacherFeedbackThroughAnswerDetail(TeacherFeedbackDetail):
+    """
+    Same as above, but access instance through answer pk.
+    This is a convenience and only works because of unique_together constraint.
+    """
+
+    def get_object(self):
+        obj = get_object_or_404(
+            AnswerAnnotation,
+            annotator=self.request.user,
+            answer__pk=self.kwargs["pk"],
+        )
+        self.check_object_permissions(self.request, obj)
+
+        return obj
 
 
 class StudentGroupAssignmentAnswers(ReadOnlyModelViewSet):

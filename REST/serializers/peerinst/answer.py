@@ -17,6 +17,7 @@ from peerinst.templatetags.bleach_html import ALLOWED_TAGS
 
 class AnswerSerializer(DynamicFieldsModelSerializer):
     answer_choice = serializers.SerializerMethodField()
+    chosen_rationale = serializers.SerializerMethodField()
     vote_count = serializers.SerializerMethodField()
     shown_count = serializers.SerializerMethodField()
     question = QuestionSerializer(
@@ -37,11 +38,23 @@ class AnswerSerializer(DynamicFieldsModelSerializer):
                 "text", "correct"
             )[obj.first_answer_choice - 1]
 
+    def get_chosen_rationale(self, obj):
+        if obj.chosen_rationale:
+            return obj.chosen_rationale.rationale
+        return None
+
     def to_representation(self, instance):
         ret = super().to_representation(instance)
         ret["rationale"] = bleach.clean(
             ret["rationale"], tags=ALLOWED_TAGS, styles=[], strip=True
         )
+        if ret["chosen_rationale"]:
+            ret["chosen_rationale"] = bleach.clean(
+                ret["chosen_rationale"],
+                tags=ALLOWED_TAGS,
+                styles=[],
+                strip=True,
+            )
         return ret
 
     class Meta:
@@ -49,6 +62,9 @@ class AnswerSerializer(DynamicFieldsModelSerializer):
         fields = [
             "id",
             "answer_choice",
+            "chosen_rationale",
+            "first_answer_choice",
+            "second_answer_choice",
             "rationale",
             "vote_count",
             "shown_count",
@@ -103,7 +119,15 @@ class StudentGroupAssignmentAnswerSerializer(serializers.ModelSerializer):
         )
         return list(
             AnswerSerializer(
-                a, fields=("user_token", "answer_choice", "rationale")
+                a,
+                fields=(
+                    "chosen_rationale",
+                    "first_answer_choice",
+                    "id",
+                    "rationale",
+                    "second_answer_choice",
+                    "user_token",
+                ),
             ).data
             for a in answers
         )
