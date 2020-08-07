@@ -43,3 +43,8 @@
   font-size: 14px;
   line-height: normal;
 }
+
+/* This improve mouseover behaviour by preventing mouseout to fire on icon */
+.mdc-icon-button__icon {
+  pointer-events: none;
+}

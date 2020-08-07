@@ -33,6 +33,7 @@ class AnswerFeedback extends Component {
     loaded: false,
     note: "",
     score: null,
+    score_hover: null,
   };
 
   scores = Array.from([1, 2, 3]);
@@ -63,14 +64,15 @@ class AnswerFeedback extends Component {
     try {
       if (!this.state.create) {
         // Object exists, so PATCH
-        await submitData(
+        const data = await submitData(
           `${this.props.feedbackURL}through_answer/${this.props.pk}/`,
           { note: this.state.note, score },
           "PATCH",
         );
+        console.info(data);
       } else {
         // Object doesn't exist, so POST
-        await submitData(
+        const data = await submitData(
           this.props.feedbackURL,
           {
             answer: this.props.pk,
@@ -79,10 +81,12 @@ class AnswerFeedback extends Component {
           },
           "POST",
         );
+        console.info(data);
       }
       this.setState({
         create: false,
         score,
+        score_hover: null,
       });
     } catch (error) {
       console.error(error);
@@ -114,9 +118,20 @@ class AnswerFeedback extends Component {
 
         <IconButton
           icon="outlined_flag"
-          checked={this.state.score == 0}
-          onClick={() => this.save(0)}
+          checked={
+            (this.state.score == 0 && this.state.score_hover == null) ||
+            (this.state.score != 0 && this.state.score_hover == 0)
+          }
+          onClick={() =>
+            this.state.score != 0 ? this.save(0) : this.save(null)
+          }
           onIcon="flag"
+          onMouseEnter={() => {
+            this.setState({ score_hover: 0 });
+          }}
+          onMouseOut={() => {
+            this.setState({ score_hover: null });
+          }}
           theme="primary"
         />
 
@@ -124,9 +139,21 @@ class AnswerFeedback extends Component {
           return (
             <IconButton
               icon="star_border"
-              checked={this.state.score >= score}
+              checked={
+                (this.state.score >= score &&
+                  this.state.score_hover >= score) ||
+                (this.state.score >= score &&
+                  this.state.score_hover == null) ||
+                (this.state.score != score && this.state.score_hover >= score)
+              }
               onClick={() => this.save(score)}
               onIcon="star"
+              onMouseEnter={() => {
+                this.setState({ score_hover: score });
+              }}
+              onMouseOut={() => {
+                this.setState({ score_hover: null });
+              }}
               theme="primary"
             />
           );
