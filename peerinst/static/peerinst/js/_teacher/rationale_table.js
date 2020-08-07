@@ -32,8 +32,11 @@ class AnswerFeedback extends Component {
     create: true,
     loaded: false,
     note: "",
+    saving: false,
     score: null,
     score_hover: null,
+    snackbarIsOpen: false,
+    snackbarMessage: "",
   };
 
   scores = Array.from([1, 2, 3]);
@@ -61,6 +64,7 @@ class AnswerFeedback extends Component {
 
   save = async (score) => {
     console.info("Saving");
+    this.setState({ saving: true });
     try {
       if (!this.state.create) {
         // Object exists, so PATCH
@@ -85,11 +89,33 @@ class AnswerFeedback extends Component {
       }
       this.setState({
         create: false,
+        saving: false,
         score,
         score_hover: null,
+        snackbarIsOpen: true,
+        snackbarMessage: this.props.gettext("Saved"),
       });
     } catch (error) {
       console.error(error);
+      this.setState({
+        saving: false,
+        snackbarIsOpen: true,
+        snackbarMessage: this.props.gettext(
+          "An error occurred.  Try refreshing this page.",
+        ),
+      });
+    }
+  };
+
+  saveInProgress = () => {
+    if (this.state.saving) {
+      return (
+        <div style={{ position: "absolute ", bottom: "-5px" }}>
+          <Typography use="caption">
+            {this.props.gettext("Saving...")}
+          </Typography>
+        </div>
+      );
     }
   };
 
@@ -102,7 +128,7 @@ class AnswerFeedback extends Component {
       return <CircularProgress size="xlarge" />;
     }
     return (
-      <Fragment>
+      <div style={{ position: "relative" }}>
         <TextField
           textarea
           fullwidth
@@ -158,7 +184,20 @@ class AnswerFeedback extends Component {
             />
           );
         })}
-      </Fragment>
+
+        {this.saveInProgress()}
+
+        <Snackbar
+          show={this.state.snackbarIsOpen}
+          onHide={(evt) => this.setState({ snackbarIsOpen: false })}
+          message={this.state.snackbarMessage}
+          timeout={1000}
+          actionHandler={() => {}}
+          actionText="OK"
+          dismissesOnAction={true}
+          style={{ zIndex: 1000 }}
+        />
+      </div>
     );
   }
 }
