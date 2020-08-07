@@ -163,6 +163,7 @@ class QuestionAdmin(admin.ModelAdmin):
     }
     readonly_fields = [
         "id",
+        "user",
         "parent",
         "created_on",
         "last_modified",
