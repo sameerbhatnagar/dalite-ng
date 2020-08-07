@@ -30,7 +30,6 @@ INSTALLED_APPS = (
     "tos",
     "peerinst",
     "REST",
-    "grappelli",
     "cookielaw",
     "csp",
     "security_headers",
