@@ -1,5 +1,5 @@
 export function showReplyForm(id) {
-  $("#" + id).toggle();
+  $(`#${id}`).toggle();
 }
 
 export function toggleFollow(el, subscribe, unsubscribe) {

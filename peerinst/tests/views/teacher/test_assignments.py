@@ -9,7 +9,11 @@ def test_clone_assignment(client, assignment, teacher):
 
     resp = client.post(
         reverse("assignment-copy", args=[assignment.pk]),
-        {"identifier": "unique", "title": "title"},
+        {
+            "identifier": "unique",
+            "title": "title",
+            "description": "a bucket of my questions",
+        },
         follow=True,
     )
 
@@ -21,3 +25,4 @@ def test_clone_assignment(client, assignment, teacher):
         assert q in assignment.questions.all()
 
     assert new_assignment.questions.count() == assignment.questions.count()
+    assert new_assignment.parent == assignment

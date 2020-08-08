@@ -5,7 +5,7 @@ export function limitFileSize() {
   pdfForm.onchange = function () {
     const fileSize = pdfForm.files[0].size;
     if (fileSize > 2000000) {
-      window.alert("File too big: " + fileSize / 1000 + "kB");
+      window.alert(`File too big: ${fileSize / 1000}kB`);
       warning.style.display = "inline";
       $(".mdc-button").each(
         /* @this */ function () {

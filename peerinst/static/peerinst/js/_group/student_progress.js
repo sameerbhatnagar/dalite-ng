@@ -114,7 +114,7 @@ function questionView(question) {
   title.textContent = question.questionTitle;
   const nStudents = document.createElement("span");
   nStudents.classList.add("mdc-list-item__secondary-text");
-  nStudents.textContent = question.nStudents + " students";
+  nStudents.textContent = `${question.nStudents} students`;
   const timeSpent = document.createElement("span");
   timeSpent.classList.add(
     "mdc-list-item__secondary-text",
@@ -152,7 +152,7 @@ function completeView(container, data, total, height, width) {
     .attr("width", width)
     .attr("height", height)
     .append("g")
-    .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+    .attr("transform", `translate(${width / 2},${height / 2})`);
 
   const arcBackground = d3
     .arc()
@@ -202,7 +202,7 @@ function correctView(container, data, total, height, width) {
     .attr("width", width)
     .attr("height", height)
     .append("g")
-    .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+    .attr("transform", `translate(${width / 2},${height / 2})`);
 
   const colourScale = d3
     .scaleQuantile()

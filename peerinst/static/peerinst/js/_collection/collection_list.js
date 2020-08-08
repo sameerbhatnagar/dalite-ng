@@ -1,17 +1,17 @@
 // import { buildReq } from "../ajax.js";
 
 function toggleFollower(pk, teacherToggleFollowerUrl, followersTrans) {
-  const posting = $.post(teacherToggleFollowerUrl, { pk: pk });
+  const posting = $.post(teacherToggleFollowerUrl, { pk });
   posting.done(function (data) {
     const followerValue = parseInt(
-      document.getElementById("follower-count-" + pk).innerHTML.substring(11),
+      document.getElementById(`follower-count-${pk}`).innerHTML.substring(11),
     );
     console.log(data);
     if (data.action == "added") {
-      document.getElementById("follower-count-" + pk).innerHTML =
+      document.getElementById(`follower-count-${pk}`).innerHTML =
         followersTrans + (followerValue + 1);
     } else if (data.action == "removed") {
-      document.getElementById("follower-count-" + pk).innerHTML =
+      document.getElementById(`follower-count-${pk}`).innerHTML =
         followersTrans + (followerValue - 1);
     }
   });
@@ -19,7 +19,7 @@ function toggleFollower(pk, teacherToggleFollowerUrl, followersTrans) {
 
 export function init(collectionDetailUrl, toggleFollowerUrl, followersStr) {
   $.ajaxSetup({
-    beforeSend: function (xhr, settings) {
+    beforeSend(xhr, settings) {
       if (!bundle.csrfSafeMethod(settings.type) && !this.crossDomain) {
         xhr.setRequestHeader("X-CSRFToken", bundle.getCsrfToken());
       }

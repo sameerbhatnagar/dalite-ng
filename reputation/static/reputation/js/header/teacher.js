@@ -34,7 +34,7 @@ class TeacherReputationHeader extends ReputationHeader {
       reputationType: "teacher",
       reputationUrl: this.reputationUrl,
       reputations: [],
-      shadow: shadow,
+      shadow,
     };
 
     /**********/
@@ -136,13 +136,11 @@ class TeacherReputationHeader extends ReputationHeader {
             toggleReputationList();
           }
         });
-      } else {
-        if (model.reputation !== null && model.reputation !== undefined) {
-          // $FlowFixMe
-          shadow.getElementById(
-            "icon__reputation",
-          ).textContent = model.reputation.toString();
-        }
+      } else if (model.reputation !== null && model.reputation !== undefined) {
+        // $FlowFixMe
+        shadow.getElementById(
+          "icon__reputation",
+        ).textContent = model.reputation.toString();
       }
 
       return icon;

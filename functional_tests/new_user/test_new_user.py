@@ -13,17 +13,21 @@ def test_new_user_signup_workflow(
     # Hit landing page
     browser.get(browser.server_url + "/#Features")
 
-    browser.find_element_by_id("accept-cookies").click()
-
     browser.wait_for(
         lambda: assert_(
             "Features" in browser.find_element_by_tag_name("h1").text
         )
     )
-    assert (
-        "Login" in browser.find_element_by_id("link-to-login-or-welcome").text
+
+    browser.wait_for(
+        lambda: assert_(
+            "Login"
+            in browser.find_element_by_id("link-to-login-or-welcome").text
+        )
     )
-    browser.find_element_by_link_text("Signup").click()
+
+    browser.find_element_by_id("accept-cookies").click()
+    browser.find_element_by_id("link-to-signup").click()
 
     # Sign up page rendered
     browser.wait_for(

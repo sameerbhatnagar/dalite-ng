@@ -201,7 +201,13 @@ class AssignmentCreateForm(forms.ModelForm):
 
     class Meta:
         model = Assignment
-        fields = ["identifier", "title"]
+        fields = [
+            "identifier",
+            "title",
+            "description",
+            "intro_page",
+            "conclusion_page",
+        ]
 
 
 class AssignmentMultiselectForm(forms.Form):
@@ -244,12 +250,6 @@ class AssignmentMultiselectForm(forms.Form):
                 "is already a part of will not appear in list."
             ),
         )
-
-
-class TeacherAssignmentsForm(forms.Form):
-    """Simple form to help update teacher assignments"""
-
-    assignment = forms.ModelChoiceField(queryset=Assignment.objects.all())
 
 
 class TeacherGroupsForm(forms.Form):

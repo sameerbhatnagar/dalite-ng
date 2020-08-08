@@ -32,7 +32,7 @@ function initModel(urls: { markReadUrl: string, messagesUrl: string }): void {
   model = {
     open: false,
     messages: [],
-    urls: urls,
+    urls,
   };
 }
 
@@ -215,8 +215,7 @@ function messageView(
 
     const author = document.createElement("div");
     author.classList.add("message__last-reply__author");
-    author.innerHTML =
-      message.lastReply.author + " &middot; " + message.lastReply.date;
+    author.innerHTML = `${message.lastReply.author} &middot; ${message.lastReply.date}`;
 
     if (message.nNew) {
       const markReadBtn = document.createElement("span");

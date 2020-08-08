@@ -2,42 +2,48 @@
 
 {% load compress static add_class i18n %}
 
+{% block stylesheets %}
+{{ block.super }}
+<!-- Self-hosted tinyMCE -->
+<script src="{% static 'peerinst/js/tinymce/js/tinymce/tinymce.min.js' %}"></script>
+{% endblock %}
+
 {% block body %}
 <main>
-<section>
-  <div class="meta-container">
-    <div class="container">
-      <h1 class="mdc-typography--display3">{% trans 'Update Assignment' %}
-        <svg class="underline" width=150 height=4></svg>
-      </h1>
+  <section>
+    <div class="meta-container">
+      <div class="container">
+        <h1 class="mdc-typography--display3">{% trans 'Update Assignment' %}
+          <svg class="underline" width=150 height=4></svg>
+        </h1>
 
-      <div class="admin-link">
-        <a href="{% url 'teacher' teacher.id %}">{% trans 'Back to My Account' %}</a>
-        <span class="admin-link--padded">|</span><a href="{% url 'teacher-assignments' teacher.id %}">{% trans 'Back to My Assignments' %}</a>
-      </div>
-
-      <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Edit assignment' %}</h2>
-
-      <h3>{% trans 'Identifier' %}: {{object.pk}}</h3>
-
-      <div class='field-container'>
-        <div class='number-box'><span class='number'>?</span></div>
-        <div class='field'>
-          <p><small>
-            {% blocktrans %}
-            The assignment identifier cannot be changed as learning management systems (like Moodle) use the identifier to find the assignment.
-            {% endblocktrans %}
-          </small></p>
+        <div class="admin-link">
+          <a href="{% url 'teacher' teacher.id %}">{% trans 'Back to My Account' %}</a>
+          <span class="admin-link--padded">|</span><a href="{% url 'teacher-assignments' teacher.id %}">{% trans 'Create new assignment' %}</a>
         </div>
-      </div>
 
-      {{form.errors}}
-      <form method="post">
-        {% csrf_token %}
-        {% for field in form %}
+        <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Edit assignment meta-data' %}</h2>
+
+        <h3>{% trans 'Identifier' %}: {{object.pk}}</h3>
+
+        <div class='field-container'>
+          <div class='number-box'><span class='number'>?</span></div>
+          <div class='field'>
+            <p><small>
+              {% blocktrans %}
+              The assignment identifier cannot be changed as learning management systems (like Moodle) use the identifier to find the assignment.
+              {% endblocktrans %}
+            </small></p>
+          </div>
+        </div>
+
+
+        <form method="post">
+          {% csrf_token %}
+
           <div class="mdc-text-field mdc-text-field--outlined mdc-text-field--dense" data-mdc-auto-init="MDCTextField">
-            {{ field|add_class:"mdc-text-field__input" }}
-            {{ field.label_tag|add_class:"mdc-floating-label"|cut:":" }}
+            {{ form.title|add_class:"mdc-text-field__input" }}
+            {{ form.title.label_tag|add_class:"mdc-floating-label"|cut:":" }}
             <div class="mdc-notched-outline">
               <svg>
                 <path class="mdc-notched-outline__path"/>
@@ -45,14 +51,82 @@
             </div>
             <div class="mdc-notched-outline__idle"></div>
           </div>
-          <p class="mdc-text-field-helper-text mdc-text-field-helper-text--persistent" aria-hidden="true">
-            {{ field.help_text|safe }}
-          </p>
-          {{ field.errors }}
-        {% endfor %}
-        <input class="mdc-button mdc-button--raised padded-top" type="submit" value="Update" />
-      </form>
 
+          <p class="mdc-text-field-helper-text mdc-text-field-helper-text--persistent" aria-hidden="true">
+            {{ form.title.help_text|safe }}
+          </p>
+          {{ form.title.errors }}
+
+
+          <div class='field-container'>
+            <div class='mdc-form-field id-text-field'>
+              <label for="id_text" class='p-bottom-10'> {{ form.description.label }}</label>
+            </div>
+            <div class="mdc-text-field mdc-text-field--textarea">
+              {{ form.description }}
+            </div>
+            <p class="mdc-text-field-helper-text mdc-text-field-helper-text--persistent id-text-field-helper" aria-hidden="true">
+              {{ form.description.help_text|safe }}
+            </p>
+            {{ form.description.errors }}
+          </div>
+
+
+          <div class='field-container'>
+            <div class='mdc-form-field id-text-field'>
+              <label for="id_text" class='p-bottom-10'> {{ form.intro_page.label }}</label>
+            </div>
+            <div class="mdc-text-field mdc-text-field--textarea">
+              {{ form.intro_page }}
+            </div>
+            <p class="mdc-text-field-helper-text mdc-text-field-helper-text--persistent id-text-field-helper" aria-hidden="true">
+              {{ form.intro_page.help_text|safe }}
+            </p>
+            {{ form.intro_page.errors }}
+          </div>
+
+
+          <div class='field-container'>
+            <div class='mdc-form-field id-text-field'>
+              <label for="id_text" class='p-bottom-10'> {{ form.conclusion_page.label }}</label>
+            </div>
+            <div class="mdc-text-field mdc-text-field--textarea">
+              {{ form.conclusion_page }}
+            </div>
+            <p class="mdc-text-field-helper-text mdc-text-field-helper-text--persistent id-text-field-helper" aria-hidden="true">
+              {{ form.conclusion_page.help_text|safe }}
+            </p>
+            {{ form.conclusion_page.errors }}
+          </div>
+
+          <input class="mdc-button mdc-button--raised padded-top" type="submit" value="Update" />
+        </form>
+
+
+      </div>
+    </div>
+  </section>
 </main>
-</section>
+{% endblock %}
+
+{% block scripts %}
+{{ block.super }}
+<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+<script nonce="{{ request.csp_nonce }}">
+  'use strict';
+
+// TinyMCE bind to textarea
+$('#id_text').removeAttr('required');
+tinymce.init({
+  selector: 'textArea',
+  elementpath: false,
+  branding: false,
+  plugins: ['autolink', 'autosave', 'charmap', 'code', 'link', 'paste'],
+  menubar: false,
+  toolbar: 'undo redo | bold italic underline superscript subscript | link | charmap | code',
+  content_css: "{% static 'peerinst/css/tiny.min.css' %}",
+  link_assume_external_targets: true,
+  default_link_target: '_blank',
+});
+</script>
 {% endblock %}

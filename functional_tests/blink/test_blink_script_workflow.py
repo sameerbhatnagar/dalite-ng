@@ -1,3 +1,4 @@
+import pytest
 import time
 
 from django.urls import reverse
@@ -85,9 +86,11 @@ def answer_blink(second_browser, q, choice):
     assert len(second_browser.find_elements_by_class_name("mdc-radio")) == 0
 
 
+@pytest.mark.skip
 def test_blink_script(
     browser, second_browser, assert_, realistic_questions, teacher
 ):
+    print("Start")
     browser.set_window_rect(0, 0, 800, 1000)
     second_browser.set_window_rect(900, 0, 800, 1000)
 
@@ -137,3 +140,5 @@ def test_blink_script(
         in second_browser.find_element_by_tag_name("h2").text
     )
     assert "My Account" in browser.find_element_by_tag_name("h1").text
+
+    print("End")

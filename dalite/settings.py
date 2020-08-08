@@ -13,20 +13,23 @@ DEBUG = False
 
 ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
 
+if os.environ.get("ALLOWED_HOST"):
+    ALLOWED_HOSTS.append(os.environ.get("ALLOWED_HOST"))
+
 DEV_PORT = 8000  # port used during development
 
 # Application definition
 
 INSTALLED_APPS = (
-    "user_feedback.apps.UserFeedbackConfig",
-    "course_flow.apps.CourseFlowConfig",
+    "user_feedback",
+    "course_flow",
     "rest_framework",
     "analytics",
     "reputation",
     "quality",
     "tos",
     "peerinst",
-    "grappelli",
+    "REST",
     "cookielaw",
     "csp",
     "security_headers",
@@ -174,6 +177,13 @@ COMPRESS_ROOT = STATIC_ROOT
 LOGIN_URL = "login"
 
 LOGIN_REDIRECT_URL = "welcome"
+
+
+REST_FRAMEWORK = {
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAuthenticated",
+    ]
+}
 
 
 # Axes

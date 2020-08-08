@@ -19,15 +19,14 @@ export function buildReq(data, method) {
     const body = data ? JSON.stringify(data) : "";
     return {
       method: method.toUpperCase(),
-      body: body,
+      body,
       headers: {
         "Content-Type": "application/json",
         "X-CSRFToken": getCsrfToken(),
       },
     };
-  } else {
-    throw Error(`Method ${method} not implemented yet.`);
   }
+  throw Error(`Method ${method} not implemented yet.`);
 }
 
 export function updateAssignmentQuestionList(
@@ -58,12 +57,10 @@ export function updateAssignmentQuestionList(
         const list = document.getElementById("question-list");
         const card = document.getElementById(questionId);
         if ($.contains(list, card)) {
-          $("#" + questionId).remove();
+          $(`#${questionId}`).remove();
         } else {
-          $("#" + questionId)
-            .find($(".update-questions-btn"))
-            .html("delete");
-          const q = $("#" + questionId).detach();
+          $(`#${questionId}`).find($(".update-questions-btn")).html("delete");
+          const q = $(`#${questionId}`).detach();
           q.appendTo($("#question-list"));
           $("#empty-assignment-list").remove();
           $(".search-set").each(function () {

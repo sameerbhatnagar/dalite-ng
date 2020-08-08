@@ -174,7 +174,7 @@ export function goToAssignment(
 }
 
 export function modifyTos() {
-  const url = model.urls.tosModify + "?next=" + window.location.href;
+  const url = `${model.urls.tosModify}?next=${window.location.href}`;
   window.location.href = url;
 }
 
@@ -591,16 +591,15 @@ function groupAssignmentView(assignment, group) {
     date.title = model.translations.assignmentExpired;
     date.textContent = model.translations.expired;
   } else {
-    date.title =
-      model.translations.dueOn +
-      " " +
-      assignment.dueDate.toLocaleString("en-ca", {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-      });
+    date.title = `${
+      model.translations.dueOn
+    } ${assignment.dueDate.toLocaleString("en-ca", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    })}`;
     const dateIcon = document.createElement("i");
     dateIcon.classList.add("material-icons", "md-18");
     dateIcon.textContent = "access_time";
@@ -646,7 +645,7 @@ function leaveGroupView(group, groupNode) {
   box.appendChild(boxDiv);
 
   const title = document.createElement("h3");
-  title.textContent = model.translations.leaveGroupTitle + " " + group.title;
+  title.textContent = `${model.translations.leaveGroupTitle} ${group.title}`;
   boxDiv.appendChild(title);
 
   const text = document.createElement("p");
@@ -816,20 +815,19 @@ function timeuntil(date1, date2) {
   const diffMinutes = Math.floor(diff / 1000 / 60);
   let diff_ = "";
   if (diffDays > 1) {
-    diff_ = diff_ + parseInt(diffDays) + " " + model.translations.days + ", ";
+    diff_ = `${diff_ + parseInt(diffDays)} ${model.translations.days}, `;
   } else if (diffDays === 1) {
-    diff_ = diff_ + parseInt(diffDays) + " " + model.translations.day + ", ";
+    diff_ = `${diff_ + parseInt(diffDays)} ${model.translations.day}, `;
   }
   if (diffHours === 1) {
-    diff_ = diff_ + parseInt(diffHours) + " " + model.translations.hour + ", ";
+    diff_ = `${diff_ + parseInt(diffHours)} ${model.translations.hour}, `;
   } else if (diffHours > 1 || diffDays) {
-    diff_ =
-      diff_ + parseInt(diffHours) + " " + model.translations.hours + ", ";
+    diff_ = `${diff_ + parseInt(diffHours)} ${model.translations.hours}, `;
   }
   if (diffMinutes === 1) {
-    diff_ = diff_ + parseInt(diffMinutes) + " " + model.translations.minute;
+    diff_ = `${diff_ + parseInt(diffMinutes)} ${model.translations.minute}`;
   } else {
-    diff_ = diff_ + parseInt(diffMinutes) + " " + model.translations.minutes;
+    diff_ = `${diff_ + parseInt(diffMinutes)} ${model.translations.minutes}`;
   }
   return diff_;
 }
