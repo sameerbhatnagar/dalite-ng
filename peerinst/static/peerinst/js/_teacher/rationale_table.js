@@ -41,6 +41,11 @@ class AnswerFeedback extends Component {
   };
 
   scores = Array.from([1, 2, 3]);
+  annotations = Array.from([
+    this.props.gettext("Not convincing"),
+    this.props.gettext("Somewhat convincing"),
+    this.props.gettext("Very convincing"),
+  ]);
 
   refreshFromDB = async () => {
     // Load answer annotation instance
@@ -165,9 +170,10 @@ class AnswerFeedback extends Component {
             this.setState({ score_hover: null });
           }}
           theme="primary"
+          title={this.props.gettext("Never show")}
         />
 
-        {this.scores.map((score) => {
+        {this.scores.map((score, i) => {
           return (
             <IconButton
               icon="star_border"
@@ -187,6 +193,7 @@ class AnswerFeedback extends Component {
                 this.setState({ score_hover: null });
               }}
               theme="primary"
+              title={this.annotations[i]}
             />
           );
         })}
@@ -253,10 +260,9 @@ export class RationaleTableApp extends Component {
             <DataTableHead>
               <DataTableRow>
                 <DataTableHeadCell
-                  alignStart
+                  alignEnd
                   sort={this.state.sortDir || null}
                   onSortChange={(sortDir) => {
-                    console.log(sortDir);
                     if (sortDir) {
                       const _answers = Array.from(this.state.answers);
                       _answers.sort((a, b) =>
@@ -273,7 +279,7 @@ export class RationaleTableApp extends Component {
                     }
                   }}
                 >
-                  User
+                  <span style={{ textDecoration: "underline" }}>User</span>
                 </DataTableHeadCell>
                 <DataTableHeadCell>1st</DataTableHeadCell>
                 <DataTableHeadCell alignStart>Rationale</DataTableHeadCell>
@@ -286,7 +292,7 @@ export class RationaleTableApp extends Component {
               {this.state.answers.map((answer) => (
                 <Fragment>
                   <DataTableRow>
-                    <DataTableCell alignStart>
+                    <DataTableCell alignEnd>
                       {answer.user_token.substring(0, 10)}
                     </DataTableCell>
                     <DataTableCell alignMiddle>
@@ -322,7 +328,7 @@ export class RationaleTableApp extends Component {
           show={this.state.snackbarIsOpen}
           onHide={(evt) => this.setState({ snackbarIsOpen: false })}
           message={this.state.snackbarMessage}
-          timeout={1000}
+          timeout={5000}
           actionHandler={() => {}}
           actionText="OK"
           dismissesOnAction={true}
