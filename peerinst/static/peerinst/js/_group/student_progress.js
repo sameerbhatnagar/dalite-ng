@@ -105,7 +105,7 @@ function questionView(question) {
   image.classList.add("mdc-list-item__graphic", "mdc-theme--primary");
   const i = document.createElement("i");
   i.classList.add("mdc-theme--primary", "material-icons", "md-48");
-  i.textContent = "question_answer";
+  i.textContent = "fact_check";
   image.append(i);
   li.append(image);
 
@@ -114,7 +114,7 @@ function questionView(question) {
   title.textContent = question.questionTitle;
   const nStudents = document.createElement("span");
   nStudents.classList.add("mdc-list-item__secondary-text");
-  nStudents.textContent = `${question.nStudents} students`;
+  nStudents.textContent = "Click to give feedback";
   const timeSpent = document.createElement("span");
   timeSpent.classList.add(
     "mdc-list-item__secondary-text",

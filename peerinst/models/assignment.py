@@ -478,6 +478,10 @@ class StudentGroupAssignment(models.Model):
         return max(self.due_date - datetime.now(pytz.utc), timedelta()).days
 
     @property
+    def is_distributed(self):
+        return self.distribution_date < datetime.now(pytz.utc)
+
+    @property
     def link(self):
         return reverse(
             "group-assignment", kwargs={"assignment_hash": self.hash}

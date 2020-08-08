@@ -16,7 +16,7 @@
       <span class="admin-link--padded">|</span><a href="{% url 'group-details' group.hash %}">{% trans 'Back to group' %}</a>
     </div>
 
-    <div class="foldable foldable__unfolded">
+    <div class="foldable foldable__unfolded" id="details-section">
       <h2 class="foldable--title mdc-typography--display1 mdc-theme--secondary">
         {% trans 'Details' %}
       </h2>
@@ -110,7 +110,7 @@
 
     <div class="foldable">
       <h2 class="foldable--title mdc-typography--display1 mdc-theme--secondary">
-        {% trans 'Questions' %}
+        {% trans 'Question order' %}
       </h2>
       <div class="foldable--body p-bot-3">
         <ul id="question-list" class="mdc-list mdc-list--two-line mdc-list--non-interactive">
@@ -140,16 +140,16 @@
       </div>
     </div>
 
-    <div class="foldable hidden">
+    <div class="foldable hidden" id="progress-section">
       <h2 class="foldable--title mdc-typography--display1 mdc-theme--secondary">
-        {% trans 'Student progress' %}
+        {% trans 'Progress and feedback' %}
       </h2>
       <div class="foldable--body">
         <div class="admin-link">
-          <a href="{% url 'report-custom' %}?groups={{group.pk}}&assignments={{assignment.assignment.identifier}}">{% trans 'Generate report' %}</a>
+          <a href="{% url 'report-custom' %}?groups={{group.pk}}&assignments={{assignment.assignment.identifier}}">{% trans 'Generate detailed report' %}</a>
         </div>
         <ul id="student-progress"
-            class="mdc-list mdc-list--two-line mdc-list--non-interactive">
+            class="mdc-list mdc-list--two-line">
         </ul>
       </div>
     </div>
@@ -212,9 +212,13 @@
 {% block init-scripts %}
 <script nonce="{{ request.csp_nonce }}">
   window.addEventListener("load", function() {
-    group.initAssignment(
-      {{ data|safe }}
-    )
+    group.initAssignment({{ data|safe }});
+
+    // If distributed, update which sections are shown
+    {% if assignment.is_distributed %}
+    document.getElementById("details-section").classList.remove("foldable__unfolded");
+    document.getElementById("progress-section").classList.add("foldable__unfolded");
+    {% endif %}
   });
 </script>
 {% endblock %}
