@@ -302,7 +302,7 @@ export class RationaleTableApp extends Component {
                       <Typography use="body2">{answer.rationale}</Typography>
                       <div>
                         <Typography use="caption" theme="primary">
-                          {moment(answer.datetime_first).format("MM/DD/YY")}
+                          {moment(answer.datetime_start).format("MM/DD/YY LT")}
                         </Typography>
                       </div>
                     </DataTableCell>
@@ -313,11 +313,6 @@ export class RationaleTableApp extends Component {
                       <Typography use="body2">
                         {answer.chosen_rationale}
                       </Typography>
-                      <div>
-                        <Typography use="caption" theme="primary">
-                          {moment(answer.datetime_second).format("MM/DD/YY")}
-                        </Typography>
-                      </div>
                     </DataTableCell>
                     <DataTableCell
                       style={{ minWidth: "250px", whiteSpace: "normal" }}

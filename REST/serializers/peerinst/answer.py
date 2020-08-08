@@ -70,8 +70,7 @@ class AnswerSerializer(DynamicFieldsModelSerializer):
             "shown_count",
             "question",
             "user_token",
-            "datetime_first",
-            "datetime_second",
+            "datetime_start",
         ]
         read_only_fields = fields
         ordering = ["-vote_count"]
@@ -124,8 +123,7 @@ class StudentGroupAssignmentAnswerSerializer(serializers.ModelSerializer):
                 a,
                 fields=(
                     "chosen_rationale",
-                    "datetime_first",
-                    "datetime_second",
+                    "datetime_start",
                     "first_answer_choice",
                     "id",
                     "rationale",
