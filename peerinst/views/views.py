@@ -3100,8 +3100,8 @@ def report(request, assignment_id="", group_id=""):
     if not request.GET:
         return HttpResponseRedirect(reverse("report_selector"))
 
-    if request.GET.getlist("student_groups"):
-        student_groups = request.GET.getlist("student_groups")
+    if request.GET.getlist("groups"):
+        student_groups = request.GET.getlist("groups")
     elif group_id:
         student_groups = [
             StudentGroup.objects.get(name=urllib.parse.unquote(group_id)).pk
