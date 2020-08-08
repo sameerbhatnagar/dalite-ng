@@ -266,7 +266,7 @@ export class RationaleTableApp extends Component {
                     if (sortDir) {
                       const _answers = Array.from(this.state.answers);
                       _answers.sort((a, b) =>
-                        a.user_token.localeCompare(b.user_token) < 0
+                        a.user_email.localeCompare(b.user_email) < 0
                           ? sortDir * 1
                           : sortDir * -1,
                       );
@@ -293,7 +293,7 @@ export class RationaleTableApp extends Component {
                 <Fragment>
                   <DataTableRow>
                     <DataTableCell alignEnd>
-                      {answer.user_token.substring(0, 10)}
+                      {answer.user_email.substring(0, 10)}
                     </DataTableCell>
                     <DataTableCell alignMiddle>
                       {answer.first_answer_choice}
