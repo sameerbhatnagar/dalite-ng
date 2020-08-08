@@ -236,7 +236,6 @@ class TeacherFeedbackList(generics.ListCreateAPIView):
         )
 
     def perform_create(self, serializer):
-        print(self.request.data)
         serializer.save(annotator=self.request.user)
 
 

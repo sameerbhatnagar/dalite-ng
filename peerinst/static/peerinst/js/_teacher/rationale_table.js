@@ -1,3 +1,4 @@
+import moment from "moment";
 import { Component, Fragment, h } from "preact";
 
 import { CircularProgress } from "@rmwc/circular-progress";
@@ -69,7 +70,6 @@ class AnswerFeedback extends Component {
   };
 
   save = async (score) => {
-    console.info("Saving");
     this.setState({ saving: true });
     try {
       if (!this.state.create) {
@@ -300,6 +300,11 @@ export class RationaleTableApp extends Component {
                     </DataTableCell>
                     <DataTableCell alignStart style={{ whiteSpace: "normal" }}>
                       <Typography use="body2">{answer.rationale}</Typography>
+                      <div>
+                        <Typography use="caption" theme="primary">
+                          {moment(answer.datetime_first).format("MM/DD/YY")}
+                        </Typography>
+                      </div>
                     </DataTableCell>
                     <DataTableCell alignMiddlet>
                       {answer.second_answer_choice}
@@ -308,6 +313,11 @@ export class RationaleTableApp extends Component {
                       <Typography use="body2">
                         {answer.chosen_rationale}
                       </Typography>
+                      <div>
+                        <Typography use="caption" theme="primary">
+                          {moment(answer.datetime_second).format("MM/DD/YY")}
+                        </Typography>
+                      </div>
                     </DataTableCell>
                     <DataTableCell
                       style={{ minWidth: "250px", whiteSpace: "normal" }}

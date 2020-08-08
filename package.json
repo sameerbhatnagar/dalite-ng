@@ -55,6 +55,7 @@
     "gulp-svg-sprite": "^1.5.0",
     "iflow-jquery": "^1.2.4",
     "material-components-web": "^0.34.1",
+    "moment": "^2.27.0",
     "postcss": "^7.0.32",
     "postcss-fail-on-warn": "^0.1.0",
     "postcss-preset-env": "^6.7.0",
