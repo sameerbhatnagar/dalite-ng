@@ -469,6 +469,25 @@ class StudentGroupCreateForm(forms.ModelForm):
         fields = ["title", "name", "year", "semester", "discipline"]
 
 
+class StudentGroupUpdateForm(forms.ModelForm):
+    """Simple form to create a new group"""
+
+    year = forms.TypedChoiceField(
+        coerce=int, choices=year_choices, initial=current_year
+    )
+
+    class Meta:
+        model = StudentGroup
+        fields = [
+            "title",
+            "student_id_needed",
+            "year",
+            "semester",
+            "discipline",
+        ]
+        read_only_fields = ["name"]
+
+
 class StudentGroupAssignmentForm(ModelForm):
     group = forms.ModelChoiceField(
         queryset=StudentGroup.objects.all(), empty_label=None

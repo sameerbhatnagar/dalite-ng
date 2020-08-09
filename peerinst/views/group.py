@@ -45,7 +45,7 @@ def validate_update_data(req):
 
 
 @login_required
-@require_safe
+# @require_safe
 @group_access_required
 def group_details_page(req, group_hash, teacher, group):
 
@@ -81,8 +81,17 @@ def group_details_page(req, group_hash, teacher, group):
         dict(c)
         for c in ReputationType.objects.get(type="student").criteria.all()
     ]
+    from ..forms import StudentGroupUpdateForm
 
+    if req.method == "POST":
+        student_group_form = StudentGroupUpdateForm(req.POST)
+        if student_group_form.is_valid():
+            student_group_form.save()
+
+    else:
+        student_group_form = StudentGroupUpdateForm(instance=group)
     context = {
+        "form": student_group_form,
         "data": json.dumps(data),
         "group": group,
         "assignments": assignments,
