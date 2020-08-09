@@ -1,6 +1,7 @@
 import bleach
 
 from rest_framework import serializers
+from django.contrib.auth.models import User
 
 from peerinst.models import (
     Answer,
@@ -118,7 +119,7 @@ class StudentGroupAssignmentAnswerSerializer(serializers.ModelSerializer):
             .filter(assignment=obj.assignment)
             .filter(question__id=self.context["question_pk"])
         )
-        return list(
+        answers_serialized = list(
             AnswerSerializer(
                 a,
                 fields=(
@@ -133,6 +134,15 @@ class StudentGroupAssignmentAnswerSerializer(serializers.ModelSerializer):
             ).data
             for a in answers
         )
+        for a in answers_serialized:
+            a.update(
+                {
+                    "user_email": User.objects.get(
+                        username=a["user_token"]
+                    ).email.split("@")[0]
+                }
+            )
+        return answers_serialized
 
     class Meta:
         model = StudentGroupAssignment
