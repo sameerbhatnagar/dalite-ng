@@ -307,7 +307,7 @@ export class RationaleTableApp extends Component {
                 </DataTableHead>
                 <DataTableBody>
                   {this.state.answers.map((answer) => (
-                    <Fragment>
+                    <Fragment key={answer.id}>
                       <DataTableRow>
                         <DataTableCell alignEnd>
                           {answer.user_email.substring(0, 10)}
