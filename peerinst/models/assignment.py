@@ -430,6 +430,7 @@ class StudentGroupAssignment(models.Model):
         ]
         return [
             {
+                "question_id": question.id,
                 "question_title": question.title,
                 "n_students": len(results),
                 "n_completed": sum(

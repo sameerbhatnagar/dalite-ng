@@ -11,14 +11,17 @@ import {
   DataTableRow,
   DataTableCell,
 } from "@rmwc/data-table";
+import { Dialog, DialogContent } from "@rmwc/dialog";
 import { IconButton } from "@rmwc/icon-button";
 import { LinearProgress } from "@rmwc/linear-progress";
 import { Snackbar } from "@rmwc/snackbar";
 import { TextField } from "@rmwc/textfield";
 import { Typography } from "@rmwc/typography";
 
+import "@rmwc/button/node_modules/@material/button/dist/mdc.button.css";
 import "@rmwc/circular-progress/circular-progress.css";
 import "@rmwc/data-table/data-table.css";
+import "@rmwc/dialog/node_modules/@material/dialog/dist/mdc.dialog.css";
 import "@rmwc/icon-button/node_modules/@material/icon-button/dist/mdc.icon-button.min.css";
 import "@rmwc/linear-progress/node_modules/@material/linear-progress/dist/mdc.linear-progress.min.css";
 import "@rmwc/snackbar/node_modules/@material/snackbar/dist/mdc.snackbar.min.css";
@@ -209,6 +212,7 @@ class AnswerFeedback extends Component {
           actionText="OK"
           dismissesOnAction={true}
           style={{ zIndex: 1000 }}
+          alignStart
         />
       </div>
     );
@@ -224,10 +228,11 @@ export class RationaleTableApp extends Component {
     snackbarMessage: "",
   };
 
-  refreshFromDB = async () => {
+  refreshFromDB = async (url = this.props.readURL) => {
     // Load answer data
+    this.setState({ loaded: false });
     try {
-      const data = await get(this.props.readURL);
+      const data = await get(url);
       console.debug(data);
       this.setState({
         answers: data["answers"],
@@ -249,86 +254,110 @@ export class RationaleTableApp extends Component {
     this.refreshFromDB();
   }
 
+  shouldComponentUpdate(nextProps, nextState) {
+    if (this.props.readURL != nextProps.readURL) {
+      this.refreshFromDB(nextProps.readURL);
+    }
+    return true;
+  }
+
   render() {
     if (!this.state.loaded) {
-      return <LinearProgress determinate={false} />;
+      return <LinearProgress determinate={false} style={{ width: "775px" }} />;
     }
     return (
       <div>
-        <DataTable stickyRows="1" style={{ width: "850px" }}>
-          <DataTableContent>
-            <DataTableHead>
-              <DataTableRow>
-                <DataTableHeadCell
-                  alignEnd
-                  sort={this.state.sortDir || null}
-                  onSortChange={(sortDir) => {
-                    if (sortDir) {
-                      const _answers = Array.from(this.state.answers);
-                      _answers.sort((a, b) =>
-                        a.user_token.localeCompare(b.user_token) < 0
-                          ? sortDir * 1
-                          : sortDir * -1,
-                      );
-                      this.setState({ sortDir, answers: _answers });
-                    } else {
-                      this.setState({
-                        sortDir,
-                        answers: this.state.answersNatural,
-                      });
-                    }
-                  }}
-                >
-                  <span style={{ textDecoration: "underline" }}>User</span>
-                </DataTableHeadCell>
-                <DataTableHeadCell>1st</DataTableHeadCell>
-                <DataTableHeadCell alignStart>Rationale</DataTableHeadCell>
-                <DataTableHeadCell>2nd</DataTableHeadCell>
-                <DataTableHeadCell>Chosen rationale</DataTableHeadCell>
-                <DataTableHeadCell alignStart>Feedback</DataTableHeadCell>
-              </DataTableRow>
-            </DataTableHead>
-            <DataTableBody>
-              {this.state.answers.map((answer) => (
-                <Fragment>
+        <Dialog
+          open={this.props.dialogIsOpen}
+          onClose={() => this.props.listener()}
+        >
+          <DialogContent>
+            <DataTable stickyRows="1" style={{ width: "800px" }}>
+              <DataTableContent>
+                <DataTableHead>
                   <DataTableRow>
-                    <DataTableCell alignEnd>
-                      {answer.user_token.substring(0, 10)}
-                    </DataTableCell>
-                    <DataTableCell alignMiddle>
-                      {answer.first_answer_choice}
-                    </DataTableCell>
-                    <DataTableCell alignStart style={{ whiteSpace: "normal" }}>
-                      <Typography use="body2">{answer.rationale}</Typography>
-                      <div>
-                        <Typography use="caption" theme="primary">
-                          {moment(answer.datetime_start).format("MM/DD/YY LT")}
-                        </Typography>
-                      </div>
-                    </DataTableCell>
-                    <DataTableCell alignMiddlet>
-                      {answer.second_answer_choice}
-                    </DataTableCell>
-                    <DataTableCell alignStart style={{ whiteSpace: "normal" }}>
-                      <Typography use="body2">
-                        {answer.chosen_rationale}
-                      </Typography>
-                    </DataTableCell>
-                    <DataTableCell
-                      style={{ minWidth: "250px", whiteSpace: "normal" }}
+                    <DataTableHeadCell
+                      alignEnd
+                      sort={this.state.sortDir || null}
+                      onSortChange={(sortDir) => {
+                        if (sortDir) {
+                          const _answers = Array.from(this.state.answers);
+                          _answers.sort((a, b) =>
+                            a.user_token.localeCompare(b.user_token) < 0
+                              ? sortDir * 1
+                              : sortDir * -1,
+                          );
+                          this.setState({ sortDir, answers: _answers });
+                        } else {
+                          this.setState({
+                            sortDir,
+                            answers: this.state.answersNatural,
+                          });
+                        }
+                      }}
                     >
-                      <AnswerFeedback
-                        feedbackURL={this.props.feedbackURL}
-                        gettext={this.props.gettext}
-                        pk={answer.id}
-                      />
-                    </DataTableCell>
+                      <span style={{ textDecoration: "underline" }}>User</span>
+                    </DataTableHeadCell>
+                    <DataTableHeadCell>1st</DataTableHeadCell>
+                    <DataTableHeadCell alignStart>Rationale</DataTableHeadCell>
+                    <DataTableHeadCell>2nd</DataTableHeadCell>
+                    <DataTableHeadCell>Chosen rationale</DataTableHeadCell>
+                    <DataTableHeadCell alignStart>Feedback</DataTableHeadCell>
                   </DataTableRow>
-                </Fragment>
-              ))}
-            </DataTableBody>
-          </DataTableContent>
-        </DataTable>
+                </DataTableHead>
+                <DataTableBody>
+                  {this.state.answers.map((answer) => (
+                    <Fragment>
+                      <DataTableRow>
+                        <DataTableCell alignEnd>
+                          {answer.user_token.substring(0, 10)}
+                        </DataTableCell>
+                        <DataTableCell alignMiddle>
+                          {answer.first_answer_choice}
+                        </DataTableCell>
+                        <DataTableCell
+                          alignStart
+                          style={{ whiteSpace: "normal" }}
+                        >
+                          <Typography use="body2">
+                            {answer.rationale}
+                          </Typography>
+                          <div>
+                            <Typography use="caption" theme="primary">
+                              {moment(answer.datetime_start).format(
+                                "MM/DD/YY LT",
+                              )}
+                            </Typography>
+                          </div>
+                        </DataTableCell>
+                        <DataTableCell alignMiddlet>
+                          {answer.second_answer_choice}
+                        </DataTableCell>
+                        <DataTableCell
+                          alignStart
+                          style={{ whiteSpace: "normal" }}
+                        >
+                          <Typography use="body2">
+                            {answer.chosen_rationale}
+                          </Typography>
+                        </DataTableCell>
+                        <DataTableCell
+                          style={{ minWidth: "250px", whiteSpace: "normal" }}
+                        >
+                          <AnswerFeedback
+                            feedbackURL={this.props.feedbackURL}
+                            gettext={this.props.gettext}
+                            pk={answer.id}
+                          />
+                        </DataTableCell>
+                      </DataTableRow>
+                    </Fragment>
+                  ))}
+                </DataTableBody>
+              </DataTableContent>
+            </DataTable>
+          </DialogContent>
+        </Dialog>
         <Snackbar
           show={this.state.snackbarIsOpen}
           onHide={(evt) => this.setState({ snackbarIsOpen: false })}
@@ -337,6 +366,7 @@ export class RationaleTableApp extends Component {
           actionHandler={() => {}}
           actionText="OK"
           dismissesOnAction={true}
+          alignStart
         />
       </div>
     );

@@ -18,6 +18,7 @@ function initModel(data) {
       .querySelector("#student-progress")
       .parentNode.parentNode.classList.contains("foldable__unfolded"),
     results: data.map((question) => ({
+      questionId: question.question_id,
       questionTitle: question.question_title,
       nStudents: question.n_students,
       nCompleted: question.n_completed,
@@ -99,7 +100,9 @@ function legendView() {
 
 function questionView(question) {
   const li = document.createElement("li");
+  li.setAttribute("data-id", question.questionId);
   li.classList.add("mdc-list-item");
+  li.classList.add("link-feedback-dialog");
 
   const image = document.createElement("span");
   image.classList.add("mdc-list-item__graphic", "mdc-theme--primary");
@@ -409,7 +412,7 @@ function addToggleStudentProgressListener() {
 /* init */
 /********/
 
-export function initStudentProgress(url) {
+export function initStudentProgress(url, callback) {
   view();
   initListeners();
   const req = buildReq(null, "get");
@@ -417,6 +420,9 @@ export function initStudentProgress(url) {
     .then((resp) => resp.json())
     .then(function (data) {
       initModel(data.progress);
+    })
+    .then(() => {
+      callback();
     })
     .catch((err) => console.log(err));
 }
