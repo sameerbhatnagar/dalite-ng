@@ -12,6 +12,7 @@ import {
   DataTableCell,
 } from "@rmwc/data-table";
 import { Dialog, DialogContent } from "@rmwc/dialog";
+import { Icon } from "@rmwc/icon";
 import { IconButton } from "@rmwc/icon-button";
 import { LinearProgress } from "@rmwc/linear-progress";
 import { Snackbar } from "@rmwc/snackbar";
@@ -22,6 +23,7 @@ import "@rmwc/button/node_modules/@material/button/dist/mdc.button.css";
 import "@rmwc/circular-progress/circular-progress.css";
 import "@rmwc/data-table/data-table.css";
 import "@rmwc/dialog/node_modules/@material/dialog/dist/mdc.dialog.css";
+import "@rmwc/icon/icon.css";
 import "@rmwc/icon-button/node_modules/@material/icon-button/dist/mdc.icon-button.min.css";
 import "@rmwc/linear-progress/node_modules/@material/linear-progress/dist/mdc.linear-progress.min.css";
 import "@rmwc/snackbar/node_modules/@material/snackbar/dist/mdc.snackbar.min.css";
@@ -359,9 +361,18 @@ export class RationaleTableApp extends Component {
                             {answer.rationale}
                           </Typography>
                           <div>
+                            <Icon
+                              icon="access_time"
+                              iconOptions={{ size: "xsmall" }}
+                              style={{
+                                opacity: "0.5",
+                                paddingRight: "4px",
+                                verticalAlign: "middle",
+                              }}
+                              theme="secondary"
+                            />
                             <Typography use="caption" theme="secondary">
-                              {answer.datetime_start}
-                              {moment(answer.datetime_start).format(
+                              {moment(answer.datetime_second).format(
                                 "MM/DD/YY LT",
                               )}
                             </Typography>
