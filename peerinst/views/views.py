@@ -411,12 +411,36 @@ class AssignmentUpdateView(LoginRequiredMixin, NoStudentsMixin, DetailView):
         )
 
 
-class AssignmentEditView(AssignmentUpdateView):
+class AssignmentEditView(LoginRequiredMixin, NoStudentsMixin, UpdateView):
     """View for editing assignment title and meta-data."""
 
-    http_method_names = ["get", "post"]
-    template_name_suffix = "_edit"
     fields = ["title", "description", "intro_page", "conclusion_page"]
+    http_method_names = ["get", "post"]
+    model = models.Assignment
+    pk_url_kwarg = "assignment_id"
+    template_name_suffix = "_edit"
+
+    def dispatch(self, *args, **kwargs):
+        # Check object permissions (to be refactored using mixin)
+        if (
+            self.request.user in self.get_object().owner.all()
+            or self.request.user.is_staff
+        ):
+            # Check for student answers
+            if not self.get_object().editable:
+                raise PermissionDenied
+            else:
+                return super(AssignmentEditView, self).dispatch(
+                    *args, **kwargs
+                )
+        else:
+            raise PermissionDenied
+
+    def get_context_data(self, **kwargs):
+        context = super(AssignmentEditView, self).get_context_data(**kwargs)
+        teacher = get_object_or_404(models.Teacher, user=self.request.user)
+        context["teacher"] = teacher
+        return context
 
     def get_success_url(self):
         return reverse(

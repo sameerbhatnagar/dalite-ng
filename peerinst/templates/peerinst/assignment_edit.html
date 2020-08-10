@@ -40,7 +40,6 @@
 
         <form method="post">
           {% csrf_token %}
-
           <div class="mdc-text-field mdc-text-field--outlined mdc-text-field--dense" data-mdc-auto-init="MDCTextField">
             {{ form.title|add_class:"mdc-text-field__input" }}
             {{ form.title.label_tag|add_class:"mdc-floating-label"|cut:":" }}
