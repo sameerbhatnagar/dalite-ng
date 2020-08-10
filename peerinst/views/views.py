@@ -373,30 +373,6 @@ class AssignmentCopyView(AssignmentCreateView):
         return super(AssignmentCopyView, self).form_valid(form)
 
 
-class AssignmentEditView(LoginRequiredMixin, NoStudentsMixin, UpdateView):
-    """View for editing assignment title and meta-data."""
-
-    model = Assignment
-    template_name_suffix = "_edit"
-    fields = ["title", "description", "intro_page", "conclusion_page"]
-
-    def get_object(self):
-        return get_object_or_404(
-            models.Assignment, pk=self.kwargs["assignment_id"]
-        )
-
-    def get_context_data(self, **kwargs):
-        context = super(AssignmentEditView, self).get_context_data(**kwargs)
-        teacher = get_object_or_404(models.Teacher, user=self.request.user)
-        context["teacher"] = teacher
-        return context
-
-    def get_success_url(self):
-        return reverse(
-            "assignment-update", kwargs={"assignment_id": self.object.pk}
-        )
-
-
 class AssignmentUpdateView(LoginRequiredMixin, NoStudentsMixin, DetailView):
     """
     View for updating assignment question list.
@@ -432,6 +408,19 @@ class AssignmentUpdateView(LoginRequiredMixin, NoStudentsMixin, DetailView):
     def get_object(self):
         return get_object_or_404(
             models.Assignment, pk=self.kwargs["assignment_id"]
+        )
+
+
+class AssignmentEditView(AssignmentUpdateView):
+    """View for editing assignment title and meta-data."""
+
+    http_method_names = ["post"]
+    template_name_suffix = "_edit"
+    fields = ["title", "description", "intro_page", "conclusion_page"]
+
+    def get_success_url(self):
+        return reverse(
+            "assignment-update", kwargs={"assignment_id": self.object.pk}
         )
 
 
