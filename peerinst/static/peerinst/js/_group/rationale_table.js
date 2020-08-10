@@ -143,7 +143,7 @@ class AnswerFeedback extends Component {
           textarea
           fullwidth
           rows="3"
-          label="Comments"
+          label={this.props.gettext("Comments")}
           dense
           value={this.state.note}
           onInput={(evt) => {
@@ -154,6 +154,7 @@ class AnswerFeedback extends Component {
               this.save(this.state.score);
             }
           }}
+          theme="secondary"
         />
 
         <IconButton
@@ -242,6 +243,7 @@ export class RationaleTableApp extends Component {
     } catch (error) {
       console.error(error);
       this.setState({
+        loaded: true,
         snackbarIsOpen: true,
         snackbarMessage: this.props.gettext(
           "An error occurred.  Try refreshing this page.",
@@ -271,8 +273,11 @@ export class RationaleTableApp extends Component {
           open={this.props.dialogIsOpen}
           onClose={() => this.props.listener()}
         >
-          <DialogContent>
-            <DataTable stickyRows="1" style={{ width: "800px" }}>
+          <DialogContent style={{ overflowY: "hidden" }}>
+            <DataTable
+              stickyRows="1"
+              style={{ height: "100%", width: "800px" }}
+            >
               <DataTableContent>
                 <DataTableHead>
                   <DataTableRow>
@@ -296,13 +301,37 @@ export class RationaleTableApp extends Component {
                         }
                       }}
                     >
-                      <span style={{ textDecoration: "underline" }}>User</span>
+                      <Typography use="body2" theme="secondary">
+                        <span style={{ textDecoration: "underline" }}>
+                          {this.props.gettext("Student")}
+                        </span>
+                      </Typography>
                     </DataTableHeadCell>
-                    <DataTableHeadCell>1st</DataTableHeadCell>
-                    <DataTableHeadCell alignStart>Rationale</DataTableHeadCell>
-                    <DataTableHeadCell>2nd</DataTableHeadCell>
-                    <DataTableHeadCell>Chosen rationale</DataTableHeadCell>
-                    <DataTableHeadCell alignStart>Feedback</DataTableHeadCell>
+                    <DataTableHeadCell>
+                      <Typography use="body2" theme="secondary">
+                        {this.props.gettext("1st")}
+                      </Typography>
+                    </DataTableHeadCell>
+                    <DataTableHeadCell alignStart>
+                      <Typography use="body2" theme="secondary">
+                        {this.props.gettext("Rationale")}
+                      </Typography>
+                    </DataTableHeadCell>
+                    <DataTableHeadCell>
+                      <Typography use="body2" theme="secondary">
+                        {this.props.gettext("2nd")}
+                      </Typography>
+                    </DataTableHeadCell>
+                    <DataTableHeadCell>
+                      <Typography use="body2" theme="secondary">
+                        {this.props.gettext("Chosen rationale")}
+                      </Typography>
+                    </DataTableHeadCell>
+                    <DataTableHeadCell alignStart>
+                      <Typography use="body2" theme="secondary">
+                        {this.props.gettext("Feedback")}
+                      </Typography>
+                    </DataTableHeadCell>
                   </DataTableRow>
                 </DataTableHead>
                 <DataTableBody>
@@ -330,7 +359,7 @@ export class RationaleTableApp extends Component {
                             </Typography>
                           </div>
                         </DataTableCell>
-                        <DataTableCell alignMiddlet>
+                        <DataTableCell alignMiddle>
                           {answer.second_answer_choice}
                         </DataTableCell>
                         <DataTableCell
