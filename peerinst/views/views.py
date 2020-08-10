@@ -310,11 +310,35 @@ class AssignmentListView(LoginRequiredMixin, NoStudentsMixin, ListView):
     model = models.Assignment
 
 
-class AssignmentCopyView(LoginRequiredMixin, NoStudentsMixin, CreateView):
-    """View to create an assignment from existing."""
+class AssignmentCreateView(LoginRequiredMixin, NoStudentsMixin, CreateView):
+    """View to create an assignment"""
 
     model = models.Assignment
     form_class = forms.AssignmentCreateForm
+
+    def get_context_data(self, **kwargs):
+        context = super(AssignmentCreateView, self).get_context_data(**kwargs)
+        teacher = get_object_or_404(models.Teacher, user=self.request.user)
+        context["teacher"] = teacher
+        return context
+
+    def form_valid(self, form):
+        self.object = form.save()
+        teacher = get_object_or_404(models.Teacher, user=self.request.user)
+        form.instance.owner.add(teacher.user)
+        form.instance.save()
+        teacher.assignments.add(self.object)
+        teacher.save()
+        return super(AssignmentCreateView, self).form_valid(form)
+
+    def get_success_url(self):
+        return reverse(
+            "assignment-update", kwargs={"assignment_id": self.object.pk}
+        )
+
+
+class AssignmentCopyView(AssignmentCreateView):
+    """View to create an assignment from existing."""
 
     def get_initial(self, *args, **kwargs):
         super(AssignmentCopyView, self).get_initial(*args, **kwargs)
@@ -333,34 +357,20 @@ class AssignmentCopyView(LoginRequiredMixin, NoStudentsMixin, CreateView):
         # Remove link on object to pk to dump object permissions
         return None
 
-    def get_context_data(self, **kwargs):
-        context = super(AssignmentCopyView, self).get_context_data(**kwargs)
-        teacher = get_object_or_404(models.Teacher, user=self.request.user)
-        context["teacher"] = teacher
-        return context
-
     # Custom save is needed to attach questions and user
     def form_valid(self, form):
+        self.object = form.save()
         assignment = get_object_or_404(
             models.Assignment, pk=self.kwargs["assignment_id"]
         )
-        form.instance.save()
         for aq in assignment.assignmentquestions_set.all():
             form.instance.questions.add(
                 aq.question, through_defaults={"rank": aq.rank}
             )
-        form.instance.owner.add(self.request.user)
         form.instance.parent = assignment
+        form.instance.save()
 
-        teacher = get_object_or_404(models.Teacher, user=self.request.user)
-        teacher.assignments.add(form.instance)
-        teacher.save()
         return super(AssignmentCopyView, self).form_valid(form)
-
-    def get_success_url(self):
-        return reverse(
-            "assignment-update", kwargs={"assignment_id": self.object.pk}
-        )
 
 
 class AssignmentEditView(LoginRequiredMixin, NoStudentsMixin, UpdateView):
@@ -1812,38 +1822,43 @@ class TeacherAssignments(TeacherBase, ListView):
     def get_context_data(self, **kwargs):
         context = super(TeacherAssignments, self).get_context_data(**kwargs)
         context["teacher"] = self.teacher
-        context["form"] = forms.AssignmentCreateForm()
+
+        context["owned_assignments"] = Assignment.objects.filter(
+            owner=self.teacher.user
+        ).order_by("-created_on")
+
+        context["followed_assignments"] = self.teacher.assignments.exclude(
+            owner=self.teacher.user
+        ).order_by("-created_on")
+
+        context["other_assignments"] = Assignment.objects.exclude(
+            owner=self.teacher.user
+        ).exclude(identifier__in=context["followed_assignments"])
+
+        context["form"] = forms.TeacherAssignmentsForm()
 
         return context
 
     def post(self, request, *args, **kwargs):
         self.teacher = get_object_or_404(Teacher, user=self.request.user)
-        form = forms.AssignmentCreateForm(request.POST)
+        form = forms.TeacherAssignmentsForm(request.POST)
         if form.is_valid():
-            assignment = Assignment(
-                identifier=form.cleaned_data["identifier"],
-                title=form.cleaned_data["title"],
-                description=form.cleaned_data["description"],
-                intro_page=form.cleaned_data["intro_page"],
-                conclusion_page=form.cleaned_data["conclusion_page"],
-            )
-            assignment.save()
-            assignment.owner.add(self.teacher.user)
-            self.teacher.assignments.add(assignment)
-
-            return HttpResponseRedirect(
-                reverse(
-                    "assignment-update",
-                    kwargs={"assignment_id": assignment.pk},
-                )
-            )
+            assignment = form.cleaned_data["assignment"]
+            if assignment in self.teacher.assignments.all():
+                self.teacher.assignments.remove(assignment)
+            else:
+                self.teacher.assignments.add(assignment)
+            self.teacher.save()
         else:
             return render(
                 request,
                 self.template_name,
-                {"teacher": self.teacher, "form": form},
+                {
+                    "teacher": self.teacher,
+                    "form": form,
+                    "object_list": Assignment.objects.all(),
+                },
             )
-
         return HttpResponseRedirect(
             reverse("teacher-assignments", kwargs={"pk": self.teacher.pk})
         )
