@@ -414,7 +414,7 @@ class AssignmentUpdateView(LoginRequiredMixin, NoStudentsMixin, DetailView):
 class AssignmentEditView(AssignmentUpdateView):
     """View for editing assignment title and meta-data."""
 
-    http_method_names = ["post"]
+    http_method_names = ["get", "post"]
     template_name_suffix = "_edit"
     fields = ["title", "description", "intro_page", "conclusion_page"]
 
