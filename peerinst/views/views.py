@@ -360,7 +360,7 @@ class AssignmentCopyView(AssignmentCreateView):
         return initial
 
     def get_context_data(self, **kwargs):
-        context = super(AssignmentCreateView, self).get_context_data(**kwargs)
+        context = super(AssignmentCopyView, self).get_context_data(**kwargs)
         context["help_text"] = _(
             "Assignments cannot be modified once they \
         contain student answers.  After providing a unique identifier below \
