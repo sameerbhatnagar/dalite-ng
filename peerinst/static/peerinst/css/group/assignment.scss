@@ -56,10 +56,9 @@
 }
 
 #student-progress {
-  cursor: pointer;
-  
   & > li {
     border-top: 1px solid rgba(0, 0, 0, 0.12);
+    cursor: pointer;
   }
 
   & > li:first-child {

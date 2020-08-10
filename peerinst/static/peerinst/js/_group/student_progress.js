@@ -77,6 +77,7 @@ function progressView() {
 function legendView() {
   const li = document.createElement("li");
   li.classList.add("mdc-list-item");
+  li.classList.add("no-pointer");
 
   const legend = document.createElement("span");
   legend.id = "student-progress-legend";
