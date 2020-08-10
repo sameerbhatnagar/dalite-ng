@@ -154,7 +154,6 @@ class AnswerFeedback extends Component {
               this.save(this.state.score);
             }
           }}
-          theme="secondary"
         />
 
         <IconButton
@@ -282,7 +281,7 @@ export class RationaleTableApp extends Component {
                 <DataTableHead>
                   <DataTableRow>
                     <DataTableHeadCell
-                      alignEnd
+                      alignStart
                       sort={this.state.sortDir || null}
                       onSortChange={(sortDir) => {
                         if (sortDir) {
@@ -307,7 +306,9 @@ export class RationaleTableApp extends Component {
                         </span>
                       </Typography>
                     </DataTableHeadCell>
-                    <DataTableHeadCell>
+                    <DataTableHeadCell
+                      style={{ paddingLeft: "0px", paddingRight: "0px" }}
+                    >
                       <Typography use="body2" theme="secondary">
                         {this.props.gettext("1st")}
                       </Typography>
@@ -317,7 +318,9 @@ export class RationaleTableApp extends Component {
                         {this.props.gettext("Rationale")}
                       </Typography>
                     </DataTableHeadCell>
-                    <DataTableHeadCell>
+                    <DataTableHeadCell
+                      style={{ paddingLeft: "0px", paddingRight: "0px" }}
+                    >
                       <Typography use="body2" theme="secondary">
                         {this.props.gettext("2nd")}
                       </Typography>
@@ -338,11 +341,15 @@ export class RationaleTableApp extends Component {
                   {this.state.answers.map((answer) => (
                     <Fragment key={answer.id}>
                       <DataTableRow>
-                        <DataTableCell alignEnd>
+                        <DataTableCell alignStart>
                           {answer.user_email.substring(0, 10)}
                         </DataTableCell>
-                        <DataTableCell alignMiddle>
-                          {answer.first_answer_choice}
+                        <DataTableCell
+                          alignMiddle
+                          theme="secondary"
+                          style={{ paddingLeft: "0px", paddingRight: "0px" }}
+                        >
+                          <strong>{answer.first_answer_choice_label}</strong>
                         </DataTableCell>
                         <DataTableCell
                           alignStart
@@ -352,15 +359,20 @@ export class RationaleTableApp extends Component {
                             {answer.rationale}
                           </Typography>
                           <div>
-                            <Typography use="caption" theme="primary">
+                            <Typography use="caption" theme="secondary">
+                              {answer.datetime_start}
                               {moment(answer.datetime_start).format(
                                 "MM/DD/YY LT",
                               )}
                             </Typography>
                           </div>
                         </DataTableCell>
-                        <DataTableCell alignMiddle>
-                          {answer.second_answer_choice}
+                        <DataTableCell
+                          alignMiddle
+                          theme="secondary"
+                          style={{ paddingLeft: "0px", paddingRight: "0px" }}
+                        >
+                          <strong>{answer.second_answer_choice_label}</strong>
                         </DataTableCell>
                         <DataTableCell
                           alignStart

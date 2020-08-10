@@ -44,6 +44,12 @@ class AnswerSerializer(DynamicFieldsModelSerializer):
             return obj.chosen_rationale.rationale
         return None
 
+    def get_first_answer_choice_label(self, obj):
+        return obj.question.get_choice_label(obj.first_answer_choice)
+
+    def get_second_answer_choice_label(self, obj):
+        return obj.question.get_choice_label(obj.second_answer_choice)
+
     def to_representation(self, instance):
         ret = super().to_representation(instance)
         ret["rationale"] = bleach.clean(
@@ -65,7 +71,9 @@ class AnswerSerializer(DynamicFieldsModelSerializer):
             "answer_choice",
             "chosen_rationale",
             "first_answer_choice",
+            "first_answer_choice_label",
             "second_answer_choice",
+            "second_answer_choice_label",
             "rationale",
             "vote_count",
             "shown_count",
@@ -125,10 +133,10 @@ class StudentGroupAssignmentAnswerSerializer(serializers.ModelSerializer):
                 fields=(
                     "chosen_rationale",
                     "datetime_start",
-                    "first_answer_choice",
+                    "first_answer_choice_label",
                     "id",
                     "rationale",
-                    "second_answer_choice",
+                    "second_answer_choice_label",
                     "user_token",
                 ),
             ).data
@@ -142,6 +150,7 @@ class StudentGroupAssignmentAnswerSerializer(serializers.ModelSerializer):
                     ).email.split("@")[0]
                 }
             )
+            a.pop("user_token")
         return answers_serialized
 
     class Meta:
