@@ -320,6 +320,12 @@ class AssignmentCreateView(LoginRequiredMixin, NoStudentsMixin, CreateView):
         context = super(AssignmentCreateView, self).get_context_data(**kwargs)
         teacher = get_object_or_404(models.Teacher, user=self.request.user)
         context["teacher"] = teacher
+        context["help_text"] = _(
+            "The assignment title may be displayed and \
+        should be informative. The assignment identifier is used as the \
+        keyword to access the assignment through a url.  It must be unique \
+        but does not need to be informative."
+        )
         return context
 
     def form_valid(self, form):
@@ -352,6 +358,16 @@ class AssignmentCopyView(AssignmentCreateView):
             "conclusion_page": assignment.conclusion_page,
         }
         return initial
+
+    def get_context_data(self, **kwargs):
+        context = super(AssignmentCreateView, self).get_context_data(**kwargs)
+        context["help_text"] = _(
+            "Assignments cannot be modified once they \
+        contain student answers.  After providing a unique identifier below \
+        and submitting the form, a copy of this assignment will be made that \
+        can be edited."
+        )
+        return context
 
     def get_object(self, queryset=None):
         # Remove link on object to pk to dump object permissions
