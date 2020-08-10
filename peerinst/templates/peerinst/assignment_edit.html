@@ -40,22 +40,23 @@
 
         <form method="post">
           {% csrf_token %}
-          <div class="mdc-text-field mdc-text-field--outlined mdc-text-field--dense" data-mdc-auto-init="MDCTextField">
-            {{ form.title|add_class:"mdc-text-field__input" }}
-            {{ form.title.label_tag|add_class:"mdc-floating-label"|cut:":" }}
-            <div class="mdc-notched-outline">
-              <svg>
-                <path class="mdc-notched-outline__path"/>
-              </svg>
+          <div class='field-container'>
+            <div class="mdc-text-field mdc-text-field--outlined mdc-text-field--dense" data-mdc-auto-init="MDCTextField">
+              {{ form.title|add_class:"mdc-text-field__input" }}
+              {{ form.title.label_tag|add_class:"mdc-floating-label"|cut:":" }}
+              <div class="mdc-notched-outline">
+                <svg>
+                  <path class="mdc-notched-outline__path"/>
+                </svg>
+              </div>
+              <div class="mdc-notched-outline__idle"></div>
             </div>
-            <div class="mdc-notched-outline__idle"></div>
+
+            <p class="mdc-text-field-helper-text mdc-text-field-helper-text--persistent" aria-hidden="true">
+              {{ form.title.help_text|safe }}
+            </p>
+            {{ form.title.errors }}
           </div>
-
-          <p class="mdc-text-field-helper-text mdc-text-field-helper-text--persistent" aria-hidden="true">
-            {{ form.title.help_text|safe }}
-          </p>
-          {{ form.title.errors }}
-
 
           <div class='field-container'>
             <div class='mdc-form-field id-text-field'>
@@ -98,7 +99,7 @@
             {{ form.conclusion_page.errors }}
           </div>
 
-          <input class="mdc-button mdc-button--raised padded-top" type="submit" value="Update" />
+          <input class="mdc-button mdc-button--raised padded-top" type="submit" value="{% trans 'Update' %}" />
         </form>
 
 
@@ -112,7 +113,7 @@
 {{ block.super }}
 <script nonce="{{ request.csp_nonce }}">
   'use strict';
-  
+
   // TinyMCE bind to textarea
   tinymce.init({
     selector: 'textArea',
