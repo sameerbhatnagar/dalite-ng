@@ -231,6 +231,15 @@ class InstitutionAdmin(admin.ModelAdmin):
 class AssignmentAdmin(admin.ModelAdmin):
     filter_horizontal = ["questions"]
     search_fields = ["identifier"]
+    fields = [
+        "identifier",
+        "title",
+        "owner",
+        "description",
+        "intro_page",
+        "conclusion_page",
+    ]
+    readonly_fields = ["identifier", "owner"]
 
 
 def publish_answers(modeladmin, request, queryset):
