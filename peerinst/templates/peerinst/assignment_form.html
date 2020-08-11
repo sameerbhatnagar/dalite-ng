@@ -126,10 +126,13 @@
       branding: false,
       plugins: ['autolink', 'autosave', 'charmap', 'code', 'link', 'paste'],
       menubar: false,
-      toolbar: 'undo redo | bold italic underline superscript subscript | link | charmap | code',
+      toolbar: 'undo redo | bold italic underline superscript subscript | link | charmap',
       content_css: "{% static 'peerinst/css/tiny.min.css' %}",
       link_assume_external_targets: true,
       default_link_target: '_blank',
+      rel_list: [
+        {title: 'Private', value: 'noreferrer noopener nofollow'},
+      ]
     });
   });
 </script>
