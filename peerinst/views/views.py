@@ -1846,25 +1846,31 @@ class TeacherAssignments(TeacherBase, ListView):
 
     def get_queryset(self):
         self.teacher = get_object_or_404(Teacher, user=self.request.user)
-        return Assignment.objects.all()
+        return Assignment.objects.annotate(
+            n_questions=Count("assignmentquestions")
+        )
 
     def get_context_data(self, **kwargs):
         context = super(TeacherAssignments, self).get_context_data(**kwargs)
         context["teacher"] = self.teacher
 
-        context["owned_assignments"] = Assignment.objects.filter(
-            owner=self.teacher.user
-        ).order_by("-created_on")
+        context["owned_assignments"] = (
+            self.get_queryset()
+            .filter(owner=self.teacher.user)
+            .order_by("-created_on")
+        )
 
-        context["followed_assignments"] = self.teacher.assignments.exclude(
-            owner=self.teacher.user
-        ).order_by("-created_on")
+        context["followed_assignments"] = (
+            self.teacher.assignments.exclude(owner=self.teacher.user)
+            .annotate(n_questions=Count("assignmentquestions"))
+            .order_by("-created_on")
+        )
 
         # exclude assignments with less than 5 answers from
         # "All other assignments"
         context["other_assignments"] = (
-            Assignment.objects.exclude(owner=self.teacher.user)
-            .exclude(identifier__in=context["followed_assignments"])
+            self.get_queryset()
+            .exclude(identifier__in=self.teacher.assignments.all())
             .annotate(n_answers=Count("answer"))
             .exclude(n_answers__lte=5)
         )
