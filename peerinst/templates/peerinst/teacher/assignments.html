@@ -2,12 +2,6 @@
 
 {% load i18n add_class compress static %}
 
-{% block stylesheets %}
-{{ block.super }}
-<!-- Self-hosted tinyMCE -->
-<script src="{% static 'peerinst/js/tinymce/js/tinymce/tinymce.min.js' %}"></script>
-{% endblock %}
-
 {% block body %}
 <main>
   <section>
@@ -21,10 +15,10 @@
 
     <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'My assignments' %}</h2>
 
-    <p>{% trans 'These are the assignments for which you are an author. If the assignment has already been used, you cannot edit it directly: you must make a copy first.' %}</p>
+    <p class='mdc-typography--body1'>{% trans 'These are the assignments for which you are an author. If the assignment has already been used, you cannot edit it directly: you must make a copy first.' %}</p>
 
     {% if not owned_assignments %}
-      <p>{% blocktrans %} You currently do not have editing rights on any assignments. Make a new assignment of your own with the form above to be able to modify it.{% endblocktrans %}</p>
+      <p class='mdc-typography--body1'>{% blocktrans %} You currently do not have editing rights on any assignments. Make a new assignment using the menu to be able to modify it.{% endblocktrans %}</p>
     {% endif %}
 
     <ul class="mdc-list mdc-list--two-line mdc-list--non-interactive">
@@ -58,15 +52,12 @@
       <li role="separator" class="mdc-list-divider"></li>
     </ul>
 
-
-
-
     <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Following' %}</h2>
 
-    <p>{% blocktrans %} These are the assignments you are following, and for which reports will be available (based on your selected groups).{% endblocktrans %}</p>
+    <p class='mdc-typography--body1'>{% blocktrans %} These are the assignments you are following, and for which reports will be available (based on your selected groups).{% endblocktrans %}</p>
 
     {% if not followed_assignments %}
-    <p>{% blocktrans %} You do not have any assignments.  You can select and modify an existing assignment from the list below or create a new one.{% endblocktrans %}</p>
+    <p class='mdc-typography--body1'>{% blocktrans %} You do not have any assignments.  You can select and modify an existing assignment from the list below or create a new one.{% endblocktrans %}</p>
     {% endif %}
 
     <ul class="mdc-list mdc-list--two-line mdc-list--non-interactive">
@@ -104,9 +95,9 @@
       <li role="separator" class="mdc-list-divider"></li>
     </ul>
 
+    <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'All' %}</h2>
 
-    <h2 class="mdc-typography--display1 mdc-theme--secondary">All</h2>
-    {% trans 'These are all the assignments in the database.' %}
+    <p class='mdc-typography--body1'>{% trans 'These are all the assignments in the database.' %}</p>
 
     <ul class="mdc-list mdc-list--two-line mdc-list--non-interactive">
       {% for g in other_assignments %}

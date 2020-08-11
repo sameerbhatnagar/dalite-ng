@@ -320,6 +320,12 @@ class AssignmentCreateView(LoginRequiredMixin, NoStudentsMixin, CreateView):
         context = super(AssignmentCreateView, self).get_context_data(**kwargs)
         teacher = get_object_or_404(models.Teacher, user=self.request.user)
         context["teacher"] = teacher
+        context["help_text"] = _(
+            "The assignment title may be displayed and \
+        should be informative. The assignment identifier is used as the \
+        keyword to access the assignment through a url.  It must be unique \
+        but does not need to be informative."
+        )
         return context
 
     def form_valid(self, form):
@@ -352,6 +358,16 @@ class AssignmentCopyView(AssignmentCreateView):
             "conclusion_page": assignment.conclusion_page,
         }
         return initial
+
+    def get_context_data(self, **kwargs):
+        context = super(AssignmentCopyView, self).get_context_data(**kwargs)
+        context["help_text"] = _(
+            "Assignments cannot be modified once they \
+        contain student answers.  After providing a unique identifier below \
+        and submitting the form, a copy of this assignment will be made that \
+        can be edited."
+        )
+        return context
 
     def get_object(self, queryset=None):
         # Remove link on object to pk to dump object permissions
@@ -411,12 +427,36 @@ class AssignmentUpdateView(LoginRequiredMixin, NoStudentsMixin, DetailView):
         )
 
 
-class AssignmentEditView(AssignmentUpdateView):
+class AssignmentEditView(LoginRequiredMixin, NoStudentsMixin, UpdateView):
     """View for editing assignment title and meta-data."""
 
-    http_method_names = ["get", "post"]
-    template_name_suffix = "_edit"
     fields = ["title", "description", "intro_page", "conclusion_page"]
+    http_method_names = ["get", "post"]
+    model = models.Assignment
+    pk_url_kwarg = "assignment_id"
+    template_name_suffix = "_edit"
+
+    def dispatch(self, *args, **kwargs):
+        # Check object permissions (to be refactored using mixin)
+        if (
+            self.request.user in self.get_object().owner.all()
+            or self.request.user.is_staff
+        ):
+            # Check for student answers
+            if not self.get_object().editable:
+                raise PermissionDenied
+            else:
+                return super(AssignmentEditView, self).dispatch(
+                    *args, **kwargs
+                )
+        else:
+            raise PermissionDenied
+
+    def get_context_data(self, **kwargs):
+        context = super(AssignmentEditView, self).get_context_data(**kwargs)
+        teacher = get_object_or_404(models.Teacher, user=self.request.user)
+        context["teacher"] = teacher
+        return context
 
     def get_success_url(self):
         return reverse(
