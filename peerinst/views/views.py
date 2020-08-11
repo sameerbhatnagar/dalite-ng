@@ -1860,9 +1860,14 @@ class TeacherAssignments(TeacherBase, ListView):
             owner=self.teacher.user
         ).order_by("-created_on")
 
-        context["other_assignments"] = Assignment.objects.exclude(
-            owner=self.teacher.user
-        ).exclude(identifier__in=context["followed_assignments"])
+        # exclude assignments with less than 5 answers from
+        # "All other assignments"
+        context["other_assignments"] = (
+            Assignment.objects.exclude(owner=self.teacher.user)
+            .exclude(identifier__in=context["followed_assignments"])
+            .annotate(n_answers=Count("answer"))
+            .exclude(n_answers__lte=5)
+        )
 
         context["form"] = forms.TeacherAssignmentsForm()
 
