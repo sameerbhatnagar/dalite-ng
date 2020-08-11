@@ -5,7 +5,7 @@
 {% block stylesheets %}
 {{ block.super }}
 <!-- Self-hosted tinyMCE -->
-<script src="{% static 'peerinst/js/tinymce/js/tinymce/tinymce.min.js' %}"></script>
+<script src="{% static 'peerinst/js/tinymce/js/tinymce/tinymce.min.js' %}" defer=true></script>
 {% endblock %}
 
 {% block body %}
@@ -19,7 +19,7 @@
 
         <div class="admin-link">
           <a href="{% url 'teacher' teacher.id %}">{% trans 'Back to My Account' %}</a>
-          <span class="admin-link--padded">|</span><a href="{% url 'teacher-assignments' teacher.id %}">{% trans 'Create new assignment' %}</a>
+          <span class="admin-link--padded">|</span><a href="{% url 'teacher-assignments' teacher.id %}">{% trans 'Manage assignments' %}</a>
         </div>
 
         <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Edit assignment meta-data' %}</h2>
@@ -40,23 +40,23 @@
 
         <form method="post">
           {% csrf_token %}
-
-          <div class="mdc-text-field mdc-text-field--outlined mdc-text-field--dense" data-mdc-auto-init="MDCTextField">
-            {{ form.title|add_class:"mdc-text-field__input" }}
-            {{ form.title.label_tag|add_class:"mdc-floating-label"|cut:":" }}
-            <div class="mdc-notched-outline">
-              <svg>
-                <path class="mdc-notched-outline__path"/>
-              </svg>
+          <div class='field-container'>
+            <div class="mdc-text-field mdc-text-field--outlined mdc-text-field--dense" data-mdc-auto-init="MDCTextField">
+              {{ form.title|add_class:"mdc-text-field__input" }}
+              {{ form.title.label_tag|add_class:"mdc-floating-label"|cut:":" }}
+              <div class="mdc-notched-outline">
+                <svg>
+                  <path class="mdc-notched-outline__path"/>
+                </svg>
+              </div>
+              <div class="mdc-notched-outline__idle"></div>
             </div>
-            <div class="mdc-notched-outline__idle"></div>
+
+            <p class="mdc-text-field-helper-text mdc-text-field-helper-text--persistent" aria-hidden="true">
+              {{ form.title.help_text|safe }}
+            </p>
+            {{ form.title.errors }}
           </div>
-
-          <p class="mdc-text-field-helper-text mdc-text-field-helper-text--persistent" aria-hidden="true">
-            {{ form.title.help_text|safe }}
-          </p>
-          {{ form.title.errors }}
-
 
           <div class='field-container'>
             <div class='mdc-form-field id-text-field'>
@@ -99,10 +99,8 @@
             {{ form.conclusion_page.errors }}
           </div>
 
-          <input class="mdc-button mdc-button--raised padded-top" type="submit" value="Update" />
+          <input class="mdc-button mdc-button--raised padded-top" type="submit" value="{% trans 'Update' %}" />
         </form>
-
-
       </div>
     </div>
   </section>
@@ -111,22 +109,21 @@
 
 {% block scripts %}
 {{ block.super }}
-<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
 <script nonce="{{ request.csp_nonce }}">
   'use strict';
-
-// TinyMCE bind to textarea
-$('#id_text').removeAttr('required');
-tinymce.init({
-  selector: 'textArea',
-  elementpath: false,
-  branding: false,
-  plugins: ['autolink', 'autosave', 'charmap', 'code', 'link', 'paste'],
-  menubar: false,
-  toolbar: 'undo redo | bold italic underline superscript subscript | link | charmap | code',
-  content_css: "{% static 'peerinst/css/tiny.min.css' %}",
-  link_assume_external_targets: true,
-  default_link_target: '_blank',
-});
+  window.addEventListener("load", () => {
+    // TinyMCE bind to textarea
+    tinymce.init({
+      selector: 'textArea',
+      elementpath: false,
+      branding: false,
+      plugins: ['autolink', 'autosave', 'charmap', 'code', 'link', 'paste'],
+      menubar: false,
+      toolbar: 'undo redo | bold italic underline superscript subscript | link | charmap | code',
+      content_css: "{% static 'peerinst/css/tiny.min.css' %}",
+      link_assume_external_targets: true,
+      default_link_target: '_blank',
+    });
+  })
 </script>
 {% endblock %}
