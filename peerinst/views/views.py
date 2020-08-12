@@ -3144,10 +3144,6 @@ def report(request, assignment_id="", group_id=""):
     context["gradebook_keys"] = metric_labels
     context["question_list"] = question_list
     context["teacher"] = teacher
-    # TODO: Clean up this logic!
-    context["student_group_assignment"] = StudentGroupAssignment.objects.get(
-        assignment=assignment_list[0], group=student_groups[0]
-    )
     # context["json"] = json.dumps(d3_data)
 
     return render(request, template_name, context)

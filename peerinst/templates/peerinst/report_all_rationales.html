@@ -1,8 +1,6 @@
 {% extends 'peerinst/base.html' %}
 
-{% load compress i18n get_value static %}
-
-{% block mdc %}{% endblock %}
+{% load i18n get_value %}
 
 {% block stylesheets %}
 {{ block.super }}
@@ -297,7 +295,6 @@ https://datatables.net/extensions/buttons/examples/styling/jqueryui.html
     {% endfor %}
   </section>
 </main>
-
 {% endblock %}
 
 {% block scripts %}
