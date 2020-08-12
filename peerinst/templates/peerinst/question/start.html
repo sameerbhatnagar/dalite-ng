@@ -174,7 +174,7 @@
     if (finishButton) {
       finishButton.addEventListener("click", function(evt) {
         evt.preventDefault();
-        const confirm = window.confirm("Are you sure?  Once you click 'OK' you will not be able to complete any unanswered questions.");
+        const confirm = window.confirm("{% trans 'Are you sure?  Once you click OK you will not be able to complete any unanswered questions.' %}");
         if (confirm) {
           window.location = finishButton.getAttribute("href");
         }
