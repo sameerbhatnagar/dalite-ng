@@ -328,11 +328,17 @@ export class RationaleTableApp extends Component {
           open={this.props.dialogIsOpen}
           onClose={() => this.props.listener()}
         >
-          <DialogContent style={{ overflowY: "hidden" }}>
+          <DialogContent
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              overflowY: "hidden",
+            }}
+          >
             <Question url={this.props.questionURL} />
             <DataTable
               stickyRows="1"
-              style={{ height: "100%", width: "800px" }}
+              style={{ alignItems: "stretch", height: "100%", width: "800px" }}
             >
               <DataTableContent>
                 <DataTableHead>

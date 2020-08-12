@@ -85,6 +85,7 @@ async function evaluateRationale(star, score) {
   rationaleEvaluationView();
 }
 
+/*
 function handleFeedbackKeyDown(key, rationale, node) {
   if (key === "Enter") {
     saveFeedback(rationale, node);
@@ -114,6 +115,7 @@ function saveFeedback(rationale, node) {
       console.log(err);
     });
 }
+*/
 
 /********/
 /* view */
@@ -133,11 +135,13 @@ function rationaleEvaluationView() {
         .forEach((star) => toggleStarHover(star));
     });
 
+  /*
   document
     .querySelectorAll(".custom-report__rationale__feedback")
     .forEach((rationale) => {
       rationaleFeedbackView(rationale);
     });
+  */
 }
 
 function toggleFlagHover(flag, hovering = false) {
@@ -160,6 +164,7 @@ function toggleStarHover(star, hovering = false) {
   });
 }
 
+/*
 function rationaleFeedbackView(rationale) {
   const div = document.createElement("div");
   div.classList.add("student-group--id");
@@ -251,6 +256,7 @@ function stopEditFeedback(rationale, node) {
   confirmBtn.style.display = "none";
   cancelBtn.style.display = "none";
 }
+*/
 
 /*************/
 /* listeners */
