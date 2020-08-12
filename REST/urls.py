@@ -18,6 +18,9 @@ peerinst_api.register(
     views.QuestionListViewSet,
     basename="assignment_question",
 )
+peerinst_api.register(
+    r"questions", views.QuestionViewSet, basename="question",
+)
 
 
 urlpatterns = [

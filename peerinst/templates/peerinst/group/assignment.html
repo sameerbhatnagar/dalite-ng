@@ -248,14 +248,16 @@
     }
 
     function render(isOpen, el) {
+      const pk = el.getAttribute("data-id");
       const rationaleTableApp = () => {
         return preact.h(
           group.RationaleTableApp, {
             dialogIsOpen: isOpen,
+            feedbackURL: "{% url 'REST:teacher-feedback-list' %}",
             gettext: gettext,
             listener: () => render(false, el),
-            readURL: "{% url 'REST:student-group-assigment-answers' %}{{ assignment.pk }}/" + el.getAttribute("data-id") + "/",
-            feedbackURL: "{% url 'REST:teacher-feedback-list' %}"
+            questionURL: "{% url 'REST:question-list' %}" + pk + "/",
+            readURL: "{% url 'REST:student-group-assigment-answers' %}{{ assignment.pk }}/" + pk + "/",
           });
       }
       preact.render(rationaleTableApp(), document.getElementById("rationale-table-app"));

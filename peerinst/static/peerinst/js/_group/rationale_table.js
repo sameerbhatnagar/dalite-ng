@@ -32,6 +32,60 @@ import "@rmwc/theme/node_modules/@material/theme/dist/mdc.theme.min.css";
 import "@rmwc/typography/node_modules/@material/typography/dist/mdc.typography.min.css";
 
 import { get, submitData } from "../_assignment/ajax.js";
+import { Choices } from "../_assignment/question.js";
+
+class Question extends Component {
+  state = {
+    loaded: false,
+    question: null,
+  };
+
+  refreshFromDB = async () => {
+    // Load question instance
+    try {
+      const data = await get(this.props.url);
+      console.debug(data);
+      this.setState({
+        loaded: true,
+        question: data,
+      });
+    } catch (error) {
+      // Ignore 404s
+      this.setState({
+        loaded: true,
+      });
+    }
+  };
+
+  componentDidMount() {
+    this.refreshFromDB();
+  }
+
+  render() {
+    if (!this.state.loaded) {
+      return <CircularProgress size="xlarge" />;
+    }
+    return (
+      <div style={{ padding: "16px 0px", width: "775px" }}>
+        <Typography use="headline5" theme="secondary">
+          <div
+            // eslint-disable-next-line
+            dangerouslySetInnerHTML={{ __html: this.state.question.title }}
+          />
+        </Typography>
+        <div style={{ marginTop: "12px", marginBottom: "4px" }}>
+          <Typography use="body1">
+            <div
+              // eslint-disable-next-line
+              dangerouslySetInnerHTML={{ __html: this.state.question.text }}
+            />
+          </Typography>
+          <Choices show={true} choices={this.state.question.choices} />
+        </div>
+      </div>
+    );
+  }
+}
 
 class AnswerFeedback extends Component {
   state = {
@@ -275,6 +329,7 @@ export class RationaleTableApp extends Component {
           onClose={() => this.props.listener()}
         >
           <DialogContent style={{ overflowY: "hidden" }}>
+            <Question url={this.props.questionURL} />
             <DataTable
               stickyRows="1"
               style={{ height: "100%", width: "800px" }}

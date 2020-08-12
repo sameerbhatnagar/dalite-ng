@@ -58,7 +58,7 @@ const Checkmark = (props) => {
   }
 };
 
-class Choices extends Component {
+export class Choices extends Component {
   choiceList = () => {
     return this.props.choices.map((choice) => {
       return (

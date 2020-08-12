@@ -63,6 +63,23 @@ class DisciplineViewSet(viewsets.ModelViewSet):
     serializer_class = DisciplineSerializer
 
 
+class QuestionViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    Read-only endpoint for questions.
+
+    TODO: Remove list option to reduce db load.
+    """
+
+    permission_classes = [IsAuthenticated, IsNotStudent]
+    queryset = Question.objects.all()
+    renderer_classes = [JSONRenderer]
+
+    def get_serializer(self, *args, **kwargs):
+        return QuestionSerializer(
+            fields=["choices", "pk", "text", "title"], *args, **kwargs
+        )
+
+
 class QuestionListViewSet(viewsets.ModelViewSet):
     """
     A simple ViewSet for adding and removing assignment questions.
