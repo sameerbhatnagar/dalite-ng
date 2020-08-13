@@ -458,6 +458,10 @@ input[type="submit"].thumbs-button {
 .pointer {
   cursor: pointer;
 }
+.no-pointer {
+  cursor: default;
+  pointer-events: none;
+}
 .input-ripple-wrapper {
   cursor: pointer;
   float: left;

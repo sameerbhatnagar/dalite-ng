@@ -218,9 +218,7 @@ function buildScript(app, module) {
       }),
       commonjs(),
       embedCSS({ extract: true }),
-      strip({
-        functions: ["console.debug"],
-      }),
+      strip(),
     ],
   };
   const outputOptions = {

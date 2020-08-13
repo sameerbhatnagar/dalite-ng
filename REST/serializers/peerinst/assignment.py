@@ -111,14 +111,14 @@ class QuestionSerializer(DynamicFieldsModelSerializer):
         if "text" in ret:
             ret["text"] = bleach.clean(
                 ret["text"], tags=ALLOWED_TAGS, styles=[], strip=True
-            )
+            ).strip()
         if "choices" in ret:
             ret["choices"] = [
                 (
                     choice[0],
                     bleach.clean(
                         choice[1], tags=ALLOWED_TAGS, styles=[], strip=True
-                    ),
+                    ).strip(),
                     instance.is_correct(i),
                 )
                 for (i, choice) in enumerate(ret["choices"], 1)
