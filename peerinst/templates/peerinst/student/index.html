@@ -2,8 +2,20 @@
 
 {% load i18n %}
 
-{% block body %}
+{% block stylesheets %}
+{{ block.super }}
+{% compress js file preact %}
+<script src="{% static 'peerinst/js/preact.min.js' %}" defer="true"></script>
+{% endcompress %}
+{% compress css file student %}
+<link href="{% static 'peerinst/js/student.min.css' %}" rel="stylesheet">
+{% endcompress %}
+{% compress css file rmwc %}
+<link href="{% static 'peerinst/css/rmwc.min.css' %}" rel="stylesheet">
+{% endcompress %}
+{% endblock %}
 
+{% block body %}
 <main>
   <section id="student-page">
 
@@ -108,7 +120,7 @@
   window.addEventListener("load", function() {
     student.initStudentPage(
       {{ data|safe }}, "{{ group_student_id_needed }}"
-    )
+    );
   });
 </script>
 
