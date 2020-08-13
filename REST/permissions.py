@@ -27,8 +27,14 @@ class InTeacherList(permissions.BasePermission):
     """
 
     def has_object_permission(self, request, view, obj):
-        # Instance must have an attribute named `owner`.
-        return request.user.teacher in obj.group.teacher.all()
+        # Instance must have an attribute named `group` and `group` must have
+        # attribute named `teacher`
+        if hasattr(obj, "group") and hasattr(obj.group, "teacher"):
+            return request.user.teacher in obj.group.teacher.all()
+        raise AttributeError(
+            "This object-level permission can only be applied against \
+            models with a group attribute containing a list of teachers"
+        )
 
 
 class IsAdminUserOrReadOnly(permissions.BasePermission):
