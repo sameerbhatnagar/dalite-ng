@@ -17,12 +17,7 @@
   font-family: $mdc-typography-font-family;
 }
 
-.mdc-typography--body1 {
-  letter-spacing: normal;
-  line-height: normal;
-}
-
-.mdc-typography--body2 {
+.mdc-typography--body1, .mdc-typography--body2 {
   letter-spacing: normal;
   line-height: normal;
 }
@@ -71,6 +66,12 @@
   }
 }
 
-.mdc-dialog__content {
+.mdc-dialog .mdc-dialog__content {
+  color: var(--mdc-theme-secondary);
   letter-spacing: normal;
+}
+
+.timestamp {
+  color: var(--mdc-theme-secondary);
+  font-size: 0.6rem;
 }
