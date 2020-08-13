@@ -485,10 +485,14 @@ class Question(models.Model):
         choice2 = {}
         frequency = {}
         if all_rationales:
-            # all rationales, including those enetered as samples by teachers
-            student_answers = self.answer_set.filter(first_answer_choice__gt=0)
+            # all rationales, including those entered as samples by teachers,
+            # but exclude expert rationales, since they are no longer shown
+            # to students on review step
+            student_answers = self.answer_set.filter(
+                first_answer_choice__gt=0
+            ).exclude(expert=True)
         else:
-            # only rationales enetered by students
+            # only rationales entered by students
             student_answers = (
                 self.answer_set.filter(expert=False)
                 .filter(first_answer_choice__gt=0)

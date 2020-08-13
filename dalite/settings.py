@@ -30,7 +30,6 @@ INSTALLED_APPS = (
     "tos",
     "peerinst",
     "REST",
-    "grappelli",
     "cookielaw",
     "csp",
     "security_headers",
@@ -442,7 +441,7 @@ CSP_FONT_SRC = [
     "fonts.gstatic.com",
     "unpkg.com",
 ]
-CSP_OBJECT_SRC = ["phet.colorado.edu", "*.youtube.com"]
+CSP_OBJECT_SRC = ["*.mydalite.org", "phet.colorado.edu", "*.youtube.com"]
 
 FEATURE_POLICY = [
     "autoplay 'none'",

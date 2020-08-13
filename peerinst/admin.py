@@ -116,6 +116,7 @@ class AnswerInline(admin.StackedInline):
 class CollectionAdmin(admin.ModelAdmin):
     pass
 
+
 @admin.register(Question)
 class QuestionAdmin(admin.ModelAdmin):
     fieldsets = [
@@ -162,6 +163,7 @@ class QuestionAdmin(admin.ModelAdmin):
     }
     readonly_fields = [
         "id",
+        "user",
         "parent",
         "created_on",
         "last_modified",
@@ -214,9 +216,11 @@ class CategoryAdmin(admin.ModelAdmin):
 class DisciplineAdmin(admin.ModelAdmin):
     pass
 
+
 @admin.register(Subject)
 class SubjectAdmin(admin.ModelAdmin):
-    filter_horizontal = ['categories']
+    filter_horizontal = ["categories"]
+
 
 @admin.register(Institution)
 class InstitutionAdmin(admin.ModelAdmin):
@@ -227,6 +231,15 @@ class InstitutionAdmin(admin.ModelAdmin):
 class AssignmentAdmin(admin.ModelAdmin):
     filter_horizontal = ["questions"]
     search_fields = ["identifier"]
+    fields = [
+        "identifier",
+        "title",
+        "owner",
+        "description",
+        "intro_page",
+        "conclusion_page",
+    ]
+    readonly_fields = ["identifier", "owner"]
 
 
 def publish_answers(modeladmin, request, queryset):
@@ -241,22 +254,22 @@ class AnswerAdmin(admin.ModelAdmin):
     list_display = [
         "id",
         "question",
-        "user_token",
+        # "user_token",
         "first_answer_choice_label",
         "second_answer_choice_label",
         "rationale",
         "show_to_others",
         "expert",
         "show_chosen_rationale",
-        "upvotes",
-        "downvotes",
-        "datetime_start",
-        "datetime_first",
+        # "upvotes",
+        # "downvotes",
+        # "datetime_start",
+        # "datetime_first",
         "datetime_second",
     ]
     list_display_links = None
-    list_editable = ["show_to_others", "expert"]
-    list_filter = ["question"]
+    list_editable = ["rationale", "show_to_others", "expert"]
+    list_filter = ["expert", "show_to_others", "question"]
     actions = [publish_answers]
     search_fields = ["question__title", "rationale", "user_token", "id"]
 

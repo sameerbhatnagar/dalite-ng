@@ -55,11 +55,23 @@
   {% endif %}
   <ul class="mdc-list">
     {% for sample in question.answer_set.all|dictsort:'first_answer_choice' %}
-      {% if not sample.user_token %}
+      {% if not sample.user_token and not sample.expert %}
         <li><span class='mdc-theme--primary bold'>{{ sample.first_answer_choice_label }}</span>: {{ sample.rationale|safe|striptags }}</li>
       {% endif %}
     {% endfor %}
   </ul>
+
+  <hr class="simple-hr">
+  <h3>{% trans 'Existing Expert rationales' %}</h3>
+  <ul class="mdc-list">
+    {% for sample in question.answer_set.all|dictsort:'first_answer_choice' %}
+      {% if sample.expert %}
+        <li><span class='mdc-theme--primary bold'>{{ sample.first_answer_choice_label }}</span>: {{ sample.rationale|safe|striptags }}</li>
+      {% endif %}
+    {% endfor %}
+  </ul>
+
+
 {% endif %}
 
 <hr class="simple-hr">

@@ -11,7 +11,9 @@ from django.views.i18n import JavaScriptCatalog
 from . import views
 from peerinst import views as peerinst_views
 
-admin.site.site_header = admin.site.site_title = _("Dalite NG administration")
+admin.site.site_header = admin.site.site_title = _(
+    "SALTISE admin site for mydalite.org "
+)
 
 
 # LTI
