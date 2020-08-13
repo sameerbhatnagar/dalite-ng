@@ -54,14 +54,14 @@ class AnswerSerializer(DynamicFieldsModelSerializer):
         ret = super().to_representation(instance)
         ret["rationale"] = bleach.clean(
             ret["rationale"], tags=ALLOWED_TAGS, styles=[], strip=True
-        )
+        ).strip()
         if ret["chosen_rationale"]:
             ret["chosen_rationale"] = bleach.clean(
                 ret["chosen_rationale"],
                 tags=ALLOWED_TAGS,
                 styles=[],
                 strip=True,
-            )
+            ).strip()
         return ret
 
     class Meta:
