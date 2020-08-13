@@ -4,8 +4,41 @@ from django.urls import reverse
 from rest_framework import status
 
 from peerinst.tests.fixtures import *  # noqa
+from peerinst.tests.fixtures.student import login_student
 from peerinst.tests.fixtures.teacher import login_teacher
-from REST.permissions import InTeacherList
+from REST.permissions import InTeacherList, IsNotStudent
+
+
+@pytest.mark.django_db
+def test_is_not_student_permission(client, rf, student, teacher):
+
+    rf.user = student.student
+
+    assert not IsNotStudent().has_permission(rf, None)
+
+    rf.user = teacher.user
+
+    assert IsNotStudent().has_permission(rf, None)
+
+
+@pytest.mark.django_db
+def test_is_not_student_permission_in_view(
+    client, student, student_group_assignment
+):
+
+    assert login_student(client, student)
+
+    url = reverse(
+        "REST:student-group-assigment-answers",
+        args=[
+            student_group_assignment.pk,
+            student_group_assignment.assignment.questions.first().pk,
+        ],
+    )
+
+    response = client.get(url)
+
+    assert response.status_code == status.HTTP_403_FORBIDDEN
 
 
 @pytest.mark.django_db
