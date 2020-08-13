@@ -24,6 +24,8 @@ class InAssignmentOwnerList(permissions.BasePermission):
 class InTeacherList(permissions.BasePermission):
     """
     Object-level permission to only allow teachers to access a StudentGroup.
+
+    To be used with IsTeacher view-level permission.
     """
 
     def has_object_permission(self, request, view, obj):
