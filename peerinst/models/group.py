@@ -14,6 +14,16 @@ def current_year():
     return date.today().year
 
 
+def current_semester():
+    current_month = date.today().month
+    if current_month < 6:
+        return StudentGroup.WINTER
+    elif current_month > 7:
+        return StudentGroup.FALL
+    else:
+        return StudentGroup.SUMMER
+
+
 def max_value_current_year(value):
     return MaxValueValidator(current_year() + 1)(value)
 
@@ -39,10 +49,11 @@ class StudentGroup(models.Model):
         Quality, blank=True, null=True, on_delete=models.SET_NULL
     )
     semester = models.CharField(
-        max_length=6, choices=SEMESTER_CHOICES, default=FALL
+        max_length=6, choices=SEMESTER_CHOICES, default=current_semester
     )
     year = models.PositiveIntegerField(
-        validators=[MinValueValidator(0), max_value_current_year], default=0
+        validators=[MinValueValidator(2015), max_value_current_year],
+        default=current_year,
     )
 
     discipline = models.ForeignKey(
