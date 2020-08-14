@@ -1892,6 +1892,12 @@ class TeacherGroups(TeacherBase, ListView):
                 form.save()
                 form.instance.teacher.add(self.teacher)
                 self.teacher.current_groups.add(form.instance)
+                return HttpResponseRedirect(
+                    reverse(
+                        "group-details",
+                        kwargs={"group_hash": form.instance.hash},
+                    )
+                )
             else:
                 return render(
                     request,
