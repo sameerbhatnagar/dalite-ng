@@ -52,16 +52,12 @@ class AnswerSerializer(DynamicFieldsModelSerializer):
 
     def to_representation(self, instance):
         ret = super().to_representation(instance)
-        ret["rationale"] = bleach.clean(
-            ret["rationale"], tags=ALLOWED_TAGS, styles=[], strip=True
-        ).strip()
-        if ret["chosen_rationale"]:
-            ret["chosen_rationale"] = bleach.clean(
-                ret["chosen_rationale"],
-                tags=ALLOWED_TAGS,
-                styles=[],
-                strip=True,
-            ).strip()
+        keys = ["rationale", "chosen_rationale"]
+        for key in keys:
+            if key in ret and ret[key]:
+                ret[key] = bleach.clean(
+                    ret[key], tags=ALLOWED_TAGS, styles=[], strip=True
+                ).strip()
         return ret
 
     class Meta:
@@ -69,6 +65,7 @@ class AnswerSerializer(DynamicFieldsModelSerializer):
         fields = [
             "id",
             "answer_choice",
+            "assignment",
             "chosen_rationale",
             "first_answer_choice",
             "first_answer_choice_label",
@@ -97,7 +94,7 @@ class FeedbackWriteSerialzer(serializers.ModelSerializer):
 class FeedbackReadSerialzer(serializers.ModelSerializer):
     annotator = serializers.ReadOnlyField(source="annotator.username")
     answer = AnswerSerializer(
-        fields=("answer_choice", "rationale", "question")
+        fields=("answer_choice", "assignment", "rationale", "question")
     )
 
     class Meta:

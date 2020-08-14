@@ -1,6 +1,8 @@
 {% extends 'peerinst/student/base.html' %}
 
-{% load i18n %}
+{% load compress i18n static %}
+
+{% block mdc %}{% endblock %}
 
 {% block stylesheets %}
 {{ block.super }}
@@ -113,6 +115,7 @@
       </div>
     </div>
 
+    <div id="feedback-app"></div>
   </section>
 </main>
 
@@ -121,6 +124,17 @@
     student.initStudentPage(
       {{ data|safe }}, "{{ group_student_id_needed }}"
     );
+
+    console.info({{ data|safe }});
+
+    const FeedbackApp = preact.h(student.FeedbackApp, {
+      assignmentId: "unique_id_for_new_assigment",
+      assignmentTitle: "unique_id_for_new_assigment",
+      dialogIsOpen: true,
+      feedbackURL: "{% url 'REST:student-feedback' %}",
+      gettext: gettext,
+    });
+    preact.render(FeedbackApp, document.getElementById("feedback-app"));
   });
 </script>
 

@@ -51,7 +51,7 @@ const Checkmark = (props) => {
       <Icon
         icon="check"
         iconOptions={{ strategy: "ligature", size: "xsmall" }}
-        style={{ transform: "translateY(4px)" }}
+        style={{ verticalAlign: "middle" }}
         theme="primary"
       />
     );
