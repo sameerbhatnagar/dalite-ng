@@ -91,9 +91,9 @@ https://datatables.net/extensions/buttons/examples/styling/jqueryui.html
                 <i class="mdc-theme--primary material-icons md-48">calendar_today</i>
               </span>
               <span class="mdc-list-item__text mdc-theme--secondary bold">
-                {% trans 'Created on' %}
+                {% trans 'Discipline / Semester' %}
                 <span class="mdc-list-item__secondary-text">
-                  {{ group.creation_date }}
+                   {{ group.discipline.title }} / {{ group.semester }} {{ group.year }}
                 </span>
               </span>
             </li>
