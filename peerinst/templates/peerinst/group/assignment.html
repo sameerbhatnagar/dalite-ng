@@ -1,6 +1,21 @@
 {% extends 'peerinst/group/base.html' %}
 
-{% load i18n %}
+{% load compress i18n static %}
+
+{% block mdc %}{% endblock %}
+
+{% block stylesheets %}
+{{ block.super }}
+{% compress js file preact %}
+<script src="{% static 'peerinst/js/preact.min.js' %}" defer="true"></script>
+{% endcompress %}
+{% compress css file rationale_table %}
+<link href="{% static 'peerinst/js/group.min.css' %}" rel="stylesheet">
+{% endcompress %}
+{% compress css file rmwc %}
+<link href="{% static 'peerinst/css/rmwc.min.css' %}" rel="stylesheet">
+{% endcompress %}
+{% endblock %}
 
 {% block body %}
 <main>
@@ -16,7 +31,7 @@
       <span class="admin-link--padded">|</span><a href="{% url 'group-details' group.hash %}">{% trans 'Back to group' %}</a>
     </div>
 
-    <div class="foldable foldable__unfolded">
+    <div class="foldable foldable__unfolded" id="details-section">
       <h2 class="foldable--title mdc-typography--display1 mdc-theme--secondary">
         {% trans 'Details' %}
       </h2>
@@ -110,7 +125,7 @@
 
     <div class="foldable">
       <h2 class="foldable--title mdc-typography--display1 mdc-theme--secondary">
-        {% trans 'Questions' %}
+        {% trans 'Question order' %}
       </h2>
       <div class="foldable--body p-bot-3">
         <ul id="question-list" class="mdc-list mdc-list--two-line mdc-list--non-interactive">
@@ -140,16 +155,20 @@
       </div>
     </div>
 
-    <div class="foldable hidden">
+    <div class="foldable hidden" id="progress-section">
       <h2 class="foldable--title mdc-typography--display1 mdc-theme--secondary">
-        {% trans 'Student progress' %}
+        {% trans 'Progress and feedback' %}
       </h2>
+
       <div class="foldable--body">
         <div class="admin-link">
-          <a href="{% url 'report-custom' %}?groups={{group.pk}}&assignments={{assignment.assignment.identifier}}">{% trans 'Generate report' %}</a>
+          <a href="{% url 'report-custom' %}?groups={{group.pk}}&assignments={{assignment.assignment.identifier}}">{% trans 'Generate detailed report' %}</a>
         </div>
+
+        <div id="rationale-table-app"></div>
+
         <ul id="student-progress"
-            class="mdc-list mdc-list--two-line mdc-list--non-interactive">
+            class="mdc-list mdc-list--two-line">
         </ul>
       </div>
     </div>
@@ -204,7 +223,6 @@
 
       </div>
     </div>
-
   </section>
 </main>
 {% endblock %}
@@ -212,9 +230,38 @@
 {% block init-scripts %}
 <script nonce="{{ request.csp_nonce }}">
   window.addEventListener("load", function() {
-    group.initAssignment(
-      {{ data|safe }}
-    )
+    group.initAssignment({{ data|safe }}, callback);
+
+    // If distributed, update which sections are shown
+    {% if assignment.is_distributed %}
+    document.getElementById("details-section").classList.remove("foldable__unfolded");
+    document.getElementById("progress-section").classList.add("foldable__unfolded");
+    {% endif %}
+
+    // Callback executed after async load of student progress elements
+    function callback() {
+      const progressList = document.getElementById("progress-section").querySelectorAll("li.link-feedback-dialog");
+
+      progressList.forEach((el) => {
+        el.addEventListener("click", () => render(true, el));
+      });
+    }
+
+    function render(isOpen, el) {
+      const pk = el.getAttribute("data-id");
+      const rationaleTableApp = () => {
+        return preact.h(
+          group.RationaleTableApp, {
+            dialogIsOpen: isOpen,
+            feedbackURL: "{% url 'REST:teacher-feedback-list' %}",
+            gettext: gettext,
+            listener: () => render(false, el),
+            questionURL: "{% url 'REST:question-list' %}" + pk + "/",
+            readURL: "{% url 'REST:student-group-assigment-answers' %}{{ assignment.pk }}/" + pk + "/",
+          });
+      }
+      preact.render(rationaleTableApp(), document.getElementById("rationale-table-app"));
+    }
   });
 </script>
 {% endblock %}

@@ -10,7 +10,7 @@ import { buildReq } from "../ajax.js";
 
 let model;
 
-function initModel(data) {
+function initModel(data, callback) {
   model = {
     assignment: {
       hash: data.assignment.hash,
@@ -192,11 +192,11 @@ function addEditBtnsListeners() {
 /* init */
 /********/
 
-export function initAssignment(data) {
+export function initAssignment(data, callback) {
   initModel(data);
   view();
   initListeners();
   if (model.assignment.distributionDate) {
-    initStudentProgress(model.urls.getAssignmentStudentProgress);
+    initStudentProgress(model.urls.getAssignmentStudentProgress, callback);
   }
 }

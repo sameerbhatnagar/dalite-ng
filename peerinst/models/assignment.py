@@ -430,6 +430,7 @@ class StudentGroupAssignment(models.Model):
         ]
         return [
             {
+                "question_id": question.id,
                 "question_title": question.title,
                 "n_students": len(results),
                 "n_completed": sum(
@@ -476,6 +477,10 @@ class StudentGroupAssignment(models.Model):
     @property
     def days_to_expiry(self):
         return max(self.due_date - datetime.now(pytz.utc), timedelta()).days
+
+    @property
+    def is_distributed(self):
+        return self.distribution_date < datetime.now(pytz.utc)
 
     @property
     def link(self):
