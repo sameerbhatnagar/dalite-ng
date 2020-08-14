@@ -42,58 +42,10 @@ https://datatables.net/extensions/buttons/examples/styling/jqueryui.html
     <div class="foldable foldable__unfolded">
       <h2 class="foldable--title mdc-typography--display1 mdc-theme--secondary">
         {% trans 'Characteristics' %}
+        <a href="{% url 'group-update' group.hash %}">
+        <i class="material-icons md-24 mdc-ripple-surface icon-list">edit</i>
+        </a>
       </h2>
-
-      <div class="foldable--body">
-        <form method="post">
-          {% csrf_token %}
-          {% for field in form %}
-          {% if forloop.counter0 < 1 %}
-            <div class="mdc-text-field mdc-text-field--outlined mdc-text-field--dense" data-mdc-auto-init="MDCTextField">
-              {{ field|add_class:"mdc-text-field__input" }}
-              {{ field.label_tag|add_class:"mdc-floating-label"|cut:":" }}
-              <div class="mdc-notched-outline">
-                <svg>
-                  <path class="mdc-notched-outline__path"/>
-                </svg>
-              </div>
-              <div class="mdc-notched-outline__idle"></div>
-            </div>
-            <p class="mdc-text-field-helper-text mdc-text-field-helper-text--persistent" aria-hidden="true">
-              {{ field.help_text|safe }}
-            </p>
-            {{ field.errors }}
-          {% else %}
-            <div class='field'>
-              <div>
-                <div class='mdc-form-field'>
-                  <label for='id_discipline'>{{ field.label }}:</label>
-                  {% if field.label == 'Student id needed' %}
-                  <div class="mdc-checkbox">
-                    {{ field }}
-                  </div>
-                  {% else %}
-                  <div class='mdc-select'>
-                    {{ field|add_class:"mdc-select__native-control" }}
-                    <div class="mdc-select__bottom-line"></div>
-                  </div>
-                  {% endif %}
-
-
-                </div>
-              </div>
-
-              <p class="form-helper-text" aria-hidden="true">
-                {{ field.help_text|safe }}
-              </p>
-                {{ field.discipline.errors }}
-            </div>
-          {% endif %}
-          {% endfor %}
-          <input class="mdc-button mdc-button--raised padded-top" type="submit" value="{% trans 'Update' %}" />
-        </form>
-
-      </div>
 
       <div class="foldable--body">
 
@@ -112,11 +64,11 @@ https://datatables.net/extensions/buttons/examples/styling/jqueryui.html
                   {{ group.name }}
                 </span>
               </span>
-              <!-- <span class="mdc-list-item__meta">
+              <span class="mdc-list-item__meta">
                 <i title="Edit" class="material-icons md-24 mdc-ripple-surface icon-list edit-btn">edit</i>
-              </span> -->
+              </span>
             </li>
-            <!-- <li class="mdc-list-divider" role="separator"></li>
+            <li class="mdc-list-divider" role="separator"></li>
 
             <li class="mdc-list-item">
               <span class="mdc-list-item__graphic mdc-theme--primary">
@@ -144,7 +96,7 @@ https://datatables.net/extensions/buttons/examples/styling/jqueryui.html
                   {{ group.creation_date }}
                 </span>
               </span>
-            </li> -->
+            </li>
             <li class="mdc-list-divider" role="separator"></li>
 
             <li class="mdc-list-item">
@@ -163,7 +115,7 @@ https://datatables.net/extensions/buttons/examples/styling/jqueryui.html
             </li>
             <li class="mdc-list-divider" role="separator"></li>
 
-            <!-- <li class="mdc-list-item">
+            <li class="mdc-list-item">
               <span class="mdc-list-item__graphic mdc-theme--primary">
                 <i class="mdc-theme--primary material-icons md-48">
                   account_balance
@@ -191,7 +143,7 @@ https://datatables.net/extensions/buttons/examples/styling/jqueryui.html
                 </div>
               </span>
             </li>
-            <li class="mdc-list-divider" role="separator"></li> -->
+            <li class="mdc-list-divider" role="separator"></li>
 
             <li class="mdc-list-item verified_user">
               <span class="mdc-list-item__graphic mdc-theme--primary">

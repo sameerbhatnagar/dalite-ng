@@ -5,10 +5,11 @@ import logging
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
 from django.http import HttpResponse, JsonResponse
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.utils.translation import ugettext
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_POST, require_safe
+from django.views.generic.edit import UpdateView
 
 from dalite.views.errors import response_400, response_500
 from dalite.views.utils import get_json_params
@@ -22,6 +23,7 @@ from peerinst.models import (
 )
 
 from .decorators import group_access_required
+from ..mixins import LoginRequiredMixin, NoStudentsMixin
 from reputation.models import ReputationType
 
 from course_flow.views import get_owned_courses
@@ -81,17 +83,7 @@ def group_details_page(req, group_hash, teacher, group):
         dict(c)
         for c in ReputationType.objects.get(type="student").criteria.all()
     ]
-    from ..forms import StudentGroupUpdateForm
-
-    if req.method == "POST":
-        student_group_form = StudentGroupUpdateForm(req.POST)
-        if student_group_form.is_valid():
-            student_group_form.save()
-
-    else:
-        student_group_form = StudentGroupUpdateForm(instance=group)
     context = {
-        "form": student_group_form,
         "data": json.dumps(data),
         "group": group,
         "assignments": assignments,
@@ -396,3 +388,25 @@ def get_student_reputation(req):
             "criteria": criteria,
         }
     )
+
+
+class StudentGroupUpdateView(LoginRequiredMixin, NoStudentsMixin, UpdateView):
+    """View for updating group meta-data."""
+
+    model = StudentGroup
+    template_name = "peerinst/group/studentgroup_edit.html"
+    fields = ["title", "student_id_needed", "semester", "year", "discipline"]
+
+    def get_object(self):
+        return StudentGroup.get(self.kwargs["group_hash"])
+
+    def get_context_data(self, **kwargs):
+        context = super(StudentGroupUpdateView, self).get_context_data(
+            **kwargs
+        )
+        teacher = get_object_or_404(Teacher, user=self.request.user)
+        context["teacher"] = teacher
+        return context
+
+    def get_success_url(self):
+        return reverse("group-details", kwargs=self.kwargs)
