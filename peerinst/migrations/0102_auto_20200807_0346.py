@@ -12,11 +12,11 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AlterField(
-            model_name='assignment',
-            name='conclusion_page',
-            field=models.TextField(blank=True, help_text='Any notes you would like to leave for students\n            to read that will be shown after the last\n            question of the assignment.\n            ', null=True, verbose_name='Post Assignment Notes'),
-        ),
+        # migrations.AlterField(
+        #     model_name='assignment',
+        #     name='conclusion_page',
+        #     field=models.TextField(blank=True, help_text='Any notes you would like to leave for students\n            to read that will be shown after the last\n            question of the assignment.\n            ', null=True, verbose_name='Post Assignment Notes'),
+        # ),
         migrations.AlterUniqueTogether(
             name='answerannotation',
             unique_together={('answer', 'annotator')},
