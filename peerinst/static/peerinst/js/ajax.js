@@ -12,7 +12,6 @@ export function buildReq(data, method) {
       method: method.toUpperCase(),
       headers: {
         "Content-Type": "application/json",
-        "X-CSRFToken": getCsrfToken(),
       },
     };
   } else if (method.toLowerCase() === "post") {

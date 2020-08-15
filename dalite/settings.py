@@ -13,13 +13,16 @@ DEBUG = False
 
 ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
 
+if os.environ.get("ALLOWED_HOST"):
+    ALLOWED_HOSTS.append(os.environ.get("ALLOWED_HOST"))
+
 DEV_PORT = 8000  # port used during development
 
 # Application definition
 
 INSTALLED_APPS = (
-    "user_feedback.apps.UserFeedbackConfig",
-    "course_flow.apps.CourseFlowConfig",
+    "user_feedback",
+    "course_flow",
     "rest_framework",
     "analytics",
     "reputation",
@@ -27,7 +30,6 @@ INSTALLED_APPS = (
     "tos",
     "peerinst",
     "REST",
-    "grappelli",
     "cookielaw",
     "csp",
     "security_headers",
@@ -439,7 +441,7 @@ CSP_FONT_SRC = [
     "fonts.gstatic.com",
     "unpkg.com",
 ]
-CSP_OBJECT_SRC = ["phet.colorado.edu", "*.youtube.com"]
+CSP_OBJECT_SRC = ["*.mydalite.org", "phet.colorado.edu", "*.youtube.com"]
 
 FEATURE_POLICY = [
     "autoplay 'none'",

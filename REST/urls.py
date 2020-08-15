@@ -18,6 +18,9 @@ peerinst_api.register(
     views.QuestionListViewSet,
     basename="assignment_question",
 )
+peerinst_api.register(
+    r"questions", views.QuestionViewSet, basename="question",
+)
 
 
 urlpatterns = [
@@ -37,6 +40,16 @@ urlpatterns = [
         views.StudentFeedbackList.as_view(),
         name="student-feedback",
     ),
+    path(
+        "studentgroupassignment/",
+        views.StudentGroupAssignmentAnswers.as_view({"get": "list"}),
+        name="student-group-assigment-answers",
+    ),
+    path(
+        "studentgroupassignment/<int:pk>/<int:question_pk>/",
+        views.StudentGroupAssignmentAnswers.as_view({"get": "retrieve"}),
+        name="student-group-assigment-answers",
+    ),
     path("teacher/<int:pk>/", views.TeacherView.as_view(), name="teacher",),
     path(
         "teacher/feedback/",
@@ -47,5 +60,10 @@ urlpatterns = [
         "teacher/feedback/<int:pk>/",
         views.TeacherFeedbackDetail.as_view(),
         name="teacher-feedback-detail",
+    ),
+    path(
+        "teacher/feedback/through_answer/<int:pk>/",
+        views.TeacherFeedbackThroughAnswerDetail.as_view(),
+        name="teacher-feedback-through-answer-detail",
     ),
 ]
