@@ -35,21 +35,25 @@ class Feedback extends Component {
           show={true}
           choices={this.props.feedback.answer.question.choices}
         />
-        <Typography use="body1">
-          <p>
-            {this.props.gettext("You thought '") +
-              this.props.feedback.answer.answer_choice.text +
-              this.props.gettext("' because '") +
-              this.props.feedback.answer.rationale}
-          </p>
-        </Typography>
 
-        <Typography use="body1">
-          <p>
-            {this.props.gettext("Your teacher commented: ") +
-              this.props.feedback.note}
-          </p>
-        </Typography>
+        <div style={{ marginTop: "12px" }}>
+          <Typography use="body1">
+            <p>
+              <strong>{this.props.gettext("You thought:")}</strong>
+            </p>
+            <blockquote>
+              {this.props.feedback.answer.answer_choice.text}
+            </blockquote>
+            <p>
+              <strong>{this.props.gettext("because")}</strong>
+            </p>
+            <blockquote>{this.props.feedback.answer.rationale}</blockquote>
+            <p>
+              <strong>{this.props.gettext("Your teacher commented: ")}</strong>
+            </p>
+            <blockquote>{this.props.feedback.note}</blockquote>
+          </Typography>
+        </div>
       </div>
     );
   }

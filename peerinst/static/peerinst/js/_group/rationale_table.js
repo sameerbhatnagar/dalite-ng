@@ -88,15 +88,16 @@ class Question extends Component {
 class AnswerFeedback extends Component {
   state = {
     changed: false,
+    charcterCount: 0,
     create: true,
     loaded: false,
     note: "",
     saving: false,
     score: null,
     score_hover: null,
-    snackbarIsOpen: false,
-    snackbarMessage: "",
   };
+
+  characterLimit = 2000;
 
   scores = Array.from([1, 2, 3]);
   annotations = Array.from([
@@ -113,6 +114,7 @@ class AnswerFeedback extends Component {
       );
       console.debug(data);
       this.setState({
+        characterCount: data["note"] ? data["note"].length : 0,
         create: false,
         loaded: true,
         note: data["note"] ? data["note"] : "",
@@ -121,6 +123,7 @@ class AnswerFeedback extends Component {
     } catch (error) {
       // Ignore 404s
       this.setState({
+        characterCount: 0,
         loaded: true,
       });
     }
@@ -156,31 +159,33 @@ class AnswerFeedback extends Component {
         saving: false,
         score,
         score_hover: null,
-        snackbarIsOpen: true,
-        snackbarMessage: this.props.gettext("Saved"),
       });
+      this.props.setSnackbar(true, this.props.gettext("Saved"));
     } catch (error) {
       console.error(error);
+      this.props.setSnackbar(
+        true,
+        this.props.gettext("An error occurred.  Try refreshing this page."),
+      );
       this.setState({
         saving: false,
-        snackbarIsOpen: true,
-        snackbarMessage: this.props.gettext(
-          "An error occurred.  Try refreshing this page.",
-        ),
       });
     }
   };
 
-  saveInProgress = () => {
+  note = () => {
+    let msg;
     if (this.state.saving) {
-      return (
-        <div style={{ position: "absolute ", bottom: "-5px" }}>
-          <Typography use="caption">
-            {this.props.gettext("Saving...")}
-          </Typography>
-        </div>
-      );
+      msg = this.props.gettext("Saving...");
+    } else {
+      const left = this.characterLimit - this.state.characterCount;
+      msg = left + this.props.gettext(" characters left");
     }
+    return (
+      <div class="timestamp" style={{ textAlign: "right" }}>
+        {msg}
+      </div>
+    );
   };
 
   componentDidMount() {
@@ -201,73 +206,69 @@ class AnswerFeedback extends Component {
           dense
           value={this.state.note}
           onInput={(evt) => {
-            this.setState({ changed: true, note: evt.target.value });
+            this.setState({
+              changed: true,
+              characterCount: evt.target.value.length,
+              note: evt.target.value,
+            });
           }}
           onBlur={() => {
             if (this.state.changed) {
               this.save(this.state.score);
             }
           }}
+          style={{ resize: "vertical" }}
         />
 
-        <IconButton
-          icon="outlined_flag"
-          checked={
-            (this.state.score == 0 && this.state.score_hover == null) ||
-            (this.state.score != 0 && this.state.score_hover == 0)
-          }
-          onClick={() =>
-            this.state.score != 0 ? this.save(0) : this.save(null)
-          }
-          onIcon="flag"
-          onMouseEnter={() => {
-            this.setState({ score_hover: 0 });
-          }}
-          onMouseOut={() => {
-            this.setState({ score_hover: null });
-          }}
-          theme="primary"
-          title={this.props.gettext("Never show")}
-        />
+        {this.note()}
 
-        {this.scores.map((score, i) => {
-          return (
-            <IconButton
-              icon="star_border"
-              checked={
-                (this.state.score >= score &&
-                  this.state.score_hover >= score) ||
-                (this.state.score >= score &&
-                  this.state.score_hover == null) ||
-                (this.state.score != score && this.state.score_hover >= score)
-              }
-              onClick={() => this.save(score)}
-              onIcon="star"
-              onMouseEnter={() => {
-                this.setState({ score_hover: score });
-              }}
-              onMouseOut={() => {
-                this.setState({ score_hover: null });
-              }}
-              theme="primary"
-              title={this.annotations[i]}
-            />
-          );
-        })}
+        <div style={{ position: "relative", top: "-14px" }}>
+          <IconButton
+            icon="outlined_flag"
+            checked={
+              (this.state.score == 0 && this.state.score_hover == null) ||
+              (this.state.score != 0 && this.state.score_hover == 0)
+            }
+            onClick={() =>
+              this.state.score != 0 ? this.save(0) : this.save(null)
+            }
+            onIcon="flag"
+            onMouseEnter={() => {
+              this.setState({ score_hover: 0 });
+            }}
+            onMouseOut={() => {
+              this.setState({ score_hover: null });
+            }}
+            theme="primary"
+            title={this.props.gettext("Never show")}
+          />
 
-        {this.saveInProgress()}
-
-        <Snackbar
-          show={this.state.snackbarIsOpen}
-          onHide={(evt) => this.setState({ snackbarIsOpen: false })}
-          message={this.state.snackbarMessage}
-          timeout={1000}
-          actionHandler={() => {}}
-          actionText="OK"
-          dismissesOnAction={true}
-          style={{ zIndex: 1000 }}
-          alignStart
-        />
+          {this.scores.map((score, i) => {
+            return (
+              <IconButton
+                icon="star_border"
+                checked={
+                  (this.state.score >= score &&
+                    this.state.score_hover >= score) ||
+                  (this.state.score >= score &&
+                    this.state.score_hover == null) ||
+                  (this.state.score != score &&
+                    this.state.score_hover >= score)
+                }
+                onClick={() => this.save(score)}
+                onIcon="star"
+                onMouseEnter={() => {
+                  this.setState({ score_hover: score });
+                }}
+                onMouseOut={() => {
+                  this.setState({ score_hover: null });
+                }}
+                theme="primary"
+                title={this.annotations[i]}
+              />
+            );
+          })}
+        </div>
       </div>
     );
   }
@@ -305,6 +306,10 @@ export class RationaleTableApp extends Component {
     }
   };
 
+  setSnackbar = (snackbarIsOpen, snackbarMessage) => {
+    this.setState({ snackbarIsOpen, snackbarMessage });
+  };
+
   componentDidMount() {
     this.refreshFromDB();
   }
@@ -336,7 +341,7 @@ export class RationaleTableApp extends Component {
             <Question url={this.props.questionURL} />
             <DataTable
               stickyRows="1"
-              style={{ alignItems: "stretch", height: "100%", width: "800px" }}
+              style={{ height: "100%", width: "800px" }}
             >
               <DataTableContent>
                 <DataTableHead>
@@ -441,12 +446,17 @@ export class RationaleTableApp extends Component {
                           </Typography>
                         </DataTableCell>
                         <DataTableCell
-                          style={{ minWidth: "250px", whiteSpace: "normal" }}
+                          style={{
+                            minWidth: "250px",
+                            paddingRight: "0.75rem",
+                            whiteSpace: "normal",
+                          }}
                         >
                           <AnswerFeedback
                             feedbackURL={this.props.feedbackURL}
                             gettext={this.props.gettext}
                             pk={answer.id}
+                            setSnackbar={this.setSnackbar}
                           />
                         </DataTableCell>
                       </DataTableRow>
@@ -461,7 +471,7 @@ export class RationaleTableApp extends Component {
           show={this.state.snackbarIsOpen}
           onHide={(evt) => this.setState({ snackbarIsOpen: false })}
           message={this.state.snackbarMessage}
-          timeout={5000}
+          timeout={2000}
           actionHandler={() => {}}
           actionText="OK"
           dismissesOnAction={true}

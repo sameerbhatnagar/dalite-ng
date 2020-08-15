@@ -58,11 +58,15 @@
   color: var(--mdc-theme-primary);
 }
 
+/* Let snackbars be accessible from dialogs without loss of focus */
+.mdc-snackbar {
+  z-index: 10;
+}
+
 /* Let dialog boxes be bigger to fit tables inside */
 @media (min-width: 592px) {
   .mdc-dialog .mdc-dialog__surface {
     max-width: unset;
-    min-height: calc(100vh - 32px);
     width: 100%;
   }
 }
