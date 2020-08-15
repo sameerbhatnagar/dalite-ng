@@ -122,19 +122,32 @@
 <script nonce="{{ request.csp_nonce }}">
   window.addEventListener("load", function() {
     student.initStudentPage(
-      {{ data|safe }}, "{{ group_student_id_needed }}"
+      {{ data|safe }}, "{{ group_student_id_needed }}", callback
     );
 
-    console.info({{ data|safe }});
+    // Callback executed after async load of student progress elements
+    function callback() {
+      const groupAssignmentList = document.querySelectorAll(".link-to-dialog");
+      groupAssignmentList.forEach((el) => {
+        el.addEventListener("click", () => render(true, el));
+      });
+    }
 
-    const FeedbackApp = preact.h(student.FeedbackApp, {
-      assignmentId: "unique_id_for_new_assigment",
-      assignmentTitle: "unique_id_for_new_assigment",
-      dialogIsOpen: true,
-      feedbackURL: "{% url 'REST:student-feedback' %}",
-      gettext: gettext,
-    });
-    preact.render(FeedbackApp, document.getElementById("feedback-app"));
+    function render(isOpen, el) {
+      const pk = el.getAttribute("data-id");
+      const title = el.getAttribute("data-title");
+      const feedbackApp = () => {
+        return preact.h(student.FeedbackApp, {
+          assignmentId: pk,
+          assignmentTitle: title,
+          dialogIsOpen: isOpen,
+          feedbackURL: "{% url 'REST:student-feedback' %}",
+          gettext: gettext,
+          listener: () => render(false, el),
+        });
+      }
+      preact.render(feedbackApp(), document.getElementById("feedback-app"));
+    }
   });
 </script>
 

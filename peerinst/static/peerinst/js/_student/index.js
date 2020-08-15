@@ -28,6 +28,7 @@ function initModel(data) {
       notifications: group.notifications,
       memberOf: group.member_of,
       assignments: group.assignments.map((assignment) => ({
+        pk: assignment.pk,
         title: assignment.title,
         dueDate: new Date(assignment.due_date),
         link: assignment.link,
@@ -256,10 +257,11 @@ export function joinGroup() {
 /* view */
 /********/
 
-function view(groupStudentId) {
+function view(groupStudentId, callback) {
   identityView();
   groupsView(groupStudentId);
   joinGroupView();
+  callback();
 }
 
 function identityView() {
@@ -533,9 +535,6 @@ function groupAssignmentView(assignment, group) {
   if (assignment.done) {
     li.classList.add("student-group--assignment-complete");
   }
-  li.addEventListener("click", (event: MouseEvent) =>
-    goToAssignment(group, assignment),
-  );
 
   const almostExpiredMin = new Date(assignment.dueDate);
   almostExpiredMin.setDate(
@@ -548,7 +547,6 @@ function groupAssignmentView(assignment, group) {
   const icon = document.createElement("i");
   icon.classList.add("material-icons", "md-28");
   if (assignment.done) {
-    iconSpan.title = model.translations.goToAssignment;
     icon.textContent = "assignment_turned_in";
   } else if (assignment.dueDate <= new Date(Date.now())) {
     iconSpan.title = model.translations.assignmentExpired;
@@ -578,8 +576,20 @@ function groupAssignmentView(assignment, group) {
 
   const title = document.createElement("span");
   title.classList.add("student-group--assignment-title");
-  title.title = model.translations.goToAssignment;
-  title.textContent = assignment.title;
+  const titleText = document.createElement("span");
+  titleText.title = model.translations.goToAssignment;
+  titleText.textContent = assignment.title;
+  titleText.addEventListener("click", (event: MouseEvent) =>
+    goToAssignment(group, assignment),
+  );
+  title.append(titleText);
+  const feedbackIcon = document.createElement("i");
+  feedbackIcon.classList.add("material-icons", "link-to-dialog");
+  feedbackIcon.setAttribute("data-id", assignment.pk);
+  feedbackIcon.setAttribute("data-title", assignment.title);
+  feedbackIcon.title = gettext("See teacher feedback");
+  feedbackIcon.textContent = "chat";
+  title.append(feedbackIcon);
   li.appendChild(title);
 
   const date = document.createElement("span");
@@ -836,8 +846,8 @@ function timeuntil(date1, date2) {
 /* init */
 /********/
 
-export function initStudentPage(data, groupStudentId = "") {
+export function initStudentPage(data, groupStudentId = "", callback) {
   initModel(data);
-  view(groupStudentId);
+  view(groupStudentId, callback);
   initListeners();
 }
