@@ -206,11 +206,15 @@ class AnswerFeedback extends Component {
           dense
           value={this.state.note}
           onInput={(evt) => {
-            this.setState({
-              changed: true,
-              characterCount: evt.target.value.length,
-              note: evt.target.value,
-            });
+            if (evt.target.value.length <= this.characterLimit) {
+              this.setState({
+                changed: true,
+                characterCount: evt.target.value.length,
+                note: evt.target.value,
+              });
+            } else {
+              evt.target.value = this.state.note;
+            }
           }}
           onBlur={() => {
             if (this.state.changed) {
