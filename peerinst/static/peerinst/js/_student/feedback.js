@@ -22,7 +22,16 @@ import { Choices } from "../_assignment/question.js";
 class Feedback extends Component {
   render() {
     return (
-      <div style={{ marginTop: "12px", marginBottom: "4px" }}>
+      <div style={{ marginTop: "14px", paddingBottom: "4px" }}>
+        <Typography use="headline5">
+          <div
+            // eslint-disable-next-line
+            dangerouslySetInnerHTML={{
+              __html: this.props.feedback.answer.question.title,
+            }}
+            style={{ marginBottom: "12px" }}
+          />
+        </Typography>
         <Typography use="body1">
           <div
             // eslint-disable-next-line
@@ -41,9 +50,12 @@ class Feedback extends Component {
             <p>
               <strong>{this.props.gettext("You thought:")}</strong>
             </p>
-            <blockquote>
-              {this.props.feedback.answer.answer_choice.text}
-            </blockquote>
+            <blockquote
+              // eslint-disable-next-line
+              dangerouslySetInnerHTML={{
+                __html: this.props.feedback.answer.answer_choice.text,
+              }}
+            />
             <p>
               <strong>{this.props.gettext("because")}</strong>
             </p>
@@ -109,11 +121,7 @@ export class FeedbackApp extends Component {
               flexDirection: "column",
             }}
           >
-            <div style={{ padding: "16px 0px", maxWidth: "775px" }}>
-              <Typography use="headline5" theme="secondary">
-                {this.props.assignmentTitle}
-              </Typography>
-
+            <div style={{ maxWidth: "775px" }}>
               {this.state.feedback
                 .filter(
                   (el) => el.answer.assignment == this.props.assignmentId,

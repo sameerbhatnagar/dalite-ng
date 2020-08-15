@@ -58,6 +58,13 @@ class AnswerSerializer(DynamicFieldsModelSerializer):
                 ret[key] = bleach.clean(
                     ret[key], tags=ALLOWED_TAGS, styles=[], strip=True
                 ).strip()
+        if "answer_choice" in ret:
+            ret["answer_choice"]["text"] = bleach.clean(
+                ret["answer_choice"]["text"],
+                tags=ALLOWED_TAGS,
+                styles=[],
+                strip=True,
+            ).strip()
         return ret
 
     class Meta:

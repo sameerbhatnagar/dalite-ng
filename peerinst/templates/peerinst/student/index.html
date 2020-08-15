@@ -125,7 +125,7 @@
       {{ data|safe }}, "{{ group_student_id_needed }}", callback
     );
 
-    // Callback executed after async load of student progress elements
+    // Callback executed after async load of group assignment elements
     function callback() {
       const groupAssignmentList = document.querySelectorAll(".link-to-dialog");
       groupAssignmentList.forEach((el) => {
@@ -135,11 +135,9 @@
 
     function render(isOpen, el) {
       const pk = el.getAttribute("data-id");
-      const title = el.getAttribute("data-title");
       const feedbackApp = () => {
         return preact.h(student.FeedbackApp, {
           assignmentId: pk,
-          assignmentTitle: title,
           dialogIsOpen: isOpen,
           feedbackURL: "{% url 'REST:student-feedback' %}",
           gettext: gettext,

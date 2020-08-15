@@ -586,7 +586,6 @@ function groupAssignmentView(assignment, group) {
   const feedbackIcon = document.createElement("i");
   feedbackIcon.classList.add("material-icons", "link-to-dialog");
   feedbackIcon.setAttribute("data-id", assignment.pk);
-  feedbackIcon.setAttribute("data-title", assignment.title);
   feedbackIcon.title = gettext("See teacher feedback");
   feedbackIcon.textContent = "chat";
   title.append(feedbackIcon);
