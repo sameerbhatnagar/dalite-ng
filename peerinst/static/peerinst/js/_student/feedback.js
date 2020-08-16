@@ -74,6 +74,7 @@ class Feedback extends Component {
             <p>
               <strong>{this.props.gettext("Your teacher commented: ")}</strong>
             </p>
+            {this.props.feedback.score}/3:
             <blockquote>{this.props.feedback.note}</blockquote>
           </Typography>
         </div>
