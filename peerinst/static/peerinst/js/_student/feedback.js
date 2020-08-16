@@ -72,10 +72,14 @@ class Feedback extends Component {
             </p>
             {this.insertSummary()}
             <p>
-              <strong>{this.props.gettext("Your teacher commented: ")}</strong>
+              <strong>{this.props.gettext("Your teacher commented:")}</strong>
             </p>
-            {this.props.feedback.score}/3:
             <blockquote>{this.props.feedback.note}</blockquote>
+          </Typography>
+          <Typography use="headline4" theme="primary">
+            <p style={{ paddingRight: "40px", textAlign: "right" }}>
+              {this.props.feedback.score}/3
+            </p>
           </Typography>
         </div>
       </div>
