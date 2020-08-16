@@ -20,6 +20,19 @@ import { get } from "../_ajax/ajax.js";
 import { Choices } from "../_assignment/question.js";
 
 class Feedback extends Component {
+  insertFeedback = () => {
+    if (this.props.feedback.note) {
+      return (
+        <Fragment>
+          <p>
+            <strong>{this.props.gettext("Your teacher commented:")}</strong>
+          </p>
+          <blockquote>{this.props.feedback.note}</blockquote>
+        </Fragment>
+      );
+    }
+  };
+
   insertSummary = () => {
     if (this.props.feedback.answer.answer_choice.text) {
       return (
@@ -38,6 +51,18 @@ class Feedback extends Component {
       );
     }
     return <blockquote>{this.props.feedback.answer.rationale}</blockquote>;
+  };
+
+  insertScore = () => {
+    if (this.props.feedback.score) {
+      return (
+        <Typography use="headline4" theme="primary">
+          <p style={{ paddingRight: "40px", textAlign: "right" }}>
+            {this.props.feedback.score}/3
+          </p>
+        </Typography>
+      );
+    }
   };
 
   render() {
@@ -71,16 +96,9 @@ class Feedback extends Component {
               <strong>{this.props.gettext("You thought:")}</strong>
             </p>
             {this.insertSummary()}
-            <p>
-              <strong>{this.props.gettext("Your teacher commented:")}</strong>
-            </p>
-            <blockquote>{this.props.feedback.note}</blockquote>
+            {this.insertFeedback()}
           </Typography>
-          <Typography use="headline4" theme="primary">
-            <p style={{ paddingRight: "40px", textAlign: "right" }}>
-              {this.props.feedback.score}/3
-            </p>
-          </Typography>
+          {this.insertScore()}
         </div>
       </div>
     );

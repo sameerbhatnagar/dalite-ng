@@ -1,4 +1,5 @@
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
+from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, generics
 from rest_framework.permissions import IsAuthenticated
@@ -193,8 +194,8 @@ class StudentFeedbackList(generics.ListAPIView):
 
     def get_queryset(self):
         return AnswerAnnotation.objects.filter(
-            answer__user_token=self.request.user.username, score__isnull=False
-        )
+            answer__user_token=self.request.user.username
+        ).filter(Q(score__isnull=False) | Q(note__isnull=False))
 
 
 class TeacherView(generics.RetrieveUpdateAPIView):
