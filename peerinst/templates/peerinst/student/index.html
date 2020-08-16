@@ -128,24 +128,35 @@
     // Callback executed after async load of group assignment elements
     function callback() {
       const groupAssignmentList = document.querySelectorAll(".link-to-dialog");
-      groupAssignmentList.forEach((el) => {
+      groupAssignmentList.forEach((el, i) => {
         el.addEventListener("click", () => render(true, el));
-        // Initialize _this_ el based on whether or not feedback exists
-        render(false, el, true);
+        if (i == 1) {
+          // We call a first render to load from db and set the icons
+          render(false, el, init);
+        }
       });
     }
 
-    function render(isOpen, el, init = false) {
+    // Callback to set icons
+    function init(set) {
+      const groupAssignmentList = document.querySelectorAll(".link-to-dialog");
+      groupAssignmentList.forEach((el) => {
+        if (set.includes(el.getAttribute('data-id'))) {
+          el.style.visibility = "visible";
+        }
+      });
+    }
+
+    function render(isOpen, el, callback = () => {}) {
       const pk = el.getAttribute("data-id");
       const feedbackApp = () => {
         return preact.h(student.FeedbackApp, {
           assignmentId: pk,
+          callback: callback,
           dialogIsOpen: isOpen,
           feedbackURL: "{% url 'REST:student-feedback' %}",
           gettext: gettext,
-          init: init,
           listener: () => render(false, el),
-          node: el,
         });
       }
       preact.render(feedbackApp(), document.getElementById("feedback-app"));

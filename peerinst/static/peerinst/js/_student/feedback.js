@@ -85,10 +85,15 @@ export class FeedbackApp extends Component {
     try {
       const data = await get(this.props.feedbackURL);
       console.debug(data);
-      this.setState({
-        feedback: data,
-        loaded: true,
-      });
+      this.setState(
+        {
+          feedback: data,
+          loaded: true,
+        },
+        this.props.callback(
+          Array.from(new Set(data.map((el) => el.answer.assignment))),
+        ),
+      );
     } catch (error) {
       console.error(error);
       this.setState({
@@ -103,20 +108,6 @@ export class FeedbackApp extends Component {
 
   componentDidMount() {
     this.refreshFromDB();
-  }
-
-  shouldComponentUpdate(nextProps, nextState) {
-    // Here we check to see if we need to update the DOM node with the click
-    // listener pointing at this component.
-    if (nextProps.init == true) {
-      const feedbackList = this.state.feedback.filter(
-        (el) => el.answer.assignment == this.props.assignmentId,
-      );
-      if (feedbackList.length == 0) {
-        nextProps.node.style.display = "none";
-      }
-    }
-    return true;
   }
 
   render() {
