@@ -19,6 +19,8 @@ from peerinst.templatetags.bleach_html import ALLOWED_TAGS
 class AnswerSerializer(DynamicFieldsModelSerializer):
     answer_choice = serializers.SerializerMethodField()
     chosen_rationale = serializers.SerializerMethodField()
+    first_answer_choice_label = serializers.SerializerMethodField()
+    second_answer_choice_label = serializers.SerializerMethodField()
     vote_count = serializers.SerializerMethodField()
     shown_count = serializers.SerializerMethodField()
     question = QuestionSerializer(
@@ -45,7 +47,9 @@ class AnswerSerializer(DynamicFieldsModelSerializer):
         return None
 
     def get_first_answer_choice_label(self, obj):
-        return obj.question.get_choice_label(obj.first_answer_choice)
+        if obj.first_answer_choice > 0:
+            return obj.question.get_choice_label(obj.first_answer_choice)
+        return None
 
     def get_second_answer_choice_label(self, obj):
         return obj.question.get_choice_label(obj.second_answer_choice)
