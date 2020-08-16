@@ -11,7 +11,12 @@ import {
   DataTableRow,
   DataTableCell,
 } from "@rmwc/data-table";
-import { Dialog, DialogContent } from "@rmwc/dialog";
+import {
+  Dialog,
+  DialogActions,
+  DialogButton,
+  DialogContent,
+} from "@rmwc/dialog";
 import { IconButton } from "@rmwc/icon-button";
 import { LinearProgress } from "@rmwc/linear-progress";
 import { Snackbar } from "@rmwc/snackbar";
@@ -470,6 +475,11 @@ export class RationaleTableApp extends Component {
               </DataTableContent>
             </DataTable>
           </DialogContent>
+          <DialogActions>
+            <DialogButton action="accept" isDefaultAction theme="primary">
+              {this.props.gettext("Done")}
+            </DialogButton>
+          </DialogActions>
         </Dialog>
         <Snackbar
           show={this.state.snackbarIsOpen}
