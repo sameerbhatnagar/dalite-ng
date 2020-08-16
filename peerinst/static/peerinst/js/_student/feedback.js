@@ -57,7 +57,12 @@ class Feedback extends Component {
     if (this.props.feedback.score) {
       return (
         <Typography use="headline4" theme="primary">
-          <p style={{ paddingRight: "40px", textAlign: "right" }}>
+          <p
+            style={{ paddingRight: "40px", textAlign: "right" }}
+            title={this.props.gettext(
+              "The score assigned by your teacher. 0 is unacceptable; 3 means your teacher thinks that your explanation should be shown to other students!",
+            )}
+          >
             {this.props.feedback.score}/3
           </p>
         </Typography>
