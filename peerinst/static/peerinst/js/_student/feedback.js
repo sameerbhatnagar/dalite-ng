@@ -45,7 +45,7 @@ class Feedback extends Component {
           choices={this.props.feedback.answer.question.choices}
         />
 
-        <div style={{ marginTop: "12px" }}>
+        <div style={{ marginTop: "16px" }}>
           <Typography use="body1">
             <p>
               <strong>{this.props.gettext("You thought:")}</strong>
@@ -105,10 +105,27 @@ export class FeedbackApp extends Component {
     this.refreshFromDB();
   }
 
+  shouldComponentUpdate(nextProps, nextState) {
+    // Here we check to see if we need to update the DOM node with the click
+    // listener pointing at this component.
+    if (nextProps.init == true) {
+      const feedbackList = this.state.feedback.filter(
+        (el) => el.answer.assignment == this.props.assignmentId,
+      );
+      if (feedbackList.length == 0) {
+        nextProps.node.style.display = "none";
+      }
+    }
+    return true;
+  }
+
   render() {
     if (!this.state.loaded) {
       return <LinearProgress determinate={false} style={{ width: "775px" }} />;
     }
+    const feedbackList = this.state.feedback.filter(
+      (el) => el.answer.assignment == this.props.assignmentId,
+    );
     return (
       <div>
         <Dialog
@@ -122,13 +139,9 @@ export class FeedbackApp extends Component {
             }}
           >
             <div style={{ maxWidth: "775px" }}>
-              {this.state.feedback
-                .filter(
-                  (el) => el.answer.assignment == this.props.assignmentId,
-                )
-                .map((el) => (
-                  <Feedback feedback={el} gettext={this.props.gettext} />
-                ))}
+              {feedbackList.map((el) => (
+                <Feedback feedback={el} gettext={this.props.gettext} />
+              ))}
             </div>
           </DialogContent>
           <DialogActions>

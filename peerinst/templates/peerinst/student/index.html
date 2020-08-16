@@ -130,10 +130,12 @@
       const groupAssignmentList = document.querySelectorAll(".link-to-dialog");
       groupAssignmentList.forEach((el) => {
         el.addEventListener("click", () => render(true, el));
+        // Initialize _this_ el based on whether or not feedback exists
+        render(false, el, true);
       });
     }
 
-    function render(isOpen, el) {
+    function render(isOpen, el, init = false) {
       const pk = el.getAttribute("data-id");
       const feedbackApp = () => {
         return preact.h(student.FeedbackApp, {
@@ -141,7 +143,9 @@
           dialogIsOpen: isOpen,
           feedbackURL: "{% url 'REST:student-feedback' %}",
           gettext: gettext,
+          init: init,
           listener: () => render(false, el),
+          node: el,
         });
       }
       preact.render(feedbackApp(), document.getElementById("feedback-app"));
