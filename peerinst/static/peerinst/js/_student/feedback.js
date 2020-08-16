@@ -1,4 +1,4 @@
-import { Component, h } from "preact";
+import { Component, Fragment, h } from "preact";
 
 import {
   Dialog,
@@ -20,6 +20,26 @@ import { get } from "../_ajax/ajax.js";
 import { Choices } from "../_assignment/question.js";
 
 class Feedback extends Component {
+  insertSummary = () => {
+    if (this.props.feedback.answer.answer_choice.text) {
+      return (
+        <Fragment>
+          <blockquote
+            // eslint-disable-next-line
+            dangerouslySetInnerHTML={{
+              __html: this.props.feedback.answer.answer_choice.text,
+            }}
+          />
+          <p>
+            <strong>{this.props.gettext("because")}</strong>
+          </p>
+          <blockquote>{this.props.feedback.answer.rationale}</blockquote>
+        </Fragment>
+      );
+    }
+    return <blockquote>{this.props.feedback.answer.rationale}</blockquote>;
+  };
+
   render() {
     return (
       <div style={{ marginTop: "14px", paddingBottom: "4px" }}>
@@ -50,16 +70,7 @@ class Feedback extends Component {
             <p>
               <strong>{this.props.gettext("You thought:")}</strong>
             </p>
-            <blockquote
-              // eslint-disable-next-line
-              dangerouslySetInnerHTML={{
-                __html: this.props.feedback.answer.answer_choice.text,
-              }}
-            />
-            <p>
-              <strong>{this.props.gettext("because")}</strong>
-            </p>
-            <blockquote>{this.props.feedback.answer.rationale}</blockquote>
+            {this.insertSummary()}
             <p>
               <strong>{this.props.gettext("Your teacher commented: ")}</strong>
             </p>
