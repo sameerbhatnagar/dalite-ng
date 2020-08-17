@@ -8,7 +8,7 @@ import peerinst.models.group
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('peerinst', '0103_merge_20200814_1146'),
+        ('peerinst', '0103_auto_20200815_1700'),
     ]
 
     operations = [
