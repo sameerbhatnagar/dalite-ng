@@ -54,7 +54,7 @@ class Feedback extends Component {
   };
 
   insertScore = () => {
-    if (this.props.feedback.score) {
+    if (this.props.feedback.score >= 0) {
       return (
         <Typography use="headline4" theme="primary">
           <p
