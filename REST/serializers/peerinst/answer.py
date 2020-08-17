@@ -57,7 +57,7 @@ class AnswerSerializer(DynamicFieldsModelSerializer):
 
     def get_timestamp(self, obj):
         return (
-            obj.datetime_second if obj.datetime_second else obj.datetime_start
+            obj.datetime_second if obj.datetime_second else obj.datetime_first
         )
 
     def to_representation(self, instance):
