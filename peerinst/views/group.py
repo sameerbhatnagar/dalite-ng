@@ -47,7 +47,7 @@ def validate_update_data(req):
 
 
 @login_required
-# @require_safe
+@require_safe
 @group_access_required
 def group_details_page(req, group_hash, teacher, group):
 
