@@ -434,9 +434,7 @@ export class RationaleTableApp extends Component {
                             {answer.rationale}
                           </Typography>
                           <div class="timestamp">
-                            {moment(answer.datetime_second).format(
-                              "MM/DD/YY LT",
-                            )}
+                            {moment(answer.timestamp).format("MM/DD/YY LT")}
                           </div>
                         </DataTableCell>
                         <DataTableCell

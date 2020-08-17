@@ -23,6 +23,7 @@ class AnswerSerializer(DynamicFieldsModelSerializer):
     second_answer_choice_label = serializers.SerializerMethodField()
     vote_count = serializers.SerializerMethodField()
     shown_count = serializers.SerializerMethodField()
+    timestamp = serializers.SerializerMethodField()
     question = QuestionSerializer(
         fields=("title", "text", "image", "choices",), read_only=True
     )
@@ -53,6 +54,11 @@ class AnswerSerializer(DynamicFieldsModelSerializer):
 
     def get_second_answer_choice_label(self, obj):
         return obj.question.get_choice_label(obj.second_answer_choice)
+
+    def get_timestamp(self, obj):
+        return (
+            obj.datetime_second if obj.datetime_second else obj.datetime_start
+        )
 
     def to_representation(self, instance):
         ret = super().to_representation(instance)
@@ -90,7 +96,7 @@ class AnswerSerializer(DynamicFieldsModelSerializer):
             "shown_count",
             "question",
             "user_token",
-            "datetime_second",
+            "timestamp",
         ]
         read_only_fields = fields
         ordering = ["-vote_count"]
@@ -143,11 +149,11 @@ class StudentGroupAssignmentAnswerSerializer(serializers.ModelSerializer):
                 a,
                 fields=(
                     "chosen_rationale",
-                    "datetime_second",
                     "first_answer_choice_label",
                     "id",
                     "rationale",
                     "second_answer_choice_label",
+                    "timestamp",
                     "user_token",
                 ),
             ).data
