@@ -85,7 +85,7 @@ function legendView() {
   li.appendChild(legend);
 
   const done = document.createElement("span");
-  done.textContent = "Question done";
+  done.textContent = "Questions done";
   legend.appendChild(done);
 
   const first = document.createElement("span");
@@ -158,60 +158,7 @@ function completeView(container, data, total, height, width) {
     .append("g")
     .attr("transform", `translate(${width / 2},${height / 2})`);
 
-  const arcBackground = d3
-    .arc()
-    .innerRadius(radius - 5)
-    .outerRadius(radius)
-    .startAngle(0)
-    .endAngle(2 * Math.PI);
-
-  const arcData = d3
-    .arc()
-    .innerRadius(radius - 5)
-    .outerRadius(radius)
-    .startAngle(0);
-
-  svg
-    .append("path")
-    .attr("d", arcBackground)
-    .attr("class", "fill-primary")
-    .style("opacity", "0.10");
-
-  svg
-    .append("path")
-    .datum({ endAngle: 0 })
-    .attr("d", arcData)
-    .attr("class", "fill-primary student-progress__path");
-
-  svg
-    .append("text")
-    .attr("data-count", data)
-    .attr("data-total", total)
-    .text(0)
-    .attr("text-anchor", "middle")
-    .attr("dy", 8)
-    .attr("class", "fill-primary student-progress__count")
-    .attr("font-size", "20px");
-
-  return svg;
-}
-
-function correctView(container, data, total, height, width) {
-  const radius = Math.min(width, height) / 2;
-
-  const svg = d3
-    .select(container)
-    .append("svg")
-    .attr("class", "student-progress-correct")
-    .attr("width", width)
-    .attr("height", height)
-    .append("g")
-    .attr("transform", `translate(${width / 2},${height / 2})`);
-
-  const colourScale = d3
-    .scaleQuantile()
-    .domain([0, 1])
-    .range(["#b30000", "#f17f4d", "#339966"]);
+  const colourScale = d3.scaleSequential(d3.interpolatePlasma);
 
   const arcBackground = d3
     .arc()
@@ -229,7 +176,7 @@ function correctView(container, data, total, height, width) {
   svg
     .append("path")
     .attr("d", arcBackground)
-    .attr("class", "fill-primary")
+    .attr("class", "gray")
     .style("opacity", "0.10");
 
   svg
@@ -246,9 +193,61 @@ function correctView(container, data, total, height, width) {
     .text(0)
     .attr("text-anchor", "middle")
     .attr("dy", 8)
+    .attr("class", "fill-secondary student-progress__count")
+    .attr("font-size", "24px");
+
+  return svg;
+}
+
+function correctView(container, data, total, height, width) {
+  const radius = Math.min(width, height) / 2;
+
+  const svg = d3
+    .select(container)
+    .append("svg")
+    .attr("class", "student-progress-correct")
+    .attr("width", width)
+    .attr("height", height)
+    .append("g")
+    .attr("transform", `translate(${width / 2},${height / 2})`);
+
+  const colourScale = d3.scaleSequential(d3.interpolatePlasma);
+
+  const arcBackground = d3
+    .arc()
+    .innerRadius(radius - 5)
+    .outerRadius(radius)
+    .startAngle(0)
+    .endAngle(2 * Math.PI);
+
+  const arcData = d3
+    .arc()
+    .innerRadius(radius - 5)
+    .outerRadius(radius)
+    .startAngle(0);
+
+  svg
+    .append("path")
+    .attr("d", arcBackground)
+    .attr("class", "gray")
+    .style("opacity", "0.10");
+
+  svg
+    .append("path")
+    .datum({ endAngle: 0 })
+    .attr("d", arcData)
     .style("fill", colourScale(0))
+    .attr("class", "student-progress__path");
+
+  svg
+    .append("text")
+    .attr("data-count", data)
+    .attr("data-total", total)
+    .text(0)
+    .attr("text-anchor", "middle")
+    .attr("dy", 8)
     .attr("font-size", "24px")
-    .attr("class", "student-progress__count");
+    .attr("class", "fill-secondary student-progress__count");
 
   return svg;
 }
@@ -271,6 +270,8 @@ function animateComplete(svg, reverse = false) {
   const count_ = svg.querySelector(".student-progress__count");
   const data = count_.getAttribute("data-count");
   const total = count_.getAttribute("data-total");
+
+  const colourScale = d3.scaleSequential(d3.interpolatePlasma);
 
   let start;
   let end;
@@ -309,6 +310,8 @@ function animateComplete(svg, reverse = false) {
       return function (t) {
         d.endAngle = interpolate(t);
         count.text(Math.floor(interpolateCount(t)));
+        const newCount = interpolateCount(t);
+        path.style("fill", colourScale(1 - newCount / total));
         return arcData(d);
       };
     });
@@ -332,10 +335,7 @@ function animateCorrect(svg, reverse = false) {
   const data = count_.getAttribute("data-count");
   const total = count_.getAttribute("data-total");
 
-  const colourScale = d3
-    .scaleQuantile()
-    .domain([0, 1])
-    .range(["#b30000", "#f17f4d", "#339966"]);
+  const colourScale = d3.scaleSequential(d3.interpolatePlasma);
 
   let start;
   let end;
@@ -374,9 +374,8 @@ function animateCorrect(svg, reverse = false) {
       return function (t) {
         d.endAngle = interpolate(t);
         const newCount = interpolateCount(t);
-        path.style("fill", colourScale((newCount / total) | 0));
+        path.style("fill", colourScale(1 - newCount / total));
         count.text(Math.floor(newCount));
-        count.style("fill", colourScale((newCount / total) | 0));
         return arcData(d);
       };
     });

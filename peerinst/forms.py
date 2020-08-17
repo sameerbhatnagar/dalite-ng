@@ -252,6 +252,12 @@ class AssignmentMultiselectForm(forms.Form):
         )
 
 
+class TeacherAssignmentsForm(forms.Form):
+    """Simple form to help update teacher assignments"""
+
+    assignment = forms.ModelChoiceField(queryset=Assignment.objects.all())
+
+
 class TeacherGroupsForm(forms.Form):
     """Simple form to help update teacher groups"""
 

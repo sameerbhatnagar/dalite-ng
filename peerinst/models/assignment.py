@@ -480,7 +480,9 @@ class StudentGroupAssignment(models.Model):
 
     @property
     def is_distributed(self):
-        return self.distribution_date < datetime.now(pytz.utc)
+        if self.distribution_date:
+            return self.distribution_date < datetime.now(pytz.utc)
+        return False
 
     @property
     def link(self):

@@ -258,6 +258,7 @@ def index_page(req):
         group: [
             {
                 "title": assignment.group_assignment.assignment.title,
+                "pk": assignment.group_assignment.assignment.pk,
                 "due_date": assignment.group_assignment.due_date,
                 "link": "{}://{}{}".format(
                     protocol,
@@ -284,6 +285,7 @@ def index_page(req):
         group: [
             {
                 "title": assignment["title"],
+                "pk": assignment["pk"],
                 "due_date": assignment["due_date"],
                 "link": assignment["link"],
                 "results": assignment["results"],
@@ -338,12 +340,14 @@ def index_page(req):
                     },
                 ),
                 "name": group.group.name,
+                "teacher": [t.user.pk for t in group.group.teacher.all()],
                 "title": group.group.title,
                 "notifications": group.send_emails,
                 "member_of": group.current_member,
                 "assignments": [
                     {
                         "title": assignment["title"],
+                        "pk": assignment["pk"],
                         "due_date": assignment["due_date"].isoformat(),
                         "link": assignment["link"],
                         "results": assignment["results"],

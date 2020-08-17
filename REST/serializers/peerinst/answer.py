@@ -19,8 +19,11 @@ from peerinst.templatetags.bleach_html import ALLOWED_TAGS
 class AnswerSerializer(DynamicFieldsModelSerializer):
     answer_choice = serializers.SerializerMethodField()
     chosen_rationale = serializers.SerializerMethodField()
+    first_answer_choice_label = serializers.SerializerMethodField()
+    second_answer_choice_label = serializers.SerializerMethodField()
     vote_count = serializers.SerializerMethodField()
     shown_count = serializers.SerializerMethodField()
+    timestamp = serializers.SerializerMethodField()
     question = QuestionSerializer(
         fields=("title", "text", "image", "choices",), read_only=True
     )
@@ -45,23 +48,36 @@ class AnswerSerializer(DynamicFieldsModelSerializer):
         return None
 
     def get_first_answer_choice_label(self, obj):
-        return obj.question.get_choice_label(obj.first_answer_choice)
+        if obj.first_answer_choice > 0:
+            return obj.question.get_choice_label(obj.first_answer_choice)
+        return None
 
     def get_second_answer_choice_label(self, obj):
         return obj.question.get_choice_label(obj.second_answer_choice)
 
+    def get_timestamp(self, obj):
+        return (
+            obj.datetime_second if obj.datetime_second else obj.datetime_first
+        )
+
     def to_representation(self, instance):
         ret = super().to_representation(instance)
-        ret["rationale"] = bleach.clean(
-            ret["rationale"], tags=ALLOWED_TAGS, styles=[], strip=True
-        ).strip()
-        if ret["chosen_rationale"]:
-            ret["chosen_rationale"] = bleach.clean(
-                ret["chosen_rationale"],
-                tags=ALLOWED_TAGS,
-                styles=[],
-                strip=True,
-            ).strip()
+        keys = ["rationale", "chosen_rationale"]
+        for key in keys:
+            if key in ret and ret[key]:
+                ret[key] = bleach.clean(
+                    ret[key], tags=ALLOWED_TAGS, styles=[], strip=True
+                ).strip()
+        if "answer_choice" in ret:
+            if ret["answer_choice"]:
+                ret["answer_choice"]["text"] = bleach.clean(
+                    ret["answer_choice"]["text"],
+                    tags=ALLOWED_TAGS,
+                    styles=[],
+                    strip=True,
+                ).strip()
+            else:
+                ret["answer_choice"] = {"text": ""}
         return ret
 
     class Meta:
@@ -69,6 +85,7 @@ class AnswerSerializer(DynamicFieldsModelSerializer):
         fields = [
             "id",
             "answer_choice",
+            "assignment",
             "chosen_rationale",
             "first_answer_choice",
             "first_answer_choice_label",
@@ -79,7 +96,7 @@ class AnswerSerializer(DynamicFieldsModelSerializer):
             "shown_count",
             "question",
             "user_token",
-            "datetime_second",
+            "timestamp",
         ]
         read_only_fields = fields
         ordering = ["-vote_count"]
@@ -95,9 +112,9 @@ class FeedbackWriteSerialzer(serializers.ModelSerializer):
 
 
 class FeedbackReadSerialzer(serializers.ModelSerializer):
-    annotator = serializers.ReadOnlyField(source="annotator.username")
+    annotator = serializers.ReadOnlyField(source="annotator.pk")
     answer = AnswerSerializer(
-        fields=("answer_choice", "rationale", "question")
+        fields=("answer_choice", "assignment", "rationale", "question")
     )
 
     class Meta:
@@ -132,11 +149,11 @@ class StudentGroupAssignmentAnswerSerializer(serializers.ModelSerializer):
                 a,
                 fields=(
                     "chosen_rationale",
-                    "datetime_second",
                     "first_answer_choice_label",
                     "id",
                     "rationale",
                     "second_answer_choice_label",
+                    "timestamp",
                     "user_token",
                 ),
             ).data

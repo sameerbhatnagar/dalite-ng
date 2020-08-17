@@ -29,7 +29,6 @@
 
     <div class="admin-link">
       <a href="{% url 'teacher' teacher.id %}">{% trans 'Back to My Account' %}</a>
-      <span class="links-divider">|</span><a href="{% url 'teacher-assignments' teacher.id %}">{% trans 'Create new assignment' %}</a>
       <span class="links-divider">|</span><a href="{% url 'question-create' %}">{% trans 'Create new question' %}</a>
     </div>
 
