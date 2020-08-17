@@ -106,7 +106,7 @@ class FeedbackWriteSerialzer(serializers.ModelSerializer):
 
 
 class FeedbackReadSerialzer(serializers.ModelSerializer):
-    annotator = serializers.ReadOnlyField(source="annotator.username")
+    annotator = serializers.ReadOnlyField(source="annotator.pk")
     answer = AnswerSerializer(
         fields=("answer_choice", "assignment", "rationale", "question")
     )

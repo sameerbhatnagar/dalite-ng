@@ -340,6 +340,7 @@ def index_page(req):
                     },
                 ),
                 "name": group.group.name,
+                "teacher": [t.user.pk for t in group.group.teacher.all()],
                 "title": group.group.title,
                 "notifications": group.send_emails,
                 "member_of": group.current_member,

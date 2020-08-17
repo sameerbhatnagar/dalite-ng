@@ -24,6 +24,7 @@ function initModel(data) {
     groups: data.groups.map((group) => ({
       connectedCourseUrl: group.connected_course_url,
       name: group.name,
+      teacher: group.teacher,
       title: group.title,
       notifications: group.notifications,
       memberOf: group.member_of,
@@ -586,6 +587,7 @@ function groupAssignmentView(assignment, group) {
   const feedbackIcon = document.createElement("i");
   feedbackIcon.classList.add("material-icons", "link-to-dialog");
   feedbackIcon.setAttribute("data-id", assignment.pk);
+  feedbackIcon.setAttribute("data-teacher-id", group.teacher);
   feedbackIcon.title = gettext("See teacher feedback");
   feedbackIcon.textContent = "chat";
   title.append(feedbackIcon);

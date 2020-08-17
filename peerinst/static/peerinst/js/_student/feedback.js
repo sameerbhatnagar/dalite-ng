@@ -130,7 +130,13 @@ export class FeedbackApp extends Component {
           loaded: true,
         },
         this.props.callback(
-          Array.from(new Set(data.map((el) => el.answer.assignment))),
+          Array.from(
+            new Set(
+              data
+                .filter((el) => this.props.teacherPk.includes(el.annotator))
+                .map((el) => el.answer.assignment),
+            ),
+          ),
         ),
       );
     } catch (error) {
@@ -149,12 +155,27 @@ export class FeedbackApp extends Component {
     this.refreshFromDB();
   }
 
+  shouldComponentUpdate() {
+    this.props.callback(
+      Array.from(
+        new Set(
+          this.state.feedback
+            .filter((el) => this.props.teacherPk.includes(el.annotator))
+            .map((el) => el.answer.assignment),
+        ),
+      ),
+    );
+    return true;
+  }
+
   render() {
     if (!this.state.loaded) {
       return <LinearProgress determinate={false} style={{ width: "775px" }} />;
     }
     const feedbackList = this.state.feedback.filter(
-      (el) => el.answer.assignment == this.props.assignmentId,
+      (el) =>
+        el.answer.assignment == this.props.assignmentId &&
+        this.props.teacherPk.includes(el.annotator),
     );
     return (
       <div>
