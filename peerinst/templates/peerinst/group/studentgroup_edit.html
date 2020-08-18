@@ -99,6 +99,7 @@
       gettext: gettext,
       searchURL: "{% url 'REST:teacher-search' %}",
       teachers: {{ teacher_list|safe }},
+      updateURL: "{% url 'REST:student-group-update' object.pk %}"
     });
     preact.render(TeacherInputWithAutocomplete, document.getElementById("teacher-field"));
   });

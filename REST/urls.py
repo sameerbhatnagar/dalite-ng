@@ -41,6 +41,11 @@ urlpatterns = [
         name="student-feedback",
     ),
     path(
+        "studentgroup/update/<int:pk>/",
+        views.StudentGroupUpdateView.as_view(),
+        name="student-group-update",
+    ),
+    path(
         "studentgroupassignment/",
         views.StudentGroupAssignmentAnswers.as_view({"get": "list"}),
         name="student-group-assigment-answers",

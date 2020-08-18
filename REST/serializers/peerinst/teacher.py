@@ -13,4 +13,4 @@ class TeacherSerializer(DynamicFieldsModelSerializer):
 
     class Meta:
         model = Teacher
-        fields = ["favourite_questions", "user"]
+        fields = ["pk", "favourite_questions", "user"]
