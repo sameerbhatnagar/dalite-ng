@@ -63,6 +63,10 @@ export class TeacherInputWithAutocomplete extends Component {
           onKeyDown={(evt) => {
             if (evt.key === "Enter") {
               evt.preventDefault();
+              if (this.state.searchTerm == this.state.searchResult) {
+                this.state.teachers.push(this.state.searchResult);
+                this.setState({ searchTerm: "", searchResult: "" });
+              }
             }
             if (evt.key === "Tab") {
               this.setState({ searchTerm: this.state.searchResult });
@@ -80,9 +84,12 @@ export class TeacherInputWithAutocomplete extends Component {
                     : "close"
                   : {}
               }
-              onClick={() =>
-                this.setState({ searchTerm: "", searchResult: "" })
-              }
+              onClick={() => {
+                if (this.state.searchTerm == this.state.searchResult) {
+                  this.state.teachers.push(this.state.searchResult);
+                }
+                this.setState({ searchTerm: "", searchResult: "" });
+              }}
               theme="primary"
             />
           }
@@ -102,7 +109,7 @@ export class TeacherInputWithAutocomplete extends Component {
         </TextField>
         <TextFieldHelperText persistent>
           {this.props.gettext(
-            "Type another teacher's username to add them to this group.  Note: this cannot be undone.",
+            "Type another teacher's username to add them to this group.  Note: this cannot be undone without contacting an administrator.",
           )}
         </TextFieldHelperText>
         <ChipSet>
