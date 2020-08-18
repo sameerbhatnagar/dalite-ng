@@ -53,6 +53,11 @@
               </div>
           </div>
         </div>
+        {% elif field.label == 'Year' %}
+        <div id="year" class='mdc-form-field'>
+        <label class="label-for-select mdc-theme--secondary mdc-typography--body1" for='id_{{ field.label|lower }}'>{{ field.label }}:</label>
+        <div class="mdc-text-field">{{ field|add_class:"mdc-text-field__input" }}</div>
+        </div>
         {% else %}
         <label class="label-for-select mdc-typography--body1" for='id_{{ field.label|lower }}'>{{ field.label }}:</label>
         <div class='mdc-select'>

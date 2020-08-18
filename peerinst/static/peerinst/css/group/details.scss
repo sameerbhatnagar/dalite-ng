@@ -4,6 +4,15 @@
   cursor: default;
 }
 
+#year .mdc-text-field__input {
+  vertical-align: text-bottom;
+  width: 60px;
+}
+
+.mdc-select__native-control {
+  font-size: 14px;
+}
+
 #student-list {
   user-select: none;
   & > li {

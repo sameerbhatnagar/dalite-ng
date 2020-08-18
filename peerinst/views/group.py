@@ -3,6 +3,7 @@ import re
 import logging
 
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import PermissionDenied
 from django.urls import reverse
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, get_object_or_404
@@ -396,6 +397,18 @@ class StudentGroupUpdateView(LoginRequiredMixin, NoStudentsMixin, UpdateView):
     model = StudentGroup
     template_name = "peerinst/group/studentgroup_edit.html"
     fields = ["title", "student_id_needed", "semester", "year", "discipline"]
+
+    def dispatch(self, *args, **kwargs):
+        # Check object permissions
+        if (
+            self.request.user.teacher in self.get_object().teacher.all()
+            or self.request.user.is_staff
+        ):
+            return super(StudentGroupUpdateView, self).dispatch(
+                *args, **kwargs
+            )
+        else:
+            raise PermissionDenied
 
     def get_object(self):
         return StudentGroup.get(self.kwargs["group_hash"])
