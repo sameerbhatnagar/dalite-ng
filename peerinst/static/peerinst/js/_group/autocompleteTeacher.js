@@ -47,6 +47,15 @@ export class TeacherInputWithAutocomplete extends Component {
     }
   };
 
+  save = async () => {
+    if (this.state.searchTerm == this.state.searchResult) {
+      if (!this.state.teachers.includes(this.state.searchResult)) {
+        this.state.teachers.push(this.state.searchResult);
+      }
+      this.setState({ searchTerm: "", searchResult: "" });
+    }
+  };
+
   render() {
     return (
       <div>
@@ -63,10 +72,7 @@ export class TeacherInputWithAutocomplete extends Component {
           onKeyDown={(evt) => {
             if (evt.key === "Enter") {
               evt.preventDefault();
-              if (this.state.searchTerm == this.state.searchResult) {
-                this.state.teachers.push(this.state.searchResult);
-                this.setState({ searchTerm: "", searchResult: "" });
-              }
+              this.save();
             }
             if (evt.key === "Tab") {
               this.setState({ searchTerm: this.state.searchResult });
@@ -85,9 +91,7 @@ export class TeacherInputWithAutocomplete extends Component {
                   : {}
               }
               onClick={() => {
-                if (this.state.searchTerm == this.state.searchResult) {
-                  this.state.teachers.push(this.state.searchResult);
-                }
+                this.save();
                 this.setState({ searchTerm: "", searchResult: "" });
               }}
               theme="primary"
