@@ -183,7 +183,7 @@ function buildScript(app, module) {
       "@babel/runtime",
       "@material/auto-init",
       "material/checkbox",
-      "@material/chips",
+      "material/chips",
       "material/dialog",
       "@material/drawer",
       "@material/icon-toggle",

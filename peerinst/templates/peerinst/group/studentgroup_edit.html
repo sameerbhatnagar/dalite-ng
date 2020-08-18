@@ -1,6 +1,13 @@
 {% extends 'peerinst/group/base.html' %}
 
-{% load i18n add_class %}
+{% load add_class compress i18n static %}
+
+{% block stylesheets %}
+{{ block.super }}
+{% compress js file preact %}
+<script src="{% static 'peerinst/js/preact.min.js' %}" defer="true"></script>
+{% endcompress %}
+{% endblock %}
 
 {% block body %}
 <main>
@@ -72,8 +79,22 @@
       </div>
       {% endif %}
       {% endfor %}
+      <div id="teacher-field"></div>
       <input class="mdc-button mdc-button--raised padded-top" type="submit" value="{% trans 'Update' %}" />
     </form>
+
   </section>
 </main>
+{% endblock %}
+
+{% block init-scripts %}
+<script nonce="{{ request.csp_nonce }}">
+  window.addEventListener("load", function() {
+    const TeacherInputWithAutocomplete = preact.h(group.TeacherInputWithAutocomplete, {
+      searchURL: "{% url 'REST:teacher-search' %}",
+      teachers: {{ teacher_list|safe }},
+    });
+    preact.render(TeacherInputWithAutocomplete, document.getElementById("teacher-field"));
+  });
+</script>
 {% endblock %}

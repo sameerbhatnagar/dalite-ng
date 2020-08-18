@@ -5,3 +5,4 @@ export { init as initDetails } from "./_group/details";
 export { getSnack } from "./_group/common.js";
 
 export { RationaleTableApp } from "./_group/rationale_table.js";
+export { TeacherInputWithAutocomplete } from "./_group/autocompleteTeacher.js";

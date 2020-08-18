@@ -288,6 +288,31 @@ class TeacherFeedbackThroughAnswerDetail(TeacherFeedbackDetail):
         return obj
 
 
+class TeacherSearch(ReadOnlyModelViewSet):
+
+    permission_classes = [IsAuthenticated, IsTeacher]
+    renderer_classes = [JSONRenderer]
+    serializer_class = TeacherSerializer
+
+    def get_queryset(self):
+        """
+        Return a list of Teacher instances that best match query, or None
+        """
+        query = self.request.query_params.get("query", None)
+        if query is not None:
+            return Teacher.objects.filter(
+                user__is_active=True, user__username__startswith=query
+            )
+        return Teacher.objects.none()
+
+    def get_serializer(self, *args, **kwargs):
+        kwargs["context"] = self.get_serializer_context()
+
+        return TeacherSerializer(
+            read_only=True, fields=["user"], *args, **kwargs
+        )
+
+
 class StudentGroupAssignmentAnswers(ReadOnlyModelViewSet):
     """
     View to list all student answers for

@@ -52,6 +52,11 @@ urlpatterns = [
     ),
     path("teacher/<int:pk>/", views.TeacherView.as_view(), name="teacher",),
     path(
+        "teacher/search/",
+        views.TeacherSearch.as_view({"get": "list"}),
+        name="teacher-search",
+    ),
+    path(
         "teacher/feedback/",
         views.TeacherFeedbackList.as_view(),
         name="teacher-feedback-list",
