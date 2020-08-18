@@ -24,12 +24,22 @@ export class TeacherInputWithAutocomplete extends Component {
         const url = `${this.props.searchURL}?${queryString.toString()}`;
         const data = await get(url);
         console.debug(data);
-        this.setState({
-          searchResult: data[0]["user"]["username"],
-        });
+        if (data.length > 0) {
+          this.setState({
+            searchResult: data[0]["user"]["username"],
+          });
+        } else {
+          this.setState({
+            searchResult: "",
+          });
+        }
       } catch (error) {
         console.error(error);
       }
+    } else {
+      this.setState({
+        searchResult: "",
+      });
     }
   };
 
@@ -41,8 +51,9 @@ export class TeacherInputWithAutocomplete extends Component {
           outlined
           placeholder="Add teachers to group"
           onInput={(evt) => {
-            this.setState({ searchTerm: evt.target.value });
-            this.search();
+            this.setState({ searchTerm: evt.target.value }, () =>
+              this.search(),
+            );
           }}
           value={this.state.searchTerm}
           onKeyDown={(evt) => {
