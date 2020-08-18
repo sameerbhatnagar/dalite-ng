@@ -4,6 +4,7 @@ import logging
 
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
+from django import forms
 from django.urls import reverse
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, get_object_or_404
@@ -409,6 +410,15 @@ class StudentGroupUpdateView(LoginRequiredMixin, NoStudentsMixin, UpdateView):
             )
         else:
             raise PermissionDenied
+
+    def get_form(self, form_class=None):
+        """
+        This is a small convenience to make first available year value satisfy
+        the requirement of >= 2015 (for objects with year = 0).
+        """
+        form = super(StudentGroupUpdateView, self).get_form(form_class)
+        form.fields["year"].widget = forms.NumberInput(attrs={"min": 2015})
+        return form
 
     def get_object(self):
         return StudentGroup.get(self.kwargs["group_hash"])
