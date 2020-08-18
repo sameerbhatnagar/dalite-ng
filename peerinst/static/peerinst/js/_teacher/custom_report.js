@@ -54,8 +54,9 @@ function updateRationaleEvaluationAttributes(rationale) {
 async function flagRationale(flag) {
   const rationale = flag.parentNode.parentNode;
   const data = {
-    answer: flag.parentNode.parentNode.getAttribute("data-id"),
+    id: flag.parentNode.parentNode.getAttribute("data-id"),
     score: 0,
+    redirect: false,
   };
   const req = buildReq(data, "post");
 
@@ -71,8 +72,9 @@ async function flagRationale(flag) {
 async function evaluateRationale(star, score) {
   const rationale = star.parentNode.parentNode;
   const data = {
-    answer: star.parentNode.parentNode.getAttribute("data-id"),
+    id: star.parentNode.parentNode.getAttribute("data-id"),
     score,
+    redirect: false,
   };
   const req = buildReq(data, "post");
 
