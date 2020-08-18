@@ -1,7 +1,11 @@
 import { Component, h } from "preact";
 
 import { Chip, ChipSet } from "@rmwc/chip";
-import { TextField, TextFieldIcon } from "@rmwc/textfield";
+import {
+  TextField,
+  TextFieldHelperText,
+  TextFieldIcon,
+} from "@rmwc/textfield";
 import { Typography } from "@rmwc/typography";
 
 // Rely on mdc default styles from global use
@@ -96,6 +100,11 @@ export class TeacherInputWithAutocomplete extends Component {
             {this.state.searchResult}
           </div>
         </TextField>
+        <TextFieldHelperText persistent>
+          {this.props.gettext(
+            "Type another teacher's username to add them to this group.  Note: this cannot be undone.",
+          )}
+        </TextFieldHelperText>
         <ChipSet>
           <Typography use="body2">
             {this.state.teachers.map((teacher, i) => {

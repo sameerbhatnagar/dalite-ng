@@ -91,6 +91,7 @@
 <script nonce="{{ request.csp_nonce }}">
   window.addEventListener("load", function() {
     const TeacherInputWithAutocomplete = preact.h(group.TeacherInputWithAutocomplete, {
+      gettext: gettext,
       searchURL: "{% url 'REST:teacher-search' %}",
       teachers: {{ teacher_list|safe }},
     });
