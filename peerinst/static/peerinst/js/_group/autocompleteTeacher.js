@@ -10,13 +10,15 @@ import { Typography } from "@rmwc/typography";
 
 // Rely on mdc default styles from global use
 
-import { get } from "../_ajax/ajax.js";
+import { get, submitData } from "../_ajax/ajax.js";
 
 export class TeacherInputWithAutocomplete extends Component {
   state = {
     searchResult: "",
     searchTerm: "",
-    teachers: this.props.teachers,
+    teachers: this.props.teachers.map((t) => {
+      return { user: t["user__username"], pk: t["pk"] };
+    }),
   };
 
   search = async () => {
@@ -30,11 +32,14 @@ export class TeacherInputWithAutocomplete extends Component {
         console.debug(data);
         if (data.length > 0) {
           this.setState({
-            searchResult: data[0]["user"]["username"],
+            searchResult: {
+              user: data[0]["user"]["username"],
+              pk: data[0]["pk"],
+            },
           });
         } else {
           this.setState({
-            searchResult: "",
+            searchResult: {},
           });
         }
       } catch (error) {
@@ -42,17 +47,39 @@ export class TeacherInputWithAutocomplete extends Component {
       }
     } else {
       this.setState({
-        searchResult: "",
+        searchResult: {},
       });
     }
   };
 
   save = async () => {
-    if (this.state.searchTerm == this.state.searchResult) {
-      if (!this.state.teachers.includes(this.state.searchResult)) {
-        this.state.teachers.push(this.state.searchResult);
+    if (this.state.searchTerm == this.state.searchResult.user) {
+      if (
+        !this.state.teachers
+          .map((t) => t.user)
+          .includes(this.state.searchResult.user)
+      ) {
+        try {
+          const _teachers = this.state.teachers;
+          _teachers.push({
+            user: this.state.searchResult.user,
+            pk: this.state.searchResult.pk,
+          });
+          await submitData(
+            this.props.updateURL,
+            { teacher: _teachers.map((t) => t.pk) },
+            "PUT",
+          );
+          this.setState({
+            teachers: _teachers,
+            searchTerm: "",
+            searchResult: {},
+          });
+        } catch (error) {
+          console.error(error);
+          this.setState({ searchTerm: "", searchResult: {} });
+        }
       }
-      this.setState({ searchTerm: "", searchResult: "" });
     }
   };
 
@@ -75,7 +102,7 @@ export class TeacherInputWithAutocomplete extends Component {
               this.save();
             }
             if (evt.key === "Tab") {
-              this.setState({ searchTerm: this.state.searchResult });
+              this.setState({ searchTerm: this.state.searchResult.user });
               evt.preventDefault();
             }
           }}
@@ -85,14 +112,14 @@ export class TeacherInputWithAutocomplete extends Component {
               tabIndex="0"
               icon={
                 this.state.searchTerm.length != 0
-                  ? this.state.searchTerm == this.state.searchResult
+                  ? this.state.searchTerm == this.state.searchResult.user
                     ? "check"
                     : "close"
                   : {}
               }
               onClick={() => {
                 this.save();
-                this.setState({ searchTerm: "", searchResult: "" });
+                this.setState({ searchTerm: "", searchResult: {} });
               }}
               theme="primary"
             />
@@ -108,7 +135,7 @@ export class TeacherInputWithAutocomplete extends Component {
               letterSpacing: ".04em",
             }}
           >
-            {this.state.searchResult}
+            {this.state.searchResult.user}
           </div>
         </TextField>
         <TextFieldHelperText persistent>
@@ -120,7 +147,7 @@ export class TeacherInputWithAutocomplete extends Component {
           <Typography use="body2">
             {this.state.teachers.map((teacher, i) => {
               return (
-                <Chip id={`chip-${i}`} text={teacher} theme="secondary" />
+                <Chip id={`chip-${i}`} text={teacher.user} theme="secondary" />
               );
             })}
           </Typography>

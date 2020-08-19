@@ -430,7 +430,7 @@ class StudentGroupUpdateView(LoginRequiredMixin, NoStudentsMixin, UpdateView):
         teacher = get_object_or_404(Teacher, user=self.request.user)
         context["teacher"] = teacher
         context["teacher_list"] = list(
-            self.get_object().teacher.values_list("user__username", flat=True)
+            self.get_object().teacher.values("pk", "user__username")
         )
         return context
 
