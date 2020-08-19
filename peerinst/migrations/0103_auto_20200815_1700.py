@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('peerinst', '0102_auto_20200807_0346'),
+        ('peerinst', '0102_auto_20200807_0403'),
     ]
 
     operations = [

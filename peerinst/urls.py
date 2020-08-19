@@ -369,6 +369,11 @@ def group_patterns():
             name="group-details-update",
         ),
         path(
+            "group/update/<group_hash>",
+            views.group.StudentGroupUpdateView.as_view(),
+            name="group-update",
+        ),
+        path(
             "group/connect-course",
             views.connect_group_to_course,
             name="connect-group-course",

@@ -13,6 +13,7 @@ from peerinst.models import (
     AnswerAnnotation,
     Discipline,
     Question,
+    StudentGroup,
     StudentGroupAssignment,
     Teacher,
 )
@@ -26,6 +27,7 @@ from REST.serializers import (
     FeedbackReadSerialzer,
     QuestionSerializer,
     RankSerializer,
+    StudentGroupSerializer,
     StudentGroupAssignmentAnswerSerializer,
     TeacherSerializer,
 )
@@ -204,9 +206,9 @@ class TeacherView(generics.RetrieveUpdateAPIView):
     """
 
     http_method_names = ["get", "put"]
-    serializer_class = TeacherSerializer
     permission_classes = [IsAuthenticated, IsTeacher]
     renderer_classes = [JSONRenderer]
+    serializer_class = TeacherSerializer
 
     def get_queryset(self):
         return Teacher.objects.filter(user=self.request.user)
@@ -286,6 +288,44 @@ class TeacherFeedbackThroughAnswerDetail(TeacherFeedbackDetail):
         self.check_object_permissions(self.request, obj)
 
         return obj
+
+
+class TeacherSearch(ReadOnlyModelViewSet):
+
+    permission_classes = [IsAuthenticated, IsTeacher]
+    renderer_classes = [JSONRenderer]
+    serializer_class = TeacherSerializer
+
+    def get_queryset(self):
+        """
+        Return a list of Teacher instances that best match query, or None
+        """
+        query = self.request.query_params.get("query", None)
+        if query is not None:
+            return Teacher.objects.filter(
+                user__is_active=True, user__username__startswith=query
+            )
+        return Teacher.objects.none()
+
+    def get_serializer(self, *args, **kwargs):
+        kwargs["context"] = self.get_serializer_context()
+
+        return TeacherSerializer(
+            read_only=True, fields=["pk", "user"], *args, **kwargs
+        )
+
+
+class StudentGroupUpdateView(generics.UpdateAPIView):
+    """
+    View to update list of teachers associated with a StudentGroup
+    """
+
+    permission_classes = [IsAuthenticated, IsTeacher, InTeacherList]
+    renderer_classes = [JSONRenderer]
+    serializer_class = StudentGroupSerializer
+
+    def get_queryset(self):
+        return StudentGroup.objects.filter(teacher=self.request.user.teacher)
 
 
 class StudentGroupAssignmentAnswers(ReadOnlyModelViewSet):

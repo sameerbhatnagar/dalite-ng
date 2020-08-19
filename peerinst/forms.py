@@ -1,5 +1,5 @@
 import re
-from datetime import datetime
+from datetime import datetime, date
 
 import pytz
 from django import forms
@@ -455,12 +455,43 @@ class AnswerChoiceForm(forms.ModelForm):
             return self.cleaned_data["text"]
 
 
+def current_year():
+    return date.today().year
+
+
+def year_choices():
+    return [(i, i) for i in range(2015, current_year() + 2)]
+
+
 class StudentGroupCreateForm(forms.ModelForm):
     """Simple form to create a new group"""
 
+    year = forms.TypedChoiceField(
+        coerce=int, choices=year_choices, initial=current_year
+    )
+
     class Meta:
         model = StudentGroup
-        fields = ["title", "name"]
+        fields = ["title", "name", "year", "semester", "discipline"]
+
+
+class StudentGroupUpdateForm(forms.ModelForm):
+    """Simple form to create a new group"""
+
+    year = forms.TypedChoiceField(
+        coerce=int, choices=year_choices, initial=current_year
+    )
+
+    class Meta:
+        model = StudentGroup
+        fields = [
+            "title",
+            "student_id_needed",
+            "year",
+            "semester",
+            "discipline",
+        ]
+        read_only_fields = ["name"]
 
 
 class StudentGroupAssignmentForm(ModelForm):

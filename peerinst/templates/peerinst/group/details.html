@@ -1,6 +1,6 @@
 {% extends 'peerinst/group/base.html' %}
 
-{% load i18n %}
+{% load i18n add_class %}
 
 {% block stylesheets %}
 {{ block.super }}
@@ -42,7 +42,11 @@ https://datatables.net/extensions/buttons/examples/styling/jqueryui.html
     <div class="foldable foldable__unfolded">
       <h2 class="foldable--title mdc-typography--display1 mdc-theme--secondary">
         {% trans 'Characteristics' %}
+        <a href="{% url 'group-update' group.hash %}">
+          <i class="material-icons md-24 mdc-ripple-surface icon-list" title="{% trans 'Edit group characteristics' %}">edit</i>
+        </a>
       </h2>
+
       <div class="foldable--body">
 
         <div data-update-url="{% url 'group-details-update' group.hash %}">
@@ -60,9 +64,11 @@ https://datatables.net/extensions/buttons/examples/styling/jqueryui.html
                   {{ group.name }}
                 </span>
               </span>
+              <!--
               <span class="mdc-list-item__meta">
                 <i title="Edit" class="material-icons md-24 mdc-ripple-surface icon-list edit-btn">edit</i>
               </span>
+              -->
             </li>
             <li class="mdc-list-divider" role="separator"></li>
 
@@ -76,9 +82,11 @@ https://datatables.net/extensions/buttons/examples/styling/jqueryui.html
                   {{ group.title }}
                 </span>
               </span>
+              <!--
               <span class="mdc-list-item__meta">
                 <i title="Edit" class="material-icons md-24 mdc-ripple-surface icon-list edit-btn">edit</i>
               </span>
+              -->
             </li>
             <li class="mdc-list-divider" role="separator"></li>
 
@@ -87,9 +95,9 @@ https://datatables.net/extensions/buttons/examples/styling/jqueryui.html
                 <i class="mdc-theme--primary material-icons md-48">calendar_today</i>
               </span>
               <span class="mdc-list-item__text mdc-theme--secondary bold">
-                {% trans 'Created on' %}
+                {% trans 'Discipline / Semester' %}
                 <span class="mdc-list-item__secondary-text">
-                  {{ group.creation_date }}
+                   {{ group.discipline.title }} / {{ group.semester }} {{ group.year }}
                 </span>
               </span>
             </li>
@@ -118,10 +126,15 @@ https://datatables.net/extensions/buttons/examples/styling/jqueryui.html
                 </i>
               </span>
               <span class="mdc-list-item__text mdc-theme--secondary bold no-icon">
-                {% trans 'University ID needed' %}
+                {% if group.student_id_needed %}
+                  {% trans 'Student ID required' %}
+                {% else %}
+                  {% trans 'Student ID not required' %}
+                {% endif %}
                 <span class="mdc-list-item__secondary-text no-icon">
                 </span>
               </span>
+              <!--
               <span class="mdc-list-item__meta">
                 <div class="switch-button">
                   {% if group.student_id_needed %}
@@ -138,6 +151,7 @@ https://datatables.net/extensions/buttons/examples/styling/jqueryui.html
                   <div class="switch-button__button"></div>
                 </div>
               </span>
+              -->
             </li>
             <li class="mdc-list-divider" role="separator"></li>
 
@@ -157,9 +171,11 @@ https://datatables.net/extensions/buttons/examples/styling/jqueryui.html
                   </ul>
                 </div>
               </span>
+              <!--
               <span class="mdc-list-item__meta">
                 <i title="Add" class="material-icons md-24 mdc-ripple-surface icon-list edit-btn">add</i>
               </span>
+              -->
             </li>
             {% comment %} <li class="mdc-list-divider" role="separator"></li> {% endcomment %}
             {% comment %} <li class="mdc-list-item" {% endcomment %}

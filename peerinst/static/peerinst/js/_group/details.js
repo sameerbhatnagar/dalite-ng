@@ -1,6 +1,6 @@
 // @flow
 import { buildReq } from "../ajax.js";
-import { editField } from "./common.js";
+//import { editField } from "./common.js";
 
 /*********/
 /* model */
@@ -85,6 +85,7 @@ function removeAssignment(event: MouseEvent, url: string): void {
   });
 }
 
+/*
 function toggleStudentIdNeeded(event: MouseEvent, url: string): void {
   const idNeeded = event.currentTarget.checked;
   const data = {
@@ -102,6 +103,7 @@ function toggleStudentIdNeeded(event: MouseEvent, url: string): void {
       console.log(err);
     });
 }
+*/
 
 export async function createCollection(
   groupPk,
@@ -169,8 +171,8 @@ function studentListTableView(student: Student): void {
 function initListeners(): void {
   addLinkListeners();
   addRemoveAssignmentListeners();
-  addEditListeners();
-  addToggleIdListener();
+  //addEditListeners();
+  //addToggleIdListener();
 }
 
 function addLinkListeners(): void {
@@ -193,6 +195,7 @@ function addRemoveAssignmentListeners(): void {
   }
 }
 
+/*
 function addEditListeners(): void {
   [...document.getElementsByClassName("edit-btn")].forEach((btn) => {
     btn.addEventListener("click", (event: MouseEvent) => {
@@ -208,6 +211,7 @@ function addToggleIdListener(): void {
       toggleStudentIdNeeded(event, model.urls.updateUrl);
     });
 }
+*/
 
 /********/
 /* init */

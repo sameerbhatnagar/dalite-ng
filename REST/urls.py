@@ -41,6 +41,11 @@ urlpatterns = [
         name="student-feedback",
     ),
     path(
+        "studentgroup/update/<int:pk>/",
+        views.StudentGroupUpdateView.as_view(),
+        name="student-group-update",
+    ),
+    path(
         "studentgroupassignment/",
         views.StudentGroupAssignmentAnswers.as_view({"get": "list"}),
         name="student-group-assigment-answers",
@@ -51,6 +56,11 @@ urlpatterns = [
         name="student-group-assigment-answers",
     ),
     path("teacher/<int:pk>/", views.TeacherView.as_view(), name="teacher",),
+    path(
+        "teacher/search/",
+        views.TeacherSearch.as_view({"get": "list"}),
+        name="teacher-search",
+    ),
     path(
         "teacher/feedback/",
         views.TeacherFeedbackList.as_view(),
