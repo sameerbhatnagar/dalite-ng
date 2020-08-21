@@ -222,7 +222,8 @@ function completeView(container, data, total, height, width) {
     .attr("dy", 7)
     .attr("fill", colourScale(0))
     .attr("class", "student-progress__count")
-    .attr("font-size", "22px");
+    .attr("font-size", "20px")
+    .attr("font-weight", "bold");
 
   svg
     .append("text")
@@ -304,8 +305,9 @@ function correctView(container, data, total, height, width) {
     .text(0)
     .attr("text-anchor", "middle")
     .attr("dy", 7)
-    .attr("font-size", "22px")
+    .attr("font-size", "20px")
     .attr("fill", colourScale(0))
+    .attr("font-weight", "bold")
     .attr("class", "student-progress__count");
 
   svg
