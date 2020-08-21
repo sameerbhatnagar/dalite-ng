@@ -183,17 +183,35 @@ function completeView(container, data, total, height, width) {
     .startAngle(0);
 
   svg
+    .append("circle")
+    .attr("cx", 0)
+    .attr("cy", 0)
+    .attr("r", radius)
+    .style("fill", "white");
+
+  svg
     .append("path")
     .attr("d", arcBackground)
     .attr("class", "gray")
-    .style("opacity", "0.10");
+    .style("stroke", "white")
+    .style("opacity", 0.2);
 
   svg
     .append("path")
     .datum({ endAngle: 0 })
     .attr("d", arcData)
     .style("fill", colourScale(0))
+    .style("stroke", "white")
     .attr("class", "student-progress__path");
+
+  svg
+    .append("circle")
+    .attr("cx", 0)
+    .attr("cy", 0)
+    .attr("r", radius - 5)
+    .style("opacity", 0.02)
+    .attr("class", "student-progress__background")
+    .style("fill", colourScale(0));
 
   svg
     .append("text")
@@ -202,7 +220,8 @@ function completeView(container, data, total, height, width) {
     .text(0)
     .attr("text-anchor", "middle")
     .attr("dy", 7)
-    .attr("class", "fill-secondary student-progress__count")
+    .attr("fill", colourScale(0))
+    .attr("class", "student-progress__count")
     .attr("font-size", "22px");
 
   svg
@@ -210,8 +229,10 @@ function completeView(container, data, total, height, width) {
     .text("%")
     .attr("text-anchor", "middle")
     .attr("dy", 15)
-    .attr("class", "fill-secondary")
-    .attr("font-size", "8px");
+    .attr("fill", colourScale(0))
+    .attr("font-size", "8px")
+    .attr("font-weight", "bold")
+    .attr("class", "student-progress__units");
 
   return svg;
 }
@@ -246,17 +267,35 @@ function correctView(container, data, total, height, width) {
     .startAngle(0);
 
   svg
+    .append("circle")
+    .attr("cx", 0)
+    .attr("cy", 0)
+    .attr("r", radius)
+    .style("fill", "white");
+
+  svg
     .append("path")
     .attr("d", arcBackground)
     .attr("class", "gray")
-    .style("opacity", "0.10");
+    .style("stroke", "white")
+    .style("opacity", 0.2);
 
   svg
     .append("path")
     .datum({ endAngle: 0 })
     .attr("d", arcData)
     .style("fill", colourScale(0))
+    .style("stroke", "white")
     .attr("class", "student-progress__path");
+
+  svg
+    .append("circle")
+    .attr("cx", 0)
+    .attr("cy", 0)
+    .attr("r", radius - 5)
+    .style("opacity", 0.02)
+    .attr("class", "student-progress__background")
+    .style("fill", colourScale(0));
 
   svg
     .append("text")
@@ -266,15 +305,18 @@ function correctView(container, data, total, height, width) {
     .attr("text-anchor", "middle")
     .attr("dy", 7)
     .attr("font-size", "22px")
-    .attr("class", "fill-secondary student-progress__count");
+    .attr("fill", colourScale(0))
+    .attr("class", "student-progress__count");
 
   svg
     .append("text")
     .text("%")
     .attr("text-anchor", "middle")
     .attr("dy", 15)
-    .attr("class", "fill-secondary")
-    .attr("font-size", "8px");
+    .attr("fill", colourScale(0))
+    .attr("font-size", "8px")
+    .attr("font-weight", "bold")
+    .attr("class", "student-progress__units");
 
   return svg;
 }
@@ -295,6 +337,8 @@ function toggleStudentProgressView() {
 function animateComplete(svg, reverse = false) {
   const path_ = svg.querySelector(".student-progress__path");
   const count_ = svg.querySelector(".student-progress__count");
+  const background_ = svg.querySelector(".student-progress__background");
+  const units_ = svg.querySelector(".student-progress__units");
   const data = count_.getAttribute("data-count");
   const total = count_.getAttribute("data-total");
 
@@ -329,7 +373,8 @@ function animateComplete(svg, reverse = false) {
     .startAngle(0);
 
   const path = d3.select(path_).attr("d", arcData);
-
+  const background = d3.select(background_);
+  const units = d3.select(units_);
   const count = d3.select(count_);
 
   function animation(transition, newAngle) {
@@ -340,7 +385,10 @@ function animateComplete(svg, reverse = false) {
         d.endAngle = interpolate(t);
         const newCount = interpolateCount(t);
         count.text(Math.floor((newCount / total) * 100));
+        count.style("fill", colourScale(newCount / total));
+        units.style("fill", colourScale(newCount / total));
         path.style("fill", colourScale(newCount / total));
+        background.style("fill", colourScale(newCount / total));
         return arcData(d);
       };
     });
@@ -361,6 +409,8 @@ function animateComplete(svg, reverse = false) {
 function animateCorrect(svg, reverse = false) {
   const path_ = svg.querySelector(".student-progress__path");
   const count_ = svg.querySelector(".student-progress__count");
+  const background_ = svg.querySelector(".student-progress__background");
+  const units_ = svg.querySelector(".student-progress__units");
   const data = count_.getAttribute("data-count");
   const total = count_.getAttribute("data-total");
 
@@ -395,7 +445,8 @@ function animateCorrect(svg, reverse = false) {
     .startAngle(0);
 
   const path = d3.select(path_).attr("d", arcData);
-
+  const background = d3.select(background_);
+  const units = d3.select(units_);
   const count = d3.select(count_);
 
   function animation(transition, newAngle) {
@@ -406,7 +457,10 @@ function animateCorrect(svg, reverse = false) {
         d.endAngle = interpolate(t);
         const newCount = interpolateCount(t);
         count.text(Math.floor((newCount / total) * 100));
+        count.style("fill", colourScale(newCount / total));
+        units.style("fill", colourScale(newCount / total));
         path.style("fill", colourScale(newCount / total));
+        background.style("fill", colourScale(newCount / total));
         return arcData(d);
       };
     });
