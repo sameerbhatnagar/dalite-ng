@@ -6,12 +6,14 @@ import {
   DialogButton,
   DialogContent,
 } from "@rmwc/dialog";
+import { Icon } from "@rmwc/icon";
 import { LinearProgress } from "@rmwc/linear-progress";
 import { Snackbar } from "@rmwc/snackbar";
 import { Typography } from "@rmwc/typography";
 
 import "@rmwc/button/node_modules/@material/button/dist/mdc.button.css";
 import "@rmwc/dialog/node_modules/@material/dialog/dist/mdc.dialog.css";
+import "@rmwc/icon/icon.css";
 import "@rmwc/linear-progress/node_modules/@material/linear-progress/dist/mdc.linear-progress.min.css";
 import "@rmwc/snackbar/node_modules/@material/snackbar/dist/mdc.snackbar.min.css";
 import "@rmwc/typography/node_modules/@material/typography/dist/mdc.typography.min.css";
@@ -20,6 +22,15 @@ import { get } from "../_ajax/ajax.js";
 import { Choices } from "../_assignment/question.js";
 
 class Feedback extends Component {
+  scores = Array.from([0, 1, 2, 3]);
+
+  annotations = Array.from([
+    this.props.gettext("Unacceptable"),
+    this.props.gettext("Not convincing"),
+    this.props.gettext("Somewhat convincing"),
+    this.props.gettext("Very convincing"),
+  ]);
+
   insertFeedback = () => {
     if (this.props.feedback.note) {
       return (
@@ -55,17 +66,35 @@ class Feedback extends Component {
 
   insertScore = () => {
     if (this.props.feedback.score >= 0) {
+      const title =
+        this.props.gettext("Your rationale is: ") +
+        this.annotations[this.props.feedback.score].toLowerCase();
       return (
-        <Typography use="headline4" theme="primary">
-          <p
-            style={{ paddingRight: "40px", textAlign: "right" }}
-            title={this.props.gettext(
-              "The score assigned by your teacher. 0 is unacceptable; 3 means your teacher thinks that your explanation should be shown to other students!",
-            )}
-          >
-            {this.props.feedback.score}/3
-          </p>
-        </Typography>
+        <div
+          style={{
+            cursor: "default",
+            paddingRight: "40px",
+            textAlign: "right",
+          }}
+        >
+          <Icon
+            icon={this.props.feedback.score == 0 ? "flag" : "outlined_flag"}
+            theme="primary"
+            title={title}
+          />
+
+          {this.scores.slice(1).map((score, i) => {
+            return (
+              <Icon
+                icon={
+                  this.props.feedback.score >= score ? "star" : "star_border"
+                }
+                theme="primary"
+                title={title}
+              />
+            );
+          })}
+        </div>
       );
     }
   };
