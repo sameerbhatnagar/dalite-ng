@@ -86,7 +86,7 @@ function legendView() {
   li.appendChild(legend);
 
   const done = document.createElement("span");
-  done.textContent = "Questions done";
+  done.textContent = "Questions completed";
   legend.appendChild(done);
 
   const first = document.createElement("span");
@@ -141,8 +141,14 @@ function questionView(question) {
   const total = question.nStudents;
 
   completeView(progress, question.nCompleted, total, height, width);
-  correctView(progress, question.nFirstCorrect, total, height, width);
-  correctView(progress, question.nCorrect, total, height, width);
+  correctView(
+    progress,
+    question.nFirstCorrect,
+    question.nCompleted,
+    height,
+    width,
+  );
+  correctView(progress, question.nCorrect, question.nCompleted, height, width);
 
   return li;
 }
@@ -289,7 +295,6 @@ function toggleStudentProgressView() {
 function animateComplete(svg, reverse = false) {
   const path_ = svg.querySelector(".student-progress__path");
   const count_ = svg.querySelector(".student-progress__count");
-  console.info(count_);
   const data = count_.getAttribute("data-count");
   const total = count_.getAttribute("data-total");
 
