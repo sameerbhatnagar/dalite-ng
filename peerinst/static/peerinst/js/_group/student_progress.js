@@ -201,7 +201,7 @@ function completeView(container, data, total, height, width) {
     .attr("data-total", total)
     .text(0)
     .attr("text-anchor", "middle")
-    .attr("dy", 8)
+    .attr("dy", 7)
     .attr("class", "fill-secondary student-progress__count")
     .attr("font-size", "22px");
 
@@ -209,7 +209,7 @@ function completeView(container, data, total, height, width) {
     .append("text")
     .text("%")
     .attr("text-anchor", "middle")
-    .attr("dy", 17)
+    .attr("dy", 15)
     .attr("class", "fill-secondary")
     .attr("font-size", "8px");
 
@@ -264,7 +264,7 @@ function correctView(container, data, total, height, width) {
     .attr("data-total", total)
     .text(0)
     .attr("text-anchor", "middle")
-    .attr("dy", 8)
+    .attr("dy", 7)
     .attr("font-size", "22px")
     .attr("class", "fill-secondary student-progress__count");
 
@@ -272,7 +272,7 @@ function correctView(container, data, total, height, width) {
     .append("text")
     .text("%")
     .attr("text-anchor", "middle")
-    .attr("dy", 17)
+    .attr("dy", 15)
     .attr("class", "fill-secondary")
     .attr("font-size", "8px");
 
