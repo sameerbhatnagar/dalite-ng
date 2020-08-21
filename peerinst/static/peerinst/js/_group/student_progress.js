@@ -1,6 +1,7 @@
 import * as d3 from "d3";
 import { buildReq } from "../ajax.js";
 import { clear, createSvg } from "../utils.js";
+import { quintileScale } from "../_theming/colours.js";
 
 /*********/
 /* model */
@@ -158,7 +159,9 @@ function completeView(container, data, total, height, width) {
     .append("g")
     .attr("transform", `translate(${width / 2},${height / 2})`);
 
-  const colourScale = d3.scaleSequential(d3.interpolatePlasma);
+  const colourScale = d3
+    .scaleThreshold(quintileScale)
+    .domain([0.2, 0.4, 0.6, 0.8]);
 
   const arcBackground = d3
     .arc()
@@ -194,7 +197,15 @@ function completeView(container, data, total, height, width) {
     .attr("text-anchor", "middle")
     .attr("dy", 8)
     .attr("class", "fill-secondary student-progress__count")
-    .attr("font-size", "24px");
+    .attr("font-size", "22px");
+
+  svg
+    .append("text")
+    .text("%")
+    .attr("text-anchor", "middle")
+    .attr("dy", 17)
+    .attr("class", "fill-secondary")
+    .attr("font-size", "8px");
 
   return svg;
 }
@@ -211,7 +222,9 @@ function correctView(container, data, total, height, width) {
     .append("g")
     .attr("transform", `translate(${width / 2},${height / 2})`);
 
-  const colourScale = d3.scaleSequential(d3.interpolatePlasma);
+  const colourScale = d3
+    .scaleThreshold(quintileScale)
+    .domain([0.2, 0.4, 0.6, 0.8]);
 
   const arcBackground = d3
     .arc()
@@ -246,8 +259,16 @@ function correctView(container, data, total, height, width) {
     .text(0)
     .attr("text-anchor", "middle")
     .attr("dy", 8)
-    .attr("font-size", "24px")
+    .attr("font-size", "22px")
     .attr("class", "fill-secondary student-progress__count");
+
+  svg
+    .append("text")
+    .text("%")
+    .attr("text-anchor", "middle")
+    .attr("dy", 17)
+    .attr("class", "fill-secondary")
+    .attr("font-size", "8px");
 
   return svg;
 }
@@ -268,10 +289,13 @@ function toggleStudentProgressView() {
 function animateComplete(svg, reverse = false) {
   const path_ = svg.querySelector(".student-progress__path");
   const count_ = svg.querySelector(".student-progress__count");
+  console.info(count_);
   const data = count_.getAttribute("data-count");
   const total = count_.getAttribute("data-total");
 
-  const colourScale = d3.scaleSequential(d3.interpolatePlasma);
+  const colourScale = d3
+    .scaleThreshold(quintileScale)
+    .domain([0.2, 0.4, 0.6, 0.8]);
 
   let start;
   let end;
@@ -309,9 +333,9 @@ function animateComplete(svg, reverse = false) {
       const interpolateCount = d3.interpolate(start, end);
       return function (t) {
         d.endAngle = interpolate(t);
-        count.text(Math.floor(interpolateCount(t)));
         const newCount = interpolateCount(t);
-        path.style("fill", colourScale(1 - newCount / total));
+        count.text(Math.floor((newCount / total) * 100));
+        path.style("fill", colourScale(newCount / total));
         return arcData(d);
       };
     });
@@ -335,7 +359,9 @@ function animateCorrect(svg, reverse = false) {
   const data = count_.getAttribute("data-count");
   const total = count_.getAttribute("data-total");
 
-  const colourScale = d3.scaleSequential(d3.interpolatePlasma);
+  const colourScale = d3
+    .scaleThreshold(quintileScale)
+    .domain([0.2, 0.4, 0.6, 0.8]);
 
   let start;
   let end;
@@ -374,8 +400,8 @@ function animateCorrect(svg, reverse = false) {
       return function (t) {
         d.endAngle = interpolate(t);
         const newCount = interpolateCount(t);
-        path.style("fill", colourScale(1 - newCount / total));
-        count.text(Math.floor(newCount));
+        count.text(Math.floor((newCount / total) * 100));
+        path.style("fill", colourScale(newCount / total));
         return arcData(d);
       };
     });
