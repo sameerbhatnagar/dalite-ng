@@ -12,7 +12,6 @@
 -e git+https://github.com/SALTISES4/UserFeedback@master#egg=user_feedback  # via -r requirements/requirements-base.txt, -r requirements/requirements-test.txt
 amqp==2.5.2               # via -r requirements/requirements-base.txt, -r requirements/requirements-test.txt, kombu
 appdirs==1.4.3            # via black, virtualenv
-appnope==0.1.0            # via ipython
 attrs==19.3.0             # via -r requirements/requirements-test.txt, black, pytest
 backcall==0.1.0           # via ipython
 bandit==1.6.2             # via -r requirements/requirements-dev.in
@@ -41,6 +40,7 @@ django-csp==3.6           # via -r requirements/requirements-base.txt, -r requir
 django-grappelli==2.14.1  # via -r requirements/requirements-base.txt, -r requirements/requirements-test.txt
 django-htmlmin==0.11.0    # via -r requirements/requirements-base.txt, -r requirements/requirements-test.txt
 django-ipware==2.1.0      # via -r requirements/requirements-base.txt, -r requirements/requirements-test.txt, django-axes
+django-samesite-none==0.0.2  # via -r requirements/requirements-base.txt
 django-security-headers==0.3.1  # via -r requirements/requirements-base.txt, -r requirements/requirements-test.txt
 django-sslserver==0.22    # via -r requirements/requirements-base.txt, -r requirements/requirements-dev.in, -r requirements/requirements-test.txt, django-security-headers
 django-timezone-field==4.0  # via -r requirements/requirements-base.txt, -r requirements/requirements-test.txt, django-celery-beat
