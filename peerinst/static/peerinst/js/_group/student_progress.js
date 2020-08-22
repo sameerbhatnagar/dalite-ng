@@ -372,7 +372,7 @@ function animateComplete(svg, reverse = false) {
       return function (t) {
         d.endAngle = interpolate(t);
         const newCount = interpolateCount(t);
-        count.text(Math.floor((newCount / total) * 100));
+        count.text(total > 0 ? Math.floor((newCount / total) * 100) : 0);
         count.style("fill", colourScale(newCount / total));
         units.style("fill", colourScale(newCount / total));
         path.style("fill", colourScale(newCount / total));
@@ -444,7 +444,7 @@ function animateCorrect(svg, reverse = false) {
       return function (t) {
         d.endAngle = interpolate(t);
         const newCount = interpolateCount(t);
-        count.text(Math.floor((newCount / total) * 100));
+        count.text(total > 0 ? Math.floor((newCount / total) * 100) : 0);
         count.style("fill", colourScale(newCount / total));
         units.style("fill", colourScale(newCount / total));
         path.style("fill", colourScale(newCount / total));
