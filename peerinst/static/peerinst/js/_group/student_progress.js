@@ -184,24 +184,18 @@ function completeView(container, data, total, height, width) {
 
   svg
     .append("circle")
+    .attr("class", "background")
     .attr("cx", 0)
     .attr("cy", 0)
-    .attr("r", radius)
-    .style("fill", "white");
+    .attr("r", radius);
 
-  svg
-    .append("path")
-    .attr("d", arcBackground)
-    .attr("class", "gray")
-    .style("stroke", "white")
-    .style("opacity", 0.2);
+  svg.append("path").attr("d", arcBackground).attr("class", "arc gray");
 
   svg
     .append("path")
     .datum({ endAngle: 0 })
     .attr("d", arcData)
-    .style("fill", colourScale(0))
-    .style("stroke", "white")
+    .attr("fill", colourScale(0))
     .attr("class", "student-progress__path");
 
   svg
@@ -209,9 +203,8 @@ function completeView(container, data, total, height, width) {
     .attr("cx", 0)
     .attr("cy", 0)
     .attr("r", radius - 5)
-    .style("opacity", 0.02)
     .attr("class", "student-progress__background")
-    .style("fill", colourScale(0));
+    .attr("fill", colourScale(0));
 
   svg
     .append("text")
@@ -269,24 +262,18 @@ function correctView(container, data, total, height, width) {
 
   svg
     .append("circle")
+    .attr("class", "background")
     .attr("cx", 0)
     .attr("cy", 0)
-    .attr("r", radius)
-    .style("fill", "white");
+    .attr("r", radius);
 
-  svg
-    .append("path")
-    .attr("d", arcBackground)
-    .attr("class", "gray")
-    .style("stroke", "white")
-    .style("opacity", 0.2);
+  svg.append("path").attr("d", arcBackground).attr("class", "arc gray");
 
   svg
     .append("path")
     .datum({ endAngle: 0 })
     .attr("d", arcData)
-    .style("fill", colourScale(0))
-    .style("stroke", "white")
+    .attr("fill", colourScale(0))
     .attr("class", "student-progress__path");
 
   svg
@@ -294,9 +281,8 @@ function correctView(container, data, total, height, width) {
     .attr("cx", 0)
     .attr("cy", 0)
     .attr("r", radius - 5)
-    .style("opacity", 0.02)
     .attr("class", "student-progress__background")
-    .style("fill", colourScale(0));
+    .attr("fill", colourScale(0));
 
   svg
     .append("text")
