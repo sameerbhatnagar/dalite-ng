@@ -136,10 +136,11 @@ class AnswerFeedback extends Component {
 
   save = async (score) => {
     this.setState({ saving: true });
+    let data;
     try {
       if (!this.state.create) {
         // Object exists, so PATCH
-        const data = await submitData(
+        data = await submitData(
           `${this.props.feedbackURL}through_answer/${this.props.pk}/`,
           { note: this.state.note, score },
           "PATCH",
@@ -147,7 +148,7 @@ class AnswerFeedback extends Component {
         console.info(data);
       } else {
         // Object doesn't exist, so POST
-        const data = await submitData(
+        data = await submitData(
           this.props.feedbackURL,
           {
             answer: this.props.pk,
@@ -162,7 +163,7 @@ class AnswerFeedback extends Component {
         changed: false,
         create: false,
         saving: false,
-        score,
+        score: data["score"],
         score_hover: null,
       });
       this.props.setSnackbar(true, this.props.gettext("Saved"));
