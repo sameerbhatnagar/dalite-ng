@@ -251,9 +251,7 @@ class TeacherFeedbackList(generics.ListCreateAPIView):
     serializer_class = FeedbackWriteSerialzer
 
     def get_queryset(self):
-        return AnswerAnnotation.objects.filter(
-            annotator=self.request.user, score__isnull=False
-        )
+        return AnswerAnnotation.objects.filter(annotator=self.request.user,)
 
     def perform_create(self, serializer):
         serializer.save(annotator=self.request.user)
@@ -268,9 +266,7 @@ class TeacherFeedbackDetail(generics.RetrieveUpdateAPIView):
     serializer_class = FeedbackWriteSerialzer
 
     def get_queryset(self):
-        return AnswerAnnotation.objects.filter(
-            annotator=self.request.user, score__isnull=False
-        )
+        return AnswerAnnotation.objects.filter(annotator=self.request.user,)
 
 
 class TeacherFeedbackThroughAnswerDetail(TeacherFeedbackDetail):
