@@ -446,7 +446,7 @@ CSP_OBJECT_SRC = [
     "*.mydalite.org",
     "phet.colorado.edu",
     "*.youtube.com",
-    "vimeo.com",
+    "*.vimeo.com",
 ]
 
 FEATURE_POLICY = [
