@@ -84,6 +84,7 @@ from ..models import (
     UserType,
     UserUrl,
 )
+from ..models.group import current_semester, current_year
 from ..tasks import mail_managers_async
 from ..util import (
     SessionStageData,
@@ -1039,6 +1040,14 @@ class QuestionFormView(QuestionMixin, FormView):
                     group = StudentGroup(name=course_id, title=course_title)
                 else:
                     group = StudentGroup(name=course_id)
+                group.semester = current_semester()
+                group.year = current_year()
+
+                # since teachers do not necessarily set discipline for
+                # themselves, take discipline of first question seen
+                # by this group and set for group
+                if self.question.discipline:
+                    group.discipline = self.question.discipline
                 group.save()
 
             # If teacher_id specified, add teacher to group
@@ -1938,6 +1947,12 @@ class TeacherGroups(TeacherBase, ListView):
                 form.save()
                 form.instance.teacher.add(self.teacher)
                 self.teacher.current_groups.add(form.instance)
+                return HttpResponseRedirect(
+                    reverse(
+                        "group-details",
+                        kwargs={"group_hash": form.instance.hash},
+                    )
+                )
             else:
                 return render(
                     request,

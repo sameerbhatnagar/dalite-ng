@@ -17,7 +17,7 @@ import "@rmwc/textfield/node_modules/@material/notched-outline/dist/mdc.notched-
 import "@rmwc/textfield/node_modules/@material/line-ripple/dist/mdc.line-ripple.min.css";
 import "@rmwc/select/node_modules/@material/select/dist/mdc.select.min.css";
 
-import { get, submitData } from "./ajax.js";
+import { get, submitData } from "../_ajax/ajax.js";
 import { QuestionCard, Favourites, User } from "./question.js";
 
 export class SearchDbApp extends Component {

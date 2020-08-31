@@ -217,7 +217,7 @@ https://datatables.net/extensions/buttons/examples/styling/jqueryui.html
                       {% endif %}
                       <th>{% trans "Submitted" %}</th>
                       <th>{% trans "Evaluate" %}</th>
-                      <th>{% trans "Feedback" %}</th>
+                      <!--<th>{% trans "Feedback" %}</th>-->
                   </tr>
                   </thead>
                   <tbody>
@@ -225,8 +225,7 @@ https://datatables.net/extensions/buttons/examples/styling/jqueryui.html
 
                   <tr class="custom-report__rationale"
                       data-id="{{ student_response.id }}"
-                      data-score="{{ student_response.feedback.score }}"
-                      data-feedback="{{ student_response.feedback.note }}">
+                      data-score="{{ student_response.score }}">
                       <th id="{{student_response.student}}{{ question.title|safe }}" class="mdc-ripple-surface">
                           <a href="#{{ student_response.student }}">{{ student_response.student }}</a></th>
                       {% if question.type == "PI" %}
@@ -284,8 +283,7 @@ https://datatables.net/extensions/buttons/examples/styling/jqueryui.html
                             outlined_flag
                         </i>
                       </td>
-                      <td class="custom-report__rationale__feedback">
-                      </td>
+                      <!--<td class="custom-report__rationale__feedback"></td>-->
                   </tr>
 
                   {% endfor %}
@@ -340,7 +338,8 @@ bundle.selectAll("#second_choice-group-"+id).transition().delay(1000).duration(1
   window.addEventListener("load", function() {
   teacher.initCustomReport(
     {
-      evaluateRationale: "{% url 'REST:teacher-feedback-list' %}",
+      evaluateRationale: "{% url 'teacher-dashboard--evaluate-rationale' %}"
+
     }
   )
 });

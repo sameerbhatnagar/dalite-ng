@@ -40,7 +40,11 @@
             <span class="clickable mdc-list-item__text mdc-theme--secondary bold">
               {% if not g.title %} {{ g.name }} {% else %} {{ g.title }} {% endif %}
               <span class="mdc-list-item__secondary-text">
-                {% trans "Created: " %} {{ g.creation_date }}
+              {% if g.discipline %}
+                {{ g.discipline.title }} / {{ g.semester }} {{ g.year }}
+              {% else %}
+                {% trans 'Update group details' %}
+              {% endif %}
               </span>
               <span class="mdc-list-item__secondary-text">
                 {% trans "Students: " %} {{ g.student_set.count  }}

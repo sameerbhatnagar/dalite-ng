@@ -1,7 +1,10 @@
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
+from django.db.models import Q
+from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, generics
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import JSONRenderer
+from rest_framework.viewsets import ReadOnlyModelViewSet
 
 from peerinst.models import (
     Assignment,
@@ -10,6 +13,8 @@ from peerinst.models import (
     AnswerAnnotation,
     Discipline,
     Question,
+    StudentGroup,
+    StudentGroupAssignment,
     Teacher,
 )
 from peerinst.util import question_search_function
@@ -22,6 +27,8 @@ from REST.serializers import (
     FeedbackReadSerialzer,
     QuestionSerializer,
     RankSerializer,
+    StudentGroupSerializer,
+    StudentGroupAssignmentAnswerSerializer,
     TeacherSerializer,
 )
 from REST.permissions import (
@@ -30,6 +37,7 @@ from REST.permissions import (
     IsAdminUserOrReadOnly,
     IsNotStudent,
     IsTeacher,
+    InTeacherList,
 )
 
 
@@ -56,6 +64,23 @@ class DisciplineViewSet(viewsets.ModelViewSet):
     queryset = Discipline.objects.all()
     renderer_classes = [JSONRenderer]
     serializer_class = DisciplineSerializer
+
+
+class QuestionViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    Read-only endpoint for questions.
+
+    TODO: Remove list option to reduce db load.
+    """
+
+    permission_classes = [IsAuthenticated, IsNotStudent]
+    queryset = Question.objects.all()
+    renderer_classes = [JSONRenderer]
+
+    def get_serializer(self, *args, **kwargs):
+        return QuestionSerializer(
+            fields=["choices", "pk", "text", "title"], *args, **kwargs
+        )
 
 
 class QuestionListViewSet(viewsets.ModelViewSet):
@@ -171,8 +196,8 @@ class StudentFeedbackList(generics.ListAPIView):
 
     def get_queryset(self):
         return AnswerAnnotation.objects.filter(
-            answer__user_token=self.request.user.username, score__isnull=False
-        )
+            answer__user_token=self.request.user.username
+        ).filter(Q(score__isnull=False) | Q(note__isnull=False))
 
 
 class TeacherView(generics.RetrieveUpdateAPIView):
@@ -181,9 +206,9 @@ class TeacherView(generics.RetrieveUpdateAPIView):
     """
 
     http_method_names = ["get", "put"]
-    serializer_class = TeacherSerializer
     permission_classes = [IsAuthenticated, IsTeacher]
     renderer_classes = [JSONRenderer]
+    serializer_class = TeacherSerializer
 
     def get_queryset(self):
         return Teacher.objects.filter(user=self.request.user)
@@ -222,25 +247,114 @@ class TeacherFeedbackList(generics.ListCreateAPIView):
     or create new one
     """
 
+    permission_classes = [IsAuthenticated, IsNotStudent]
     serializer_class = FeedbackWriteSerialzer
 
     def get_queryset(self):
-        return AnswerAnnotation.objects.filter(
-            annotator=self.request.user, score__isnull=False
-        )
+        return AnswerAnnotation.objects.filter(annotator=self.request.user,)
 
     def perform_create(self, serializer):
         serializer.save(annotator=self.request.user)
 
 
-class TeacherFeedbackDetail(generics.RetrieveUpdateDestroyAPIView):
+class TeacherFeedbackDetail(generics.RetrieveUpdateAPIView):
     """
     View for RUD operations on AnswerAnnotation model
     """
 
+    permission_classes = [IsAuthenticated, IsNotStudent]
     serializer_class = FeedbackWriteSerialzer
 
     def get_queryset(self):
-        return AnswerAnnotation.objects.filter(
-            annotator=self.request.user, score__isnull=False
+        return AnswerAnnotation.objects.filter(annotator=self.request.user,)
+
+
+class TeacherFeedbackThroughAnswerDetail(TeacherFeedbackDetail):
+    """
+    Same as above, but access instance through answer pk.
+    This is a convenience and only works because of unique_together constraint.
+    """
+
+    def get_object(self):
+        obj = get_object_or_404(
+            AnswerAnnotation,
+            annotator=self.request.user,
+            answer__pk=self.kwargs["pk"],
         )
+        self.check_object_permissions(self.request, obj)
+
+        return obj
+
+
+class TeacherSearch(ReadOnlyModelViewSet):
+
+    permission_classes = [IsAuthenticated, IsTeacher]
+    renderer_classes = [JSONRenderer]
+    serializer_class = TeacherSerializer
+
+    def get_queryset(self):
+        """
+        Return a list of Teacher instances that best match query, or None
+        """
+        query = self.request.query_params.get("query", None)
+        if query is not None:
+            return Teacher.objects.filter(
+                user__is_active=True, user__username__startswith=query
+            )
+        return Teacher.objects.none()
+
+    def get_serializer(self, *args, **kwargs):
+        kwargs["context"] = self.get_serializer_context()
+
+        return TeacherSerializer(
+            read_only=True, fields=["pk", "user"], *args, **kwargs
+        )
+
+
+class StudentGroupUpdateView(generics.UpdateAPIView):
+    """
+    View to update list of teachers associated with a StudentGroup
+    """
+
+    permission_classes = [IsAuthenticated, IsTeacher, InTeacherList]
+    renderer_classes = [JSONRenderer]
+    serializer_class = StudentGroupSerializer
+
+    def get_queryset(self):
+        return StudentGroup.objects.filter(teacher=self.request.user.teacher)
+
+
+class StudentGroupAssignmentAnswers(ReadOnlyModelViewSet):
+    """
+    View to list all student answers for
+    - a given StudentGroup,
+    - a given Question, and
+    - a given Assignment
+
+    Subject to the permissions requirements that
+    - the User is authenticated,
+    - the User is a Teacher, and
+    - the Teacher is an owner of the StudentGroup
+
+    Receives question_pk as url kwarg
+    """
+
+    permission_classes = [IsAuthenticated, IsTeacher, InTeacherList]
+    renderer_classes = [JSONRenderer]
+    serializer_class = StudentGroupAssignmentAnswerSerializer
+
+    def get_queryset(self):
+        """
+        Limit queryset to this user's StudentGroups
+        """
+        return StudentGroupAssignment.objects.filter(
+            group__teacher=self.request.user.teacher
+        )
+
+    def get_serializer_context(self):
+        """
+        Pass question pk to serializer
+        """
+        context = super().get_serializer_context()
+        context.update(question_pk=self.kwargs.get("question_pk", None))
+        return context

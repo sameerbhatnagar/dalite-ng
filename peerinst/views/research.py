@@ -175,17 +175,8 @@ def research_question_answer_list(
     )
     for a in answer_qs:
         annotation, created = AnswerAnnotation.objects.get_or_create(
-            answer=a, annotator=annotator, score__isnull=True
+            answer=a, annotator=annotator,
         )
-        if created:
-            # need to drop null scored objects if scored ones exist
-            if AnswerAnnotation.objects.filter(
-                answer=a,
-                annotator=annotator,
-                answer__first_answer_choice=answerchoice_id,
-                score__isnull=False,
-            ).exists():
-                annotation.delete()
 
     # only need two expert scores per rationale,
     # and those marked never show even by one person can be excluded

@@ -6,6 +6,8 @@ __all__ = [
     "FeedbackWriteSerialzer",
     "QuestionSerializer",
     "RankSerializer",
+    "StudentGroupSerializer",
+    "StudentGroupAssignmentAnswerSerializer",
     "TeacherSerializer",
 ]
 
@@ -19,5 +21,7 @@ from .answer import (
     AnswerSerializer,
     FeedbackReadSerialzer,
     FeedbackWriteSerialzer,
+    StudentGroupAssignmentAnswerSerializer,
 )  # noqa
+from .student_group import StudentGroupSerializer
 from .teacher import TeacherSerializer

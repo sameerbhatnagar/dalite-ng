@@ -1,6 +1,7 @@
 import * as d3 from "d3";
 import { buildReq } from "../ajax.js";
 import { clear, createSvg } from "../utils.js";
+import { quintileScale } from "../_theming/colours.js";
 
 /*********/
 /* model */
@@ -18,6 +19,7 @@ function initModel(data) {
       .querySelector("#student-progress")
       .parentNode.parentNode.classList.contains("foldable__unfolded"),
     results: data.map((question) => ({
+      questionId: question.question_id,
       questionTitle: question.question_title,
       nStudents: question.n_students,
       nCompleted: question.n_completed,
@@ -76,6 +78,7 @@ function progressView() {
 function legendView() {
   const li = document.createElement("li");
   li.classList.add("mdc-list-item");
+  li.classList.add("no-pointer");
 
   const legend = document.createElement("span");
   legend.id = "student-progress-legend";
@@ -83,7 +86,7 @@ function legendView() {
   li.appendChild(legend);
 
   const done = document.createElement("span");
-  done.textContent = "Question done";
+  done.textContent = "Questions completed";
   legend.appendChild(done);
 
   const first = document.createElement("span");
@@ -99,13 +102,15 @@ function legendView() {
 
 function questionView(question) {
   const li = document.createElement("li");
+  li.setAttribute("data-id", question.questionId);
   li.classList.add("mdc-list-item");
+  li.classList.add("link-feedback-dialog");
 
   const image = document.createElement("span");
   image.classList.add("mdc-list-item__graphic", "mdc-theme--primary");
   const i = document.createElement("i");
   i.classList.add("mdc-theme--primary", "material-icons", "md-48");
-  i.textContent = "question_answer";
+  i.textContent = "fact_check";
   image.append(i);
   li.append(image);
 
@@ -114,7 +119,7 @@ function questionView(question) {
   title.textContent = question.questionTitle;
   const nStudents = document.createElement("span");
   nStudents.classList.add("mdc-list-item__secondary-text");
-  nStudents.textContent = `${question.nStudents} students`;
+  nStudents.textContent = "Click to give feedback";
   const timeSpent = document.createElement("span");
   timeSpent.classList.add(
     "mdc-list-item__secondary-text",
@@ -136,8 +141,14 @@ function questionView(question) {
   const total = question.nStudents;
 
   completeView(progress, question.nCompleted, total, height, width);
-  correctView(progress, question.nFirstCorrect, total, height, width);
-  correctView(progress, question.nCorrect, total, height, width);
+  correctView(
+    progress,
+    question.nFirstCorrect,
+    question.nCompleted,
+    height,
+    width,
+  );
+  correctView(progress, question.nCorrect, question.nCompleted, height, width);
 
   return li;
 }
@@ -154,6 +165,10 @@ function completeView(container, data, total, height, width) {
     .append("g")
     .attr("transform", `translate(${width / 2},${height / 2})`);
 
+  const colourScale = d3
+    .scaleThreshold(quintileScale)
+    .domain([0.2, 0.4, 0.6, 0.8]);
+
   const arcBackground = d3
     .arc()
     .innerRadius(radius - 5)
@@ -168,16 +183,28 @@ function completeView(container, data, total, height, width) {
     .startAngle(0);
 
   svg
-    .append("path")
-    .attr("d", arcBackground)
-    .attr("class", "fill-primary")
-    .style("opacity", "0.10");
+    .append("circle")
+    .attr("class", "background")
+    .attr("cx", 0)
+    .attr("cy", 0)
+    .attr("r", radius);
+
+  svg.append("path").attr("d", arcBackground).attr("class", "arc gray");
 
   svg
     .append("path")
     .datum({ endAngle: 0 })
     .attr("d", arcData)
-    .attr("class", "fill-primary student-progress__path");
+    .attr("fill", colourScale(0))
+    .attr("class", "student-progress__path");
+
+  svg
+    .append("circle")
+    .attr("cx", 0)
+    .attr("cy", 0)
+    .attr("r", radius - 5)
+    .attr("class", "student-progress__background")
+    .attr("fill", colourScale(0));
 
   svg
     .append("text")
@@ -185,9 +212,21 @@ function completeView(container, data, total, height, width) {
     .attr("data-total", total)
     .text(0)
     .attr("text-anchor", "middle")
-    .attr("dy", 8)
-    .attr("class", "fill-primary student-progress__count")
-    .attr("font-size", "20px");
+    .attr("dy", 7)
+    .attr("fill", colourScale(0))
+    .attr("class", "student-progress__count")
+    .attr("font-size", "20px")
+    .attr("font-weight", "bold");
+
+  svg
+    .append("text")
+    .text("%")
+    .attr("text-anchor", "middle")
+    .attr("dy", 15)
+    .attr("fill", colourScale(0))
+    .attr("font-size", "8px")
+    .attr("font-weight", "bold")
+    .attr("class", "student-progress__units");
 
   return svg;
 }
@@ -205,9 +244,8 @@ function correctView(container, data, total, height, width) {
     .attr("transform", `translate(${width / 2},${height / 2})`);
 
   const colourScale = d3
-    .scaleQuantile()
-    .domain([0, 1])
-    .range(["#b30000", "#f17f4d", "#339966"]);
+    .scaleThreshold(quintileScale)
+    .domain([0.2, 0.4, 0.6, 0.8]);
 
   const arcBackground = d3
     .arc()
@@ -223,17 +261,28 @@ function correctView(container, data, total, height, width) {
     .startAngle(0);
 
   svg
-    .append("path")
-    .attr("d", arcBackground)
-    .attr("class", "fill-primary")
-    .style("opacity", "0.10");
+    .append("circle")
+    .attr("class", "background")
+    .attr("cx", 0)
+    .attr("cy", 0)
+    .attr("r", radius);
+
+  svg.append("path").attr("d", arcBackground).attr("class", "arc gray");
 
   svg
     .append("path")
     .datum({ endAngle: 0 })
     .attr("d", arcData)
-    .style("fill", colourScale(0))
+    .attr("fill", colourScale(0))
     .attr("class", "student-progress__path");
+
+  svg
+    .append("circle")
+    .attr("cx", 0)
+    .attr("cy", 0)
+    .attr("r", radius - 5)
+    .attr("class", "student-progress__background")
+    .attr("fill", colourScale(0));
 
   svg
     .append("text")
@@ -241,10 +290,21 @@ function correctView(container, data, total, height, width) {
     .attr("data-total", total)
     .text(0)
     .attr("text-anchor", "middle")
-    .attr("dy", 8)
-    .style("fill", colourScale(0))
-    .attr("font-size", "24px")
+    .attr("dy", 7)
+    .attr("font-size", "20px")
+    .attr("fill", colourScale(0))
+    .attr("font-weight", "bold")
     .attr("class", "student-progress__count");
+
+  svg
+    .append("text")
+    .text("%")
+    .attr("text-anchor", "middle")
+    .attr("dy", 15)
+    .attr("fill", colourScale(0))
+    .attr("font-size", "8px")
+    .attr("font-weight", "bold")
+    .attr("class", "student-progress__units");
 
   return svg;
 }
@@ -265,8 +325,14 @@ function toggleStudentProgressView() {
 function animateComplete(svg, reverse = false) {
   const path_ = svg.querySelector(".student-progress__path");
   const count_ = svg.querySelector(".student-progress__count");
+  const background_ = svg.querySelector(".student-progress__background");
+  const units_ = svg.querySelector(".student-progress__units");
   const data = count_.getAttribute("data-count");
   const total = count_.getAttribute("data-total");
+
+  const colourScale = d3
+    .scaleThreshold(quintileScale)
+    .domain([0.2, 0.4, 0.6, 0.8]);
 
   let start;
   let end;
@@ -295,7 +361,8 @@ function animateComplete(svg, reverse = false) {
     .startAngle(0);
 
   const path = d3.select(path_).attr("d", arcData);
-
+  const background = d3.select(background_);
+  const units = d3.select(units_);
   const count = d3.select(count_);
 
   function animation(transition, newAngle) {
@@ -304,7 +371,12 @@ function animateComplete(svg, reverse = false) {
       const interpolateCount = d3.interpolate(start, end);
       return function (t) {
         d.endAngle = interpolate(t);
-        count.text(Math.floor(interpolateCount(t)));
+        const newCount = interpolateCount(t);
+        count.text(total > 0 ? Math.floor((newCount / total) * 100) : 0);
+        count.style("fill", colourScale(newCount / total));
+        units.style("fill", colourScale(newCount / total));
+        path.style("fill", colourScale(newCount / total));
+        background.style("fill", colourScale(newCount / total));
         return arcData(d);
       };
     });
@@ -325,13 +397,14 @@ function animateComplete(svg, reverse = false) {
 function animateCorrect(svg, reverse = false) {
   const path_ = svg.querySelector(".student-progress__path");
   const count_ = svg.querySelector(".student-progress__count");
+  const background_ = svg.querySelector(".student-progress__background");
+  const units_ = svg.querySelector(".student-progress__units");
   const data = count_.getAttribute("data-count");
   const total = count_.getAttribute("data-total");
 
   const colourScale = d3
-    .scaleQuantile()
-    .domain([0, 1])
-    .range(["#b30000", "#f17f4d", "#339966"]);
+    .scaleThreshold(quintileScale)
+    .domain([0.2, 0.4, 0.6, 0.8]);
 
   let start;
   let end;
@@ -360,7 +433,8 @@ function animateCorrect(svg, reverse = false) {
     .startAngle(0);
 
   const path = d3.select(path_).attr("d", arcData);
-
+  const background = d3.select(background_);
+  const units = d3.select(units_);
   const count = d3.select(count_);
 
   function animation(transition, newAngle) {
@@ -370,9 +444,11 @@ function animateCorrect(svg, reverse = false) {
       return function (t) {
         d.endAngle = interpolate(t);
         const newCount = interpolateCount(t);
-        path.style("fill", colourScale((newCount / total) | 0));
-        count.text(Math.floor(newCount));
-        count.style("fill", colourScale((newCount / total) | 0));
+        count.text(total > 0 ? Math.floor((newCount / total) * 100) : 0);
+        count.style("fill", colourScale(newCount / total));
+        units.style("fill", colourScale(newCount / total));
+        path.style("fill", colourScale(newCount / total));
+        background.style("fill", colourScale(newCount / total));
         return arcData(d);
       };
     });
@@ -409,7 +485,7 @@ function addToggleStudentProgressListener() {
 /* init */
 /********/
 
-export function initStudentProgress(url) {
+export function initStudentProgress(url, callback) {
   view();
   initListeners();
   const req = buildReq(null, "get");
@@ -417,6 +493,9 @@ export function initStudentProgress(url) {
     .then((resp) => resp.json())
     .then(function (data) {
       initModel(data.progress);
+    })
+    .then(() => {
+      callback();
     })
     .catch((err) => console.log(err));
 }

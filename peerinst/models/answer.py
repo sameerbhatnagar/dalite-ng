@@ -324,7 +324,10 @@ class AnswerAnnotation(models.Model):
     score = models.PositiveIntegerField(
         null=True, default=None, blank=True, choices=SCORE_CHOICES
     )
-    note = models.CharField(max_length=500, null=True, blank=True)
+    note = models.CharField(max_length=2000, null=True, blank=True)
 
     def __str__(self):
         return "{}: {} by {}".format(self.answer, self.score, self.annotator)
+
+    class Meta:
+        unique_together = ["answer", "annotator"]

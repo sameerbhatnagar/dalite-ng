@@ -58,6 +58,7 @@
 #student-progress {
   & > li {
     border-top: 1px solid rgba(0, 0, 0, 0.12);
+    cursor: pointer;
   }
 
   & > li:first-child {
@@ -69,6 +70,7 @@
   }
 
   & .mdc-list-item__meta {
+    color: rgba(0, 0, 0, 0.54);
     display: flex;
     justify-content: space-evenly;
 
@@ -96,5 +98,20 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+
+  /* d3 */
+  & .student-progress__path {
+    stroke: white;
+  }
+  & .student-progress__background {
+    opacity: 0.02;
+  }
+  & .arc {
+    opacity: 0.2;
+    stroke: white;
+  }
+  & .background {
+    fill: white;
   }
 }

@@ -7,3 +7,5 @@ export {
 } from "./_student/index.js";
 
 export { init as initStudentHeader } from "./_student/header/notifications.js";
+
+export { FeedbackApp } from "./_student/feedback.js";

@@ -51,14 +51,14 @@ const Checkmark = (props) => {
       <Icon
         icon="check"
         iconOptions={{ strategy: "ligature", size: "xsmall" }}
-        style={{ transform: "translateY(4px)" }}
+        style={{ verticalAlign: "middle" }}
         theme="primary"
       />
     );
   }
 };
 
-class Choices extends Component {
+export class Choices extends Component {
   choiceList = () => {
     return this.props.choices.map((choice) => {
       return (
