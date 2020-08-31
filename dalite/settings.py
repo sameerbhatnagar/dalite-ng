@@ -442,7 +442,12 @@ CSP_FONT_SRC = [
     "fonts.gstatic.com",
     "unpkg.com",
 ]
-CSP_OBJECT_SRC = ["*.mydalite.org", "phet.colorado.edu", "*.youtube.com"]
+CSP_OBJECT_SRC = [
+    "*.mydalite.org",
+    "phet.colorado.edu",
+    "*.youtube.com",
+    "vimeo.com",
+]
 
 FEATURE_POLICY = [
     "autoplay 'none'",
