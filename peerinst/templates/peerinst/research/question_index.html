@@ -68,7 +68,18 @@
     <hr class="simple-hr">
     {% for item in questions %}
       <div class="question-list" id="{{ item.question.pk }}">
-        <span>{{ item.question.title }} - ({{ item.total_annotations_by_user }}/{{ item.total_annotations }}/{{ item.question.answer_set.count }})</span>
+        <span>
+          {{ item.question.title }} - ({{ item.total_annotations_by_user }}/{{ item.total_annotations }}/{{ item.question.answer_set.count }})
+
+          {% if not item.enough_sample_answers %}
+          <a href="{% url 'sample-answer-form' question_id=item.question.pk %}">
+            <i class="material-icons md-24 mdc-ripple-surface icon-list red" title="{% trans 'Not enough sample answers' %}">
+              error
+            </i>
+          </a>
+          {% endif %}
+
+        </span>
         <div class='action-list'>
           {% if discipline_title %}
             <a href="{% url 'research-all-annotations-for-question-by-discipline' discipline_title=discipline_title question_pk=item.question.pk %}"><i class="mdc-theme--primary material-icons md-24 mdc-ripple-surface icon-list" title="{% trans 'See all scores' %}">group</i></a>
@@ -112,6 +123,7 @@
         {% else %}
           <a href="{% url 'research-fix-expert-rationale' question_id=item.question.pk %}"><i class="material-icons md-24 mdc-ripple-surface icon-list red" title="{% trans 'No expert rationales' %}">warning</i></a>
         {% endif %}
+
 
       </div>
 
