@@ -1866,12 +1866,15 @@ class TeacherAssignments(TeacherBase, ListView):
         context["owned_assignments"] = (
             self.get_queryset()
             .filter(owner=self.teacher.user)
+            .annotate(n_questions=Count("assignmentquestions", distinct=True))
+            .annotate(n_answers=Count("answer"))
             .order_by("-created_on")
         )
 
         context["followed_assignments"] = (
             self.teacher.assignments.exclude(owner=self.teacher.user)
-            .annotate(n_questions=Count("assignmentquestions"))
+            .annotate(n_questions=Count("assignmentquestions", distinct=True))
+            .annotate(n_answers=Count("answer"))
             .order_by("-created_on")
         )
 
@@ -1882,6 +1885,7 @@ class TeacherAssignments(TeacherBase, ListView):
             .exclude(identifier__in=self.teacher.assignments.all())
             .annotate(n_answers=Count("answer"))
             .exclude(n_answers__lte=5)
+            .annotate(n_questions=Count("assignmentquestions", distinct=True))
         )
 
         context["form"] = forms.TeacherAssignmentsForm()
