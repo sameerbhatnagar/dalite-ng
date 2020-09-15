@@ -483,7 +483,9 @@ def get_correct_answer_choices(question):
     return correct_answer_choices
 
 
-def report_data_by_assignment(assignment_list, student_groups, teacher):
+def report_data_by_assignment(
+    assignment_list, student_groups, teacher, group_school_id_needed=False
+):
     """
     Returns data for report by assignment
 
@@ -545,7 +547,7 @@ def report_data_by_assignment(assignment_list, student_groups, teacher):
         }
     ]
     """
-    from peerinst.models import Answer, Assignment
+    from peerinst.models import Answer, Assignment, StudentGroupMembership
 
     student_obj_qs = get_student_objects_from_group_list(student_groups)
     answer_qs = subset_answers_by_studentgroup_and_assignment(
@@ -761,6 +763,14 @@ def report_data_by_assignment(assignment_list, student_groups, teacher):
                 d_q_a["student"] = student_obj_qs.get(
                     student__username=student_response.user_token
                 ).student.email.split("@")[0]
+
+                if group_school_id_needed:
+                    d_q_a["student_id"] = StudentGroupMembership.objects.get(
+                        group=student_groups[0],
+                        student=student_obj_qs.get(
+                            student__username=student_response.user_token
+                        ),
+                    ).student_school_id
 
                 d_q_a["first_answer_choice"] = list(string.ascii_uppercase)[
                     student_response.first_answer_choice - 1

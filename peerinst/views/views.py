@@ -3190,13 +3190,19 @@ def report(request, assignment_id="", group_id=""):
             "identifier", flat=True
         )
 
+    group_school_id_needed = any(
+        StudentGroup.objects.filter(pk__in=student_groups).values_list(
+            "student_id_needed", flat=True
+        )
+    )
+
     assignment_data = report_data_by_assignment(
-        assignment_list, student_groups, teacher
+        assignment_list, student_groups, teacher, group_school_id_needed
     )
 
     context = {}
     context["data"] = assignment_data
-
+    context["group_school_id_needed"] = group_school_id_needed
     ######
     # for aggregate gradebook over all assignments
 
