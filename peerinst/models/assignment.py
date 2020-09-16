@@ -20,7 +20,7 @@ from ..util import (
 )
 from ..utils import format_time
 from .group import StudentGroup
-from .question import Question
+from .question import Question, QuestionFlag
 
 logger = logging.getLogger("peerinst-models")
 
@@ -108,6 +108,27 @@ class Assignment(models.Model):
             and not StudentGroupAssignment.objects.filter(
                 assignment=self
             ).exists()
+        )
+
+    @property
+    def includes_flagged_question(self):
+        return any(
+            [
+                0
+                in q.get_frequency(all_rationales=True)[
+                    "first_choice"
+                ].values()
+                for q in self.questions.all()
+            ]
+            + [
+                True
+                if q.pk
+                in QuestionFlag.objects.all().values_list(
+                    "question", flat=True
+                )
+                else False
+                for q in self.questions.all()
+            ]
         )
 
 
@@ -480,7 +501,9 @@ class StudentGroupAssignment(models.Model):
 
     @property
     def is_distributed(self):
-        return self.distribution_date < datetime.now(pytz.utc)
+        if self.distribution_date:
+            return self.distribution_date < datetime.now(pytz.utc)
+        return False
 
     @property
     def link(self):

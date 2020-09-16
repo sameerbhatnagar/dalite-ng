@@ -15,7 +15,7 @@ export class PlotConfusionMatrix extends Component {
 
   ref = createRef();
 
-  componentDidMount() {
+  shouldComponentUpdate() {
     const freq = this.props.freq;
     this.state.matrix["easy"] = this.props._matrix["easy"]
       ? this.props._matrix["easy"]
@@ -31,6 +31,8 @@ export class PlotConfusionMatrix extends Component {
       : 0;
 
     const matrixSvg = d3.select(this.ref.current).select("#matrix");
+
+    matrixSvg.selectAll("*").remove();
 
     let size = +matrixSvg.attr("width");
     const g = matrixSvg.append("g");
@@ -162,9 +164,15 @@ export class PlotConfusionMatrix extends Component {
     const firstFreqSvg = d3
       .select(this.ref.current)
       .select("#first-frequency");
+
+    firstFreqSvg.selectAll("*").remove();
+
     const secondFreqSvg = d3
       .select(this.ref.current)
       .select("#second-frequency");
+
+    secondFreqSvg.selectAll("*").remove();
+
     const margin = { left: 30, right: 30 };
 
     let sum = 0;

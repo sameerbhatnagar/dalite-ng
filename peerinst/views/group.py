@@ -3,12 +3,15 @@ import re
 import logging
 
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import PermissionDenied
+from django import forms
 from django.urls import reverse
 from django.http import HttpResponse, JsonResponse
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.utils.translation import ugettext
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_POST, require_safe
+from django.views.generic.edit import UpdateView
 
 from dalite.views.errors import response_400, response_500
 from dalite.views.utils import get_json_params
@@ -22,6 +25,7 @@ from peerinst.models import (
 )
 
 from .decorators import group_access_required
+from ..mixins import LoginRequiredMixin, NoStudentsMixin
 from reputation.models import ReputationType
 
 from course_flow.views import get_owned_courses
@@ -81,7 +85,6 @@ def group_details_page(req, group_hash, teacher, group):
         dict(c)
         for c in ReputationType.objects.get(type="student").criteria.all()
     ]
-
     context = {
         "data": json.dumps(data),
         "group": group,
@@ -387,3 +390,49 @@ def get_student_reputation(req):
             "criteria": criteria,
         }
     )
+
+
+class StudentGroupUpdateView(LoginRequiredMixin, NoStudentsMixin, UpdateView):
+    """View for updating group meta-data."""
+
+    model = StudentGroup
+    template_name = "peerinst/group/studentgroup_edit.html"
+    fields = ["title", "student_id_needed", "semester", "year", "discipline"]
+
+    def dispatch(self, *args, **kwargs):
+        # Check object permissions
+        if (
+            self.request.user.teacher in self.get_object().teacher.all()
+            or self.request.user.is_staff
+        ):
+            return super(StudentGroupUpdateView, self).dispatch(
+                *args, **kwargs
+            )
+        else:
+            raise PermissionDenied
+
+    def get_form(self, form_class=None):
+        """
+        This is a small convenience to make first available year value satisfy
+        the requirement of >= 2015 (for objects with year = 0).
+        """
+        form = super(StudentGroupUpdateView, self).get_form(form_class)
+        form.fields["year"].widget = forms.NumberInput(attrs={"min": 2015})
+        return form
+
+    def get_object(self):
+        return StudentGroup.get(self.kwargs["group_hash"])
+
+    def get_context_data(self, **kwargs):
+        context = super(StudentGroupUpdateView, self).get_context_data(
+            **kwargs
+        )
+        teacher = get_object_or_404(Teacher, user=self.request.user)
+        context["teacher"] = teacher
+        context["teacher_list"] = list(
+            self.get_object().teacher.values("pk", "user__username")
+        )
+        return context
+
+    def get_success_url(self):
+        return reverse("group-details", kwargs=self.kwargs)

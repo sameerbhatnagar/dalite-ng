@@ -40,7 +40,11 @@
             <span class="clickable mdc-list-item__text mdc-theme--secondary bold">
               {% if not g.title %} {{ g.name }} {% else %} {{ g.title }} {% endif %}
               <span class="mdc-list-item__secondary-text">
-                {% trans "Created: " %} {{ g.creation_date }}
+              {% if g.discipline %}
+                {{ g.discipline.title }} / {{ g.semester }} {{ g.year }}
+              {% else %}
+                {% trans 'Update group details' %}
+              {% endif %}
               </span>
               <span class="mdc-list-item__secondary-text">
                 {% trans "Students: " %} {{ g.student_set.count  }}
@@ -85,6 +89,15 @@
             <span class="mdc-list-item__text mdc-theme--secondary bold">
               <a class="mdc-theme--secondary" href="{% url 'question-list' a.pk %}">{{ a.identifier }}</a>
               <span class="mdc-list-item__secondary-text">
+
+                {% if a.includes_flagged_question %}
+                <a href="{% url 'research-assignment-question-index-by-assignment' assignment_id=a.identifier %}">
+                  <i class="material-icons md-24 mdc-ripple-surface icon-list red" title="{% trans 'Contains problematic question' %}">
+                    error
+                  </i>
+                </a>
+                {% endif %}
+
                 {{ a.questions.count }} {% trans "questions" %}, {{ a.answer_set.count }} {% trans "answers" %}
               </span>
             </span>

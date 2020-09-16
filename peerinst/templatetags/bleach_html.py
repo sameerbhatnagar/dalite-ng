@@ -25,9 +25,21 @@ ALLOWED_TAGS = [
     "sup",
 ]
 
+ALLOWED_ATTR = {
+    "a": ["href", "title", "target", "rel"],
+    "abbr": ["title"],
+    "acronym": ["title"],
+}
+
 
 @register.filter(is_safe=True)
 @stringfilter
 def bleach_html(text):
 
-    return bleach.clean(text, tags=ALLOWED_TAGS, styles=[], strip=True,)
+    return bleach.clean(
+        text,
+        tags=ALLOWED_TAGS,
+        attributes=ALLOWED_ATTR,
+        styles=[],
+        strip=True,
+    )

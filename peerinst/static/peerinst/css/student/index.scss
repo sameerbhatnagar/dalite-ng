@@ -334,13 +334,14 @@ i {
       & .student-group--assignment {
         align-items: center;
         color: inherit;
-        cursor: pointer;
+        cursor: default;
         display: grid;
         grid-template-columns: 50px 50px 1fr max-content;
         height: 32px;
         justify-items: center;
 
         & .student-group--assignment-icon {
+          cursor: pointer;
           text-align: center;
 
           & i {
@@ -361,6 +362,7 @@ i {
         }
 
         & .student-group--assignment-title {
+          cursor: pointer;
           font-size: 18px;
           justify-self: start;
           overflow: hidden;
@@ -368,6 +370,13 @@ i {
           text-overflow: ellipsis;
           white-space: nowrap;
           width: calc(100% - 50px);
+
+          & .link-to-dialog {
+            font-size: 18px;
+            padding-left: 6px;
+            vertical-align: middle;
+            visibility: hidden;
+          }
         }
 
         & .student-group--assignment-date {

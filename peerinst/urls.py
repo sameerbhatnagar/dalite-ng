@@ -101,6 +101,11 @@ def old_patterns():
             name="sample-answer-form-done",
         ),
         path(
+            "assignment/create",
+            views.AssignmentCreateView.as_view(),
+            name="assignment-create",
+        ),
+        path(
             "assignment/copy/<assignment_id>",
             views.AssignmentCopyView.as_view(),
             name="assignment-copy",
@@ -362,6 +367,11 @@ def group_patterns():
             "group/<group_hash>/update/",
             views.group_details_update,
             name="group-details-update",
+        ),
+        path(
+            "group/update/<group_hash>",
+            views.group.StudentGroupUpdateView.as_view(),
+            name="group-update",
         ),
         path(
             "group/connect-course",

@@ -48,6 +48,7 @@ INSTALLED_APPS = (
 )
 
 MIDDLEWARE = (
+    "django_samesite_none.middleware.SameSiteNoneMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "csp.middleware.CSPMiddleware",
     "security_headers.middleware.extra_security_headers_middleware",
@@ -441,7 +442,13 @@ CSP_FONT_SRC = [
     "fonts.gstatic.com",
     "unpkg.com",
 ]
-CSP_OBJECT_SRC = ["*.mydalite.org", "phet.colorado.edu", "*.youtube.com"]
+CSP_OBJECT_SRC = [
+    "*.mydalite.org",
+    "phet.colorado.edu",
+    "*.youtube.com",
+    "*.vimeo.com",
+    "docs.google.com",
+]
 
 FEATURE_POLICY = [
     "autoplay 'none'",

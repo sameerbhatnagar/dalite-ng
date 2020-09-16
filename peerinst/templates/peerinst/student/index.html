@@ -1,9 +1,23 @@
 {% extends 'peerinst/student/base.html' %}
 
-{% load i18n %}
+{% load compress i18n static %}
+
+{% block mdc %}{% endblock %}
+
+{% block stylesheets %}
+{{ block.super }}
+{% compress js file preact %}
+<script src="{% static 'peerinst/js/preact.min.js' %}" defer="true"></script>
+{% endcompress %}
+{% compress css file student %}
+<link href="{% static 'peerinst/js/student.min.css' %}" rel="stylesheet">
+{% endcompress %}
+{% compress css file rmwc %}
+<link href="{% static 'peerinst/css/rmwc.min.css' %}" rel="stylesheet">
+{% endcompress %}
+{% endblock %}
 
 {% block body %}
-
 <main>
   <section id="student-page">
 
@@ -101,14 +115,57 @@
       </div>
     </div>
 
+    <div id="feedback-app"></div>
   </section>
 </main>
 
 <script nonce="{{ request.csp_nonce }}">
   window.addEventListener("load", function() {
     student.initStudentPage(
-      {{ data|safe }}, "{{ group_student_id_needed }}"
-    )
+      {{ data|safe }}, "{{ group_student_id_needed }}", callback
+    );
+
+    // Callback executed after async load of group assignment elements
+    function callback() {
+      const groups = document.querySelectorAll(".student-group--assignments");
+      groups.forEach((group) => {
+        const groupAssignmentList = group.querySelectorAll(".link-to-dialog");
+        groupAssignmentList.forEach((el, i) => {
+          el.addEventListener("click", () => render(true, el));
+          if (i == 1) {
+            // We call a first render to load from db and set the icons
+            render(false, el, init);
+          }
+        });
+      });
+    }
+
+    // Callback to set icons for group
+    function init(set) {
+      const groupAssignmentList = document.querySelectorAll(".link-to-dialog");
+      groupAssignmentList.forEach((el) => {
+        if (set.includes(el.getAttribute('data-id'))) {
+          el.style.visibility = "visible";
+        }
+      });
+    }
+
+    function render(isOpen, el, callback = () => {}) {
+      const pk = el.getAttribute("data-id");
+      const teacherPk = el.getAttribute("data-teacher-id");
+      const feedbackApp = () => {
+        return preact.h(student.FeedbackApp, {
+          assignmentId: pk,
+          callback: callback,
+          dialogIsOpen: isOpen,
+          feedbackURL: "{% url 'REST:student-feedback' %}",
+          gettext: gettext,
+          listener: () => render(false, el),
+          teacherPk: teacherPk.split(",").map((pk) => parseInt(pk, 10)),
+        });
+      }
+      preact.render(feedbackApp(), document.getElementById("feedback-app"));
+    }
   });
 </script>
 

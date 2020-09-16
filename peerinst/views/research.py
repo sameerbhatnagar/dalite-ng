@@ -61,7 +61,15 @@ def get_question_annotation_counts(discipline_title, annotator, assignment_id):
     for q in questions_qs:
         d1 = {}
         d1["question"] = q
+
         d1["question_expert_answers"] = q.answer_set.filter(expert=True)
+
+        # need at least one sample answer that is not marked as expert for each
+        # answer choice
+        d1["enough_sample_answers"] = 0 not in list(
+            q.get_frequency(all_rationales=True)["first_choice"].values()
+        )
+
         d1["total_annotations"] = AnswerAnnotation.objects.filter(
             score__isnull=False, answer__question_id=q.pk
         ).count()
@@ -175,17 +183,8 @@ def research_question_answer_list(
     )
     for a in answer_qs:
         annotation, created = AnswerAnnotation.objects.get_or_create(
-            answer=a, annotator=annotator, score__isnull=True
+            answer=a, annotator=annotator,
         )
-        if created:
-            # need to drop null scored objects if scored ones exist
-            if AnswerAnnotation.objects.filter(
-                answer=a,
-                annotator=annotator,
-                answer__first_answer_choice=answerchoice_id,
-                score__isnull=False,
-            ).exists():
-                annotation.delete()
 
     # only need two expert scores per rationale,
     # and those marked never show even by one person can be excluded

@@ -8,7 +8,7 @@
 -e git+https://github.com/SALTISES4/django-lti-tool-provider@dev#egg=django_lti_tool_provider  # via -r requirements/requirements-base.txt
 -e git+https://github.com/edx/opaque-keys#egg=opaque-keys  # via -r requirements/requirements-base.txt
 -e git+https://github.com/SALTISES4/pinax-forums@dev#egg=pinax_forums  # via -r requirements/requirements-base.txt
--e git+https://github.com/SALTISES4/UserFeedback@master#egg=user_feedback  # via -r requirements/requirements-base.txt
+-e git+https://github.com/SALTISES4/UserFeedback@9d51693513aa67f017d7ae783d297236049a6906#egg=user_feedback  # via -r requirements/requirements-base.txt
 amqp==2.5.2               # via -r requirements/requirements-base.txt, kombu
 attrs==19.3.0             # via pytest
 beautifulsoup4==4.8.2     # via -r requirements/requirements-base.txt, django-htmlmin
@@ -31,6 +31,7 @@ django-csp==3.6           # via -r requirements/requirements-base.txt, django-se
 django-grappelli==2.14.1  # via -r requirements/requirements-base.txt
 django-htmlmin==0.11.0    # via -r requirements/requirements-base.txt
 django-ipware==2.1.0      # via -r requirements/requirements-base.txt, django-axes
+django-samesite-none==0.0.2  # via -r requirements/requirements-base.txt
 django-security-headers==0.3.1  # via -r requirements/requirements-base.txt
 django-sslserver==0.22    # via -r requirements/requirements-base.txt, django-security-headers
 django-timezone-field==4.0  # via -r requirements/requirements-base.txt, django-celery-beat
