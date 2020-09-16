@@ -1,12 +1,14 @@
 version: 2
 jobs:
   build:
+    resource_class: medium
     docker:
-      - image: circleci/python:2.7-node-browsers
+      - image: circleci/python:3.8.3-node-browsers
         environment:
           DALITE_DB_PASSWORD: test key
           DALITE_DB_HOST: 127.0.0.1
           DALITE_DB_PORT: 3306
+          MYSQL_ROOT_PASSWORD: mariadb
       - image: mariadb
         environment:
           MYSQL_ALLOW_EMPTY_PASSWORD: true
@@ -20,17 +22,21 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Setup
+          command: |
+            sudo apt update
+            sudo apt install mariadb-client
+      - run:
           name: Build
           command: |
-            sudo pip2 install virtualenv
-            virtualenv .venv
+            python -m venv .venv
             . .venv/bin/activate
-            pip install -r requirements/dev-requirements.txt
-            yarn install
-            yarn run gulp build
+            pip install -r requirements/requirements-dev.txt
+            npm install
+            ./node_modules/gulp/bin/gulp.js build
       - run:
           name: Safety
-          command:  |
+          command: |
             . .venv/bin/activate
             pip install safety
             safety check
@@ -53,10 +59,19 @@ jobs:
       - run:
           name: Setup db
           command: |
+            mysql --host=$DALITE_DB_HOST --port=$DALITE_DB_PORT -u root --password=$MYSQL_ROOT_PASSWORD -e "grant all privileges on test_dalite_ng.* to dalite@'%'"
             . .venv/bin/activate
             ./manage.py migrate
+      - run:
+          name: Collect static content and compress
+          command: |
+            . .venv/bin/activate
+            ./manage.py collectstatic -c
+            ./manage.py compress
+      - store_artifacts:
+          path: /home/circleci/repo/static
       - run:
           name: Tests
           command: |
             . .venv/bin/activate
-            pytest --cov --create-db --cov-report term-missing
+            pytest --migrations --cov --create-db --reruns 1

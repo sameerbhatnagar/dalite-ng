@@ -1,14 +1,7 @@
-"""
-Django settings for dalite project.
-
-For more information on this file, see
-https://docs.djangoproject.com/en/1.8/topics/settings/
-
-For the full list of settings and their values, see
-https://docs.djangoproject.com/en/1.8/ref/settings/
-"""
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+import datetime
 import os
+
+from security_headers.defaults import *  # noqa
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -16,20 +9,30 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
+
+if os.environ.get("ALLOWED_HOST"):
+    ALLOWED_HOSTS.append(os.environ.get("ALLOWED_HOST"))
 
 DEV_PORT = 8000  # port used during development
 
 # Application definition
 
 INSTALLED_APPS = (
+    "user_feedback",
+    "course_flow",
+    "rest_framework",
+    "analytics",
+    "reputation",
     "quality",
     "tos",
     "peerinst",
-    "grappelli",
-    "password_validation",
+    "REST",
+    "cookielaw",
+    "csp",
+    "security_headers",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -37,40 +40,40 @@ INSTALLED_APPS = (
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django_lti_tool_provider",
+    "django_celery_beat",
     "compressor",
     "analytical",
     "pinax.forums",
+    "axes",
 )
 
 MIDDLEWARE = (
+    "django_samesite_none.middleware.SameSiteNoneMiddleware",
+    "django.middleware.security.SecurityMiddleware",
+    "csp.middleware.CSPMiddleware",
+    "security_headers.middleware.extra_security_headers_middleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.locale.LocaleMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
-    "django.contrib.auth.middleware.SessionAuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "peerinst.middleware.NotificationMiddleware",
     "dalite.custom_middleware.resp_405_middleware",
+    "dalite.custom_middleware.resp_503_middleware",
     # Minify html
     "htmlmin.middleware.HtmlMinifyMiddleware",
     "htmlmin.middleware.MarkRequestMiddleware",
+    "axes.middleware.AxesMiddleware",
 )
 
 ROOT_URLCONF = "dalite.urls"
 
-CUSTOM_SETTINGS = os.environ.get("CUSTOM_SETTINGS", "default")
-
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [
-            os.path.join(
-                BASE_DIR, "custom-settings/" + CUSTOM_SETTINGS + "/templates"
-            ),
-            os.path.join(BASE_DIR, "templates"),
-        ],
+        "DIRS": [os.path.join(BASE_DIR, "templates")],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -109,17 +112,26 @@ CACHES = {
 }
 
 # Custom authentication for object-level permissions
-AUTHENTICATION_BACKENDS = ("peerinst.backends.CustomPermissionsBackend",)
+AUTHENTICATION_BACKENDS = (
+    "axes.backends.AxesBackend",
+    "peerinst.backends.CustomPermissionsBackend",
+)
 
 # Password validators through django-password-validation (backport from 1.9)
 AUTH_PASSWORD_VALIDATORS = [
-    {"NAME": "password_validation.UserAttributeSimilarityValidator"},
     {
-        "NAME": "password_validation.MinimumLengthValidator",
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"  # noqa
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",  # noqa
         "OPTIONS": {"min_length": 8},
     },
-    {"NAME": "password_validation.CommonPasswordValidator"},
-    {"NAME": "password_validation.NumericPasswordValidator"},
+    {
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"  # noqa
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"  # noqa
+    },
 ]
 
 # Internationalization
@@ -147,20 +159,17 @@ MEDIA_URL = "/media/"
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
-STATICFILES_DIRS = (
-    os.path.join(BASE_DIR, "custom-settings/" + CUSTOM_SETTINGS + "/static"),
-)
-
 STATICFILES_FINDERS = (
     "django.contrib.staticfiles.finders.FileSystemFinder",
     "django.contrib.staticfiles.finders.AppDirectoriesFinder",
     "compressor.finders.CompressorFinder",
 )
 
-COMPRESS_ENABLED = True
 KEEP_COMMENTS_ON_MINIFYING = False
 HTML_MINIFY = not DEBUG
 
+COMPRESS_ENABLED = True
+COMPRESS_OFFLINE = True
 COMPRESS_URL = STATIC_URL
 COMPRESS_ROOT = STATIC_ROOT
 
@@ -169,6 +178,20 @@ COMPRESS_ROOT = STATIC_ROOT
 LOGIN_URL = "login"
 
 LOGIN_REDIRECT_URL = "welcome"
+
+
+REST_FRAMEWORK = {
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAuthenticated",
+    ]
+}
+
+
+# Axes
+AXES_ONLY_USER_FAILURES = True
+AXES_FAILURE_LIMIT = 5
+AXES_COOLOFF_TIME = datetime.timedelta(minutes=5)
+AXES_LOCKOUT_TEMPLATE = "registration/lockout.html"
 
 GRAPPELLI_ADMIN_TITLE = "Dalite NG administration"
 
@@ -246,6 +269,30 @@ LOGGING = {
             "formatter": "complete",
             "stream": "ext://sys.stdout",
         },
+        "reputation_file_log": {
+            "level": "DEBUG" if DEBUG else "INFO",
+            "class": "logging.FileHandler",
+            "formatter": "complete",
+            "filename": os.path.join(BASE_DIR, "log", "reputation.log"),
+        },
+        "reputation_console_log": {
+            "level": "DEBUG" if DEBUG else "INFO",
+            "class": "logging.StreamHandler",
+            "formatter": "complete",
+            "stream": "ext://sys.stdout",
+        },
+        "analytics_file_log": {
+            "level": "DEBUG" if DEBUG else "INFO",
+            "class": "logging.FileHandler",
+            "formatter": "complete",
+            "filename": os.path.join(BASE_DIR, "log", "analytics.log"),
+        },
+        "analytics_console_log": {
+            "level": "DEBUG" if DEBUG else "INFO",
+            "class": "logging.StreamHandler",
+            "formatter": "complete",
+            "stream": "ext://sys.stdout",
+        },
     },
     "loggers": {
         "django.request": {
@@ -308,6 +355,16 @@ LOGGING = {
             "level": "DEBUG" if DEBUG else "INFO",
             "propagate": True,
         },
+        "reputation": {
+            "handlers": ["reputation_file_log", "reputation_console_log"],
+            "level": "DEBUG" if DEBUG else "INFO",
+            "propagate": True,
+        },
+        "analytics": {
+            "handlers": ["analytics_file_log", "analytics_console_log"],
+            "level": "DEBUG" if DEBUG else "INFO",
+            "propagate": True,
+        },
     },
 }
 
@@ -341,6 +398,78 @@ PINAX_FORUMS_EDIT_TIMEOUT = dict(days=120)
 TEACHER_GROUP = "Teacher"
 
 DEFAULT_TIMEZONE = "America/Montreal"
+
+CELERY_BROKER_TRANSPORT_OPTIONS = {
+    "max_retries": 3,
+    "interval_start": 0,
+    "interval_step": 0.4,
+    "interval_max": 2,
+}
+CELERY_RESULT_SERIALIZER = "json"
+CELERY_TASK_SERIALIZER = "json"
+CELERY_ACKS_LATE = True
+CELERYD_PREFETCH_MULTIPLIER = 1
+
+# CSP
+CSP_DEFAULT_SRC = ["'self'", "*.mydalite.org"]
+CSP_SCRIPT_SRC = [
+    "'self'",
+    "*.mydalite.org",
+    "d3js.org",
+    "ajax.googleapis.com",
+    "cdn.polyfill.io",
+    "www.youtube.com",
+    "s.ytimg.com",
+    "cdn.jsdelivr.net",
+    "unpkg.com",
+    "cdn.datatables.net",
+    "code.jquery.com",
+]
+CSP_STYLE_SRC = [
+    "'self'",
+    "*.mydalite.org",
+    "fonts.googleapis.com",
+    "ajax.googleapis.com",
+    "unpkg.com",
+    "cdn.jsdelivr.net",
+    "code.jquery.com",
+    "cdn.datatables.net",
+]
+CSP_FONT_SRC = [
+    "'self'",
+    "*.mydalite.org",
+    "fonts.googleapis.com",
+    "fonts.gstatic.com",
+    "unpkg.com",
+]
+CSP_OBJECT_SRC = [
+    "*.mydalite.org",
+    "phet.colorado.edu",
+    "*.youtube.com",
+    "*.vimeo.com",
+    "docs.google.com",
+]
+
+FEATURE_POLICY = [
+    "autoplay 'none'",
+    "camera 'none'",
+    "encrypted-media 'none'",
+    "fullscreen *",
+    "geolocation 'none'",
+    "microphone 'none'",
+    "midi 'none'",
+    "payment 'none'",
+    "vr *",
+]
+
+REFERRER_POLICY = "no-referrer, strict-origin-when-cross-origin"
+
+# External framing
+CSP_FRAME_ANCESTORS = ["*"]
+FRAMING_ALLOWED_FROM = ["*"]
+
+# Functional tests that scrape web console logs currently require chromedriver
+TESTING_BROWSER = "chrome"
 
 try:
     from .local_settings import *  # noqa F403

@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 import json
 import logging
 import random
 import re
-import urllib
+import urllib.error
+import urllib.parse
+import urllib.request
 from datetime import datetime
 
 import pytz
@@ -15,30 +14,25 @@ from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import Group, User
 from django.contrib.auth.views import redirect_to_login
-from django.core.exceptions import PermissionDenied
-from django.core.mail import mail_admins, send_mail
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.core.urlresolvers import reverse
+from django.core.exceptions import PermissionDenied, ValidationError
+from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 
 # reports
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.db.models.expressions import Func
 from django.forms import Textarea, inlineformset_factory
 
 # blink
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
-from django.shortcuts import (
-    get_object_or_404,
-    redirect,
-    render,
-    render_to_response,
-)
+from django.shortcuts import get_object_or_404, redirect, render
 from django.template import loader
 from django.template.response import TemplateResponse
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.html import escape, format_html
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import get_language
 from django.views.decorators.http import require_POST, require_safe
 from django.views.generic import DetailView
 from django.views.generic.base import TemplateView, View
@@ -50,12 +44,12 @@ from django_lti_tool_provider.signals import Signals
 from opaque_keys import InvalidKeyError
 from opaque_keys.edx.keys import CourseKey
 
-from dalite.views.errors import response_400, response_404, response_500
+from dalite.views.errors import response_400, response_404
 
 # tos
 from tos.models import Consent, Tos
 
-from .. import admin, forms, heartbeat_checks, models, rationale_choice
+from .. import admin, forms, models, rationale_choice
 from ..admin_views import get_question_rationale_aggregates
 from ..mixins import (
     LoginRequiredMixin,
@@ -75,18 +69,27 @@ from ..models import (
     BlinkQuestion,
     BlinkRound,
     Category,
+    Collection,
     Discipline,
+    NewUserRequest,
     Question,
     RationaleOnlyQuestion,
     ShownRationale,
     Student,
     StudentGroup,
     StudentGroupAssignment,
+    StudentGroupCourse,
+    Subject,
     Teacher,
+    UserType,
+    UserUrl,
 )
+from ..models.group import current_semester, current_year
+from ..tasks import mail_managers_async
 from ..util import (
     SessionStageData,
     get_object_or_none,
+    get_student_activity_data,
     int_or_none,
     question_search_function,
     report_data_by_assignment,
@@ -94,6 +97,9 @@ from ..util import (
     report_data_by_student,
     roundrobin,
 )
+from ..stopwords import fr, en
+
+from course_flow.views import setup_link_to_group, setup_unlink_from_group
 
 LOGGER = logging.getLogger(__name__)
 LOGGER_teacher_activity = logging.getLogger("teacher_activity")
@@ -177,68 +183,6 @@ def landing_page(request):
     )
 
 
-def admin_check(user):
-    return user.is_superuser
-
-
-@login_required
-@user_passes_test(admin_check, login_url="/welcome/", redirect_field_name=None)
-def dashboard(request):
-
-    html_email_template_name = "registration/account_activated_html.html"
-
-    if request.method == "POST":
-        form = forms.ActivateForm(request.POST)
-        if form.is_valid():
-            user = form.cleaned_data["user"]
-            user.is_active = True
-            user.save()
-
-            if form.cleaned_data["is_teacher"]:
-                teacher = Teacher(user=user)
-                teacher.save()
-
-            if not settings.EMAIL_BACKEND.startswith(
-                "django.core.mail.backends"
-            ):
-                return response_500(request)
-
-            host = request.get_host()
-            if host == "localhost" or host == "127.0.0.1":
-                protocol = "http"
-                host = "{}:{}".format(host, settings.DEV_PORT)
-            else:
-                protocol = "https"
-
-            # Notify user
-            email_context = dict(username=user.username, site_name="myDALITE")
-            send_mail(
-                _("Your myDALITE account has been activated"),
-                "Dear {},".format(user.username)
-                + "\n\nYour account has been recently activate."
-                "\n\nYou can login at:\n\n{}://{}".format(protocol, host)
-                + "\n\nCheers,\nThe myDalite Team",
-                "noreply@myDALITE.org",
-                [user.email],
-                fail_silently=True,
-                html_message=loader.render_to_string(
-                    html_email_template_name,
-                    context=email_context,
-                    request=request,
-                ),
-            )
-
-    return TemplateResponse(
-        request,
-        "peerinst/dashboard.html",
-        context={
-            "new_users": User.objects.filter(is_active=False).order_by(
-                "-date_joined"
-            )
-        },
-    )
-
-
 def sign_up(request):
     template = "registration/sign_up.html"
     html_email_template_name = "registration/sign_up_admin_email_html.html"
@@ -251,17 +195,20 @@ def sign_up(request):
             form.instance.is_active = False
             form.save()
             # Notify administrators
+
+            #  print(settings.EMAIL_BACKEND)
             if not settings.EMAIL_BACKEND.startswith(
                 "django.core.mail.backends"
             ):
-                return response_500(request)
+                return HttpResponse(status=503)
 
-            host = request.get_host()
-            if host == "localhost" or host == "127.0.0.1":
-                protocol = "http"
-                host = "{}:{}".format(host, settings.DEV_PORT)
-            else:
-                protocol = "https"
+            # TODO Adapt to different types of user
+            NewUserRequest.objects.create(
+                user=form.instance, type=UserType.objects.get(type="teacher")
+            )
+            UserUrl.objects.create(
+                user=form.instance, url=form.cleaned_data["url"]
+            )
 
             email_context = dict(
                 user=form.cleaned_data["username"],
@@ -270,7 +217,7 @@ def sign_up(request):
                 url=form.cleaned_data["url"],
                 site_name="myDALITE",
             )
-            mail_admins(
+            mail_managers_async(
                 "New user request",
                 "Dear administrator,"
                 "\n\nA new user {} was created on {}.".format(
@@ -280,7 +227,11 @@ def sign_up(request):
                 + "\nVerification url: {}".format(form.cleaned_data["url"])
                 + "\n\nAccess your administrator account to activate this "
                 "new user."
-                "\n\n{}://{}{}".format(protocol, host, reverse("dashboard"))
+                "\n\n{}://{}{}".format(
+                    request.scheme,
+                    request.get_host(),
+                    reverse("saltise-admin:new-user-approval"),
+                )
                 + "\n\nCheers,"
                 "\nThe myDalite Team",
                 fail_silently=True,
@@ -290,7 +241,6 @@ def sign_up(request):
                     request=request,
                 ),
             )
-            mail_admins("", "")
 
             return TemplateResponse(request, "registration/sign_up_done.html")
         else:
@@ -299,6 +249,10 @@ def sign_up(request):
         context["form"] = forms.SignUpForm()
 
     return render(request, template, context)
+
+
+def admin_check(user):
+    return user.is_superuser
 
 
 def terms_teacher(request):
@@ -310,7 +264,7 @@ def terms_teacher(request):
 
 def logout_view(request):
     logout(request)
-    return HttpResponseRedirect(reverse("landing_page"))
+    return HttpResponseRedirect(reverse("login"))
 
 
 @login_required
@@ -322,13 +276,16 @@ def welcome(request):
         if teacher_group:
             if teacher_group not in teacher.user.groups.all():
                 teacher.user.groups.add(teacher_group)
-        return HttpResponseRedirect(reverse("browse-database"))
+        #  return HttpResponseRedirect(reverse("browse-database"))
+        return HttpResponseRedirect(reverse("teacher-dashboard"))
 
     elif Student.objects.filter(student=request.user).exists():
         return HttpResponseRedirect(reverse("student-page"))
 
+    elif request.user.is_staff:
+        return HttpResponseRedirect(reverse("saltise-admin:index"))
     else:
-        return HttpResponseRedirect(reverse("assignment-list"))
+        return logout_view(request)
 
 
 def access_denied(request):
@@ -354,77 +311,94 @@ class AssignmentListView(LoginRequiredMixin, NoStudentsMixin, ListView):
     model = models.Assignment
 
 
-class AssignmentCopyView(LoginRequiredMixin, NoStudentsMixin, CreateView):
-    """View to create an assignment from existing."""
+class AssignmentCreateView(LoginRequiredMixin, NoStudentsMixin, CreateView):
+    """View to create an assignment"""
 
     model = models.Assignment
     form_class = forms.AssignmentCreateForm
+
+    def get_context_data(self, **kwargs):
+        context = super(AssignmentCreateView, self).get_context_data(**kwargs)
+        teacher = get_object_or_404(models.Teacher, user=self.request.user)
+        context["teacher"] = teacher
+        context["help_text"] = _(
+            "The assignment title may be displayed and \
+        should be informative. The assignment identifier is used as the \
+        keyword to access the assignment through a url.  It must be unique \
+        but does not need to be informative."
+        )
+        return context
+
+    def form_valid(self, form):
+        self.object = form.save()
+        teacher = get_object_or_404(models.Teacher, user=self.request.user)
+        form.instance.owner.add(teacher.user)
+        form.instance.save()
+        teacher.assignments.add(self.object)
+        teacher.save()
+        return super(AssignmentCreateView, self).form_valid(form)
+
+    def get_success_url(self):
+        return reverse(
+            "assignment-update", kwargs={"assignment_id": self.object.pk}
+        )
+
+
+class AssignmentCopyView(AssignmentCreateView):
+    """View to create an assignment from existing."""
 
     def get_initial(self, *args, **kwargs):
         super(AssignmentCopyView, self).get_initial(*args, **kwargs)
         assignment = get_object_or_404(
             models.Assignment, pk=self.kwargs["assignment_id"]
         )
-        initial = {"title": _("Copy of ") + assignment.title}
+        initial = {
+            "title": _("Copy of ") + assignment.title,
+            "description": assignment.description,
+            "intro_page": assignment.intro_page,
+            "conclusion_page": assignment.conclusion_page,
+        }
         return initial
+
+    def get_context_data(self, **kwargs):
+        context = super(AssignmentCopyView, self).get_context_data(**kwargs)
+        context["help_text"] = _(
+            "Assignments cannot be modified once they \
+        contain student answers.  After providing a unique identifier below \
+        and submitting the form, a copy of this assignment will be made that \
+        can be edited."
+        )
+        return context
 
     def get_object(self, queryset=None):
         # Remove link on object to pk to dump object permissions
         return None
 
-    def get_context_data(self, **kwargs):
-        context = super(AssignmentCopyView, self).get_context_data(**kwargs)
-        teacher = get_object_or_404(models.Teacher, user=self.request.user)
-        context["teacher"] = teacher
-        return context
-
     # Custom save is needed to attach questions and user
     def form_valid(self, form):
+        self.object = form.save()
         assignment = get_object_or_404(
             models.Assignment, pk=self.kwargs["assignment_id"]
         )
+        for aq in assignment.assignmentquestions_set.all():
+            form.instance.questions.add(
+                aq.question, through_defaults={"rank": aq.rank}
+            )
+        form.instance.parent = assignment
         form.instance.save()
-        form.instance.questions = assignment.questions.all()
-        form.instance.owner.add(self.request.user)
-        teacher = get_object_or_404(models.Teacher, user=self.request.user)
-        teacher.assignments.add(form.instance)
-        teacher.save()
+
         return super(AssignmentCopyView, self).form_valid(form)
-
-    def get_success_url(self):
-        return reverse(
-            "assignment-update", kwargs={"assignment_id": self.object.pk}
-        )
-
-
-class AssignmentEditView(LoginRequiredMixin, NoStudentsMixin, UpdateView):
-    """View for editing assignment title and identifier."""
-
-    model = Assignment
-    template_name_suffix = "_edit"
-    fields = ["title"]
-
-    def get_object(self):
-        return get_object_or_404(
-            models.Assignment, pk=self.kwargs["assignment_id"]
-        )
-
-    def get_context_data(self, **kwargs):
-        context = super(AssignmentEditView, self).get_context_data(**kwargs)
-        teacher = get_object_or_404(models.Teacher, user=self.request.user)
-        context["teacher"] = teacher
-        return context
-
-    def get_success_url(self):
-        return reverse(
-            "assignment-update", kwargs={"assignment_id": self.object.pk}
-        )
 
 
 class AssignmentUpdateView(LoginRequiredMixin, NoStudentsMixin, DetailView):
-    """View for updating assignment."""
+    """
+    View for updating assignment question list.
+    Provides template only: POST operations are handled through REST api.
+    """
 
+    http_method_names = ["get"]
     model = Assignment
+    template_name_suffix = "_detail"
 
     def dispatch(self, *args, **kwargs):
         # Check object permissions (to be refactored using mixin)
@@ -446,10 +420,6 @@ class AssignmentUpdateView(LoginRequiredMixin, NoStudentsMixin, DetailView):
         context = super(AssignmentUpdateView, self).get_context_data(**kwargs)
         teacher = get_object_or_404(models.Teacher, user=self.request.user)
         context["teacher"] = teacher
-        all_qs = (
-            teacher.user.question_set.all() | teacher.user.collaborators.all()
-        )
-        context["all_questions"] = all_qs.distinct()
         return context
 
     def get_object(self):
@@ -457,24 +427,42 @@ class AssignmentUpdateView(LoginRequiredMixin, NoStudentsMixin, DetailView):
             models.Assignment, pk=self.kwargs["assignment_id"]
         )
 
-    def post(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        form = forms.AddRemoveQuestionForm(request.POST)
-        if form.is_valid():
-            question = form.cleaned_data["q"]
-            if question not in self.object.questions.all():
-                self.object.questions.add(question)
+
+class AssignmentEditView(LoginRequiredMixin, NoStudentsMixin, UpdateView):
+    """View for editing assignment title and meta-data."""
+
+    fields = ["title", "description", "intro_page", "conclusion_page"]
+    http_method_names = ["get", "post"]
+    model = models.Assignment
+    pk_url_kwarg = "assignment_id"
+    template_name_suffix = "_edit"
+
+    def dispatch(self, *args, **kwargs):
+        # Check object permissions (to be refactored using mixin)
+        if (
+            self.request.user in self.get_object().owner.all()
+            or self.request.user.is_staff
+        ):
+            # Check for student answers
+            if not self.get_object().editable:
+                raise PermissionDenied
             else:
-                self.object.questions.remove(question)
-            self.object.save()
-            return HttpResponseRedirect(
-                reverse(
-                    "assignment-update",
-                    kwargs={"assignment_id": self.object.pk},
+                return super(AssignmentEditView, self).dispatch(
+                    *args, **kwargs
                 )
-            )
         else:
-            return response_400(request)
+            raise PermissionDenied
+
+    def get_context_data(self, **kwargs):
+        context = super(AssignmentEditView, self).get_context_data(**kwargs)
+        teacher = get_object_or_404(models.Teacher, user=self.request.user)
+        context["teacher"] = teacher
+        return context
+
+    def get_success_url(self):
+        return reverse(
+            "assignment-update", kwargs={"assignment_id": self.object.pk}
+        )
 
 
 class QuestionListView(LoginRequiredMixin, NoStudentsMixin, ListView):
@@ -487,7 +475,7 @@ class QuestionListView(LoginRequiredMixin, NoStudentsMixin, ListView):
         self.assignment = get_object_or_404(
             models.Assignment, pk=self.kwargs["assignment_id"]
         )
-        return self.assignment.questions.all()
+        return self.assignment.questions.order_by("assignmentquestions__rank")
 
     def get_context_data(self, **kwargs):
         context = ListView.get_context_data(self, **kwargs)
@@ -686,7 +674,7 @@ def answer_choice_form(request, question_id):
         AnswerChoice,
         form=forms.AnswerChoiceForm,
         fields=("text", "correct"),
-        widgets={"text": Textarea(attrs={"style": "width: 100%;", "rows": 3})},
+        widgets={"text": Textarea(attrs={"rows": 3})},
         formset=admin.AnswerChoiceInlineFormSet,
         max_num=5,
         extra=5,
@@ -712,7 +700,7 @@ def answer_choice_form(request, question_id):
                 instances = formset.save()
                 return HttpResponseRedirect(
                     reverse(
-                        "sample-answer-form",
+                        "research-fix-expert-rationale",
                         kwargs={"question_id": question.pk},
                     )
                 )
@@ -781,7 +769,10 @@ class DisciplineCreateView(
     fields = ["title"]
 
     def get_success_url(self):
-        return reverse("discipline-form", kwargs={"pk": self.object.pk})
+        if self.request.GET.get("multiselect", False):
+            return reverse("disciplines-form", kwargs={"pk": self.object.pk})
+        else:
+            return reverse("discipline-form", kwargs={"pk": self.object.pk})
 
 
 @login_required
@@ -804,39 +795,34 @@ def discipline_select_form(request, pk=None):
     )
 
 
-class DisciplinesCreateView(LoginRequiredMixin, NoStudentsMixin, CreateView):
-    """View to create a new discipline outside of admin."""
-
-    model = Discipline
-    fields = ["title"]
-    template_name = "peerinst/disciplines_form.html"
-
-    def get_success_url(self):
-        return reverse("disciplines-form")
-
-
 @login_required
 @user_passes_test(student_check, login_url="/access_denied_and_logout/")
-def disciplines_select_form(request):
+def disciplines_select_form(request, pk=None):
     """
     AJAX view simply renders the DisciplinesSelectForm. Preselects instance
     with teachers current set.
     """
+
+    disciplines = request.user.teacher.disciplines.values_list("pk", flat=True)
+
+    if pk:
+        disciplines = Discipline.objects.filter(
+            Q(pk=pk) | Q(pk__in=disciplines)
+        )
+
+    form = forms.DisciplinesSelectForm(initial={"disciplines": disciplines})
+
     return TemplateResponse(
         request,
         "peerinst/disciplines_select_form.html",
-        context={
-            "form": forms.DisciplinesSelectForm(
-                initial={"disciplines": request.user.teacher.disciplines.all()}
-            )
-        },
+        context={"form": form},
     )
 
 
 class CategoryCreateView(
     LoginRequiredMixin, NoStudentsMixin, TOSAcceptanceRequiredMixin, CreateView
 ):
-    """View to create a new discipline outside of admin."""
+    """ View to create a new category outside of admin. """
 
     model = Category
     fields = ["title"]
@@ -1054,6 +1040,14 @@ class QuestionFormView(QuestionMixin, FormView):
                     group = StudentGroup(name=course_id, title=course_title)
                 else:
                     group = StudentGroup(name=course_id)
+                group.semester = current_semester()
+                group.year = current_year()
+
+                # since teachers do not necessarily set discipline for
+                # themselves, take discipline of first question seen
+                # by this group and set for group
+                if self.question.discipline:
+                    group.discipline = self.question.discipline
                 group.save()
 
             # If teacher_id specified, add teacher to group
@@ -1150,7 +1144,7 @@ class QuestionReviewBaseView(QuestionFormView):
                 rng, self.first_answer_choice, self.rationale, self.question
             )
         except rationale_choice.RationaleSelectionError as e:
-            self.start_over(e.message)
+            self.start_over(str(e))
         if self.question.fake_attributions:
             self.add_fake_attributions(rng)
         else:
@@ -1306,7 +1300,7 @@ class QuestionReviewView(QuestionReviewBaseView):
         self.save_votes()
         self.stage_data.clear()
         self.send_grade()
-        self.save_shown_rationales()
+        self.save_shown_rationales(form.shown_rationales)
         return super(QuestionReviewView, self).form_valid(form)
 
     def emit_check_events(self):
@@ -1317,7 +1311,7 @@ class QuestionReviewView(QuestionReviewBaseView):
             rationale_algorithm=dict(
                 name=self.question.rationale_selection_algorithm,
                 version=self.choose_rationales.version,
-                description=unicode(self.choose_rationales.description),
+                description=str(self.choose_rationales.description),
             ),
             rationales=[
                 {"id": id, "text": rationale}
@@ -1386,7 +1380,7 @@ class QuestionReviewView(QuestionReviewBaseView):
         rationale_votes = self.stage_data.get("rationale_votes")
         if rationale_votes is None:
             return
-        for rationale_id, vote in rationale_votes.iteritems():
+        for rationale_id, vote in rationale_votes.items():
             try:
                 rationale = models.Answer.objects.get(id=rationale_id)
             except models.Answer.DoesNotExist:
@@ -1410,7 +1404,7 @@ class QuestionReviewView(QuestionReviewBaseView):
         fake_attributions = self.stage_data.get("fake_attributions")
         if fake_attributions is None:
             return
-        fake_username, fake_country = fake_attributions[unicode(answer.id)]
+        fake_username, fake_country = fake_attributions[str(answer.id)]
         models.AnswerVote(
             answer=answer,
             assignment=self.assignment,
@@ -1420,18 +1414,24 @@ class QuestionReviewView(QuestionReviewBaseView):
             vote_type=vote_type,
         ).save()
 
-    def save_shown_rationales(self):
+    def save_shown_rationales(self, shown_rationale_pks=None):
         """
         Saves in the databse which rationales were shown to the student. These
         are linked to the answer.
+        Stick to my rationale is no longer saved as ShownRationale with an
+        empty shown_answer
         """
         rationale_ids = [
             rationale[0]
             for _, _, rationales in self.rationale_choices
             for rationale in rationales
         ]
-        shown_answers = list(Answer.objects.filter(id__in=rationale_ids))
-        if None in rationale_ids:
+        shown_answers = (
+            list(Answer.objects.filter(id__in=rationale_ids))
+            if shown_rationale_pks is None
+            else list(Answer.objects.filter(id__in=shown_rationale_pks))
+        )
+        if shown_rationale_pks is None and None in rationale_ids:
             shown_answers += [None]
         for answer in shown_answers:
             ShownRationale.objects.create(
@@ -1484,31 +1484,6 @@ class RationaleOnlyQuestionSummaryView(QuestionMixin, TemplateView):
     # question that has already been answered.  Simply redirect here as GET.
     def post(self, request, *args, **kwargs):
         return redirect(request.path)
-
-
-class HeartBeatUrl(View):
-    def get(self, request):
-
-        checks = []
-
-        checks.append(heartbeat_checks.check_db_query())
-        checks.append(heartbeat_checks.check_staticfiles())
-        checks.extend(
-            heartbeat_checks.test_global_free_percentage(
-                settings.HEARTBEAT_REQUIRED_FREE_SPACE_PERCENTAGE
-            )
-        )
-
-        checks_ok = all((check.is_ok for check in checks))
-
-        status = 200 if checks_ok else 500
-
-        return TemplateResponse(
-            request,
-            "peerinst/heartbeat.html",
-            context={"checks": checks},
-            status=status,
-        )
 
 
 class AnswerSummaryChartView(View):
@@ -1639,8 +1614,8 @@ def redirect_to_login_or_show_cookie_help(request):
         # We probably got here from within the LMS, and the user has
         # third-party cookies disabled, so we show help on enabling cookies for
         # this site.
-        return render_to_response(
-            "peerinst/cookie_help.html", dict(host=request.get_host())
+        return render(
+            request, "peerinst/cookie_help.html", dict(host=request.get_host())
         )
     return redirect_to_login(request.get_full_path())
 
@@ -1662,7 +1637,7 @@ def question(request, assignment_id, question_id):
     if question.type == "RO":
         question = get_object_or_404(RationaleOnlyQuestion, pk=question_id)
 
-    custom_key = unicode(assignment.pk) + ":" + unicode(question.pk)
+    custom_key = str(assignment.pk) + ":" + str(question.pk)
     stage_data = SessionStageData(request.session, custom_key)
     user_token = request.user.username
     view_data = dict(
@@ -1676,12 +1651,9 @@ def question(request, assignment_id, question_id):
         lti_data=get_object_or_none(
             LtiUserData, user=request.user, custom_key=custom_key
         ),
-        answer=get_object_or_none(
-            models.Answer,
-            assignment=assignment,
-            question=question,
-            user_token=user_token,
-        ),
+        answer=models.Answer.objects.filter(
+            assignment=assignment, question=question, user_token=user_token,
+        ).last(),
     )
 
     # Determine stage and view class
@@ -1697,8 +1669,15 @@ def question(request, assignment_id, question_id):
     elif stage_data.get("completed_stage") == "sequential-review":
         stage_class = QuestionReviewView
     else:
+        if stage_data.get("datetime_start") is None:
+            stage_data.update(
+                datetime_start=datetime.now(pytz.utc).strftime(
+                    "%Y-%m-%d %H:%M:%S.%f"
+                )
+            )
         stage_class = QuestionStartView
 
+    print(stage_class)
     # Delegate to the view
     stage = stage_class(**view_data)
     try:
@@ -1813,6 +1792,10 @@ class TeacherDetailView(TeacherBase, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(TeacherDetailView, self).get_context_data(**kwargs)
+        # provides collection data to collection foldable
+        context["owned_collections"] = Collection.objects.filter(
+            owner=self.request.user.teacher
+        )
         context["LTI_key"] = str(settings.LTI_CLIENT_KEY)
         context["LTI_secret"] = str(settings.LTI_CLIENT_SECRET)
         context["LTI_launch_url"] = str(
@@ -1872,15 +1855,38 @@ class TeacherAssignments(TeacherBase, ListView):
 
     def get_queryset(self):
         self.teacher = get_object_or_404(Teacher, user=self.request.user)
-        return Assignment.objects.all()
+        return Assignment.objects.annotate(
+            n_questions=Count("assignmentquestions", distinct=True)
+        )
 
     def get_context_data(self, **kwargs):
         context = super(TeacherAssignments, self).get_context_data(**kwargs)
         context["teacher"] = self.teacher
-        context["form"] = forms.AssignmentCreateForm()
-        context["owned_assignments"] = Assignment.objects.filter(
-            owner=self.teacher.user
+
+        context["owned_assignments"] = (
+            self.get_queryset()
+            .filter(owner=self.teacher.user)
+            .annotate(n_answers=Count("answer"))
+            .order_by("-created_on")
         )
+
+        context["followed_assignments"] = (
+            self.teacher.assignments.exclude(owner=self.teacher.user)
+            .annotate(n_questions=Count("assignmentquestions", distinct=True))
+            .annotate(n_answers=Count("answer"))
+            .order_by("-created_on")
+        )
+
+        # exclude assignments with less than 5 answers from
+        # "All other assignments"
+        context["other_assignments"] = (
+            self.get_queryset()
+            .exclude(identifier__in=self.teacher.assignments.all())
+            .annotate(n_answers=Count("answer"))
+            .exclude(n_answers__lte=5)
+        )
+
+        context["form"] = forms.TeacherAssignmentsForm()
 
         return context
 
@@ -1895,34 +1901,15 @@ class TeacherAssignments(TeacherBase, ListView):
                 self.teacher.assignments.add(assignment)
             self.teacher.save()
         else:
-            form = forms.AssignmentCreateForm(request.POST)
-            if form.is_valid():
-                assignment = Assignment(
-                    identifier=form.cleaned_data["identifier"],
-                    title=form.cleaned_data["title"],
-                )
-                assignment.save()
-                assignment.owner.add(self.teacher.user)
-                assignment.save()
-                self.teacher.assignments.add(assignment)
-                self.teacher.save()
-                return HttpResponseRedirect(
-                    reverse(
-                        "assignment-update",
-                        kwargs={"assignment_id": assignment.pk},
-                    )
-                )
-            else:
-                return render(
-                    request,
-                    self.template_name,
-                    {
-                        "teacher": self.teacher,
-                        "form": form,
-                        "object_list": Assignment.objects.all(),
-                    },
-                )
-
+            return render(
+                request,
+                self.template_name,
+                {
+                    "teacher": self.teacher,
+                    "form": form,
+                    "object_list": Assignment.objects.all(),
+                },
+            )
         return HttpResponseRedirect(
             reverse("teacher-assignments", kwargs={"pk": self.teacher.pk})
         )
@@ -1962,6 +1949,12 @@ class TeacherGroups(TeacherBase, ListView):
                 form.save()
                 form.instance.teacher.add(self.teacher)
                 self.teacher.current_groups.add(form.instance)
+                return HttpResponseRedirect(
+                    reverse(
+                        "group-details",
+                        kwargs={"group_hash": form.instance.hash},
+                    )
+                )
             else:
                 return render(
                     request,
@@ -1999,172 +1992,90 @@ def teacher_toggle_favourite(request):
 
 @login_required
 @user_passes_test(student_check, login_url="/access_denied_and_logout/")
+def teacher_toggle_follower(request):
+    # follow/unfollow heart function
+    collection = get_object_or_404(Collection, pk=request.POST.get("pk"))
+    teacher = get_object_or_404(Teacher, user=request.user)
+    if teacher not in collection.followers.all():
+        collection.followers.add(teacher)
+        return JsonResponse({"action": "added"})
+    else:
+        collection.followers.remove(teacher)
+        return JsonResponse({"action": "removed"})
+
+
+@login_required
+@user_passes_test(student_check, login_url="/access_denied_and_logout/")
+def collection_toggle_assignment(request):
+    # add/remove assignment from collection function for hearts on update view
+    collection = get_object_or_404(Collection, pk=request.POST.get("ppk"))
+    assignment = get_object_or_404(Assignment, pk=request.POST.get("pk"))
+    if assignment not in collection.assignments.all():
+        collection.assignments.add(assignment)
+        return JsonResponse({"action": "added"})
+    else:
+        collection.assignments.remove(assignment)
+        return JsonResponse({"action": "removed"})
+
+
+@login_required
+@user_passes_test(student_check, login_url="/access_denied_and_logout/")
+def collection_assign(request):
+    # assign button on distribute view
+    collection = get_object_or_404(Collection, pk=request.POST.get("ppk"))
+    student_group = get_object_or_404(StudentGroup, pk=request.POST.get("pk"))
+    is_assigned = False
+    for assign in collection.assignments.all():
+        if not StudentGroupAssignment.objects.filter(
+            group=student_group, assignment=assign
+        ).exists():
+            is_assigned = True
+            StudentGroupAssignment.objects.create(
+                group=student_group, assignment=assign
+            )
+    if is_assigned:
+        return JsonResponse({"action": "added"})
+    else:
+        return JsonResponse({"action": "existing"})
+
+
+@login_required
+@user_passes_test(student_check, login_url="/access_denied_and_logout/")
+def collection_unassign(request):
+    """
+    unassign button on distribute view, assures assignments are not distributed
+    """
+    collection = get_object_or_404(Collection, pk=request.POST.get("ppk"))
+    student_group = get_object_or_404(StudentGroup, pk=request.POST.get("pk"))
+    is_unassigned = False
+    for assign in collection.assignments.all():
+        if StudentGroupAssignment.objects.filter(
+            group=student_group, assignment=assign
+        ).exists():
+            if StudentGroupAssignment.objects.filter(
+                group=student_group,
+                assignment=assign,
+                distribution_date__isnull=True,
+            ):
+                is_unassigned = True
+                StudentGroupAssignment.objects.filter(
+                    group=student_group, assignment=assign
+                ).delete()
+    if is_unassigned:
+        return JsonResponse({"action": "removed"})
+    else:
+        return JsonResponse({"action": "unexisting"})
+
+
+@login_required
+@user_passes_test(student_check, login_url="/access_denied_and_logout/")
 def student_activity(request):
 
     teacher = request.user.teacher
-    current_groups = teacher.current_groups.all()
 
-    all_current_students = Student.objects.filter(groups__in=current_groups)
-
-    # Standalone
-    standalone_assignments = StudentGroupAssignment.objects.filter(
-        group__in=current_groups
-    ).filter(distribution_date__isnull=False)
-
-    standalone_answers = Answer.objects.filter(
-        assignment__in=standalone_assignments.values("assignment")
-    ).filter(user_token__in=all_current_students.values("student__username"))
-
-    # LTI
-    lti_assignments = [
-        a
-        for a in teacher.assignments.all()
-        if a not in [b.assignment for b in standalone_assignments.all()]
-    ]
-
-    lti_answers = Answer.objects.filter(assignment__in=lti_assignments).filter(
-        user_token__in=all_current_students.values("student__username")
+    all_answers_by_group, json_data = get_student_activity_data(
+        teacher=teacher
     )
-
-    all_answers_by_group = {}
-    for g in current_groups:
-        all_answers_by_group[g] = {}
-        student_list = g.student_set.all().values_list(
-            "student__username", flat=True
-        )
-        if len(student_list) > 0:
-            # Keyed on studentgroupassignment
-            for ga in standalone_assignments:
-                if ga.assignment.questions.count() > 0:
-                    all_answers_by_group[g][ga] = {}
-                    all_answers_by_group[g][ga]["answers"] = [
-                        a
-                        for a in standalone_answers
-                        if a.user_token in student_list
-                        and a.assignment == ga.assignment
-                    ]
-                    all_answers_by_group[g][ga]["new"] = [
-                        a
-                        for a in standalone_answers
-                        if a.user_token in student_list
-                        and a.assignment == ga.assignment
-                        and (
-                            (
-                                a.datetime_start
-                                and a.datetime_start > request.user.last_login
-                            )
-                            or (
-                                a.datetime_first
-                                and a.datetime_first > request.user.last_login
-                            )
-                            or (
-                                a.datetime_second
-                                and a.datetime_second > request.user.last_login
-                            )
-                        )
-                    ]
-                    all_answers_by_group[g][ga]["percent_complete"] = int(
-                        100.0
-                        * len(all_answers_by_group[g][ga]["answers"])
-                        / (len(student_list) * ga.assignment.questions.count())
-                    )
-
-            # Keyed on assignment
-            for l in lti_assignments:
-                if l.questions.count() > 0:
-                    all_answers_by_group[g][l] = {}
-                    all_answers_by_group[g][l]["answers"] = [
-                        a
-                        for a in lti_answers
-                        if a.user_token in student_list and a.assignment == l
-                    ]
-                    all_answers_by_group[g][l]["new"] = [
-                        a
-                        for a in lti_answers
-                        if a.user_token in student_list
-                        and a.assignment == l
-                        and (
-                            (
-                                a.datetime_start
-                                and a.datetime_start > request.user.last_login
-                            )
-                            or (
-                                a.datetime_first
-                                and a.datetime_first > request.user.last_login
-                            )
-                            or (
-                                a.datetime_second
-                                and a.datetime_second > request.user.last_login
-                            )
-                        )
-                    ]
-                    all_answers_by_group[g][l]["percent_complete"] = int(
-                        100.0
-                        * len(all_answers_by_group[g][l]["answers"])
-                        / (len(student_list) * l.questions.count())
-                    )
-
-    # JSON
-    json_data = {}
-    for group_key, group_assignments in all_answers_by_group.items():
-        json_data[group_key.name] = {}
-        for key, value_list in group_assignments.items():
-            if len(value_list["answers"]) > 0:
-                try:
-                    assignment = key.assignment
-                    id = key.assignment.identifier
-
-                    date = (
-                        value_list["answers"][0].datetime_first
-                        if value_list["answers"][0].datetime_first
-                        else value_list["answers"][0].datetime_second
-                    )
-
-                    if key.distribution_date < date:
-                        start_date = key.distribution_date
-                    else:
-                        start_date = date
-
-                    date = (
-                        value_list["answers"][-1].datetime_first
-                        if value_list["answers"][-1].datetime_first
-                        else value_list["answers"][-1].datetime_second
-                    )
-
-                    if key.due_date > date:
-                        end_date = key.due_date
-                    else:
-                        end_date = date
-                except Exception:
-                    assignment = key
-                    id = key.identifier
-                    start_date = value_list["answers"][0].datetime_first
-                    end_date = value_list["answers"][-1].datetime_first
-
-                json_data[group_key.name][id] = {}
-                json_data[group_key.name][id]["distribution_date"] = str(
-                    start_date
-                )
-                json_data[group_key.name][id]["due_date"] = str(end_date)
-                json_data[group_key.name][id]["last_login"] = str(
-                    request.user.last_login
-                )
-                json_data[group_key.name][id]["now"] = str(
-                    datetime.utcnow().replace(tzinfo=pytz.utc)
-                )
-                json_data[group_key.name][id]["total"] = (
-                    group_key.student_set.count()
-                    * assignment.questions.count()
-                )
-                json_data[group_key.name][id]["answers"] = []
-                for answer in value_list["answers"]:
-                    json_data[group_key.name][id]["answers"].append(
-                        str(
-                            answer.datetime_first
-                            if answer.datetime_first
-                            else answer.datetime_second
-                        )
-                    )
 
     return TemplateResponse(
         request,
@@ -2421,9 +2332,14 @@ class BlinkQuestionDetailView(DetailView):
                 r = BlinkRound.objects.get(
                     question=self.object, deactivate_time__isnull=True
                 )
-                elapsed_time = (timezone.now() - r.activate_time).seconds
-                time_left = max(self.object.time_limit - elapsed_time, 0)
-            except Exception:
+                elapsed_time = timezone.now() - r.activate_time
+                time_left = max(
+                    self.object.time_limit
+                    - elapsed_time.seconds
+                    - elapsed_time.microseconds / 1e6,
+                    0,
+                )
+            except Exception as e:
                 time_left = 0
 
             # Get latest vote, if any
@@ -2665,6 +2581,111 @@ def blink_waiting(request, username, assignment=""):
     )
 
 
+def collection_search(request):
+    if not Teacher.objects.filter(user=request.user).exists():
+        return HttpResponse(
+            _(
+                "You must be logged in as a teacher to search the database. "
+                "Log in again with a teacher account."
+            )
+        )
+
+    if request.method == "GET" and request.user.is_authenticated:
+        page = request.GET.get("page", default=1)
+        type = request.GET.get("type", default=None)
+        id = request.GET.get("id", default=None)
+        search_string = request.GET.get("search_string", default="")
+        limit_search = request.GET.get("limit_search", default="false")
+        authors = request.GET.getlist("author", default=None)
+        disciplines = request.GET.getlist("discipline", default=None)
+
+        q_obj = Q()
+        if authors[0]:
+            q_obj &= Q(
+                owner__in=Teacher.objects.filter(
+                    user__in=User.objects.filter(username__in=authors)
+                )
+            )
+        if disciplines[0]:
+            q_obj &= Q(
+                discipline__in=Discipline.objects.filter(title__in=disciplines)
+            )
+        q_obj &= Q(private=False)
+        is_english = get_language() == "en"
+        # All matching collections
+        search_list = Collection.objects.filter(q_obj)
+
+        search_string_split_list = search_string.split()
+        for string in search_string.split():
+            if is_english and string in en:
+                search_string_split_list.remove(string)
+            elif not is_english and string in fr:
+                search_string_split_list.remove(string)
+        search_terms = [search_string]
+        if len(search_string_split_list) > 1:
+            search_terms.extend(search_string_split_list)
+
+        query = []
+        query_all = []
+        # by searching first for full string, and then for constituent parts,
+        # and preserving order, the results should rank the items higher to the
+        # top that have the entire search_string included
+        query_meta = {}
+        for term in search_terms:
+            query_term = collection_search_function(term, search_list)
+
+            query_term = [q for q in query_term if q not in query_all]
+
+            query_meta[term] = query_term
+
+            query_all.extend(query_term)
+
+        paginator = Paginator(query_all, 50)
+        try:
+            query_subset = paginator.page(page)
+        except PageNotAnInteger:
+            query_subset = paginator.page(1)
+        except EmptyPage:
+            query_subset = paginator.page(paginator.num_pages)
+
+        query = []
+
+        for term in list(query_meta.keys()):
+            query_dict = {}
+            query_dict["term"] = term
+            query_dict["collections"] = [
+                q for q in query_meta[term] if q in query_subset.object_list
+            ]
+            query_dict["count"] = len(query_dict["collections"])
+            query.append(query_dict)
+
+        return TemplateResponse(
+            request,
+            "peerinst/collection/search_results.html",
+            context={
+                "paginator": query_subset,
+                "search_results": query,
+                "count": len(query_all),
+                "previous_search_string": search_terms,
+                "type": type,
+            },
+        )
+    else:
+        return HttpResponse(
+            _("An error occurred.  Retry search after logging in again.")
+        )
+
+
+def collection_search_function(search_string, pre_filtered_list=None):
+
+    query_result = pre_filtered_list.filter(
+        Q(title__icontains=search_string)
+        | Q(description__icontains=search_string)
+    )
+
+    return query_result
+
+
 # AJAX functions
 def question_search(request):
 
@@ -2682,6 +2703,10 @@ def question_search(request):
         id = request.GET.get("id", default=None)
         search_string = request.GET.get("search_string", default="")
         limit_search = request.GET.get("limit_search", default="false")
+        authors = request.GET.getlist("author", default=None)
+        disciplines = request.GET.getlist("discipline", default=None)
+        subjects = request.GET.getlist("subject", default=None)
+        categories = request.GET.getlist("category", default=None)
 
         # Exclusions based on type of search
         q_qs = []
@@ -2706,8 +2731,63 @@ def question_search(request):
             q_qs = []
             form_field_name = None
 
+        # Establish pool of questions for search
+        q_obj = Q()
+        if authors and authors[0]:
+            q_obj &= Q(
+                Q(user__in=User.objects.filter(username__in=authors))
+                | Q(
+                    collaborators__in=User.objects.filter(username__in=authors)
+                )
+            )
+        if disciplines and disciplines[0]:
+            q_obj &= Q(
+                discipline__in=Discipline.objects.filter(title__in=disciplines)
+            )
+        if categories and categories[0]:
+            if subjects and subjects[0]:
+                q_obj &= Q(
+                    category__in=Category.objects.filter(
+                        Q(title__in=categories)
+                        | Q(
+                            subjects__in=Subject.objects.filter(
+                                title__in=subjects
+                            )
+                        )
+                    ).distinct()
+                )
+            else:
+                q_obj &= Q(
+                    category__in=Category.objects.filter(title__in=categories)
+                )
+        elif subjects and subjects[0]:
+            q_obj &= Q(
+                category__in=Category.objects.filter(
+                    Q(subjects__in=Subject.objects.filter(title__in=subjects))
+                ).distinct()
+            )
+        search_list = Question.unflagged_objects.filter(q_obj)
+        if categories and subjects and categories[0] and subjects[0]:
+            search_list = search_list.filter(
+                category__in=Category.objects.filter(title__in=categories)
+            )
+
+        if limit_search == "true":
+            search_list = search_list.filter(
+                discipline__in=request.user.teacher.disciplines.all()
+            )
+
+        # if meta_search:
+        #    search_list = filter(meta_search, search_list)
+        is_english = get_language() == "en"
         # All matching questions
+
         search_string_split_list = search_string.split()
+        for string in search_string.split():
+            if is_english and string in en:
+                search_string_split_list.remove(string)
+            elif not is_english and string in fr:
+                search_string_split_list.remove(string)
         search_terms = [search_string]
         if len(search_string_split_list) > 1:
             search_terms.extend(search_string_split_list)
@@ -2719,13 +2799,9 @@ def question_search(request):
         # top that have the entire search_string included
         query_meta = {}
         for term in search_terms:
-            query_term = question_search_function(term)
-
-            if limit_search == "true":
-                query_term = query_term.filter(
-                    discipline__in=request.user.teacher.disciplines.all()
-                )
-
+            query_term = question_search_function(
+                term, search_list, (type == "assignment" or type == "blink")
+            )
             query_term = query_term.exclude(id__in=q_qs).distinct()
 
             query_term = [
@@ -2739,7 +2815,7 @@ def question_search(request):
 
             query_all.extend(query_term)
 
-        paginator = Paginator(query_all, 100)
+        paginator = Paginator(query_all, 50)
         try:
             query_subset = paginator.page(page)
         except PageNotAnInteger:
@@ -2749,7 +2825,7 @@ def question_search(request):
 
         query = []
 
-        for term in query_meta.keys():
+        for term in list(query_meta.keys()):
             query_dict = {}
             query_dict["term"] = term
             query_dict["questions"] = [
@@ -2789,23 +2865,21 @@ def blink_get_current_url(request, username):
     try:
         # Return url of current active blinkquestion, if any
         blinkquestion = teacher.blinkquestion_set.get(active=True)
-        return HttpResponse(
-            reverse("blink-question", kwargs={"pk": blinkquestion.pk})
-        )
+        url = reverse("blink-question", kwargs={"pk": blinkquestion.pk})
+        return JsonResponse({"action": url})
     except Exception:
         if not teacher.blinkassignment_set.filter(active=True).exists():
-            return HttpResponse("stop")
+            return JsonResponse({"action": "stop"})
         try:
             latest_round = BlinkRound.objects.filter(
                 question__in=teacher.blinkquestion_set.all()
             ).latest("activate_time")
-            return HttpResponse(
-                reverse(
-                    "blink-summary", kwargs={"pk": latest_round.question.pk}
-                )
+            url = reverse(
+                "blink-summary", kwargs={"pk": latest_round.question.pk}
             )
+            return JsonResponse({"action": url})
         except Exception:
-            return HttpResponse("stop")
+            return JsonResponse({"action": "stop"})
 
 
 def blink_count(request, pk):
@@ -3061,9 +3135,9 @@ def network_data(request, assignment_id):
 
     # serialize
     links_array = []
-    for source, targets in links.items():
+    for source, targets in list(links.items()):
         d = {}
-        for t in targets.keys():
+        for t in list(targets.keys()):
             d["source"] = source
             d["target"] = t
             d["value"] = targets[t]
@@ -3079,7 +3153,7 @@ def report_selector(request):
 
     return TemplateResponse(
         request,
-        "peerinst/report_selector.html",
+        "peerinst/teacher/report_selector.html",
         {
             "report_select_form": forms.ReportSelectForm(
                 teacher_username=teacher.user.username
@@ -3102,7 +3176,7 @@ def report(request, assignment_id="", group_id=""):
         student_groups = request.GET.getlist("student_groups")
     elif group_id:
         student_groups = [
-            StudentGroup.objects.get(name=urllib.unquote(group_id)).pk
+            StudentGroup.objects.get(name=urllib.parse.unquote(group_id)).pk
         ]
     else:
         student_groups = teacher.current_groups.all().values_list("pk")
@@ -3110,14 +3184,14 @@ def report(request, assignment_id="", group_id=""):
     if request.GET.getlist("assignments"):
         assignment_list = request.GET.getlist("assignments")
     elif assignment_id:
-        assignment_list = [urllib.unquote(assignment_id)]
+        assignment_list = [urllib.parse.unquote(assignment_id)]
     else:
         assignment_list = teacher.assignments.all().values_list(
             "identifier", flat=True
         )
 
     assignment_data = report_data_by_assignment(
-        assignment_list, student_groups
+        assignment_list, student_groups, teacher
     )
 
     context = {}
@@ -3165,7 +3239,7 @@ def report_assignment_aggregates(request):
         d_a = {}
         d_a["assignment"] = a.identifier
         d_a["questions"] = []
-        for q in a.questions.all():
+        for q in a.questions.order_by("assignmentquestions__rank"):
             d_q = {}
             d_q["question"] = q.text
             try:
@@ -3179,7 +3253,7 @@ def report_assignment_aggregates(request):
                 perpage=50,
                 student_groups=student_groups,
             )
-            for trx, rationale_list in output.items():
+            for trx, rationale_list in list(output.items()):
                 d_q_i = {}
                 d_q_i["transition_type"] = trx
                 d_q_i["rationales"] = []
@@ -3197,3 +3271,50 @@ def report_assignment_aggregates(request):
         j.append(d_a)
 
     return JsonResponse(j, safe=False)
+
+
+@login_required
+@user_passes_test(student_check, login_url="/access_denied_and_logout/")
+def connect_group_to_course(request):
+
+    course_pk = request.POST.get("course_pk")
+    student_group = StudentGroup.objects.get(pk=request.POST.get("group_pk"))
+
+    students_as_students = student_group.students.values_list(
+        "student", flat=True
+    )
+    students_as_users = User.objects.filter(pk__in=students_as_students)
+
+    clone = setup_link_to_group(course_pk, students_as_users)
+
+    try:
+        StudentGroupCourse.objects.create(
+            course=clone, student_group=student_group
+        )
+    except ValidationError:
+        return JsonResponse({"action": "error"})
+
+    date = clone.created_on.strftime("%b. %d, %Y, %I:%S %p")
+
+    return JsonResponse(
+        {
+            "action": "posted",
+            "linked_course_pk": clone.pk,
+            "linked_course_title": clone.title,
+            "linked_course_created_date": date,
+        }
+    )
+
+
+@login_required
+@user_passes_test(student_check, login_url="/access_denied_and_logout/")
+def disconnect_group_from_course(request):
+
+    course_pk = request.POST.get("course_pk")
+
+    try:
+        setup_unlink_from_group(course_pk)
+    except ValidationError:
+        return JsonResponse({"action": "error"})
+
+    return JsonResponse({"action": "posted"})

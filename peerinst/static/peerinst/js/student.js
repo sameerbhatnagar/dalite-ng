@@ -6,4 +6,6 @@ export {
   handleJoinGroupLinkInput,
 } from "./_student/index.js";
 
-export { initStudentHeader } from "./_student/header.js";
+export { init as initStudentHeader } from "./_student/header/notifications.js";
+
+export { FeedbackApp } from "./_student/feedback.js";

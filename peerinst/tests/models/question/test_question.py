@@ -1,4 +1,5 @@
 import factory
+import pytest
 import random
 from timeit import default_timer as timer
 
@@ -12,7 +13,7 @@ from peerinst.tests.factories import (
 )
 
 
-class QuestionMethodTests(TestCase):
+class QuestionTestCase(TestCase):
     def setUp(self):
         """
         Make questions, but do not generate answers as factory does not add
@@ -23,11 +24,6 @@ class QuestionMethodTests(TestCase):
         """
         print("Populating test db...")
 
-        self.N_questions = 1
-        self.N_answers = 1000
-        self.N_choices = 5
-        self.N_correct = 2
-
         for i in range(1, self.N_questions + 1):
             q = QuestionFactory(choices=5, choices__correct=[2, 3])
             for j in range(1, self.N_answers + 1):
@@ -36,14 +32,14 @@ class QuestionMethodTests(TestCase):
                     question=q,
                     user_token=u.username,
                     first_answer_choice=random.choice(
-                        range(1, self.N_choices + 1)
+                        list(range(1, self.N_choices + 1))
                     ),
                     second_answer_choice=random.choice(
-                        range(1, self.N_choices + 1)
+                        list(range(1, self.N_choices + 1))
                     ),
                     rationale=factory.Faker("sentence", nb_words=10),
                 )
-            print("{}%".format(float(i) / self.N_questions * 100))
+            print(("{}%".format(float(i) / self.N_questions * 100)))
 
             assert (
                 models.Answer.objects.filter(question=q).count()
@@ -51,6 +47,17 @@ class QuestionMethodTests(TestCase):
             )
         assert models.Question.objects.count() == self.N_questions
 
+
+class QuestionMethodTests(QuestionTestCase):
+    N_questions = 1
+    N_answers = 1000
+    N_choices = 5
+    N_correct = 2
+
+    def setUp(self):
+        super(QuestionMethodTests, self).setUp()
+
+    @pytest.mark.skip(reason="Performance test; not needed for CI.")
     def test_get_matrix(self):
         """
         Current benchmarks (runserver):
@@ -65,9 +72,12 @@ class QuestionMethodTests(TestCase):
             matrices.append(q.get_matrix())
         end = timer()
 
-        print("Total time = " + str(end - start))
+        print(("Total time = " + str(end - start)))
         print(
-            "Avg time per question = " + str((end - start) / self.N_questions)
+            (
+                "Avg time per question = "
+                + str((end - start) / self.N_questions)
+            )
         )
 
         """
@@ -78,10 +88,10 @@ class QuestionMethodTests(TestCase):
         prob = float(self.N_correct) / self.N_choices
 
         for m in matrices:
-            print(m["easy"])
-            print(m["hard"])
-            print(m["tricky"])
-            print(m["peer"])
+            print((m["easy"]))
+            print((m["hard"]))
+            print((m["tricky"]))
+            print((m["peer"]))
             self.assertTrue(
                 abs(1 - m["easy"] - m["hard"] - m["tricky"] - m["peer"])
                 <= 0.01

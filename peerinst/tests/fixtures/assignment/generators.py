@@ -28,7 +28,7 @@ def new_assignments(n, questions, min_questions=1):
 def add_assignments(assignments):
     assignments_ = [
         Assignment.objects.create(
-            **{k: v for k, v in a.items() if k != "questions"}
+            **{k: v for k, v in list(a.items()) if k != "questions"}
         )
         for a in assignments
     ]
@@ -47,12 +47,13 @@ def new_student_group_assignments(n, groups, assignments, due_date=None):
         while True:
             if due_date is None:
                 due_date = datetime.now(pytz.utc) + timedelta(
-                    days=random.randint(1, 60)
+                    days=random.randint(1, 6)
                 )
             yield {
                 "group": random.choice(groups),
                 "assignment": random.choice(assignments),
                 "due_date": due_date,
+                "distribution_date": datetime.now(pytz.utc),
             }
 
     gen = generator(groups, assignments, due_date)

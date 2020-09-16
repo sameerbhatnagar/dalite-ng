@@ -1,4 +1,4 @@
-"use strict";
+import { LoadingSpinner } from "./_custom_elements/loading_spinner.js";
 
 function toggleFoldable(event) {
   const foldable = event.currentTarget.parentNode;
@@ -7,7 +7,7 @@ function toggleFoldable(event) {
     foldable.querySelector(".foldable--body").style.overflow = "hidden";
   } else {
     foldable.classList.add("foldable__unfolded");
-    setTimeout(function() {
+    setTimeout(function () {
       foldable.querySelector(".foldable--body").style.overflow = "auto";
     }, 300);
   }
@@ -28,7 +28,7 @@ function handleDragStart(event) {
 function handleDragEnd(event) {
   const elem = event.currentTarget;
   elem.classList.remove("draggable--dragging");
-  Array.from(elem.parentNode.getElementsByClassName("draggable")).map(x =>
+  Array.from(elem.parentNode.getElementsByClassName("draggable")).map((x) =>
     x.classList.remove("draggable--over"),
   );
 }
@@ -39,7 +39,7 @@ function handleDragEnter(event) {
   const title =
     event.dataTransfer.getData("title") || window.currentDraggedName;
   const oldElem = Array.from(container.children).filter(
-    x => x.getAttribute("data-draggable-name") == title,
+    (x) => x.getAttribute("data-draggable-name") == title,
   )[0];
   const oldIdx = Array.from(container.children).indexOf(oldElem);
   const idx = Array.from(container.children).indexOf(elem);
@@ -73,28 +73,30 @@ function handleDrop(event) {
   return false;
 }
 
-function addEventListeners() {
-  Array.from(document.getElementsByClassName("foldable--title")).map(x =>
-    x.addEventListener("click", e => toggleFoldable(e)),
+export function addEventListeners() {
+  Array.from(document.getElementsByClassName("foldable--title")).map((x) =>
+    x.addEventListener("click", (e) => toggleFoldable(e)),
   );
-  Array.from(document.getElementsByClassName("draggable")).map(x =>
-    x.addEventListener("dragstart", e => handleDragStart(e), false),
+  Array.from(document.getElementsByClassName("draggable")).map((x) =>
+    x.addEventListener("dragstart", (e) => handleDragStart(e), false),
   );
-  Array.from(document.getElementsByClassName("draggable")).map(x =>
-    x.addEventListener("dragend", e => handleDragEnd(e), false),
+  Array.from(document.getElementsByClassName("draggable")).map((x) =>
+    x.addEventListener("dragend", (e) => handleDragEnd(e), false),
   );
-  Array.from(document.getElementsByClassName("draggable")).map(x =>
-    x.addEventListener("dragenter", e => handleDragEnter(e), false),
+  Array.from(document.getElementsByClassName("draggable")).map((x) =>
+    x.addEventListener("dragenter", (e) => handleDragEnter(e), false),
   );
-  Array.from(document.getElementsByClassName("draggable")).map(x =>
-    x.addEventListener("dragleave", e => handleDragLeave(e), false),
+  Array.from(document.getElementsByClassName("draggable")).map((x) =>
+    x.addEventListener("dragleave", (e) => handleDragLeave(e), false),
   );
-  Array.from(document.getElementsByClassName("draggable")).map(x =>
-    x.addEventListener("dragover", e => handleDragOver(e), false),
+  Array.from(document.getElementsByClassName("draggable")).map((x) =>
+    x.addEventListener("dragover", (e) => handleDragOver(e), false),
   );
-  Array.from(document.getElementsByClassName("draggable")).map(x =>
-    x.addEventListener("drop", e => handleDrop(e), false),
+  Array.from(document.getElementsByClassName("draggable")).map((x) =>
+    x.addEventListener("drop", (e) => handleDrop(e), false),
   );
 }
 
-export { addEventListeners };
+if (!customElements.get("loading-spinner")) {
+  customElements.define("loading-spinner", LoadingSpinner);
+}

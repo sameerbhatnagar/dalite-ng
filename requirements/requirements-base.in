@@ -1,0 +1,31 @@
+-r ../REST/requirements.txt
+
+bleach
+celery[redis]
+django-axes
+django-celery-beat
+django-analytical
+django-compressor>=2.3
+django-cookie-law
+django-grappelli
+django-htmlmin
+django-ipware==2.1.0  # Temporary pin awaiting django-axes fix
+django<3.0.0
+mysqlclient
+pillow
+pyjwt
+# pymysql
+python-memcached==1.59
+pytz
+requests
+django-security-headers>=0.3
+packaging
+djangorestframework
+pandas
+django-samesite-none
+
+-e git+https://github.com/SALTISES4/django-lti-tool-provider@dev#egg=django_lti_tool_provider
+-e git+https://github.com/edx/opaque-keys#egg=opaque-keys
+-e git+https://github.com/SALTISES4/pinax-forums@dev#egg=pinax_forums
+-e git+https://github.com/SALTISES4/CourseFlow#egg=CourseFlow
+-e git+https://github.com/SALTISES4/UserFeedback@9d51693513aa67f017d7ae783d297236049a6906#egg=user_feedback

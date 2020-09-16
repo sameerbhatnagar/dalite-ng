@@ -1,34 +1,29 @@
 # -*- coding: utf-8 -*-
-from __future__ import division, unicode_literals
 
-import itertools
-import string
+
 import datetime
-from collections import defaultdict, Counter
+import itertools
+import logging
+import string
+from collections import Counter, defaultdict
 
-
-from django.utils.safestring import mark_safe
+import pytz
 from django.db.models import (
-    Count,
-    Value,
-    Case,
-    Q,
-    When,
-    CharField,
-    DurationField,
-    F,
-    ExpressionWrapper,
     Avg,
+    Case,
+    CharField,
+    Count,
+    DurationField,
+    ExpressionWrapper,
+    F,
+    Q,
+    QuerySet,
+    Value,
+    When,
 )
-from peerinst.models import (
-    Question,
-    QuestionFlag,
-    Assignment,
-    Student,
-    Answer,
-    LtiEvent,
-    ShownRationale,
-)
+from django.utils.safestring import mark_safe
+
+logger = logging.getLogger("peerinst_console_log")
 
 
 def get_object_or_none(model_class, *args, **kwargs):
@@ -49,7 +44,7 @@ def roundrobin(iterables):
     # Recipe taken from the itertools documentation.
     iterables = list(iterables)
     pending = len(iterables)
-    nexts = itertools.cycle(iter(it).next for it in iterables)
+    nexts = itertools.cycle(iter(it).__next__ for it in iterables)
     while pending:
         try:
             for next in nexts:
@@ -175,7 +170,7 @@ def load_log_archive(json_log_archive):
     new_students = 0
     new_groups = 0
 
-    for pair in test.items():
+    for pair in list(test.items()):
         user, created_user = User.objects.get_or_create(username=pair[0])
         if created_user:
             user.save()
@@ -193,8 +188,8 @@ def load_log_archive(json_log_archive):
             student.groups.add(group)
             student.save()
 
-    print("{} new students loaded into db".format(new_students))
-    print("{} new groups loaded into db".format(new_groups))
+    print(("{} new students loaded into db".format(new_students)))
+    print(("{} new groups loaded into db".format(new_groups)))
 
     return
 
@@ -225,7 +220,7 @@ def load_timestamps_from_logs(log_filename_list):
             log_event = json.loads(line)
             if log_event["event_type"] == "save_problem_success":
                 logs.append(log_event)
-    print("{} save_problem_success log events".format(len(logs)))
+    print(("{} save_problem_success log events".format(len(logs))))
 
     # get records that don't have a timestamp
     answer_qs = Answer.objects.filter(time__isnull=True)
@@ -234,8 +229,8 @@ def load_timestamps_from_logs(log_filename_list):
     records_not_in_logs = 0
 
     # iterate through each record, find its log entry, and save the timestamp
-    print("{} records to parse".format(len(answer_qs)))
-    print("start time: {}".format(timezone.now()))
+    print(("{} records to parse".format(len(answer_qs))))
+    print(("start time: {}".format(timezone.now())))
     records_parsed = 0
     for a in answer_qs:
         for log in logs:
@@ -254,19 +249,23 @@ def load_timestamps_from_logs(log_filename_list):
             records_not_in_logs += 1
         records_parsed += 1
         if records_parsed % 1000 == 0:
-            print("{} db records parsed".format(records_parsed))
-            print("{} db records updated".format(records_updated))
-            print("time: {}".format(timezone.now()))
+            print(("{} db records parsed".format(records_parsed)))
+            print(("{} db records updated".format(records_updated)))
+            print(("time: {}".format(timezone.now())))
 
-    print("End time: {}".format(timezone.now()))
+    print(("End time: {}".format(timezone.now())))
     print(
-        "{} total answer table records in db updated with time field from logs".format(  # noqa
-            records_updated
+        (
+            "{} total answer table records in db updated with time field from logs".format(  # noqa
+                records_updated
+            )
         )
     )
     print(
-        "{} total answer table records in db not found in logs; likely seed rationales from teacher backend".format(  # noqa
-            records_updated
+        (
+            "{} total answer table records in db not found in logs; likely seed rationales from teacher backend".format(  # noqa
+                records_updated
+            )
         )
     )
     return
@@ -314,10 +313,10 @@ def rename_groups():
         try:
             if id_title_dict[g.name]:
                 print("** adding title **")
-                print(g.name)
+                print((g.name))
                 g.title = id_title_dict[g.name]
                 g.save()
-                print(g.title)
+                print((g.title))
         except KeyError as e:
             print(e)
             pass
@@ -340,33 +339,66 @@ def student_list_from_student_groups(group_list):
     return student_ids
 
 
-def question_search_function(search_string):
+def question_search_function(
+    search_string, pre_filtered_list=None, is_old_query=False
+):
     """
-    Given a search_string, return query_set of question objects that have that
-    string in either question text, title, or categories
+    Given a search_string and an optional queryset to search within, return
+    a queryset of question objects that have that search_string in either
+    the question id, text, title, category, discipline, answerchoice,
+    or username.
     """
-    flagged_questions = QuestionFlag.objects.filter(flag=True).values_list(
-        "question", flat=True
-    )
-    query_term = (
-        Question.objects.filter(
-            Q(id__icontains=search_string)
-            | Q(text__icontains=search_string)
-            | Q(title__icontains=search_string)
-            | Q(category__title__icontains=search_string)
-            | Q(discipline__title__icontains=search_string)
-            | Q(answerchoice__text__icontains=search_string)
-            | Q(user__username__icontains=search_string)
-        )
-        .exclude(pk__in=flagged_questions)
-        .annotate(answer_count=Count("answer", distinct=True))
-        .order_by("-answer_count")
-    )
+    """
+    is_old_query is True when query is sent from assignment or blink view
+    """
+    from peerinst.models import Question
 
-    return query_term
+    if pre_filtered_list:
+        assert isinstance(pre_filtered_list, QuerySet)
+
+    search_list = (
+        pre_filtered_list if pre_filtered_list else Question.objects.all()
+    )
+    if is_old_query:
+        query_result = (
+            search_list.filter(
+                Q(id__icontains=search_string)
+                | Q(text__icontains=search_string)
+                | Q(title__icontains=search_string)
+                | Q(category__title__icontains=search_string)
+                | Q(discipline__title__icontains=search_string)
+                | Q(answerchoice__text__icontains=search_string)
+                | Q(user__username__icontains=search_string)
+            )
+            .annotate(answer_count=Count("answer", distinct=True))
+            .order_by("-answer_count")
+        )
+    elif search_string.isdigit():
+        query_result = (
+            search_list.filter(
+                Q(text__icontains=search_string)
+                | Q(title__icontains=search_string)
+                | Q(pk=int(search_string))
+            )
+            .annotate(answer_count=Count("answer", distinct=True))
+            .order_by("-answer_count")
+        )
+    else:
+        query_result = (
+            search_list.filter(
+                Q(text__icontains=search_string)
+                | Q(title__icontains=search_string)
+            )
+            .annotate(answer_count=Count("answer", distinct=True))
+            .order_by("-answer_count")
+        )
+
+    return query_result
 
 
 def get_student_objects_from_group_list(student_groups):
+    from peerinst.models import Student
+
     student_obj_qs = (
         Student.objects.filter(groups__pk__in=student_groups)
         .exclude(student__username__in=["student", ""])
@@ -383,6 +415,8 @@ def subset_answers_by_studentgroup_and_assignment(
     return student objects, filtering on special cases of students generated by
     lti/teacher interface
     """
+
+    from peerinst.models import Answer
 
     student_obj_qs = get_student_objects_from_group_list(student_groups)
 
@@ -449,7 +483,7 @@ def get_correct_answer_choices(question):
     return correct_answer_choices
 
 
-def report_data_by_assignment(assignment_list, student_groups):
+def report_data_by_assignment(assignment_list, student_groups, teacher):
     """
     Returns data for report by assignment
 
@@ -511,6 +545,8 @@ def report_data_by_assignment(assignment_list, student_groups):
         }
     ]
     """
+    from peerinst.models import Answer, Assignment
+
     student_obj_qs = get_student_objects_from_group_list(student_groups)
     answer_qs = subset_answers_by_studentgroup_and_assignment(
         assignment_list, student_groups
@@ -529,7 +565,7 @@ def report_data_by_assignment(assignment_list, student_groups):
         student_gradebook_transitions = {}
         question_list = []
         d3_data = []
-        for q in a.questions.all():
+        for q in a.questions.order_by("assignmentquestions__rank"):
 
             answer_qs_question = answer_qs.filter(question_id=q.id)
 
@@ -711,6 +747,16 @@ def report_data_by_assignment(assignment_list, student_groups):
             d_q["student_responses"] = []
             for student_response in answer_qs_question:
                 d_q_a = {}
+                d_q_a["id"] = student_response.pk
+                d_q_a["score"] = (
+                    student_response.answerannotation_set.get(
+                        annotator=teacher.user
+                    ).score
+                    if student_response.answerannotation_set.filter(
+                        annotator=teacher.user
+                    ).exists()
+                    else ""
+                )
                 # d_q_a["student"] = student_response.user_token
                 d_q_a["student"] = student_obj_qs.get(
                     student__username=student_response.user_token
@@ -736,7 +782,7 @@ def report_data_by_assignment(assignment_list, student_groups):
                     ).rationale
                 else:
                     d_q_a["chosen_rationale"] = "Stick to my own rationale"
-                d_q_a["submitted"] = student_response.datetime_first
+                d_q_a["submitted"] = student_response.datetime_second
 
                 if q.sequential_review:
                     d_q_a["upvotes"] = student_response.upvotes
@@ -746,7 +792,7 @@ def report_data_by_assignment(assignment_list, student_groups):
 
             d_a["questions"].append(d_q)
             d_a["transitions"] = []
-            for name, count in student_gradebook_transitions.items():
+            for name, count in list(student_gradebook_transitions.items()):
                 d_t = {}
                 d_t["transition_type"] = name
                 d_t["count"] = count
@@ -758,6 +804,8 @@ def report_data_by_assignment(assignment_list, student_groups):
 
 
 def report_data_transitions_dict(assignment_list, student_groups):
+
+    from peerinst.models import Question
 
     student_transitions_by_q = {}
     for q in Question.objects.filter(
@@ -783,6 +831,8 @@ def report_data_transitions_dict(assignment_list, student_groups):
 
 
 def report_data_by_student(assignment_list, student_groups):
+
+    from peerinst.models import Question, Student
 
     # needs DRY
     metric_list = ["num_responses", "rr", "rw", "wr", "ww"]
@@ -816,7 +866,7 @@ def report_data_by_student(assignment_list, student_groups):
     )
 
     # aggregate results for each student
-    for question, student_entries in student_transitions_by_q.items():
+    for question, student_entries in list(student_transitions_by_q.items()):
         for student_entry in student_entries:
 
             student_obj = Student.objects.get(
@@ -835,7 +885,7 @@ def report_data_by_student(assignment_list, student_groups):
 
     # dict from just above that serializes into array for template
     gradebook_student = []
-    for student_obj, grades_dict in student_gradebook_dict.items():
+    for student_obj, grades_dict in list(student_gradebook_dict.items()):
         d_g = {}
         d_g["student"] = student_obj.student.email.split("@")[0]
 
@@ -864,6 +914,8 @@ def report_data_by_question(assignment_list, student_groups):
     for aggregate gradebook over all assignments
     question level gradebook
     """
+    from peerinst.models import Question
+
     # needs DRY
     metric_list = ["num_responses", "rr", "rw", "wr", "ww"]
     metric_labels = ["N", "RR", "RW", "WR", "WW"]
@@ -891,14 +943,14 @@ def report_data_by_question(assignment_list, student_groups):
     )
 
     # aggregate results for each question
-    for q, student_entries in student_transitions_by_q.items():
+    for q, student_entries in list(student_transitions_by_q.items()):
         question = Question.objects.get(title=q)
         for student_entry in student_entries:
             question_gradebook_dict[question][student_entry["transition"]] += 1
 
     # array for template
     gradebook_question = []
-    for question, grades_dict in question_gradebook_dict.items():
+    for question, grades_dict in list(question_gradebook_dict.items()):
         d_g = {}
         d_g["question"] = question
         for metric, metric_label in zip(metric_list, metric_labels):
@@ -1001,7 +1053,7 @@ def get_lti_data_as_csv(weeks_ago_start, weeks_ago_stop=0, username=None):
     from django.conf import settings
 
     print("start")
-    print(datetime.datetime.now())
+    print((datetime.datetime.now()))
 
     start = datetime.datetime.now() - datetime.timedelta(weeks=weeks_ago_start)
     end = datetime.datetime.now() - datetime.timedelta(weeks=weeks_ago_stop)
@@ -1010,12 +1062,12 @@ def get_lti_data_as_csv(weeks_ago_start, weeks_ago_stop=0, username=None):
         start_date=start, stop_date=end, username=username
     )
     print("events filtered")
-    print(datetime.datetime.now())
+    print((datetime.datetime.now()))
 
     df = serialize_events_to_dataframe(events)
 
     print("serialied df")
-    print(datetime.datetime.now())
+    print((datetime.datetime.now()))
 
     fname = os.path.join(settings.BASE_DIR, "data.csv")
     with open(fname, "w") as f:
@@ -1031,6 +1083,7 @@ def make_daterange(start_date, end_date):
 
 
 def load_shown_rationales_from_ltievent_logs(day_of_logs):
+    from peerinst.models import Answer, LtiEvent, ShownRationale
 
     event_logs = LtiEvent.objects.filter(
         timestamp__gte=day_of_logs,
@@ -1050,14 +1103,19 @@ def load_shown_rationales_from_ltievent_logs(day_of_logs):
                     )
                 except Answer.MultipleObjectsReturned:
                     print(
-                        "Multiple : ",
-                        e_json["username"],
-                        e_json["event"]["question_id"],
-                        e_json["event"]["assignment_id"],
+                        (
+                            "Multiple : ",
+                            e_json["username"],
+                            e_json["event"]["question_id"],
+                            e_json["event"]["assignment_id"],
+                        )
                     )
                 try:
                     for r in e_json["event"]["rationales"]:
-                        obj, created = ShownRationale.objects.get_or_create(  # noqa
+                        (
+                            obj,
+                            created,
+                        ) = ShownRationale.objects.get_or_create(  # noqa
                             shown_answer=Answer.objects.get(pk=r["id"]),
                             shown_for_answer=shown_for_answer,
                         )
@@ -1067,26 +1125,54 @@ def load_shown_rationales_from_ltievent_logs(day_of_logs):
 
             except Answer.DoesNotExist:
                 print(
-                    "Not found : ",
-                    e_json["username"],
-                    e_json["event"]["question_id"],
-                    e_json["event"]["assignment_id"],
+                    (
+                        "Not found : ",
+                        e_json["username"],
+                        e_json["event"]["question_id"],
+                        e_json["event"]["assignment_id"],
+                    )
                 )
     return
 
 
-def get_average_time_spent_on_all_question_start(question_id):
+def get_average_time_spent_on_all_question_start(
+    question_id, question_stage="whole", student_list=None
+):
     """
     Given a question id, return average time taken by all students to
     submit answer. If not enough data, return None
+    Optional argument:
+        - "question_stage", as a default, makes so that the total
+        time student spends is calculated. Use
+            - "first_answer_choice" to get time for first step,
+            - "second_answer_choice" for second step only.
+        - "student_list". default calculates the time for all students who have
+        attempted this question. If array of user_tokens given,  will limit
+        to those students only
     """
+    from peerinst.models import Answer
 
-    expression = F("datetime_second") - F("datetime_start")
+    if question_stage == "whole":
+        expression = F("datetime_second") - F("datetime_start")
+    elif question_stage == "first_answer_choice":
+        expression = F("datetime_first") - F("datetime_start")
+    elif question_stage == "second_answer_choice":
+        expression = F("datetime_second") - F("datetime_first")
+    else:
+        return None
+
     wrapped_expression = ExpressionWrapper(expression, DurationField())
+
+    if not student_list:
+        qs = Answer.objects.filter(question_id=question_id)
+    else:
+        qs = Answer.objects.filter(
+            question_id=question_id, user_token__in=student_list
+        )
+
     try:
         result = (
-            Answer.objects.filter(question_id=question_id)
-            .annotate(time_spent=wrapped_expression)
+            qs.annotate(time_spent=wrapped_expression)
             .values("time_spent")
             .aggregate(Avg("time_spent"))["time_spent__avg"]
             .seconds
@@ -1097,11 +1183,42 @@ def get_average_time_spent_on_all_question_start(question_id):
     return result
 
 
-def populate_answer_start_time_from_ltievent_logs(day_of_logs):
+def get_answer_corresponding_to_ltievent_log(event_json):
+    """
+    Argument: Given a json log that came from `peerinst.views.emit_event`,
+    retrieve corresponding Answer object from database
+    Returns: object of type peerinst.models.Answer
+    """
+    from peerinst.models import Answer
+
+    try:
+        try:
+            answer_obj = Answer.objects.get(
+                user_token=event_json["username"],
+                question_id=event_json["event"]["question_id"],
+                assignment_id=event_json["event"]["assignment_id"],
+            )
+        except Answer.MultipleObjectsReturned:
+            logger.info(event_json)
+            answer_obj = None
+    except Answer.DoesNotExist:
+        logger.info(event_json)
+        answer_obj = None
+
+    return answer_obj
+
+
+def populate_answer_start_time_from_ltievent_logs(day_of_logs, event_type):
     """
     Given a date, filter event logs to populate Answer.datetime_start field for
     answer instances already in database
     """
+    from peerinst.models import LtiEvent
+
+    if event_type == "problem_show":
+        field = "datetime_start"
+    elif event_type == "problem_check":
+        field = "datetime_first"
 
     event_logs = LtiEvent.objects.filter(
         timestamp__gte=day_of_logs,
@@ -1110,38 +1227,302 @@ def populate_answer_start_time_from_ltievent_logs(day_of_logs):
     i = 0
     for e in event_logs.iterator():
         e_json = e.event_log
-        if e_json["event_type"] == "problem_show":
 
-            try:
+        # problem_check events have two associated logs each
+        # the earlier one will correspond to when the first_answer was saved
+        # and hence is the one we want assocated with datetime_first.
+        # The correct log does not have the "rationales" key in the log
+        # If "rationales" in in event log, ignore this log event
+        if event_type == "problem_check" and "rationales" in e_json["event"]:
+            logger.info("skipping log event")
+            continue
 
-                answer_obj = Answer.objects.get(
-                    user_token=e_json["username"],
-                    question_id=e_json["event"]["question_id"],
-                    assignment_id=e_json["event"]["assignment_id"],
-                )
+        # we are ignoring save_problem_success events, as they have already
+        # been handled
+        if e_json["event_type"] == event_type:
 
+            answer_obj = get_answer_corresponding_to_ltievent_log(
+                event_json=e_json
+            )
+            if answer_obj:
                 # keep the latest time at which student accessed
                 # problem start page
-                if answer_obj.datetime_start:
-                    if answer_obj.datetime_start < e.timestamp:
-                        answer_obj.datetime_start = e.timestamp
+                if getattr(answer_obj, field):
+                    if (
+                        getattr(answer_obj, field) < e.timestamp
+                        and event_type == "problem_show"
+                    ):
+                        setattr(answer_obj, field, e.timestamp)
                         answer_obj.save()
                         i += 1
                     else:
                         pass
                 else:
-                    answer_obj.datetime_start = e.timestamp
+                    setattr(answer_obj, field, e.timestamp)
                     answer_obj.save()
                     i += 1
 
-            except Answer.DoesNotExist:
-                pass
-                # print(
-                #     "Not found : ",
-                #     e_json["username"],
-                #     e_json["event"]["question_id"],
-                #     e_json["event"]["assignment_id"],
-                # )
+            else:
+                logger.info(
+                    "Not found : ",
+                    e_json["username"],
+                    e_json["event"]["question_id"],
+                    e_json["event"]["assignment_id"],
+                )
 
-    print("{} answer start times updated".format(i))
+    logger.info("{} answer {} times updated".format(i, field))
     return
+
+
+def get_student_activity_data(teacher):
+    # TODO: Refactor to avoid circular import
+    from datetime import datetime, timedelta
+    from .models import Answer, Student, StudentGroupAssignment
+
+    current_groups = teacher.current_groups.all()
+
+    all_current_students = Student.objects.filter(groups__in=current_groups)
+
+    last_week = datetime.utcnow().replace(tzinfo=pytz.utc) - timedelta(days=7)
+    next_week = datetime.utcnow().replace(tzinfo=pytz.utc) + timedelta(days=7)
+
+    if not teacher.last_dashboard_access:
+        teacher.last_dashboard_access = last_week
+
+    # Standalone
+    standalone_assignments_all = StudentGroupAssignment.objects.filter(
+        group__in=current_groups
+    ).filter(distribution_date__isnull=False)
+
+    standalone_assignments = standalone_assignments_all.filter(
+        distribution_date__gte=last_week, due_date__lte=next_week
+    )
+
+    # if in between semesters, find most recent standalone assignment
+    if standalone_assignments.count() == 0:
+        try:
+            last_assignment = standalone_assignments_all.latest("due_date")
+            standalone_assignments = StudentGroupAssignment.objects.filter(
+                pk=last_assignment.pk
+            )
+        except StudentGroupAssignment.DoesNotExist:
+            standalone_assignments = StudentGroupAssignment.objects.none()
+
+    # print(standalone_assignments)
+
+    standalone_answers = Answer.objects.filter(
+        assignment__in=standalone_assignments.values("assignment")
+    ).filter(user_token__in=all_current_students.values("student__username"))
+
+    # LTI
+    lti_assignments = teacher.assignments.exclude(
+        identifier__in=standalone_assignments_all.values(
+            "assignment__identifier"
+        )
+    )
+
+    # print(lti_assignments)
+
+    lti_answers = Answer.objects.filter(assignment__in=lti_assignments).filter(
+        user_token__in=all_current_students.values("student__username")
+    )
+
+    # logic to infer most recent lti assignments
+    recent_assignments_list = (
+        lti_answers.filter(datetime_second__gte=last_week)
+        .order_by("-datetime_second")
+        .values_list("assignment_id", flat=True)
+    )
+    recent_assignments = lti_assignments.filter(
+        identifier__in=recent_assignments_list
+    )
+    # if in between semesters, simply get assignment of most recent answer
+    if len(recent_assignments) == 0 and lti_answers.count() > 0:
+        print((lti_answers.count()))
+        most_recent_lti_assignment = lti_answers.latest(
+            "datetime_second"
+        ).assignment
+        print("most recent lti answer")
+        recent_assignments = lti_assignments.filter(
+            identifier=most_recent_lti_assignment.identifier
+        )
+
+    # drop any assignment whose last answer is older than 3 months
+    three_months_ago = datetime.utcnow().replace(tzinfo=pytz.utc) + timedelta(
+        days=90
+    )
+    stale_lti_assignments = [
+        a.identifier
+        for a in recent_assignments
+        if a.answer_set.latest("datetime_second").datetime_second
+        < three_months_ago
+    ]
+    # print("recent_assignments")
+    # print(recent_assignments)
+    # print("stale")
+    # print(stale_lti_assignments)
+    if len(stale_lti_assignments) > 0:
+        recent_assignments = recent_assignments.exclude(
+            identifier__in=stale_lti_assignments
+        )
+
+    lti_answers = lti_answers.filter(assignment_id__in=recent_assignments)
+
+    all_answers_by_group = {}
+    for g in current_groups:
+        all_answers_by_group[g] = {}
+        student_list = g.student_set.all().values_list(
+            "student__username", flat=True
+        )
+        if len(student_list) > 0:
+            # Keyed on studentgroupassignment
+            for ga in standalone_assignments:
+                if (
+                    ga.assignment.questions.count() > 0
+                    and ga in g.studentgroupassignment_set.all()
+                ):
+                    answers = [
+                        a
+                        for a in standalone_answers
+                        if a.user_token in student_list
+                        and a.assignment == ga.assignment
+                    ]
+                    # print("standalone keys")
+                    # print(g, ga)
+                    # print(len(answers))
+                    all_answers_by_group[g][ga] = {}
+                    all_answers_by_group[g][ga]["answers"] = answers
+                    all_answers_by_group[g][ga]["new"] = [
+                        a
+                        for a in standalone_answers
+                        if a.user_token in student_list
+                        and a.assignment == ga.assignment
+                        and (
+                            (
+                                a.datetime_start
+                                and a.datetime_start
+                                > teacher.last_dashboard_access
+                            )
+                            or (
+                                a.datetime_first
+                                and a.datetime_first
+                                > teacher.last_dashboard_access
+                            )
+                            or (
+                                a.datetime_second
+                                and a.datetime_second
+                                > teacher.last_dashboard_access
+                            )
+                        )
+                    ]
+                    all_answers_by_group[g][ga]["percent_complete"] = int(
+                        100.0
+                        * len(all_answers_by_group[g][ga]["answers"])
+                        / (len(student_list) * ga.assignment.questions.count())
+                    )
+
+            # Keyed on assignment
+            for l in lti_assignments:  # noqa
+                answers = [
+                    a
+                    for a in lti_answers
+                    if a.user_token in student_list and a.assignment == l
+                ]
+                if l.questions.count() > 0 and len(answers) > 0:
+                    # print("lti keys")
+                    # print(l, g)
+                    # print(len(answers))
+                    all_answers_by_group[g][l] = {}
+                    all_answers_by_group[g][l]["answers"] = answers
+                    all_answers_by_group[g][l]["new"] = [
+                        a
+                        for a in lti_answers
+                        if a.user_token in student_list
+                        and a.assignment == l
+                        and (
+                            (
+                                a.datetime_start
+                                and a.datetime_start
+                                > teacher.last_dashboard_access
+                            )
+                            or (
+                                a.datetime_first
+                                and a.datetime_first
+                                > teacher.last_dashboard_access
+                            )
+                            or (
+                                a.datetime_second
+                                and a.datetime_second
+                                > teacher.last_dashboard_access
+                            )
+                        )
+                    ]
+                    all_answers_by_group[g][l]["percent_complete"] = int(
+                        100.0
+                        * len(all_answers_by_group[g][l]["answers"])
+                        / (len(student_list) * l.questions.count())
+                    )
+
+    # JSON
+    json_data = {}
+    for group_key, group_assignments in list(all_answers_by_group.items()):
+        json_data[group_key.name] = {}
+        for key, value_list in list(group_assignments.items()):
+            if len(value_list["answers"]) > 0:
+                try:
+                    assignment = key.assignment
+                    id = key.assignment.identifier
+
+                    date = (
+                        value_list["answers"][0].datetime_first
+                        if value_list["answers"][0].datetime_first
+                        else value_list["answers"][0].datetime_second
+                    )
+
+                    if key.distribution_date < date:
+                        start_date = key.distribution_date
+                    else:
+                        start_date = date
+
+                    date = (
+                        value_list["answers"][-1].datetime_first
+                        if value_list["answers"][-1].datetime_first
+                        else value_list["answers"][-1].datetime_second
+                    )
+
+                    if key.due_date > date:
+                        end_date = key.due_date
+                    else:
+                        end_date = date
+                except Exception:
+                    assignment = key
+                    id = key.identifier
+                    start_date = value_list["answers"][0].datetime_first
+                    end_date = value_list["answers"][-1].datetime_first
+
+                json_data[group_key.name][id] = {}
+                json_data[group_key.name][id]["distribution_date"] = str(
+                    start_date
+                )
+                json_data[group_key.name][id]["due_date"] = str(end_date)
+                json_data[group_key.name][id]["last_login"] = str(
+                    teacher.last_dashboard_access
+                )
+                json_data[group_key.name][id]["now"] = str(
+                    datetime.utcnow().replace(tzinfo=pytz.utc)
+                )
+                json_data[group_key.name][id]["total"] = (
+                    group_key.student_set.count()
+                    * assignment.questions.count()
+                )
+                json_data[group_key.name][id]["answers"] = []
+                for answer in value_list["answers"]:
+                    json_data[group_key.name][id]["answers"].append(
+                        str(
+                            answer.datetime_first
+                            if answer.datetime_first
+                            else answer.datetime_second
+                        )
+                    )
+
+    return all_answers_by_group, json_data

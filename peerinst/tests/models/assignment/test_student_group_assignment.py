@@ -2,6 +2,7 @@ import random
 from datetime import datetime, timedelta
 from operator import itemgetter
 
+import pytest
 import pytz
 from django.core import mail
 
@@ -24,7 +25,7 @@ def test_new_student_group_assignment(group, assignment):
     assert student_group_assignment.group == data["group"]
     assert student_group_assignment.assignment == data["assignment"]
     assert student_group_assignment.order == ",".join(
-        map(str, range(n_questions))
+        map(str, list(range(n_questions)))
     )
 
 
@@ -84,7 +85,7 @@ def test__modify_due_date__wrong_format(student_group_assignment):
 def test__modify_order(student_group_assignment):
     k = student_group_assignment.assignment.questions.count()
     for _ in range(3):
-        new_order = ",".join(map(str, random.sample(range(k), k=k)))
+        new_order = ",".join(map(str, random.sample(list(range(k)), k=k)))
         err = student_group_assignment._modify_order(new_order)
         assert err is None
         assert new_order == student_group_assignment.order
@@ -149,7 +150,8 @@ def test_get_question__assert_raised(student_group_assignment):
     pass
 
 
-def test_update_students(student_group_assignment, students):
+@pytest.mark.django_db(transaction=True)
+def test_update_students(student_group_assignment, students, celery_worker):
     add_to_group(students, student_group_assignment.group)
 
     for student in students:
@@ -790,7 +792,7 @@ def test_expired__not_expired(group, assignment):
 
 def test_questions(student_group_assignment):
     k = len(student_group_assignment.questions)
-    new_order = ",".join(map(str, random.sample(range(k), k=k)))
+    new_order = ",".join(map(str, random.sample(list(range(k)), k=k)))
     err = student_group_assignment._modify_order(new_order)
     assert err is None
     for i, j in enumerate(map(int, new_order.split(","))):

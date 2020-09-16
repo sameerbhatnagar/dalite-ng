@@ -1,5 +1,5 @@
-import { buildReq } from "../../../../../peerinst/static/peerinst/js/_ajax/utils.js"; // eslint-disable-line
-import { clear } from "../../../../../peerinst/static/peerinst/js/utils.js"; // eslint-disable-line
+import { buildReq } from "../../../../../peerinst/static/peerinst/js/ajax.js";
+import { clear } from "../../../../../peerinst/static/peerinst/js/utils.js";
 
 /*********/
 /* model */
@@ -14,7 +14,7 @@ function initModel(data) {
       qualityType: data.quality.quality_type,
     },
     next: data.next,
-    available: data.available.map(c => ({
+    available: data.available.map((c) => ({
       name: c.name,
       fullName: c.full_name,
       description: c.description,
@@ -94,15 +94,15 @@ function updateCriterionOption(event, option, criterion) {
         value = 0;
         option.value = value;
       } else if (value > 1) {
-        value = parseFloat("0." + value);
+        value = parseFloat(`0.${value}`);
         option.value = value;
       } else if (value.toString().length > 4) {
         option.value = model.criterions.filter(
-          c => c.name === criterion.name,
+          (c) => c.name === criterion.name,
         )[0][name].value;
         return;
       } else if (
-        model.criterions.filter(c => c.name === criterion.name)[0][name]
+        model.criterions.filter((c) => c.name === criterion.name)[0][name]
           .value == value
       ) {
         if (value === "00") {
@@ -123,17 +123,18 @@ function updateCriterionOption(event, option, criterion) {
     quality: model.quality.pk,
     criterion: criterion.name,
     field: name,
-    value: value,
+    value,
   };
 
   const req = buildReq(data, "post");
   fetch(model.urls.updateCriterion, req)
-    .then(resp => (resp.ok ? resp.json() : resp.text()))
-    .then(data => {
+    .then((resp) => (resp.ok ? resp.json() : resp.text()))
+    .then((data) => {
       if (typeof data === "string") {
-        toggleCriterionOptionError(err);
+        // TODO: Figure out what the intent of this was
+        //toggleCriterionOptionError(err);
       } else {
-        model.criterions = model.criterions.map(c =>
+        model.criterions = model.criterions.map((c) =>
           c.name === data.name ? data : c,
         );
         if (name === "weight") {
@@ -143,7 +144,7 @@ function updateCriterionOption(event, option, criterion) {
         }
       }
     })
-    .catch(err => console.log(err));
+    .catch((err) => console.log(err));
 }
 
 function addCriterion(criterion) {
@@ -154,14 +155,14 @@ function addCriterion(criterion) {
 
   const req = buildReq(data, "post");
   fetch(model.urls.addCriterion, req)
-    .then(resp => resp.json())
-    .then(json => {
+    .then((resp) => resp.json())
+    .then((json) => {
       model.criterions.push(json);
       criterionsView();
       newCriterionsView();
       toggleShowAddCriterion();
     })
-    .catch(err => console.log(err));
+    .catch((err) => console.log(err));
 }
 
 function removeCriterion(criterion) {
@@ -171,16 +172,16 @@ function removeCriterion(criterion) {
   };
   const req = buildReq(data, "post");
   fetch(model.urls.removeCriterion, req)
-    .then(resp => {
+    .then((resp) => {
       if (resp.ok) {
         model.criterions = model.criterions.filter(
-          c => c.name != criterion.name,
+          (c) => c.name != criterion.name,
         );
         criterionsView();
         newCriterionsView();
       }
     })
-    .catch(err => console.log(err));
+    .catch((err) => console.log(err));
 }
 
 /********/
@@ -210,7 +211,7 @@ function returnLinkView() {
 function criterionsView() {
   const div = document.querySelector("#criterions");
   clear(div);
-  model.criterions.forEach(criterion => {
+  model.criterions.forEach((criterion) => {
     div.appendChild(criterionView(criterion));
   });
 }
@@ -230,7 +231,7 @@ function criterionView(criterion) {
 
   const remove = document.createElement("button");
   remove.classList.add("criterion--remove");
-  remove.addEventListener("click", event => {
+  remove.addEventListener("click", (event) => {
     removeCriterion(criterion);
     event.stopPropagation();
   });
@@ -271,7 +272,7 @@ function criterionView(criterion) {
   options.appendChild(weight);
 
   const otherOptions = Object.keys(criterion).filter(
-    o =>
+    (o) =>
       ![
         "description",
         "full_name",
@@ -282,7 +283,7 @@ function criterionView(criterion) {
         "weight",
       ].includes(o),
   );
-  otherOptions.forEach(o => {
+  otherOptions.forEach((o) => {
     if (!binaryThreshold || o !== "threshold") {
       const option = criterion[o];
       const label = document.createElement("label");
@@ -311,7 +312,7 @@ function criterionOptionView(type, value, criterion, input = null) {
       input.setAttribute("data-type", type);
       input.type = "number";
       input.min = 0;
-      input.addEventListener("input", event =>
+      input.addEventListener("input", (event) =>
         updateCriterionOption(event, input, criterion),
       );
     }
@@ -325,7 +326,7 @@ function criterionOptionView(type, value, criterion, input = null) {
       input.min = 0;
       input.max = 1;
       input.step = 0.01;
-      input.addEventListener("input", event =>
+      input.addEventListener("input", (event) =>
         updateCriterionOption(event, input, criterion),
       );
       if (focus) {
@@ -342,7 +343,7 @@ function criterionOptionView(type, value, criterion, input = null) {
       input.type = "comma-sep";
     }
     clear(input);
-    value.forEach(word => {
+    value.forEach((word) => {
       const span = document.createElement("span");
       span.classList.add("comma-sep-input--word");
       span.textContent = word;
@@ -351,7 +352,7 @@ function criterionOptionView(type, value, criterion, input = null) {
     const input_ = document.createElement("input");
     input_.classList.add("comma-sep-input--input");
     input_.type = "text";
-    input_.addEventListener("keydown", event =>
+    input_.addEventListener("keydown", (event) =>
       updateCriterionOption(event, input, criterion),
     );
     input.appendChild(input_);
@@ -368,7 +369,7 @@ function criterionOptionView(type, value, criterion, input = null) {
       const input_ = document.createElement("input");
       input_.classList.add("boolean-input--input");
       input_.type = "checkbox";
-      input_.addEventListener("click", event =>
+      input_.addEventListener("click", (event) =>
         updateCriterionOption(event, input, criterion),
       );
       input.appendChild(input_);
@@ -402,12 +403,12 @@ function toggleCriterionOptionError(option, msg) {
 function newCriterionsView() {
   const button = document.querySelector(".add-criterion button");
   const available = model.available.filter(
-    c => !model.criterions.map(cc => cc.name).includes(c.name),
+    (c) => !model.criterions.map((cc) => cc.name).includes(c.name),
   );
   if (available.length) {
     const ul = document.querySelector(".available-criterions ul");
     clear(ul);
-    available.forEach(criterion => {
+    available.forEach((criterion) => {
       ul.appendChild(newCriterionView(criterion));
     });
     button.disabled = false;
@@ -430,10 +431,8 @@ function toggleShowAddCriterion() {
   const div = document.querySelector(".add-criterion");
   if (div.classList.contains("add-criterion__showing")) {
     div.classList.remove("add-criterion__showing");
-  } else {
-    if (model.available.length) {
-      div.classList.add("add-criterion__showing");
-    }
+  } else if (model.available.length) {
+    div.classList.add("add-criterion__showing");
   }
 }
 

@@ -1,15 +1,11 @@
 {% extends user.student|yesno:'peerinst/student/base.html,peerinst/base.html' %}
 
-{% load compress staticfiles %}
+{% load compress static %}
 
 {% block stylesheets %}
-{% compress css %}
-<link href="{% static 'quality/css/quality.min.css' %}" rel="stylesheet">
-{% endcompress %}
+{{ block.super }}
 {% endblock %}
 
 {% block scripts %}
-{% compress js %}
-<script src="{% static 'quality/js/quality.min.js' %}"></script>
-{% endcompress %}
+{{ block.super }}
 {% endblock %}

@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 import base64
 import logging
 from datetime import datetime, timedelta
@@ -8,15 +5,22 @@ from datetime import datetime, timedelta
 import pytz
 from django.contrib.auth.models import User
 from django.core import validators
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db import models
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
 from quality.models import Quality
+from reputation.models import Reputation
 
+from ..tasks import distribute_assignment_to_students_async
+from ..util import (
+    get_average_time_spent_on_all_question_start,
+    student_list_from_student_groups,
+)
+from ..utils import format_time
 from .group import StudentGroup
-from .question import Question
+from .question import Question, QuestionFlag
 
 logger = logging.getLogger("peerinst-models")
 
@@ -34,10 +38,56 @@ class Assignment(models.Model):
         validators=[validators.validate_slug],
     )
     title = models.CharField(_("Title"), max_length=200)
-    questions = models.ManyToManyField(Question, verbose_name=_("Questions"))
-    owner = models.ManyToManyField(User, blank=True)
+    description = models.TextField(
+        _("Description"),
+        blank=True,
+        null=True,
+        help_text=_(
+            """Notes you would like keep for yourself
+            (or other teachers) regarding this assignment
+            """
+        ),
+    )
 
-    def __unicode__(self):
+    intro_page = models.TextField(
+        _("Assignment Cover Page"),
+        blank=True,
+        null=True,
+        help_text=_(
+            """Any special instructions you would like
+            students to read before they start the assignment.
+            """
+        ),
+    )
+
+    conclusion_page = models.TextField(
+        _("Post Assignment Notes"),
+        blank=True,
+        null=True,
+        help_text=_(
+            """Any notes you would like to leave for students
+            to read that will be shown after the last
+            question of the assignment.
+            """
+        ),
+    )
+
+    questions = models.ManyToManyField(
+        Question, verbose_name=_("Questions"), through="AssignmentQuestions"
+    )
+    owner = models.ManyToManyField(User, blank=True)
+    parent = models.ForeignKey(
+        "Assignment", null=True, on_delete=models.SET_NULL
+    )
+
+    reputation = models.OneToOneField(
+        Reputation, blank=True, null=True, on_delete=models.SET_NULL
+    )
+
+    created_on = models.DateTimeField(auto_now_add=True, null=True)
+    last_modified = models.DateTimeField(auto_now=True, null=True)
+
+    def __str__(self):
         return self.identifier
 
     def get_absolute_url(self):
@@ -59,6 +109,43 @@ class Assignment(models.Model):
                 assignment=self
             ).exists()
         )
+
+    @property
+    def includes_flagged_question(self):
+        return any(
+            [
+                0
+                in q.get_frequency(all_rationales=True)[
+                    "first_choice"
+                ].values()
+                for q in self.questions.all()
+            ]
+            + [
+                True
+                if q.pk
+                in QuestionFlag.objects.all().values_list(
+                    "question", flat=True
+                )
+                else False
+                for q in self.questions.all()
+            ]
+        )
+
+
+class AssignmentQuestions(models.Model):
+    assignment = models.ForeignKey(Assignment, models.DO_NOTHING)
+    question = models.ForeignKey(Question, models.DO_NOTHING)
+    rank = models.PositiveIntegerField(default=0)
+
+    def __str__(self):
+        return "{}-{}-{}".format(
+            self.assignment.pk, self.question.pk, self.rank
+        )
+
+    class Meta:
+        db_table = "peerinst_assignment_questions"
+        ordering = ("rank",)
+        unique_together = (("assignment", "question"),)
 
 
 class StudentGroupAssignment(models.Model):
@@ -98,7 +185,7 @@ class StudentGroupAssignment(models.Model):
 
         return assignment
 
-    def __unicode__(self):
+    def __str__(self):
         return "{} for {}".format(self.assignment, self.group)
 
     def _verify_order(self, order):
@@ -237,12 +324,7 @@ class StudentGroupAssignment(models.Model):
             self.group.student_set.count(),
             self.pk,
         )
-
-        for student in self.group.student_set.all():
-            logger.info(
-                "Adding assignment %d for student %d", self.pk, student.pk
-            )
-            student.add_assignment(self)
+        distribute_assignment_to_students_async(self.pk)
 
     def update(self, name, value):
         """
@@ -273,7 +355,12 @@ class StudentGroupAssignment(models.Model):
             self._modify_due_date(value)
 
         elif name == "question_list":
-            questions = [q.title for q in self.assignment.questions.all()]
+            questions = [
+                q.title
+                for q in self.assignment.questions.order_by(
+                    "assignmentquestions__rank"
+                )
+            ]
             order = ",".join(str(questions.index(v)) for v in value)
             err = self._modify_order(order)
             if err is not None:
@@ -322,7 +409,18 @@ class StudentGroupAssignment(models.Model):
     def save(self, *args, **kwargs):
         if not self.order:
             self.order = ",".join(
-                map(str, range(len(self.assignment.questions.all())))
+                map(
+                    str,
+                    list(
+                        range(
+                            len(
+                                self.assignment.questions.order_by(
+                                    "assignmentquestions__rank"
+                                )
+                            )
+                        )
+                    ),
+                )
             )
         super(StudentGroupAssignment, self).save(*args, **kwargs)
 
@@ -353,6 +451,7 @@ class StudentGroupAssignment(models.Model):
         ]
         return [
             {
+                "question_id": question.id,
                 "question_title": question.title,
                 "n_students": len(results),
                 "n_completed": sum(
@@ -362,6 +461,14 @@ class StudentGroupAssignment(models.Model):
                     result[i]["first_correct"] for result in results
                 ),
                 "n_correct": sum(result[i]["correct"] for result in results),
+                "time_spent": format_time(
+                    get_average_time_spent_on_all_question_start(
+                        student_list=student_list_from_student_groups(
+                            group_list=[self.group.pk]
+                        ),
+                        question_id=question.pk,
+                    )
+                ),
             }
             for i, question in enumerate(self.questions)
         ]
@@ -376,9 +483,11 @@ class StudentGroupAssignment(models.Model):
 
     @property
     def questions(self):
-        questions_ = self.assignment.questions.all()
+        questions_ = self.assignment.questions.order_by(
+            "assignmentquestions__rank"
+        )
         if not self.order:
-            self.order = ",".join(map(str, range(len(questions_))))
+            self.order = ",".join(map(str, list(range(len(questions_)))))
             self.save()
         if questions_:
             questions_ = [
@@ -389,3 +498,34 @@ class StudentGroupAssignment(models.Model):
     @property
     def days_to_expiry(self):
         return max(self.due_date - datetime.now(pytz.utc), timedelta()).days
+
+    @property
+    def is_distributed(self):
+        if self.distribution_date:
+            return self.distribution_date < datetime.now(pytz.utc)
+        return False
+
+    @property
+    def link(self):
+        return reverse(
+            "group-assignment", kwargs={"assignment_hash": self.hash}
+        )
+
+    @property
+    def last_modified(self):
+        questions = self.questions
+        students = [
+            assignment.student.student.username
+            for assignment in self.studentassignment_set.iterator()
+        ]
+        return max(
+            answer.datetime_second
+            if answer.datetime_second
+            else answer.datetime_first
+            if answer.datetime_first
+            else answer.datetime_start
+            for question in questions
+            for answer in question.answer_set.filter(
+                user_token__in=students
+            ).exclude(datetime_start__isnull=True)
+        )

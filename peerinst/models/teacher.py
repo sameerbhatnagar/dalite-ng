@@ -1,17 +1,15 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 import base64
 
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db import models
 from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
 
 from quality.models import Quality
+from reputation.models import Reputation
 
 from .answer import Answer
 from .assignment import Assignment
@@ -25,7 +23,7 @@ class Institution(models.Model):
         max_length=100, unique=True, help_text=_("Name of school.")
     )
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     class Meta:
@@ -48,6 +46,14 @@ class Teacher(models.Model):
     quality = models.ForeignKey(
         Quality, blank=True, null=True, on_delete=models.SET_NULL
     )
+    reputation = models.OneToOneField(
+        Reputation, blank=True, null=True, on_delete=models.SET_NULL
+    )
+    last_dashboard_access = models.DateTimeField(
+        blank=True,
+        null=True,
+        help_text="Last time the teacher went on their teacher dashboard.",
+    )
 
     def get_absolute_url(self):
         return reverse("teacher", kwargs={"pk": self.pk})
@@ -64,16 +70,19 @@ class Teacher(models.Model):
             group__in=current_groups
         ).values("assignment")
 
-        activity = (
-            Answer.objects.filter(assignment__in=all_assignments)
-            .filter(user_token__in=all_current_students)
-            .filter(
-                Q(datetime_start__gt=last_login)
-                | Q(datetime_first__gt=last_login)
-                | Q(datetime_second__gt=last_login)
+        if last_login is not None:
+            activity = (
+                Answer.objects.filter(assignment__in=all_assignments)
+                .filter(user_token__in=all_current_students)
+                .filter(
+                    Q(datetime_start__gt=last_login)
+                    | Q(datetime_first__gt=last_login)
+                    | Q(datetime_second__gt=last_login)
+                )
+                .count()
             )
-            .count()
-        )
+        else:
+            activity = 0
 
         return activity
 
@@ -99,7 +108,7 @@ class Teacher(models.Model):
             str(self.user.username).encode()
         ).decode()
 
-    def __unicode__(self):
+    def __str__(self):
         return self.user.username
 
     class Meta:
@@ -118,7 +127,7 @@ class LastLogout(models.Model):
 class TeacherNotification(models.Model):
     """ Generic framework for notifications based on ContentType """
 
-    teacher = models.ForeignKey(Teacher)
+    teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE)
     notification_type = models.ForeignKey(
         ContentType, on_delete=models.CASCADE
     )
@@ -129,7 +138,7 @@ class TeacherNotification(models.Model):
     class Meta:
         unique_together = ("teacher", "notification_type", "object_id")
 
-    def __unicode__(self):
+    def __str__(self):
         return "{}-{} for {}".format(
             self.notification_type.model, self.object_id, self.teacher
         )
@@ -143,4 +152,4 @@ class VerifiedDomain(models.Model):
             "Email addresses with these domains will be treated as verified."
         ),
     )
-    institution = models.ForeignKey(Institution)
+    institution = models.ForeignKey(Institution, on_delete=models.CASCADE)

@@ -1,8 +1,8 @@
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 from tos.models import Role, Tos
 
-from .test_views import QuestionViewTestCase
+from .views.test_views import QuestionViewTestCase
 
 
 class TOSError(QuestionViewTestCase):

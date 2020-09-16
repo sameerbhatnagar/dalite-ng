@@ -22,12 +22,12 @@ function toggleButtonAll(event) {
   const checkbox = container.getElementsByTagName("input")[0];
   if (checkbox.checked) {
     const toggleButtons = document.getElementsByClassName("btn-toggle");
-    for (const i = 0; i < toggleButtons.length; i++) {
+    for (let i = 0; i < toggleButtons.length; i++) {
       toggleButtons[i].classList.remove("btn-toggle--disabled");
     }
   } else {
     const toggleButtons = document.getElementsByClassName("btn-toggle");
-    for (const i = 0; i < toggleButtons.length; i++) {
+    for (let i = 0; i < toggleButtons.length; i++) {
       if (toggleButtons[i] != container) {
         toggleButtons[i].classList.add("btn-toggle--disabled");
       }
@@ -35,11 +35,11 @@ function toggleButtonAll(event) {
   }
 }
 
-Array.from(document.getElementsByClassName("btn-toggle")).map(x =>
-  x.addEventListener("click", e => toggleButton(e)),
+Array.from(document.getElementsByClassName("btn-toggle")).map((x) =>
+  x.addEventListener("click", (e) => toggleButton(e)),
 );
 
 const toggleAll = document.getElementById("btn-toggle-all");
 if (toggleAll) {
-  toggleAll.addEventListener("click", e => toggleButtonAll(e));
+  toggleAll.addEventListener("click", (e) => toggleButtonAll(e));
 }

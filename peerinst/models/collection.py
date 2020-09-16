@@ -1,24 +1,24 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
-from .assignment import Assignment
+from .assignment import Assignment, StudentGroupAssignment
 from .group import StudentGroup
 from .question import Discipline
 from .teacher import Teacher
 
 
 class Collection(models.Model):
-    assignments = models.ManyToManyField(Assignment)
-    discipline = models.ForeignKey(Discipline)
-    owner = models.ForeignKey(Teacher, related_name="owner")
+    assignments = models.ManyToManyField(Assignment, blank=True)
+    discipline = models.ForeignKey(Discipline, on_delete=models.CASCADE)
+    owner = models.ForeignKey(
+        Teacher, related_name="owner", on_delete=models.CASCADE
+    )
     followers = models.ManyToManyField(
         Teacher, blank=True, related_name="followers"
     )
     title = models.CharField(max_length=40)
     description = models.TextField(max_length=200)
+    private = models.BooleanField(default=False)
     image = models.ImageField(
         _("Thumbnail image"),
         blank=True,
@@ -33,7 +33,7 @@ class Collection(models.Model):
     last_modified = models.DateTimeField(auto_now=True, null=True)
     featured = models.BooleanField(default=False)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.title
 
     def make_studentgroupassignments(self, studentgroup_hash):
@@ -43,7 +43,10 @@ class Collection(models.Model):
         group_obj = StudentGroup.get(studentgroup_hash)
 
         for a in self.assignments:
-            group_assignment, created = StudentGroupAssignment.objects.get_or_create(
+            (
+                group_assignment,
+                created,
+            ) = StudentGroupAssignment.objects.get_or_create(
                 group=group_obj, assignment=a
             )
         return

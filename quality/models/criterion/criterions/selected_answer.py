@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 from django.db import models
 
-from quality.models.custom_fields import ProbabilityField
+from dalite.models.custom_fields import ProbabilityField
 from quality.models.quality_type import QualityType, QualityUseType
 
 from ..criterion import Criterion, CriterionRules

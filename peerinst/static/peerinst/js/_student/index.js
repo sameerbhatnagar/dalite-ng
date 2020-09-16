@@ -1,6 +1,4 @@
-"use strict";
-
-import { buildReq } from "../_ajax/utils.js";
+import { buildReq } from "../ajax.js";
 import { clear } from "../utils.js";
 
 /*********/
@@ -23,12 +21,15 @@ function initModel(data) {
         signedOn: new Date(data.student.tos.signed_on),
       },
     },
-    groups: data.groups.map(group => ({
+    groups: data.groups.map((group) => ({
+      connectedCourseUrl: group.connected_course_url,
       name: group.name,
+      teacher: group.teacher,
       title: group.title,
       notifications: group.notifications,
       memberOf: group.member_of,
-      assignments: group.assignments.map(assignment => ({
+      assignments: group.assignments.map((assignment) => ({
+        pk: assignment.pk,
         title: assignment.title,
         dueDate: new Date(assignment.due_date),
         link: assignment.link,
@@ -55,9 +56,11 @@ function initModel(data) {
       assignmentExpired: data.translations.assignment_expired,
       cancel: data.translations.cancel,
       completed: data.translations.completed,
+      courseFlowButton: data.translations.course_flow_button,
       day: data.translations.day,
       days: data.translations.days,
       dueOn: data.translations.due_on,
+      editStudentId: data.translations.edit_student_id,
       expired: data.translations.expired,
       goToAssignment: data.translations.go_to_assignment,
       grade: data.translations.grade,
@@ -74,18 +77,192 @@ function initModel(data) {
       notSharing: data.translations.not_sharing,
       sharing: data.translations.sharing,
       studentId: data.translations.student_id,
+      studentIdNeeded: data.translations.student_id_needed,
     },
   };
+}
+
+/**********/
+/* update */
+/**********/
+
+function handleStudentIdKeyDown(key, group, node) {
+  if (key === "Enter") {
+    saveStudentId(group, node);
+  } else if (key === "Escape") {
+    stopEditStudentId(group, node);
+  }
+}
+
+function saveStudentId(group, node) {
+  const url = model.urls.saveStudentId;
+  const input = node.querySelector("input");
+
+  const data = {
+    student_id: input.value,
+    group_name: group.name,
+  };
+
+  const req = buildReq(data, "post");
+  fetch(url, req)
+    .then((resp) => resp.json())
+    .then(function (data) {
+      group.studentId = data.student_id;
+      stopEditStudentId(group, node);
+    })
+    .catch(function (err) {
+      stopEditStudentId(group, node);
+      console.log(err);
+    });
+}
+
+function toggleGroupNotifications(group, bell) {
+  const url = model.urls.studentToggleGroupnotifications;
+  const data = {
+    group_name: group.name,
+  };
+  const req = buildReq(data, "post");
+  fetch(url, req)
+    .then((resp) => resp.json())
+    .then(function (data) {
+      group.notifications = data.notifications;
+      if (group.notifications) {
+        bell.textContent = "notifications";
+        bell.classList.remove("student-group--notifications__disabled");
+      } else {
+        bell.textContent = "notifications_off";
+        bell.classList.add("student-group--notifications__disabled");
+      }
+    })
+    .catch(function (err) {
+      console.log(err);
+    });
+}
+
+function leaveGroup(group, groupNode) {
+  const url = model.urls.leaveGroup;
+  const data = {
+    group_name: group.name,
+  };
+
+  const req = buildReq(data, "post");
+  fetch(url, req)
+    .then(function (resp) {
+      if (resp.ok) {
+        model.groups.filter((g) => g.name === group.name)[0].memberOf = false;
+        groupsView();
+      } else {
+        console.log(resp);
+      }
+    })
+    .catch((err) => console.log(err));
+}
+
+function copyStudentIdToClipboard(group, node) {
+  navigator.clipboard
+    .writeText(group.studentId)
+    .then(() => showCopyBubble(node));
+}
+
+export function goToAssignment(
+  group: { studentId: string, studentIdNeeded: boolean, name: string },
+  assignment: { link: string },
+) {
+  if (!group.studentIdNeeded || group.studentId !== "") {
+    window.location = assignment.link;
+  } else {
+    toggleStudentIdNeededView(group);
+  }
+}
+
+export function modifyTos() {
+  const url = `${model.urls.tosModify}?next=${window.location.href}`;
+  window.location.href = url;
+}
+
+export function toggleJoinGroup() {
+  model.joiningGroup = !model.joiningGroup;
+  joinGroupView();
+}
+
+export function handleJoinGroupLinkInput(event) {
+  if (event.key === "Enter") {
+    joinGroup();
+  } else {
+    if (event.currentTarget.value) {
+      joinGroupErrorView("", false);
+    }
+    verifyJoinGroupDisabledStatus();
+  }
+}
+
+export function joinGroup() {
+  const url = model.urls.joinGroup;
+  const input = document.querySelector("#student-add-group--box input");
+  const select = document.querySelector("#student-add-group--box select");
+
+  let data;
+  if (input.value) {
+    data = {
+      username: model.student.username,
+      group_link: input.value,
+    };
+  } else if (model.groups.some((group) => !group.memberOf)) {
+    data = {
+      username: model.student.username,
+      group_name: select.value,
+    };
+  } else {
+    joinGroupErrorView("A URL is needed.", true);
+    return;
+  }
+
+  const req = buildReq(data, "post");
+  fetch(url, req)
+    .then((resp) => resp.json())
+    .then(function (group) {
+      input.value = "";
+      if (model.groups.some((g) => g.name === group.name)) {
+        model.groups.filter((g) => g.name === group.name)[0].memberOf =
+          group.member_of;
+      } else {
+        model.groups.push({
+          name: group.name,
+          title: group.title,
+          notifications: group.notifications,
+          memberOf: group.member_of,
+          assignments: group.assignments.map((assignment) => ({
+            title: assignment.title,
+            dueDate: new Date(assignment.due_date),
+            link: assignment.link,
+            results: {
+              n: assignment.results.n,
+              grade: assignment.results.grade,
+            },
+            done: assignment.done,
+            almostExpired: assignment.almost_expired,
+          })),
+          studentId: group.student_id,
+          studentIdNeeded: group.student_id_needed,
+        });
+      }
+      toggleJoinGroup();
+      groupsView();
+    })
+    .catch(function (err) {
+      joinGroupErrorView("There is no group with that link.", true);
+    });
 }
 
 /********/
 /* view */
 /********/
 
-function initView() {
+function view(groupStudentId, callback) {
   identityView();
-  groupsView();
+  groupsView(groupStudentId);
   joinGroupView();
+  callback();
 }
 
 function identityView() {
@@ -131,23 +308,40 @@ function identityView() {
 
 function joinGroupView() {
   const box = document.getElementById("student-add-group--box");
+  const input = document.querySelector("#student-add-group--box input");
   if (model.joiningGroup) {
     joinGroupsSelectView();
     box.style.display = "flex";
   } else {
     box.style.display = "none";
+    input.value = "";
+  }
+  joinGroupErrorView("", false);
+}
+
+function joinGroupErrorView(msg: string, show: boolean) {
+  const error = document.getElementById("student-add-group__error");
+  const input = document.querySelector("#student-add-group--box input");
+  error.textContent = msg;
+  if (show) {
+    error.removeAttribute("hidden");
+    input.classList.add("input--error");
+  } else {
+    error.setAttribute("hidden", "");
+    input.classList.remove("input--error");
   }
 }
 
 function joinGroupsSelectView() {
   const groupsSelect = document.getElementById("student-old-groups");
   clear(groupsSelect);
-  const oldGroups = model.groups.filter(group => !group.memberOf);
+  const oldGroups = model.groups.filter((group) => !group.memberOf);
   if (oldGroups.length) {
-    oldGroups.map(group =>
+    oldGroups.map((group) =>
       groupsSelect.appendChild(joinGroupSelectView(group)),
     );
     groupsSelect.style.display = "inline-block";
+    verifyJoinGroupDisabledStatus();
   } else {
     groupsSelect.style.display = "none";
   }
@@ -171,17 +365,26 @@ function verifyJoinGroupDisabledStatus() {
   }
 }
 
-function groupsView() {
+function groupsView(groupStudentId: string = "") {
   const groups = document.getElementById("student-groups");
   clear(groups);
   model.groups
-    .filter(group => group.memberOf)
-    .map(group => groups.appendChild(groupView(group)));
+    .filter((group) => group.memberOf)
+    .map((group) => groups.appendChild(groupView(group)));
+  if (groupStudentId) {
+    for (let i = 0; i < model.groups.length; i++) {
+      if (model.groups[i].name == groupStudentId) {
+        toggleStudentIdNeededView(model.groups[i]);
+        break;
+      }
+    }
+  }
 }
 
 function groupView(group) {
   const div = document.createElement("div");
   div.classList.add("student-group");
+  div.setAttribute("data-group", group.name);
 
   div.appendChild(groupTitleView(group));
   div.appendChild(groupAssignmentsView(group));
@@ -204,6 +407,23 @@ function groupTitleView(group) {
   const icons = document.createElement("div");
   icons.classList.add("student-group--icons");
   div.appendChild(icons);
+
+  if (group.connectedCourseUrl) {
+    const courseButtonContainer = document.createElement("div");
+    courseButtonContainer.classList.add("student-group--course");
+    icons.appendChild(courseButtonContainer);
+
+    const courseButton = document.createElement("i");
+    courseButton.classList.add("material-icons", "md-28");
+    courseButton.title = model.translations.courseFlowButton;
+    courseButton.addEventListener(
+      "click",
+      () => (window.location.href = group.connectedCourseUrl),
+    );
+    courseButton.classList.add("course-flow-button");
+    courseButton.textContent = "calendar_today";
+    courseButtonContainer.appendChild(courseButton);
+  }
 
   const notifications = document.createElement("div");
   notifications.classList.add("student-group--notifications");
@@ -251,7 +471,7 @@ function groupTitleIdView(group) {
   input.classList.add("student-group--id__input");
   input.value = group.schoolId;
   input.style.display = "none";
-  input.addEventListener("keydown", event =>
+  input.addEventListener("keydown", (event) =>
     handleStudentIdKeyDown(event.key, group, div),
   );
   div.appendChild(input);
@@ -260,6 +480,7 @@ function groupTitleIdView(group) {
   editIcon.classList.add("material-icons", "md-28", "student-group--id__edit");
   editIcon.style.display = "flex";
   editIcon.textContent = "edit";
+  editIcon.title = model.translations.editStudentId;
   editIcon.addEventListener("click", () => editStudentId(group, div));
   div.appendChild(editIcon);
 
@@ -293,8 +514,8 @@ function groupAssignmentsView(group) {
   div.classList.add("student-group--assignments");
   if (group.assignments.length) {
     const ul = document.createElement("ul");
-    group.assignments.map(assignment =>
-      ul.appendChild(groupAssignmentView(assignment)),
+    group.assignments.map((assignment) =>
+      ul.appendChild(groupAssignmentView(assignment, group)),
     );
     div.appendChild(ul);
   } else {
@@ -306,7 +527,7 @@ function groupAssignmentsView(group) {
   return div;
 }
 
-function groupAssignmentView(assignment) {
+function groupAssignmentView(assignment, group) {
   const a = document.createElement("a");
   a.href = assignment.link;
 
@@ -315,7 +536,6 @@ function groupAssignmentView(assignment) {
   if (assignment.done) {
     li.classList.add("student-group--assignment-complete");
   }
-  a.appendChild(li);
 
   const almostExpiredMin = new Date(assignment.dueDate);
   almostExpiredMin.setDate(
@@ -328,7 +548,6 @@ function groupAssignmentView(assignment) {
   const icon = document.createElement("i");
   icon.classList.add("material-icons", "md-28");
   if (assignment.done) {
-    iconSpan.title = model.translations.goToAssignment;
     icon.textContent = "assignment_turned_in";
   } else if (assignment.dueDate <= new Date(Date.now())) {
     iconSpan.title = model.translations.assignmentExpired;
@@ -358,29 +577,40 @@ function groupAssignmentView(assignment) {
 
   const title = document.createElement("span");
   title.classList.add("student-group--assignment-title");
-  title.title = model.translations.goToAssignment;
-  title.textContent = assignment.title;
+  const titleText = document.createElement("span");
+  titleText.title = model.translations.goToAssignment;
+  titleText.textContent = assignment.title;
+  titleText.addEventListener("click", (event: MouseEvent) =>
+    goToAssignment(group, assignment),
+  );
+  title.append(titleText);
+  const feedbackIcon = document.createElement("i");
+  feedbackIcon.classList.add("material-icons", "link-to-dialog");
+  feedbackIcon.setAttribute("data-id", assignment.pk);
+  feedbackIcon.setAttribute("data-teacher-id", group.teacher);
+  feedbackIcon.title = gettext("See teacher feedback");
+  feedbackIcon.textContent = "chat";
+  title.append(feedbackIcon);
   li.appendChild(title);
 
   const date = document.createElement("span");
   date.classList.add("student-group--assignment-date");
   if (assignment.done) {
-    date.title = null;
+    date.removeAttribute("title");
     date.textContent = model.translations.completed;
   } else if (assignment.dueDate <= new Date(Date.now())) {
     date.title = model.translations.assignmentExpired;
     date.textContent = model.translations.expired;
   } else {
-    date.title =
-      model.translations.dueOn +
-      " " +
-      assignment.dueDate.toLocaleString("en-ca", {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-      });
+    date.title = `${
+      model.translations.dueOn
+    } ${assignment.dueDate.toLocaleString("en-ca", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    })}`;
     const dateIcon = document.createElement("i");
     dateIcon.classList.add("material-icons", "md-18");
     dateIcon.textContent = "access_time";
@@ -389,7 +619,6 @@ function groupAssignmentView(assignment) {
     remainingTimeSpan.textContent = timeuntil(
       assignment.dueDate,
       new Date(Date.now()),
-      true,
     );
     date.appendChild(remainingTimeSpan);
     if (almostExpiredMin <= new Date(Date.now())) {
@@ -397,7 +626,7 @@ function groupAssignmentView(assignment) {
     }
   }
   li.appendChild(date);
-  return a;
+  return li;
 }
 
 function leaveGroupView(group, groupNode) {
@@ -414,18 +643,20 @@ function leaveGroupView(group, groupNode) {
   const box = document.createElement("div");
   box.classList.add("student-group--remove-confirmation-box");
   box.style.display = "none";
-  box.addEventListener("click", function(event) {
+  box.addEventListener("click", function (event: MouseEvent) {
     event.stopPropagation;
     toggleLeaveGroup(groupNode);
   });
   div.appendChild(box);
 
   const boxDiv = document.createElement("div");
-  boxDiv.addEventListener("click", event => event.stopPropagation());
+  boxDiv.addEventListener("click", (event: MouseEvent) =>
+    event.stopPropagation(),
+  );
   box.appendChild(boxDiv);
 
   const title = document.createElement("h3");
-  title.textContent = model.translations.leaveGroupTitle + " " + group.title;
+  title.textContent = `${model.translations.leaveGroupTitle} ${group.title}`;
   boxDiv.appendChild(title);
 
   const text = document.createElement("p");
@@ -469,6 +700,7 @@ function editStudentId(group, node) {
   cancelBtn.style.display = "flex";
 
   input.focus();
+  toggleStudentIdNeededView(group);
 }
 
 function stopEditStudentId(group, node) {
@@ -489,6 +721,24 @@ function stopEditStudentId(group, node) {
   cancelBtn.style.display = "none";
 }
 
+function toggleStudentIdNeededView(group) {
+  const node = document.querySelector(
+    `.student-group[data-group='${group.name}'] .student-group--id`,
+  );
+  if (
+    node.querySelector(".student-group--id__input")?.style.display === "none"
+  ) {
+    const alert = document.createElement("div");
+    alert.classList.add("student-group--id__alert");
+    alert.textContent = model.translations.studentIdNeeded;
+    node.appendChild(alert);
+    alert.scrollIntoView(true);
+  } else {
+    const alert = node.querySelector(".student-group--id__alert");
+    alert?.parentNode.removeChild(alert);
+  }
+}
+
 function toggleLeaveGroup(node) {
   const box = node.querySelector(".student-group--remove-confirmation-box");
   if (box.style.display == "none") {
@@ -507,160 +757,59 @@ function showCopyBubble(node) {
   setTimeout(() => node.removeChild(bubble), 600);
 }
 
-/**********/
-/* update */
-/**********/
+/*************/
+/* listeners */
+/*************/
 
-function handleStudentIdKeyDown(key, group, node) {
-  if (key === "Enter") {
-    saveStudentId(group, node);
-  } else if (key === "Escape") {
-    stopEditStudentId(group, node);
-  }
+function initListeners() {
+  addLinkListeners();
+  addJoinGroupListeners();
 }
 
-function saveStudentId(group, node) {
-  const url = model.urls.saveStudentId;
-  const input = node.querySelector("input");
-
-  const data = {
-    student_id: input.value,
-    group_name: group.name,
-  };
-
-  const req = buildReq(data, "post");
-  fetch(url, req)
-    .then(resp => resp.json())
-    .then(function(data) {
-      group.studentId = data.student_id;
-      stopEditStudentId(group, node);
-    })
-    .catch(function(err) {
-      stopEditStudentId(group, node);
-      console.log(err);
+function addLinkListeners() {
+  document
+    .getElementById("edit-user-btn")
+    .addEventListener("click", function () {
+      // TODO: Allow student info editing
+      //edit_user();
+    });
+  document
+    .getElementById("modify-tos-btn")
+    .addEventListener("click", function () {
+      modifyTos();
     });
 }
 
-function toggleGroupNotifications(group, bell) {
-  const url = model.urls.studentToggleGroupnotifications;
-  const data = {
-    group_name: group.name,
-  };
-  const req = buildReq(data, "post");
-  fetch(url, req)
-    .then(resp => resp.json())
-    .then(function(data) {
-      group.notifications = data.notifications;
-      if (group.notifications) {
-        bell.textContent = "notifications";
-        bell.classList.remove("student-group--notifications__disabled");
-      } else {
-        bell.textContent = "notifications_off";
-        bell.classList.add("student-group--notifications__disabled");
-      }
-    })
-    .catch(function(err) {
-      console.log(err);
-    });
-}
-
-function leaveGroup(group, groupNode) {
-  const url = model.urls.leaveGroup;
-  const data = {
-    group_name: group.name,
-  };
-
-  const req = buildReq(data, "post");
-  fetch(url, req)
-    .then(function(resp) {
-      if (resp.ok) {
-        model.groups.filter(g => g.name === group.name)[0].memberOf = false;
-        groupsView();
-      } else {
-        console.log(resp);
-      }
-    })
-    .catch(err => console.log(err));
-}
-
-function copyStudentIdToClipboard(group, node) {
-  navigator.clipboard
-    .writeText(group.studentId)
-    .then(() => showCopyBubble(node));
-}
-
-export function modifyTos() {
-  const url = model.urls.tosModify + "?next=" + window.location.href;
-  window.location.href = url;
-}
-
-export function toggleJoinGroup() {
-  model.joiningGroup = !model.joiningGroup;
-  joinGroupView();
-}
-
-export function handleJoinGroupLinkInput(event) {
-  if (event.key === "Enter") {
-    joinGroup();
-  } else {
-    verifyJoinGroupDisabledStatus();
-  }
-}
-
-export function joinGroup() {
-  const url = model.urls.joinGroup;
-  const input = document.querySelector("#student-add-group--box input");
-  const select = document.querySelector("#student-add-group--box select");
-
-  let data;
-  if (input.value) {
-    data = {
-      username: model.student.username,
-      group_link: input.value,
-    };
-  } else if (model.groups.some(group => !group.memberOf)) {
-    data = {
-      username: model.student.username,
-      group_name: select.value,
-    };
-  } else {
-    console.log("Empty input");
-  }
-
-  const req = buildReq(data, "post");
-  fetch(url, req)
-    .then(resp => resp.json())
-    .then(function(group) {
-      input.value = "";
-      if (model.groups.some(g => g.name === group.name)) {
-        model.groups.filter(g => g.name === group.name)[0].memberOf =
-          group.member_of;
-      } else {
-        model.groups.push({
-          name: group.name,
-          title: group.title,
-          notifications: group.notifications,
-          memberOf: group.member_of,
-          assignments: group.assignments.map(assignment => ({
-            title: assignment.title,
-            dueDate: new Date(assignment.due_date),
-            link: assignment.link,
-            results: {
-              n: assignment.results.n,
-              grade: assignment.results.grade,
-            },
-            done: assignment.done,
-            almostExpired: assignment.almost_expired,
-          })),
-          studentId: group.student_id,
-          studentIdNeeded: group.student_id_needed,
-        });
-      }
+function addJoinGroupListeners() {
+  document
+    .querySelector("#student-add-group .admin-link")
+    .addEventListener("click", function () {
       toggleJoinGroup();
-      groupsView();
-    })
-    .catch(function(err) {
-      console.log(err);
+    });
+  document
+    .getElementById("student-add-group--box")
+    .addEventListener("click", function () {
+      event.stopPropagation;
+    });
+  document
+    .querySelector("#student-add-group--box > div")
+    .addEventListener("click", function () {
+      event.stopPropagation;
+    });
+  document
+    .querySelector("#student-add-group--box input[name='new-group']")
+    .addEventListener("keyup", function (event) {
+      handleJoinGroupLinkInput(event);
+    });
+  document
+    .getElementById("join-group-btn")
+    .addEventListener("click", function () {
+      joinGroup();
+    });
+  document
+    .getElementById("cancel-join-group-btn")
+    .addEventListener("click", function () {
+      toggleJoinGroup();
     });
 }
 
@@ -677,20 +826,19 @@ function timeuntil(date1, date2) {
   const diffMinutes = Math.floor(diff / 1000 / 60);
   let diff_ = "";
   if (diffDays > 1) {
-    diff_ = diff_ + parseInt(diffDays) + " " + model.translations.days + ", ";
+    diff_ = `${diff_ + parseInt(diffDays)} ${model.translations.days}, `;
   } else if (diffDays === 1) {
-    diff_ = diff_ + parseInt(diffDays) + " " + model.translations.day + ", ";
+    diff_ = `${diff_ + parseInt(diffDays)} ${model.translations.day}, `;
   }
   if (diffHours === 1) {
-    diff_ = diff_ + parseInt(diffHours) + " " + model.translations.hour + ", ";
+    diff_ = `${diff_ + parseInt(diffHours)} ${model.translations.hour}, `;
   } else if (diffHours > 1 || diffDays) {
-    diff_ =
-      diff_ + parseInt(diffHours) + " " + model.translations.hours + ", ";
+    diff_ = `${diff_ + parseInt(diffHours)} ${model.translations.hours}, `;
   }
   if (diffMinutes === 1) {
-    diff_ = diff_ + parseInt(diffMinutes) + " " + model.translations.minute;
+    diff_ = `${diff_ + parseInt(diffMinutes)} ${model.translations.minute}`;
   } else {
-    diff_ = diff_ + parseInt(diffMinutes) + " " + model.translations.minutes;
+    diff_ = `${diff_ + parseInt(diffMinutes)} ${model.translations.minutes}`;
   }
   return diff_;
 }
@@ -699,7 +847,8 @@ function timeuntil(date1, date2) {
 /* init */
 /********/
 
-export function initStudentPage(data) {
+export function initStudentPage(data, groupStudentId = "", callback) {
   initModel(data);
-  initView();
+  view(groupStudentId, callback);
+  initListeners();
 }

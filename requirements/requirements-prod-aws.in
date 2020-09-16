@@ -1,0 +1,8 @@
+-r requirements-base.txt
+
+django-storages
+sentry-sdk
+boto3
+gunicorn
+watchtower
+django-ses

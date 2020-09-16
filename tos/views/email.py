@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 from operator import itemgetter
 
 from django.contrib.auth.decorators import login_required
@@ -26,6 +24,7 @@ def email_consent_modify(req, role):
     form = EmailChangeForm()
 
     context = {
+        "next": req.GET.get("next", "/welcome/"),
         "form": form,
         "username": username,
         "role": role,
@@ -56,7 +55,7 @@ def email_consent_update(req, role):
     for consent in consents:
         EmailConsent.objects.create(**consent)
 
-    redirect_to = req.POST.get("next", "/welcome/")
+    redirect_to = req.GET.get("next", "/welcome/")
 
     return HttpResponseRedirect(redirect_to)
 

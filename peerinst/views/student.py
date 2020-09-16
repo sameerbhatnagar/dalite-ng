@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 import json
 import logging
 import re
@@ -8,12 +5,12 @@ import re
 from django.conf import settings
 from django.contrib.auth import login, logout
 from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.utils.translation import ugettext
 from django.utils.translation import ugettext_lazy as _
-from django.views.decorators.http import require_http_methods
+from django.views.decorators.http import require_POST, require_safe
 
 from dalite.views.errors import response_400, response_403
 from tos.models import Consent
@@ -22,8 +19,10 @@ from ..models import (
     Student,
     StudentAssignment,
     StudentGroup,
+    StudentGroupAssignment,
     StudentGroupMembership,
     StudentNotification,
+    StudentGroupCourse,
 )
 from ..students import (
     authenticate_student,
@@ -60,11 +59,11 @@ def validate_group_data(req):
         )
 
     try:
-        group_name = data["group_name"]
+        group_name = data["group_name"].strip()
         group_link = None
     except KeyError:
         try:
-            group_link = data["group_link"]
+            group_link = data["group_link"].strip()
             group_name = None
         except KeyError:
             return response_400(
@@ -221,12 +220,12 @@ def login_student(req, token=None):
         new_student = True
 
     logout(req)
-    login(req, user)
+    login(req, user, backend="peerinst.backends.CustomPermissionsBackend")
 
     return student, new_student
 
 
-@require_http_methods(["GET"])
+@require_safe
 def index_page(req):
     """
     Main student page. Accessed through a link sent by email containing
@@ -234,6 +233,7 @@ def index_page(req):
     """
 
     token = req.GET.get("token")
+    group_student_id_needed = req.GET.get("group-student-id-needed", "")
 
     student, new_student = login_student(req, token)
     if isinstance(student, HttpResponse):
@@ -258,6 +258,7 @@ def index_page(req):
         group: [
             {
                 "title": assignment.group_assignment.assignment.title,
+                "pk": assignment.group_assignment.assignment.pk,
                 "due_date": assignment.group_assignment.due_date,
                 "link": "{}://{}{}".format(
                     protocol,
@@ -284,6 +285,7 @@ def index_page(req):
         group: [
             {
                 "title": assignment["title"],
+                "pk": assignment["pk"],
                 "due_date": assignment["due_date"],
                 "link": assignment["link"],
                 "results": assignment["results"],
@@ -291,7 +293,7 @@ def index_page(req):
             }
             for assignment in assignments
         ]
-        for group, assignments in assignments.items()
+        for group, assignments in list(assignments.items())
     }
 
     if not Consent.objects.filter(
@@ -325,13 +327,27 @@ def index_page(req):
         },
         "groups": [
             {
+                "connected_course_url": None
+                if not StudentGroupCourse.objects.filter(
+                    student_group=group.group
+                )
+                else reverse(
+                    "course_flow:student-course-detail-view",
+                    kwargs={
+                        "pk": StudentGroupCourse.objects.get(
+                            student_group=group.group
+                        ).course.pk
+                    },
+                ),
                 "name": group.group.name,
+                "teacher": [t.user.pk for t in group.group.teacher.all()],
                 "title": group.group.title,
                 "notifications": group.send_emails,
                 "member_of": group.current_member,
                 "assignments": [
                     {
                         "title": assignment["title"],
+                        "pk": assignment["pk"],
                         "due_date": assignment["due_date"].isoformat(),
                         "link": assignment["link"],
                         "results": assignment["results"],
@@ -372,10 +388,12 @@ def index_page(req):
             ),
             "assignment_expired": ugettext("Past due date"),
             "cancel": ugettext("Cancel"),
+            "course_flow_button": ugettext("Visit this group's CourseFlow"),
             "completed": ugettext("Completed"),
             "day": ugettext("day"),
             "days": ugettext("days"),
             "due_on": ugettext("Due on"),
+            "edit_student_id": ugettext("Edit student id"),
             "expired": ugettext("Expired"),
             "go_to_assignment": ugettext("Go to assignment"),
             "grade": ugettext("Grade"),
@@ -398,16 +416,23 @@ def index_page(req):
             "not_sharing": ugettext("Not sharing"),
             "sharing": ugettext("Sharing"),
             "student_id": ugettext("Student id"),
+            "student_id_needed": ugettext(
+                "You need to add your school's student id to do assignments "
+                "for this group."
+            ),
         },
     }
 
-    context = {"data": json.dumps(data)}
+    context = {
+        "data": json.dumps(data),
+        "group_student_id_needed": group_student_id_needed,
+    }
 
     return render(req, "peerinst/student/index.html", context)
 
 
 @student_required
-@require_http_methods(["POST"])
+@require_POST
 def join_group(req, student):
     group = validate_group_data(req)
     if isinstance(group, HttpResponse):
@@ -476,7 +501,7 @@ def join_group(req, student):
 
 
 @student_required
-@require_http_methods(["POST"])
+@require_POST
 def leave_group(req, student):
     group = validate_group_data(req)
     if isinstance(group, HttpResponse):
@@ -488,7 +513,7 @@ def leave_group(req, student):
 
 
 @student_required
-@require_http_methods(["POST"])
+@require_POST
 def toggle_group_notifications(req, student):
     group = validate_group_data(req)
     if isinstance(group, HttpResponse):
@@ -507,7 +532,7 @@ def toggle_group_notifications(req, student):
 
 
 @student_required
-@require_http_methods(["POST"])
+@require_POST
 def remove_notification(req, student):
     """
     Removes the notification with the pk given as post value.
@@ -547,15 +572,38 @@ def remove_notification(req, student):
         )
 
     try:
-        StudentNotification.objects.get(pk=notification_pk).delete()
+        notification = StudentNotification.objects.get(pk=notification_pk)
     except StudentNotification.DoesNotExist:
-        pass
+        return HttpResponse()
+
+    if notification.link == "":
+        notification.delete()
+        return HttpResponse()
+
+    # if this is a notification with a link to an assignment
+    assignment_hash = re.search(
+        r"live/access/[0-9A-Za-z=_-]+/([0-9A-Za-z=_-]+)$", notification.link
+    )
+    if assignment_hash:
+        group = StudentGroupAssignment.get(assignment_hash.group(1)).group
+        if not group.student_id_needed:
+            notification.delete()
+            return HttpResponse()
+
+        group_membership = StudentGroupMembership.objects.get(
+            student=student, group=group
+        )
+        if group_membership.student_school_id == "":
+            return HttpResponse(group.name)
+        else:
+            notification.delete()
+            return HttpResponse()
 
     return HttpResponse()
 
 
 @student_required
-@require_http_methods(["POST"])
+@require_POST
 def remove_notifications(req, student):
     """
     Removes all notifications for the student.
@@ -578,7 +626,7 @@ def remove_notifications(req, student):
 
 
 @student_required
-@require_http_methods(["POST"])
+@require_POST
 def update_student_id(req, student):
     """
     Updates the student id.
@@ -659,12 +707,12 @@ def update_student_id(req, student):
     return JsonResponse(data)
 
 
-@require_http_methods(["GET"])
+@require_safe
 def login_page(req):
     return render(req, "peerinst/student/login.html")
 
 
-@require_http_methods(["POST"])
+@require_POST
 def send_signin_link(req):
     try:
         email = req.POST["email"].lower()
@@ -690,7 +738,7 @@ def send_signin_link(req):
         student = student.filter(student__username=username).first()
 
     if student:
-        err = student.send_email(mail_type="signin")
+        err = student.send_email(mail_type="signin", request=req)
         if err is None:
             context = {"error": False}
         else:
@@ -700,7 +748,7 @@ def send_signin_link(req):
 
 
 @student_required
-@require_http_methods(["GET"])
+@require_safe
 def get_notifications(req, student):
     """
     Returns the notification data for the current student.
@@ -728,8 +776,17 @@ def get_notifications(req, student):
             for notification in student.notifications.order_by("-created_on")
         ],
         "urls": {
+            "student_page": reverse("student-page"),
             "remove_notification": reverse("student-remove-notification"),
             "remove_notifications": reverse("student-remove-notifications"),
         },
     }
     return JsonResponse(data)
+
+
+@student_required
+@require_safe
+def student_page(req, student):
+    context = {}
+
+    return render(req, "peerinst/student/page.html", context)

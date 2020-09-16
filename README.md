@@ -1,7 +1,7 @@
 Dalite NG
 =========
 
-[![CircleCI](https://circleci.com/gh/SALTISES4/dalite-ng.svg?style=svg)](https://circleci.com/gh/SALTISES4/dalite-ng)
+[![TravisCI](https://travis-ci.com/SALTISES4/dalite-ng.svg?branch=master)](https://travis-ci.com/SALTISES4/dalite-ng)
 
 Dalite NG is a Peer Instruction Tool for online learning platforms such as Open edX. It is implemented in Django as an [LTI](https://en.m.wikipedia.org/wiki/Learning_Tools_Interoperability) tool and should be compatible with most online learning platforms.  Dalite NG is a rewrite of the [Dalite tool][old-dalite] as a cleaner, Django-based LTI tool.
 
@@ -11,8 +11,9 @@ Setting up the development server
 ---------------------------------
 
 1. Install the requirements (you probably want to set up a virtualenv first).
-
-        $ pip install -r requirements/requirements.txt
+using `pip-tools`
+        $ pip install pip-tools
+        $ pip-sync requirements/requirements-base.txt
 
 2. Set up the database connection.  The default configuration is to use the
    MySQL database `dalite_ng` and the user `dalite`.  To set up the database,
@@ -37,7 +38,7 @@ Setting up the development server
 
 5. Run the Django development server.
 
-        $ ./manage.py runserver
+        $ ./manage.py runsslserver
 
 
 6. Add Sample Consent Form
@@ -326,9 +327,46 @@ Bruce][entypo].
 [entypo]: http://www.entypo.com/
 
 
+Coverage
+--------
+
+`$ pytest --cov --cov-report html`
 
 
-Local coverage command
-----------------------
+Celery, beat, and Redis
+-----------------------
 
-`$ py.test --cov-config .coveragerc --cov-report html --cov=peerinst --cov=dalite --cov=tos ./`
+Requires Redis 5.0.0
+ - Installation
+ (env) $ wget http://download.redis.io/releases/redis-5.0.0.tar.gz
+ (env) $ tar xzf redis-5.0.0.tar.gz
+ (env) $ cd redis-5.0.0
+ (env) $ make
+
+ - Start redis
+ (env) $ redis-5.0.0/src/redis-server
+
+ - Start celery worker (for development)
+ (env) $ celery -A dalite worker -l debug
+
+ - Start beat scheduler (for development)
+ (env) $ celery -A dalite beat -l debug --scheduler django_celery_beat.schedulers:DatabaseScheduler
+
+ - Schedule tasks at: /admin/django_celery_beat/
+
+
+Translations
+------------
+`django-admin makemessages -d djangojs -l fr -i=node_modules/* -i=venv* -i=static/CACHE/* -i=static/admin/* -i=*.min.js`:
+  Javascript
+
+
+Tools
+-----
+`makefile`:
+  Command shortcuts
+
+  `make test`:
+    Runs pytest with migration and coverage options
+  `make test-cdb`:
+    Runs pytest with migration and coverage options, re-creating the db

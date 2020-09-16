@@ -10,15 +10,16 @@ from .. import models
 
 
 class UserFactory(factory.DjangoModelFactory):
-    # This class was adapted from edx-platform/common/djangoapps/student/tests/factories.py.
+    # This class was adapted from
+    # edx-platform/common/djangoapps/student/tests/factories.py.
     class Meta:
         model = User
         django_get_or_create = ["username", "email"]
 
-    username = factory.Sequence(u"robot{0}".format)
-    email = factory.Sequence(u"robot+test+{0}@edx.org".format)
+    username = factory.Sequence("robot{0}".format)
+    email = factory.Sequence("robot+test+{0}@edx.org".format)
     password = factory.PostGenerationMethodCall("set_password", "test")
-    first_name = factory.Sequence(u"Robot{0}".format)
+    first_name = factory.Sequence("Robot{0}".format)
     last_name = "Test"
     is_staff = False
     is_active = True
@@ -65,7 +66,7 @@ class AnswerChoiceFactory(factory.DjangoModelFactory):
             AnswerFactory(
                 question=question,
                 first_answer_choice=choice_index,
-                expert=True,
+                expert=False,
             )
 
 
@@ -83,7 +84,7 @@ class QuestionFactory(factory.DjangoModelFactory):
                 not extracted and not kwargs
             ), "Cannot generate answer choices when question is not saved."
             return
-        choice_indices = range(1, extracted + 1)
+        choice_indices = list(range(1, extracted + 1))
         correct_choices = kwargs.get("correct")
         if correct_choices is None:
             correct_choices = random.sample(

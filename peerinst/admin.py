@@ -1,14 +1,12 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 from django import forms
 from django.contrib import admin
 from django.contrib.admin.models import DELETION, LogEntry
 from django.core import exceptions
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.utils.html import escape, format_html
 from django.utils.translation import ugettext_lazy as _
 
+from . import models
 from .models import (
     Answer,
     AnswerChoice,
@@ -34,6 +32,7 @@ from .models import (
     StudentGroupMembership,
     StudentNotification,
     StudentNotificationType,
+    Subject,
     Teacher,
     TeacherNotification,
 )
@@ -126,6 +125,7 @@ class QuestionAdmin(admin.ModelAdmin):
             {
                 "fields": [
                     "title",
+                    "difficulty",
                     "user",
                     "collaborators",
                     "text",
@@ -161,12 +161,29 @@ class QuestionAdmin(admin.ModelAdmin):
         "rationale_selection_algorithm": admin.HORIZONTAL,
         "grading_scheme": admin.HORIZONTAL,
     }
-    readonly_fields = ["id", "parent", "created_on", "last_modified"]
+    readonly_fields = [
+        "id",
+        "user",
+        "parent",
+        "created_on",
+        "last_modified",
+        "difficulty",
+    ]
     inlines = [AnswerChoiceInline, AnswerInline]
-    list_display = ["title", "discipline"]
-    list_filter = ["category"]
+    list_display = ["title", "discipline", "difficulty"]
+    list_filter = ["category", "discipline"]
     ordering = ["discipline"]
     search_fields = ["title", "text", "category__title"]
+
+    def difficulty(self, obj):
+        try:
+            difficulty = obj.meta_search.get(
+                meta_feature__key="difficulty", meta_feature__type="S"
+            ).meta_feature.value
+        except exceptions.ObjectDoesNotExist:
+            difficulty = None
+
+        return difficulty
 
 
 @admin.register(QuestionFlagReason)
@@ -200,6 +217,11 @@ class DisciplineAdmin(admin.ModelAdmin):
     pass
 
 
+@admin.register(Subject)
+class SubjectAdmin(admin.ModelAdmin):
+    filter_horizontal = ["categories"]
+
+
 @admin.register(Institution)
 class InstitutionAdmin(admin.ModelAdmin):
     pass
@@ -209,6 +231,15 @@ class InstitutionAdmin(admin.ModelAdmin):
 class AssignmentAdmin(admin.ModelAdmin):
     filter_horizontal = ["questions"]
     search_fields = ["identifier"]
+    fields = [
+        "identifier",
+        "title",
+        "owner",
+        "description",
+        "intro_page",
+        "conclusion_page",
+    ]
+    readonly_fields = ["identifier", "owner"]
 
 
 def publish_answers(modeladmin, request, queryset):
@@ -223,22 +254,22 @@ class AnswerAdmin(admin.ModelAdmin):
     list_display = [
         "id",
         "question",
-        "user_token",
+        # "user_token",
         "first_answer_choice_label",
         "second_answer_choice_label",
         "rationale",
         "show_to_others",
         "expert",
         "show_chosen_rationale",
-        "upvotes",
-        "downvotes",
-        "datetime_start",
-        "datetime_first",
+        # "upvotes",
+        # "downvotes",
+        # "datetime_start",
+        # "datetime_first",
         "datetime_second",
     ]
     list_display_links = None
-    list_editable = ["show_to_others", "expert"]
-    list_filter = ["question"]
+    list_editable = ["rationale", "show_to_others", "expert"]
+    list_filter = ["expert", "show_to_others", "question"]
     actions = [publish_answers]
     search_fields = ["question__title", "rationale", "user_token", "id"]
 
@@ -429,4 +460,24 @@ class LogEntryAdmin(admin.ModelAdmin):
         )
 
 
+class MessageAdmin(admin.ModelAdmin):
+    def save_related(self, req, form, *args, **kwargs):
+        super(MessageAdmin, self).save_related(req, form, *args, **kwargs)
+        for_users = [t.type for t in form.instance.for_users.all()]
+        if "teacher" in for_users:
+            for teacher in Teacher.objects.all():
+                models.UserMessage.objects.get_or_create(
+                    user=teacher.user, message=form.instance
+                )
+        if "student" in for_users:
+            for student in Student.objects.all():
+                models.UserMessage.objects.get_or_create(
+                    user=student.student, message=form.instance
+                )
+
+
 admin.site.register(LogEntry, LogEntryAdmin)
+admin.site.register(models.Message, MessageAdmin)
+admin.site.register(models.MessageType)
+admin.site.register(models.SaltiseMember)
+admin.site.register(models.UserType)

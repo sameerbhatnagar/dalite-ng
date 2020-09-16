@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 from django.db import models
-
-from quality.models.custom_fields import CommaSepField
-from quality.models.quality_type import QualityType, QualityUseType
 from django.utils.translation import ugettext_lazy as _
+
+from dalite.models.custom_fields import CommaSepField
+from quality.models.quality_type import QualityType, QualityUseType
 
 from ..criterion import Criterion, CriterionRules
 
@@ -40,7 +40,7 @@ class NegWordsCriterion(Criterion):
         return criterion
 
     def evaluate(self, answer, rules_pk):
-        if not isinstance(answer, basestring):
+        if not isinstance(answer, str):
             answer = answer.rationale
         rules = NegWordsCriterionRules.objects.get(pk=rules_pk)
         answer_words = answer.split()
@@ -61,9 +61,7 @@ class NegWordsCriterion(Criterion):
         rules = NegWordsCriterionRules.objects.get(pk=rules_pk)
 
         answers = [
-            (
-                answer if isinstance(answer, basestring) else answer.rationale
-            ).split()
+            (answer if isinstance(answer, str) else answer.rationale).split()
             for answer in answers
         ]
 

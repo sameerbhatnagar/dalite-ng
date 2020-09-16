@@ -10,6 +10,7 @@ from peerinst.models import (
     StudentNotification,
 )
 from peerinst.tests.generators import add_answers, new_student_assignments
+from peerinst.models import Assignment
 
 from .fixtures import *  # noqa F403
 
@@ -103,7 +104,7 @@ def test_send_email__assignment_about_to_expire_in_0_days(student_assignment):
 
 
 def test_send_email__assignment_about_to_expire_with_localhost(
-    student_assignment
+    student_assignment,
 ):
     student_assignment.student.student.email = "fake-email@localhost"
     student_assignment.student.student.save()
@@ -141,7 +142,10 @@ def test_get_current_question__no_answers(student_assignment):
 
     for _ in range(5):
         new_order = ",".join(
-            map(str, random.sample(range(len(questions)), k=len(questions)))
+            map(
+                str,
+                random.sample(list(range(len(questions))), k=len(questions)),
+            )
         )
         student_assignment.group_assignment._modify_order(new_order)
         questions = student_assignment.group_assignment.questions
@@ -332,7 +336,7 @@ def test_send_reminder__reminder_sent_send_day_before(student_assignment):
 
 
 def test_send_reminder__reminder_sent_send_day_before_last_day(
-    student_assignment
+    student_assignment,
 ):
     student_assignment.reminder_sent = True
     student_assignment.send_reminder_email_day_before = True
@@ -356,7 +360,7 @@ def test_send_reminder__reminder_sent_send_day_before_last_day(
 
 
 def test_send_reminder__reminder_sent_send_every_day_and_day_before_last_day(
-    student_assignment
+    student_assignment,
 ):
     student_assignment.reminder_sent = True
     student_assignment.save()
@@ -564,6 +568,50 @@ def test_completed__all_first_and_second_answers(student_assignment):
     assert student_assignment.completed
 
 
+def test_completed__multiple_same_assignment(student_assignment):
+    assignment = student_assignment.group_assignment.assignment
+    questions = assignment.questions.all()
+    student = student_assignment.student
+
+    add_answers(
+        [
+            {
+                "question": question,
+                "assignment": assignment,
+                "user_token": student.student.username,
+                "first_answer_choice": 1,
+                "rationale": "test",
+                "second_answer_choice": 1,
+                "chosen_rationale": None,
+            }
+            for i, question in enumerate(questions)
+        ]
+    )
+
+    assert student_assignment.completed
+
+    assignment_clone = Assignment.objects.create(
+        identifier="__test__", title=assignment.title
+    )
+    for question in questions:
+        assignment_clone.questions.add(question)
+
+    add_answers(
+        [
+            {
+                "question": question,
+                "assignment": assignment,
+                "user_token": student.student.username,
+                "first_answer_choice": 1,
+                "rationale": "test",
+            }
+            for i, question in enumerate(questions)
+        ]
+    )
+
+    assert not student_assignment.completed
+
+
 def test_results__no_answers(student_assignment):
     n = student_assignment.group_assignment.assignment.questions.count()
 
@@ -703,7 +751,7 @@ def test_results__some_answered_correct_first_and_second(student_assignment):
 
 
 def test_results__all_answered_correct_first_and_none_second(
-    student_assignment
+    student_assignment,
 ):
     assignment = student_assignment.group_assignment.assignment
     questions = assignment.questions.all()
@@ -749,7 +797,7 @@ def test_results__all_answered_correct_first_and_none_second(
 
 
 def test_results__none_answered_correct_first_and_all_second(
-    student_assignment
+    student_assignment,
 ):
     assignment = student_assignment.group_assignment.assignment
     questions = assignment.questions.all()

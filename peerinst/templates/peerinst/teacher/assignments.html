@@ -1,11 +1,11 @@
-{% extends 'peerinst/base.html' %}
+{% extends 'peerinst/teacher/base.html' %}
 
-{% load i18n add_class compress staticfiles %}
+{% load i18n add_class compress static %}
 
 {% block body %}
 <main>
   <section>
-    <h1 class="mdc-typography--display3">{% trans 'My Assignments' %}
+    <h1 class="mdc-typography--display3">{% trans 'Manage Assignments' %}
       <svg class="underline" width=150 height=4></svg>
     </h1>
 
@@ -13,47 +13,12 @@
       <a href="{% url 'teacher' teacher.id %}">{% trans 'Back to My Account' %}</a>
     </div>
 
-    <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Create a new assignment' %}</h2>
-
-    <div class='field-container'>
-      <div class='number-box'><span class='number'>?</span></div>
-      <div class='field'>
-        <p><small>
-          {% blocktrans %}
-          The assignment title may be displayed and should be informative. The assignment identifier is used as the keyword to access the assignment through a url.  It must be unique but does not need to be informative.
-          {% endblocktrans %}
-        </small></p>
-      </div>
-    </div>
-
-    <form method="post">
-      {% csrf_token %}
-      {% for field in form %}
-        {{ field.errors }}
-        <div class="mdc-text-field mdc-text-field--outlined mdc-text-field--dense" data-mdc-auto-init="MDCTextField">
-          {{ field|add_class:"mdc-text-field__input" }}
-          {{ field.label_tag|add_class:"mdc-floating-label"|cut:":" }}
-          <div class="mdc-notched-outline">
-            <svg>
-              <path class="mdc-notched-outline__path"/>
-            </svg>
-          </div>
-          <div class="mdc-notched-outline__idle"></div>
-        </div>
-        <p class="mdc-text-field-helper-text mdc-text-field-helper-text--persistent" aria-hidden="true">
-          {{ field.help_text|safe }}
-        </p>
-      {% endfor %}
-      <input class="mdc-button mdc-button--raised padded-top" type="submit" value="{% trans 'Create' %}" />
-    </form>
-
-
     <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'My assignments' %}</h2>
 
-    <p>{% trans 'These are the assignments for which you are an author, and have editing rights.' %}</p>
+    <p class='mdc-typography--body1'>{% trans 'These are the assignments for which you are an author. If the assignment has already been used, you cannot edit it directly: you must make a copy first.' %}</p>
 
     {% if not owned_assignments %}
-      <p>{% blocktrans %} You currently do not have editing rights on any assignments. Make a new assignment of your own with the form above to be able to modify it.{% endblocktrans %}</p>
+      <p class='mdc-typography--body1'>{% blocktrans %} You currently do not have editing rights on any assignments. Make a new assignment using the menu to be able to modify it.{% endblocktrans %}</p>
     {% endif %}
 
     <ul class="mdc-list mdc-list--two-line mdc-list--non-interactive">
@@ -61,24 +26,18 @@
       <li role="separator" class="mdc-list-divider"></li>
       <li class="mdc-list-item">
         <span class="mdc-list-item__graphic mdc-theme--primary">
-            <a href="{% url 'question-list' a.pk %}" style="transform:translateY(4pt);">
+            <a class="translate-4" href="{% url 'question-list' a.pk %}">
               <i class="mdc-theme--primary material-icons md-48">assignment</i>
             </a>
         </span>
         <span class="mdc-list-item__text mdc-theme--secondary bold">
           {{ a.identifier }}
           <span class="mdc-list-item__secondary-text">
-            {{ a.questions.count }} {% trans "questions" %}
+            {{ a.n_questions }} {% trans "questions" %};
+            {{ a.n_answers }} {% trans "answers" %}
           </span>
         </span>
         <span class="mdc-list-item__meta">
-  <!--         <form method="post" style="display:inline;">
-              {% csrf_token %}
-              <input type="hidden" id="id_assignment" name="assignment" value="{{g.pk}}"/>
-              <div class="mdc-ripple-surface input-ripple-wrapper">
-                <input class="material-icons md-24 mdc-button small-button" style="padding:0pt;margin:0pt;" type="submit" value="remove_circle"/>
-              </div>
-          </form> -->
           {% if user in a.owner.all and a.editable %}
             <a  id="edit-assignment-{{ a.pk|slugify }}" href="{% url 'assignment-update' a.pk %}">
               <i class="material-icons md-24 mdc-ripple-surface icon-list">mode_edit</i>
@@ -94,38 +53,36 @@
       <li role="separator" class="mdc-list-divider"></li>
     </ul>
 
-
-
-
     <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'Following' %}</h2>
 
-    <p>{% blocktrans %} These are the assignments you are following, and for which reports will be available (based on your selected groups).{% endblocktrans %}</p>
+    <p class='mdc-typography--body1'>{% blocktrans %} These are the assignments you are following, and for which reports will be available (based on your selected groups).{% endblocktrans %}</p>
 
-    {% if not teacher.assignments.all %}
-    <p>{% blocktrans %} You do not have any assignments.  You can select and modify an existing assignment from the list below or create a new one.{% endblocktrans %}</p>
+    {% if not followed_assignments %}
+    <p class='mdc-typography--body1'>{% blocktrans %} You do not have any assignments.  You can select and modify an existing assignment from the list below or create a new one.{% endblocktrans %}</p>
     {% endif %}
 
     <ul class="mdc-list mdc-list--two-line mdc-list--non-interactive">
-      {% for g in teacher.assignments.all %}
+      {% for g in followed_assignments %}
       <li role="separator" class="mdc-list-divider"></li>
       <li class="mdc-list-item">
         <span class="mdc-list-item__graphic mdc-theme--primary">
-            <a href="{% url 'question-list' g.pk %}" style="transform:translateY(4pt);">
+            <a class="translate-4" href="{% url 'question-list' g.pk %}">
               <i class="mdc-theme--primary material-icons md-48">assignment</i>
             </a>
         </span>
         <span class="mdc-list-item__text mdc-theme--secondary bold">
           {{ g.identifier }}
           <span class="mdc-list-item__secondary-text">
-            {{ g.questions.count }} {% trans "questions" %}
+            {{ g.n_questions }} {% trans "questions" %};
+            {{ g.n_answers }} {% trans "answers" %}
           </span>
         </span>
         <span class="mdc-list-item__meta">
-          <form method="post" style="display:inline;">
+          <form class="inline" method="post">
               {% csrf_token %}
               <input type="hidden" id="id_assignment" name="assignment" value="{{g.pk}}"/>
               <div class="mdc-ripple-surface input-ripple-wrapper">
-                <input class="material-icons md-24 mdc-button small-button" style="padding:0pt;margin:0pt;" type="submit" value="remove_circle"/>
+                <input class="material-icons md-24 mdc-button small-button no-whitespace" type="submit" value="remove_circle"/>
               </div>
           </form>
           {% if g.owner == teacher.user %}
@@ -140,13 +97,12 @@
       <li role="separator" class="mdc-list-divider"></li>
     </ul>
 
+    <h2 class="mdc-typography--display1 mdc-theme--secondary">{% trans 'All' %}</h2>
 
-    <h2 class="mdc-typography--display1 mdc-theme--secondary">All</h2>
-    {% trans 'These are all the assignments in the database.' %}
+    <p class='mdc-typography--body1'>{% trans 'These are all the assignments in the database that have at least 5 associated answers.' %}</p>
 
     <ul class="mdc-list mdc-list--two-line mdc-list--non-interactive">
-      {% for g in object_list.all %}
-      {% if g not in teacher.assignments.all %}
+      {% for g in other_assignments %}
       <li role="separator" class="mdc-list-divider"></li>
       <li class="mdc-list-item">
         <span class="mdc-list-item__graphic mdc-theme--primary">
@@ -159,11 +115,11 @@
         <span class="mdc-list-item__text mdc-theme--secondary bold">
           {{ g.identifier }}
           <span class="mdc-list-item__secondary-text">
-            {{ g.questions.count }} {% trans "questions" %}
+            {{ g.questions.count }} {% trans "questions" %};
+            {{ g.n_answers }} {% trans "answers" %}
           </span>
         </span>
       </li>
-      {% endif %}
       {% endfor %}
       <li role="separator" class="mdc-list-divider"></li>
     </ul>

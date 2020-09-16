@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 import hashlib
 import json
@@ -11,8 +11,8 @@ from django.db import models
 from django.db.utils import IntegrityError
 from django.utils.translation import ugettext_lazy as _
 
+from dalite.models.custom_fields import CommaSepField, ProbabilityField
 from quality.models.criterion.criterion import Criterion, CriterionRules
-from quality.models.custom_fields import CommaSepField, ProbabilityField
 from quality.models.quality_type import QualityType, QualityUseType
 
 from .model import create_model
@@ -231,14 +231,14 @@ class LikelihoodCriterionRules(CriterionRules):
 
 class LikelihoodCache(models.Model):
     answer = models.PositiveIntegerField(null=True, blank=True)
-    language = models.ForeignKey(LikelihoodLanguage)
+    language = models.ForeignKey(LikelihoodLanguage, on_delete=models.CASCADE)
     hash = models.CharField(max_length=32, unique=True, db_index=True)
     likelihood = ProbabilityField()
     likelihood_random = ProbabilityField()
 
     @classmethod
     def get(cls, answer, language, max_gram):
-        if isinstance(answer, basestring):
+        if isinstance(answer, str):
             answer_pk = None
             rationale = answer
         else:
@@ -265,24 +265,33 @@ class LikelihoodCache(models.Model):
                 max_gram,
             )
             likelihood, likelihood_random = predict(rationale)
-            cls.objects.create(
-                answer=answer_pk,
-                language=language,
-                hash=hash_,
-                likelihood=likelihood,
-                likelihood_random=likelihood_random,
-            )
+            # Because multiple servers are used, sometimes the likelihood is
+            # written to the db by the first server while the second one is
+            # computing it. In these cases, the likelihood written to the db
+            # will be used.
+            try:
+                cls.objects.create(
+                    answer=answer_pk,
+                    language=language,
+                    hash=hash_,
+                    likelihood=likelihood,
+                    likelihood_random=likelihood_random,
+                )
+            except IntegrityError:
+                cache = cls.objects.get(hash=hash_)
+                likelihood = cache.likelihood
+                likelihood_random = cache.likelihood_random
         return likelihood, likelihood_random
 
     @classmethod
     def batch(cls, answers, language, max_gram):
         answers = list(answers)
         pks = [
-            None if isinstance(answer, basestring) else answer.pk
+            None if isinstance(answer, str) else answer.pk
             for answer in answers
         ]
         rationales = [
-            answer if isinstance(answer, basestring) else answer.rationale
+            answer if isinstance(answer, str) else answer.rationale
             for answer in answers
         ]
         hashes = [

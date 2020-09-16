@@ -27,7 +27,7 @@ def add_quality_use_types(sender, **kwargs):
 @receiver(post_migrate)
 def add_default_qualities(sender, **kwargs):
 
-    for criterion in map(itemgetter("criterion"), criterions.values()):
+    for criterion in map(itemgetter("criterion"), list(criterions.values())):
         if not criterion.objects.exists():
             criterion.create_default()
 

@@ -1,21 +1,28 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
 
+
+import hashlib
 import itertools
 import string
 from datetime import datetime
+import pandas as pd
+import bleach
 
 import pytz
 from django.contrib.auth.models import User
+from django.contrib.contenttypes.fields import GenericRelation
 from django.core import exceptions
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Q
-from django.utils.encoding import smart_bytes
 from django.utils.html import escape, strip_tags
 from django.utils.translation import ugettext_lazy as _
 
+from reputation.models import Reputation
+
 from .. import rationale_choice
+from ..templatetags.bleach_html import ALLOWED_TAGS
+from .search import MetaSearch
 
 
 def no_hyphens(value):
@@ -23,16 +30,26 @@ def no_hyphens(value):
         raise ValidationError(_("Hyphens may not be used in this field."))
 
 
+def images(instance, filename):
+    hash = hashlib.sha256(
+        "{}-{}".format(datetime.now(), filename).encode("utf-8")
+    ).hexdigest()[:8]
+    path = "images/{0}/{1}/{2}_{3}".format(
+        instance.user.username, datetime.now().month, hash, filename
+    )
+    return path
+
+
 class Category(models.Model):
     title = models.CharField(
         _("Category Name"),
         unique=True,
         max_length=100,
-        help_text=_("Name of a category questions can be sorted into."),
+        help_text=_("Enter the name of a new question category."),
         validators=[no_hyphens],
     )
 
-    def __unicode__(self):
+    def __str__(self):
         return self.title
 
     class Meta:
@@ -40,16 +57,39 @@ class Category(models.Model):
         verbose_name_plural = _("categories")
 
 
+class Subject(models.Model):
+    title = models.CharField(
+        _("Subject name"),
+        unique=True,
+        max_length=100,
+        help_text=_("Enter the name of a new subject."),
+        validators=[no_hyphens],
+    )
+    discipline = models.ForeignKey(
+        "Discipline", blank=True, null=True, on_delete=models.SET_NULL
+    )
+    categories = models.ManyToManyField(
+        Category, related_name="subjects", blank=True
+    )
+
+    def __str__(self):
+        return self.title
+
+    class Meta:
+        verbose_name = _("subject")
+        verbose_name_plural = _("subjects")
+
+
 class Discipline(models.Model):
     title = models.CharField(
         _("Discipline name"),
         unique=True,
         max_length=100,
-        help_text=_("Name of a discipline."),
+        help_text=_("Enter the name of a new discipline."),
         validators=[no_hyphens],
     )
 
-    def __unicode__(self):
+    def __str__(self):
         return self.title
 
     class Meta:
@@ -70,8 +110,54 @@ class QuestionManager(models.Manager):
         return self.get(title=title)
 
 
+class QuestionFlag(models.Model):
+    question = models.ForeignKey("Question", on_delete=models.CASCADE)
+    flag_reason = models.ManyToManyField("QuestionFlagReason")
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    flag = models.BooleanField(default=True)
+    comment = models.CharField(max_length=200, null=True, blank=True)
+    datetime_created = models.DateTimeField(auto_now_add=True)
+    datetime_last_modified = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return "{} - {}- {}- {}".format(
+            self.question.pk, self.question, self.user.email, self.comment
+        )
+
+    class Meta:
+        verbose_name = _("flagged question")
+
+
+class FlaggedQuestionManager(models.Manager):
+    def get_queryset(self):
+        flagged_questions = QuestionFlag.objects.filter(flag=True).values_list(
+            "question", flat=True
+        )
+
+        return (
+            super(FlaggedQuestionManager, self)
+            .get_queryset()
+            .filter(pk__in=flagged_questions)
+        )
+
+
+class UnflaggedQuestionManager(models.Manager):
+    def get_queryset(self):
+        flagged_questions = QuestionFlag.objects.filter(flag=True).values_list(
+            "question", flat=True
+        )
+
+        return (
+            super(UnflaggedQuestionManager, self)
+            .get_queryset()
+            .exclude(pk__in=flagged_questions)
+        )
+
+
 class Question(models.Model):
     objects = QuestionManager()
+    flagged_objects = FlaggedQuestionManager()
+    unflagged_objects = UnflaggedQuestionManager()
 
     id = models.AutoField(
         primary_key=True,
@@ -121,11 +207,12 @@ class Question(models.Model):
     )
     created_on = models.DateTimeField(auto_now_add=True, null=True)
     last_modified = models.DateTimeField(auto_now=True, null=True)
+
     image = models.ImageField(
         _("Question image"),
         blank=True,
         null=True,
-        upload_to="images",
+        upload_to=images,
         help_text=_(
             "Optional. An image to include after the question text. Accepted "
             "formats: .jpg, .jpeg, .png, .gif"
@@ -145,9 +232,11 @@ class Question(models.Model):
         _("Question video URL"),
         blank=True,
         help_text=_(
-            "Optional. A video to include after the question text. All "
-            "videos should include transcripts.  Format: "
-            "https://www.youtube.com/embed/..."
+            "Optional. A video or simulation to include after the question "
+            "text. All videos should include transcripts.  Only videos from "
+            "youtube (i.e. https://www.youtube.com/embed/...) and simulations "
+            "from phet (i.e. https://phet.colorado.edu/sims/html/...) are "
+            "currently supported."
         ),
     )
     ALPHA = 0
@@ -166,8 +255,8 @@ class Question(models.Model):
         Category,
         _("Categories"),
         help_text=_(
-            "Select at least one category for this question. You can select "
-            "multiple categories."
+            "Type to search and select at least one category for this "
+            "question. You can select multiple categories."
         ),
     )
     discipline = models.ForeignKey(
@@ -175,17 +264,17 @@ class Question(models.Model):
         blank=True,
         null=True,
         help_text=_(
-            "Optional. Select the discipline to which this question should "
+            "Optional. Select the discipline to which this item should "
             "be associated."
         ),
+        on_delete=models.CASCADE,
     )
     fake_attributions = models.BooleanField(
         _("Add fake attributions"),
         default=False,
         help_text=_(
             "Add random fake attributions consisting of username and country "
-            "to rationales. You can configure the lists of fake values and "
-            "countries from the start page of the admin interface."
+            "to rationales. "
         ),
     )
     sequential_review = models.BooleanField(
@@ -224,8 +313,12 @@ class Question(models.Model):
             "correct answer."
         ),
     )
+    reputation = models.OneToOneField(
+        Reputation, blank=True, null=True, on_delete=models.SET_NULL
+    )
+    meta_search = GenericRelation(MetaSearch, related_query_name="questions")
 
-    def __unicode__(self):
+    def __str__(self):
         if self.discipline:
             return "{} - {}".format(self.discipline, self.title)
         return self.title
@@ -239,14 +332,12 @@ class Question(models.Model):
         first_answer_choice = int(form.cleaned_data["first_answer_choice"])
         correct = view.question.is_correct(first_answer_choice)
         rationale = form.cleaned_data["rationale"]
-        datetime_start = form.cleaned_data["datetime_start"]
         datetime_first = datetime.now(pytz.utc).strftime(
             "%Y-%m-%d %H:%M:%S.%f"
         )
         view.stage_data.update(
             first_answer_choice=first_answer_choice,
             rationale=rationale,
-            datetime_start=datetime_start,
             datetime_first=datetime_first,
             completed_stage="start",
         )
@@ -288,7 +379,7 @@ class Question(models.Model):
         if self.answer_style == Question.ALPHA:
             return iter(string.ascii_uppercase)
         elif self.answer_style == Question.NUMERIC:
-            return itertools.imap(str, itertools.count(1))
+            return map(str, itertools.count(1))
         raise ValueError(
             "The field Question.answer_style has an invalid value."
         )
@@ -394,10 +485,14 @@ class Question(models.Model):
         choice2 = {}
         frequency = {}
         if all_rationales:
-            # all rationales, including those enetered as samples by teachers
-            student_answers = self.answer_set.filter(first_answer_choice__gt=0)
+            # all rationales, including those entered as samples by teachers,
+            # but exclude expert rationales, since they are no longer shown
+            # to students on review step
+            student_answers = self.answer_set.filter(
+                first_answer_choice__gt=0
+            ).exclude(expert=True)
         else:
-            # only rationales enetered by students
+            # only rationales entered by students
             student_answers = (
                 self.answer_set.filter(expert=False)
                 .filter(first_answer_choice__gt=0)
@@ -414,10 +509,10 @@ class Question(models.Model):
             )
             if len(label) > 50:
                 label = label[0:50] + "..."
-            choice1[smart_bytes(label)] = student_answers.filter(
+            choice1[label] = student_answers.filter(
                 first_answer_choice=c
             ).count()
-            choice2[smart_bytes(label)] = student_answers.filter(
+            choice2[label] = student_answers.filter(
                 second_answer_choice=c
             ).count()
             c = c + 1
@@ -433,8 +528,155 @@ class Question(models.Model):
         ]
         return [
             {"answer_label": key, "frequency": value}
-            for key, value in frequency_dict.items()
+            for key, value in list(frequency_dict.items())
         ]
+
+    def get_vote_data(self):
+        """
+        Returns:
+        --------
+        DataFrame with columns:
+            index: answer_id
+            times_shown -> int
+            times_chosen -> int
+        """
+
+        from peerinst.models import ShownRationale
+
+        answer_qs = self.answer_set.all()
+
+        df_chosen_ids = pd.DataFrame(
+            answer_qs.values(
+                "chosen_rationale__id", "question_id", "user_token"
+            )
+        )
+
+        df_chosen = (
+            df_chosen_ids["chosen_rationale__id"]
+            .value_counts()
+            .to_frame()
+            .rename(columns={"chosen_rationale__id": "times_chosen"})
+        )
+
+        df_shown_ids = pd.DataFrame(
+            ShownRationale.objects.filter(
+                shown_for_answer__in=answer_qs
+            ).values("shown_answer__id")
+        )
+
+        # ShownRationale data only collected since Jan 2019
+        if df_shown_ids.shape[0] > 0:
+
+            df_shown = (
+                df_shown_ids["shown_answer__id"].value_counts().to_frame()
+            )
+
+            df_votes = (
+                pd.merge(
+                    df_chosen,
+                    df_shown,
+                    left_index=True,
+                    right_index=True,
+                    how="right",
+                )
+                .rename(columns={"shown_answer__id": "times_shown"})
+                .sort_values("times_shown", ascending=False)
+            )
+        else:
+            df_votes = df_chosen
+            df_votes.loc[:, "times_shown"] = pd.Series(0)
+
+        df_votes = df_votes.fillna(0)
+
+        df_votes = df_votes.astype(int)
+
+        return df_votes
+
+    def get_most_convincing_rationales(self):
+        """
+        Returns:
+        --------
+        List[
+            {
+                "answer" -> str,
+                "correct" -> bool,
+                "answer_text" -> str,
+                "most_convincing":{
+                    "times_chosen" -> int,
+                    "times_shown" -> int,
+                    "rationale" -> str
+                }
+            }
+        ]
+        """
+        answerchoice_correct = self.answerchoice_set.values_list(
+            "correct", flat=True
+        )
+
+        q_answerchoices = {
+            i: (label, correct, text)
+            for i, (correct, (label, text)) in enumerate(
+                zip(answerchoice_correct, self.get_choices()), start=1
+            )
+        }
+
+        # there are some places in db where
+        # first_answer_choice value is greater than
+        # possible number of answer_choices.
+        # Remove those answers
+        answer_qs = self.answer_set.filter(
+            first_answer_choice__lte=self.answerchoice_set.count()
+        )
+
+        if answer_qs.count() > 0:
+
+            df_votes = self.get_vote_data()
+
+            df_answers = pd.DataFrame(
+                answer_qs.values("id", "first_answer_choice", "rationale")
+            )
+
+            df = pd.merge(df_answers, df_votes, left_on="id", right_index=True)
+
+            df_top5 = (
+                df.sort_values(
+                    ["first_answer_choice", "times_chosen", "times_shown"],
+                    ascending=[True, False, False],
+                )
+                .groupby("first_answer_choice")
+                .head(5)
+            )
+
+            r = []
+            for first_answer_choice, best_answers in df_top5.groupby(
+                "first_answer_choice"
+            ):
+                d = {}
+                d["Answer"] = q_answerchoices[first_answer_choice][0]
+                d["answer_text"] = bleach.clean(
+                    q_answerchoices[first_answer_choice][2],
+                    tags=ALLOWED_TAGS,
+                    styles=[],
+                    strip=True,
+                )
+                d["correct"] = q_answerchoices[first_answer_choice][1]
+                most_convincing = best_answers.loc[
+                    :, ["id", "times_chosen", "times_shown", "rationale"]
+                ]
+                most_convincing["rationale"] = most_convincing[
+                    "rationale"
+                ].apply(
+                    lambda x: bleach.clean(x, tags=[], styles=[], strip=True)
+                )
+                d["most_convincing"] = most_convincing.to_dict(
+                    orient="records"
+                )
+                r.append(d)
+
+        else:
+            r = []
+
+        return r
 
     class Meta:
         verbose_name = _("question")
@@ -450,26 +692,8 @@ class QuestionFlagReason(models.Model):
         validators=[no_hyphens],
     )
 
-    def __unicode__(self):
+    def __str__(self):
         return self.title
 
     class Meta:
         verbose_name = _("Question flag reason")
-
-
-class QuestionFlag(models.Model):
-    question = models.ForeignKey(Question)
-    flag_reason = models.ManyToManyField(QuestionFlagReason)
-    user = models.ForeignKey(User)
-    flag = models.BooleanField(default=True)
-    comment = models.CharField(max_length=200, null=True, blank=True)
-    datetime_created = models.DateTimeField(auto_now_add=True)
-    datetime_last_modified = models.DateTimeField(auto_now=True)
-
-    def __unicode__(self):
-        return "{} - {}- {}- {}".format(
-            self.question.pk, self.question, self.user.email, self.comment
-        )
-
-    class Meta:
-        verbose_name = _("flagged question")

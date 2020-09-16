@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 from django.db import migrations, models
+import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
@@ -24,13 +25,17 @@ class Migration(migrations.Migration):
                 (
                     "shown_answer",
                     models.ForeignKey(
-                        related_name="shown_answer", to="peerinst.Answer"
+                        related_name="shown_answer",
+                        to="peerinst.Answer",
+                        on_delete=django.db.models.deletion.CASCADE,
                     ),
                 ),
                 (
                     "shown_for_answer",
                     models.ForeignKey(
-                        related_name="shown_for_answer", to="peerinst.Answer"
+                        related_name="shown_for_answer",
+                        to="peerinst.Answer",
+                        on_delete=django.db.models.deletion.CASCADE,
                     ),
                 ),
             ],

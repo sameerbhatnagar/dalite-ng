@@ -1,27 +1,26 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
-from django.conf.urls import url
+from django.urls import path
 
 from . import views
+
+app_name = "quality"
 
 
 def edit_patterns():
     return [
-        url(r"^edit/$", views.edit.index, name="edit"),
-        url(r"^edit/add/$", views.edit.add_criterion, name="add-criterion"),
-        url(
-            r"^edit/update/$",
+        path("edit/", views.edit.index, name="edit"),
+        path("edit/add/", views.edit.add_criterion, name="add-criterion"),
+        path(
+            "edit/update/",
             views.edit.update_criterion,
             name="update-criterion",
         ),
-        url(
-            r"^edit/remove/$",
+        path(
+            "edit/remove/",
             views.edit.remove_criterion,
             name="remove-criterion",
         ),
-        url(
-            r"^edit/remove/(?P<pk>\d+)/$",
+        path(
+            "edit/remove/<int:pk>/",
             views.edit.remove_criterion,
             name="remove-criterion_",
         ),
@@ -30,20 +29,16 @@ def edit_patterns():
 
 def validation_patterns():
     return [
-        url(
-            r"^validate/$",
-            views.validation.validate_rationale,
-            name="validate",
+        path(
+            "validate/", views.validation.validate_rationale, name="validate",
         )
     ]
 
 
 def evaluation_patterns():
     return [
-        url(
-            r"^evaluate/$",
-            views.evaluation.evaluate_rationale,
-            name="evaluate",
+        path(
+            "evaluate/", views.evaluation.evaluate_rationale, name="evaluate",
         )
     ]
 

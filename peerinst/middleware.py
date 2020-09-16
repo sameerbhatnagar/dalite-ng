@@ -1,5 +1,6 @@
 from django.contrib.contenttypes.models import ContentType
-from models import TeacherNotification
+
+from .models import TeacherNotification
 
 
 class NotificationMiddleware(object):
@@ -7,7 +8,7 @@ class NotificationMiddleware(object):
         self.get_response = get_response
 
     def __call__(self, request):
-        if request.user.is_authenticated():
+        if request.user.is_authenticated:
             try:
                 notification_type = ContentType.objects.get(
                     app_label="pinax_forums", model="ThreadSubscription"

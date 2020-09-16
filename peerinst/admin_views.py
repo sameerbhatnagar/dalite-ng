@@ -1,15 +1,14 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 import collections
 import itertools
-import urllib
+import urllib.request
+import urllib.parse
+import urllib.error
 import re
 
 from django import forms
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db.models import F
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
@@ -112,7 +111,7 @@ def get_assignment_aggregates(assignment, student_groups=None):
     sums = collections.Counter()
     students = set()
     question_data = []
-    for question in assignment.questions.all():
+    for question in assignment.questions.order_by("assignmentquestions__rank"):
         q_sums, q_students = get_question_aggregates(
             assignment, question, student_groups
         )
@@ -313,7 +312,7 @@ class QuestionRationaleView(StaffMemberRequiredMixin, TemplateView):
                     link_answers="?".join(
                         [
                             reverse("admin:peerinst_answer_changelist"),
-                            urllib.urlencode(
+                            urllib.parse.urlencode(
                                 dict(chosen_rationale__id__exact=rationale.id)
                             ),
                         ]
@@ -330,7 +329,7 @@ class QuestionRationaleView(StaffMemberRequiredMixin, TemplateView):
                     link_answers="?".join(
                         [
                             reverse("admin:peerinst_answer_changelist"),
-                            urllib.urlencode(
+                            urllib.parse.urlencode(
                                 dict(chosen_rationale__isnull=True)
                             ),
                         ]
@@ -441,15 +440,15 @@ class AssignmentResultsViewBase(TemplateView):
             labels.append(
                 _("Switches to answer {index}:").format(index=choice_index)
             )
-        return zip(labels, self.prepare_stats(sums, switch_columns))
+        return list(zip(labels, self.prepare_stats(sums, switch_columns)))
 
     def prepare_question_data(self, question_data, switch_columns):
         rows = []
         for i, (question, sums) in enumerate(question_data, 1):
-            get_params_this = urllib.urlencode(
+            get_params_this = urllib.parse.urlencode(
                 dict(assignment=self.assignment_id, question=question.id)
             )
-            get_params_all = urllib.urlencode(dict(question=question.id))
+            get_params_all = urllib.parse.urlencode(dict(question=question.id))
             rows.append(
                 dict(
                     data=[i, question.title]
@@ -583,20 +582,22 @@ class QuestionPreviewViewBase(
             **kwargs
         )
         if self.question.get_frequency(all_rationales=True)["first_choice"]:
-            save_allowed = (
-                0
-                not in self.question.get_frequency(all_rationales=True)[
+            save_allowed = 0 not in list(
+                self.question.get_frequency(all_rationales=True)[
                     "first_choice"
                 ].values()
             )
         else:
             save_allowed = False
+
+        assignment_form = AssignmentMultiselectForm(
+            self.request.user, self.question
+        )
         context.update(
             question=self.question,
             answer_choices=self.answer_choices,
-            assignment_form=AssignmentMultiselectForm(
-                self.request.user, self.question
-            ),
+            assignment_form=assignment_form,
+            assignment_count=assignment_form.queryset.count(),
             save_allowed=save_allowed,
         )
         return context
@@ -615,7 +616,7 @@ class QuestionPreviewViewBase(
         )
         answer.save()
         messages.add_message(
-            self.request, messages.INFO, _("Example answer saved.")
+            self.request, messages.INFO, _("Sample answer saved.")
         )
         return super(QuestionPreviewViewBase, self).form_valid(form)
 
@@ -654,21 +655,30 @@ class QuestionExpertRationaleView(QuestionPreviewViewBase):
 
     def get_context_data(self, **kwargs):
         """
-        show currently saved expert rationales, and define context variable
-        that does not render completion button until a expert rationale exists
-        for each correct answerchoice (FIXME: currently comparison is to number
-        of correct answer choices; should be at least one expert rationale
-        per correct answer choice)
+        Show currently saved expert rationales, and define context variable
+        that does not render completion button until an expert rationale exists
+        for each correct answerchoice.
         """
 
         context = super(QuestionExpertRationaleView, self).get_context_data(
             **kwargs
         )
+        answerchoice_correct = self.question.answerchoice_set.values_list(
+            "correct", flat=True
+        )
+        correct_answer_choices = list(
+            itertools.compress(itertools.count(1), answerchoice_correct)
+        )
         expert_rationales = self.question.answer_set.filter(expert=True)
-        save_allowed = len(expert_rationales) >= sum(
-            self.question.answerchoice_set.all().values_list(
-                "correct", flat=True
-            )
+
+        save_allowed = all(
+            [
+                cac
+                in expert_rationales.values_list(
+                    "first_answer_choice", flat=True
+                )
+                for cac in correct_answer_choices
+            ]
         )
         assignment_id = self.request.session.get("assignment_id")
         question_id = self.request.session.get("question_id")
@@ -848,14 +858,10 @@ class AttributionAnalysis(TemplateView):
         votes_qs = models.AnswerVote.objects.filter(**filters)
         username_data, country_data = aggregate_fake_attribution_data(votes_qs)
         username_data_table = list(
-            itertools.starmap(
-                extract_columns, sorted(username_data.iteritems())
-            )
+            itertools.starmap(extract_columns, sorted(username_data.items()))
         )
         country_data_table = list(
-            itertools.starmap(
-                extract_columns, sorted(country_data.iteritems())
-            )
+            itertools.starmap(extract_columns, sorted(country_data.items()))
         )
         return username_data_table, country_data_table
 
@@ -863,9 +869,10 @@ class AttributionAnalysis(TemplateView):
         context = TemplateView.get_context_data(self, **kwargs)
         form = AttributionAnalysisFilterForm(data=self.request.GET)
         if form.is_valid() and self.request.GET:
-            context["username_data"], context[
-                "country_data"
-            ] = self.get_aggregates(form.cleaned_data.copy())
+            (
+                context["username_data"],
+                context["country_data"],
+            ) = self.get_aggregates(form.cleaned_data.copy())
         context.update(form=form)
         return context
 

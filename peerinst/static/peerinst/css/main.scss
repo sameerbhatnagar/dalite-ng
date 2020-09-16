@@ -1,33 +1,17 @@
 /* Load common sass variables */
 @import "variables";
 
-/* Load packages */
-@import "@material/button/mdc-button";
-@import "@material/card/mdc-card";
-@import "@material/checkbox/mdc-checkbox";
-@import "@material/chips/mdc-chips";
-@import "@material/dialog/mdc-dialog";
 @import "@material/drawer/mdc-drawer";
-@import "@material/elevation/mdc-elevation";
-@import "@material/floating-label/mdc-floating-label";
-@import "@material/form-field/mdc-form-field";
-@import "@material/icon-toggle/mdc-icon-toggle";
-@import "@material/image-list/mdc-image-list";
-@import "@material/layout-grid/mdc-layout-grid";
-@import "@material/line-ripple/mdc-line-ripple";
-@import "@material/linear-progress/mdc-linear-progress";
-@import "@material/list/mdc-list";
-@import "@material/notched-outline/mdc-notched-outline";
-@import "@material/radio/mdc-radio";
-@import "@material/ripple/mdc-ripple";
-@import "@material/select/mdc-select";
-@import "@material/textfield/mdc-text-field";
-@import "@material/theme/mdc-theme";
-@import "@material/toolbar/mdc-toolbar";
 @import "@material/typography/mdc-typography";
+@import "@material/list/mdc-list";
 
 /* Load other files */
 @import "custom_elements";
+
+.svg-sprite {
+  display: none;
+}
+
 
 /* Stylesheet */
 /* - Layout */
@@ -41,7 +25,7 @@ section {
   padding-right: 20px;
 }
 .site-content {
-  margin: 20pt;
+  /* margin: 20pt; */
 }
 p {
   margin: 0.25em 0;
@@ -56,6 +40,12 @@ p {
   padding-left: 0.3em;
   padding-right: 0.5em;
 }
+.display-none {
+  display: none;
+}
+.display-inline {
+  display: inline;
+}
 h2 ~ .admin-link {
   font-size: 9pt;
   margin-bottom: 12pt;
@@ -66,7 +56,7 @@ h4 ~ .admin-link {
   margin-bottom: 12pt;
   margin-top: -20px;
 }
-.foldable--body > .admin-link {
+.foldable--body .admin-link {
   font-size: 9pt;
   margin-bottom: 12pt;
   margin-left: 50px;
@@ -82,10 +72,42 @@ h4 ~ .admin-link {
 .bold {
   font-weight: bold;
 }
+
+.material-icons.md-15 {
+  font-size: 15px;
+}
+.material-icons.md-18 {
+  font-size: 18px;
+}
+.material-icons.md-24 {
+  font-size: 24px;
+}
+.material-icons.md-28 {
+  font-size: 28px;
+}
+.material-icons.md-32 {
+  font-size: 32px;
+}
+.material-icons.md-36 {
+  font-size: 36px;
+}
+.material-icons.md-42 {
+  font-size: 42px;
+}
+.material-icons.md-48 {
+  font-size: 48px;
+}
+.material-icons.md-60 {
+  font-size: 60px;
+}
+.material-icons.md-96 {
+  font-size: 96px;
+}
 body {
+  --font-family: #{$mdc-typography-font-family};
   background-color: $mdc-theme-background;
   color: $mdc-theme-secondary;
-  font-family: "Montserrat", sans-serif;
+  font-family: $mdc-typography-font-family;
   font-size: 12pt;
   font-weight: 400;
   margin: 0pt;
@@ -98,13 +120,12 @@ header {
     $mdc-theme-secondary 100%
   );
   color: white;
-  // width: 100%;
   display: flex;
   flex-direction: row;
-  // padding: 7px 10px;
   font-size: 18pt;
   justify-content: space-between;
   padding: 4pt;
+  position: relative;
 }
 header a {
   color: white;
@@ -121,13 +142,13 @@ header i {
 #header-left {
   display: flex;
   flex-direction: row;
-  justify-content: start;
+  justify-content: flex-start;
 }
 
 #header-right {
   display: flex;
   flex-direction: row;
-  justify-content: end;
+  justify-content: flex-end;
   padding-right: 20px;
 }
 
@@ -162,6 +183,10 @@ header i {
   line-height: 1.2;
 }
 
+#custom-instance-header {
+  display: inline;
+}
+
 footer {
   background-image: linear-gradient(
     0deg,
@@ -177,79 +202,31 @@ footer a {
   color: white;
   padding-left: 10px;
 }
+.float-left {
+  float: left;
+}
+.align-right {
+  text-align: right;
+}
 h1 {
   color: $mdc-theme-primary;
 }
 
-/* - MDC icons */
-.material-icons {
-  /* Support for IE. */
-  font-feature-settings: "liga";
-  /* Support for all WebKit browsers. */
-  -webkit-font-smoothing: antialiased;
-  /* Support for Firefox. */
-  -moz-osx-font-smoothing: grayscale;
-  /* Support for Safari and Chrome. */
-  text-rendering: optimizeLegibility;
+.landing-page-ul {
+  padding-left: 15%;
 }
-.material-icons.md-15 {
-  font-size: 15px;
-}
-.material-icons.md-18 {
-  font-size: 18px;
-}
-.material-icons.md-24 {
-  font-size: 24px;
-}
-.material-icons.md-32 {
-  font-size: 32px;
-}
-.material-icons.md-36 {
-  font-size: 36px;
-}
-.material-icons.md-42 {
-  font-size: 42px;
-}
-.material-icons.md-48 {
-  font-size: 48px;
-}
-.material-icons.md-60 {
-  font-size: 60px;
-}
-.material-icons.md-96 {
-  font-size: 96px;
-}
-.ripple-icon {
-  @include mdc-ripple-surface;
-  @include mdc-ripple-radius-unbounded;
-  @include mdc-states($mdc-theme-primary);
-}
+
+
 
 .mdc-text-field--textarea .mdc-floating-label {
   background-color: $mdc-theme-background;
 }
 
-.partner-list {
-  @include mdc-image-list-standard-columns(3);
-}
-
-@media (max-width: 800px) {
-  .partner-list {
-    @include mdc-image-list-standard-columns(2);
-  }
-}
-
-@media (max-width: 600px) {
-  .partner-list {
-    @include mdc-image-list-standard-columns(1);
-  }
-}
-
 .corner {
-  bottom: 0%;
+  bottom: 0;
   cursor: pointer;
   position: fixed;
-  right: 0%;
+  right: 0;
 }
 
 a {
@@ -320,19 +297,18 @@ form ul {
 }
 .errorlist,
 ul li.error {
-  background: none repeat scroll 0 0 #fbf2f3;
-  border-bottom: 3px solid #a0050e;
-  box-shadow: 0 -1px 2px 0 #f3d9db inset;
+  background: none repeat scroll 0 0 rgba($error, 0.05);
+  border-bottom: 3px solid $error;
   box-sizing: border-box;
-  color: #3c3c3c;
+  color: $error;
   display: block;
   font-size: 15px;
   line-height: 1.41575em;
-  margin: 0 0 20px;
+  margin: 20px 0px;
   padding: 20px;
 }
 li.error h3 {
-  color: #a0050e;
+  color: $error;
   font-size: 14px;
   font-weight: 600;
   letter-spacing: 0 !important;
@@ -367,7 +343,9 @@ input[type="submit"].thumbs-button {
   height: 100px;
   width: 50%;
 }
-
+.italic {
+  font-style: italic;
+}
 .message-box {
   background-color: rgba(0, 66, 102, 0.05);
   border-bottom: solid 3px $mdc-theme-secondary;
@@ -455,14 +433,20 @@ input[type="submit"].thumbs-button {
 .padded-top {
   margin-top: 20px;
 }
+.question-list-padding {
+  margin-bottom: 28px;
+  margin-top: 28px;
+}
 .icon-list {
   cursor: pointer;
   margin-left: 20px;
   overflow: visible;
 }
-.edit-question {
-  margin-right: 20px;
-  transform: translateY(4px);
+.card-icon-list {
+  cursor: pointer;
+  margin-left: 20px;
+  margin-right: 10px;
+  overflow: visible;
 }
 .fake-link {
   color: $hint;
@@ -470,6 +454,13 @@ input[type="submit"].thumbs-button {
 }
 .clickable {
   cursor: pointer;
+}
+.pointer {
+  cursor: pointer;
+}
+.no-pointer {
+  cursor: default;
+  pointer-events: none;
 }
 .input-ripple-wrapper {
   cursor: pointer;
@@ -503,12 +494,7 @@ input[type="submit"].thumbs-button {
 .mdc-dialog__body--scrollable {
   max-height: 450px;
 }
-.mdc-card {
-  @include mdc-card-corner-radius($radius);
-  background-color: white;
-  margin-bottom: 10px;
-  padding: 20px 20px 12px;
-}
+
 
 #logo {
   padding-right: 4pt;
@@ -527,24 +513,23 @@ input[type="submit"].thumbs-button {
 .mdc-list-item__text.no-icon {
   max-width: 100%;
 }
-#check {
+.mdc-card .check {
   color: $mdc-theme-primary;
+  font-size: 12pt;
+  transform: translateY(-1px);
+}
+.check {
+  color: $mdc-theme-primary;
+  transform: translateY(-2px);
 }
 #timer-bg {
   fill: $mdc-theme-primary;
-}
-.mdc-button {
-  color: white !important;
-  font-weight: bold;
 }
 
 div.input-ripple-wrapper input {
   color: grey !important;
 }
 
-.inline {
-  vertical-align: middle;
-}
 .iconify {
   background-color: $mdc-theme-primary;
   border: hidden;
@@ -686,20 +671,208 @@ div.input-ripple-wrapper input {
   opacity: 0.3;
 }
 
+/* Generic */
+.hidden {
+  display: none;
+}
+
+.pt9 {
+  font-size: 9pt;
+}
+
+.dalite-my {
+  font-family: "Cardo", serif;
+  font-style: italic;
+}
+
+.dalite-dalite {
+  font-family: "Montserrat", sans-serif;
+  text-transform: uppercase;
+}
+
+.pad-l-25 {
+  padding-left: 25%;
+}
+
+.no-whitespace {
+  margin: 0;
+  padding: 0;
+}
+
+.admin-link--padded {
+  padding-left: 0.3em;
+  padding-right: 0.5em;
+}
+
+.new-feature {
+  padding-left: 4px;
+}
+
+.m-bot-10 {
+  margin-bottom: 10pt;
+}
+
+.m-bot-10p {
+  margin-bottom: 10px;
+}
+
+.m-bot-5 {
+  margin-bottom: 5px;
+}
+
+.m-right-20 {
+  margin-right: 20px;
+}
+
+.m-left-20 {
+  margin-left: 20px;
+}
+
+.m-top-20 {
+  margin-top: 20px;
+}
+
+.m-top-10 {
+  margin-top: 10px;
+}
+
+.m-top-4 {
+  margin-top: 4px;
+}
+
+.m-top-5 {
+  margin-top: 5px;
+}
+
+.m-left-10 {
+  margin-left: 10px;
+}
+
+.m-left-right-16 {
+  margin-left: 16px;
+  margin-right: 16px;
+}
+
+.red {
+  color: red;
+}
+
+.white {
+  color: white;
+}
+
+.translate-4 {
+  transform: translateY(4pt);
+}
+
+.inline {
+  display: inline;
+}
+
+.block {
+  display: block;
+}
+
+.error-span {
+  color: red;
+  display: none;
+}
+
+.check-12 {
+  font-size: 12pt;
+  transform: translateY(3px);
+}
+
+.green {
+  color: green;
+}
+
+.goldenrod {
+  color: goldenrod;
+}
+
+.width-auto {
+  margin: auto;
+  width: fit-content;
+}
+
+.vertical-align {
+  vertical-align: middle;
+}
+
+.analytics-div {
+  display: inline-block;
+  vertical-align: top;
+  width: 175px;
+}
+
+.grey {
+  color: grey;
+}
+
+.overflow {
+  overflow: visible;
+}
+
+.width-100 {
+  width: 100%;
+}
+
+.p-left-0 {
+  padding-left: 0;
+}
+
+.p-bot-3 {
+  padding-bottom: 3px;
+}
+
+.p-bottom-10 {
+  padding-bottom: 10px;
+}
+
+.p-bottom-0 {
+  padding-bottom: 0px;
+}
+
+.f-size-20 {
+  font-size: 20px;
+}
+
+.f-left {
+  float: left;
+}
+
+.max-width-400 {
+  max-width: 400px;
+}
+
+.block-auto {
+  display: block;
+  margin: auto;
+}
+
+.clear-both {
+  clear: both;
+}
+
+.greenyellow {
+  color: greenyellow;
+}
+
+/* Media queries */
 @media (max-height: 650px) {
   .mdc-dialog__body--scrollable {
     max-height: 350px;
   }
 }
 
-@media (max-width: 450px) {
+@media (max-width: $breakpoint-two) {
   section {
-    padding-right: 5pt;
+    padding-right: 5px;
   }
   ul,
   ol {
-    -moz-padding-start: 20px;
-    -webkit-padding-start: 20px;
+    padding-inline-start: 20px;
   }
   .header {
     margin-left: 5px;
@@ -707,21 +880,21 @@ div.input-ripple-wrapper input {
   .header.branding {
     padding-top: 3px;
   }
-  img#logo {
-    display: none;
-  }
   img {
     max-height: 200px;
     max-width: 100%;
   }
+  #custom-instance-header {
+    display: none;
+  }
   .site-content {
-    margin: 2pt;
+    margin: 2px;
   }
   .rationales {
     margin-left: 20px;
   }
   .mdc-typography--display3 {
-    font-size: 2.5rem;
+    font-size: 2rem;
   }
   .mdc-typography--display1 {
     font-size: 20pt;
@@ -734,6 +907,6 @@ div.input-ripple-wrapper input {
   }
 }
 
-.hidden {
-  display: none;
+@media (max-width: $breakpoint-one) {
+  /* Smallest screen */
 }

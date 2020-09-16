@@ -1,0 +1,29 @@
+.circleci
+.coverage
+.DS_Store
+
+.pytest_cache
+.pyc
+dump.rdb
+htmlcov
+log
+media
+node_modules
+
+# Static files
+static
+!static/CACHE
+
+# Git
+.git*
+
+# Virtual envs
+venv*
+
+# Redis
+redis*
+
+# Docker files
+.dockerignore
+docker-compose.yml
+Dockerfile

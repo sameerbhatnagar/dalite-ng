@@ -1,0 +1,82 @@
+@import "variables";
+
+:root {
+  --mdc-theme-primary: #{$mdc-theme-primary};
+  --mdc-theme-secondary: #{$mdc-theme-secondary};
+}
+
+.hint {
+  color: var(--mdc-theme-text-secondary-on-background);
+}
+
+.material-icons {
+  font-family: "Material icons", sans-serif !important;
+}
+
+[class^="mdc-"] {
+  font-family: $mdc-typography-font-family;
+}
+
+.mdc-typography--body1, .mdc-typography--body2 {
+  letter-spacing: normal;
+  line-height: normal;
+}
+
+.mdc-typography--headline5 {
+  font-weight: bold;
+  line-height: 1.5rem;
+}
+
+.mdc-text-field--focused:not(.mdc-text-field--disabled) .mdc-floating-label {
+  color: var(--mdc-theme-secondary);
+}
+
+.mdc-select__dropdown-icon {
+  filter: grayscale(1);
+}
+
+.mdc-button {
+  font-weight: 700;
+}
+
+.mdc-text-field--textarea .mdc-floating-label {
+  background-color: inherit;
+}
+
+.mdc-text-field__input {
+  font-size: 14px;
+  line-height: normal;
+}
+
+/* This improve mouseover behaviour by preventing mouseout to fire on icon */
+.mdc-icon-button__icon {
+  pointer-events: none;
+  vertical-align: baseline;
+}
+
+.mdc-snackbar__action-button {
+  color: var(--mdc-theme-primary);
+}
+
+/* Let snackbars be accessible from dialogs without loss of focus */
+.mdc-snackbar {
+  z-index: 10;
+}
+
+/* Let dialog boxes be bigger to fit tables inside */
+@media (min-width: 592px) {
+  .mdc-dialog .mdc-dialog__surface {
+    max-width: unset;
+    width: 100%;
+  }
+}
+
+.mdc-dialog .mdc-dialog__content {
+  color: var(--mdc-theme-secondary);
+  letter-spacing: normal;
+}
+
+.timestamp {
+  color: var(--mdc-theme-secondary);
+  font-size: 0.6rem;
+}

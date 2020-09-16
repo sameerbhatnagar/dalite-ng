@@ -1,11 +1,8 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 import logging
 
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.template.response import TemplateResponse
@@ -26,6 +23,7 @@ from ..models import (
     StudentAssignment,
     StudentGroup,
     StudentGroupAssignment,
+    StudentGroupMembership,
     Teacher,
 )
 from ..students import authenticate_student
@@ -99,7 +97,7 @@ def live(request, token, assignment_hash):
     user, __ = authenticate_student(request, token)
     if isinstance(user, HttpResponse):
         return user
-    login(request, user)
+    login(request, user, backend="peerinst.backends.CustomPermissionsBackend")
 
     # Register access type
     request.session["LTI"] = False
@@ -119,6 +117,18 @@ def live(request, token, assignment_hash):
             ),
             log=logger.warning,
         )
+
+    group = group_assignment.group
+    if group.student_id_needed:
+        group_membership = StudentGroupMembership.objects.get(
+            student=user.student, group=group
+        )
+        if not group_membership.student_school_id:
+            return HttpResponseRedirect(
+                reverse("student-page")
+                + "?group-student-id-needed="
+                + group.name
+            )
 
     student_assignment = StudentAssignment.objects.get(
         student=user.student, group_assignment=group_assignment
@@ -183,7 +193,9 @@ def navigate_assignment(request, assignment_id, question_id, direction, index):
             )
 
         assignment = get_object_or_404(Assignment, pk=assignment_id)
-        questions = list(assignment.questions.all())
+        questions = list(
+            assignment.questions.order_by("assignmentquestions__rank")
+        )
         current_question = get_object_or_404(Question, pk=question_id)
         idx = questions.index(current_question)
         if direction == "next":
@@ -273,6 +285,7 @@ def finish_assignment(req):
         "assignment_id": assignment.assignment.pk,
         "question_id": assignment.questions[0].id,
         "has_expired": has_expired,
+        "conclusion_page": assignment.assignment.conclusion_page,
     }
     return render(req, "peerinst/student/assignment_complete.html", context)
 

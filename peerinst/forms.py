@@ -1,13 +1,9 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 import re
-from datetime import datetime
+from datetime import datetime, date
 
-import password_validation
 import pytz
 from django import forms
-from django.contrib.auth.forms import PasswordResetForm, UserCreationForm
+from django.contrib.auth.forms import PasswordResetForm
 from django.contrib.auth.models import User
 from django.db.models import Count, Q
 from django.forms import ModelForm
@@ -54,11 +50,6 @@ class FirstAnswerForm(forms.Form):
         widget=forms.Textarea(attrs={"cols": 100, "rows": 7})
     )
 
-    datetime_start = forms.CharField(
-        widget=forms.HiddenInput(),
-        initial=datetime.now(pytz.utc).strftime("%Y-%m-%d %H:%M:%S.%f"),
-    )
-
     def __init__(self, answer_choices, *args, **kwargs):
         choice_texts = [
             mark_safe(
@@ -102,17 +93,27 @@ class ReviewAnswerForm(forms.Form):
         label="", widget=forms.RadioSelect
     )
 
+    shown_rationales = []
+
     RATIONALE_CHOICE = "rationale_choice"
 
     def __init__(self, rationale_choices, *args, **kwargs):
         forms.Form.__init__(self, *args, **kwargs)
         answer_choices = []
         rationale_choice_fields = []
+        show_more_counters = []
+        show_more_labels = []
+        rationale_id_list = []
         for i, (choice, label, rationales) in enumerate(rationale_choices):
             rationales = [
                 (id_ if id_ is not None else "None", rationale)
                 for id_, rationale in rationales
             ]
+            rationale_ids = [
+                (id_ if id_ is not None else "None")
+                for id_, rationale in rationales
+            ]
+
             field_name = "{}_{}".format(self.RATIONALE_CHOICE, i)
             self.fields[field_name] = forms.ChoiceField(
                 label="",
@@ -120,18 +121,51 @@ class ReviewAnswerForm(forms.Form):
                 widget=forms.RadioSelect,
                 choices=rationales,
             )
+            show_more_field_name = "show-more-counter-" + str(i + 1)
+            self.fields[show_more_field_name] = forms.IntegerField(
+                required=False, initial=2
+            )
+            show_more_counters.append(self[show_more_field_name])
+            show_more_labels.append(show_more_field_name)
             answer_choices.append((choice, label))
             rationale_choice_fields.append(self[field_name])
+            rationale_id_list.append(rationale_ids)
         self.fields["second_answer_choice"].choices = answer_choices
-        self.rationale_groups = zip(
-            self["second_answer_choice"], rationale_choice_fields
+        self.rationale_groups = list(
+            zip(
+                self["second_answer_choice"],
+                rationale_choice_fields,
+                show_more_counters,
+                show_more_labels,
+                rationale_id_list,
+            )
         )
 
     def clean(self):
         cleaned_data = forms.Form.clean(self)
+        shown_rationales = []
+        if cleaned_data is not None:
+            for (
+                answer_choice,
+                rationale_choice_field,
+                show_more_counter,
+                label,
+                rationale_ids,
+            ) in self.rationale_groups:
+                for i in (
+                    range(cleaned_data[label])
+                    if cleaned_data[label]
+                    else range(min(2, len(rationale_ids)))
+                ):
+                    if (
+                        rationale_ids[i] is not None
+                        and rationale_ids[i] != "None"
+                    ):
+                        shown_rationales.append(rationale_ids[i])
+        self.shown_rationales = shown_rationales if shown_rationales else None
         rationale_choices = [
             value
-            for key, value in cleaned_data.iteritems()
+            for key, value in cleaned_data.items()
             if key.startswith(self.RATIONALE_CHOICE)
         ]
         if sum(map(bool, rationale_choices)) != 1:
@@ -167,7 +201,13 @@ class AssignmentCreateForm(forms.ModelForm):
 
     class Meta:
         model = Assignment
-        fields = ["identifier", "title"]
+        fields = [
+            "identifier",
+            "title",
+            "description",
+            "intro_page",
+            "conclusion_page",
+        ]
 
 
 class AssignmentMultiselectForm(forms.Form):
@@ -180,7 +220,9 @@ class AssignmentMultiselectForm(forms.Form):
         else:
             queryset = Assignment.objects.all()
 
-        num_student_rationales = Count("answer", filter=~Q(user_token=""))
+        num_student_rationales = Count(
+            "answer", filter=~Q(answer__user_token="")
+        )
 
         if question:
             queryset = (
@@ -194,6 +236,9 @@ class AssignmentMultiselectForm(forms.Form):
             queryset = queryset.annotate(
                 num_student_rationales=num_student_rationales
             ).filter(Q(num_student_rationales=0))
+
+        # Add queryset to form object to keep logic in one spot
+        self.queryset = queryset
 
         self.fields["assignments"] = forms.ModelMultipleChoiceField(
             queryset=queryset,
@@ -300,10 +345,13 @@ class AddBlinkForm(forms.Form):
     blink = forms.ModelChoiceField(queryset=BlinkQuestion.objects.all())
 
 
-class SignUpForm(UserCreationForm):
+class SignUpForm(ModelForm):
     """Form to register a new user (teacher) with e-mail address.
 
     The clean method is overridden to add basic password validation."""
+
+    email = forms.CharField(label=_("Email address"))
+    username = forms.CharField(label=_("Username"))
 
     url = forms.URLField(
         label=_("Website"),
@@ -314,14 +362,6 @@ class SignUpForm(UserCreationForm):
             "faculty member and showing your e-mail address."
         ),
     )
-
-    def clean(self):
-        cleaned_data = super(SignUpForm, self).clean()
-        pwd = cleaned_data.get("password1")
-        if pwd:
-            password_validation.validate_password(pwd)
-
-        return cleaned_data
 
     class Meta:
         model = User
@@ -354,7 +394,13 @@ class DisciplineForm(forms.ModelForm):
 
 
 class DisciplineSelectForm(forms.Form):
-    discipline = forms.ModelChoiceField(queryset=Discipline.objects.all())
+    discipline = forms.ModelChoiceField(
+        queryset=Discipline.objects.all(),
+        help_text=_(
+            "Optional. Select the discipline to which this item should "
+            "be associated."
+        ),
+    )
 
 
 class DisciplinesSelectForm(forms.Form):
@@ -364,7 +410,13 @@ class DisciplinesSelectForm(forms.Form):
 
 
 class CategorySelectForm(forms.Form):
-    category = forms.ModelMultipleChoiceField(queryset=Category.objects.all())
+    category = forms.ModelMultipleChoiceField(
+        queryset=Category.objects.all(),
+        help_text=_(
+            "Type to search and select at least one category for this "
+            "question. You can select multiple categories."
+        ),
+    )
 
 
 class ReportSelectForm(forms.Form):
@@ -403,12 +455,43 @@ class AnswerChoiceForm(forms.ModelForm):
             return self.cleaned_data["text"]
 
 
+def current_year():
+    return date.today().year
+
+
+def year_choices():
+    return [(i, i) for i in range(2015, current_year() + 2)]
+
+
 class StudentGroupCreateForm(forms.ModelForm):
     """Simple form to create a new group"""
 
+    year = forms.TypedChoiceField(
+        coerce=int, choices=year_choices, initial=current_year
+    )
+
     class Meta:
         model = StudentGroup
-        fields = ["title", "name"]
+        fields = ["title", "name", "year", "semester", "discipline"]
+
+
+class StudentGroupUpdateForm(forms.ModelForm):
+    """Simple form to create a new group"""
+
+    year = forms.TypedChoiceField(
+        coerce=int, choices=year_choices, initial=current_year
+    )
+
+    class Meta:
+        model = StudentGroup
+        fields = [
+            "title",
+            "student_id_needed",
+            "year",
+            "semester",
+            "discipline",
+        ]
+        read_only_fields = ["name"]
 
 
 class StudentGroupAssignmentForm(ModelForm):

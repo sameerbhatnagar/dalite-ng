@@ -4,10 +4,8 @@ import logging
 
 from django.contrib.auth import get_permission_codename, login
 from django.contrib.auth.models import Permission, User
-from django.core.urlresolvers import reverse
-from django_lti_tool_provider.application_hook_manager import (
-    AbstractApplicationHookManager,
-)
+from django.urls import reverse
+from django_lti_tool_provider import AbstractApplicationHookManager
 
 from peerinst.auth import authenticate_student
 
@@ -58,21 +56,21 @@ class ApplicationHookManager(AbstractApplicationHookManager):
     @classmethod
     def _compress_user_name(cls, username):
         try:
-            binary = username.decode("hex")
+            binary = username.encode()
         except TypeError:
             # We didn't get a normal edX hex user id, so we don't use our
             # custom encoding. This makes previewing questions in Studio work.
             return username
         else:
-            return base64.urlsafe_b64encode(binary).replace("=", "+")
+            return base64.urlsafe_b64encode(binary).decode().replace("=", "+")
 
     @classmethod
     def _generate_password(cls, base, nonce):
         # it is totally fine to use md5 here, as it only generates PLAIN STRING
         # password which is than fed into secure password hash
         generator = hashlib.md5()
-        generator.update(base)
-        generator.update(nonce)
+        generator.update(base.encode())
+        generator.update(nonce.encode())
         return generator.digest()
 
     def authenticated_redirect_to(self, request, lti_data):
@@ -116,10 +114,14 @@ class ApplicationHookManager(AbstractApplicationHookManager):
 
         email = email if email else user_id + "@localhost"
 
-        user, __ = authenticate_student(email, user_id)
+        user, __ = authenticate_student(request, email, user_id)
 
         if isinstance(user, User):
-            login(request, user)
+            login(
+                request,
+                user,
+                backend="peerinst.backends.CustomPermissionsBackend",
+            )
 
         # LTI sessions are created implicitly, and are not terminated when
         # user logs out of Studio/LMS, which may lead to granting access to
