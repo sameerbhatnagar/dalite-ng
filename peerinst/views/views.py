@@ -196,12 +196,6 @@ def sign_up(request):
             form.save()
             # Notify administrators
 
-            #  print(settings.EMAIL_BACKEND)
-            if not settings.EMAIL_BACKEND.startswith(
-                "django.core.mail.backends"
-            ):
-                return HttpResponse(status=503)
-
             # TODO Adapt to different types of user
             NewUserRequest.objects.create(
                 user=form.instance, type=UserType.objects.get(type="teacher")
