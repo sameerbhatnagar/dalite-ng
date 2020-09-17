@@ -563,6 +563,8 @@ class QuestionCloneView(QuestionCreateView):
         form.instance.parent = get_object_or_404(
             models.Question, pk=self.kwargs["pk"]
         )
+        if form.instance.type == "RO":
+            form.instance.second_answer_needed = False
         return super(QuestionCloneView, self).form_valid(form)
 
     def get_context_data(self, **kwargs):
