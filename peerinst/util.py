@@ -841,6 +841,7 @@ def report_data_transitions_dict(assignment_list, student_groups):
             "first_answer_choice",
             "second_answer_choice",
         )
+    print(student_transitions_by_q)
     return student_transitions_by_q
 
 
@@ -916,8 +917,7 @@ def report_data_by_student(assignment_list, student_groups):
                 ]
 
             except KeyError as e:
-                print(e)
-                d_g[question] = "-"
+                d_g[question] = "r-"
 
         gradebook_student.append(d_g)
     return gradebook_student
