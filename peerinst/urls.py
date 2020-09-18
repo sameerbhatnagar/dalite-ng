@@ -1,10 +1,8 @@
-from typing import List
-
 from django.conf.urls import include
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.decorators import user_passes_test
-from django.urls import URLPattern, path
+from django.urls import path
 from django.views.decorators.cache import cache_page
 from django.views.decorators.clickjacking import xframe_options_sameorigin
 
@@ -243,11 +241,10 @@ def old_patterns():
         ),
         path(
             "password_reset/",
-            auth_views.PasswordResetView.as_view(),
-            {
-                "html_email_template_name": "registration/password_reset_email_html.html",  # noqa
-                "password_reset_form": NonStudentPasswordResetForm,
-            },
+            auth_views.PasswordResetView.as_view(
+                html_email_template_name="registration/password_reset_email_html.html",  # noqa
+                form_class=NonStudentPasswordResetForm,
+            ),
             name="password_reset",
         ),
         path(
@@ -730,7 +727,7 @@ def question_patterns():
     ]
 
 
-def dev_admin_patterns() -> List[URLPattern]:
+def dev_admin_patterns():
     return [
         path("admin/", views.admin_.index, name="index"),
         path(
@@ -797,7 +794,7 @@ def dev_admin_patterns() -> List[URLPattern]:
     ]
 
 
-def saltise_admin_patterns() -> List[URLPattern]:
+def saltise_admin_patterns():
     return [
         path(
             "admin/saltise/",
@@ -863,7 +860,7 @@ def saltise_admin_patterns() -> List[URLPattern]:
     ]
 
 
-urlpatterns: List[URLPattern] = sum(
+urlpatterns = sum(
     [
         collection_patterns(),
         group_patterns(),
