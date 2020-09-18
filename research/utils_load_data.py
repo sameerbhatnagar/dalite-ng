@@ -4,6 +4,7 @@ import pandas as pd
 import numpy as np
 from django_pandas.io import read_frame
 from django.db.models import Max
+from django.conf import settings
 
 import os
 import re
@@ -769,6 +770,7 @@ def get_questions_df(path_to_data):
         [
             {
                 "id": q.pk,
+                "type": q.type,
                 "title": q.title,
                 "text": q.text,
                 "image": q.image.url if q.image else None,
@@ -821,3 +823,164 @@ def get_questions_df(path_to_data):
         all_q.to_csv(f)
 
     return all_q
+
+
+def get_shown_rationales(row):
+    shown = list(
+        ShownRationale.objects.filter(shown_for_answer=row["id"])
+        .exclude(shown_answer=row["chosen_rationale_id"])
+        .exclude(shown_answer__isnull=True)
+        .values_list("shown_answer__id", flat=True)
+    )
+    return shown if len(shown) > 0 else [0]
+
+
+def build_convincingess_corpus():
+    # remove students who have not given consent
+    usernames_to_exclude = (
+        Consent.objects.filter(tos__role="student")
+        .values("user__username")
+        .annotate(Max("datetime"))
+        .filter(accepted=False)
+        .values_list("user", flat=True)
+    )
+    usernames_tos = (
+        Consent.objects.filter(tos__role="student")
+        .values("user__username")
+        .annotate(Max("datetime"))
+        .filter(accepted=True)
+        .values_list("user", flat=True)
+    )
+
+    q_list = Question.objects.filter(
+        discipline__title__in=["Physics", "Chemistry", "Biology"], type="PI"
+    ).values_list("id", flat=True)
+
+    answers = (
+        Answer.objects.filter(
+            #     chosen_rationale_id__isnull=False,
+            question_id__in=q_list,
+        )
+        .exclude(user_token__in=usernames_to_exclude)
+        .exclude(first_answer_choice=0)
+    )
+    # .filter(
+    #     user_token__in=usernames_tos
+    # )
+    print(
+        "answers where students consent and belong to disciplines of interest"
+    )
+    print(answers.count())
+
+    answers_df = pd.DataFrame(
+        answers.values(
+            "id",
+            "user_token",
+            "question_id",
+            "first_answer_choice",
+            "second_answer_choice",
+            "rationale",
+            "chosen_rationale_id",
+            "datetime_second",
+        )
+    ).rename(columns={"datetime_second": "timestamp_rationale"})
+
+    print("as df")
+    print(answers_df.shape)
+
+    # to stay consistent with HarvardX data, stick to my own rationale means chosen_rationale_id = id, not ""
+    answers_df.loc[
+        answers_df["chosen_rationale_id"].isna(), "chosen_rationale_id"
+    ] = answers_df.loc[answers_df["chosen_rationale_id"].isna(), "id"]
+    # rank answers by time of submission
+    answers_df["a_rank_by_time"] = answers_df.groupby("question_id")[
+        "id"
+    ].rank()
+
+    # get chosen rationales (not just id)
+    chosen_answer_ids = (
+        answers_df["chosen_rationale_id"].value_counts().index.to_list()
+    )
+    chosen_rationales_df = (
+        answers_df.loc[
+            answers_df["id"].isin(chosen_answer_ids),
+            ["id", "user_token", "rationale", "timestamp_rationale"],
+        ]
+    ).rename(
+        columns={
+            "id": "chosen_rationale_id",
+            "rationale": "chosen_rationale",
+            "user_token": "chosen_student",
+            "timestamp_rationale": "timestamp_chosen_rationale",
+        }
+    )
+
+    df = pd.merge(answers_df, chosen_rationales_df, on="chosen_rationale_id",)
+
+    print("after chosen rationale merge")
+    print(df.shape)
+
+    # add rank by time for chosen rationale
+    df = pd.merge(
+        (
+            df[["id", "a_rank_by_time"]].rename(
+                columns={
+                    "id": "chosen_rationale_id",
+                    "a_rank_by_time": "chosen_a_rank_by_time",
+                }
+            )
+        ),
+        df,
+        on="chosen_rationale_id",
+        how="right",
+    )
+
+    print("after rank by time for chosen rationale")
+    print(df.shape)
+
+    # load data on questions so as to append columns on first/second correct
+    path_to_data = os.path.join(settings.BASE_DIR, os.pardir)
+    all_q = get_questions_df(path_to_data)
+    df = pd.merge(
+        df,
+        all_q.loc[
+            :, ["id", "correct_answerchoice", "discipline", "title"]
+        ].rename(columns={"id": "question_id"}),
+        on="question_id",
+    )
+    df["first_correct"] = df["first_answer_choice"] == df[
+        "correct_answerchoice"
+    ].apply(lambda x: x[0]).map(int)
+    df["second_correct"] = df["second_answer_choice"] == df[
+        "correct_answerchoice"
+    ].apply(lambda x: x[0]).map(int)
+    df.loc[
+        (df["first_correct"] == True) & (df["second_correct"] == True),
+        "transition",
+    ] = "rr"
+    df.loc[
+        (df["first_correct"] == True) & (df["second_correct"] == False),
+        "transition",
+    ] = "rw"
+    df.loc[
+        (df["first_correct"] == False) & (df["second_correct"] == True),
+        "transition",
+    ] = "wr"
+    df.loc[
+        (df["first_correct"] == False) & (df["second_correct"] == False),
+        "transition",
+    ] = "ww"
+
+    df["rationales"] = df.apply(lambda x: get_shown_rationales(x), axis=1)
+    print("final")
+    print(df.shape)
+    fpath = os.path.join(
+        settings.BASE_DIR,
+        os.pardir,
+        "mydalite_answers_{}.csv".format(
+            datetime.datetime.today().strftime("%Y_%m_%d")
+        ),
+    )
+    df.to_csv(fpath)
+    print(fpath)
+    return

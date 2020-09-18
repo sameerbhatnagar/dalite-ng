@@ -749,6 +749,7 @@ def report_data_by_assignment(
             d_q["student_responses"] = []
             for student_response in answer_qs_question:
                 d_q_a = {}
+                d_q_a["question_id"] = q.pk
                 d_q_a["id"] = student_response.pk
                 d_q_a["score"] = (
                     student_response.answerannotation_set.get(
@@ -790,8 +791,12 @@ def report_data_by_assignment(
                     d_q_a["chosen_rationale"] = Answer.objects.get(
                         pk=student_response.chosen_rationale_id
                     ).rationale
+                    d_q_a[
+                        "chosen_rationale_id"
+                    ] = student_response.chosen_rationale_id
                 else:
                     d_q_a["chosen_rationale"] = "Stick to my own rationale"
+                    d_q_a["chosen_rationale_id"] = student_response.pk
 
                 if q.type == "RO":
                     d_q_a["submitted"] = student_response.datetime_first
